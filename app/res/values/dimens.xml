@@ -81,7 +81,7 @@
 
     <dimen name="explore_category_page_size">1px</dimen>
 
-    <dimen name="empty_message_margin_left_right">20dp</dimen>
+    <dimen name="buy_button_margin">36dp</dimen>
 
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
@@ -98,9 +98,6 @@
     <!-- Notifications -->
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
-
-    <dimen name="divider_vertical_width">1px</dimen>
-    <dimen name="divider_horizontal_height">1px</dimen>
 
     <!-- List item -->
     <dimen name="list_item_image_dimension">60dp</dimen>
@@ -133,9 +130,9 @@
     <dimen name="toolbar_title_left_margin">72dp</dimen>
 
     <!-- Profile -->
-    <dimen name="profile_header_expanded_height">240dp</dimen>
+    <dimen name="profile_header_expanded_height">190dp</dimen>
     <dimen name="profile_tab_height">48dp</dimen>
-    <dimen name="profile_header_bottom_padding">5dp</dimen>
+    <dimen name="profile_total_header_height">238dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>

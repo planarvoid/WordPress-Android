@@ -21,7 +21,7 @@
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/sc_orange"
+        android:textColor="@color/ak_sc_orange"
         android:text="@string/next" />
 
     <Button
@@ -37,7 +37,7 @@
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/sc_orange"
+        android:textColor="@color/ak_sc_orange"
         android:text="@string/btn_apply" />
 
 </LinearLayout>

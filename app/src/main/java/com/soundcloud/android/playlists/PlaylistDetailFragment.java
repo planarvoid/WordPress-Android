@@ -31,7 +31,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
@@ -372,7 +372,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         final List<TrackItem> tracks = playlistWithTracks.getTracks();
         if (!tracks.isEmpty()) {
             playToggle.setVisibility(View.VISIBLE);
-            AnimUtils.runFadeInAnimationOn(getActivity(), playToggle);
+            AnimUtils.runFadeInAnimationOn(playToggle.getContext(), playToggle);
         } else {
             playToggle.setVisibility(View.GONE);
         }

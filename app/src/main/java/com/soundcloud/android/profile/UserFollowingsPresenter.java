@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -23,7 +24,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserFollowingsPresenter extends ProfileRecyclerViewPresenter<UserItem> {
+class UserFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
     private final ProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
@@ -39,12 +40,13 @@ class UserFollowingsPresenter extends ProfileRecyclerViewPresenter<UserItem> {
             return items;
         }
     };
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
 
     @Inject
     UserFollowingsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
-                            ProfileRecyclerViewScroller profileRecyclerViewScroller,
                             ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
+        super(swipeRefreshAttacher);
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.navigator = navigator;
@@ -68,9 +70,15 @@ class UserFollowingsPresenter extends ProfileRecyclerViewPresenter<UserItem> {
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getEmptyView().setMessageText(R.string.new_empty_user_followings_text);
         getEmptyView().setImage(R.drawable.empty_following);
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        super.onDestroyView(fragment);
     }
 
     @Override

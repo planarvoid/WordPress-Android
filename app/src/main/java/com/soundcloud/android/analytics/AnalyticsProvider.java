@@ -1,12 +1,12 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 
 /**
  * Implementations of this interface will be sending information to a specific analytics provider

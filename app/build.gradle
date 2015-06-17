@@ -188,6 +188,7 @@ dependencies {
   provided libraries.intellijAnnotations
 
   /* SoundCloud Libraries */
+  compile libraries.androidKit
   compile libraries.propeller
   compile libraries.skippy
   compile libraries.soundCloudVorbisEncoder
@@ -225,6 +226,7 @@ dependencies {
   compile libraries.undoBar
 
   /* Android ... keep order! */
+  compile libraries.androidDesign
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
   compile libraries.androidMediaRouterLibrary

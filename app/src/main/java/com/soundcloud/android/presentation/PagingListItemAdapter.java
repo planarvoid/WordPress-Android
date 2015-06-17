@@ -21,7 +21,7 @@ public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements Reac
     }
 
     public PagingListItemAdapter(CellRenderer<T> cellRenderer) {
-        this(R.layout.list_loading_item, cellRenderer);
+        this(R.layout.ak_list_loading_item, cellRenderer);
     }
 
     public PagingListItemAdapter(int progressItemLayoutResId, CellRenderer<T> cellRenderer) {
@@ -31,7 +31,7 @@ public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements Reac
 
     public PagingListItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
         super(cellRendererBindings);
-        this.progressItemLayoutResId = R.layout.list_loading_item;
+        this.progressItemLayoutResId = R.layout.ak_list_loading_item;
     }
 
     @Override
@@ -79,14 +79,14 @@ public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements Reac
         switch (appendState) {
             case LOADING:
                 appendingLayout.setBackgroundResource(android.R.color.transparent);
-                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.VISIBLE);
-                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.ak_list_progress).setVisibility(View.VISIBLE);
+                appendingLayout.findViewById(R.id.ak_list_retry).setVisibility(View.GONE);
                 appendingLayout.setOnClickListener(null);
                 break;
             case ERROR:
-                appendingLayout.setBackgroundResource(R.drawable.list_selector_gray);
-                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
-                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
+                appendingLayout.setBackgroundResource(R.drawable.ak_list_selector_gray);
+                appendingLayout.findViewById(R.id.ak_list_progress).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.ak_list_retry).setVisibility(View.VISIBLE);
                 appendingLayout.setOnClickListener(onErrorRetryListener);
                 break;
             default:

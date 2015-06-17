@@ -29,7 +29,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         playlist = "Playlist " + System.currentTimeMillis();
     }
 
-    public void testAddTrackToPlaylistFromStream() {
+    public void disbled_testAddTrackToPlaylistFromStream() {
         StreamScreen streamScreen = new StreamScreen(solo);
         String trackAddedTitle = streamScreen.getTrack(0).getTitle();
 
@@ -43,7 +43,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         assertPlaylistContainsTrack(trackAddedTitle);
     }
 
-    public void testAddTrackToPlaylistFromPlayer() {
+    public void disbled_testAddTrackToPlaylistFromPlayer() {
         StreamScreen streamScreen = new StreamScreen(solo);
         String trackAddedTitle = streamScreen.getTrack(0).getTitle();
 

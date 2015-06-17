@@ -34,6 +34,14 @@ public class EntitySyncJobTest {
     }
 
     @Test
+    public void removesInvalidUrnsFromEntityFetches() throws Exception {
+        entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L), Urn.forTrack(-321L)));
+        entitySyncJob.run();
+
+        expect(fetchResources.getInput()).toEqual(Arrays.asList(Urn.forTrack(123L)));
+    }
+
+    @Test
     public void resolvesUrnsToFullTracksAndStoresThemLocally() throws Exception {
         final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         when(fetchResources.call()).thenReturn(tracks);

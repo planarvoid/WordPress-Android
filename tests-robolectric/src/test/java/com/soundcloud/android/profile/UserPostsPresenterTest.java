@@ -59,7 +59,6 @@ public class UserPostsPresenterTest {
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
-    @Mock private ProfileRecyclerViewScroller recyclerViewScroller;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -68,7 +67,7 @@ public class UserPostsPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(fragmentView.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
+        when(fragmentView.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
@@ -81,15 +80,14 @@ public class UserPostsPresenterTest {
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
-        presenter = new UserPostsPresenter(imagePauseOnScrollListener, swipeRefreshAttacher, recyclerViewScroller,
-                profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
+        presenter = new UserPostsPresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
+                adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations);
     }
 
     @Test
     public void presenterUsesMixedPlayableClickListener() throws Exception {
         List<PlayableItem> items = Collections.emptyList();
         presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, fragmentView, null);
 
         presenter.onItemClicked(itemView, 1);
 

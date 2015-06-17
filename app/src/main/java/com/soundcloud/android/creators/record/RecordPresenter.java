@@ -18,11 +18,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ViewHelper;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -401,7 +401,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void configureRecordButton(boolean isRecording) {
         if (isRecording) {
-            actionButton.setBackgroundResource(R.drawable.white_button);
+            actionButton.setBackgroundResource(R.drawable.rec_white_button);
             actionButton.setImageResource(R.drawable.ic_record_record_orange);
             actionText.setText(recordFragment.getString(R.string.record_tap_to_pause));
 

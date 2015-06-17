@@ -1,6 +1,7 @@
 package com.soundcloud.android.users;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
@@ -39,6 +40,16 @@ public class UserRepositoryTest {
     @Before
     public void setup() {
         userRepository = new UserRepository(userStorage, syncInitiator, Schedulers.immediate());
+    }
+
+    @Test
+    public void localUserInfoReturnsUserInfoFromStorage() {
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(updatedUser));
+
+        userRepository.localUserInfo(userUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(updatedUser);
+        verifyZeroInteractions(syncInitiator);
     }
 
     @Test

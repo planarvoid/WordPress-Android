@@ -8,7 +8,6 @@
     <string name="view">Voir</string>
     <string name="btn_apply">Appliquer</string>
     <string name="cancel">Annuler</string>
-    <string name="retry">Réessayer</string>
     <string name="shuffle">lecture aléatoire</string>
     <string name="done">Terminé</string>
     <string name="email">Email</string>
@@ -147,10 +146,6 @@
     <string name="error_unauthorized_message">Nous avons un problème avec votre compte et avons besoin que vous vous reconnectiez de nouveau dans SoundCloud avant de pouvoir continuer à utiliser l\'application.</string>
     <string name="error_unauthorized_title">Erreur de compte</string>
     <string name="error_loading_url">Un problème est survenu lors du chargement de cet URL</string>
-    <string name="error_soundcloud_no_response">SoundCloud ne répond pas.</string>
-    <string name="error_no_internet">Pas d\'internet.</string>
-    <string name="error_connect_and_try_again">Connectez-vous et réessayez.</string>
-    <string name="error_pager_failed">Erreur de chargement. Appuyez pour réessayer</string>
     <string name="crop_image_error">Une erreur est survenue lors du recadrage de votre image.</string>
     <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre demande. Veuillez réessayer plus tard.</string>
     <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer dans quelques instants.</string>
@@ -441,13 +436,6 @@
     <string name="pref_extras_skippy">Forcer l\'utilisation du lecteur expérimental</string>
     <string name="pref_extras_skippy_desc">Lire toutes les pistes avec le lecteur expérimental. Cela prendra effet lors de la lecture de la piste suivante.</string>
 
-    <!-- __SETTINGS SUBSCRIPTIONS -->
-    <string name="pref_subscriptions_header">Abonnements</string>
-    <string name="pref_subscription_buy_title">S\'abonner</string>
-    <string name="pref_subscription_buy_summary">Mettre votre compte à niveau</string>
-    <string name="title_subscribe">S\'abonner</string>
-    <string name="subscribe_buy">Acheter</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -487,18 +475,9 @@
     <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
     <string name="age_verify_button">Vérifier votre âge</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>
     <string name="casting_to">Distribution à</string>
-
-    <!-- DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Que voulez-vous signaler ?</string>
-    <string name="feedback_playback_issue">Problème de lecture</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Autre problème</string>
-    <string name="feedback_email_subject">Rapport: %1$s</string>
-    <string name="feedback_action_chooser">Envoyer vos commentaires par e-mail...</string>
-    <string name="feedback_unable_to_get_logs">Impossible d\'obtenir les journaux</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promu</string>

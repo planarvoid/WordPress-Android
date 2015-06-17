@@ -115,7 +115,7 @@ public class Waiter {
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.btn_retry));
+        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.ak_emptyview_btn_retry));
         if (!retryButtons.isEmpty())   {
             ViewElement button = retryButtons.get(0);
             if (button.isVisible()) {
@@ -165,7 +165,7 @@ public class Waiter {
     }
 
     public void waitForActivity(Class<? extends Activity> activityClass) {
-        solo.waitForCondition(new CurrentActivityCondition(activityClass), TIMEOUT);
+        solo.waitForCondition(new CurrentActivityCondition(activityClass), FIVE_SECONDS);
     }
 
     public boolean waitForFragmentByTag(String fragmentTag) {

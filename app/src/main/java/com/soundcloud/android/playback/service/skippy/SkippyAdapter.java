@@ -148,7 +148,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
             final StateTransition stateTransition = new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION));
             playaListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(stateTransition);
+            bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             return;
         }
 
@@ -317,7 +317,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onPerformanceMeasured(PlaybackMetric metric, long value, String uri, String cdnHost) {
-        if(!accountOperations.isUserLoggedIn()){
+        if (!accountOperations.isUserLoggedIn() || metric.equals(PlaybackMetric.TIME_TO_BUFFER)) {
             return;
         }
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, createPerformanceEvent(metric, value, cdnHost));
@@ -382,6 +382,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             case TIME_TO_LOAD_LIBRARY:
                 return PlaybackPerformanceEvent.timeToLoad(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
+            case CACHE_USAGE_PERCENT:
+                return PlaybackPerformanceEvent.cacheUsagePercent(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost);
+            case UNINTERRUPTED_PLAYTIME:
+                return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
@@ -447,10 +451,12 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         @Nullable private PlayaListener playaListener;
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
+        private final NetworkConnectionHelper connectionHelper;
 
         @Inject
-        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper) {
+        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper, NetworkConnectionHelper connectionHelper) {
             super(looper);
+            this.connectionHelper = connectionHelper;
         }
 
         public void setPlayaListener(@Nullable PlayaListener playaListener) {
@@ -468,7 +474,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
                 playaListener.onPlaystateChanged(stateTransition);
             }
             if (bufferUnderrunListener != null) {
-                bufferUnderrunListener.onPlaystateChanged(stateTransition);
+                bufferUnderrunListener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             }
         }
     }

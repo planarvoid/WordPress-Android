@@ -28,7 +28,7 @@ public class CircularProgressBar extends View {
         super(context, attrs, defStyleAttr);
 
         mDrawable = new CircularProgressDrawable(12,
-                getResources().getColor(R.color.sc_orange));
+                getResources().getColor(R.color.ak_sc_orange));
         mDrawable.setCallback(this);
         if (getVisibility() == VISIBLE) {
             mDrawable.start();

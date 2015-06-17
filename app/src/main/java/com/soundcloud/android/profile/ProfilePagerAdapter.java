@@ -8,7 +8,6 @@ import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.view.ViewGroup;
 
 class ProfilePagerAdapter extends FragmentPagerAdapter {
 
@@ -21,36 +20,22 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_FOLLOWINGS = 4;
     protected static final int TAB_FOLLOWERS = 5;
 
-    private final ProfileHeaderPresenter headerPresenter;
-    private final ProfilePagerRefreshHelper refreshHelper;
     private final Urn userUrn;
     private final Resources resources;
 
     ProfilePagerAdapter(FragmentActivity activity,
-                        ProfileHeaderPresenter headerPresenter,
-                        ProfilePagerRefreshHelper refreshHelper,
                         Urn userUrn) {
 
         super(activity.getSupportFragmentManager());
         this.resources = activity.getResources();
-        this.headerPresenter = headerPresenter;
-        this.refreshHelper = refreshHelper;
         this.userUrn = userUrn;
-    }
-
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        final ProfileFragment item = (ProfileFragment) super.instantiateItem(container, position);
-        headerPresenter.registerScrollableItem(item.getScrollableProfileItem());
-        refreshHelper.addRefreshable(position, item.getRefreshableItem());
-        return item;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch (position) {
             case TAB_INFO:
-                return UserDetailsFragment.create();
+                return UserDetailsFragment.create(userUrn);
 
             case TAB_POSTS:
                 return UserPostsFragment.create(userUrn, Screen.USER_POSTS, null /* TODO : SearchQueryInfo */);
@@ -70,14 +55,6 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);
         }
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        final ProfileFragment profileFragment = (ProfileFragment) object;
-        headerPresenter.unregisterScrollableFragment(profileFragment.getScrollableProfileItem());
-        refreshHelper.removeFragment(position);
-        super.destroyItem(container, position, object);
     }
 
     @Override

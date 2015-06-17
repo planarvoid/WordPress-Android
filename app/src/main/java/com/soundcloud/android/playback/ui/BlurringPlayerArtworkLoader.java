@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.images.ImageUtils;
 import rx.Scheduler;
 import rx.Subscription;

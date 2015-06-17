@@ -8,7 +8,6 @@
     <string name="view">Ver</string>
     <string name="btn_apply">Aplicar</string>
     <string name="cancel">Cancelar</string>
-    <string name="retry">Reintentar</string>
     <string name="shuffle">Barajar</string>
     <string name="done">Hecho</string>
     <string name="email">Correo electrónico</string>
@@ -146,10 +145,6 @@
     <string name="error_unauthorized_message">Estamos teniendo un problema con su cuenta y debe iniciar sesión de nuevo en SoundCloud antes de continuar usando la app.</string>
     <string name="error_unauthorized_title">Error de cuenta</string>
     <string name="error_loading_url">Ocurrió un problema al cargar esa URL</string>
-    <string name="error_soundcloud_no_response">SoundCloud no responde.</string>
-    <string name="error_no_internet">No hay internet.</string>
-    <string name="error_connect_and_try_again">Conéctese e intente de nuevo.</string>
-    <string name="error_pager_failed">Error al cargar. Toque para intentar de nuevo</string>
     <string name="crop_image_error">Ocurrió un error al recortar su imagen.</string>
     <string name="error_server_problems_message">Ocurrió un problema al procesar su solicitud. Por favor intenté más tarde.</string>
     <string name="connection_list_error">Parece haber un problema de conexión. Por favor intente dentro de poco.</string>
@@ -443,13 +438,6 @@
     <string name="pref_extras_skippy">Forzar reproductor experimental</string>
     <string name="pref_extras_skippy_desc">Reproducir todas las pistas por el reproductor experimental. Esto tendrá efecto al reproducir la siguiente pista.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Suscripciones</string>
-    <string name="pref_subscription_buy_title">Suscribirse</string>
-    <string name="pref_subscription_buy_summary">Actualizar su cuenta</string>
-    <string name="title_subscribe">Suscribirse</string>
-    <string name="subscribe_buy">Comprar</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d m</string>
@@ -489,17 +477,8 @@
     <string name="age_verify_info">Esta información será guardada en su perfil.</string>
     <string name="age_verify_button">Verificar edad</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">No se pudo emitir la pista</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">¿Qué le gustaría informar?</string>
-    <string name="feedback_playback_issue">Problema de reproducción</string>
-    <string name="feedback_crash">Bloqueo</string>
-    <string name="feedback_other_issue">Otro problema</string>
-    <string name="feedback_email_subject">Reportar: %1$s</string>
-    <string name="feedback_action_chooser">Enviar retroalimentación por correo electrónico...</string>
-    <string name="feedback_unable_to_get_logs">No se pudo obtener los registros</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promocionado</string>

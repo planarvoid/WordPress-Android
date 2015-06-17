@@ -1,20 +1,21 @@
 package com.soundcloud.android.onboarding;
 
+import static com.soundcloud.android.util.AnimUtils.hideView;
+import static com.soundcloud.android.util.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import com.soundcloud.android.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 class TourPhotoPagerAdapter extends PagerAdapter {
     private static final String FOREGROUND_TAG = "foreground";
@@ -67,20 +68,20 @@ class TourPhotoPagerAdapter extends PagerAdapter {
         }
     }
 
-    public void hideViewsOfLayout(Context context, int currentItem) {
+    public void hideViewsOfLayout(int currentItem) {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                showView(context, view, false);
+                showView(view.getContext(), view, false);
             }
         }
     }
 
-    public void showViewsOfLayout(Context context, int currentItem, boolean animated) {
+    public void showViewsOfLayout(int currentItem, boolean animated) {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                hideView(context, view, animated);
+                hideView(view.getContext(), view, animated);
             }
         }
     }

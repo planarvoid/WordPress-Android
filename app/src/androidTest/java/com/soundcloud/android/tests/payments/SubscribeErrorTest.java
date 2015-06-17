@@ -9,7 +9,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.SubscribeSuccessScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SubscribeErrorTest extends ActivityTest<MainActivity> {
@@ -36,9 +35,8 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
     @PaymentTest
     public void testAlreadySubscribedError() {
         PaymentStateHelper.resetTestAccount();
-        SubscribeSuccessScreen successScreen = subscribe();
-        assertTrue(successScreen.isVisible());
-        successScreen.goBack();
+        subscribe();
+        solo.goBack();
         PaymentErrorScreen errorScreen = settingsScreen
                 .clickOfflineSettings()
                 .clickSubscribe()
@@ -47,15 +45,14 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
         assertEquals(errorScreen.getMessage(), solo.getString(R.string.payments_error_already_subscribed));
     }
 
-    private SubscribeSuccessScreen subscribe() {
-        SubscribeSuccessScreen successScreen = settingsScreen
+    private void subscribe() {
+        settingsScreen
                 .clickOfflineSettings()
                 .clickSubscribe()
                 .clickBuyForSuccess();
         waiter.waitTwoSeconds();
         BillingResponse.success().insertInto(solo.getCurrentActivity());
         waiter.waitFiveSeconds();
-        return successScreen;
     }
 
 }

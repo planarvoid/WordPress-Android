@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="hyphen">-</string>
+
+    <!-- __DEBUG LOGS/FEEDBACK -->
     <string-array name="feedback_options">
         <item>@string/feedback_playback_issue</item>
-        <item>@string/feedback_crash</item>
         <item>@string/feedback_other_issue</item>
     </string-array>
-    <string name="hyphen">-</string>
+    <string name="select_feedback_category">What would you like to report?</string>
+    <string name="feedback_playback_issue">Playback issue</string>
+    <string name="feedback_other_issue">Other issue</string>
+    <string name="feedback_email_subject">Report: %1$s</string>
+    <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+    <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 </resources>

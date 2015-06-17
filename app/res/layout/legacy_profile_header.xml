@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="@color/gray_background"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="16dp">
+
+    <ImageView android:id="@+id/user_image"
+               android:layout_width="@dimen/header_icon_size"
+               android:layout_height="@dimen/header_icon_size"
+               android:layout_marginRight="12dp"
+               android:scaleType="fitCenter" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/username"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentTop="true"
+              android:layout_toRightOf="@id/user_image"
+              android:layout_marginBottom="2dp"
+              style="@style/Profile.Text.Primary" />
+
+    <TextView
+              android:id="@+id/location"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/username"
+              android:layout_toRightOf="@id/user_image"
+              android:layout_toLeftOf="@+id/toggle_btn_follow"
+              android:layout_marginBottom="4dp"
+              style="@style/Profile.Text" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/followers"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@id/user_image"
+              android:layout_toRightOf="@id/user_image"
+              android:visibility="gone"
+              style="@style/Profile.Text.Followers" />
+
+    <ToggleButton
+            android:id="@+id/toggle_btn_follow"
+            android:layout_marginLeft="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignBottom="@id/user_image"
+            style="@style/Profile.ToggleButton.Follow.Large" />
+
+</RelativeLayout>

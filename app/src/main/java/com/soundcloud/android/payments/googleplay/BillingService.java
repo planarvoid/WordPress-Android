@@ -1,13 +1,21 @@
 package com.soundcloud.android.payments.googleplay;
 
-import static com.soundcloud.android.payments.googleplay.BillingUtil.*;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.REQUEST_PRODUCT_DETAILS;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_BUY_INTENT;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_GET_SKU_DETAILS_LIST;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_PURCHASE_DATA_LIST;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_SIGNATURE_LIST;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.RESULT_OK;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.getResponseCodeFromBundle;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.log;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.logBillingResponse;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONException;

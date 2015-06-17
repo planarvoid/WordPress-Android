@@ -11,6 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -115,6 +116,7 @@ public class SkippyAdapterTest {
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
+        when(stateChangeHandler.obtainMessage(eq(0), any(Playa.StateTransition.class))).thenReturn(new Message());
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
 
@@ -467,20 +469,6 @@ public class SkippyAdapterTest {
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getCdnHost()).toEqual(CDN_HOST);
-        expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
-        expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
-        expect(event.getUserUrn()).toEqual(userUrn);
-    }
-
-    @Test
-    public void performanceMetricPublishesTimeToBufferEvent() {
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, STREAM_URL, CDN_HOST);
-
-        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER);
         expect(event.getMetricValue()).toEqual(1000L);
         expect(event.getCdnHost()).toEqual(CDN_HOST);
         expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);

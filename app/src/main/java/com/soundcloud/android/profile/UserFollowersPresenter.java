@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
+class UserFollowersPresenter extends com.soundcloud.android.presentation.RecyclerViewPresenter<UserItem> {
 
     private final ProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
@@ -39,12 +39,13 @@ class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
             return items;
         }
     };
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
 
     @Inject
     UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
-                           ProfileRecyclerViewScroller profileRecyclerViewScroller,
                            ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
+        super(swipeRefreshAttacher);
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.navigator = navigator;
@@ -65,12 +66,19 @@ class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
         getBinding().connect();
     }
 
+
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getEmptyView().setMessageText(R.string.new_empty_user_followers_text);
         getEmptyView().setImage(R.drawable.empty_followers);
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        super.onDestroyView(fragment);
     }
 
     @Override

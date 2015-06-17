@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.playlists.PlaylistQueries.*;
+import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
+import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;

@@ -3,154 +3,74 @@ package com.soundcloud.android.profile;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 
-import android.support.v7.widget.Toolbar;
+import android.app.Activity;
+import android.graphics.Color;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
 
-class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
+class ProfileHeaderPresenter {
 
-    private final int maxHeaderHeight;
     private final ImageOperations imageOperations;
 
-    @InjectView(R.id.toolbar_id) Toolbar toolbar;
-    @InjectView(R.id.fake_toolbar_title) TextView toolbarTitle;
     @InjectView(R.id.header_info_layout) View headerInfoLayout;
     @InjectView(R.id.indicator) View tabs;
-
     @InjectView(R.id.username) TextView username;
     @InjectView(R.id.image) ImageView image;
     @InjectView(R.id.followers_count) TextView followerCount;
     @InjectView(R.id.follow_button) ToggleButton followButton;
+    @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
-    private boolean showingToolbarTitle;
+    private Urn lastUser;
 
-    private Set<ScrollableProfileItem> scrollableFragments;
-    private float showTitleToleranceY;
-
-    public ProfileHeaderPresenter(View headerView, ImageOperations imageOperations) {
+    public ProfileHeaderPresenter(Activity profileActivity, ImageOperations imageOperations, AccountOperations accountOperations, Urn user) {
         this.imageOperations = imageOperations;
 
-        ButterKnife.inject(this, headerView);
+        ButterKnife.inject(this, profileActivity);
 
-        maxHeaderHeight = headerView.getResources().getDimensionPixelSize(R.dimen.profile_header_expanded_height);
-        scrollableFragments = new HashSet<>();
-
-        setInitialTitleState();
-    }
-
-    private void setInitialTitleState() {
-        toolbarTitle.setAlpha(0);
-        toolbarTitle.setVisibility(View.VISIBLE);
-        showTitleToleranceY = toolbarTitle.getResources().getDisplayMetrics().density * 5;
+        if (accountOperations.isLoggedInUser(user)){
+            followButton.setVisibility(View.GONE);
+        }
     }
 
     public void setUserDetails(ProfileUser user) {
-        toolbarTitle.setText(user.getName());
+//        collapsingToolbarLayout.setTitle(user.getName());
+        collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
+        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
         followerCount.setText(user.getFollowerCount());
         followButton.setChecked(user.isFollowed());
-        imageOperations.displayInAdapterView(user.getUrn(),
-                ApiImageSize.getNotificationLargeIconImageSize(image.getResources()),
-                image);
-    }
 
-    @Override
-    public void onVerticalScroll(int dy, int visibleSpacerHeight) {
-        final boolean goingDown = dy >= 0;
-        final boolean atTheTop = visibleSpacerHeight >= maxHeaderHeight + getCurrentHeaderTranslation();
-        final boolean toolbarLocked = toolbar.getTranslationY() == 0;
-
-        if (goingDown || atTheTop || !toolbarLocked) {
-            final int toolbarMovement = moveToolbar(dy, visibleSpacerHeight);
-            moveTabs(toolbarMovement != 0 ? toolbarMovement : dy);
-            configureToolbarTitle();
+        if (!user.getUrn().equals(lastUser)){
+            lastUser = user.getUrn();
+            imageOperations.displayInAdapterView(lastUser,
+                    ApiImageSize.getFullImageSize(image.getResources()),
+                    image);
         }
-    }
-
-    private void configureToolbarTitle() {
-        final int stackedPosition = getMinHeaderTranslation() + toolbar.getHeight();
-        toolbarTitle.setTranslationY(Math.min(0, tabs.getTranslationY() - stackedPosition));
-
-        if (tabs.getTranslationY() - stackedPosition > showTitleToleranceY) {
-            if (showingToolbarTitle) {
-                showingToolbarTitle = false;
-                toolbarTitle.animate().alpha(0).start();
-            }
-        } else {
-            if (!showingToolbarTitle) {
-                showingToolbarTitle = true;
-                toolbarTitle.animate().alpha(1).start();
-            }
-        }
-    }
-
-    private float getCurrentHeaderTranslation() {
-        return tabs.getTranslationY();
-    }
-
-    private int moveToolbar(int dy, int visibleHeaderHeight) {
-
-        final boolean goingDown = dy >= 0;
-        if (goingDown && visibleHeaderHeight > toolbar.getHeight() + tabs.getHeight()) {
-            return 0;
-        }
-
-        final float currentTranslationY = toolbar.getTranslationY();
-        final float targetTranslation = Math.max(-toolbar.getMeasuredHeight(), Math.min(0, currentTranslationY - dy));
-        if (targetTranslation != currentTranslationY) {
-            toolbar.setTranslationY(targetTranslation);
-        }
-        return (int) (currentTranslationY - targetTranslation);
-    }
-
-    public void registerScrollableItem(ScrollableProfileItem fragment) {
-        scrollableFragments.add(fragment);
-        fragment.setScrollListener(this);
-        fragment.configureOffsets((int) (maxHeaderHeight + getCurrentHeaderTranslation()));
-    }
-
-    public void unregisterScrollableFragment(ScrollableProfileItem fragment) {
-        scrollableFragments.remove(fragment);
-    }
-
-    private int moveTabs(int dy) {
-        final float currentTranslationY = getCurrentHeaderTranslation();
-        final float targetTranslation = Math.max(getMinHeaderTranslation(), Math.min(0, currentTranslationY - dy));
-
-        if (targetTranslation != currentTranslationY) {
-            tabs.setTranslationY(targetTranslation);
-            headerInfoLayout.setTranslationY(targetTranslation);
-            for (ScrollableProfileItem scrollableFragment : scrollableFragments) {
-                scrollableFragment.configureOffsets((int) (maxHeaderHeight + targetTranslation));
-            }
-        }
-        return (int) (currentTranslationY - targetTranslation);
-    }
-
-    private int getMinHeaderTranslation() {
-        return -maxHeaderHeight + tabs.getMeasuredHeight();
     }
 
     public static class ProfileHeaderPresenterFactory {
 
         private final ImageOperations imageOperations;
+        private final AccountOperations accountOperations;
 
         @Inject
-        public ProfileHeaderPresenterFactory(ImageOperations imageOperations) {
+        public ProfileHeaderPresenterFactory(ImageOperations imageOperations, AccountOperations accountOperations) {
             this.imageOperations = imageOperations;
+            this.accountOperations = accountOperations;
         }
 
-        ProfileHeaderPresenter create(View headerView) {
-            return new ProfileHeaderPresenter(headerView, imageOperations);
+        ProfileHeaderPresenter create(Activity profileActivity, Urn user) {
+            return new ProfileHeaderPresenter(profileActivity, imageOperations, accountOperations, user);
         }
     }
 

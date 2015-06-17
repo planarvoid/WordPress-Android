@@ -91,12 +91,12 @@ class SearchOperations {
     };
 
     @Inject
-    public SearchOperations(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand,
-                            StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
-                            CacheUniversalSearchCommand cacheUniversalSearchCommand,
-                            LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                            LoadFollowingCommand loadFollowingCommand,
-                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    SearchOperations(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand,
+                     StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
+                     CacheUniversalSearchCommand cacheUniversalSearchCommand,
+                     LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
+                     LoadFollowingCommand loadFollowingCommand,
+                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;

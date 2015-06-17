@@ -4,12 +4,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.PropertySet;
@@ -26,6 +28,7 @@ public class PlaybackNotificationControllerTest {
     private TestEventBus eventBus = new TestEventBus();
     @Mock private BackgroundPlaybackNotificationController backgroundController;
     @Mock private ForegroundPlaybackNotificationController foregroundController;
+    @Mock private PlaybackService playbackService;
 
     @Before
     public void setUp() throws Exception {
@@ -33,29 +36,10 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventDoesNotCreateNotificationBeforePlaybackServiceCreated() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotCreateNotificationAfterPlaybackServiceDestroyed() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        reset(backgroundController);
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
     public void playQueueEventUpdatesNotificationAfterPlaybackServiceWasStoppedAndStartedAgain() {
         final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN);
 
-        controller.subscribe();
+        controller.subscribe(playbackService);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
@@ -64,19 +48,40 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
-    public void serviceDestroyedEventCancelsAnyCurrentNotification() {
-        controller.subscribe();
+    public void unsubscribeCancelsAnyCurrentNotification() {
+        controller.subscribe(playbackService);
+        controller.unsubscribe();
 
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
-        verify(backgroundController).clear();
+        verify(backgroundController).clear(playbackService);
+    }
+
+    @Test
+    public void unsubscribeShouldClearNotifications() {
+        controller.subscribe(playbackService);
+        reset(backgroundController);
+
+        controller.unsubscribe();
+
+        verify(backgroundController).clear(playbackService);
+    }
+
+    @Test
+    public void unsubscribeShouldDisableNotifications() {
+        controller.subscribe(playbackService);
+        controller.unsubscribe();
+        reset(backgroundController);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
+
+        verifyZeroInteractions(backgroundController);
     }
 
     @Test
     public void playQueueEventCreatesNewNotificationFromNewPlayQueueEvent() {
         final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
 
-        controller.subscribe();
+        controller.subscribe(playbackService);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
 
@@ -84,36 +89,9 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventDoesNotCreateNewNotificationFromQueueUpdateEvent() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceNotCreated() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceDestroyed() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        reset(backgroundController);
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
     public void usesBackgroundDelegateInBackground() {
         final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
-        controller.subscribe();
+        controller.subscribe(playbackService);
         controller.onPause(null);
 
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
@@ -126,7 +104,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void usesForegroundDelegateWhenInForeground() {
         final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
-        controller.subscribe();
+        controller.subscribe(playbackService);
         controller.onResume(null);
 
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
@@ -139,7 +117,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void setTrackWhenSwitchingController() {
         final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
-        controller.subscribe();
+        controller.subscribe(playbackService);
 
         controller.onResume(null);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
@@ -147,5 +125,12 @@ public class PlaybackNotificationControllerTest {
         controller.onPause(null);
 
         verify(backgroundController).setTrack(any(PropertySet.class));
+    }
+
+    @Test
+    public void unsubscribeNoOpWhenNotSubscribed() {
+        controller.unsubscribe();
+
+        verifyZeroInteractions(backgroundController);
     }
 }

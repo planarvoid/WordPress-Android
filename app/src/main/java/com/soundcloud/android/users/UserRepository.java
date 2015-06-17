@@ -34,17 +34,17 @@ public class UserRepository {
     }
 
     public Observable<PropertySet> syncedUserInfo(Urn userUrn) {
-        return syncInitiator.syncUser(userUrn).flatMap(continueWith(userInfoFromStorage(userUrn)));
+        return syncInitiator.syncUser(userUrn).flatMap(continueWith(localUserInfo(userUrn)));
     }
 
     public Observable<PropertySet> localAndSyncedUserInfo(Urn userUrn) {
         return Observable.concat(
-                userInfoFromStorage(userUrn),
+                localUserInfo(userUrn),
                 syncedUserInfo(userUrn)
         );
     }
 
-    private Observable<PropertySet> userInfoFromStorage(Urn urn) {
+    public Observable<PropertySet> localUserInfo(Urn urn) {
         return userStorage.loadUser(urn).filter(IS_NOT_EMPTY).subscribeOn(scheduler);
     }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -9,6 +10,7 @@ import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
@@ -19,17 +21,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
 class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
-        implements SwipeRefreshLayout.OnRefreshListener, RefreshableProfileItem {
+        implements SwipeRefreshLayout.OnRefreshListener {
 
     private boolean isNotEmpty;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = Subscriptions.empty();
-    private ProfileActivity activity;
-    private View[] refreshViews;
 
+    private final ProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
-    private final UserDetailsScroller userDetailsScroller;
 
     private final Func1<ProfileUser, Boolean> hasDetails = new Func1<ProfileUser, Boolean>() {
         @Override
@@ -37,71 +37,71 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
             return profileUser.hasDescription();
         }
     };
+    private Urn userUrn;
+    private Observable<ProfileUser> userDetailsObservable;
 
-    public UserDetailsPresenter(UserDetailsView userDetailsView, UserDetailsScroller userDetailsScroller) {
+    public UserDetailsPresenter(ProfileOperations profileOperations, UserDetailsView userDetailsView) {
+        this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
-        this.userDetailsScroller = userDetailsScroller;
-
-        userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
-            @Override
-            public void onViewUri(Uri uri) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, uri));
-            }
-        });
     }
 
     @Override
-    public void onViewCreated(UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
+    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        createUserDetailsObservable();
+    }
+
+    @Override
+    public void onViewCreated(final UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        // we dont have a proper onAttach method in LightCycle, so this will have to do
-        activity = (ProfileActivity) fragment.getActivity();
-
         userDetailsView.setView(view);
+        userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
+            @Override
+            public void onViewUri(Uri uri) {
+                fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            }
+        });
+
         configureEmptyView();
+        configureRefreshLayout(view);
 
-        final View userDetailsView = view.findViewById(R.id.user_details_holder);
-        final EmptyView emptyView = (EmptyView) view.findViewById(android.R.id.empty);
-        refreshViews = new View[]{userDetailsView, emptyView};
-        if (refreshLayout != null){
-            refreshLayout.setSwipeableChildren(refreshViews);
-        }
+        loadUser();
+    }
 
-        userDetailsScroller.setViews(userDetailsView, emptyView);
-        subscribeToUserObservable(activity.profileUserProvider().user());
+    private void configureRefreshLayout(View view) {
+        refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setSwipeableChildren(R.id.user_details_holder, android.R.id.empty);
+    }
+
+    private void loadUser() {
+        subscription.unsubscribe();
+        subscription = userDetailsObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ProfileUserSubscriber());
     }
 
     @Override
     public void onDestroyView(UserDetailsFragment fragment) {
-        activity = null;
+        refreshLayout = null;
+        userDetailsView.setListener(null);
         userDetailsView.clearViews();
-        userDetailsScroller.clearViews();
         subscription.unsubscribe();
         super.onDestroyView(fragment);
     }
 
     @Override
-    public void attachRefreshLayout(MultiSwipeRefreshLayout refreshLayout) {
-        this.refreshLayout = refreshLayout;
-        refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setSwipeableChildren(refreshViews);
-    }
-
-    @Override
-    public void detachRefreshLayout() {
-        this.refreshLayout = null;
-    }
-
-    @Override
     public void onRefresh() {
-        subscribeToUserObservable(activity.profileUserProvider().refreshUser());
+        createUserDetailsObservable();
+        loadUser();
     }
 
-
-    private void subscribeToUserObservable(Observable<ProfileUser> currentUserObservable) {
-        subscription.unsubscribe();
-        subscription = currentUserObservable.filter(hasDetails)
-                .subscribe(new ProfileUserSubscriber());
+    private void createUserDetailsObservable() {
+        userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
+                .filter(hasDetails)
+                .cache();
     }
 
     private void configureEmptyView() {

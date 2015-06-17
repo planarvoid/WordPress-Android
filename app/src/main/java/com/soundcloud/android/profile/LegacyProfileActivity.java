@@ -15,19 +15,18 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.ToggleFollowSubscriber;
-import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -37,7 +36,7 @@ import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.jetbrains.annotations.NotNull;
+import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -82,9 +81,11 @@ public class LegacyProfileActivity extends ScActivity implements
     @Inject ImageOperations imageOperations;
     @Inject PublicCloudAPI oldCloudAPI;
     @Inject FollowingOperations followingOperations;
+    @Inject FeatureFlags featureFlags;
     @Inject LegacyUserStorage userStorage;
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject ProfileFragmentCreator profileListFragmentCreator;
 
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -473,7 +474,12 @@ public class LegacyProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details) {
-                return userInfoFragment;
+                if (featureFlags.isEnabled(Flag.NEW_PROFILE_FRAGMENTS)) {
+                    return UserDetailsFragment.create(user.getUrn());
+                } else {
+                    return userInfoFragment;
+                }
+
             } else {
                 // don't ask me why the user could be null here. No time for this dead code - JS
                 final long id = user == null ? Consts.NOT_SET : user.getId();
@@ -482,15 +488,8 @@ public class LegacyProfileActivity extends ScActivity implements
                 final Uri uri = isLoggedInUser() ? content.uri : currentTab.userContent.forId(id);
                 final Screen screen = isLoggedInUser() ? currentTab.youScreen : currentTab.userScreen;
                 final String username = user == null ? ScTextUtils.EMPTY_STRING : user.username;
-                return createScListFragment(LegacyProfileActivity.this, uri, screen, username, searchQuerySourceForTab);
+                return profileListFragmentCreator.create(LegacyProfileActivity.this, content, user.getUrn(), username, uri, screen, searchQuerySourceForTab);
             }
-        }
-
-        @NotNull
-        private Fragment createScListFragment(Context context, Uri contentUri, Screen screen, String username, SearchQuerySourceInfo searchQuerySource) {
-            ScListFragment listFragment = ScListFragment.newInstance(contentUri, username, screen, searchQuerySource);
-            listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(context, contentUri, username));
-            return listFragment;
         }
 
         @Override

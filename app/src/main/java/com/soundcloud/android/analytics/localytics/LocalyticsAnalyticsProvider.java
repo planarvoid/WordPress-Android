@@ -7,8 +7,8 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
-import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -134,14 +134,14 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             searchEventHandler.handleEvent((SearchEvent) event);
         } else if (event instanceof AudioAdFailedToBufferEvent) {
             tagEvent(LocalyticsEvents.AD_FAILED_TO_BUFFER, event.getAttributes());
-        } else if (event instanceof BufferUnderrunEvent) {
-            tagEvent(LocalyticsEvents.BUFFER_UNDERRUN, event.getAttributes());
         } else if (event instanceof SkippyPlayEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_PLAY, event.getAttributes());
         } else if (event instanceof SkippyInitilizationFailedEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_ERROR, event.getAttributes());
         } else if (event instanceof SkippyInitilizationSucceededEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_SUCCESS, event.getAttributes());
+        } else if (event instanceof AdDebugEvent) {
+            tagEvent(LocalyticsEvents.AD_DEBUG, event.getAttributes());
         }
     }
 
@@ -187,11 +187,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
-    }
-
-    @VisibleForTesting
-    protected boolean isActivitySessionClosed() {
-        return !ACTIVITY_SESSION_OPEN.get();
     }
 
     private void openSession() {

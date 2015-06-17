@@ -62,7 +62,8 @@ public class PlaylistStorage {
     public Set<Urn> getPlaylistsDueForSync() {
         final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
                 .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .where(hasLocalTracks()));
+                .where(hasLocalTracks())
+                .where(isNotLocal()));
 
         Set<Urn> returnSet = new HashSet<>();
         for (CursorReader reader : queryResult) {
@@ -75,6 +76,11 @@ public class PlaylistStorage {
         return filter()
                 .whereNotNull(TableColumns.PlaylistTracks.ADDED_AT)
                 .orWhereNotNull(TableColumns.PlaylistTracks.REMOVED_AT);
+    }
+
+    private Where isNotLocal() {
+        return filter()
+                .whereGt(TableColumns.PlaylistTracks.PLAYLIST_ID, 0);
     }
 
     public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {

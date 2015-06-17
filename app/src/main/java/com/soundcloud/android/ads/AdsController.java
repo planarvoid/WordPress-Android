@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
+import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -11,8 +12,8 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -221,6 +222,7 @@ public class AdsController {
 
             skipFailedAdSubscription.unsubscribe();
             if (!adsOperations.isCurrentTrackAudioAd()) {
+                logClearedAds();
                 adsOperations.clearAllAds();
             }
         }
@@ -230,7 +232,6 @@ public class AdsController {
                     && !monetizableUrn.equals(playQueueManager.getNextTrackUrn());
         }
     }
-
 
     private final class AudioAdSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
         private final int intendedPosition;
@@ -250,6 +251,15 @@ public class AdsController {
              */
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
                 adsOperations.applyAdToTrack(monetizableTrack, apiAdsForTrack);
+
+                if (apiAdsForTrack.hasAudioAd()){
+                    logAudioAdInserted();
+                }
+
+            } else {
+                if (apiAdsForTrack.hasAudioAd()){
+                    logAudioAdIgnored();
+                }
             }
         }
     }
@@ -315,5 +325,23 @@ public class AdsController {
         public boolean hasExpired() {
             return System.currentTimeMillis() - createdAtMillis > fetchOperationStaleTime;
         }
+    }
+
+    /**
+     * Purely for debugging why we seem to be missing impressions, should be removed eventually
+     */
+
+    private void logClearedAds() {
+        if (!adsOperations.getAdUrnsInQueue().isEmpty()){
+            eventBus.publish(EventQueue.TRACKING, AdDebugEvent.clearedAudioAd());
+        }
+    }
+
+    private void logAudioAdInserted() {
+        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.insertedAudioAd());
+    }
+
+    private void logAudioAdIgnored() {
+        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.ignoringAudioAd());
     }
 }

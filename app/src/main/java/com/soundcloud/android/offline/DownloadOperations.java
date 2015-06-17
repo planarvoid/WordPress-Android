@@ -45,14 +45,14 @@ class DownloadOperations {
     };
 
     @Inject
-    public DownloadOperations(StrictSSLHttpClient httpClient,
-                              SecureFileStorage fileStorage,
-                              DeleteOfflineTrackCommand deleteOfflineContent,
-                              PlayQueueManager playQueueManager,
-                              NetworkConnectionHelper connectionHelper,
-                              OfflineSettingsStorage offlineSettings,
-                              StreamUrlBuilder urlBuilder,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    DownloadOperations(StrictSSLHttpClient httpClient,
+                       SecureFileStorage fileStorage,
+                       DeleteOfflineTrackCommand deleteOfflineContent,
+                       PlayQueueManager playQueueManager,
+                       NetworkConnectionHelper connectionHelper,
+                       OfflineSettingsStorage offlineSettings,
+                       StreamUrlBuilder urlBuilder,
+                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;

@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <dimen name="empty_message_margin_left_right">40dp</dimen>
     <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
     <dimen name="playlist_header_padding">10dp</dimen>
     <dimen name="player_engagement">48dp</dimen>

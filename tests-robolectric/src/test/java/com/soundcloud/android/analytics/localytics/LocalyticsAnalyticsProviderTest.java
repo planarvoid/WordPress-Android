@@ -8,7 +8,6 @@ import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
-import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -108,14 +107,6 @@ public class LocalyticsAnalyticsProviderTest {
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PLAY_CONTROLS), eq(event.getAttributes()));
-    }
-
-    @Test
-    public void shouldTrackBufferUnderrunEvent() {
-        BufferUnderrunEvent event = new BufferUnderrunEvent(ConnectionType.FOUR_G, "player", true);
-        localyticsProvider.handleTrackingEvent(event);
-
-        verify(localyticsSession).tagEvent(eq("Buffer Underrun"), eq(event.getAttributes()));
     }
 
     @Test

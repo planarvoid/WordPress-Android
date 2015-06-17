@@ -8,7 +8,6 @@
     <string name="view">Bekijken</string>
     <string name="btn_apply">Toepassen</string>
     <string name="cancel">Annuleren</string>
-    <string name="retry">Opnieuw proberen</string>
     <string name="shuffle">Shuffelen</string>
     <string name="done">Klaar</string>
     <string name="email">E-mail</string>
@@ -146,10 +145,6 @@
     <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
     <string name="error_unauthorized_title">Accountfout</string>
     <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van deze url</string>
-    <string name="error_soundcloud_no_response">SoundCloud reageert niet.</string>
-    <string name="error_no_internet">Geen Internet.</string>
-    <string name="error_connect_and_try_again">Maak verbinding en probeer het nog eens.</string>
-    <string name="error_pager_failed">Laadfout. Tik om het nog eens te proberen</string>
     <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van uw afbeelding.</string>
     <string name="error_server_problems_message">Er is een probleem opgetreden tijdens het verwerken van uw verzoek. Probeer het later nog eens.</string>
     <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het binnenkort nog eens.</string>
@@ -443,13 +438,6 @@
     <string name="pref_extras_skippy">Forceer Experimentele Speler</string>
     <string name="pref_extras_skippy_desc">Speel alle nummers door middel van de experimentele speler. Dit zal van kracht worden bij het afspelen van de volgende track.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Abonnementen</string>
-    <string name="pref_subscription_buy_title">Abonneren</string>
-    <string name="pref_subscription_buy_summary">Upgrade je account</string>
-    <string name="title_subscribe">Abonneren</string>
-    <string name="subscribe_buy">Kopen</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -489,17 +477,8 @@
     <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
     <string name="age_verify_button">Geef uw leeftijd aan</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Niet in staat om nummer uit te brengen</string>
-    
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
-    <string name="feedback_playback_issue">Afspelen probleem</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Ander probleem</string>
-    <string name="feedback_email_subject">Rapporteer: %1$s</string>
-    <string name="feedback_action_chooser">Zend feedback via e-mail...</string>
-    <string name="feedback_unable_to_get_logs">Niet in staat om logboeken te krijgen</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Gepromoot</string>

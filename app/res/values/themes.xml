@@ -12,7 +12,7 @@
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorAccent">@color/sc_orange</item>
+        <item name="colorAccent">@color/ak_sc_orange</item>
 
         <item name="cropImageStyle">@style/Widget.CropImageView</item>
     </style>
@@ -25,7 +25,7 @@
     </style>
 
     <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/sc_orange</item>
+        <item name="colorAccent">@color/ak_sc_orange</item>
     </style>
 
     <style name="SearchView.SoundCloud" parent="Widget.AppCompat.SearchView">
@@ -39,6 +39,10 @@
     <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
+    </style>
+
+    <style name="LightProgressTheme" parent="BaseTheme">
+        <item name="colorAccent">@color/white</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">

@@ -7,13 +7,13 @@
     </style>
 
     <style name="Divider.Vertical">
-        <item name="android:layout_width">@dimen/divider_vertical_width</item>
+        <item name="android:layout_width">@dimen/ak_list_divider_vertical_width</item>
         <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="Divider.Horizontal">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/divider_horizontal_height</item>
+        <item name="android:layout_height">@dimen/ak_list_divider_horizontal_height</item>
     </style>
 
     <!-- shared widget styles -->
@@ -81,7 +81,7 @@
 
     <style name="btn_default" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
-        <item name="android:background">@drawable/btn_default</item>
+        <item name="android:background">@drawable/ak_btn_default</item>
         <item name="android:textColor">@drawable/txt_btn_light_states</item>
         <item name="android:shadowColor">#4DFFFFFF</item>
         <item name="android:shadowDx">0</item>
@@ -120,12 +120,6 @@
         <item name="android:background">@drawable/progress_bar_round_bg_right</item>
     </style>
 
-    <style name="ErrorMessage">
-        <item name="android:textColor">#ff666666</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColorLink">@drawable/txt_gray_states</item>
-    </style>
-
     <style name="UnderlinedListTitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
@@ -134,7 +128,7 @@
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
         <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">@color/sc_orange</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
         <item name="android:gravity">bottom</item>
         <item name="android:background">@drawable/divider_list_orange</item>
     </style>

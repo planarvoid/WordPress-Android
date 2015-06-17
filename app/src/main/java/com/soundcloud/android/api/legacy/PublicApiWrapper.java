@@ -18,6 +18,7 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
@@ -32,7 +33,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -194,7 +194,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             response = super.safeExecute(target, request);
             recordUnauthorisedRequestIfRequired(response);
         } finally {
-            logRequest(request, response);
+            logRequest(target, request, response);
         }
 
         return response;
@@ -208,20 +208,22 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         }
     }
 
-    private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
-        if (!applicationProperties.isReleaseBuild()) {
-            String report = generateRequestResponseLog(request, response);
-            Log.d(TAG, report);
-        }
+    private void logRequest(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
+        String report = generateRequestResponseLog(target, request, response);
+        ErrorUtils.log(Log.INFO, TAG, report);
     }
 
     private boolean responseIsUnauthorised(HttpResponse response) {
         return response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
     }
 
-    public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
+    public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
         StringBuilder sb = new StringBuilder(2000);
         sb.append(request.getMethod())
+                .append(' ')
+                .append(target.getSchemeName())
+                .append(':')
+                .append(target.toHostString())
                 .append(' ')
                 .append(request.getURI())
                 .append(";headers=");

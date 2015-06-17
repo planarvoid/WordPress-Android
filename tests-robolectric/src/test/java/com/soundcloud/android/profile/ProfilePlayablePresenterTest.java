@@ -62,7 +62,6 @@ public class ProfilePlayablePresenterTest {
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
-    @Mock private ProfileRecyclerViewScroller recyclerViewScroller;
     @Mock private Resources resources;
     @Mock private Drawable divider;
 
@@ -73,7 +72,7 @@ public class ProfilePlayablePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(fragmentView.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
+        when(fragmentView.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(fragmentView.getResources()).thenReturn(resources);
         when(resources.getDrawable(R.drawable.divider_list_grey)).thenReturn(divider);
@@ -110,7 +109,7 @@ public class ProfilePlayablePresenterTest {
     }
 
     private void createPresenter() {
-        presenter = new ProfilePlayablePresenter(swipeRefreshAttacher, imagePauseOnScrollListener, recyclerViewScroller,
+        presenter = new ProfilePlayablePresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
                 adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations) {
             @Override
             protected EmptyView.Status handleError(Throwable error) {

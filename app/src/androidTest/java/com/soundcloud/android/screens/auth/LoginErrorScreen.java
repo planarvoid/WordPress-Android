@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.auth.LoginScreen;
 
 public class LoginErrorScreen extends Screen {
 

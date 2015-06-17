@@ -53,7 +53,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     private static final int TAB_PADDING_VERTICAL_DP = 15;
     private static final int TAB_PADDING_HORIZONTAL_DP = 30;
-    private static final int TAB_BACKGROUND = R.drawable.list_selector_gray;
+    private static final int TAB_BACKGROUND = R.drawable.ak_list_selector_gray;
     private static final int TAB_TEXT_SIZE = R.dimen.tab_text_size;
     private static final int TAB_TEXT_COLOR = 0xFF666666;
 

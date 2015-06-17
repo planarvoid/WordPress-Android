@@ -6,10 +6,10 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.LegacyProfileActivity;
-import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.widget.ListView;
 

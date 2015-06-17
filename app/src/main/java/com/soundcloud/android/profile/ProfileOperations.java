@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Map;
 
-public class ProfileOperations {
+class ProfileOperations {
 
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
@@ -40,15 +40,24 @@ public class ProfileOperations {
     };
 
     @Inject
-    public ProfileOperations(ProfileApi profileApi, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses, UserRepository userRepository) {
+    ProfileOperations(ProfileApi profileApi, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                      LoadPlaylistLikedStatuses loadPlaylistLikedStatuses, UserRepository userRepository) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
     }
 
-    public Observable<ProfileUser> getUserDetails(Urn user) {
+    public Observable<ProfileUser> getLocalProfileUser(Urn user) {
+        return userRepository.localUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
+            @Override
+            public ProfileUser call(PropertySet properties) {
+                return new ProfileUser(properties);
+            }
+        });
+    }
+
+    public Observable<ProfileUser> getLocalAndSyncedProfileUser(Urn user) {
         return userRepository.localAndSyncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
             @Override
             public ProfileUser call(PropertySet properties) {
@@ -57,7 +66,7 @@ public class ProfileOperations {
         });
     }
 
-    public Observable<ProfileUser> updatedUserDetails(Urn user) {
+    public Observable<ProfileUser> getSyncedProfileUser(Urn user) {
         return userRepository.syncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
             @Override
             public ProfileUser call(PropertySet properties) {

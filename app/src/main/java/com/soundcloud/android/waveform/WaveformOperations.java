@@ -18,7 +18,7 @@ public class WaveformOperations {
     private final WaveformFetcher waveformFetcher;
 
     @Inject
-    public WaveformOperations(LruCache<Urn, WaveformData> waveformCache, WaveformFetcher waveformFetcher) {
+    WaveformOperations(LruCache<Urn, WaveformData> waveformCache, WaveformFetcher waveformFetcher) {
         this.waveformCache = waveformCache;
         this.waveformFetcher = waveformFetcher;
     }

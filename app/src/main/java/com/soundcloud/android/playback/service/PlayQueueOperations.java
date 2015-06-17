@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-public class PlayQueueOperations {
+class PlayQueueOperations {
 
     static final String SHARED_PREFERENCES_KEY = "playlistPos";
 
@@ -33,7 +33,7 @@ public class PlayQueueOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
+    PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
                                StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;

@@ -10,6 +10,7 @@ final class LocalyticsEvents {
     static final String SKIPPY_PLAY = "Skippy Play";
     static final String SKIPPY_INITILIAZATION_ERROR = "Skippy Init Error";
     static final String SKIPPY_INITILIAZATION_SUCCESS = "Skippy Init Success";
+    static final String AD_DEBUG = "Ad Debug";
 
     static final class UI {
         static final String FOLLOW = "Follow";

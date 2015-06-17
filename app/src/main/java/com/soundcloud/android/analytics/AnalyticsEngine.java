@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -10,6 +9,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.SettingKey;
@@ -31,6 +31,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 /**
  * The engine which drives sending analytics. It acts as an event broker which forwards system events relevant for
@@ -211,7 +215,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(EventT event) {
             Log.d(AnalyticsEngine.this, "Track event " + event);
             if (event instanceof OnboardingEvent) {
-                Log.i(Log.ONBOARDING_TAG, "onboarding event published: " + event);
+                log(INFO, ONBOARDING_TAG, "onboarding event published: " + event);
             }
 
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {

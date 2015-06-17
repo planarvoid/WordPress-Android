@@ -8,7 +8,6 @@
     <string name="view">Lihat</string>
     <string name="btn_apply">Terapkan</string>
     <string name="cancel">Batal</string>
-    <string name="retry">Coba lagi</string>
     <string name="shuffle">Acak</string>
     <string name="done">Selesai</string>
     <string name="email">Email</string>
@@ -146,10 +145,6 @@
     <string name="error_unauthorized_message">Terjadi masalah dengan akun Anda dan kami meminta Anda untuk masuk kembali ke SoundCloud sebelum Anda dapat melanjutkan menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Galat Akun</string>
     <string name="error_loading_url">Terjadi masalah saat memuat url tersebut</string>
-    <string name="error_soundcloud_no_response">SoundCloud tidak merespons.</string>
-    <string name="error_no_internet">Tidak ada Internet.</string>
-    <string name="error_connect_and_try_again">Hubungkan dan coba lagi.</string>
-    <string name="error_pager_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
     <string name="crop_image_error">Terjadi kesalahan saat memangkas gambar Anda.</string>
     <string name="error_server_problems_message">Terjadi masalah saat memproses permintaan Anda. Silakan coba lagi nanti.</string>
     <string name="connection_list_error">Tampaknya ada masalah koneksi. Silakan coba sebentar lagi.</string>
@@ -443,13 +438,6 @@
     <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
     <string name="pref_extras_skippy_desc">Mainkan semua trek melalui pemutar eksperimental. Ini akan mulai berlaku saat memainkan trek berikutnya.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Langganan</string>
-    <string name="pref_subscription_buy_title">Berlangganan</string>
-    <string name="pref_subscription_buy_summary">Tingkatkan akun Anda</string>
-    <string name="title_subscribe">Berlangganan</string>
-    <string name="subscribe_buy">Beli</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d dtk.</string>
     <string name="format_abbreviated_minutes">%d mnt.</string>
@@ -490,17 +478,8 @@
     <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
     <string name="age_verify_button">Verifikasikan usia</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Apa yang ingin Anda laporkan?</string>
-    <string name="feedback_playback_issue">Masalah pemutaran</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Masalah lain</string>
-    <string name="feedback_email_subject">Laporan: %1$s</string>
-    <string name="feedback_action_chooser">Kirim masukan lewat email...</string>
-    <string name="feedback_unable_to_get_logs">Tidak dapat mengambil log</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Dipromosikan</string>

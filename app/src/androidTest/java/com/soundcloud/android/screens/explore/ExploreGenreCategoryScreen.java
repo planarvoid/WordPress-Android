@@ -2,9 +2,9 @@ package com.soundcloud.android.screens.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.framework.Han;
 
 import android.view.View;
 import android.widget.GridView;

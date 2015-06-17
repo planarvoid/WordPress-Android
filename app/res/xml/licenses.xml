@@ -93,13 +93,6 @@
                 android:data="https://github.com/jdamcd/android-crop" />
     </Preference>
     <Preference
-        android:title="material-dialogs"
-        android:summary="© Aidan Michael Follestad — The MIT License (MIT)">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="https://github.com/afollestad/material-dialogs/" />
-    </Preference>
-    <Preference
             android:title="Facebook Android SDK"
             android:summary="© Facebook Inc. — Apache License 2.0">
         <intent

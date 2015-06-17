@@ -59,4 +59,14 @@ class ProfileUser {
                 || ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.WEBSITE_URL))
                 || ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.MYSPACE_NAME));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof ProfileUser && source.equals(((ProfileUser) o).source);
+    }
+
+    @Override
+    public int hashCode() {
+        return source.hashCode();
+    }
 }

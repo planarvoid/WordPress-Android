@@ -39,7 +39,7 @@ public class SuggestedUsersOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
+    Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forPrivateApi(1)
                 .build();
@@ -48,7 +48,7 @@ public class SuggestedUsersOperations {
                 .flatMap(flattenGroupList);
     }
 
-    public Observable<CategoryGroup> getFacebookSuggestions() {
+    Observable<CategoryGroup> getFacebookSuggestions() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forPrivateApi(1)
                 .build();
@@ -58,7 +58,7 @@ public class SuggestedUsersOperations {
                 .onErrorReturn(EMPTY_FACEBOOK_GROUP);
     }
 
-    public Observable<CategoryGroup> getCategoryGroups() {
+    Observable<CategoryGroup> getCategoryGroups() {
         return Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions());
     }
 

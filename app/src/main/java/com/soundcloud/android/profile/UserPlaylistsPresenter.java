@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.Pager;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
@@ -20,12 +19,11 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter {
     @Inject
     UserPlaylistsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                            ImagePauseOnScrollListener imagePauseOnScrollListener,
-                           ProfileRecyclerViewScroller profileRecyclerViewScroller,
                            MixedPlayableRecyclerItemAdapter adapter,
                            MixedPlayableItemClickListener.Factory clickListenerFactory,
                            PlayableListUpdater.Factory updaterFactory,
                            ProfileOperations profileOperations) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller, adapter,
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
                 clickListenerFactory, updaterFactory, profileOperations);
     }
 
@@ -43,10 +41,5 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter {
     protected void configureEmptyView(EmptyView emptyView) {
         getEmptyView().setMessageText(R.string.new_empty_user_playlists_message);
         getEmptyView().setImage(R.drawable.empty_playlists);
-    }
-
-    @Override
-    protected EmptyView.Status handleError(Throwable error) {
-        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

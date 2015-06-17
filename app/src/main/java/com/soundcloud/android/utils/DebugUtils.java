@@ -3,15 +3,12 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.R;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedReader;

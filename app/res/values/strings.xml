@@ -9,7 +9,6 @@
     <string name="view">View</string>
     <string name="btn_apply">Apply</string>
     <string name="cancel">Cancel</string>
-    <string name="retry">Retry</string>
     <string name="upload">Upload</string>
     <string name="shuffle">Shuffle</string>
     <string name="done">Done</string>
@@ -159,10 +158,6 @@
     <string name="error_unauthorized_message">We\'re having a problem with your account and need you to sign back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
     <string name="error_loading_url">There was a problem loading that url</string>
-    <string name="error_soundcloud_no_response">SoundCloud isn\'t responding.</string>
-    <string name="error_no_internet">No Internet.</string>
-    <string name="error_connect_and_try_again">Connect and try again.</string>
-    <string name="error_pager_failed">Loading error. Tap to try again</string>
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
     <string name="connection_list_error">There seems to be a connection problem. Please try again shortly.</string>
@@ -463,13 +458,6 @@
     <string name="pref_extras_skippy">Force Experimental Player</string>
     <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Subscriptions</string>
-    <string name="pref_subscription_buy_title">Subscribe</string>
-    <string name="pref_subscription_buy_summary">Upgrade your account</string>
-    <string name="title_subscribe">Subscribe</string>
-    <string name="subscribe_buy">Buy</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -510,22 +498,12 @@
     <string name="age_verify_info">This information will be saved on your profile.</string>
     <string name="age_verify_button">Verify age</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
     <string name="casting_to">Casting to</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">What would you like to report?</string>
-    <string name="feedback_playback_issue">Playback issue</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Other issue</string>
-    <string name="feedback_email_subject">Report: %1$s</string>
-    <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
-    <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
-
 
 </resources>

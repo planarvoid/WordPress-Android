@@ -9,17 +9,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -28,29 +27,28 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     private final PaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
     private final ConfigurationOperations configurationOperations;
+    private final Resources resources;
 
-    @InjectView(R.id.subscribe_title) TextView title;
-    @InjectView(R.id.subscribe_description) TextView description;
-    @InjectView(R.id.subscribe_price) TextView price;
-    @InjectView(R.id.subscribe_buy) Button buyButton;
+    @InjectView(R.id.upgrade_header) View upgradeHeader;
+    @InjectView(R.id.success_header) View successHeader;
+    @InjectView(R.id.upgrade_buy) Button buyButton;
+    @InjectView(R.id.upgrade_loading) View loading;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
-    private Activity activity;
     private ProductDetails details;
 
     @Inject
     UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                     ConfigurationOperations configurationOperations) {
+                     ConfigurationOperations configurationOperations, Resources resources) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationOperations = configurationOperations;
+        this.resources = resources;
     }
 
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
-        this.activity = activity;
-        activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
         paymentErrorPresenter.setActivity(activity);
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
@@ -65,25 +63,27 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
-                // TODO: loading UI
+                AnimUtils.hideView(buyButton.getContext(), buyButton, true);
+                loading.setVisibility(View.VISIBLE);
                 subscription.add(paymentOperations.verify(result.getPayload()).subscribe(new StatusSubscriber()));
             } else {
+                buyButton.setEnabled(true);
                 paymentErrorPresenter.showCancelled();
                 fireAndForget(paymentOperations.cancel(result.getFailReason()));
             }
         }
     }
 
-    @OnClick(R.id.subscribe_buy)
+    @OnClick(R.id.upgrade_buy)
     public void beginTransaction() {
         subscription.add(paymentOperations.purchase(details.getId()).subscribe(new TransactionSubscriber()));
+        buyButton.setEnabled(false);
     }
 
     private void displayProductDetails() {
-        title.setText(details.getTitle());
-        description.setText(details.getDescription());
-        price.setText(details.getPrice());
-        buyButton.setVisibility(View.VISIBLE);
+        buyButton.setText(resources.getString(R.string.upgrade_buy_price, details.getPrice()));
+        loading.setVisibility(View.GONE);
+        AnimUtils.showView(buyButton.getContext(), buyButton, true);
     }
 
     private class ConnectionSubscriber extends DefaultSubscriber<ConnectionStatus> {
@@ -152,8 +152,8 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     }
 
     private void showSuccessScreen() {
-        activity.finish();
-        activity.startActivity(new Intent(activity, SubscribeSuccessActivity.class));
+        upgradeHeader.setVisibility(View.GONE);
+        successHeader.setVisibility(View.VISIBLE);
     }
 
     private void loadPurchaseOptions() {

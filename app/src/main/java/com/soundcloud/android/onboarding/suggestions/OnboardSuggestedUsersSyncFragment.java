@@ -54,7 +54,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         RelativeLayout relativeLayout = new RelativeLayout(getActivity());
         relativeLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        final View view = inflater.inflate(R.layout.list_loading_item, null);
+        final View view = inflater.inflate(R.layout.ak_list_loading_item, null);
 
         final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);

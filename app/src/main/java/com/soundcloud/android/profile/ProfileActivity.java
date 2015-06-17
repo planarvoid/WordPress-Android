@@ -5,9 +5,7 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.LightCycle;
-import rx.Observable;
 
-import android.os.Bundle;
 import android.view.Menu;
 
 import javax.inject.Inject;
@@ -30,19 +28,5 @@ public class ProfileActivity extends ScActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_white, menu);
         return true;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        return profilePresenter.user();
-    }
-
-    ProfileUserProvider profileUserProvider() {
-        return profilePresenter;
     }
 }

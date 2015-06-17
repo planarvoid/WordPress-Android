@@ -1,15 +1,11 @@
 package com.soundcloud.android.framework;
 
-import static com.google.common.collect.Collections2.filter;
 import static junit.framework.Assert.assertTrue;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
-import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
@@ -21,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
@@ -100,16 +95,7 @@ public class Han  {
     }
 
     public void clickOnActionBarHomeButton() {
-        try {
-            solo.getCurrentActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    solo.clickOnActionBarHomeButton();
-                }
-            });
-        } catch (Throwable throwable) {
-            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
-        }
+        solo.clickOnActionBarHomeButton();
     }
 
     public void clickOnActionBarItem(int itemId) {
@@ -224,23 +210,11 @@ public class Han  {
         solo.drag(fromX, toX, fromY, toY, stepCount);
     }
 
-
-    @Deprecated
-    public void clickOnButton(final Integer resource) {
-        ArrayList<ViewElement> buttonsWithText = findButtonsWithText(getString(resource));
-        if(!buttonsWithText.isEmpty()) {
-            buttonsWithText.get(0).click();
+    public void clickOnView(With with) {
+        List<ViewElement> views = findElements(with);
+        if(!views.isEmpty()) {
+            views.get(0).click();
         }
-    }
-
-    private ArrayList<ViewElement> findButtonsWithText(final String text) {
-        return Lists.newArrayList(filter(findElements(With.className(Button.class)), new Predicate<ViewElement>() {
-                    @Override
-                    public boolean apply(ViewElement viewElement) {
-                        return new TextElement(viewElement).getText().equals(text);
-                    }
-               })
-        );
     }
 
     public void finishOpenedActivities() {

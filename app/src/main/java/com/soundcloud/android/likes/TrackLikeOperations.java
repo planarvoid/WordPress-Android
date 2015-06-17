@@ -70,20 +70,20 @@ public class TrackLikeOperations {
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    public Observable<PropertySet> onTrackLiked(){
+    Observable<PropertySet> onTrackLiked(){
         return eventBus.queue(ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
                 .map(EntityStateChangedEvent.TO_URN)
                 .flatMap(loadLikedTrackCommand);
     }
 
-    public Observable<Urn> onTrackUnliked() {
+    Observable<Urn> onTrackUnliked() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
                 .map(EntityStateChangedEvent.TO_URN);
     }
 
-    public Observable<List<PropertySet>> likedTracks() {
+    Observable<List<PropertySet>> likedTracks() {
         return likedTracks(Long.MAX_VALUE);
     }
 
@@ -100,7 +100,7 @@ public class TrackLikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<List<PropertySet>> updatedLikedTracks() {
+    Observable<List<PropertySet>> updatedLikedTracks() {
         return syncInitiator
                 .syncTrackLikes()
                 .observeOn(scheduler)
@@ -109,7 +109,7 @@ public class TrackLikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<List<PropertySet>> pagingFunction() {
+    Pager.PagingFunction<List<PropertySet>> pagingFunction() {
         return new Pager.PagingFunction<List<PropertySet>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {

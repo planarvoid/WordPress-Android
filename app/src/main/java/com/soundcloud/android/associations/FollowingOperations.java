@@ -90,7 +90,7 @@ public class FollowingOperations {
         return userAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
 
-    public Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
+    Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
         return userAssociationStorage.followSuggestedUser(suggestedUser);
     }
@@ -266,7 +266,7 @@ public class FollowingOperations {
     }
 
     @VisibleForTesting
-    public static class BulkFollowingsHolder {
+    static class BulkFollowingsHolder {
         @JsonProperty
         Collection<String> tokens;
 

@@ -12,11 +12,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.image.PlaceholderGenerator;
-import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 
@@ -128,7 +128,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
     private void setUploadingState() {
         cancelButton.setVisibility(View.VISIBLE);
-        actionButton.setBackgroundResource(R.drawable.white_button);
+        actionButton.setBackgroundResource(R.drawable.rec_white_button);
         actionButton.setImageResource(R.drawable.ic_record_upload_white);
         actionButton.setEnabled(false);
         uploadProgress.setVisibility(View.VISIBLE);

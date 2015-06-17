@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import com.soundcloud.android.Consts;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

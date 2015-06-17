@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 
 class WidgetTrack {

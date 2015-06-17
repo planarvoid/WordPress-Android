@@ -11,9 +11,9 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
 import javax.inject.Inject;

@@ -9,7 +9,7 @@
     <item android:state_checked="false" android:state_pressed="true">
         <shape>
             <solid android:color="@android:color/transparent" />
-            <stroke android:color="@color/sc_orange" android:width="4dp"/>
+            <stroke android:color="@color/ak_sc_orange" android:width="4dp"/>
         </shape>
     </item>
 </selector>

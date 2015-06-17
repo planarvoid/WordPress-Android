@@ -7,7 +7,7 @@
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:antialias">true</item>
         <item name="android:textColor">@color/list_primary</item>
-        <item name="android:textColorLink">@color/link_text</item>
+        <item name="android:textColorLink">@color/ak_link_text</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
         <item name="android:visibility">invisible</item>
     </style>
@@ -29,14 +29,14 @@
     </style>
 
     <style name="TrackInfo.Text.Main.Comments">
-        <item name="android:textColor">@color/link_text</item>
+        <item name="android:textColor">@color/ak_link_text</item>
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:drawableLeft">@drawable/stats_comment</item>
         <item name="android:drawablePadding">8dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
-        <item name="android:background">@drawable/list_selector_gray</item>
+        <item name="android:background">@drawable/ak_list_selector_gray</item>
         <item name="android:visibility">gone</item>
         <item name="android:lineSpacingMultiplier">1</item>
     </style>

@@ -31,7 +31,7 @@ public class OnboardingOperations {
         fireAndForget(apiClientRx.response(request).subscribeOn(scheduler));
     }
 
-    public static class EmailOptIn {
+    static class EmailOptIn {
 
         @JsonProperty
         final boolean newsletter = true;

@@ -18,7 +18,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;

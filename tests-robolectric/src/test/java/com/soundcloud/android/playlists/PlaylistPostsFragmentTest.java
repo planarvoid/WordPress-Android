@@ -18,6 +18,7 @@ import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -34,6 +35,7 @@ import android.widget.AdapterView;
 
 import java.util.List;
 
+@Ignore // RL1 doesn't support dealing with resources from AARs
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistPostsFragmentTest {
 

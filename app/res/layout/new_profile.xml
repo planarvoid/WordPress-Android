@@ -2,35 +2,74 @@
 <com.sothree.slidinguppanel.SlidingUpPanelLayout
     android:id="@+id/sliding_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:dragView="@+id/player_layout"
-    sothree:panelHeight="@dimen/player_footer">
+    app:dragView="@+id/player_layout"
+    app:panelHeight="@dimen/player_footer">
 
-    <com.soundcloud.android.view.MultiSwipeRefreshLayout
-        android:id="@+id/str_layout"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/profile_content_holder"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_total_header_height"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_header_expanded_height"
+                android:fitsSystemWindows="true"
+                android:minHeight="?android:attr/actionBarSize"
+                app:contentScrim="?attr/colorPrimary"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:toolbarId="@id/toolbar_id">
+
+                <include
+                    layout="@layout/profile_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_collapseMode="parallax" />
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_tab_height"
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll">
+
+                <com.soundcloud.android.view.SlidingTabLayout
+                    android:id="@+id/indicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_collapseMode="pin" />
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-            <com.soundcloud.android.view.SafeViewPager
-                android:id="@+id/pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <include layout="@layout/profile_list_header" />
-
-        </FrameLayout>
-
-    </com.soundcloud.android.view.MultiSwipeRefreshLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
     <fragment
         android:id="@+id/player_root"
@@ -39,4 +78,3 @@
         android:layout_height="match_parent" />
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-

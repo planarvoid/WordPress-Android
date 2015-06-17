@@ -41,14 +41,14 @@ class ExploreTracksOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<ExploreGenresSections> getCategories() {
+    Observable<ExploreGenresSections> getCategories() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateApi(1)
                 .build();
         return apiClientRx.mappedResponse(request, ExploreGenresSections.class).subscribeOn(scheduler);
     }
 
-    public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
+    Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
         if (category == ExploreGenre.POPULAR_MUSIC_CATEGORY) {
             return getSuggestedTracks(ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
         } else if (category == ExploreGenre.POPULAR_AUDIO_CATEGORY) {

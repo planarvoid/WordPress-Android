@@ -6,13 +6,14 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.android.api.oauth.OAuth;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -56,7 +57,7 @@ public class GooglePlusSignInTask extends LoginTask {
                 String token = accountOperations.getGoogleAccountToken(accountName, scope, extras);
                 result = login(token);
 
-                googleTokenValid = !(result.getException() instanceof CloudAPI.InvalidTokenException);
+                googleTokenValid = !(result.getException() instanceof TokenRetrievalException);
                 if (!googleTokenValid){
                     // whatever token we got from g+ is invalid. force it to invalid and we should get a new one next try
                     accountOperations.invalidateGoogleAccountToken(token);

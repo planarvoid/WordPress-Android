@@ -13,39 +13,34 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserDetailsFragment extends LightCycleSupportFragment implements ProfileFragment {
+public class UserDetailsFragment extends LightCycleSupportFragment {
 
     @Inject UserDetailsView userDetailsView;
-    @Inject UserDetailsScroller userDetailsScroller;
+    @Inject ProfileOperations profileOperations;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
-    public static UserDetailsFragment create() {
-        return new UserDetailsFragment();
+    public static UserDetailsFragment create(Urn userUrn) {
+        final UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(ProfileArguments.USER_URN_KEY, userUrn);
+        userDetailsFragment.setArguments(args);
+        return userDetailsFragment;
     }
 
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        userDetailsPresenter = new UserDetailsPresenter(userDetailsView, userDetailsScroller);
+        setRetainInstance(true);
+        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userDetailsView.setUrn(getActivity().getIntent().<Urn>getParcelableExtra(ProfileActivity.EXTRA_USER_URN));
+        userDetailsView.setUrn(getArguments().<Urn>getParcelable(ProfileArguments.USER_URN_KEY));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.user_info_view, container, false);
-    }
-
-    @Override
-    public ScrollableProfileItem getScrollableProfileItem() {
-        return userDetailsScroller;
-    }
-
-    @Override
-    public RefreshableProfileItem getRefreshableItem() {
-        return userDetailsPresenter;
     }
 }

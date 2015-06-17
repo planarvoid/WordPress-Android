@@ -2,8 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;

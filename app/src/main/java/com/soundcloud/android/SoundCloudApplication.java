@@ -23,7 +23,6 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
@@ -91,7 +90,6 @@ public class SoundCloudApplication extends Application {
     @Inject PlaySessionStateProvider playSessionStateProvider;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
-    @Inject PlaybackNotificationController playbackNotificationController;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
@@ -161,7 +159,6 @@ public class SoundCloudApplication extends Application {
         peripheralsController.subscribe();
         playSessionController.subscribe();
         playSessionStateProvider.subscribe();
-        playbackNotificationController.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
 
@@ -251,28 +248,21 @@ public class SoundCloudApplication extends Application {
     }
 
     public boolean addUserAccountAndEnableSync(PublicApiUser user, Token token, SignupVia via) {
-        Log.i(Log.ONBOARDING_TAG, "will add account to account storage");
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
-            Log.i(Log.ONBOARDING_TAG, "account added successfully");
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
-            Log.i(Log.ONBOARDING_TAG, "sync enabled");
 
             // sync shortcuts so suggest works properly
             Intent intent = new Intent(this, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(Content.ME_SHORTCUT.uri);
             startService(intent);
-            Log.i(Log.ONBOARDING_TAG, "api sync service started");
 
             requestSetsSync();
-            Log.i(Log.ONBOARDING_TAG, "playlist sync requested");
 
             return true;
         } else {
-            Log.i(Log.ONBOARDING_TAG, "account NOT added successfully");
-
             return false;
         }
     }

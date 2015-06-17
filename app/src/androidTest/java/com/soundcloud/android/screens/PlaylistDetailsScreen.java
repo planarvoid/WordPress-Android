@@ -130,6 +130,10 @@ public class PlaylistDetailsScreen extends Screen {
                 .toListView();
     }
 
+    public int getTrackCount() {
+        return trackItemsList().getItemCount();
+    }
+
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
@@ -139,6 +143,10 @@ public class PlaylistDetailsScreen extends Screen {
                 toTrackItemElement
         );
     }
+    private ListElement trackItemsList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+    }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
         @Override
@@ -146,4 +154,6 @@ public class PlaylistDetailsScreen extends Screen {
             return new TrackItemElement(testDriver, viewElement);
         }
     };
+
+
 }

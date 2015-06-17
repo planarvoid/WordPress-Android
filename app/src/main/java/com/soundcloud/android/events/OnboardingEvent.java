@@ -147,13 +147,39 @@ public final class OnboardingEvent {
         return attributes;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Onboarding Event with type id %s and %s", kind, attributes.toString());
-    }
-
     private OnboardingEvent put(String key, String value) {
         attributes.put(key, value);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Onboarding Event with type '%s' and %s", kindToString(kind), attributes.toString());
+    }
+
+    private static String kindToString(int kind) {
+        switch (kind) {
+            case AUTH_PROMPT:
+                return "auth prompt";
+            case AUTH_CREDENTIALS:
+                return "auth credentials";
+            case CONFIRM_TERMS:
+                return "confirm terms";
+            case AUTH_COMPLETE:
+                return "auth complete";
+            case USER_INFO:
+                return "user info";
+            case ONBOARDING_COMPLETE:
+                return "onboarding complete";
+            case EMAIL_MARKETING:
+                return "email marketing";
+            case SIGNUP_ERROR:
+                return "signup error";
+            case DEVICE_CONFLICT:
+                return "device conflict";
+            default:
+                return "unknown " + kind;
+        }
+    }
+
 }

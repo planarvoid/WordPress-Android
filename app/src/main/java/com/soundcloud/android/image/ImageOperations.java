@@ -46,7 +46,6 @@ import android.widget.ImageView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -302,21 +301,11 @@ public class ImageOperations {
         return imageLoader.getMemoryCache().get(key);
     }
 
-    public Uri getLocalImageUri(Urn resourceUrn, ApiImageSize apiImageSize) {
-        final String imageUri = buildUrlIfNotPreviouslyMissing(resourceUrn, apiImageSize);
-        if (imageUri != null) {
-            final File cacheDir = imageLoader.getDiskCache().getDirectory().getAbsoluteFile();
-            final File imageFile = new File(cacheDir, fileNameGenerator.generate(imageUri));
-            return Uri.fromFile(imageFile);
-        }
-        return null;
-    }
-
-    public void resume() {
+    void resume() {
         imageLoader.resume();
     }
 
-    public void pause() {
+    void pause() {
         imageLoader.resume();
     }
 
