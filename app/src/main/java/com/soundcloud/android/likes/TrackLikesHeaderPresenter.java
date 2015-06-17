@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListHeaderPresenter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -25,7 +26,6 @@ import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -78,7 +78,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     };
 
     private CompositeSubscription viewLifeCycle;
-    private Subscription foregroundSubscription = Subscriptions.empty();
+    private Subscription foregroundSubscription = RxUtils.invalidSubscription();
 
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,

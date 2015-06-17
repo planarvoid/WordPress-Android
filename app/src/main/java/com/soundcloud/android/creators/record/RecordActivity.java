@@ -13,11 +13,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
@@ -39,7 +39,7 @@ public class RecordActivity extends ScActivity {
     @Inject @LightCycle ActionBarController actionBarController;
     @Inject EventBus eventBus;
 
-    private Subscription initialStateSubscription = Subscriptions.empty();
+    private Subscription initialStateSubscription = RxUtils.invalidSubscription();
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override

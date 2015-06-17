@@ -6,6 +6,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
@@ -14,7 +15,6 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.subscriptions.Subscriptions;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -26,7 +26,7 @@ public class AdPlayerController extends DefaultLightCycleActivity<AppCompatActiv
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
     private Urn lastSeenAdTrack = Urn.NOT_SET;
 
     private final Func1<State, Boolean> isNewAudioAd = new Func1<State, Boolean>() {

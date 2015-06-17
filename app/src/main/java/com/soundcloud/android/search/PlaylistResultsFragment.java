@@ -13,6 +13,7 @@ import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -22,7 +23,6 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -47,7 +47,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
     @Inject EventBus eventBus;
 
     private ConnectableObservable<List<PlaylistItem>> observable;
-    private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription connectionSubscription = RxUtils.invalidSubscription();
     private PlaylistDiscoveryOperations.PlaylistPager pager;
 
     public static PlaylistResultsFragment newInstance(String tag) {

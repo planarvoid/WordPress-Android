@@ -1,12 +1,12 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,7 +27,7 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatA
     private final GoBackOnlineDialogPresenter goBackOnlineDialogPresenter;
     private final Context context;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public PolicyUpdateController(Context context, FeatureOperations featureOperations,

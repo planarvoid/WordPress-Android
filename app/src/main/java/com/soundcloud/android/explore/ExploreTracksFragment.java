@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
@@ -20,7 +21,6 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -49,7 +49,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ConnectableObservable<List<TrackItem>> observable;
-    private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription connectionSubscription = RxUtils.invalidSubscription();
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();

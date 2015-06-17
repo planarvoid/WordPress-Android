@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -13,7 +14,6 @@ import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -28,8 +28,8 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     private final EventBus eventBus;
 
     private ViewPager pager;
-    private Subscription userSubscription = Subscriptions.empty();
-    private Subscription userUpdatedSubscription = Subscriptions.empty();
+    private Subscription userSubscription = RxUtils.invalidSubscription();
+    private Subscription userUpdatedSubscription = RxUtils.invalidSubscription();
     private ProfileHeaderPresenter headerPresenter;
     private Urn user;
 

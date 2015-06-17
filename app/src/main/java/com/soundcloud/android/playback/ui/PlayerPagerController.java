@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.util.AnimUtils;
@@ -20,7 +21,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Handler;
 import android.os.Message;
@@ -47,7 +47,7 @@ class PlayerPagerController {
 
     private PlayQueueDataSource playQueueDataSource;
     private CompositeSubscription subscription;
-    private Subscription unblockPagerSubscription = Subscriptions.empty();
+    private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
 
     private PlayerTrackPager trackPager;
     private boolean isResumed;

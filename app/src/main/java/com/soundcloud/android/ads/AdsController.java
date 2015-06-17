@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -21,7 +22,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.util.Log;
 
@@ -48,7 +48,7 @@ public class AdsController {
     private final Scheduler scheduler;
     private final long fetchOperationStaleTime;
 
-    private Subscription skipFailedAdSubscription = Subscriptions.empty();
+    private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {

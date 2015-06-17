@@ -6,13 +6,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -31,7 +31,7 @@ class PlayerWidgetPresenter {
             PlayerAppWidgetProvider.class.getCanonicalName());
     private final AppWidgetManager appWidgetManager;
     private final ImageOperations imageOperations;
-    private Subscription artworkSubscription = Subscriptions.empty();
+    private Subscription artworkSubscription = RxUtils.invalidSubscription();
 
     private WidgetTrack widgetTrack;
 

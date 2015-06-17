@@ -2,10 +2,10 @@ package com.soundcloud.android.playback;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.cast.CastOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.schedulers.TimeInterval;
-import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -14,7 +14,7 @@ public class ProgressReporter {
 
     private final CastOperations castOperations;
     private WeakReference<ProgressPuller> progressPullerReference;
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     ProgressReporter(CastOperations castOperations) {

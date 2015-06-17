@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -12,7 +13,6 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -26,7 +26,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private boolean isNotEmpty;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     private final ProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;

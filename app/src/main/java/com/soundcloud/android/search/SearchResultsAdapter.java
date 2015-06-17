@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -15,7 +16,6 @@ import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -32,7 +32,7 @@ class SearchResultsAdapter extends PagingListItemAdapter<ListItem> implements Su
 
     private final EventBus eventBus;
     private final TrackItemRenderer trackRenderer;
-    private Subscription eventSubscriptions = Subscriptions.empty();
+    private Subscription eventSubscriptions = RxUtils.invalidSubscription();
 
     @Inject
     SearchResultsAdapter(FollowableUserItemRenderer userRenderer,

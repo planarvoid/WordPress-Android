@@ -24,6 +24,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -36,7 +37,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,7 +65,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaybackToastHelper playbackToastHelper;
     private final Navigator navigator;
 
-    private Subscription foregroundSubscription = Subscriptions.empty();
+    private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription offlineStateSubscription = new CompositeSubscription();
 
     @Inject

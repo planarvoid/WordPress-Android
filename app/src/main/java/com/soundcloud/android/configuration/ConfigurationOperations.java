@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import dagger.Lazy;
 import rx.Observable;
@@ -23,7 +24,6 @@ import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.subscriptions.Subscriptions;
 
 import android.util.Log;
 
@@ -49,7 +49,7 @@ public class ConfigurationOperations {
     private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     private final Func2<Object, Configuration, Configuration> toUpdatedConfiguration = new Func2<Object, Configuration, Configuration>() {
         @Override

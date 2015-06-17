@@ -9,10 +9,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
@@ -34,7 +34,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject EventBus eventBus;
 

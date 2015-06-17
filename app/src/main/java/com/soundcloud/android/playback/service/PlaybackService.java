@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -24,7 +25,6 @@ import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.app.Service;
 import android.content.Intent;
@@ -63,7 +63,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
     private PlaybackReceiver playbackReceiver;
-    private Subscription loadTrackSubscription = Subscriptions.empty();
+    private Subscription loadTrackSubscription = RxUtils.invalidSubscription();
 
     public PlaybackService() {
         SoundCloudApplication.getObjectGraph().inject(this);
