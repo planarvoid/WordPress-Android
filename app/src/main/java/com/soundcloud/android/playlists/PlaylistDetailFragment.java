@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -42,7 +43,6 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -90,7 +90,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private View progressView;
 
     private Observable<PlaylistWithTracks> loadPlaylist;
-    private Subscription playlistSubscription = Subscriptions.empty();
+    private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;

@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -8,7 +9,6 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,7 +23,7 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
     private EmptyView emptyView;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public EmptyViewController(NetworkConnectionHelper networkConnectionHelper) {

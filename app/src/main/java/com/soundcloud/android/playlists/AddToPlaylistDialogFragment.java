@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import butterknife.ButterKnife;
@@ -13,13 +13,13 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -51,8 +51,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     @Inject EventBus eventBus;
 
     private MyPlaylistsAdapter adapter;
-    private Subscription addTrackSubscription = Subscriptions.empty();
-    private Subscription loadPlaylistSubscription = Subscriptions.empty();
+    private Subscription addTrackSubscription = RxUtils.invalidSubscription();
+    private Subscription loadPlaylistSubscription = RxUtils.invalidSubscription();
     private Observable<List<AddTrackToPlaylistItem>> loadPlaylists;
 
     public static AddToPlaylistDialogFragment from(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {

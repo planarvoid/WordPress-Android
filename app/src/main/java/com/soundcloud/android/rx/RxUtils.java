@@ -2,7 +2,9 @@ package com.soundcloud.android.rx;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Subscription;
 import rx.functions.Func1;
+import rx.subscriptions.Subscriptions;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,9 +26,17 @@ public final class RxUtils {
     };
 
     public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
-        for (T item : iterable){
+        for (T item : iterable) {
             observer.onNext(item);
         }
+    }
+
+    /**
+     * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
+     * checks are safe to perform.
+     */
+    public static Subscription invalidSubscription() {
+        return Subscriptions.unsubscribed();
     }
 
     public static <T> Func1<Collection<T>, Observable<T>> emitCollectionItems() {
@@ -65,5 +75,6 @@ public final class RxUtils {
         };
     }
 
-    private RxUtils() {}
+    private RxUtils() {
+    }
 }

@@ -9,12 +9,12 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,7 +35,7 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<AppCompat
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     private boolean expandOnResume;
     private boolean wasDragged;

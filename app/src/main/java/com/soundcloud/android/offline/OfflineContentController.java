@@ -19,7 +19,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 
@@ -68,7 +67,7 @@ public class OfflineContentController {
         }
     };
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public OfflineContentController(Context context, EventBus eventBus,

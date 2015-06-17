@@ -22,8 +22,6 @@ import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.SerialSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.SharedPreferences;
 
@@ -31,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.util.Log.INFO;
 import static com.soundcloud.android.utils.ErrorUtils.log;
@@ -52,7 +51,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final Scheduler scheduler;
 
     private Collection<AnalyticsProvider> analyticsProviders;
-    private SerialSubscription flushSubscription = new SerialSubscription();
+    private AtomicBoolean pendingFlush = new AtomicBoolean(true);
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
     private final Action0 flushAction = new Action0() {
@@ -62,8 +61,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {
                 analyticsProvider.flush();
             }
-            flushSubscription.unsubscribe();
-            flushSubscription = new SerialSubscription();
+            pendingFlush.set(true);
         }
     };
 
@@ -146,9 +144,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     private void scheduleFlush() {
-        if (flushSubscription.get() == Subscriptions.empty()) {
+        if (pendingFlush.getAndSet(false)) {
             Log.d(this, "Scheduling flush in " + FLUSH_DELAY_SECONDS + " secs");
-            flushSubscription.set(scheduler.createWorker().schedule(flushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS));
+            scheduler.createWorker().schedule(flushAction, FLUSH_DELAY_SECONDS, TimeUnit.SECONDS);
         } else {
             Log.d(this, "Ignoring flush event; already scheduled");
         }

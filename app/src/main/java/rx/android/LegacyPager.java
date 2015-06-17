@@ -1,11 +1,11 @@
 package rx.android;
 
+import com.soundcloud.android.rx.RxUtils;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
-import rx.subscriptions.Subscriptions;
 
 @Deprecated // needs to die along with the old ListViewController and friends.
 public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
@@ -14,7 +14,7 @@ public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
 
     private PublishSubject<Observable<T>> pages;
     private Observable<T> nextPage = FINISH_SEQUENCE;
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     /**
      * Used in the paging function to signal the caller that no more pages are available, i.e.

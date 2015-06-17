@@ -213,8 +213,7 @@ dependencies {
   compile libraries.rxAndroid
   compile libraries.rxJava
   compile libraries.rxJavaComputationExpressions
-  compile libraries.rxJavaAsyncUtil
-  compile libraries.rxJavaDebug
+  compile libraries.rxJavaAsyncUtil // remove when getting rid of LegacyCommand
   compile libraries.universalImageLoader
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {

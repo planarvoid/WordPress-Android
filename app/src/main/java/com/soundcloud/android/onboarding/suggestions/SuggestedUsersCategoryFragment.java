@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import static rx.android.observables.AndroidObservable.bindFragment;
+
+import static rx.android.app.AppObservable.bindFragment;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;

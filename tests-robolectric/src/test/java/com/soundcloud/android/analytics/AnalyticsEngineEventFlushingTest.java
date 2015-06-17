@@ -24,8 +24,8 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.functions.Action0;
+import rx.subscriptions.BooleanSubscription;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -42,14 +42,13 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock private AnalyticsProvider analyticsProviderTwo;
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker schedulerWorker;
-    @Mock private Subscription flushSubscription;
     @Mock private AnalyticsProviderFactory analyticsProviderFactory;
     @Captor private ArgumentCaptor<Action0> flushAction;
 
     @Before
     public void setUp() throws Exception {
         when(scheduler.createWorker()).thenReturn(schedulerWorker);
-        when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
+        when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(new BooleanSubscription());
 
         when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
         new AnalyticsEngine(eventBus, sharedPreferences, scheduler, analyticsProviderFactory);
@@ -72,16 +71,6 @@ public class AnalyticsEngineEventFlushingTest {
         flushAction.getValue().call();
         verify(analyticsProviderOne).flush();
         verify(analyticsProviderTwo).flush();
-    }
-
-    @Test
-    public void successfulFlushShouldResetSubscription() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
-
-        verify(schedulerWorker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
-        flushAction.getValue().call();
-        verify(flushSubscription).unsubscribe();
     }
 
     @Test

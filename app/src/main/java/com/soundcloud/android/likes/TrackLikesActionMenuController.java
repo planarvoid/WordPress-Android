@@ -5,10 +5,10 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_S
 
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.support.v4.app.Fragment;
 import android.view.Menu;
@@ -22,7 +22,7 @@ public class TrackLikesActionMenuController extends DefaultSupportFragmentLightC
     private final DefaultActionMenuController actionMenuController;
     private final OfflineContentOperations offlineOperations;
 
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public TrackLikesActionMenuController(DefaultActionMenuController actionMenuController,

@@ -5,6 +5,7 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
@@ -17,7 +18,6 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +32,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     private final ListItemAdapter<TrackItem> adapter;
     private final EventBus eventBus;
 
-    private Subscription eventSubscriptions = Subscriptions.empty();
+    private Subscription eventSubscriptions = RxUtils.invalidSubscription();
     private Urn playlistUrn = Urn.NOT_SET;
 
     protected ListView listView;

@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
@@ -59,8 +60,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-    private Subscription playQueueSubscription = Subscriptions.empty();
-    private Subscription fetchRecommendedSubscription = Subscriptions.empty();
+    private Subscription playQueueSubscription = RxUtils.invalidSubscription();
+    private Subscription fetchRecommendedSubscription = RxUtils.invalidSubscription();
     private Observable<RecommendedTracksCollection> recommendedTracksObservable;
 
     private PlaybackProgressInfo playbackProgressInfo;
@@ -328,7 +329,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public boolean shouldReloadQueue() {
-        return playQueue.isEmpty() && playQueueSubscription == Subscriptions.empty();
+        return playQueue.isEmpty() && playQueueSubscription == RxUtils.invalidSubscription();
     }
 
     public void fetchTracksRelatedToCurrentTrack() {

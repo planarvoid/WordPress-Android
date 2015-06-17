@@ -5,13 +5,13 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -43,7 +43,7 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     private final Handler handler;
     private final int delayMillis;
 
-    private Subscription subscriptions = Subscriptions.empty();
+    private Subscription subscriptions = RxUtils.invalidSubscription();
     private PlaybackService playbackService;
     private Strategy activeStrategy;
 

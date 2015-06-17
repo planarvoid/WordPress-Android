@@ -14,6 +14,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -40,7 +41,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final Navigator navigator;
 
     private PlaylistItem playlist;
-    private Subscription playlistSubscription = Subscriptions.empty();
+    private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private boolean allowOfflineOptions;
 
     @Inject

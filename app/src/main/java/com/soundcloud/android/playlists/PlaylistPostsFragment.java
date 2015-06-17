@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.lightcycle.LightCycle;
@@ -16,7 +17,6 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
-import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -38,7 +38,7 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
 
     private ConnectableObservable<List<PlaylistItem>> observable;
-    private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription connectionSubscription = RxUtils.invalidSubscription();
 
     public PlaylistPostsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);

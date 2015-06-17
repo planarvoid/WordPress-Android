@@ -2,12 +2,12 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.images.ImageUtils;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -22,7 +22,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     private final Scheduler graphicsScheduler;
     private final Scheduler observeOnScheduler;
 
-    private Subscription blurSubscription = Subscriptions.empty();
+    private Subscription blurSubscription = RxUtils.invalidSubscription();
 
 
     public BlurringPlayerArtworkLoader(ImageOperations imageOperations, Resources resources,

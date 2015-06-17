@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import static com.soundcloud.android.main.NavigationFragment.NavItem;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
-import static rx.android.observables.AndroidObservable.bindActivity;
+import static rx.android.app.AppObservable.bindActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;

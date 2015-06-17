@@ -3,6 +3,7 @@ package com.soundcloud.android.actionbar;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -26,7 +27,7 @@ public class PullToRefreshController extends DefaultSupportFragmentLightCycle {
 
     private final SwipeRefreshAttacher wrapper;
 
-    private Subscription refreshSubscription = Subscriptions.empty();
+    private Subscription refreshSubscription = RxUtils.invalidSubscription();
     private boolean wasRefreshing;
 
     private OnRefreshListener refreshListener;

@@ -11,6 +11,7 @@ import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -39,7 +40,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private FragmentActivity activity;
     private TrackItem track;
     private int positionInAdapter;
-    private Subscription trackSubscription = Subscriptions.empty();
+    private Subscription trackSubscription = RxUtils.invalidSubscription();
 
     @Nullable private RemoveTrackListener removeTrackListener;
 

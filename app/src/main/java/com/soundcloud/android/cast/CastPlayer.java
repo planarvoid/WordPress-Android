@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.Playa.PlayaState;
 import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
@@ -32,7 +33,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,7 +48,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final AdsOperations adsOperations;
     private final EventBus eventBus;
 
-    private Subscription playCurrentSubscription = Subscriptions.empty();
+    private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
     @Inject
     public CastPlayer(CastOperations castOperations,

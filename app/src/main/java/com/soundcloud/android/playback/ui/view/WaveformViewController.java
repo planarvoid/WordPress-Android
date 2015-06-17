@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
 import rx.Observable;
@@ -21,7 +22,6 @@ import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
@@ -60,7 +60,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private TranslateXHelper rightProgressHelper;
 
     private Observable<WaveformData> waveformObservable;
-    private Subscription waveformSubscription = Subscriptions.empty();
+    private Subscription waveformSubscription = RxUtils.invalidSubscription();
 
     private int adjustedWidth;
     private boolean suppressProgress;

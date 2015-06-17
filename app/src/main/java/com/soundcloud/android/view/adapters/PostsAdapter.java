@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -22,7 +23,6 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.net.Uri;
@@ -51,7 +51,7 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     @Inject EventBus eventBus;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
-    private Subscription eventSubscriptions = Subscriptions.empty();
+    private Subscription eventSubscriptions = RxUtils.invalidSubscription();
 
     @Deprecated
     public PostsAdapter(Uri uri, String relatedUsername) {

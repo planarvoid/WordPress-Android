@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.lightcycle.LightCycle;
@@ -15,7 +16,6 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -36,7 +36,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
     @Inject @LightCycle ListViewController listViewController;
 
     private ConnectableObservable<List<Comment>> comments;
-    private Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     public static CommentsFragment create(Urn trackUrn) {
         final Bundle bundle = new Bundle();

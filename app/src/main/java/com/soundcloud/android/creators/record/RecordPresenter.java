@@ -18,6 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -27,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -79,7 +79,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private CreateWaveDisplay waveDisplay;
     private CreateState currentState;
-    private Subscription cleanupRecordingsSubscription = Subscriptions.empty();
+    private Subscription cleanupRecordingsSubscription = RxUtils.invalidSubscription();
     private Map<View, Pair<BitSet, Integer>> visibilities;
     private RecordFragment recordFragment;
 
