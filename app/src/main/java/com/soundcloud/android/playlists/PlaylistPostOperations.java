@@ -6,8 +6,6 @@ import static com.google.common.collect.Iterables.getLast;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.commands.PagedQueryCommand;
-import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -27,7 +25,7 @@ class PlaylistPostOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    private final PagedQueryCommand<ChronologicalQueryParams> loadPostedPlaylistsCommand;
+    private final PlaylistPostStorage playlistPostStorage;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
@@ -52,19 +50,19 @@ class PlaylistPostOperations {
         }
     };
 
-    private final Func1<Object, ChronologicalQueryParams> toInitalPageParams = new Func1<Object, ChronologicalQueryParams>() {
+    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialPlaylistPosts = new Func1<Boolean, Observable<List<PropertySet>>>() {
         @Override
-        public ChronologicalQueryParams call(Object unused) {
-            return new ChronologicalQueryParams(PAGE_SIZE, Long.MAX_VALUE);
+        public Observable<List<PropertySet>> call(Boolean aBoolean) {
+            return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE).subscribeOn(scheduler);
         }
     };
 
     @Inject
-    PlaylistPostOperations(LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
+    PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
                            SyncInitiator syncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper) {
-        this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
+        this.playlistPostStorage = playlistPostStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
         this.networkConnectionHelper = networkConnectionHelper;
@@ -75,7 +73,8 @@ class PlaylistPostOperations {
     }
 
     Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists().map(toInitalPageParams).flatMap(loadPostedPlaylistsCommand);
+        return syncInitiator.refreshPostedPlaylists()
+                .flatMap(loadInitialPlaylistPosts);
     }
 
     LegacyPager<List<PropertySet>> postedPlaylistsPager() {
@@ -83,9 +82,7 @@ class PlaylistPostOperations {
     }
 
     private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
-        return loadPostedPlaylistsCommand
-                .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
-                .toObservable()
+        return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, beforeTime)
                 .doOnNext(requestPlaylistsSyncAction)
                 .subscribeOn(scheduler)
                 .lift(new OperatorSwitchOnEmptyList<>(updatedPostedPlaylists()));
