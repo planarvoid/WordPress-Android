@@ -154,7 +154,7 @@ public class UserDetailsPresenterTest {
     public void swipeToRefreshShowsEmptyViewWithErrorStatus() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>error(new Throwable()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>error(new Throwable()));
 
         swipeToRefresh();
 
@@ -166,7 +166,7 @@ public class UserDetailsPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         Mockito.reset(userDetailsView);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(emptyUser()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(emptyUser()));
 
         swipeToRefresh();
 
@@ -177,7 +177,7 @@ public class UserDetailsPresenterTest {
     public void swipeToRefreshHidesEmptyViewWithDetails() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithDescription()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithDescription()));
 
         swipeToRefresh();
 
@@ -189,7 +189,7 @@ public class UserDetailsPresenterTest {
     public void swipeToRefreshSetsFullUserDetailsOnView() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
 
         swipeToRefresh();
 
@@ -203,7 +203,7 @@ public class UserDetailsPresenterTest {
     public void swipeToRefreshHidesUserDetailsOnEmptyUser() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithBlankDescription()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithBlankDescription()));
 
         swipeToRefresh();
 
@@ -217,7 +217,7 @@ public class UserDetailsPresenterTest {
     public void stopsSwipeToRefreshAfterRefreshComplete() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithDescription()));
+        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithDescription()));
 
         swipeToRefresh();
 

@@ -49,7 +49,10 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
-        createUserDetailsObservable();
+
+        userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
+                .filter(hasDetails)
+                .cache();
     }
 
     @Override
@@ -94,7 +97,10 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
     @Override
     public void onRefresh() {
-        createUserDetailsObservable();
+        userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn)
+                .filter(hasDetails)
+                .cache();
+
         loadUser();
     }
 
