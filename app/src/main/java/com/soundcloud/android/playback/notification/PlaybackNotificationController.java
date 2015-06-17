@@ -74,8 +74,10 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
 
     public void unsubscribe() {
         subscriptions.unsubscribe();
-        activeStrategy.clear(playbackService);
-        playbackService = null;
+        if (hasRunningPlaybackService()) {
+            activeStrategy.clear(playbackService);
+            playbackService = null;
+        }
     }
 
     @Override
