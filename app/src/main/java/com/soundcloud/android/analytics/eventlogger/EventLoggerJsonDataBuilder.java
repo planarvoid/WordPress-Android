@@ -340,20 +340,22 @@ public class EventLoggerJsonDataBuilder {
 
     private String getPerformanceEventType(int type) {
         switch (type) {
-            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
-                return "uninterruptedPlaytimeMs";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
                 return "play";
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
-                return "buffer";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
                 return "playlist";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
+                return "buffer";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
                 return "seek";
             case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
                 return "fragmentRate";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD:
                 return "timeToLoadLibrary";
+            case PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT:
+                return "cacheUsage";
+            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
+                return "uninterruptedPlaytimeMs";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
