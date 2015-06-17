@@ -59,12 +59,12 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task buildBetaCI(dependsOn: ['clean', 'assembleBeta', 'slog', 'headsup']) {
+task buildBetaCI(dependsOn: ['clean', 'assembleBeta']) {
   description = 'Assembles Beta build for CI.'
 }
 buildBetaCI.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog', 'headsup']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
