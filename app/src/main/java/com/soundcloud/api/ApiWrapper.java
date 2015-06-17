@@ -1,7 +1,6 @@
 package com.soundcloud.api;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.ConnectionReuseStrategy;
@@ -70,11 +69,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static android.util.Log.INFO;
-import static com.soundcloud.android.api.legacy.PublicCloudAPI.TAG;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 /**
  * Interface with SoundCloud, using OAuth2.
@@ -473,16 +467,6 @@ public class ApiWrapper implements CloudAPI {
     public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
         if (target == null) {
             target = determineTarget(request);
-            String hostString;
-            if (target == null) {
-                hostString = "null";
-            } else {
-                hostString = String.format("%s://%s", target.getSchemeName(), target.toHostString());
-            }
-            log(INFO, TAG, String.format("automatically determine target to be %s", hostString));
-            if (target == null) {
-                throw new NullPointerException("Api wrapper was passed a 'null' target, and could not determine a default");
-            }
         }
 
         try {

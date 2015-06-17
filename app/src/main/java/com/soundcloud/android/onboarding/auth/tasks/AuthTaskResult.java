@@ -89,6 +89,17 @@ public final class AuthTaskResult {
     private AuthTaskResult(@NotNull Kind kind, PublicApiUser user, SignupVia signupVia,
                            Exception exception, boolean showFacebookSuggestions, Bundle loginBundle,
                            String serverErrorMessage) {
+        String message = String.format(
+                "Creating auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
+                kind,
+                user != null,
+                signupVia,
+                exception,
+                loginBundle != null,
+                serverErrorMessage
+        );
+        Log.i(Log.ONBOARDING_TAG, message);
+
         this.kind = kind;
         this.user = user;
         this.signupVia = signupVia;
@@ -161,18 +172,5 @@ public final class AuthTaskResult {
 
     public String getKindString() {
         return kind.toString();
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Creating auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
-                kind,
-                user != null,
-                signupVia,
-                exception,
-                loginBundle != null,
-                serverErrorMessage
-        );
     }
 }

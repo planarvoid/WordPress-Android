@@ -2,7 +2,6 @@ package com.soundcloud.api;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -396,13 +395,10 @@ public class ApiWrapperTest {
         };
         when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new IllegalArgumentException());
         try {
-            HttpGet request = new HttpGet("/foo");
-            assertNotNull(request);
-            assertNotNull(broken);
-            broken.safeExecute(null, request);
-            fail("expected NullPointerException");
-        } catch (NullPointerException expected) {
-            // expected
+            broken.safeExecute(null, new HttpGet("/foo"));
+            fail("expected BrokenHttpClientException");
+        } catch (ApiWrapper.BrokenHttpClientException expected) {
+            verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
 
         reset(client);

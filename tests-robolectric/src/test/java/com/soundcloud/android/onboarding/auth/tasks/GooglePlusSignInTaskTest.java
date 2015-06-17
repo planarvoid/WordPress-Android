@@ -21,7 +21,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
@@ -57,7 +56,6 @@ public class GooglePlusSignInTaskTest {
     @Before
     public void setUp() throws Exception {
         when(app.getAccountOperations()).thenReturn(accountOperations);
-        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, "device-id"));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage,
                 accountOperations, configurationOperations, new TestEventBus());
@@ -67,27 +65,28 @@ public class GooglePlusSignInTaskTest {
 
     @Test
     public void shouldSpecifyTheCorrectGrantTypeWhenCreatingGrantString() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         task.doInBackground(bundle);
         verify(tokenInformationGenerator).getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=", "validtoken");
     }
 
     @Test
     public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("invalidtoken");
-        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(TokenRetrievalException.class);
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
+        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(CloudAPI.InvalidTokenException.class);
         task.doInBackground(bundle);
-        verify(accountOperations, times(2)).invalidateGoogleAccountToken("invalidtoken");
+        verify(accountOperations, times(2)).invalidateGoogleAccountToken("validtoken");
     }
 
     @Test
     public void shouldReturnFailureIfGoogleTokenCouldNotBeObtained() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenThrow(GoogleAuthException.class);
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenThrow(GoogleAuthException.class);
         assertThat(task.doInBackground(bundle).wasSuccess(), is(false));
     }
 
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException {
+        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);

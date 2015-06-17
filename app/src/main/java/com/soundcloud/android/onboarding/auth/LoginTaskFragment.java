@@ -33,12 +33,14 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
+        Log.i(Log.ONBOARDING_TAG, "creating login auth task");
         return new LoginTask((SoundCloudApplication)getActivity().getApplication(), configurationOperations, eventBus, accountOperations);
     }
 
     @Override
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Exception exception = result.getException();
+        Log.i(Log.ONBOARDING_TAG, "email login error with " + exception.getClass().getSimpleName() + ": " + exception.getMessage());
         if (exception instanceof CloudAPI.InvalidTokenException) {
             return activity.getString(R.string.authentication_login_error_password_message);
         } else {

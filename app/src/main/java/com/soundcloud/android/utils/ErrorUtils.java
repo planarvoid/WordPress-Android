@@ -71,8 +71,8 @@ public final class ErrorUtils {
     }
 
     /*
-     * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
-     */
+         * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
+         */
     public static void setupUncaughtExceptionHandler(final MemoryReporter memoryReporter) {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -133,12 +133,6 @@ public final class ErrorUtils {
                 Crashlytics.setString(contextKey, contextValue);
             }
             Crashlytics.logException(e);
-        }
-    }
-
-    public static void log(int priority, String tag, String message) {
-        if (Fabric.isInitialized()) {
-            Crashlytics.log(priority, tag, message);
         }
     }
 

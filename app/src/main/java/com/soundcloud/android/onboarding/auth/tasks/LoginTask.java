@@ -11,15 +11,11 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.onboarding.exceptions.AddAccountException;
-import com.soundcloud.android.onboarding.exceptions.SignInException;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
@@ -28,10 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import static android.util.Log.INFO;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public class LoginTask extends AuthTask {
 
@@ -67,6 +59,7 @@ public class LoginTask extends AuthTask {
     }
 
     protected AuthTaskResult login(Bundle data) {
+        Log.i(Log.ONBOARDING_TAG, "login task login");
         Context app = getSoundCloudApplication();
 
         try {
@@ -88,18 +81,22 @@ public class LoginTask extends AuthTask {
                 }
             }
 
+
+            Log.i(Log.ONBOARDING_TAG, "LoginTask[Token](" + token + ")");
             accountOperations.updateToken(token);
 
             final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {
+                Log.i(Log.ONBOARDING_TAG, "user null after fetching, connection problem?");
                 return AuthTaskResult.failure(app.getString(R.string.authentication_error_no_connection_message));
             }
+            Log.d("LoginTask[User](" + user + ")");
 
             SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
             if (!addAccount(user, token, signupVia)) {
                 // might mean the account already existed or an unknown failure adding account.
                 // this should never happen, just show a generic error message
-                ErrorUtils.handleSilentException(new AddAccountException());
+                Log.i(Log.ONBOARDING_TAG, "unable to add account, the 'impossible' error");
                 return AuthTaskResult.failure(app.getString(R.string.authentication_login_error_message));
             }
 
@@ -109,8 +106,8 @@ public class LoginTask extends AuthTask {
 
 
         } catch (Exception e) {
-            log(INFO, ONBOARDING_TAG, "error retrieving SC API token: " + e.getMessage());
-            return AuthTaskResult.failure(new TokenRetrievalException(e));
+            Log.e("Error retrieving SC API token" + e.getMessage());
+            return AuthTaskResult.failure(e);
         }
     }
 }
