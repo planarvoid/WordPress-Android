@@ -366,9 +366,11 @@ public class DatabaseFixtures {
         return insertPromotedStreamTrack(insertTrack(), timestamp);
     }
 
-    public ApiTrack insertPromotedStreamTrack(ApiTrack track, long timestamp) {
-        long promotedId = 26;
+    public ApiTrack insertPromotedStreamTrack(ApiTrack apiTrack, long timestasmp) {
+        return insertPromotedStreamTrack(apiTrack, timestasmp, 26 /** why 26? - JS**/);
+    }
 
+    public ApiTrack insertPromotedStreamTrack(ApiTrack track, long timestamp, long promotedId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, track.getUrn().getNumericId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
@@ -376,13 +378,14 @@ public class DatabaseFixtures {
         cv.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
         insertInto(Table.SoundStream, cv);
 
-        insertPromotedTrackMetadata(promotedId);
+        insertPromotedTrackMetadata(promotedId, timestamp);
         return track;
     }
 
-    public void insertPromotedTrackMetadata(long promotedId) {
+    public long insertPromotedTrackMetadata(long promotedId, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PromotedTracks._ID, promotedId);
+        cv.put(TableColumns.PromotedTracks.CREATED_AT, timestamp);
         cv.put(TableColumns.PromotedTracks.AD_URN, "promoted:track:123");
         cv.put(TableColumns.PromotedTracks.PROMOTER_ID, 83);
         cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, "SoundCloud");
@@ -391,7 +394,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, "promoted5 promoted6");
         cv.put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, "promoted7 promoted8");
 
-        insertInto(Table.PromotedTracks, cv);
+        return insertInto(Table.PromotedTracks, cv);
     }
 
     public void insertPolicyAllow(Urn urn, long lastUpdate) {

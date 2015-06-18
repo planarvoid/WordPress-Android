@@ -18,10 +18,12 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
+import com.soundcloud.android.tracks.RemoveStalePromotedTracksCommand;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -46,6 +48,7 @@ class SoundStreamOperations {
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final EventBus eventBus;
+    private final RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
     private final Scheduler scheduler;
 
     private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
@@ -66,7 +69,7 @@ class SoundStreamOperations {
         }
     };
 
-    private Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
+    private final Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
         @Override
         public void call(List<PropertySet> propertySets) {
             if (!propertySets.isEmpty()) {
@@ -79,12 +82,21 @@ class SoundStreamOperations {
         }
     };
 
+    private final Action0 removeStalePromotedItems = new Action0() {
+        @Override
+        public void call() {
+            removeStalePromotedTracksCommand.call(null);
+        }
+    };
+
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          ContentStats contentStats, EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          ContentStats contentStats, RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand,
+                          EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
+        this.removeStalePromotedTracksCommand = removeStalePromotedTracksCommand;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
     }
@@ -107,7 +119,8 @@ class SoundStreamOperations {
         return soundStreamStorage
                 .initialStreamItems(PAGE_SIZE).toList()
                 .subscribeOn(scheduler)
-                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted))
+                .doOnSubscribe(removeStalePromotedItems);
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {

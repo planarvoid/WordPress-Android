@@ -126,7 +126,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Test
     public void removePromotedTracksOnlyIfTheyCorrespondToPromotedIdForStream() {
-        testFixtures().insertPromotedTrackMetadata(123L);
+        testFixtures().insertPromotedTrackMetadata(123L, System.currentTimeMillis());
 
         command.call(Arrays.asList(
                 ApiStreamItemFixtures.promotedStreamItemWithoutPromoter(),

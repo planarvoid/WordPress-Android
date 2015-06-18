@@ -14,13 +14,13 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.storage.IdMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.RxResultMapper;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -155,11 +155,4 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         }
     }
 
-    private static class IdMapper extends RxResultMapper<Long> {
-
-        @Override
-        public Long map(CursorReader reader) {
-            return reader.getLong(_ID);
-        }
-    }
 }
