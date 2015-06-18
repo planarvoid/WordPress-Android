@@ -372,7 +372,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         final List<TrackItem> tracks = playlistWithTracks.getTracks();
         if (!tracks.isEmpty()) {
             playToggle.setVisibility(View.VISIBLE);
-            AnimUtils.runFadeInAnimationOn(playToggle.getContext(), playToggle);
+            AnimUtils.runFadeInAnimationOn(playToggle);
         } else {
             playToggle.setVisibility(View.GONE);
         }

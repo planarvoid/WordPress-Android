@@ -60,11 +60,11 @@ class UpgradeView  {
     public void showBuyButton(String price) {
         buyButton.setText(resources.getString(R.string.upgrade_buy_price, price));
         loading.setVisibility(View.GONE);
-        AnimUtils.showView(buyButton.getContext(), buyButton, true);
+        AnimUtils.showView(buyButton, true);
     }
 
     public void hideBuyButton() {
-        AnimUtils.hideView(buyButton.getContext(), buyButton, true);
+        AnimUtils.hideView(buyButton, true);
         loading.setVisibility(View.VISIBLE);
     }
 

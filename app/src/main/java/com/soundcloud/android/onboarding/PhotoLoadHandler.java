@@ -25,7 +25,7 @@ class PhotoLoadHandler extends Handler {
                 final OnboardActivity onboardActivity = onboardActivityRef.get();
                 final View splash = splashRef.get();
                 if (onboardActivity != null && splash != null) {
-                    hideView(onboardActivity, splash, true);
+                    hideView(splash, true);
                 }
                 break;
             default:

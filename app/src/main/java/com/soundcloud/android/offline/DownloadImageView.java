@@ -49,7 +49,7 @@ public class DownloadImageView extends ImageView {
 
     private void animateDownloadingState() {
         setDownloadStateResource(downloading);
-        AnimUtils.runSpinClockwiseAnimationOn(getContext(), this);
+        AnimUtils.runSpinClockwiseAnimationOn(this);
     }
 
     private void setDownloadStateResource(Drawable drawable) {

@@ -155,19 +155,19 @@ public class OnboardActivity extends FragmentActivity
             overlayHolder.setVisibility(View.GONE);
             final Context context = OnboardActivity.this;
             if (loginLayout != null) {
-                hideView(context, loginLayout, false);
+                hideView(loginLayout, false);
             }
             if (signUpMethodLayout != null) {
-                hideView(context, signUpMethodLayout, false);
+                hideView(signUpMethodLayout, false);
             }
             if (signUpBasicsLayout != null) {
-                hideView(context, signUpBasicsLayout, false);
+                hideView(signUpBasicsLayout, false);
             }
             if (signUpDetailsLayout != null) {
-                hideView(context, signUpDetailsLayout, false);
+                hideView(signUpDetailsLayout, false);
             }
             if (acceptTermsLayout != null) {
-                hideView(context, acceptTermsLayout, false);
+                hideView(acceptTermsLayout, false);
             }
         }
     };
@@ -425,23 +425,23 @@ public class OnboardActivity extends FragmentActivity
 
     private void hideViews(OnboardingState state, boolean animated) {
         if (state != OnboardingState.LOGIN && loginLayout != null) {
-            hideView(this, loginLayout, animated);
+            hideView(loginLayout, animated);
         }
 
         if (state != OnboardingState.SIGN_UP_METHOD && signUpMethodLayout != null) {
-            hideView(this, signUpMethodLayout, animated);
+            hideView(signUpMethodLayout, animated);
         }
 
         if (state != OnboardingState.SIGN_UP_BASICS && signUpBasicsLayout != null) {
-            hideView(this, signUpBasicsLayout, animated);
+            hideView(signUpBasicsLayout, animated);
         }
 
         if (state != OnboardingState.SIGN_UP_DETAILS && signUpDetailsLayout != null) {
-            hideView(this, signUpDetailsLayout, animated);
+            hideView(signUpDetailsLayout, animated);
         }
 
         if (state != OnboardingState.ACCEPT_TERMS && acceptTermsLayout != null) {
-            hideView(this, acceptTermsLayout, animated);
+            hideView(acceptTermsLayout, animated);
         }
     }
 
@@ -512,7 +512,7 @@ public class OnboardActivity extends FragmentActivity
                 throw new IllegalArgumentException("Unknown signupVia: " + signupVia.name());
         }
 
-        hideView(this, getAcceptTermsLayout(), true);
+        hideView(getAcceptTermsLayout(), true);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.termsAccepted());
     }
 
@@ -779,29 +779,29 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void onHideOverlay(boolean animated) {
-        showView(this, photoBottomBar, animated);
-        showView(this, photoLogo, animated);
-        hideView(this, overlayBg, animated);
+        showView(photoBottomBar, animated);
+        showView(photoLogo, animated);
+        hideView(overlayBg, animated);
 
         photosAdapter.hideViewsOfLayout(photoPager.getCurrentItem());
 
         if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
-            hideView(this, overlayHolder, hideScrollViewListener);
+            hideView(overlayHolder, hideScrollViewListener);
         } else {
             hideScrollViewListener.onAnimationEnd(null);
         }
     }
 
     private void showOverlay(View overlay, boolean animated) {
-        hideView(this, photoBottomBar, animated);
-        hideView(this, photoLogo, animated);
+        hideView(photoBottomBar, animated);
+        hideView(photoLogo, animated);
 
         // hide foreground views
         photosAdapter.showViewsOfLayout(photoPager.getCurrentItem(), animated);
 
-        showView(this, overlayHolder, animated);
-        showView(this, overlayBg, animated);
-        showView(this, overlay, animated);
+        showView(overlayHolder, animated);
+        showView(overlayBg, animated);
+        showView(overlay, animated);
     }
 
     @Override

@@ -72,7 +72,7 @@ class TourPhotoPagerAdapter extends PagerAdapter {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                showView(view.getContext(), view, false);
+                showView(view, false);
             }
         }
     }
@@ -81,7 +81,7 @@ class TourPhotoPagerAdapter extends PagerAdapter {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                hideView(view.getContext(), view, animated);
+                hideView(view, animated);
             }
         }
     }

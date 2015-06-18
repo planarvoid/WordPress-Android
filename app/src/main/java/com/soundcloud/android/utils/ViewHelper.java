@@ -18,11 +18,11 @@ public class ViewHelper {
     }
 
     public void hideView(View view, int hiddenVisibility, boolean animated){
-        AnimUtils.hideView(view.getContext(), view, hiddenVisibility, animated);
+        AnimUtils.hideView(view, hiddenVisibility, animated);
     }
 
     public void showView(View view, boolean animated){
-        AnimUtils.showView(view.getContext(), view, animated);
+        AnimUtils.showView(view, animated);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

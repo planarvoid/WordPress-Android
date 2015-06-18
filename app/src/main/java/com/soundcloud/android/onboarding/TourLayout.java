@@ -82,7 +82,7 @@ public class TourLayout extends FrameLayout {
             bitmapSize[1] = bitmap.getHeight();
             bgImageView.setImageBitmap(bitmap);
         }
-        AnimUtils.showView(getContext(), bgImageView, true);
+        AnimUtils.showView(bgImageView, true);
         if (loadHandler != null) {
             loadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
         }
