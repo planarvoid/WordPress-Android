@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
 import com.soundcloud.android.api.legacy.model.RecordingBlueprint;
-import com.soundcloud.android.api.legacy.model.TrackStatsBlueprint;
+import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistBlueprint;
@@ -62,7 +62,7 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(SuggestedUserBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistBlueprint.class);
-            modelFactory.registerBlueprint(TrackStatsBlueprint.class);
+            modelFactory.registerBlueprint(ApiTrackStatsBlueprint.class);
             modelFactory.registerBlueprint(PublicApiPlaylistBlueprint.class);
             modelFactory.registerBlueprint(PlaybackSessionEventBlueprint.class);
             modelFactory.registerBlueprint(AssignmentBlueprint.class);

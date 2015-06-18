@@ -178,6 +178,7 @@ android {
  */
 configurations {
   all*.exclude group: 'commons-logging', module: 'commons-logging'
+  testCompile.exclude module: libraries.guavaRepack
 }
 
 dependencies {
@@ -239,6 +240,7 @@ dependencies {
   compile libraries.androidPlayServicesCast
 
   /* Unit tests */
+  testCompile unitTestLibraries.guava
   testCompile unitTestLibraries.junit
   testCompile unitTestLibraries.assertj
   testCompile unitTestLibraries.mockito

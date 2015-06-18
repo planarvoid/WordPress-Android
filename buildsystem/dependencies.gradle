@@ -78,7 +78,7 @@ ext {
 
   unitTestLibraries = [
           daggerCompiler   : "com.squareup.dagger:dagger-compiler:$daggerVersion",
-          guava            : "com.google.guava:guava:14.0.1",
+          guava            : "com.google.guava:guava:18.0",
           junit            : "junit:junit:4.12",
           assertj          : "org.assertj:assertj-core:1.7.1",
           robolectric      : "org.robolectric:robolectric:3.0-rc3",
