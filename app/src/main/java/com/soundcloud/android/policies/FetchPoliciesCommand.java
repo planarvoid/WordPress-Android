@@ -1,6 +1,7 @@
 package com.soundcloud.android.policies;
 
 import com.google.common.collect.Collections2;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -28,10 +29,6 @@ class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<Pol
                 .withContent(Collections2.transform(input, GuavaFunctions.urnToString()))
                 .forPrivateApi(1)
                 .build();
-        return apiClient.fetchMappedResponse(request, PolicyInfoCollection.class).getCollection();
-    }
-
-    static class PolicyInfoCollection extends ModelCollection<PolicyInfo> {
-
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<PolicyInfo>>() {}).getCollection();
     }
 }
