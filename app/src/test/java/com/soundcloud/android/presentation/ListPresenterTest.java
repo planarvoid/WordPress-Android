@@ -1,8 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import static com.soundcloud.android.Expect.expect;
-import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.same;
@@ -12,13 +11,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestPager;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -42,8 +40,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ListPresenterTest {
+public class ListPresenterTest extends PlatformUnitTest {
 
     private ListPresenter<String> presenter;
     private PublishSubject<List<String>> source = PublishSubject.create();
@@ -79,7 +76,7 @@ public class ListPresenterTest {
 
         presenter.onCreate(fragment, null);
 
-        expect(presenter.getBinding()).toBe(collectionBinding);
+        assertThat(presenter.getBinding()).isSameAs(collectionBinding);
     }
 
     @Test
@@ -128,8 +125,8 @@ public class ListPresenterTest {
 
         verify(listView).setOnItemClickListener(clickListenerCaptor.capture());
         clickListenerCaptor.getValue().onItemClick(listView, itemView, 2, -1);
-        expect(lastClickedView).toBe(itemView);
-        expect(lastClickedPosition).toEqual(2);
+        assertThat(lastClickedView).isSameAs(itemView);
+        assertThat(lastClickedPosition).isEqualTo(2);
     }
 
     @Test
@@ -218,7 +215,7 @@ public class ListPresenterTest {
         triggerPullToRefresh();
         refreshBinding.items().subscribe(testSubscriber);
 
-        final List<String> listContent = singletonList("item");
+        final List<String> listContent = Collections.singletonList("item");
         source.onNext(listContent);
         testSubscriber.assertReceivedOnNext(Collections.<Iterable<String>>singletonList(listContent));
     }
@@ -265,7 +262,7 @@ public class ListPresenterTest {
         triggerPullToRefresh();
         source.onNext(Collections.singletonList("item"));
 
-        expect(presenter.getBinding()).toBe(refreshBinding);
+        assertThat(presenter.getBinding()).isSameAs(refreshBinding);
     }
 
     @Test
@@ -322,7 +319,7 @@ public class ListPresenterTest {
 
         presenter.onDestroy(fragment);
 
-        expect(subscription.isUnsubscribed()).toBeTrue();
+        assertThat(subscription.isUnsubscribed()).isTrue();
     }
 
     @Test
@@ -332,10 +329,10 @@ public class ListPresenterTest {
         createPresenterWithPendingBindings(firstBinding, secondBinding);
 
         presenter.onCreate(fragment, null);
-        expect(presenter.getBinding()).toBe(firstBinding);
+        assertThat(presenter.getBinding()).isSameAs(firstBinding);
 
         presenter.rebuildBinding(null);
-        expect(presenter.getBinding()).toBe(secondBinding);
+        assertThat(presenter.getBinding()).isSameAs(secondBinding);
     }
 
     @Test

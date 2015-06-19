@@ -5,7 +5,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
-import com.soundcloud.android.api.legacy.model.TrackStats;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
@@ -43,7 +42,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
     private String artworkUrl;
     private String permalinkUrl;
     private Sharing sharing = Sharing.UNDEFINED;
-    private TrackStats stats;
+    private ApiTrackStats stats;
 
     private boolean monetizable;
     private String policy;
@@ -159,11 +158,11 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.permalinkUrl = permalinkUrl;
     }
 
-    public TrackStats getStats() {
+    public ApiTrackStats getStats() {
         return stats;
     }
 
-    public void setStats(TrackStats stats) {
+    public void setStats(ApiTrackStats stats) {
         this.stats = stats;
     }
 
@@ -320,13 +319,13 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
 
     private static class RelatedResources {
         private ApiUser user;
-        private TrackStats stats;
+        private ApiTrackStats stats;
 
         void setUser(ApiUser user) {
             this.user = user;
         }
 
-        void setStats(TrackStats stats) {
+        void setStats(ApiTrackStats stats) {
             this.stats = stats;
         }
     }

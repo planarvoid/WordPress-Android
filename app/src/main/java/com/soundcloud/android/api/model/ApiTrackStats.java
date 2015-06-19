@@ -1,8 +1,9 @@
-package com.soundcloud.android.api.legacy.model;
+package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.api.legacy.model.PlayableStats;
 
-public class TrackStats extends PlayableStats {
+public class ApiTrackStats extends PlayableStats {
 
     private int playbackCount;
     private int commentsCount;

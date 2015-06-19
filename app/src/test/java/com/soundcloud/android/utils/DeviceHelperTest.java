@@ -1,12 +1,11 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.ContentResolver;
@@ -16,8 +15,7 @@ import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
-@RunWith(SoundCloudTestRunner.class)
-public class DeviceHelperTest {
+public class DeviceHelperTest extends PlatformUnitTest {
 
     public static final String PACKAGE_NAME = "package-name";
     private DeviceHelper deviceHelper;
@@ -50,7 +48,7 @@ public class DeviceHelperTest {
 
         deviceHelper = new DeviceHelper(context, buildHelper);
 
-        expect(deviceHelper.getUdid()).toEqual("04ddf8a23b64c654b938b95a50a486f0");
+        assertThat(deviceHelper.getUdid()).isEqualTo("04ddf8a23b64c654b938b95a50a486f0");
     }
 
     @Test
@@ -59,67 +57,67 @@ public class DeviceHelperTest {
 
         deviceHelper = new DeviceHelper(context, buildHelper);
 
-        expect(deviceHelper.getUdid()).toEqual("3858f62230ac3c915f300c664312c63f");
+        assertThat(deviceHelper.getUdid()).isEqualTo("3858f62230ac3c915f300c664312c63f");
     }
 
     @Test
     public void inSplitTestGroupReturnsTrueBasedOnDeviceId() throws Exception {
         when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
         when(telephonyManager.getDeviceId()).thenReturn("MYID");
-        expect(deviceHelper.inSplitTestGroup()).toBeTrue();
+        assertThat(deviceHelper.inSplitTestGroup()).isTrue();
     }
 
     @Test
     public void inSplitTestGroupReturnsFalseBasedOnDeviceId() throws Exception {
         when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
         when(telephonyManager.getDeviceId()).thenReturn("0000000");
-        expect(deviceHelper.inSplitTestGroup()).toBeFalse();
+        assertThat(deviceHelper.inSplitTestGroup()).isFalse();
     }
 
     @Test
     public void getDeviceNameReturnsManufacturerAndModelIfModelDoesNotContainsManufacturer(){
         when(buildHelper.getModel()).thenReturn("GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
-        expect(deviceHelper.getDeviceName()).toEqual("Samsung GT-I9082");
+        assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
     public void getDeviceNameReturnsModelOnlyIfModelContainsManufacturer(){
         when(buildHelper.getModel()).thenReturn("Samsung GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
-        expect(deviceHelper.getDeviceName()).toEqual("Samsung GT-I9082");
+        assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
     public void getDeviceNameReturnsManufacturerOnlyIfNoModel(){
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
-        expect(deviceHelper.getDeviceName()).toEqual("Samsung");
+        assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung");
     }
 
     @Test
     public void getDeviceNameReturnsModelOnlyIfNoManufacturer(){
         when(buildHelper.getModel()).thenReturn("Samsung GT-I9082");
-        expect(deviceHelper.getDeviceName()).toEqual("Samsung GT-I9082");
+        assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
     public void getDeviceNameReturnsDefaultNameWithNoManufacturerOrModel(){
-        expect(deviceHelper.getDeviceName()).toEqual("unknown device");
+        assertThat(deviceHelper.getDeviceName()).isEqualTo("unknown device");
     }
 
     @Test
     public void getPackageNameReturnsPackageNameFromContext(){
-        expect(deviceHelper.getPackageName()).toEqual(PACKAGE_NAME);
+        assertThat(deviceHelper.getPackageName()).isEqualTo(PACKAGE_NAME);
     }
 
     @Test
     public void getAppVersionReturnsAppVersionFromPackageManager() throws Exception {
-        expect(deviceHelper.getAppVersion()).toEqual("1.2.3");
+        assertThat(deviceHelper.getAppVersion()).isEqualTo("1.2.3");
     }
 
     @Test
     public void getAppVersionCodeReturnsAppVersionCodeFromPackageManager() throws Exception {
-        expect(deviceHelper.getAppVersionCode()).toEqual(66);
+        assertThat(deviceHelper.getAppVersionCode()).isEqualTo(66);
     }
 
     @Test
@@ -127,7 +125,7 @@ public class DeviceHelperTest {
         when(buildHelper.getModel()).thenReturn("Samsung GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
         when(buildHelper.getAndroidReleaseVersion()).thenReturn("4.1.1");
-        expect(deviceHelper.getUserAgent()).toEqual("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
+        assertThat(deviceHelper.getUserAgent()).isEqualTo("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
     }
 
 }

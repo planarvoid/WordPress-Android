@@ -1,10 +1,10 @@
-package com.soundcloud.android.api.legacy.model;
+package com.soundcloud.android.api.model;
 
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 
-@Blueprint(TrackStats.class)
-public class TrackStatsBlueprint {
+@Blueprint(ApiTrackStats.class)
+public class ApiTrackStatsBlueprint {
 
     @Default(force = true)
     int playbackCount = 789;

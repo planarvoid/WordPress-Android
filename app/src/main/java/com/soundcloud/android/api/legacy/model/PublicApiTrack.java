@@ -11,6 +11,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.storage.ResolverHelper;
@@ -112,7 +113,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         permalink_url = suggestion.getPermalinkUrl();
         policy = suggestion.getPolicy();
 
-        final TrackStats stats = suggestion.getStats();
+        final ApiTrackStats stats = suggestion.getStats();
         if (stats != null) {
             playback_count = stats.getPlaybackCount();
             likes_count = stats.getLikesCount();

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
@@ -11,6 +10,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -20,7 +20,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -28,17 +27,17 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.rx.TestEventBus;
+import com.soundcloud.android.testsupport.ModelFixtures;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -54,10 +53,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayQueueManagerTest {
+public class PlayQueueManagerTest extends PlatformUnitTest {
 
     private static final String ORIGIN_PAGE = "explore:music:techno";
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(6L);
+    private static final Urn USER_URN = Urn.forUser(4L);
 
     private PlayQueueManager playQueueManager;
     private TestEventBus eventBus = new TestEventBus();
@@ -70,7 +70,6 @@ public class PlayQueueManagerTest {
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PolicyOperations policyOperations;
 
-    private PublicApiPlaylist playlist;
     private PlaySessionSource playSessionSource;
 
     private final List<Urn> queueUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(124));
@@ -88,9 +87,8 @@ public class PlayQueueManagerTest {
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
-        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playSessionSource.setExploreVersion("1.0");
     }
 
@@ -114,15 +112,15 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUpdatePositionOnCurrentQueueWhenContentAndSourceAreUnchanged() {
         PlaySessionSource source1 = new PlaySessionSource("screen:something");
-        PlayQueue queue1 = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L, 5L), source1);
+        PlayQueue queue1 = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L, 5L), source1);
         PlaySessionSource source2 = new PlaySessionSource("screen:something");
-        PlayQueue queue2 = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L, 5L), source2);
+        PlayQueue queue2 = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L, 5L), source2);
 
         playQueueManager.setNewPlayQueue(queue1, 0, source1);
         playQueueManager.setNewPlayQueue(queue2, 2, source2);
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toContainExactly(PlayQueueEvent.fromNewQueue());
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toContainExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L)),
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue());
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).containsExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L)),
                 CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(3L)));
     }
 
@@ -134,7 +132,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.setPosition(newPosition);
 
-        expect(playQueueManager.getCurrentPosition()).toEqual(newPosition);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(newPosition);
     }
 
     @Test
@@ -142,78 +140,83 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
         when(playQueue.getUrn(5)).thenReturn(Urn.forTrack(5L));
 
-        expect(playQueueManager.getCurrentTrackUrn()).toEqual(Urn.forTrack(5L));
+        assertThat(playQueueManager.getCurrentTrackUrn()).isEqualTo(Urn.forTrack(5L));
     }
 
     @Test
     public void getCurrentQueueAsUrnListReturnsUrnList() {
-        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getCurrentQueueAsUrnList()).toEqual(tracksUrn);
+        assertThat(playQueueManager.getCurrentQueueAsUrnList()).isEqualTo(tracksUrn);
     }
 
     @Test
     public void hasSameTrackListTrueForMatchingUrns() {
-        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
 
-        expect(playQueueManager.hasSameTrackList(createTracksUrn(1L, 2L, 3L))).toBeTrue();
+        assertThat(playQueueManager.hasSameTrackList(TestUrns.createTrackUrns(1L, 2L, 3L))).isTrue();
     }
 
     @Test
     public void hasSameTrackListTrueForDifferentOrder() {
-        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
 
-        expect(playQueueManager.hasSameTrackList(createTracksUrn(3L, 2L, 1L))).toBeFalse();
+        assertThat(playQueueManager.hasSameTrackList(TestUrns.createTrackUrns(3L, 2L, 1L))).isFalse();
     }
 
     @Test
     public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getQueueSize()).toBe(3);
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
     }
 
     @Test
     public void isQueueEmptyReturnsTrueIfQueueSizeIsZero() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), playSessionSource);
 
-        expect(playQueueManager.isQueueEmpty()).toBeTrue();
+        assertThat(playQueueManager.isQueueEmpty()).isTrue();
     }
 
     @Test
     public void isQueueEmptyReturnsFalseIfQueueSizeGreaterThanZero() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.isQueueEmpty()).toBeFalse();
+        assertThat(playQueueManager.isQueueEmpty()).isFalse();
     }
 
     @Test
     public void getUrnAtPositionReturnsTrackUrnForPlayQueueItem() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getUrnAtPosition(2)).toEqual(Urn.forTrack(3L));
+        assertThat(playQueueManager.getUrnAtPosition(2)).isEqualTo(Urn.forTrack(3L));
     }
 
     @Test
     public void getPositionForUrnReturnsNotSetForEmptyPlayQueue() throws Exception {
-        expect(playQueueManager.getPositionForUrn(Urn.forTrack(1L))).toEqual(Consts.NOT_SET);
+        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(1L))).isEqualTo(Consts.NOT_SET);
     }
 
     @Test
     public void getPositionForUrnReturnsNotSetForUrnIfNotInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getPositionForUrn(Urn.forTrack(4L))).toEqual(Consts.NOT_SET);
+        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(4L))).isEqualTo(Consts.NOT_SET);
     }
 
     @Test
     public void getPositionForUrnReturnsPositionForUrnIfInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.getPositionForUrn(Urn.forTrack(2L))).toEqual(1);
+        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
     }
 
     @Test
@@ -221,31 +224,31 @@ public class PlayQueueManagerTest {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
     public void shouldReturnNullForTrackSourceInfoWhenSettingEmptyPlayQueue() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), playSessionSource);
-        expect(playQueueManager.getCurrentTrackSourceInfo()).toBeNull();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo()).isNull();
     }
 
     @Test
     public void shouldReturnTrackSourceInfoWithPlaylistInfoSetIfSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        expect(trackSourceInfo.getPlaylistUrn()).toEqual(playlist.getUrn());
-        expect(trackSourceInfo.getPlaylistPosition()).toEqual(1);
+        assertThat(trackSourceInfo.getPlaylistUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(trackSourceInfo.getPlaylistPosition()).isEqualTo(1);
     }
 
     @Test
     public void shouldReturnTrackSourceInfoWithExploreTrackingTagIfSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        expect(trackSourceInfo.getSource()).toEqual("explore");
-        expect(trackSourceInfo.getSourceVersion()).toEqual("1.0");
+        assertThat(trackSourceInfo.getSource()).isEqualTo("explore");
+        assertThat(trackSourceInfo.getSourceVersion()).isEqualTo("1.0");
     }
 
     @Test
@@ -254,18 +257,18 @@ public class PlayQueueManagerTest {
         searchQuerySourceInfo.setQueryResults(new ArrayList<>(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))));
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
-        expect(trackSourceInfo.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
+        assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
     }
 
     @Test
     public void shouldReturnTrackSourceInfoWithoutQuerySourceInfoIfNotSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
-        expect(trackSourceInfo.getSearchQuerySourceInfo()).toBeNull();
+        assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isNull();
     }
 
     @Test
@@ -279,8 +282,8 @@ public class PlayQueueManagerTest {
         when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toNumber(1);
-        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(1);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
     }
 
     @Test
@@ -289,8 +292,8 @@ public class PlayQueueManagerTest {
         when(playQueue.getUrn(0)).thenReturn(trackUrn);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toNumber(1);
-        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(trackUrn);
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).hasSize(1);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).isEqualTo(trackUrn);
     }
 
     @Test
@@ -336,7 +339,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
         playQueueManager.setPosition(3);
 
@@ -350,7 +353,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
         playQueueManager.setPosition(2);
 
@@ -364,55 +367,59 @@ public class PlayQueueManagerTest {
 
     @Test
     public void getPlayProgressInfoReturnsLastSavedProgressInfo() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource), playSessionSource);
         playQueueManager.saveCurrentProgress(456L);
-        expect(playQueueManager.getPlayProgressInfo()).toEqual(new PlaybackProgressInfo(123L, 456L));
+        assertThat(playQueueManager.getPlayProgressInfo()).isEqualTo(new PlaybackProgressInfo(123L, 456L));
     }
 
     @Test
     public void doesNotChangePlayQueueIfPositionSetToCurrent() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
         playQueueManager.setPosition(1);
         verifyZeroInteractions(playQueue);
     }
 
     @Test
     public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
 
         final CurrentPlayQueueTrackEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK);
         playQueueManager.setPosition(1);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).toBe(lastEvent);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isSameAs(lastEvent);
     }
 
     @Test
     public void shouldPublishTrackChangeEventOnSetPosition() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
 
         playQueueManager.setPosition(2);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).isEqualTo(Urn.forTrack(3L));
     }
 
     @Test
     public void shouldSetCurrentTriggerToManualIfSettingDifferentPosition() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
         playQueueManager.autoNextTrack(); // set to auto trigger
 
         playQueueManager.setPosition(2);
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
     public void shouldNotSetCurrentTriggerToManualIfSettingSamePosition() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
         playQueueManager.autoNextTrack(); // set to auto trigger
 
         playQueueManager.setPosition(1);
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeFalse();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
     }
 
     @Test
@@ -423,7 +430,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).isEqualTo(Urn.forTrack(3L));
     }
 
     @Test
@@ -433,7 +440,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(playQueueManager.getCurrentPosition()).toBe(4);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(4);
     }
 
     @Test
@@ -442,16 +449,16 @@ public class PlayQueueManagerTest {
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toBeEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).isEmpty();
     }
 
     @Test
     public void shouldNotMoveToPreviousTrackIfAtHeadOfQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource);
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(playQueueManager.getCurrentPosition()).toBe(0);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
     }
 
     @Test
@@ -462,7 +469,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.moveToPreviousTrack();
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
@@ -473,7 +480,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.nextTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).toEqual(Urn.forTrack(3L));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK).getCurrentTrackUrn()).isEqualTo(Urn.forTrack(3L));
     }
 
     @Test
@@ -484,7 +491,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.nextTrack();
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
@@ -495,57 +502,59 @@ public class PlayQueueManagerTest {
 
         playQueueManager.autoNextTrack();
 
-        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeFalse();
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
     }
 
     @Test
     public void shouldSuccessfullyMoveToNextTrack() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource);
 
-        expect(playQueueManager.nextTrack()).toBeTrue();
-        expect(playQueueManager.getCurrentPosition()).toBe(1);
+        assertThat(playQueueManager.nextTrack()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
     }
 
     @Test
     public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
 
-        expect(playQueueManager.nextTrack()).toBeFalse();
-        expect(playQueueManager.getCurrentPosition()).toBe(1);
+        assertThat(playQueueManager.nextTrack()).isFalse();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
     }
 
     @Test
     public void nextTrackReturnsFalseIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(false);
-        expect(playQueueManager.nextTrack()).toBeFalse();
+        assertThat(playQueueManager.nextTrack()).isFalse();
     }
 
     @Test
     public void nextTrackReturnsTrueIfHasNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(true);
-        expect(playQueueManager.nextTrack()).toBeTrue();
+        assertThat(playQueueManager.nextTrack()).isTrue();
     }
 
     @Test
     public void getNextTrackUrnReturnsNextTrackUrn() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
-        expect(playQueueManager.getNextTrackUrn()).toEqual(Urn.forTrack(2L));
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource);
+        assertThat(playQueueManager.getNextTrackUrn()).isEqualTo(Urn.forTrack(2L));
     }
 
     @Test
     public void getNextTrackUrnReturnsNotSetTrackUrnIfNoNextTrack() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
-        expect(playQueueManager.getNextTrackUrn()).toEqual(Urn.NOT_SET);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        assertThat(playQueueManager.getNextTrackUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
     public void performPlayQueueUpdateOperationsExecutesOperationsInOrder() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
-        final PlayQueueManager.QueueUpdateOperation queueUpdateOperation1 = mock(PlayQueueManager.QueueUpdateOperation.class);
-        final PlayQueueManager.QueueUpdateOperation queueUpdateOperation2 = mock(PlayQueueManager.QueueUpdateOperation.class);
+        final QueueUpdateOperation queueUpdateOperation1 = mock(QueueUpdateOperation.class);
+        final QueueUpdateOperation queueUpdateOperation2 = mock(QueueUpdateOperation.class);
         playQueueManager.performPlayQueueUpdateOperations(queueUpdateOperation1, queueUpdateOperation2);
 
         final InOrder inOrder = inOrder(queueUpdateOperation1, queueUpdateOperation2);
@@ -559,12 +568,12 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
         playQueueManager.performPlayQueueUpdateOperations();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test
       public void clearElementsThatMatchesThePredicate() throws CreateModelException {
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
         final PropertySet metaDataToRemove = PropertySet.create();
         playQueue.insertTrack(1, Urn.forTrack(123L), metaDataToRemove, true);
         playQueueManager.setNewPlayQueue(playQueue, 3, playSessionSource);
@@ -576,14 +585,14 @@ public class PlayQueueManagerTest {
             }
         });
 
-        expect(playQueueManager.getQueueSize()).toEqual(3);
-        expect(playQueueManager.getUrnAtPosition(0)).toEqual(Urn.forTrack(1L));
-        expect(playQueueManager.getCurrentPosition()).toEqual(2);
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+        assertThat(playQueueManager.getUrnAtPosition(0)).isEqualTo(Urn.forTrack(1L));
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
     }
 
     @Test
     public void publishesQueueChangeEventWhenPredicateIsTrue() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource);
 
         playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
             @Override
@@ -592,12 +601,12 @@ public class PlayQueueManagerTest {
             }
         }, PlayQueueEvent.fromAudioAdRemoved());
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.AUDIO_AD_REMOVED);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.AUDIO_AD_REMOVED);
     }
 
     @Test
     public void publishesQueueChangeEventWhenPredicateIsFalse() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource);
         final PlayQueueEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE);
         playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
             @Override
@@ -606,12 +615,12 @@ public class PlayQueueManagerTest {
             }
         });
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE)).toBe(lastEvent);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE)).isSameAs(lastEvent);
     }
 
     @Test
     public void filtersTrackUrnsWithMetadata() {
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(123L, 456L), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L, 456L), playSessionSource);
         final PropertySet metaDataToSelect = PropertySet.create();
         final Urn expectedSelectedTrackUrn = Urn.forTrack(789L);
         playQueue.insertTrack(1, expectedSelectedTrackUrn, metaDataToSelect, true);
@@ -624,56 +633,56 @@ public class PlayQueueManagerTest {
             }
         });
 
-        expect(urns).toNumber(1);
-        expect(urns).toContainExactly(expectedSelectedTrackUrn);
+        assertThat(urns).containsExactly(expectedSelectedTrackUrn);
     }
 
     @Test
     public void autoNextReturnsFalseIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(false);
-        expect(playQueueManager.autoNextTrack()).toBeFalse();
+        assertThat(playQueueManager.autoNextTrack()).isFalse();
     }
 
     @Test
     public void autoNextReturnsTrueIfHasNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(true);
-        expect(playQueueManager.autoNextTrack()).toBeTrue();
+        assertThat(playQueueManager.autoNextTrack()).isTrue();
     }
 
     @Test
     public void hasNextTrackReturnsHasNextTrackFromCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(true);
-        expect(playQueueManager.hasNextTrack()).toBeTrue();
+        assertThat(playQueueManager.hasNextTrack()).isTrue();
     }
 
     @Test
     public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playSessionSource), playSessionSource);
         final CurrentPlayQueueTrackEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK);
         playQueueManager.nextTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).toBe(lastEvent);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isSameAs(lastEvent);
     }
 
     @Test
     public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable() {
         playQueueManager.loadPlayQueueAsync();
-        expect(playQueueManager.getPlayProgressInfo()).toBeNull();
+        assertThat(playQueueManager.getPlayProgressInfo()).isNull();
     }
 
     @Test
     public void shouldNotSetEmptyPlayQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
         playQueueManager.loadPlayQueueAsync();
 
-        expect(playQueueManager.getCurrentTrackUrn()).toEqual(Urn.forTrack(2L));
+        assertThat(playQueueManager.getCurrentTrackUrn()).isEqualTo(Urn.forTrack(2L));
     }
 
     @Test
@@ -684,8 +693,8 @@ public class PlayQueueManagerTest {
 
         playQueueManager.loadPlayQueueAsync();
         PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
-        expect(resumeInfo.getTrackId()).toEqual(456L);
-        expect(resumeInfo.getTime()).toEqual(400L);
+        assertThat(resumeInfo.getTrackId()).isEqualTo(456L);
+        assertThat(resumeInfo.getTime()).isEqualTo(400L);
     }
 
     @Test
@@ -697,12 +706,12 @@ public class PlayQueueManagerTest {
 
         playQueueManager.loadPlayQueueAsync();
 
-        expect(playQueueManager.getCurrentPosition()).toBe(0);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
     }
 
     @Test
     public void shouldSetCurrentPositionIfPQIsNotLoaded() {
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
@@ -711,12 +720,12 @@ public class PlayQueueManagerTest {
 
         playQueueManager.loadPlayQueueAsync();
 
-        expect(playQueueManager.getCurrentPosition()).toBe(2);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
     }
 
     @Test
     public void loadPlayQueueAsyncLoadsQueueFromLocalStorage() {
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
@@ -728,26 +737,26 @@ public class PlayQueueManagerTest {
 
     @Test
     public void loadPlayQueueAsyncFiresShowPlayerEventIfFlagSet() {
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         playQueueManager.loadPlayQueueAsync(true);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).toBeTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
     }
 
     @Test
     public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty() {
-        expect(playQueueManager.shouldReloadQueue()).toBeTrue();
+        assertThat(playQueueManager.shouldReloadQueue()).isTrue();
     }
 
     @Test
     public void shouldReloadShouldBeFalseWithNonEmptyQueue() {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.shouldReloadQueue()).toBeFalse();
+        assertThat(playQueueManager.shouldReloadQueue()).isFalse();
     }
 
     @Test
@@ -756,7 +765,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         playQueueManager.loadPlayQueueAsync();
-        expect(playQueueManager.shouldReloadQueue()).toBeFalse();
+        assertThat(playQueueManager.shouldReloadQueue()).isFalse();
     }
 
     @Test
@@ -782,12 +791,34 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks() {
-        TestObservables.MockObservable observable = TestObservables.emptyObservable();
+    public void shouldAppendNewTracksToPlayQueueWhenFetchingRelatedTracks() {
+        ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
+        Observable<RecommendedTracksCollection> observable =
+                Observable.just(new RecommendedTracksCollection(
+                        Collections.singletonList(recommendedTrack), "123"));
         when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
 
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY);
         playQueueManager.fetchTracksRelatedToCurrentTrack();
-        expect(observable.subscribedTo()).toBeTrue();
+
+        verify(playQueue).addTrack(recommendedTrack.getUrn(),
+                PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
+    }
+
+    @Test
+    public void shouldRetryFetchingRelatedTracksFromSameSource() {
+        ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
+        Observable<RecommendedTracksCollection> observable =
+                Observable.just(new RecommendedTracksCollection(
+                        Collections.singletonList(recommendedTrack), "123"));
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
+
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY);
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
+        playQueueManager.retryRelatedTracksFetch();
+
+        verify(playQueue, times(2)).addTrack(recommendedTrack.getUrn(),
+                PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
     }
 
     @Test
@@ -810,11 +841,12 @@ public class PlayQueueManagerTest {
     public void shouldPublishPlayQueueUpdateEventOnRelatedTracksReturned() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final Urn trackUrn = Urn.forTrack(123L);
-        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
+        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(
+                Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource), playSessionSource);
         playQueueManager.fetchTracksRelatedToCurrentTrack();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test
@@ -824,7 +856,7 @@ public class PlayQueueManagerTest {
         final RecommendedTracksCollection related = new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123");
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(related));
 
-        final PlayQueue playQueueOrig = PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource);
+        final PlayQueue playQueueOrig = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource);
         final PlayQueue expPlayQueue1 = playQueueOrig.copy();
         final PlayQueue expPlayQueue2 = playQueueOrig.copy();
         expPlayQueue2.addTrack(apiTrack.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
@@ -841,12 +873,12 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource), playSessionSource);
         playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
 
         ArgumentCaptor<PublicApiTrack> captor = ArgumentCaptor.forClass(PublicApiTrack.class);
         verify(modelManager).cache(captor.capture());
-        expect(captor.getValue().getId()).toEqual(apiTrack.getId());
+        assertThat(captor.getValue().getId()).isEqualTo(apiTrack.getId());
     }
 
     @Test
@@ -887,84 +919,72 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L), playSessionSource), playSessionSource);
-        expect(playQueueManager.isQueueEmpty()).toBeFalse();
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playSessionSource), playSessionSource);
+        assertThat(playQueueManager.isQueueEmpty()).isFalse();
         playQueueManager.clearAll();
-        expect(playQueueManager.isQueueEmpty()).toBeTrue();
+        assertThat(playQueueManager.isQueueEmpty()).isTrue();
     }
 
     @Test
     public void clearAllClearsPlaylistId() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L), playSessionSource), playSessionSource);
-        expect(playQueueManager.getPlaylistUrn()).not.toEqual(Urn.NOT_SET);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playSessionSource), playSessionSource);
+        assertThat(playQueueManager.getPlaylistUrn()).isNotEqualTo(Urn.NOT_SET);
         playQueueManager.clearAll();
-        expect(playQueueManager.getPlaylistUrn()).toEqual(Urn.NOT_SET);
+        assertThat(playQueueManager.getPlaylistUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
-        PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(playQueueManager.isCurrentPlaylist(playlist.getUrn())).toBeTrue();
+        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isTrue();
     }
 
     @Test
     public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
-        PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(playQueueManager.isPlaylist()).toBeTrue();
+        assertThat(playQueueManager.isPlaylist()).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfGivenTrackIsCurrentTrack() {
         when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.isCurrentTrack(Urn.forTrack(123))).toBeTrue();
+        assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(123))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfGivenTrackIsNotCurrentTrack() {
         when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        expect(playQueueManager.isCurrentTrack(Urn.forTrack(456))).toBeFalse();
-    }
-
-    @Test
-    public void shouldRetryWithSameObservable() {
-        TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
-
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-        playQueueManager.retryRelatedTracksFetch();
-        expect(observable.subscribers()).toNumber(2);
+        assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(456))).isFalse();
     }
 
     private void expectBroadcastNewPlayQueue() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
+        assertThat(captor.getValue().getAction()).isEqualTo(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
     }
 
     private void expectBroadcastPlayQueueUpdate() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context, atLeastOnce()).sendBroadcast(captor.capture());
-        expect(Iterables.find(captor.getAllValues(), new Predicate<Intent>() {
+        assertThat(Iterables.find(captor.getAllValues(), new Predicate<Intent>() {
             @Override
             public boolean apply(@Nullable Intent input) {
                 return input.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
             }
-        })).not.toBeNull();
+        })).isNotNull();
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
-        expect(playQueueManager.getQueueSize()).toBe(playQueue.size());
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(playQueue.size());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {
-            expect(playQueueManager.getUrnAtPosition(i)).toEqual(playQueue.getUrn(i));
+            assertThat(playQueueManager.getUrnAtPosition(i)).isEqualTo(playQueue.getUrn(i));
         }
     }
 }

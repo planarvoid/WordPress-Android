@@ -145,6 +145,6 @@ task assembleAcceptanceTest(dependsOn: ["assemble${project.buildType.capitalize(
 // UNIT TESTS
 // *********************************************************************************************************************
 
-task runUnitTests(dependsOn: [':tests-robolectric:test']) {
+task runUnitTests(dependsOn: [':app:testDebug', ':tests-robolectric:test']) {
   description = 'Run robolectric unit tests.'
 }
