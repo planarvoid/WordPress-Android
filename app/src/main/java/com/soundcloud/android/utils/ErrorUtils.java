@@ -14,10 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorFailedException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
+import java.io.StringReader;
 
 public final class ErrorUtils {
 
@@ -145,8 +147,17 @@ public final class ErrorUtils {
     public static void handleSilentException(Throwable e, @Nullable String customLog) {
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
-            if (!ScTextUtils.isBlank(customLog)) {
-                Crashlytics.log(customLog);
+            if (ScTextUtils.isNotBlank(customLog)) {
+                BufferedReader rdr = new BufferedReader(new StringReader(customLog));
+                try {
+                    for (String line = rdr.readLine(); line != null; line = rdr.readLine()) {
+                        Crashlytics.log(line);
+                    }
+                } catch (IOException ex) {
+                    Log.e(SoundCloudApplication.TAG, "An IOException was caught", ex);
+                } finally {
+                    IOUtils.close(rdr);
+                }
             }
             Crashlytics.logException(e);
         }
