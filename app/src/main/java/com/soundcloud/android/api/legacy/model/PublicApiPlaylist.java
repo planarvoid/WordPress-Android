@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -275,7 +276,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         apiPlaylist.setTrackCount(track_count);
         apiPlaylist.setUser(getUser().toApiMobileUser());
 
-        final TrackStats stats = new TrackStats();
+        final ApiTrackStats stats = new ApiTrackStats();
         stats.setLikesCount(likes_count);
         stats.setRepostsCount(reposts_count);
         apiPlaylist.setStats(stats);

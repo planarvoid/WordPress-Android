@@ -599,7 +599,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         apiTrack.setWaveformUrl(waveform_url);
         apiTrack.setUser(getUser().toApiMobileUser());
 
-        final TrackStats stats = new TrackStats();
+        final ApiTrackStats stats = new ApiTrackStats();
         stats.setCommentsCount(comment_count);
         stats.setPlaybackCount(playback_count);
         stats.setLikesCount(likes_count);
