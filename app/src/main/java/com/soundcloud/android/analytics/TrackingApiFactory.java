@@ -12,9 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 class TrackingApiFactory {
 
-    private static final int READ_TIMEOUT = 5;
-    private static final int CONNECT_TIMEOUT = 10;
-
     private static final int BATCH_SIZE = 100;
 
     private final OkHttpClient httpClient;
@@ -29,8 +26,6 @@ class TrackingApiFactory {
     }
 
     TrackingApi create(String backend) {
-        httpClient.setConnectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
         if (EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME.equals(backend)) {
             return new BatchTrackingApi(httpClient, deviceHelper, resources.getString(R.string.eventgateway_url), BATCH_SIZE);
         } else {
