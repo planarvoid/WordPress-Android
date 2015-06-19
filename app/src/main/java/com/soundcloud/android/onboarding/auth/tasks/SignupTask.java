@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -22,6 +23,7 @@ import org.apache.http.HttpStatus;
 
 import android.os.Bundle;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class SignupTask extends AuthTask {
@@ -32,19 +34,18 @@ public class SignupTask extends AuthTask {
     public static final String KEY_BIRTHDAY = "birthday";
     public static final String KEY_GENDER = "gender";
 
-    private TokenInformationGenerator tokenInformationGenerator;
-    private PublicCloudAPI publicApi;
+    @Inject TokenInformationGenerator tokenInformationGenerator;
+    @Inject PublicCloudAPI publicApi;
 
-    protected SignupTask(SoundCloudApplication application, TokenInformationGenerator tokenInformationGenerator,
-                         LegacyUserStorage userStorage, PublicCloudAPI publicApi) {
+    protected SignupTask(SoundCloudApplication application,
+                         LegacyUserStorage userStorage) {
         super(application, userStorage);
-        this.tokenInformationGenerator = tokenInformationGenerator;
-        this.publicApi = publicApi;
+        SoundCloudApplication.getObjectGraph().inject(this);
+
     }
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
-        this(soundCloudApplication, new TokenInformationGenerator(new PublicApi(soundCloudApplication)),
-                new LegacyUserStorage(), new PublicApi(soundCloudApplication));
+        this(soundCloudApplication, new LegacyUserStorage());
     }
 
     @Override
@@ -60,7 +61,7 @@ public class SignupTask extends AuthTask {
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
-            } catch (IOException e) {
+            } catch (ApiRequestException e) {
                 return AuthTaskResult.signUpFailedToLogin();
             }
         }

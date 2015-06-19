@@ -40,6 +40,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject ConfigurationOperations configurationOperations;
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
+    @Inject TokenInformationGenerator tokenUtils;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);

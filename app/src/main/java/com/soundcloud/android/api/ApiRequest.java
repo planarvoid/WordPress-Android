@@ -197,6 +197,13 @@ public class ApiRequest {
             this.progressListener = progressListener;
             return this;
         }
+
+        public Builder withFormMap(Map<String, String> params) {
+            for(Map.Entry<String, String> entry : params.entrySet()) {
+                withFormPart(StringPart.from(entry.getKey(), entry.getValue()));
+            }
+            return this;
+        }
     }
 
     @Override
