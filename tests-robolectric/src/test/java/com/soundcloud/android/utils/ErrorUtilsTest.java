@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
@@ -174,4 +175,17 @@ public class ErrorUtilsTest {
         Exception exception = new Exception();
         expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.ERROR);
     }
+
+    @Test
+    public void removeTokenRetrievalExceptionIfAny() {
+        final Exception exception = new Exception();
+        expect(ErrorUtils.removeTokenRetrievalException(new TokenRetrievalException(exception))).toBe(exception);
+    }
+
+    @Test
+    public void removeTokenRetrievalExceptionIsNoOpWhenWrappedWithATokenRetrievalException() {
+        final Exception exception = new Exception();
+        expect(ErrorUtils.removeTokenRetrievalException(exception)).toBe(exception);
+    }
+
 }
