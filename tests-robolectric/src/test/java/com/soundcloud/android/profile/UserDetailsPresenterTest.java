@@ -139,6 +139,24 @@ public class UserDetailsPresenterTest {
     }
 
     @Test
+    public void onViewCreatedSetsFullUserDetailsOnViewAfterOrientationChange() throws Exception {
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.onDestroyView(fragment);
+        Mockito.reset(userDetailsView);
+
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>never());
+
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(userDetailsView, times(2)).showDescription(DESCRIPTION);
+        verify(userDetailsView, times(2)).showWebsite(WEBSITE_URL, WEBSITE_NAME);
+        verify(userDetailsView, times(2)).showMyspace(MYSPACE_NAME);
+        verify(userDetailsView, times(2)).showDiscogs(DISCOGS_NAME);
+    }
+
+    @Test
     public void onViewCreatedHidesUserDetailsOnEmptyUser() throws Exception {
         when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithBlankDescription()));
         presenter.onCreate(fragment, null);

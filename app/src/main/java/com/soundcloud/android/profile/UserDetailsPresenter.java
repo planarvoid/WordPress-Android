@@ -39,6 +39,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     };
     private Urn userUrn;
     private Observable<ProfileUser> userDetailsObservable;
+    private ProfileUser profileUser;
 
     public UserDetailsPresenter(ProfileOperations profileOperations, UserDetailsView userDetailsView) {
         this.profileOperations = profileOperations;
@@ -69,6 +70,10 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
         configureEmptyView();
         configureRefreshLayout(view);
+
+        if (profileUser != null){
+            updateViews(profileUser);
+        }
 
         loadUser();
     }
@@ -103,12 +108,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
                 .cache();
 
         loadUser();
-    }
-
-    private void createUserDetailsObservable() {
-        userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
-                .filter(hasDetails)
-                .cache();
     }
 
     private void configureEmptyView() {
@@ -185,6 +184,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
         @Override
         public void onNext(ProfileUser profileUser) {
+            UserDetailsPresenter.this.profileUser = profileUser;
             updateViews(profileUser);
             configureEmptyView();
         }
