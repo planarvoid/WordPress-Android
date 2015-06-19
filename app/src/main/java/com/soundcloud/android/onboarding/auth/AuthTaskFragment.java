@@ -140,13 +140,22 @@ public abstract class AuthTaskFragment extends DialogFragment {
             return ((AuthTaskException) rootException).getFirstError();
         } else {
             if (networkConnectionHelper.isNetworkConnected()) {
-                log(INFO, ONBOARDING_TAG, "other sign in error while network connected: " + rootException.getMessage());
+                log(INFO, ONBOARDING_TAG, getLoginErrorDebugMessage(rootException));
                 ErrorUtils.handleSilentException("other sign in error while network connected", rootException);
                 return activity.getString(R.string.authentication_error_generic);
             } else {
                 return activity.getString(R.string.authentication_error_no_connection_message);
             }
         }
+    }
+
+    private String getLoginErrorDebugMessage(Throwable rootException) {
+        return String.format(
+                "other sign in error while network connected. Message:%s, Network type:%s, Operator name:%s",
+                rootException.getMessage(),
+                networkConnectionHelper.getCurrentConnectionType().toString(),
+                networkConnectionHelper.getNetworkOperatorName()
+        );
     }
 
     private void deliverResultAndDismiss() {
