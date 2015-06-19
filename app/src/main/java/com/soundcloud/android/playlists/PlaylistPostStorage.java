@@ -12,25 +12,30 @@ import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.on;
 
-import com.soundcloud.android.commands.PagedQueryCommand;
-import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.rx.PropellerRx;
+import rx.Observable;
 
 import javax.inject.Inject;
 
-public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQueryParams> {
+public class PlaylistPostStorage {
+
+    private final PropellerRx propellerRx;
 
     @Inject
-    LoadPostedPlaylistsCommand(PropellerDatabase database) {
-        super(database, new PostedPlaylistMapper());
+    public PlaylistPostStorage(PropellerRx propellerRx) {
+        this.propellerRx = propellerRx;
     }
 
-    @Override
-    protected Query buildQuery(ChronologicalQueryParams input) {
+    Observable<java.util.List<PropertySet>> loadPostedPlaylists(int limit, long fromTimestamp){
+        return propellerRx.query(buildQuery(limit, fromTimestamp)).map(new PostedPlaylistMapper()).toList();
+    }
+
+    protected Query buildQuery(int limit, long fromTimestamp) {
         return Query.from(SoundView.name())
                 .select(
                         field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
@@ -51,9 +56,10 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                 .leftJoin(Table.TrackDownloads.name(), PlaylistTracks.field(TRACK_ID), Table.TrackDownloads.field(TableColumns.TrackDownloads._ID))
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), input.getTimestamp())
+                .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID))
-                .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
+                .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC)
+                .limit(limit);
     }
 
     public static Query likeQuery() {
@@ -65,5 +71,4 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                 .innerJoin(Table.Sounds.name(), joinConditions)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }
-
 }

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -35,7 +34,7 @@ public class PlaylistPostOperationsTest {
     private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
 
-    @Mock private LoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
+    @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
@@ -46,7 +45,7 @@ public class PlaylistPostOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new PlaylistPostOperations(
-                loadPostedPlaylistsCommand,
+                playlistPostStorage,
                 syncInitiator,
                 scheduler, networkConnectionHelper);
 
@@ -59,7 +58,7 @@ public class PlaylistPostOperationsTest {
     @Test
     public void syncAndLoadPlaylistPostsWhenInitialPlaylistPostsLoadReturnsEmptyList() {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
 
         operations.postedPlaylists().subscribe(observer);
@@ -69,7 +68,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void syncAndLoadEmptyPlaylistPostsResultsWithEmptyResults() throws Exception {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
 
         operations.postedPlaylists().subscribe(observer);
@@ -79,7 +78,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void postedPlaylistsReturnsPostedPlaylistsFromStorage() {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
@@ -90,7 +89,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void postedPlaylistsRequestsUpdatesFromSyncerWhenOnWifi() {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
@@ -102,7 +101,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void postedPlaylistsDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(false);
@@ -114,7 +113,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void postedPlaylistsRequestsDoesNotUpdateEmptyListFromSyncer() {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
@@ -126,20 +125,21 @@ public class PlaylistPostOperationsTest {
     @Test
     public void trackPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
+        final long time = firstPage.get(PAGE_SIZE - 1).get(PlaylistProperty.CREATED_AT).getTime();
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
         operations.postedPlaylistsPager().next();
 
-        final ChronologicalQueryParams params = loadPostedPlaylistsCommand.getInput();
-        expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(PlaylistProperty.CREATED_AT).getTime());
+        verify(playlistPostStorage).loadPostedPlaylists(PAGE_SIZE, time);
     }
 
     @Test
     public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
@@ -151,7 +151,7 @@ public class PlaylistPostOperationsTest {
 
     @Test
     public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
-        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
 
         operations.updatedPostedPlaylists().subscribe(observer);
