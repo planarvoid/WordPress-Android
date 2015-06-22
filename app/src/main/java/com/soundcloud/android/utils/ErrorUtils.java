@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
 import io.fabric.sdk.android.Fabric;
@@ -90,6 +91,19 @@ public final class ErrorUtils {
                 }
             }
         });
+    }
+
+    // This is aimed to be a temporary fix.
+    //
+    // TokenRetrievalException was recently added to track sing in/up issues in fabric.
+    // It breaks the sign in/up logic since it is based on an exception flow control, that's why
+    // this helper is needed.
+    @Deprecated
+    public static Throwable removeTokenRetrievalException(Exception exception) {
+        if (exception instanceof TokenRetrievalException) {
+            return exception.getCause();
+        }
+        return exception;
     }
 
     @VisibleForTesting

@@ -7,6 +7,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +60,6 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     }
 
     private boolean isLoginCredentialsException(Exception exception) {
-        return exception.getCause() instanceof CloudAPI.InvalidTokenException;
+        return ErrorUtils.removeTokenRetrievalException(exception) instanceof CloudAPI.InvalidTokenException;
     }
 }

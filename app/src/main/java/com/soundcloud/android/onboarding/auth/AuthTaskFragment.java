@@ -13,7 +13,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -132,7 +131,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
-        final Throwable rootException = removeContainerException(result.getException());
+        final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
 
         if (rootException instanceof CloudAPI.ApiResponseException) {
             // server error, tell them to try again later
@@ -149,13 +148,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 return activity.getString(R.string.authentication_error_no_connection_message);
             }
         }
-    }
-
-    private Throwable removeContainerException(Exception exception) {
-        if (exception instanceof TokenRetrievalException) {
-            return exception.getCause();
-        }
-        return exception;
     }
 
     private void deliverResultAndDismiss() {
