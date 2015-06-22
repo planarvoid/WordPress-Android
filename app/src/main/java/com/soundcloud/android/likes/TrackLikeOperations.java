@@ -28,21 +28,14 @@ public class TrackLikeOperations {
 
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
+    static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
 
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    private final LoadLikedTracksCommand loadLikedTracksCommand;
-    private final LoadLikedTrackCommand loadLikedTrackCommand;
+    private final LikedTrackStorage likedTrackStorage;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
-
-    private final Func1<SyncResult, ChronologicalQueryParams> toInitalPageParams = new Func1<SyncResult, ChronologicalQueryParams>() {
-        @Override
-        public ChronologicalQueryParams call(SyncResult syncResult) {
-            return new ChronologicalQueryParams(PAGE_SIZE, Long.MAX_VALUE);
-        }
-    };
 
     private final Action1<List<PropertySet>> requestTracksSyncAction = new Action1<List<PropertySet>>() {
         @Override
@@ -53,17 +46,29 @@ public class TrackLikeOperations {
         }
     };
 
+    private final Func1<SyncResult, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<SyncResult, Observable<List<PropertySet>>>() {
+        @Override
+        public Observable<List<PropertySet>> call(SyncResult syncResult) {
+            return likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP);
+        }
+    };
+
+    private final Func1<Urn, Observable<PropertySet>> loadLikedTrack = new Func1<Urn, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(Urn urn) {
+            return likedTrackStorage.loadTrackLike(urn);
+        }
+    };
+
     @Inject
     public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
-                               LoadLikedTracksCommand loadLikedTracksCommand,
-                               LoadLikedTrackCommand loadLikedTrackCommand,
+                               LikedTrackStorage likedTrackStorage,
                                SyncInitiator syncInitiator,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
-        this.loadLikedTracksCommand = loadLikedTracksCommand;
-        this.loadLikedTrackCommand = loadLikedTrackCommand;
+        this.likedTrackStorage = likedTrackStorage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
@@ -74,7 +79,7 @@ public class TrackLikeOperations {
         return eventBus.queue(ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
                 .map(EntityStateChangedEvent.TO_URN)
-                .flatMap(loadLikedTrackCommand);
+                .flatMap(loadLikedTrack);
     }
 
     Observable<Urn> onTrackUnliked() {
@@ -84,7 +89,7 @@ public class TrackLikeOperations {
     }
 
     Observable<List<PropertySet>> likedTracks() {
-        return likedTracks(Long.MAX_VALUE);
+        return likedTracks(INITIAL_TIMESTAMP);
     }
 
     private Observable<List<PropertySet>> likedTracks(long beforeTime) {
@@ -93,9 +98,7 @@ public class TrackLikeOperations {
     }
 
     private Observable<List<PropertySet>> loadLikedTracksInternal(long beforeTime) {
-        return loadLikedTracksCommand
-                .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
-                .toObservable()
+        return likedTrackStorage.loadTrackLikes(PAGE_SIZE, beforeTime)
                 .doOnNext(requestTracksSyncAction)
                 .subscribeOn(scheduler);
     }
@@ -104,8 +107,7 @@ public class TrackLikeOperations {
         return syncInitiator
                 .syncTrackLikes()
                 .observeOn(scheduler)
-                .map(toInitalPageParams)
-                .flatMap(loadLikedTracksCommand)
+                .flatMap(loadInitialLikedTracks)
                 .subscribeOn(scheduler);
     }
 

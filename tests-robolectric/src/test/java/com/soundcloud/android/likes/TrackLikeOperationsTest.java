@@ -2,8 +2,8 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
+import static com.soundcloud.android.likes.TrackLikeOperations.INITIAL_TIMESTAMP;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -45,9 +46,8 @@ public class TrackLikeOperationsTest {
     private TrackLikeOperations operations;
 
     @Mock private Observer<List<PropertySet>> observer;
-    @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
+    @Mock private LikedTrackStorage likedTrackStorage;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    @Mock private LoadLikedTrackCommand loadLikedTrackCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
@@ -59,8 +59,7 @@ public class TrackLikeOperationsTest {
     public void setUp() throws Exception {
         operations = new TrackLikeOperations(
                 loadLikedTrackUrnsCommand,
-                loadLikedTracksCommand,
-                loadLikedTrackCommand,
+                likedTrackStorage,
                 syncInitiator,
                 eventBus,
                 scheduler,
@@ -71,7 +70,7 @@ public class TrackLikeOperationsTest {
     @Test
     public void syncAndLoadTrackLikesWhenInitialTrackLoadReturnsEmptyList() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
 
         operations.likedTracks().subscribe(observer);
@@ -83,7 +82,9 @@ public class TrackLikeOperationsTest {
     @Test
     public void doesNotSyncTrackLikesIfSecondPageIsEmpty() throws Exception {
         final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.just(Collections.<PropertySet>emptyList()));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(firstPage));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, getListItemTime(firstPage))).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+
         final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
         when(syncInitiator.syncTrackLikes()).thenReturn(syncObservable);
 
@@ -96,7 +97,7 @@ public class TrackLikeOperationsTest {
     @Test
     public void likedTracksReturnsLikedTracksFromStorage() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedTracks().subscribe(observer);
@@ -108,7 +109,7 @@ public class TrackLikeOperationsTest {
     @Test
     public void likedTracksRequestsUpdatesFromSyncer() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
@@ -120,7 +121,7 @@ public class TrackLikeOperationsTest {
     @Test
     public void likedTracksDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedTracks().subscribe(observer);
@@ -130,7 +131,7 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void likedTracksRequestsDoesNotUpdateEmptyListFromSyncer() {
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedTracks().subscribe(observer);
@@ -139,38 +140,25 @@ public class TrackLikeOperationsTest {
     }
 
     @Test
-    public void trackPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
-        final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
-
-        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
-        listPager.call(firstPage).subscribe(observer);
-
-        final ChronologicalQueryParams params = loadLikedTracksCommand.getInput();
-        expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime());
-    }
-
-    @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-        final List<PropertySet> firstPage = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage));
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
 
-        expect(listPager.call(firstPage)).toBe(Pager.<List<PropertySet>>finish());
+        expect(listPager.call(likedTracks)).toBe(Pager.<List<PropertySet>>finish());
     }
 
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
         operations.updatedLikedTracks().subscribe(observer);
 
-        InOrder inOrder = inOrder(observer, syncInitiator);
+        InOrder inOrder = Mockito.inOrder(observer, syncInitiator);
         inOrder.verify(syncInitiator).syncTrackLikes();
         inOrder.verify(observer).onNext(likedTracks);
         inOrder.verify(observer).onCompleted();
@@ -179,7 +167,8 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void syncAndLoadEmptyTrackLikesResults() {
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP))
+                .thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
 
         operations.likedTracks().subscribe(observer);
@@ -191,7 +180,7 @@ public class TrackLikeOperationsTest {
     @Test
     public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
         final PropertySet likedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
-        when(loadLikedTrackCommand.toObservable()).thenReturn(Observable.just(likedTrack));
+        when(likedTrackStorage.loadTrackLike(likedTrack.get(TrackProperty.URN))).thenReturn(Observable.just(likedTrack));
 
         final TestObserver<PropertySet> observer = new TestObserver<>();
         operations.onTrackLiked().subscribe(observer);
@@ -217,5 +206,9 @@ public class TrackLikeOperationsTest {
             page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
         }
         return page;
+    }
+
+    private long getListItemTime(List<PropertySet> firstPage) {
+        return firstPage.get(firstPage.size() - 1).get(LikeProperty.CREATED_AT).getTime();
     }
 }
