@@ -8,7 +8,7 @@ import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.StreamList;
+import com.soundcloud.android.screens.elements.RecyclerViewElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -33,6 +33,21 @@ public class StreamScreen extends Screen {
     public int getItemCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return streamList().getItemCount();
+    }
+
+    public int getBoundItemCount() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return streamList().getBoundItemCount();
+    }
+
+    public StreamScreen scrollToBottom() {
+        streamList().scrollToBottom();
+        return this;
+    }
+
+    public StreamScreen scrollToNextPage() {
+        streamList().scrollToNextPage();
+        return this;
     }
 
     @Override
@@ -76,9 +91,8 @@ public class StreamScreen extends Screen {
         return menuScreen.open().clickExplore();
     }
 
-    private StreamList streamList() {
-        ViewElement list = testDriver.findElement(With.id(R.id.ak_recycler_view));
-        return new StreamList(list);
+    private RecyclerViewElement streamList() {
+        return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
     private List<TrackItemElement> trackItemElements() {
@@ -92,7 +106,7 @@ public class StreamScreen extends Screen {
         ViewElement result = testDriver.findElement(with);
         while (result instanceof EmptyViewElement) {
             tries++;
-            testDriver.swipeUp();
+            streamList().scrollToBottom();
             if (tries > 10) {
                 return new EmptyViewElement("Unable to scroll to item; item not in list");
             }

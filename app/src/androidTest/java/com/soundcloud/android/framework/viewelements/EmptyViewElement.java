@@ -4,6 +4,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.RecyclerViewElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 
 import android.support.v4.view.ViewPager;
@@ -78,6 +79,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public ListElement toListView() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public RecyclerViewElement toRecyclerView() {
         throw new ViewNotFoundException(selector);
     }
 

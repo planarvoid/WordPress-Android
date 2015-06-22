@@ -233,6 +233,10 @@ public class Han  {
         solo.scrollListToBottom(view);
     }
 
+    public void scrollToBottom() {
+        solo.scrollToBottom();
+    }
+
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
     }
