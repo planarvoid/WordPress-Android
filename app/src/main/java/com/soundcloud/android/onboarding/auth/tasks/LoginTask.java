@@ -33,15 +33,12 @@ import static android.util.Log.INFO;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
-import javax.inject.Inject;
-
 public class LoginTask extends AuthTask {
-
-    @Inject TokenInformationGenerator tokenUtils;
 
     @VisibleForTesting
     static String CONFLICTING_DEVICE_KEY = "conflictingDeviceKey";
 
+    protected TokenInformationGenerator tokenUtils;
     private FetchUserTask fetchUserTask;
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
@@ -59,8 +56,8 @@ public class LoginTask extends AuthTask {
     }
 
     public LoginTask(@NotNull SoundCloudApplication application, ConfigurationOperations configurationOperations,
-                     EventBus eventBus, AccountOperations accountOperations, TokenInformationGenerator tokenUtils){
-        this(application, tokenUtils,
+                     EventBus eventBus, AccountOperations accountOperations){
+        this(application, new TokenInformationGenerator(new PublicApi(application)),
                 new FetchUserTask(new PublicApi(application)), new LegacyUserStorage(), configurationOperations, eventBus, accountOperations);
     }
 

@@ -1,26 +1,16 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.os.Bundle;
 
-import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Map;
-
 //TODO Move into TokenOperations
 public class TokenInformationGenerator {
-    private final ApiClient apiClient;
-    private final OAuth oAuth;
+
+    private final PublicCloudAPI oldCloudAPI;
 
     public interface TokenKeys {
         String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
@@ -28,10 +18,8 @@ public class TokenInformationGenerator {
         String PASSWORD_EXTRA = "password";
     }
 
-    @Inject
-    public TokenInformationGenerator(ApiClient apiClient, OAuth oAuth) {
-        this.apiClient = apiClient;
-        this.oAuth = oAuth;
+    public TokenInformationGenerator(PublicCloudAPI oldCloudAPI){
+        this.oldCloudAPI = oldCloudAPI;
     }
 
     public Bundle getGrantBundle(String grantType, String token) {
@@ -40,32 +28,18 @@ public class TokenInformationGenerator {
         return bundle;
     }
 
-    public Token getToken(Bundle param) throws ApiRequestException {
-        final ApiRequest request = ApiRequest.post(ApiEndpoints.OAUTH2_TOKEN.path())
-                .forPublicApi()
-                .withFormMap(getTokenParams(param))
-                .build();
+    public Token getToken(Bundle param) throws IOException {
+        if (param.containsKey(TokenKeys.USERNAME_EXTRA) && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
+            // User entered username and password
+            return oldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
+                    param.getString(TokenKeys.PASSWORD_EXTRA));
 
-        final ApiResponse response = apiClient.fetchResponse(request);
+        } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
+            // User logged in with Google Plus or Facebook
+            return oldCloudAPI.extensionGrantType(extractGrantType(param));
 
-        if (response.isNotSuccess()) {
-            throw response.getFailure();
-        }
-
-        try {
-            return new Token(new JSONObject(response.getResponseBody()));
-        } catch (IOException | JSONException e) {
-            throw new TokenRetrievalException(e);
-        }
-    }
-
-    private Map<String, String> getTokenParams(Bundle data) {
-        if (isFromUserCredentials(data)) {
-            return oAuth.getTokenRequestParamsFromUserCredentials(getUsername(data), getPassword(data));
-        } else if (isFromExtensionGrant(data)) {
-            return oAuth.getTokenRequestParamsFromExtensionGrant(extractGrantType(data));
         } else {
-            throw new IllegalArgumentException("invalid param " + data);
+            throw new IllegalArgumentException("invalid param " + param);
         }
     }
 
@@ -74,24 +48,8 @@ public class TokenInformationGenerator {
         return grantType != null && grantType.startsWith(OAuth.GRANT_TYPE_FACEBOOK);
     }
 
-    private boolean isFromUserCredentials(Bundle data) {
-        return data.containsKey(TokenKeys.USERNAME_EXTRA)
-                && data.containsKey(TokenKeys.PASSWORD_EXTRA);
-    }
-
-    private boolean isFromExtensionGrant(Bundle data) {
-        return data.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA);
-    }
-
     private String extractGrantType(Bundle data) {
         return data.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA);
     }
 
-    private String getUsername(Bundle data) {
-        return data.getString(TokenKeys.USERNAME_EXTRA);
-    }
-
-    private String getPassword(Bundle data) {
-        return data.getString(TokenKeys.PASSWORD_EXTRA);
-    }
 }
