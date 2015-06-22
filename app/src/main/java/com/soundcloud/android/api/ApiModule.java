@@ -14,15 +14,10 @@ import dagger.Provides;
 
 import android.content.Context;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Singleton;
 
 @Module(complete = false, library = true)
 public class ApiModule {
-
-    private static final int READ_WRITE_TIMEOUT_SECONDS = 5;
-    private static final int CONNECT_TIMEOUT_SECONDS = 10;
 
     @Provides
     public ApiClient provideApiClient(OkHttpClient httpClient,
@@ -59,10 +54,6 @@ public class ApiModule {
     @Provides
     @Singleton
     public OkHttpClient provideOkHttpClient() {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.setReadTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.setWriteTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        return okHttpClient;
+        return new OkHttpClient();
     }
 }
