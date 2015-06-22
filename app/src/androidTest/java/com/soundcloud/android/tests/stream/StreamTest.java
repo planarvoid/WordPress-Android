@@ -33,4 +33,10 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
         assertThat(streamScreen.getItemCount(), is(greaterThan(0)));
     }
 
+    public void testStreamLoadsNextPage() {
+        streamScreen = new StreamScreen(solo);
+        int itemsBeforePaging = streamScreen.getItemCount();
+        streamScreen.scrollToNextPage();
+        assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
+    }
 }
