@@ -23,10 +23,12 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     private static final Date LIKED_DATE_1 = new Date(100);
     private static final Date LIKED_DATE_2 = new Date(200);
     private static final Date LIKED_DATE_3 = new Date(300);
+    private static final Date LIKED_DATE_4 = new Date(400);
 
     private PropertySet track1;
     private PropertySet track2;
     private PropertySet track3;
+    private PropertySet track4;
 
     private LikedTrackStorage storage;
     private TestObserver<PropertySet> testObserver = new TestObserver<>();
@@ -39,17 +41,20 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         track1 = testFixtures().insertLikedTrack(LIKED_DATE_1).toPropertySet();
         track2 = testFixtures().insertLikedTrack(LIKED_DATE_2).toPropertySet();
         track3 = testFixtures().insertLikedTrack(LIKED_DATE_3).toPropertySet();
+        track4 = testFixtures().insertLikedTrack(LIKED_DATE_4).toPropertySet();
 
         testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), 100L, 300L);
         testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), 100L, 300L);
         testFixtures().insertTrackPendingDownload(track3.get(TrackProperty.URN), 200L);
+        testFixtures().insertPolicyMidTierMonetizable(track4.get(TrackProperty.URN));
     }
 
     @Test
     public void loadTrackLikesLoadsAllTrackLikes() {
-        storage.loadTrackLikes(3, Long.MAX_VALUE).subscribe(testListObserver);
+        storage.loadTrackLikes(4, Long.MAX_VALUE).subscribe(testListObserver);
 
         expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(
+                expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4),
                 expectedRequestedLikedTrackFor(track3, LIKED_DATE_3),
                 expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
                 expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1)));
@@ -59,7 +64,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     public void loadTrackLikesAdheresToLimit() {
         storage.loadTrackLikes(1, Long.MAX_VALUE).subscribe(testListObserver);
 
-        expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(expectedRequestedLikedTrackFor(track3, LIKED_DATE_3)));
+        expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4)));
     }
 
     @Test
@@ -119,6 +124,13 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         expect(testObserver.getOnNextEvents()).toContainExactly(expectedRemovedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
+    @Test
+    public void loadLikedTrackLoadsMidTierMonetizableTrackIncludingPolicy() {
+        storage.loadTrackLike(track4.get(TrackProperty.URN)).subscribe(testObserver);
+
+        expect(testObserver.getOnNextEvents()).toContainExactly(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4));
+    }
+
     private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt) {
         return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
     }
@@ -131,6 +143,10 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
     }
 
+    private PropertySet expectedMidTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_MID_TIER, true);
+    }
+
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {
         return PropertySet.from(
                 TrackProperty.URN.bind(track.get(TrackProperty.URN)),
@@ -140,6 +156,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
                 TrackProperty.PLAY_COUNT.bind(track.get(TrackProperty.PLAY_COUNT)),
                 TrackProperty.LIKES_COUNT.bind(track.get(TrackProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
-                TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)));
+                TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)),
+                TrackProperty.SUB_MID_TIER.bind(false));
     }
 }

@@ -52,7 +52,7 @@ public class ApiTrackBlueprint {
     @Default
     String policy = "allowed";
 
-    // avoid the setter problem where getUser and setUser are typed differently
+    // avoid the setter problem where getters and setters are typed differently
     // https://github.com/mguymon/model-citizen/issues/20
     AfterCreateCallback<ApiTrack> afterCreate = new AfterCreateCallback<ApiTrack>() {
         @Override
@@ -60,6 +60,9 @@ public class ApiTrackBlueprint {
             if (model.getUser() == null){
                 model.setUser(ModelFixtures.create(ApiUser.class));
             }
+            model.setMonetizationModel("SUB_MID_TIER");
+            model.setSubMidTier(true);
+            model.setSubHighTier(true);
             return model;
         }
     };

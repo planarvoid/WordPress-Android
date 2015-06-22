@@ -45,7 +45,7 @@ public class FeatureOperationsTest {
     public void shouldShowUpsellIfSetToKnownPlan() {
         when(planStorage.get(eq("upsell"), anyString())).thenReturn("mid_tier");
 
-        expect(featureOperations.shouldShowUpsell()).toBeTrue();
+        expect(featureOperations.upsellMidTier()).toBeTrue();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void shouldShowUpsellDefaultsFalse() {
-        expect(featureOperations.shouldShowUpsell()).toBeFalse();
+        expect(featureOperations.upsellMidTier()).toBeFalse();
     }
 
     @Test

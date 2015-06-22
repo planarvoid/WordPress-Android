@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
@@ -35,6 +36,12 @@ public class SearchResultsScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public UpgradeScreen clickMidTierTrackForUpgrade(String name) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.textContaining(name)).click();
+        return new UpgradeScreen(testDriver);
     }
 
     public void clickFirstPlaylistItem() {

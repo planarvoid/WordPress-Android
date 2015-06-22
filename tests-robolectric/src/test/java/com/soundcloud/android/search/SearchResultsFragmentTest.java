@@ -8,8 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -18,10 +16,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -33,6 +27,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.ListViewController;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,8 +37,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -65,19 +58,23 @@ public class SearchResultsFragmentTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SearchOperations operations;
-    @Mock private PlaybackOperations playbackOperations;
     @Mock private SearchOperations.SearchResultPager pager;
     @Mock private Subscription subscription;
     @Mock private ListViewController listViewController;
     @Mock private SearchResultsAdapter adapter;
     @Mock private Navigator navigator;
+    @Mock private MixedItemClickListener.Factory clickListenerFactory;
+    @Mock private MixedItemClickListener clickListener;
 
     @Before
     public void setUp() {
         setupSearchOperations();
+
         fragment = createFragment(SearchOperations.TYPE_ALL, false);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
+
+        when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
     }
 
     @Test
@@ -88,18 +85,19 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
-    public void trackItemClickShouldPlayTrack() {
-        TestObservables.MockObservable<PlaybackResult> playbackObservable =
-                setupAdapterAndPlaybackOperations(Screen.SEARCH_EVERYTHING);
+    public void itemClickShouldDelegateToClickListener() {
+        final List<ListItem> listItems = setupAdapter();
+        when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
+        final View view = mock(View.class);
+        fragment.onItemClick(mock(AdapterView.class), view, 0, 0);
 
-        expect(playbackObservable.subscribedTo()).toBeTrue();
+        verify(clickListener).onItemClick(listItems, view, 0);
     }
 
     @Test
     public void trackItemClickShouldPublishEventFromSearchAllTab() {
-        setupAdapterAndPlaybackOperations(Screen.SEARCH_EVERYTHING);
+        setupAdapter();
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -115,23 +113,11 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
-    public void trackItemClickShouldPlayTrackFromTracksTab() {
-        fragment = createFragment(SearchOperations.TYPE_TRACKS, false);
-        fragment.onCreate(null);
-
-        TestObservables.MockObservable<PlaybackResult> playbackObservable =
-                setupAdapterAndPlaybackOperations(Screen.SEARCH_TRACKS);
-        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
-
-        expect(playbackObservable.subscribedTo()).toBeTrue();
-    }
-
-    @Test
     public void trackItemClickShouldPublishSearchEventFromTracksTab() {
         fragment = createFragment(SearchOperations.TYPE_TRACKS, false);
         fragment.onCreate(null);
 
-        setupAdapterAndPlaybackOperations(Screen.SEARCH_TRACKS);
+        setupAdapter();
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -143,19 +129,6 @@ public class SearchResultsFragmentTest {
         expect(event.getAttributes().get("click_object")).toEqual("soundcloud:tracks:1");
         expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
         expect(event.getAttributes().get("click_position")).toEqual("0");
-    }
-
-    @Test
-    public void playlistItemClickShouldOpenPlaylistActivity() {
-        when(adapter.getItem(0)).thenReturn(PlaylistItem.from(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN))));
-        when(pager.getSearchQuerySourceInfo(0, PLAYLIST_URN)).thenReturn(searchQuerySourceInfo);
-
-        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
-
-        Intent nextStartedActivity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
-        expect(nextStartedActivity).not.toBeNull();
-        expect(nextStartedActivity.getAction()).toEqual(Actions.PLAYLIST);
-        expect(nextStartedActivity.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(PLAYLIST_URN);
     }
 
     @Test
@@ -177,16 +150,6 @@ public class SearchResultsFragmentTest {
         expect(event.getAttributes().get("click_object")).toEqual("soundcloud:playlists:4");
         expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
         expect(event.getAttributes().get("click_position")).toEqual("1");
-    }
-
-    @Test
-    public void userItemClickShouldOpenProfileActivity() {
-        when(adapter.getItem(0)).thenReturn(UserItem.from(PropertySet.from(UserProperty.URN.bind(USER_URN))));
-        when(pager.getSearchQuerySourceInfo(0, USER_URN)).thenReturn(searchQuerySourceInfo);
-
-        fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
-
-        verify(navigator).openProfile(any(Context.class), eq(USER_URN), eq(searchQuerySourceInfo));
     }
 
     @Test
@@ -250,8 +213,8 @@ public class SearchResultsFragmentTest {
 
     private SearchResultsFragment createFragment(int searchType, boolean fromSearch) {
         SearchResultsFragment fragment = new SearchResultsFragment(
-                operations, playbackOperations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(),
-                eventBus, pager, navigator);
+                operations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(),
+                eventBus, pager, navigator, clickListenerFactory);
 
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
 
@@ -265,16 +228,13 @@ public class SearchResultsFragmentTest {
         return fragment;
     }
 
-    private TestObservables.MockObservable<PlaybackResult> setupAdapterAndPlaybackOperations(Screen screen) {
-        TestObservables.MockObservable<PlaybackResult> playbackObservable = TestObservables.emptyObservable();
+    private List<ListItem> setupAdapter() {
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        final List<ListItem> listItems = Arrays.asList((ListItem) trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
-        when(adapter.getItems()).thenReturn(Arrays.asList((ListItem) trackItem));
-        when(playbackOperations
-                .playTracks(eq(Lists.newArrayList(TRACK_URN)), eq(TRACK_URN), eq(0), eq(new PlaySessionSource(screen))))
-                .thenReturn(playbackObservable);
+        when(adapter.getItems()).thenReturn(listItems);
         when(pager.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
-        return playbackObservable;
+        return listItems;
     }
 
     private void setupSearchOperations() {

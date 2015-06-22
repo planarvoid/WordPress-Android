@@ -29,10 +29,15 @@ public class TrackLikesScreen extends Screen {
     }
 
     public TrackLikesScreen clickOfflineTrack(int index) {
-        tracks()
-                .get(index)
+        tracks().get(index)
                 .click();
         return this;
+    }
+
+    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
+        tracks().get(index)
+                .click();
+        return new UpgradeScreen(testDriver);
     }
 
     public VisualPlayerElement clickTrack(int index) {

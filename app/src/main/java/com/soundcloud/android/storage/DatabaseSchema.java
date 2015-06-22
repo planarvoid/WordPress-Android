@@ -80,7 +80,10 @@ final class DatabaseSchema {
             "track_id INTEGER, " +
             "monetizable BOOLEAN DEFAULT 0," +
             "syncable BOOLEAN DEFAULT 1," +
+            "sub_mid_tier BOOLEAN DEFAULT 0," +
+            "sub_high_tier BOOLEAN DEFAULT 0," +
             "policy TEXT," +
+            "monetization_model TEXT," +
             "last_updated INTEGER, " +
             "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
             ");";
@@ -330,6 +333,9 @@ final class DatabaseSchema {
             ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZABLE + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             ",TrackPolicies." + TableColumns.TrackPolicies.POLICY + " as " + TableColumns.SoundView.POLICIES_POLICY +
             ",TrackPolicies." + TableColumns.TrackPolicies.SYNCABLE + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
+            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_MID_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +
+            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_HIGH_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +
+            ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZATION_MODEL + " as " + TableColumns.SoundView.POLICIES_MONETIZATION_MODEL +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +

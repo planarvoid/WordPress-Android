@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
@@ -32,6 +33,12 @@ public interface TrackRecord {
     boolean isMonetizable();
 
     String getPolicy();
+
+    Optional<String> getMonetizationModel();
+
+    Optional<Boolean> isSubMidTier();
+
+    Optional<Boolean> isSubHighTier();
 
     boolean isSyncable();
 

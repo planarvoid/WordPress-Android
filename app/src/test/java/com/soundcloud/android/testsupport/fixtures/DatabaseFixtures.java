@@ -415,11 +415,19 @@ public class DatabaseFixtures {
         insertInto(Table.TrackPolicies, cv);
     }
 
-    public ApiTrack insertLikedTrackPendingDownload(Date likeDate) {
-        ApiTrack apiTrack = insertLikedTrack(likeDate);
-        insertTrackPendingDownload(apiTrack.getUrn(), System.currentTimeMillis());
-        return apiTrack;
+    public void insertPolicyMidTierMonetizable(Urn urn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
+        cv.put(TableColumns.TrackPolicies.POLICY, "SNIP");
+        cv.put(TableColumns.TrackPolicies.MONETIZABLE, true);
+        cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, "SUB_MID_TIER");
+        cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, true);
+        cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, false);
+        cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
+
+        insertInto(Table.TrackPolicies, cv);
     }
+
 
     public long insertTrackPendingDownload(Urn trackUrn, long requestedAt) {
         ContentValues cv = new ContentValues();

@@ -16,4 +16,7 @@ public class TrackProperty extends PlayableProperty {
     public static final Property<Boolean> MONETIZABLE = Property.of(TrackProperty.class, Boolean.class);
     public static final Property<Boolean> SYNCABLE = Property.of(TrackProperty.class, Boolean.class);
     public static final Property<String> POLICY = Property.of(TrackProperty.class, String.class);
+    public static final Property<Boolean> SUB_MID_TIER = Property.of(TrackProperty.class, Boolean.class);
+    public static final Property<String> MONETIZATION_MODEL = Property.of(TrackProperty.class, String.class);
+
 }

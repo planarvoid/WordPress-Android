@@ -105,12 +105,15 @@ public final class TableColumns {
     public static class TrackPolicies implements BaseColumns {
         public static final String TRACK_ID = "track_id";
         public static final String MONETIZABLE = "monetizable";
+        public static final String SUB_MID_TIER = "sub_mid_tier";
+        public static final String SUB_HIGH_TIER = "sub_high_tier";
         public static final String POLICY = "policy";
+        public static final String MONETIZATION_MODEL = "monetization_model";
         public static final String SYNCABLE = "syncable";
         public static final String LAST_UPDATED = "last_updated";
 
         public static final String[] ALL_FIELDS = new String[] {
-                TRACK_ID, MONETIZABLE, POLICY, SYNCABLE, LAST_UPDATED
+                TRACK_ID, MONETIZABLE, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
         };
     }
 
@@ -349,6 +352,9 @@ public final class TableColumns {
         public static final String POLICIES_MONETIZABLE = "sound_policies_monetizable";
         public static final String POLICIES_POLICY = "sound_policies_policy";
         public static final String POLICIES_SYNCABLE = "sound_policies_syncable";
+        public static final String POLICIES_MONETIZATION_MODEL = "sound_policies_monetization_model";
+        public static final String POLICIES_SUB_MID_TIER = "sound_policies_sub_mid_tier";
+        public static final String POLICIES_SUB_HIGH_TIER = "sound_policies_sub_high_tier";
 
         public static final String USER_ID = "sound_user_id";
         public static final String USERNAME = "sound_user_username";

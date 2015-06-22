@@ -71,7 +71,7 @@ class GeneralSettings implements OnPreferenceClickListener {
          * The offline settings screen has a configuration for the case where offline content is not enabled
          * but there is offline content stored on the device which can be deleted.
          */
-        if (featureOperations.isOfflineContentEnabled() || featureOperations.shouldShowUpsell()) {
+        if (featureOperations.isOfflineContentEnabled() || featureOperations.upsellMidTier()) {
             final PreferenceCategory category = (PreferenceCategory) settings.findPreference(GENERAL_SETTINGS);
             category.addPreference(createOfflineSyncPref(settings));
         }

@@ -16,17 +16,17 @@ import java.util.List;
 
 public class DownloadableTrackItemRenderer extends TrackItemRenderer {
 
-    private final FeatureOperations featureOperations;
-
     @Inject
     public DownloadableTrackItemRenderer(ImageOperations imageOperations,
                                          TrackItemMenuPresenter trackItemMenuPresenter,
                                          EventBus eventBus,
                                          FeatureOperations featureOperations,
                                          ScreenProvider screenProvider,
-                                         Navigator navigator) {
-        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider, navigator);
-        this.featureOperations = featureOperations;
+                                         Navigator navigator,
+                                         TrackItemView.Factory trackItemViewFactory) {
+        super(imageOperations, trackItemMenuPresenter,
+                eventBus, screenProvider, navigator,
+                featureOperations, trackItemViewFactory);
     }
 
     @Override

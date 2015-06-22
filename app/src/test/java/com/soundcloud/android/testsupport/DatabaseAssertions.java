@@ -106,11 +106,22 @@ public class DatabaseAssertions {
     }
 
     private void assertTrackPolicyInserted(ApiTrack track) {
-        assertThat(select(from(Table.TrackPolicies.name())
+        final Query query = from(Table.TrackPolicies.name())
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
                 .whereEq(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable())
                 .whereEq(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable())
-                .whereEq(TableColumns.TrackPolicies.POLICY, track.getPolicy())), counts(1));
+                .whereEq(TableColumns.TrackPolicies.POLICY, track.getPolicy());
+
+        if (track.getMonetizationModel().isPresent()){
+            query.whereEq(TableColumns.TrackPolicies.MONETIZATION_MODEL, track.getMonetizationModel().get());
+        }
+        if (track.isSubMidTier().isPresent()){
+            query.whereEq(TableColumns.TrackPolicies.SUB_MID_TIER, track.isSubMidTier().get());
+        }
+        if (track.isSubHighTier().isPresent()){
+            query.whereEq(TableColumns.TrackPolicies.SUB_HIGH_TIER, track.isSubHighTier().get());
+        }
+        assertThat(select(query), counts(1));
     }
 
     public void assertLikedTrackPendingAddition(Urn targetUrn) {

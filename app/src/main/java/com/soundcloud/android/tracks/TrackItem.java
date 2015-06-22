@@ -70,6 +70,11 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
     }
 
+    public boolean isMidTier() {
+        // this should really be get, EVENTUALLY... (we dont have policy for everything reliably yet)
+        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+    }
+
     int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
     }

@@ -58,12 +58,22 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
     }
 
     public static ContentValues buildPolicyContentValues(TrackRecord trackRecord) {
-        return ContentValuesBuilder.values()
+        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
                 .put(TableColumns.TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
                 .put(TableColumns.TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
                 .put(TableColumns.TrackPolicies.POLICY, trackRecord.getPolicy())
                 .put(TableColumns.TrackPolicies.SYNCABLE, trackRecord.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
-                .get();
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
+
+        if (trackRecord.getMonetizationModel().isPresent()) {
+            valuesBuilder.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, trackRecord.getMonetizationModel().get());
+        }
+        if (trackRecord.isSubMidTier().isPresent()) {
+            valuesBuilder.put(TableColumns.TrackPolicies.SUB_MID_TIER, trackRecord.isSubMidTier().get());
+        }
+        if (trackRecord.isSubHighTier().isPresent()) {
+            valuesBuilder.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, trackRecord.isSubHighTier().get());
+        }
+        return valuesBuilder.get();
     }
 }

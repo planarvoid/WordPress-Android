@@ -20,8 +20,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     @Inject
     public PlaylistTrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
                                      EventBus eventBus, FeatureOperations featureOperations,
-                                     ScreenProvider screenProvider, Navigator navigator) {
-        super(imageOperations, trackItemMenuPresenter, eventBus, featureOperations, screenProvider, navigator);
+                                     ScreenProvider screenProvider, Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
+        super(imageOperations, trackItemMenuPresenter, eventBus, featureOperations, screenProvider, navigator, trackItemViewFactory);
     }
 
     public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {

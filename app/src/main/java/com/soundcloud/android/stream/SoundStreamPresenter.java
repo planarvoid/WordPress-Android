@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -26,6 +25,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -72,6 +72,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
+    private final MixedItemClickListener itemClickListener;
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
@@ -83,7 +84,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                          ImagePauseOnScrollListener imagePauseOnScrollListener,
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         MixedItemClickListener.Factory itemClickListenerFactory) {
         super(swipeRefreshAttacher);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
@@ -91,6 +93,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
+        this.itemClickListener = itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null);
     }
 
     @Override
@@ -154,10 +157,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
         final Urn playableUrn = item.getEntityUrn();
         if (item instanceof PromotedTrackItem) {
             playFromPromotedTrack(position, (PromotedTrackItem) item, playableUrn);
-        } else if (playableUrn.isTrack()) {
-            playTracks(position, playableUrn, new PlaySessionSource(Screen.SIDE_MENU_STREAM));
-        } else if (playableUrn.isPlaylist()) {
-            PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);
+        } else {
+            itemClickListener.onItemClick(streamOperations.trackUrnsForPlayback(), view,position, item);
         }
     }
 

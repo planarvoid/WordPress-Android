@@ -68,7 +68,7 @@ public class FeatureOperations {
         return featureStorage.isEnabled(OFFLINE_CONTENT, false);
     }
 
-    public boolean shouldShowUpsell() {
+    public boolean upsellMidTier() {
         return MID_TIER.equals(planStorage.get(UPSELL, ScTextUtils.EMPTY_STRING));
     }
 

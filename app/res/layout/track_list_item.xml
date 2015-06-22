@@ -35,6 +35,16 @@
                 android:visibility="invisible" />
 
         <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/upsell"
+                style="@style/ListItemText.TertiaryText"
+                android:layout_toRightOf="@id/image"
+                android:layout_below="@id/list_item_subheader"
+                android:textColor="@color/ak_sc_orange"
+                android:text="@string/upsell_track_item"
+                android:drawableLeft="@drawable/tier_content"
+                android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_right_info"
                 style="@style/ListItemText.Numeric"
                 android:layout_marginTop="-2dp"

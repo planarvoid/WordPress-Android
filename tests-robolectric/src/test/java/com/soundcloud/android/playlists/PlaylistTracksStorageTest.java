@@ -144,15 +144,28 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
+        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
 
-        testFixtures().insertPlaylistTrack(testFixtures().insertPlaylist(), 2);
+        testFixtures().insertPolicyMidTierMonetizable(apiTrack3.getUrn());
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
         expect(tracks).toContainExactly(
                 fromApiTrack(apiTrack1),
-                fromApiTrack(apiTrack2)
+                fromApiTrack(apiTrack2),
+                expectedMidTierMonetizableTrackFor(apiTrack3)
         );
+    }
+
+    @Test
+    public void doesNotIncludeTracksFromOtherPlaylists() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        final ApiTrack apiTrackOther = testFixtures().insertPlaylistTrack(testFixtures().insertPlaylist(), 0);
+
+        final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
+
+        expect(tracks).not.toContain(fromApiTrack(apiTrackOther));
     }
 
     @Test
@@ -187,7 +200,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
                 TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
-                TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn())
+                TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
+                TrackProperty.SUB_MID_TIER.bind(false)
         );
     }
 
@@ -219,6 +233,10 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 !playlist.isPublic(),
                 isOffline,
                 isTrackAdded);
+    }
+
+    private PropertySet expectedMidTierMonetizableTrackFor(ApiTrack track) {
+        return fromApiTrack(track).put(TrackProperty.SUB_MID_TIER, true);
     }
 
 }
