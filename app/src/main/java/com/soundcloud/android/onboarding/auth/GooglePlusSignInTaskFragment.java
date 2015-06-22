@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +50,7 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
 
     @Override
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
-        Throwable rootException = result.getException().getCause();
+        Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
 
         if (rootException instanceof GooglePlayServicesAvailabilityException) {
             // GooglePlayServices.apk is either old, disabled, or not present.
