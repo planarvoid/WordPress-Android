@@ -11,6 +11,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -35,6 +36,13 @@ public class SyncInitiator {
     private final Context context;
     private final AccountOperations accountOperations;
     private final SyncStateManager syncStateManager;
+
+    private static final Func1<Boolean, SyncResult> LEGACY_RESULT_TO_SYNC_RESULT = new Func1<Boolean, SyncResult>() {
+        @Override
+        public SyncResult call(Boolean resultedInChange) {
+            return SyncResult.success(SyncActions.SYNC_PLAYLIST, resultedInChange);
+        }
+    };
 
     @Inject
     public SyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
@@ -218,13 +226,28 @@ public class SyncInitiator {
     }
 
     public void syncLocalPlaylists() {
-        context.startService(new Intent(context, ApiSyncService.class)
+        context.startService(getSyncLocalPlaylistsIntent());
+    }
+
+    private Intent getSyncLocalPlaylistsIntent() {
+        return new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_PLAYLISTS.uri));
+                .setData(Content.ME_PLAYLISTS.uri);
     }
 
     public Observable<SyncResult> syncPlaylist(final Urn playlistUrn) {
-        return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
+        if (playlistUrn.getNumericId() < 0) {
+            return Observable.create(new Observable.OnSubscribe<Boolean>() {
+                        @Override
+                        public void call(Subscriber<? super Boolean> subscriber) {
+                            final Intent intent = getSyncLocalPlaylistsIntent().putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                    new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
+                            context.startService(intent);
+                        }
+                    }).map(LEGACY_RESULT_TO_SYNC_RESULT);
+        } else {
+            return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
+        }
     }
 
     public Observable<Boolean> syncTrack(final Urn trackUrn) {

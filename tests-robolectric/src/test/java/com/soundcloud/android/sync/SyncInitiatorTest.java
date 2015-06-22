@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Subscriber;
+import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 
 import android.accounts.Account;
@@ -38,7 +39,7 @@ public class SyncInitiatorTest {
 
     private SyncInitiator initiator;
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
-    private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<>();
+    private TestObserver<SyncResult> syncSubscriber = new TestObserver<>();
 
     @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;
@@ -139,6 +140,24 @@ public class SyncInitiatorTest {
         expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST);
         expect(intent.getParcelableExtra(SyncExtras.URN)).toEqual(playlistUrn);
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+    }
+
+    @Test
+    public void syncPlaylistSyncsMyPlaylistsIfPlaylistIsLocal() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(-1L);
+        initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getData()).toBe(Content.ME_PLAYLISTS.uri);
+        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
+
+        final LegacyResultReceiverAdapter resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
+        final Bundle resultData = new Bundle();
+        resultData.putBoolean(Content.ME_PLAYLISTS.uri.toString(), true);
+        resultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
+
+        expect(syncSubscriber.getOnNextEvents()).toContainExactly(SyncResult.success(SyncActions.SYNC_PLAYLIST, true));
     }
 
     @Test
