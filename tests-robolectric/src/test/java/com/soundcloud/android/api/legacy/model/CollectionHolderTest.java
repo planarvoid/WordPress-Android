@@ -23,7 +23,7 @@ public class CollectionHolderTest {
     public void setup(){
         initMocks(this);
         List<PublicApiResource> resources = Lists.newArrayList(scResource, unknownResource);
-        collectionHolder = new CollectionHolder<PublicApiResource>(resources);
+        collectionHolder = new CollectionHolder<>(resources);
     }
 
     @Test

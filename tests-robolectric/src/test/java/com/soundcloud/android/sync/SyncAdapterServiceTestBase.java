@@ -135,7 +135,7 @@ public abstract class SyncAdapterServiceTestBase {
             svc.onStart(intent, 0);
         }
 
-        List<NotificationInfo> list = new ArrayList<NotificationInfo>();
+        List<NotificationInfo> list = new ArrayList<>();
         for (Notification n : m.getAllNotifications()) {
             list.add(new NotificationInfo(n, shadowOf(n).getLatestEventInfo()));
         }

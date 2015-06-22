@@ -74,7 +74,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_ACTIVITIES.uri);
 
-        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
+        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -94,7 +94,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         Intent intent = new Intent(Intent.ACTION_SYNC, null);
 
-        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
+        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -140,7 +140,7 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
 
         Intent intent = new Intent(Intent.ACTION_SYNC);
-        ArrayList<Uri> urisToSync = new ArrayList<Uri>();
+        ArrayList<Uri> urisToSync = new ArrayList<>();
         urisToSync.add(Content.ME_SOUNDS.uri);
         urisToSync.add(Content.ME_LIKES.uri);
         urisToSync.add(Content.ME_FOLLOWERS.uri);

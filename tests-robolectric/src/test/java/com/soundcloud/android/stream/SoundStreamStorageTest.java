@@ -200,7 +200,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack oldestTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(oldestTrack.getId(), TIMESTAMP - 1);
 
-        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(TIMESTAMP, 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);

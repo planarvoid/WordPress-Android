@@ -126,7 +126,7 @@ public class SearchSuggestionsTest {
     public void shouldConvertHighlightsToCursorFormat() {
         SearchSuggestions suggestions = new SearchSuggestions();
         Query suggestion = new Query();
-        ArrayList<Map<String, Integer>> highlights = new ArrayList<Map<String, Integer>>(1);
+        ArrayList<Map<String, Integer>> highlights = new ArrayList<>(1);
         highlights.add(new HashMap<String, Integer>());
         highlights.add(new HashMap<String, Integer>());
         highlights.get(0).put("pre", 0);
@@ -198,9 +198,9 @@ public class SearchSuggestionsTest {
 
     @Test
     public void shouldAddRemoteResourceIdsForPrefetching() throws IOException {
-        ArrayList<Long> trackIds = new ArrayList<Long>();
-        ArrayList<Long> playlistIds = new ArrayList<Long>();
-        ArrayList<Long> userIds = new ArrayList<Long>();
+        ArrayList<Long> trackIds = new ArrayList<>();
+        ArrayList<Long> playlistIds = new ArrayList<>();
+        ArrayList<Long> userIds = new ArrayList<>();
 
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_mixed.json");

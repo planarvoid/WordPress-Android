@@ -26,7 +26,7 @@ public class OperatorSwitchOnEmptyListTest {
         originalSource = PublishSubject.create();
         switchSource = PublishSubject.create();
         observer = new TestObserver<>();
-        originalSource.lift(new OperatorSwitchOnEmptyList<String>(switchSource)).subscribe(observer);
+        originalSource.lift(new OperatorSwitchOnEmptyList<>(switchSource)).subscribe(observer);
     }
 
     @Test

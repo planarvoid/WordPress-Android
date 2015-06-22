@@ -38,7 +38,7 @@ public class LegacySyncRequestTest {
     public void shouldCreateCollectionSyncRequestsFromExtraSyncUris() throws Exception {
         final Intent intent = new Intent(Intent.ACTION_SYNC);
 
-        ArrayList<Uri> uris = new ArrayList<Uri>();
+        ArrayList<Uri> uris = new ArrayList<>();
         uris.add(Content.ME_FOLLOWERS.uri);
         uris.add(Content.ME_LIKES.uri);
 

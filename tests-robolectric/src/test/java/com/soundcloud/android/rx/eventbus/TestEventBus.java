@@ -109,7 +109,7 @@ public class TestEventBus implements EventBus {
 
     private <T> void monitorQueue(Queue<T> queue) {
         if (!observedQueues.containsKey(queue)) {
-            final Observer<T> testObserver = new TestObserver<T>();
+            final Observer<T> testObserver = new TestObserver<>();
             eventBus.subscribe(queue, testObserver);
             observedQueues.put(queue, testObserver);
         }

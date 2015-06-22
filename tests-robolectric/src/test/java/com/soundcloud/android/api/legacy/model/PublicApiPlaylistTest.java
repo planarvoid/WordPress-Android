@@ -123,7 +123,7 @@ public class PublicApiPlaylistTest {
                 getClass().getResourceAsStream("e1_playlist.json"),
                 PublicApiPlaylist.class);
 
-        List<Long> toAdd = new ArrayList<Long>();
+        List<Long> toAdd = new ArrayList<>();
         for (PublicApiTrack t : playlist.tracks){
             toAdd.add(t.getId());
         }

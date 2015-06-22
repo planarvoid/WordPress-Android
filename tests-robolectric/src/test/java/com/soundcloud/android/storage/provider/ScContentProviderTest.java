@@ -77,7 +77,7 @@ public class ScContentProviderTest {
     public void shouldSupportAndroidGlobalSearch() throws Exception {
         Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
 
-        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        List<ContentValues> cvs = new ArrayList<>();
         for (Shortcut shortcut : shortcuts) {
             ContentValues cv = shortcut.buildContentValues();
             if (cv != null) {
@@ -204,7 +204,7 @@ public class ScContentProviderTest {
     public void shouldBulkInsertSuggestions() throws Exception {
         Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
 
-        List<ContentValues> cvs = new ArrayList<ContentValues>();
+        List<ContentValues> cvs = new ArrayList<>();
         for (Shortcut shortcut : shortcuts) {
             ContentValues cv = shortcut.buildContentValues();
             if (cv != null) {

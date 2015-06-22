@@ -272,7 +272,7 @@ public class PlaybackServiceTest {
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
-        ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<BroadcastReceiver>();
+        ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<>();
         for (ShadowApplication.Wrapper registeredReceiver : Robolectric.getShadowApplication().getRegisteredReceivers()) {
             if (registeredReceiver.context == playbackService) {
                 Iterator<String> actions = registeredReceiver.intentFilter.actionsIterator();

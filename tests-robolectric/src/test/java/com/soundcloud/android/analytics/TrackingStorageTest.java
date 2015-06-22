@@ -154,7 +154,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     }
 
     private List<TrackingRecord> insertEvents(int numEvents) throws UnsupportedEncodingException {
-        List<TrackingRecord> events = new ArrayList<TrackingRecord>(numEvents);
+        List<TrackingRecord> events = new ArrayList<>(numEvents);
         for (int i = 0; i < numEvents; i++) {
             final TrackingRecord event = new TrackingRecord((long) i, "backend", "url");
             trackingStorage.insertEvent(event);
@@ -165,7 +165,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     }
 
     private List<TrackingRecord> createEvents(int numEvents) throws UnsupportedEncodingException {
-        List<TrackingRecord> events = new ArrayList<TrackingRecord>(numEvents);
+        List<TrackingRecord> events = new ArrayList<>(numEvents);
         for (int i = 0; i < numEvents; i++) {
             final TrackingRecord event = new TrackingRecord((long) i, "backend", "url");
             events.add(event);

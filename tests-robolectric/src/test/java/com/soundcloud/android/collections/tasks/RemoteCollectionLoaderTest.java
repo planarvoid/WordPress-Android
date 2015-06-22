@@ -50,7 +50,7 @@ public class RemoteCollectionLoaderTest {
     @Before
     public void setup() throws IOException {
         initMocks(this);
-        remoteCollectionLoader = new RemoteCollectionLoader<PublicApiResource>(trackStorage);
+        remoteCollectionLoader = new RemoteCollectionLoader<>(trackStorage);
 
         stub(parameters.getRequest()).toReturn(request);
         stub(publicCloudApi.readCollection(request)).toReturn(collectionHolder);
@@ -65,7 +65,7 @@ public class RemoteCollectionLoaderTest {
 
     @Test
     public void shouldReturnAResultWithInformationFromTheCollectionHolder(){
-        List<PublicApiResource> collection = new ArrayList<PublicApiResource>();
+        List<PublicApiResource> collection = new ArrayList<>();
         String nextHref = "linkylink";
         when(collectionHolder.getCollection()).thenReturn(collection);
         when(collectionHolder.getNextHref()).thenReturn(nextHref);
@@ -92,7 +92,7 @@ public class RemoteCollectionLoaderTest {
 
     @Test
     public void shouldStoreTracksFromCollection() throws CreateModelException {
-        List<PublicApiResource> collection = new ArrayList<PublicApiResource>();
+        List<PublicApiResource> collection = new ArrayList<>();
         final PublicApiTrack track1 = ModelFixtures.create(PublicApiTrack.class);
         final PublicApiTrack track2 = ModelFixtures.create(PublicApiTrack.class);
 

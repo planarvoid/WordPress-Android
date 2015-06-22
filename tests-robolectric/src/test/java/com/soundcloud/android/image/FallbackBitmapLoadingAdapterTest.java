@@ -25,7 +25,7 @@ public class FallbackBitmapLoadingAdapterTest {
 
     private FallbackBitmapLoadingAdapter adapter;
 
-    TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+    TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
 
     private @Mock View view;
     private @Mock Bitmap bitmap;

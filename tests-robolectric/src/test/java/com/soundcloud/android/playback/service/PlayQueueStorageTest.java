@@ -41,7 +41,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         insertPlayQueueItem(PlayQueueItem.fromTrack(Urn.forTrack(1), "existing", "existing_version"));
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
+        TestObserver<TxnResult> observer = new TestObserver<>();
         PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source1", "version1");
         PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(456L), "source2", "version2");
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
@@ -77,7 +77,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldDeleteAllPlayQueueItems() {
-        TestObserver<ChangeResult> observer = new TestObserver<ChangeResult>();
+        TestObserver<ChangeResult> observer = new TestObserver<>();
         insertPlayQueueItem(PlayQueueItem.fromTrack(Urn.forTrack(123L), "source", "source_version"));
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
@@ -90,7 +90,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadAllPlayQueueItems() {
-        TestObserver<PlayQueueItem> observer = new TestObserver<PlayQueueItem>();
+        TestObserver<PlayQueueItem> observer = new TestObserver<>();
         final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source", "source_version");
         insertPlayQueueItem(expectedItem);
         assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));

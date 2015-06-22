@@ -50,7 +50,7 @@ public class UpdateCollectionTaskTest {
     }
 
     private List<PublicApiResource> createStatleUserWithCity(String city) {
-        List<PublicApiResource> staleItems = new LinkedList<PublicApiResource>();
+        List<PublicApiResource> staleItems = new LinkedList<>();
         PublicApiUser updatedUser = new PublicApiUser(1);
         updatedUser.setCity(city);
         staleItems.add(updatedUser);

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FakeHttpLayer {
-    List<HttpResponse> pendingHttpResponses = new ArrayList<HttpResponse>();
-    List<HttpEntityStub.ResponseRule> httpResponseRules = new ArrayList<HttpEntityStub.ResponseRule>();
+    List<HttpResponse> pendingHttpResponses = new ArrayList<>();
+    List<HttpEntityStub.ResponseRule> httpResponseRules = new ArrayList<>();
     HttpResponse defaultHttpResponse;
 
     public void addPendingHttpResponse(int statusCode, String responseBody) {

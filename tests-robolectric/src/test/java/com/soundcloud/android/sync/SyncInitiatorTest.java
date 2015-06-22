@@ -37,8 +37,8 @@ import android.os.ResultReceiver;
 public class SyncInitiatorTest {
 
     private SyncInitiator initiator;
-    private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<Boolean>();
-    private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<SyncResult>();
+    private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
+    private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;

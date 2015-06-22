@@ -20,7 +20,7 @@ public class ExploreGenreTest {
     public void shouldBeParcelable() {
         category = new ExploreGenre("Title1");
 
-        final Map<String, Link> links = new HashMap<String, Link>();
+        final Map<String, Link> links = new HashMap<>();
         links.put("link1", new Link("http://link1"));
         links.put("link2", new Link("http://link2"));
         category.setLinks(links);
@@ -61,7 +61,7 @@ public class ExploreGenreTest {
     public void shouldGetSuggestedTracksPath(){
         category = new ExploreGenre("Title1");
 
-        final Map<String, Link> links = new HashMap<String, Link>();
+        final Map<String, Link> links = new HashMap<>();
         final String href = "http://link1";
         links.put(ExploreGenre.SUGGESTED_TRACKS_LINK_REL, new Link(href));
         category.setLinks(links);

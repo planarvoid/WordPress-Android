@@ -14,7 +14,7 @@ import java.util.List;
 
 public class TestApplication extends SoundCloudApplication {
     public final Token token;
-    public final List<Intent> broadcasts = new ArrayList<Intent>();
+    public final List<Intent> broadcasts = new ArrayList<>();
     private PublicApiWrapper oldCloudApi;
 
     public TestApplication() {

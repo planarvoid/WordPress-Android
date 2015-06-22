@@ -54,7 +54,7 @@ public class ScBaseAdapterTest {
         TestHelper.addIdResponse("/users?linked_partitioning=1&ids=1", 1);
         TestHelper.addIdResponse("/playlists?linked_partitioning=1&ids=1&representation=compact", 1);
 
-        List<ScModel> staleModels = new LinkedList<ScModel>();
+        List<ScModel> staleModels = new LinkedList<>();
 
         // tracks
         staleModels.add(new PublicApiTrack(1) {

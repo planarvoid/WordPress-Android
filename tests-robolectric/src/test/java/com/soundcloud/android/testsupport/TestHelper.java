@@ -123,7 +123,7 @@ public class TestHelper {
     public static void assertResolverNotified(Uri... uris) {
         ShadowContentResolver res =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
-        Set<Uri> _uris = new HashSet<Uri>();
+        Set<Uri> _uris = new HashSet<>();
         for (ShadowContentResolver.NotifiedUri u : res.getNotifiedUris()) {
             _uris.add(u.uri);
         }
@@ -235,6 +235,23 @@ public class TestHelper {
         return map.insert(Robolectric.application.getContentResolver());
     }
 
+    public static int bulkInsert(PublicApiResource... items) {
+        return bulkInsert(Arrays.asList(items));
+    }
+
+    public static <T extends Persisted & Identifiable> int bulkInsert(Uri uri, Collection<T> resources) {
+        List<ContentValues> items = new ArrayList<>();
+        BulkInsertMap map = new BulkInsertMap();
+
+        for (T resource : resources) {
+            resource.putDependencyValues(map);
+            items.add(resource.buildContentValues());
+        }
+        ContentResolver resolver = Robolectric.application.getContentResolver();
+        map.insert(resolver); // dependencies
+        return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
+    }
+
     public static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri) {
         return bulkInsertToUserAssociations(resources, collectionUri, null, null, null);
     }
@@ -304,7 +321,7 @@ public class TestHelper {
     public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass,
                                                                  String selection) throws Exception {
         Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, selection, null, null);
-        List<T> items = new ArrayList<T>();
+        List<T> items = new ArrayList<>();
         if (itemsCursor != null) {
             Constructor<T> constructor = modelClass.getConstructor(Cursor.class);
             while (itemsCursor.moveToNext()) {
@@ -368,7 +385,7 @@ public class TestHelper {
     }
 
     public static List<Urn> createTracksUrn(Long... ids) {
-        return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, Urn>() {
+        return Lists.transform(new ArrayList<>(Arrays.asList(ids)), new Function<Long, Urn>() {
             @Override
             public Urn apply(Long id) {
                 return Urn.forTrack(id);

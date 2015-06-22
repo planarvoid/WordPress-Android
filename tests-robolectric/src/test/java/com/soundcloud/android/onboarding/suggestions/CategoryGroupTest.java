@@ -135,7 +135,7 @@ public class CategoryGroupTest {
         CategoryGroup categoryGroup2 = new CategoryGroup("Key2");
         categoryGroup2.setCategories(Lists.newArrayList(category2));
 
-        final HashSet<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
+        final HashSet<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<>();
         categoryGroup.removeDuplicateUsers(uniqueSuggestedUsersSet);
         categoryGroup2.removeDuplicateUsers(uniqueSuggestedUsersSet);
         Expect.expect(category2Users).toContainExactly(suggestedUser3);

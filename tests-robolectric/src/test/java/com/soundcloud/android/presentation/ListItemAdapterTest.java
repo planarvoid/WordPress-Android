@@ -109,8 +109,8 @@ public class ListItemAdapterTest {
         CellRenderer presenterOne = mock(CellRenderer.class);
         CellRenderer presenterTwo = mock(CellRenderer.class);
         adapter = new ListItemAdapter<String>(
-                new CellRendererBinding<String>(0, presenterOne),
-                new CellRendererBinding<String>(1, presenterTwo)) {
+                new CellRendererBinding<>(0, presenterOne),
+                new CellRendererBinding<>(1, presenterTwo)) {
             @Override
             public int getItemViewType(int position) {
                 return position;

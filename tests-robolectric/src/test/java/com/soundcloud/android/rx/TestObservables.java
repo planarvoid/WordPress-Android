@@ -60,27 +60,27 @@ public class TestObservables {
     }
 
     public static <T> MockObservable<T> just(T result) {
-        return new MockObservable<T>(new OnSubscribeCapture(Observable.just(result)));
+        return new MockObservable<>(new OnSubscribeCapture(Observable.just(result)));
     }
 
     public static <T> MockObservable<T> emptyObservable() {
-        return new MockObservable<T>(new OnSubscribeCapture(Observable.empty()));
+        return new MockObservable<>(new OnSubscribeCapture(Observable.empty()));
     }
 
     public static <T> MockObservable<T> emptyObservable(Subscription subscription) {
-        return new MockObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
+        return new MockObservable<>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
     public static <T> MockConnectableObservable<T> emptyConnectableObservable(Subscription subscription) {
-        return new MockConnectableObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
+        return new MockConnectableObservable<>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
     public static <T> MockConnectableObservable<T> errorConnectableObservable() {
-        return new MockConnectableObservable<T>(new OnSubscribeCapture(errorObservable()));
+        return new MockConnectableObservable<>(new OnSubscribeCapture(errorObservable()));
     }
 
     public static <T> MockObservable<T> errorObservable(Throwable error) {
-        return new MockObservable<T>(new OnSubscribeCapture(Observable.error(error)));
+        return new MockObservable<>(new OnSubscribeCapture(Observable.error(error)));
     }
 
     public static <T> MockObservable<T> errorObservable() {
@@ -134,7 +134,7 @@ public class TestObservables {
 
     private static final class OnSubscribeCapture<T> implements Observable.OnSubscribe<T> {
 
-        List<Subscriber<? super T>> subscribers = new LinkedList<Subscriber<? super T>>();
+        List<Subscriber<? super T>> subscribers = new LinkedList<>();
         Observable<T> source;
 
         private OnSubscribeCapture(Observable<T> source) {

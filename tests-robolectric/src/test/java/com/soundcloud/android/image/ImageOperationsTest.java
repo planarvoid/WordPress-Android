@@ -316,7 +316,7 @@ public class ImageOperationsTest {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
         Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class))).thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
@@ -330,7 +330,7 @@ public class ImageOperationsTest {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
         Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
-        TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class))).thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
@@ -341,7 +341,7 @@ public class ImageOperationsTest {
 
     @Test
     public void blurredPlayerArtworkReturnsBlurredImageFromCache() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap blurredBitmap = Bitmap.createBitmap(0, 1, Bitmap.Config.RGB_565);
 
         when(blurCache.getIfPresent(URN)).thenReturn(blurredBitmap);
@@ -354,7 +354,7 @@ public class ImageOperationsTest {
 
     @Test
     public void blurredPlayerArtworkCreatesBlurredImageFromCache() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap cachedBitmaop = Bitmap.createBitmap(1,0, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(0,1, Bitmap.Config.RGB_565);
 
@@ -369,7 +369,7 @@ public class ImageOperationsTest {
 
     @Test
     public void blurredPlayerArtworkCachesBlurredImage() throws Exception {
-        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap cachedBitmaop = Bitmap.createBitmap(1,0, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(0,1, Bitmap.Config.RGB_565);
 
