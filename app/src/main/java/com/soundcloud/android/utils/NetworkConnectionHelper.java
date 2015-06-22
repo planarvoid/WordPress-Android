@@ -67,6 +67,10 @@ public class NetworkConnectionHelper {
                 || info.getType() == ConnectivityManager.TYPE_WIMAX);
     }
 
+    public String getNetworkOperatorName() {
+        return telephonyManager.getNetworkOperatorName();
+    }
+
     /**
      * Coarse classification is from
      * https://github.com/android/platform_frameworks_base/blob/master/telephony/java/android/telephony/TelephonyManager.java#L963
