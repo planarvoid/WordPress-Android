@@ -235,23 +235,6 @@ public class TestHelper {
         return map.insert(Robolectric.application.getContentResolver());
     }
 
-    public static int bulkInsert(PublicApiResource... items) {
-        return bulkInsert(Arrays.asList(items));
-    }
-
-    public static <T extends Persisted & Identifiable> int bulkInsert(Uri uri, Collection<T> resources) {
-        List<ContentValues> items = new ArrayList<>();
-        BulkInsertMap map = new BulkInsertMap();
-
-        for (T resource : resources) {
-            resource.putDependencyValues(map);
-            items.add(resource.buildContentValues());
-        }
-        ContentResolver resolver = Robolectric.application.getContentResolver();
-        map.insert(resolver); // dependencies
-        return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
-    }
-
     public static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri) {
         return bulkInsertToUserAssociations(resources, collectionUri, null, null, null);
     }
