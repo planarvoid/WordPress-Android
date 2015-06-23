@@ -23,9 +23,6 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     private static final String USERNAME_EXTRA = "username";
     private static final String AVATAR_EXTRA = "avatar";
 
-    @Inject ApiClient apiClient;
-    @Inject LegacyUserStorage userStorage;
-
     public static AddUserInfoTaskFragment create(String username, File avatarFile) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);

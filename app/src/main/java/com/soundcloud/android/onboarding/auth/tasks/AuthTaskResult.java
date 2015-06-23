@@ -3,11 +3,9 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
-
-import org.jetbrains.annotations.NotNull;
 
 public final class AuthTaskResult {
 
@@ -31,11 +29,18 @@ public final class AuthTaskResult {
     }
 
     public static AuthTaskResult failure(ApiRequestException exception) {
-        if (exception.reason() == ApiRequestException.Reason.VALIDATION_ERROR) {
-            // TODO: going forward, the key should be mapped to individual Reasons
-            return new AuthTaskResult(Kind.VALIDATION_ERROR, exception.errorKey());
+        switch (exception.reason()) {
+            case AUTH_ERROR:
+                return AuthTaskResult.unauthorized();
+            case VALIDATION_ERROR:
+                return new AuthTaskResult(Kind.VALIDATION_ERROR, exception.errorKey());
+            case NETWORK_ERROR:
+                return AuthTaskResult.networkError();
+            case SERVER_ERROR:
+                return AuthTaskResult.serverError();
+            default:
+                return new AuthTaskResult(exception);
         }
-        return new AuthTaskResult(exception);
     }
 
     public static AuthTaskResult failure(String errorMessage) {
@@ -62,12 +67,24 @@ public final class AuthTaskResult {
         return new AuthTaskResult(Kind.FLAKY_SIGNUP_ERROR);
     }
 
+    public static AuthTaskResult unauthorized() {
+        return new AuthTaskResult(Kind.UNAUTHORIZED);
+    }
+
+    public static AuthTaskResult serverError() {
+        return new AuthTaskResult(Kind.SERVER_ERROR);
+    }
+
+    public static AuthTaskResult networkError() {
+        return new AuthTaskResult(Kind.NETWORK_ERROR);
+    }
+
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
         return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
     }
 
     private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, VALIDATION_ERROR
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR
     }
 
     private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
@@ -116,6 +133,18 @@ public final class AuthTaskResult {
 
     public boolean wasDenied() {
         return kind == Kind.DENIED;
+    }
+
+    public boolean wasUnauthorized() {
+        return kind == Kind.UNAUTHORIZED;
+    }
+
+    public boolean wasServerError() {
+        return kind == Kind.SERVER_ERROR;
+    }
+
+    public boolean wasNetworkError() {
+        return kind == Kind.NETWORK_ERROR;
     }
 
     public boolean wasEmailInvalid() {

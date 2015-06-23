@@ -13,26 +13,25 @@ import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class GooglePlusSignInTask extends LoginTask {
-    private static final String ADD_ACTIVITY    = "http://schemas.google.com/AddActivity";
+    private static final String ADD_ACTIVITY = "http://schemas.google.com/AddActivity";
     private static final String CREATE_ACTIVITY = "http://schemas.google.com/CreateActivity";
     private static final String LISTEN_ACTIVITY = "http://schemas.google.com/ListenActivity";
 
-    private static final String[] REQUEST_ACTIVITIES = { ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY };
+    private static final String[] REQUEST_ACTIVITIES = {ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY};
 
     private Bundle extras;
     protected String accountName, scope;
-    private AccountOperations accountOperations;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
-                                ConfigurationOperations configurationOperations, EventBus eventBus, AccountOperations accountOperations) {
-        this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)),
+                                ConfigurationOperations configurationOperations, EventBus eventBus, AccountOperations accountOperations,
+                                TokenInformationGenerator tokenUtils) {
+        this(application, accountName, scope, tokenUtils,
                 new FetchUserTask(new PublicApi(application)),
                 new LegacyUserStorage(), accountOperations, configurationOperations, eventBus);
     }
@@ -45,20 +44,19 @@ public class GooglePlusSignInTask extends LoginTask {
         this.scope = scope;
         extras = new Bundle();
         extras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
-        this.accountOperations = accountOperations;
     }
 
     @Override
     protected AuthTaskResult doInBackground(Bundle... params) {
         AuthTaskResult result = null;
         boolean googleTokenValid = false;
-        for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--){
+        for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--) {
             try {
                 String token = accountOperations.getGoogleAccountToken(accountName, scope, extras);
                 result = login(token);
 
                 googleTokenValid = !(result.getException() instanceof TokenRetrievalException);
-                if (!googleTokenValid){
+                if (!googleTokenValid) {
                     // whatever token we got from g+ is invalid. force it to invalid and we should get a new one next try
                     accountOperations.invalidateGoogleAccountToken(token);
                 }

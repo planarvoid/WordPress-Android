@@ -36,6 +36,10 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
         return app;
     }
 
+    protected String getString(int resourceId) {
+        return app.getString(resourceId);
+    }
+
     @Override
     protected void onPostExecute(AuthTaskResult result) {
         if (fragment == null) {

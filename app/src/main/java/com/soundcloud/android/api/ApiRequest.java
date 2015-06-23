@@ -7,7 +7,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.utils.UriUtils;
+import org.apache.http.auth.AUTH;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -195,6 +198,18 @@ public class ApiRequest {
 
         public Builder withProgressListener(ProgressListener progressListener) {
             this.progressListener = progressListener;
+            return this;
+        }
+
+        public Builder withFormMap(Map<String, String> params) {
+            for(Map.Entry<String, String> entry : params.entrySet()) {
+                withFormPart(StringPart.from(entry.getKey(), entry.getValue()));
+            }
+            return this;
+        }
+
+        public Builder withToken(Token token) {
+            withHeader(AUTH.WWW_AUTH_RESP, OAuth.createOAuthHeaderValue(token));
             return this;
         }
     }
