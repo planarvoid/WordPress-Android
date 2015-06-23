@@ -24,7 +24,7 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
     static final long STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(50);
 
     private final DateProvider dateProvider;
-    private List<Long> removeItems;
+    private List<Long> removeItems = Collections.emptyList();
 
     @Inject
     protected RemoveStalePromotedTracksCommand(PropellerDatabase propeller, DateProvider dateProvider) {
@@ -42,8 +42,8 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
                 removeItems = propeller.query(Query.from(Table.PromotedTracks.name()).select(TableColumns.PromotedTracks._ID).where(whereClause)).toList(new IdMapper());
                 if (!removeItems.isEmpty()){
                     for (Long id : removeItems) {
-                        propeller.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id));
-                        propeller.delete(Table.PromotedTracks, filter().whereEq(TableColumns.PromotedTracks._ID, id));
+                        step(propeller.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id)));
+                        step(propeller.delete(Table.PromotedTracks, filter().whereEq(TableColumns.PromotedTracks._ID, id)));
                     }
                 }
             }
@@ -52,6 +52,6 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
 
     @Override
     protected List<Long> transform(WriteResult result) {
-        return result.success() ? removeItems : Collections.<Long>emptyList();
+        return removeItems;
     }
 }

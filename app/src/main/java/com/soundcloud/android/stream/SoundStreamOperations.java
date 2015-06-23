@@ -23,7 +23,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -82,13 +81,6 @@ class SoundStreamOperations {
         }
     };
 
-    private final Action0 removeStalePromotedItems = new Action0() {
-        @Override
-        public void call() {
-            removeStalePromotedTracksCommand.call(null);
-        }
-    };
-
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
                           ContentStats contentStats, RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand,
@@ -114,13 +106,23 @@ class SoundStreamOperations {
                 .doOnNext(promotedImpressionAction);
     }
 
-    private Observable<List<PropertySet>> initialStreamItems(boolean syncCompleted) {
+    private Observable<List<PropertySet>> initialStreamItems(final boolean syncCompleted) {
         Log.d(TAG, "Preparing page; initial page");
-        return soundStreamStorage
-                .initialStreamItems(PAGE_SIZE).toList()
-                .subscribeOn(scheduler)
-                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted))
-                .doOnSubscribe(removeStalePromotedItems);
+        return removeStalePromotedTracksCommand.toObservable(null)
+                .flatMap(loadFirstPageOfStream(syncCompleted))
+                .subscribeOn(scheduler);
+    }
+
+    private Func1<List<Long>, Observable<List<PropertySet>>> loadFirstPageOfStream(final boolean syncCompleted) {
+        return new Func1<List<Long>, Observable<List<PropertySet>>>() {
+            @Override
+            public Observable<List<PropertySet>> call(List<Long> longs) {
+                Log.d(TAG, "Removed stale promoted items: " + longs.size());
+                return soundStreamStorage
+                        .initialStreamItems(PAGE_SIZE).toList()
+                        .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+            }
+        };
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {

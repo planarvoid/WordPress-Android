@@ -45,7 +45,7 @@ class SoundStreamStorage {
             SoundView.TRACK_COUNT,
             SoundView.LIKES_COUNT,
             SoundView.SHARING,
-            Table.SoundStreamView.field(SoundStreamView.CREATED_AT),
+            field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundStreamView.REPOSTER_USERNAME,
             exists(likeQuery()).as(SoundView.USER_LIKE),
             exists(repostQuery()).as(SoundView.USER_REPOST),
@@ -130,7 +130,7 @@ class SoundStreamStorage {
             addTitle(cursorReader, propertySet);
             propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
-            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)));
+            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             addOptionalPlaylistLike(cursorReader, propertySet);

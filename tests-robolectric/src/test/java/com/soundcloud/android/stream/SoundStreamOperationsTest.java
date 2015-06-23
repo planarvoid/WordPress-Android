@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.stream.SoundStreamOperations.PAGE_SIZE;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,11 +29,13 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamOperationsTest {
@@ -55,6 +56,7 @@ public class SoundStreamOperationsTest {
 
     @Before
     public void setUp() throws Exception {
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
                 removeStalePromotedTracksCommand, eventBus, Schedulers.immediate());
     }
@@ -241,17 +243,20 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void initialStreamDeletesStalePromotedTracksBeforeLoadingStreamItems() {
-        final boolean[] verified = new boolean[1];
+        final PublishSubject<List<Long>> subject = PublishSubject.create();
+        final AtomicBoolean verified = new AtomicBoolean();
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(subject);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
-                // this will throw an exception, but will be caught and will not fail the test, so remember if it verified
-                verify(removeStalePromotedTracksCommand).call(any(Void.class));
-                verified[0] = true;
+                verified.set(subject.hasObservers());
             }
         }));
+
         operations.initialStreamItems().subscribe(observer);
-        expect(verified[0]).toBeTrue();
+        subject.onNext(Collections.<Long>emptyList());
+
+        expect(verified.get()).toBeTrue();
     }
 
     @Test
