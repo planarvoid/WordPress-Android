@@ -72,6 +72,7 @@ public abstract class Screen {
     }
 
     public List<TrackItemElement> getTracks() {
+        scrollListToItem(With.id(com.soundcloud.android.R.id.track_list_item));
         return Lists.transform(
                 testDriver.findElements(With.id(com.soundcloud.android.R.id.track_list_item)),
                 toTrackItemElement
@@ -90,6 +91,17 @@ public abstract class Screen {
                 testDriver.findElements(With.id(com.soundcloud.android.R.id.user_list_item)),
                 toUserItemElement
         );
+    }
+
+    private ViewElement scrollListToItem(With with) {
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
+            if (!testDriver.scrollDown()) {
+                return new com.soundcloud.android.framework.viewelements.EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

@@ -13,8 +13,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.widget.ListView;
 
-import java.util.List;
-
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = LegacyProfileActivity.class;
 
@@ -23,9 +21,8 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement playTrack(int index) {
-        waiter.waitForElements(R.id.track_list_item);
-        tracks().get(index).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
@@ -41,7 +38,7 @@ public class ProfileScreen extends Screen {
     public String getFirstTrackTitle() {
         pullToRefresh();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new TextElement(trackTitle(tracks().get(0))).getText();
+        return getTracks().get(0).getTitle();
     }
 
     public void scrollToBottomOfCurrentListAndLoadMoreItems() {
@@ -108,10 +105,6 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.indicator)).toSlidingTabs();
     }
 
-    private List<ViewElement> tracks() {
-        return testDriver.findElements(With.id(R.id.track_list_item));
-    }
-
     private ViewElement followButton() {
         return testDriver.findElement(With.id(R.id.toggle_btn_follow));
     }
@@ -130,10 +123,6 @@ public class ProfileScreen extends Screen {
 
     private String getFollowButtonText() {
         return testDriver.getString(R.string.btn_following);
-    }
-
-    private ViewElement trackTitle(ViewElement track) {
-        return track.findElement(With.id(R.id.list_item_subheader));
     }
 
     @Override
