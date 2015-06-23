@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.framework.TestUser;
+
 import android.net.Uri;
 
 public final class TestConsts {
@@ -35,4 +37,6 @@ public final class TestConsts {
     public static final Uri INTERSTITIAL_PLAYLIST_URI = Uri.parse("https://soundcloud.com/scandroidad1/sets/monetizable2");
 
     public static final Uri HOME_URI = Uri.parse("soundcloud://home");
+
+    public static final Uri OTHER_PROFILE_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.otherProfileUser.getPermalink());
 }

@@ -103,6 +103,7 @@ public class TestUser {
     public static final TestUser profileEntryUser   = new TestUser("sc-profile-entry-user", "sc-profile-entry-user@gmail.com",      "passwordyeah");
     public static final TestUser recordUser         = new TestUser("sctestrecord",          "sctestrecord@gmail.com",               "passwordyeah88");
     public static final TestUser profileUser        = new TestUser("android-profile-user",  "sc-android-profile-user@soundcloud.com","s0undcl0ud");
+    public static final TestUser otherProfileUser   = new TestUser("other-profile-user",    "other-profile-user@soundcloud.com",    "s0undcl0ud");
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser             = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",           "scandtest");
