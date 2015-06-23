@@ -1,21 +1,18 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Query.from;
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.propeller.test.matchers.QueryMatchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
 public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest {
 
     private RemoveStalePromotedTracksCommand command;
@@ -34,7 +31,7 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
         testFixtures().insertPromotedTrackMetadata(123, now);
         when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS + 1);
 
-        expect(command.call(null)).toContainExactly(123L);
+        assertThat(command.call(null)).containsExactly(123L);
         expectPromotedTrackItemCountToBe(0);
     }
 
@@ -43,7 +40,7 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
         testFixtures().insertPromotedStreamTrack(testFixtures().insertTrack(), now, 123L);
         when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS + 1);
 
-        expect(command.call(null)).toContainExactly(123L);
+        assertThat(command.call(null)).containsExactly(123L);
         expectStreamItemCountToBe(0);
     }
 
@@ -52,15 +49,15 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
         testFixtures().insertPromotedTrackMetadata(123, now);
         when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS);
 
-        expect(command.call(null)).toBeEmpty();
+        assertThat(command.call(null)).isEmpty();
         expectPromotedTrackItemCountToBe(1);
     }
 
     private void expectPromotedTrackItemCountToBe(int count) {
-        assertThat(select(from(Table.PromotedTracks.name())), counts(count));
+        assertThat(select(from(Table.PromotedTracks.name())), QueryMatchers.counts(count));
     }
 
     private void expectStreamItemCountToBe(int count) {
-        assertThat(select(from(Table.SoundStream.name())), counts(count));
+        assertThat(select(from(Table.SoundStream.name())), QueryMatchers.counts(count));
     }
 }
