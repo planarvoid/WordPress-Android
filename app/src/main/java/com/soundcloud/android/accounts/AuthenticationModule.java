@@ -23,9 +23,7 @@ import dagger.Module;
                 SignupTaskFragment.class,
                 AddUserInfoTaskFragment.class,
                 OnboardActivity.class,
-                TokenInformationGenerator.class,
-                FacebookSessionCallback.class,
-                SignupTask.class
+                FacebookSessionCallback.class
         })
 public class AuthenticationModule {
 }
