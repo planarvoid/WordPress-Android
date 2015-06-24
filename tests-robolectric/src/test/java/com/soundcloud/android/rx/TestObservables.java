@@ -75,18 +75,6 @@ public class TestObservables {
         return new MockConnectableObservable<>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
-    public static <T> MockConnectableObservable<T> errorConnectableObservable() {
-        return new MockConnectableObservable<>(new OnSubscribeCapture(errorObservable()));
-    }
-
-    public static <T> MockObservable<T> errorObservable(Throwable error) {
-        return new MockObservable<>(new OnSubscribeCapture(Observable.error(error)));
-    }
-
-    public static <T> MockObservable<T> errorObservable() {
-        return errorObservable(new Exception());
-    }
-
     @Deprecated
     public static class MockObservable<T> extends Observable<T> {
 

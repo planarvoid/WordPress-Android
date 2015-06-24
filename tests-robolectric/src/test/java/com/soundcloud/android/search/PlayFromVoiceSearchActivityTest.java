@@ -16,7 +16,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -64,7 +63,7 @@ public class PlayFromVoiceSearchActivityTest {
     public void trackSearchErrorFallsBackToSearchActivity() throws Exception {
         activity.setIntent(getPlayFromSearchIntent(QUERY));
 
-        TestObservables.MockObservable searchObservable = TestObservables.errorObservable(new Throwable("search problem"));
+        Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(searchObservable);
 
         activity.onResume();
@@ -105,7 +104,7 @@ public class PlayFromVoiceSearchActivityTest {
     public void genreSearchErrorFallsBackToSearchActivity() throws Exception {
         activity.setIntent(getPlayFromSearchWithGenreIntent(GENRE));
 
-        TestObservables.MockObservable searchObservable = TestObservables.errorObservable(new Throwable("search problem"));
+        Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchObservable);
 
         activity.onResume();
@@ -119,7 +118,7 @@ public class PlayFromVoiceSearchActivityTest {
     public void genreSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         activity.setIntent(getPlayFromSearchWithGenreIntent(GENRE));
 
-        TestObservables.MockObservable searchObservable = TestObservables.errorObservable(new Throwable("search problem"));
+        Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchObservable);
 
         activity.onResume();

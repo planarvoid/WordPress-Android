@@ -9,7 +9,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -69,7 +68,7 @@ public class RichStreamNotificationBuilderTest {
     @Test
     public void notificationReturnsNotificationWithImageError() throws Exception {
         final Urn trackUrn = Urn.forTrack(123L);
-        when(imageOperations.artwork(trackUrn, ApiImageSize.LARGE, 128, 128)).thenReturn(TestObservables.<Bitmap>errorObservable());
+        when(imageOperations.artwork(trackUrn, ApiImageSize.LARGE, 128, 128)).thenReturn(Observable.<Bitmap>error(new Exception()));
         richStreamNotificationBuilder.notification(Arrays.asList(getTrack(trackUrn, "creator"))).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(Arrays.asList(notification));

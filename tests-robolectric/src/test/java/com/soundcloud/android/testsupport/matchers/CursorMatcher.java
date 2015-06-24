@@ -15,25 +15,6 @@ public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> exte
         }
     }
 
-    public boolean toHaveColumn(String name) {
-        return checkColumn(name) > 0;
-    }
-
-    public boolean toHaveColumn(String name, String value) {
-        int idx = checkColumn(name);
-        if (idx < 0) {
-            return false;
-        }
-
-        String s = actual.getString(idx);
-
-        if (!s.equals(value)) {
-            failureMessage = "column " + name + ": " + value + "!=" + s;
-            return false;
-        }
-        return true;
-    }
-
     public boolean toHaveColumn(String name, int value) {
         int idx = checkColumn(name);
         if (idx < 0) {
@@ -62,10 +43,6 @@ public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> exte
         } else {
             return true;
         }
-    }
-
-    public boolean toHaveNext() {
-        return actual.moveToNext();
     }
 
     private int checkColumn(String name) {

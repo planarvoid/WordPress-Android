@@ -210,7 +210,7 @@ public class PullToRefreshControllerTest {
     @Test
     public void refreshingReactiveFragmentShouldTellPTRToStopRefreshingOnError() {
         controller.setRefreshListener(fragment, mock(PagingListItemAdapter.class));
-        observable = TestObservables.errorConnectableObservable();
+        observable = Observable.<List<String>>error(new Exception()).publish();
         triggerRefresh();
         verifyZeroInteractions(adapter);
         verify(wrapper, times(2)).setRefreshing(false);
