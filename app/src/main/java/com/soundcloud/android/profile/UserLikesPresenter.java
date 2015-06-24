@@ -9,7 +9,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import rx.Observable;
 
@@ -21,7 +21,7 @@ class UserLikesPresenter extends ProfilePlayablePresenter {
     UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        MixedPlayableRecyclerItemAdapter adapter,
-                       MixedPlayableItemClickListener.Factory clickListenerFactory,
+                       MixedItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
                        ProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,

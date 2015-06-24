@@ -83,4 +83,5 @@
     <string name="upsell_remove_ads">Remove ads</string>
     <string name="upsell_nav_title">Upgrade SoundCloud</string>
     <string name="upsell_nav_body">Listen Offline &amp; Ad Free</string>
+    <string name="upsell_track_item">Available on SoundCloud Go</string>
 </resources>

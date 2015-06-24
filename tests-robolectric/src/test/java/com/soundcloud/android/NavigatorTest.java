@@ -3,9 +3,11 @@ package com.soundcloud.android;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -46,6 +48,21 @@ public class NavigatorTest {
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
         expectStartedActivity(UpgradeActivity.class);
+    }
+
+    @Test
+    public void opensPlaylist() {
+        Urn playlist = Urn.forPlaylist(123L);
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forPlaylist(1234L));
+
+        navigator.openPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS, searchQuerySourceInfo);
+
+        Intent intent = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(Actions.PLAYLIST);
+        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist);
+        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO)).toEqual(searchQuerySourceInfo);
+        expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLISTS);
     }
 
     @Test

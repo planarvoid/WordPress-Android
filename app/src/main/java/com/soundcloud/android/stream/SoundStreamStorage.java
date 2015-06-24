@@ -14,6 +14,7 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.policies.PolicyMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
@@ -46,6 +47,7 @@ class SoundStreamStorage {
             SoundView.LIKES_COUNT,
             SoundView.SHARING,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
+            SoundView.POLICIES_SUB_MID_TIER,
             SoundStreamView.REPOSTER_USERNAME,
             exists(likeQuery()).as(SoundView.USER_LIKE),
             exists(repostQuery()).as(SoundView.USER_REPOST),
@@ -122,6 +124,12 @@ class SoundStreamStorage {
 
     private static class StreamItemMapper extends RxResultMapper<PropertySet> {
 
+        private final PolicyMapper policyMapper;
+
+        public StreamItemMapper() {
+            this.policyMapper = new PolicyMapper();
+        }
+
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
@@ -138,6 +146,10 @@ class SoundStreamStorage {
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
+
+            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_MID_TIER)){
+                propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_MID_TIER));
+            }
 
             return propertySet;
         }

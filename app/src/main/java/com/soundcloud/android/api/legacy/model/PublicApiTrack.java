@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
@@ -607,6 +608,24 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         apiTrack.setStats(stats);
 
         return apiTrack;
+    }
+
+    @Override
+    public Optional<String> getMonetizationModel() {
+        // not implemented in Public Api
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<Boolean> isSubMidTier() {
+        // not implemented in Public Api
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<Boolean> isSubHighTier() {
+        // not implemented in Public Api
+        return Optional.absent();
     }
 
     protected static String fixWaveform(String input) {

@@ -71,6 +71,8 @@ public class ApiTrackTest {
         expect(propertySet.get(TrackProperty.COMMENTS_COUNT)).toEqual(track.getStats().getCommentsCount());
         expect(propertySet.get(TrackProperty.LIKES_COUNT)).toEqual(track.getStats().getLikesCount());
         expect(propertySet.get(TrackProperty.REPOSTS_COUNT)).toEqual(track.getStats().getRepostsCount());
+        expect(propertySet.get(TrackProperty.SUB_MID_TIER)).toEqual(track.isSubMidTier().get());
+        expect(propertySet.get(TrackProperty.MONETIZATION_MODEL)).toEqual(track.getMonetizationModel().get());
 
         expect(propertySet.get(TrackProperty.CREATOR_NAME)).toEqual(track.getUserName());
         expect(propertySet.get(TrackProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());

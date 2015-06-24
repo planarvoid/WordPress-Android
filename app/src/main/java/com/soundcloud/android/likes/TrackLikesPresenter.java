@@ -4,8 +4,10 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -46,6 +48,8 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
     final @LightCycle TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
+    private final FeatureOperations featureOperations;
+    private final Navigator navigator;
     private final OfflinePlaybackOperations playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PagedTracksAdapter adapter;
@@ -61,7 +65,8 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        ImageOperations imageOperations, SwipeRefreshAttacher swipeRefreshAttacher) {
+                        ImageOperations imageOperations, SwipeRefreshAttacher swipeRefreshAttacher,
+                        FeatureOperations featureOperations, Navigator navigator) {
         super(imageOperations, swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
@@ -71,6 +76,8 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
+        this.featureOperations = featureOperations;
+        this.navigator = navigator;
 
         setHeaderPresenter(headerPresenter);
     }
@@ -151,6 +158,8 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         if (item == null) {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + realPosition;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
+        } else if (shouldShowUpsell(item)) {
+            navigator.openUpgrade(view.getContext());
         } else {
             Urn initialTrack = item.getEntityUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
@@ -158,6 +167,10 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
                     .playLikes(initialTrack, realPosition, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
+    }
+
+    private boolean shouldShowUpsell(TrackItem item) {
+        return item.isMidTier() && featureOperations.upsellMidTier();
     }
 
     @Override

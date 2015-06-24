@@ -231,6 +231,20 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadingStreamItemsIncludesTierInformation() {
+        final ApiTrack track = testFixtures().insertTrack();
+        testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
+        testFixtures().insertPolicyMidTierMonetizable(track.getUrn());
+
+        storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
+
+        final PropertySet midTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_MID_TIER, true);
+
+        verify(observer).onNext(midTierTrackPost);
+        verify(observer).onCompleted();
+    }
+
+    @Test
     public void shouldExcludeOrphanedRecordsInActivityView() {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(deletedTrack.getId(), TIMESTAMP);
@@ -269,7 +283,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 PlayableProperty.IS_PRIVATE.bind(false),
-                TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()));
+                TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
+                TrackProperty.SUB_MID_TIER.bind(false));
     }
 
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {

@@ -60,9 +60,11 @@ public class LikedTrackStorage {
                         TableColumns.TrackDownloads.REQUESTED_AT,
                         TableColumns.TrackDownloads.DOWNLOADED_AT,
                         TableColumns.TrackDownloads.UNAVAILABLE_AT,
+                        TableColumns.TrackPolicies.SUB_MID_TIER,
                         field(Table.TrackDownloads.field(TableColumns.TrackDownloads.REMOVED_AT)).as(TableColumns.TrackDownloads.REMOVED_AT),
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT))
                 .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads.field(TableColumns.TrackDownloads._ID))
+                .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
                 .joinOn(Table.Sounds.field(TableColumns.Sounds.USER_ID), Table.Users.field(TableColumns.Users._ID))
                 .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)

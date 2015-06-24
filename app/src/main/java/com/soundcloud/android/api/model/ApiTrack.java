@@ -48,6 +48,11 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
     private String policy;
     private boolean syncable;
 
+    private Optional<String> monetizationModel = Optional.absent();
+    private Optional<Boolean> subMidTier = Optional.absent();
+    private Optional<Boolean> subHighTier = Optional.absent();
+
+
     public ApiTrack() { /* for Deserialization */ }
 
     public ApiTrack(Parcel in) {
@@ -210,6 +215,33 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.policy = policy;
     }
 
+    @JsonProperty("monetization_model")
+    public void setMonetizationModel(String monetizationModel) {
+        this.monetizationModel = Optional.of(monetizationModel);
+    }
+
+    public Optional<String> getMonetizationModel() {
+        return monetizationModel;
+    }
+
+    @JsonProperty("sub_mid_tier")
+    public void setSubMidTier(boolean subMidTier) {
+        this.subMidTier = Optional.of(subMidTier);
+    }
+
+    public Optional<Boolean> isSubMidTier() {
+        return subMidTier;
+    }
+
+    @JsonProperty("sub_high_tier")
+    public void setSubHighTier(boolean subHighTier) {
+        this.subHighTier = Optional.of(subHighTier);
+    }
+
+    public Optional<Boolean> isSubHighTier() {
+        return subHighTier;
+    }
+
     public boolean isSyncable() {
         return syncable;
     }
@@ -296,7 +328,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
 
     @Override
     public PropertySet toPropertySet() {
-        return PropertySet.from(
+        final PropertySet propertySet = PropertySet.from(
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
                 TrackProperty.CREATED_AT.bind(getCreatedAt()),
@@ -315,6 +347,15 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
                 TrackProperty.GENRE.bind(Optional.fromNullable(genre))
         );
+
+        if (isSubMidTier().isPresent()){
+            propertySet.put(TrackProperty.SUB_MID_TIER, isSubMidTier().get());
+        }
+        if (getMonetizationModel().isPresent()){
+            propertySet.put(TrackProperty.MONETIZATION_MODEL, getMonetizationModel().get());
+        }
+
+        return propertySet;
     }
 
     private static class RelatedResources {

@@ -371,7 +371,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
-        when(featureOperations.shouldShowUpsell()).thenReturn(true);
+        when(featureOperations.upsellMidTier()).thenReturn(true);
 
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)

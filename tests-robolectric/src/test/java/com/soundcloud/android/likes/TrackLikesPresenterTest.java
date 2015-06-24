@@ -9,7 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
@@ -24,9 +26,11 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +39,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,6 +57,7 @@ public class TrackLikesPresenterTest {
 
     private TrackLikesPresenter presenter;
 
+    @Mock private Context context;
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
@@ -67,6 +73,8 @@ public class TrackLikesPresenterTest {
     @Mock private Menu menu;
     @Mock private MenuInflater menuInflater;
     @Mock private MenuItem menuItem;
+    @Mock private Navigator navigator;
+    @Mock private FeatureOperations featureOperations;
 
     private PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -77,7 +85,7 @@ public class TrackLikesPresenterTest {
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
                 offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, imageOperations, swipeRefreshAttacher);
+                eventBus, imageOperations, swipeRefreshAttacher, featureOperations, navigator);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(listView.getHeaderViewsCount()).thenReturn(1);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -85,6 +93,7 @@ public class TrackLikesPresenterTest {
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
         when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
+        when(view.getContext()).thenReturn(context);
     }
 
     @Test
@@ -104,17 +113,41 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        PlaybackResult playbackResult = PlaybackResult.success();
-        final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
-        when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
-                .thenReturn(Observable.just(playbackResult));
+        PlaybackResult playbackResult = setupPlaybackConditions(ModelFixtures.create(TrackItem.class));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
         presenter.onItemClicked(view, 1);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
+    }
+
+    @Test
+    public void shouldShowUpsellOnMidTierItemClick() {
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 1);
+
+        verify(navigator).openUpgrade(context);
+    }
+
+    @Test
+    public void shouldNotShowUpsellOnMidTierItemClickWhenUserCannotUpgrade() {
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        setupPlaybackConditions(clickedTrack);
+
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 1);
+
+        verifyZeroInteractions(navigator);
     }
 
     @Test
@@ -163,6 +196,15 @@ public class TrackLikesPresenterTest {
         featureChange.onNext(true);
 
         verify(adapter).notifyDataSetChanged();
+    }
+
+    @NotNull
+    private PlaybackResult setupPlaybackConditions(TrackItem clickedTrack) {
+        PlaybackResult playbackResult = PlaybackResult.success();
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
+                .thenReturn(Observable.just(playbackResult));
+        return playbackResult;
     }
 
 }

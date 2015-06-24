@@ -1,13 +1,16 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import org.jetbrains.annotations.NotNull;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -28,6 +31,10 @@ public class Navigator {
 
     public void openUpgrade(Context activityContext) {
         activityContext.startActivity(new Intent(activityContext, UpgradeActivity.class));
+    }
+
+    public void openPlaylist(Context activityContext, Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        activityContext.startActivity(createPlaylistIntent(playlist, screen, false, searchQuerySourceInfo));
     }
 
     public void openMyProfile(Context activityContext, Urn user) {
@@ -66,6 +73,14 @@ public class Navigator {
     private Intent createMyProfileIntent(Context context, Urn user) {
         return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
                 .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
+    }
+
+    private  Intent createPlaylistIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
+        Intent intent = new Intent(Actions.PLAYLIST);
+        screen.addToIntent(intent);
+        return intent.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, autoPlay)
+                .putExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                .putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
 }

@@ -20,7 +20,7 @@ import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.propeller.PropertySet;
@@ -39,9 +39,9 @@ abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableIt
 
     protected final ProfileOperations profileOperations;
     private final MixedPlayableRecyclerItemAdapter adapter;
-    private final MixedPlayableItemClickListener.Factory clickListenerFactory;
+    private final MixedItemClickListener.Factory clickListenerFactory;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private MixedPlayableItemClickListener clickListener;
+    private MixedItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
 
     private final Func1<PagedRemoteCollection, List<PlayableItem>> pageTransformer = new Func1<PagedRemoteCollection, List<PlayableItem>>() {
@@ -63,7 +63,7 @@ abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableIt
     protected ProfilePlayablePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                                        MixedPlayableRecyclerItemAdapter adapter,
-                                       MixedPlayableItemClickListener.Factory clickListenerFactory,
+                                       MixedItemClickListener.Factory clickListenerFactory,
                                        PlayableListUpdater.Factory updaterFactory,
                                        ProfileOperations profileOperations) {
         super(swipeRefreshAttacher);
@@ -119,7 +119,7 @@ abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableIt
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private MixedPlayableItemClickListener createClickListener(Bundle fragmentArgs) {
+    private MixedItemClickListener createClickListener(Bundle fragmentArgs) {
         final Screen screen = (Screen) fragmentArgs.getSerializable(SCREEN_KEY);
         final SearchQuerySourceInfo searchQuerySourceInfo = fragmentArgs.getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
         return clickListenerFactory.create(screen, searchQuerySourceInfo);

@@ -282,4 +282,8 @@ public abstract class TestPropertySets {
                 UserProperty.FOLLOWERS_COUNT.bind(user.getFollowersCount()),
                 UserProperty.IS_FOLLOWED_BY_ME.bind(following));
     }
+
+    public static PropertySet midTierTrack() {
+        return fromApiTrack(ModelFixtures.create(ApiTrack.class)).put(TrackProperty.SUB_MID_TIER, true);
+    }
 }

@@ -7,10 +7,6 @@ import static com.soundcloud.android.search.SearchOperations.TYPE_USERS;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -21,9 +17,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -32,6 +25,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -82,25 +76,11 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         }
     };
 
-    private static final Predicate<Urn> TRACK_PREDICATE = new Predicate<Urn>() {
-        @Override
-        public boolean apply(Urn input) {
-            return input.isTrack();
-        }
-    };
-
-    private final Function<ListItem, Urn> toUrn = new Function<ListItem, Urn>() {
-        @Override
-        public Urn apply(ListItem model) {
-            return model.getEntityUrn();
-        }
-    };
-
     @Inject SearchOperations searchOperations;
-    @Inject PlaybackOperations playbackOperations;
     @Inject EventBus eventBus;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
     @Inject Navigator navigator;
+    @Inject MixedItemClickListener.Factory clickListenerFactory;
     @Inject @LightCycle ListViewController listViewController;
     @Inject @LightCycle SearchResultsAdapter adapter;
 
@@ -137,21 +117,21 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     SearchResultsFragment(SearchOperations operations,
-                          PlaybackOperations playbackOperations,
                           ListViewController listViewController,
                           SearchResultsAdapter adapter,
                           Provider<ExpandPlayerSubscriber> subscriberProvider,
                           EventBus eventBus,
                           SearchOperations.SearchResultPager pager,
-                          Navigator navigator) {
+                          Navigator navigator,
+                          MixedItemClickListener.Factory clickListenerFactory) {
         this.searchOperations = operations;
-        this.playbackOperations = playbackOperations;
         this.listViewController = listViewController;
         this.adapter = adapter;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
         this.pager = pager;
         this.navigator = navigator;
+        this.clickListenerFactory = clickListenerFactory;
     }
 
     @Override
@@ -211,34 +191,18 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final ListItem item = adapter.getItem(position);
-        Urn urn = item.getEntityUrn();
+        Urn urn = adapter.getItem(position).getEntityUrn();
         SearchQuerySourceInfo searchQuerySourceInfo = pager.getSearchQuerySourceInfo(position, urn);
 
         if (urn.isTrack()) {
-            final List<Urn> trackUrns = filterTracks(toUrn(adapter.getItems()));
-            final PlaySessionSource playSessionSource = new PlaySessionSource(getTrackingScreen());
-            playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-            playbackOperations
-                    .playTracks(trackUrns, urn, trackUrns.indexOf(urn), playSessionSource)
-                    .subscribe(subscriberProvider.get());
         } else if (urn.isPlaylist()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-            PlaylistDetailActivity.start(getActivity(), urn, getTrackingScreen(), false, searchQuerySourceInfo);
         } else if (urn.isUser()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-            navigator.openProfile(getActivity(), urn, searchQuerySourceInfo);
         }
-    }
 
-    private List<Urn> filterTracks(List<Urn> urns) {
-        return Lists.newArrayList(Iterables.filter(urns, TRACK_PREDICATE));
-    }
-
-    private List<Urn> toUrn(List<ListItem> items) {
-        return Lists.transform(items, toUrn);
+        clickListenerFactory.create(getTrackingScreen(), searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
     }
 
     private Screen getTrackingScreen() {

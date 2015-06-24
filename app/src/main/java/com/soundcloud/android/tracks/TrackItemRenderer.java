@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -12,16 +13,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.ViewUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -33,6 +30,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
+    protected final FeatureOperations featureOperations;
+    private final TrackItemView.Factory trackItemViewFactory;
 
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
@@ -40,39 +39,41 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                             EventBus eventBus, ScreenProvider screenProvider, Navigator navigator) {
+                             EventBus eventBus, ScreenProvider screenProvider, Navigator navigator, FeatureOperations featureOperations, TrackItemView.Factory trackItemViewFactory) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
         this.navigator = navigator;
+        this.featureOperations = featureOperations;
+        this.trackItemViewFactory = trackItemViewFactory;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
+        return trackItemViewFactory.createItemView(parent);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
         final TrackItem track = trackItems.get(position);
-        getTextView(itemView, R.id.list_item_header).setText(track.getCreatorName());
-        getTextView(itemView, R.id.list_item_subheader).setText(track.getTitle());
-        final String formattedDuration = ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS);
-        getTextView(itemView, R.id.list_item_right_info).setText(formattedDuration);
+        TrackItemView trackItemView = (TrackItemView) itemView.getTag();
+        trackItemView.setCreator(track.getCreatorName());
+        trackItemView.setTitle(track.getTitle());
+        trackItemView.setDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
 
-        showRelevantAdditionalInformation(itemView, track);
-        toggleReposterView(itemView, track);
+        showRelevantAdditionalInformation(trackItemView, track);
+        toggleReposterView(trackItemView, track);
 
-        loadArtwork(itemView, track);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), track, position);
+        loadArtwork(trackItemView, track);
+        setupOverFlow(trackItemView, track, position);
     }
 
-    protected void setupOverFlow(final View button, final TrackItem track, final int position) {
-        button.setOnClickListener(new View.OnClickListener() {
+    protected void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
+        itemView.setOverflowListener(new TrackItemView.OverflowListener() {
             @Override
-            public void onClick(View v) {
-                showTrackItemMenu(button, track, position);
+            public void onOverflow(View overflowButton) {
+                showTrackItemMenu(overflowButton, track, position);
             }
         });
     }
@@ -81,54 +82,41 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
     }
 
-    private void loadArtwork(View itemView, TrackItem track) {
+    private void loadArtwork(TrackItemView itemView, TrackItem track) {
         imageOperations.displayInAdapterView(
                 track.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
-                (ImageView) itemView.findViewById(R.id.image));
+                itemView.getImage());
     }
 
-    private void toggleReposterView(View itemView, TrackItem track) {
-        final TextView reposterView = getTextView(itemView, R.id.reposter);
+    private void toggleReposterView(TrackItemView itemView, TrackItem track) {
         final Optional<String> optionalReposter = track.getReposter();
         if (optionalReposter.isPresent()) {
-            reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(optionalReposter.get());
+            itemView.showReposter(optionalReposter.get());
         } else {
-            reposterView.setVisibility(View.GONE);
+            itemView.hideReposter();
         }
     }
 
-    private void showRelevantAdditionalInformation(View itemView, TrackItem track) {
-        hideAllAdditionalInformation(itemView);
+    private void showRelevantAdditionalInformation(TrackItemView itemView, TrackItem track) {
+        itemView.resetAdditionalInformation();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
         } else if (track.getEntityUrn().equals(playingTrack)) {
-            showNowPlaying(itemView);
+            itemView.showNowPlaying();
+        } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
+            itemView.showUpsell();
         } else if (track.isPrivate()) {
-            showPrivateIndicator(itemView);
+            itemView.showPrivateIndicator();
         } else {
             showPlayCount(itemView, track);
         }
     }
 
-    private void hideAllAdditionalInformation(View itemView) {
-        getTextView(itemView, R.id.list_item_counter).setVisibility(View.INVISIBLE);
-        getTextView(itemView, R.id.now_playing).setVisibility(View.INVISIBLE);
-        getTextView(itemView, R.id.private_indicator).setVisibility(View.GONE);
-
-        TextView promoted = getTextView(itemView, R.id.promoted_track);
-        promoted.setVisibility(View.GONE);
-        promoted.setClickable(false);
-    }
-
-    private void showPromoted(View itemView, final PromotedTrackItem track) {
-        TextView promoted = getTextView(itemView, R.id.promoted_track);
-        promoted.setVisibility(View.VISIBLE);
+    private void showPromoted(TrackItemView itemView, final PromotedTrackItem track) {
+        final Context context = itemView.getContext();
         if (track.hasPromoter()) {
-            final Context context = itemView.getContext();
-            promoted.setText(context.getString(R.string.promoted_by_label, track.getPromoterName().get()));
-            promoted.setClickable(true);
-            promoted.setOnClickListener(new View.OnClickListener() {
+            itemView.showPromotedTrack(context.getString(R.string.promoted_by_label, track.getPromoterName().get()));
+            itemView.setPromotedClickable(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     navigator.openProfile(context, track.getPromoterUrn().get());
@@ -136,29 +124,20 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                             PromotedTrackEvent.forPromoterClick(track, screenProvider.getLastScreenTag()));
                 }
             });
-            ViewUtils.extendTouchArea(promoted, 10);
+
         } else {
-            promoted.setText(R.string.promoted_label);
-            ViewUtils.clearTouchDelegate(promoted);
+            itemView.showPromotedTrack(context.getString(R.string.promoted_label));
         }
     }
 
-    private void showNowPlaying(View itemView) {
-        getTextView(itemView, R.id.now_playing).setVisibility(View.VISIBLE);
-    }
-
-    private void showPrivateIndicator(View itemView) {
-        getTextView(itemView, R.id.private_indicator).setVisibility(View.VISIBLE);
-    }
-
-    private void showPlayCount(View itemView, TrackItem track) {
+    private void showPlayCount(TrackItemView itemView, TrackItem track) {
         final int playCount = track.getPlayCount();
         if (hasPlayCount(playCount)) {
-            final TextView playCountText = getTextView(itemView, R.id.list_item_counter);
-            playCountText.setVisibility(View.VISIBLE);
-            playCountText.setText(ScTextUtils.formatNumberWithCommas(playCount));
+            itemView.showPlaycount(ScTextUtils.formatNumberWithCommas(playCount));
         }
     }
+
+
 
     private boolean hasPlayCount(int playCount) {
         return playCount > 0;
@@ -168,7 +147,4 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.playingTrack = playingTrack;
     }
 
-    private TextView getTextView(final View convertView, final int id) {
-        return (TextView) convertView.findViewById(id);
-    }
 }

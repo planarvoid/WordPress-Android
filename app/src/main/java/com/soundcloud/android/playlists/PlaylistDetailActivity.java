@@ -32,18 +32,22 @@ public class PlaylistDetailActivity extends ScActivity {
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
 
+    @Deprecated // Use Navigator
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {
         start(context, playlist, screen, false);
     }
 
+    @Deprecated // Use Navigator
     public static void start(Context context, @NotNull Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         start(context, playlist, screen, false, searchQuerySourceInfo);
     }
 
+    @Deprecated // Use Navigator
     public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay) {
         start(context, playlistUrn, screen, autoPlay, null);
     }
 
+    @Deprecated // Use Navigator
     public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(getIntent(playlistUrn, screen, autoPlay, searchQuerySourceInfo));
     }

@@ -82,7 +82,7 @@ public class NavigationFragmentTest {
 
         upsell = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_upsell, null, false);
         when(layout.findViewById(R.id.nav_upsell)).thenReturn(upsell);
-        when(featureOperations.shouldShowUpsell()).thenReturn(false);
+        when(featureOperations.upsellMidTier()).thenReturn(false);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class NavigationFragmentTest {
 
     @Test
     public void upsellIsSetVisibleIfEnabled() {
-        when(featureOperations.shouldShowUpsell()).thenReturn(true);
+        when(featureOperations.upsellMidTier()).thenReturn(true);
 
         fragment.onCreateView(layoutInflater, container, null);
         fragment.onResume();

@@ -72,7 +72,14 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrack() {
-        return clickNthTrack(0);
+        return clickTrack(0);
+    }
+
+    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
+        trackItemElements()
+                .get(index)
+                .click();
+        return new UpgradeScreen(testDriver);
     }
 
     public PlaylistDetailsScreen scrollToFirstTrackItem() {
@@ -117,7 +124,7 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.toggle_like));
     }
 
-    private VisualPlayerElement clickNthTrack(int trackIndex) {
+    private VisualPlayerElement clickTrack(int trackIndex) {
         return trackItemElements()
                 .get(trackIndex)
                 .click();

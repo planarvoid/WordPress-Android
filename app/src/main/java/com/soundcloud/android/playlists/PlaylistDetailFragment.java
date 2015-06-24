@@ -13,6 +13,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -83,6 +84,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
+    @Inject FeatureOperations featureOperations;
 
     private PlaylistDetailsController controller;
 
@@ -168,6 +170,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PlaylistPresenter playlistPresenter,
                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                            FeatureFlags featureFlags,
+                           FeatureOperations featureOperations,
                            AccountOperations accountOperations,
                            Navigator navigator) {
         this.controllerProvider = controllerProvider;
@@ -182,6 +185,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
         this.accountOperations = accountOperations;
         this.navigator = navigator;
         addLifeCycleComponents();
@@ -340,9 +344,17 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
         }
 
-        offlinePlaybackOperations
-                .playPlaylist(playlistWithTracks.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
-                .subscribe(playbackSubscriber);
+        if (shouldShowUpsell(initialTrack)){
+            navigator.openUpgrade(getActivity());
+        } else {
+            offlinePlaybackOperations
+                    .playPlaylist(playlistWithTracks.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
+                    .subscribe(playbackSubscriber);
+        }
+    }
+
+    private boolean shouldShowUpsell(TrackItem item) {
+        return item.isMidTier() && featureOperations.upsellMidTier();
     }
 
     private PlaySessionSource getPlaySessionSource() {

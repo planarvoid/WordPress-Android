@@ -50,6 +50,12 @@ public class StreamScreen extends Screen {
         return this;
     }
 
+    public UpgradeScreen clickMidTierTrackForUpgrade(String title) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.textContaining(title)).click();
+        return new UpgradeScreen(testDriver);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
