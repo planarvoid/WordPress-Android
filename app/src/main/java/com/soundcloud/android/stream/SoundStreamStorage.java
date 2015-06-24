@@ -146,10 +146,7 @@ class SoundStreamStorage {
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
-
-            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_MID_TIER)){
-                propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_MID_TIER));
-            }
+            propertySet.update(policyMapper.map(cursorReader));
 
             return propertySet;
         }

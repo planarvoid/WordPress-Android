@@ -14,16 +14,16 @@ import javax.inject.Inject;
 
 public class TrackItemView {
 
-    private ImageView image;
-    private TextView creator;
-    private TextView title;
-    private TextView duration;
-    private TextView playCount;
-    private TextView reposter;
-    private View nowPlaying;
-    private View privateIndicator;
-    private View upsell;
-    private TextView promoted;
+    private final ImageView image;
+    private final TextView creator;
+    private final TextView title;
+    private final TextView duration;
+    private final TextView playCount;
+    private final TextView reposter;
+    private final View nowPlaying;
+    private final View privateIndicator;
+    private final View upsell;
+    private final TextView promoted;
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {

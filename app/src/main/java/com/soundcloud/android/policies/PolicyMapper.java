@@ -10,7 +10,7 @@ public class PolicyMapper extends RxResultMapper<PropertySet> {
     @Override
     public PropertySet map(CursorReader reader) {
         final PropertySet propertySet = PropertySet.create(1);
-        if (reader.isNotNull(TableColumns.TrackPolicies.SUB_MID_TIER)){
+        if (reader.isNotNull(TableColumns.TrackPolicies.SUB_MID_TIER)) {
             propertySet.put(TrackProperty.SUB_MID_TIER, reader.getBoolean(TableColumns.TrackPolicies.SUB_MID_TIER));
         }
         return propertySet;
