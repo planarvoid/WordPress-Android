@@ -2,16 +2,16 @@ package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.sync.likes.PushLikesCommand.AddedLikesCollection;
-import com.soundcloud.android.sync.likes.PushLikesCommand.DeletedLikesCollection;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;
@@ -61,25 +61,25 @@ public class LikesSyncModule {
     @Provides
     @Named(TRACK_LIKE_ADDITIONS)
     PushLikesCommand<ApiLike> provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, AddedLikesCollection.class);
+        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
     }
 
     @Provides
     @Named(TRACK_LIKE_DELETIONS)
     PushLikesCommand<ApiDeletedLike> provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_TRACK_LIKES, DeletedLikesCollection.class);
+        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_TRACK_LIKES, new TypeToken<ModelCollection<ApiDeletedLike>>() {});
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_ADDITIONS)
     PushLikesCommand<ApiLike> providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES, AddedLikesCollection.class);
+        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_DELETIONS)
     PushLikesCommand<ApiDeletedLike> providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES, DeletedLikesCollection.class);
+        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES, new TypeToken<ModelCollection<ApiDeletedLike>>() {});
     }
 
     @Provides

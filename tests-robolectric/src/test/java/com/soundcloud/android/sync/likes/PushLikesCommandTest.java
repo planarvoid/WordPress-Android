@@ -12,7 +12,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.sync.likes.PushLikesCommand.AddedLikesCollection;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -37,7 +36,7 @@ public class PushLikesCommandTest {
 
     @Before
     public void setup() {
-        pushLikesCommand = new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, AddedLikesCollection.class);
+        pushLikesCommand = new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
     }
 
     @Test

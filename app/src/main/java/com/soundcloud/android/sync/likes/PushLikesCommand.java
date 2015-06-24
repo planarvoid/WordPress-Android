@@ -24,10 +24,10 @@ class PushLikesCommand<ApiModel extends PropertySetSource>
     private final ApiEndpoints endpoint;
     private final TypeToken<? extends ModelCollection<ApiModel>> typeToken;
 
-    <T extends ModelCollection<ApiModel>> PushLikesCommand(ApiClient apiClient, ApiEndpoints endpoint, Class<T> resourceType) {
+    <T extends ModelCollection<ApiModel>> PushLikesCommand(ApiClient apiClient, ApiEndpoints endpoint, TypeToken<? extends ModelCollection<ApiModel>> typeToken) {
         this.apiClient = apiClient;
         this.endpoint = endpoint;
-        this.typeToken = TypeToken.of(resourceType);
+        this.typeToken = typeToken;
     }
 
     @Override
@@ -44,6 +44,4 @@ class PushLikesCommand<ApiModel extends PropertySetSource>
         return CollectionUtils.toPropertySets(successSet.getCollection());
     }
 
-    static class AddedLikesCollection extends ModelCollection<ApiLike> {}
-    static class DeletedLikesCollection extends ModelCollection<ApiDeletedLike> {}
 }
