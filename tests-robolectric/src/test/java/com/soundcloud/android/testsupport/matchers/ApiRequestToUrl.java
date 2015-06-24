@@ -1,4 +1,4 @@
-package com.soundcloud.android.matchers;
+package com.soundcloud.android.testsupport.matchers;
 
 import com.soundcloud.android.api.ApiRequest;
 import org.mockito.ArgumentMatcher;

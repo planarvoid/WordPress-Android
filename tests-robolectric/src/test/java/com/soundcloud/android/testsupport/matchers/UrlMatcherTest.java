@@ -1,6 +1,6 @@
-package com.soundcloud.android.matchers;
+package com.soundcloud.android.testsupport.matchers;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
+import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.matchers;
+package com.soundcloud.android.testsupport.matchers;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;

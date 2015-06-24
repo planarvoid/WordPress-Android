@@ -16,7 +16,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
-import com.soundcloud.android.matchers.SoundCloudMatchers;
+import com.soundcloud.android.testsupport.matchers.SoundCloudMatchers;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;

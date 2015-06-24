@@ -1,7 +1,7 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulChange;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulInsert;
 import static org.mockito.Matchers.any;

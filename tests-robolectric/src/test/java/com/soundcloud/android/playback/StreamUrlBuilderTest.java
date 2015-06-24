@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
+import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 

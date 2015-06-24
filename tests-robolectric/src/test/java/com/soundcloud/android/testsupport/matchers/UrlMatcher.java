@@ -1,4 +1,4 @@
-package com.soundcloud.android.matchers;
+package com.soundcloud.android.testsupport.matchers;
 
 import com.google.common.collect.Multimap;
 import com.soundcloud.android.utils.UriUtils;
