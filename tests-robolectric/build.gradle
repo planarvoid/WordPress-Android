@@ -12,6 +12,8 @@ configurations {
   removableDependency
 }
 
+test.dependsOn project(androidProject).configurations.testSupport
+
 dependencies {
   def androidModule = project(androidProject)
   def debugVariant = androidModule.android.applicationVariants.find({it.name == 'debug'})
@@ -20,6 +22,7 @@ dependencies {
 
   compile testingLibraries.daggerCompiler
   compile testingLibraries.guava
+  compile androidModule.configurations.testSupport.artifacts.files
 
   testCompile "com.pivotallabs:robolectric:1.2_sdk_21_fix"
   testCompile "junit:junit:4.9"
