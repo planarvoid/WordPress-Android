@@ -180,17 +180,19 @@ configurations {
   all*.exclude group: 'commons-logging', module: 'commons-logging'
   testCompile.exclude module: libraries.guavaRepack
 
-  testSupport
+  testSupport // for exporting our test helpers
 }
 
-task testJar(type: Jar, dependsOn: ':app:compileDebugUnitTestSources') {
+task testSupportJar(type: Jar, dependsOn: ':app:compileDebugUnitTestSources') {
   from "$project.buildDir/intermediates/classes/test/debug"
-  include "**/*.class"
+  exclude "**/*Test.class"
+  exclude "**/*Test\$*.class"
+  includeEmptyDirs = false
   archiveName "test-support.jar"
 }
 
 artifacts {
-  testSupport testJar
+  testSupport testSupportJar
 }
 
 dependencies {
