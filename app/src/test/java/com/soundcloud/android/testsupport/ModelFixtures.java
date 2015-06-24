@@ -1,13 +1,16 @@
 package com.soundcloud.android.testsupport;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackBlueprint;
 import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ModelFixtures {
@@ -38,5 +41,13 @@ public class ModelFixtures {
             models.add(create(target));
         }
         return models;
+    }
+
+    public static ApiLike apiTrackLike() {
+        return apiTrackLike(ModelFixtures.create(ApiTrack.class));
+    }
+
+    public static ApiLike apiTrackLike(ApiTrack apiTrack) {
+        return new ApiLike(apiTrack.getUrn(), new Date());
     }
 }

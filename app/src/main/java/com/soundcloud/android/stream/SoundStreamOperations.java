@@ -46,6 +46,7 @@ class SoundStreamOperations {
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final EventBus eventBus;
+    private final RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
     private final Scheduler scheduler;
 
     private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
@@ -66,7 +67,7 @@ class SoundStreamOperations {
         }
     };
 
-    private Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
+    private final Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
         @Override
         public void call(List<PropertySet> propertySets) {
             if (!propertySets.isEmpty()) {
@@ -81,10 +82,12 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          ContentStats contentStats, EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          ContentStats contentStats, RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand,
+                          EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
+        this.removeStalePromotedTracksCommand = removeStalePromotedTracksCommand;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
     }
@@ -102,12 +105,23 @@ class SoundStreamOperations {
                 .doOnNext(promotedImpressionAction);
     }
 
-    private Observable<List<PropertySet>> initialStreamItems(boolean syncCompleted) {
+    private Observable<List<PropertySet>> initialStreamItems(final boolean syncCompleted) {
         Log.d(TAG, "Preparing page; initial page");
-        return soundStreamStorage
-                .initialStreamItems(PAGE_SIZE).toList()
-                .subscribeOn(scheduler)
-                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+        return removeStalePromotedTracksCommand.toObservable(null)
+                .flatMap(loadFirstPageOfStream(syncCompleted))
+                .subscribeOn(scheduler);
+    }
+
+    private Func1<List<Long>, Observable<List<PropertySet>>> loadFirstPageOfStream(final boolean syncCompleted) {
+        return new Func1<List<Long>, Observable<List<PropertySet>>>() {
+            @Override
+            public Observable<List<PropertySet>> call(List<Long> longs) {
+                Log.d(TAG, "Removed stale promoted items: " + longs.size());
+                return soundStreamStorage
+                        .initialStreamItems(PAGE_SIZE).toList()
+                        .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+            }
+        };
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {

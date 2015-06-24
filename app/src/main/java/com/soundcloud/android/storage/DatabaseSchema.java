@@ -19,6 +19,7 @@ final class DatabaseSchema {
 
     static final String DATABASE_CREATE_PROMOTED_TRACKS = "(" +
         "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "created_at INTEGER," +
         "ad_urn TEXT, " +
         "promoter_id INTEGER," +
         "promoter_name TEXT," +
@@ -440,7 +441,7 @@ final class DatabaseSchema {
 
 
 
-                " ORDER BY " + TableColumns.SoundStreamView.CREATED_AT + " DESC";
+                " ORDER BY SoundStream." + TableColumns.SoundStreamView.CREATED_AT + " DESC";
 
     /**
      * A view which combines activity data + tracks/users/comments

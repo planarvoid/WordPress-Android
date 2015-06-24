@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -11,7 +11,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
-import org.hamcrest.Matchers;
+import com.soundcloud.android.testsupport.ModelFixtures;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -462,7 +462,7 @@ public class DatabaseFixtures {
 
     public long insertInto(Table table, ContentValues cv) {
         final long id = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-        assertThat(id, Matchers.not(Matchers.equalTo(-1L)));
+        assertThat(id).isNotEqualTo(-1L);
         return id;
     }
 

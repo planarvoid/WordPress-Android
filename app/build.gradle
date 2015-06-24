@@ -246,6 +246,7 @@ dependencies {
   testCompile unitTestLibraries.robolectric
   testCompile unitTestLibraries.modelCitizen
   testCompile unitTestLibraries.equalsVerifier
+  testCompile unitTestLibraries.propellerTest
 
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest

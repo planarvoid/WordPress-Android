@@ -98,7 +98,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .order(Sounds.field(TableColumns.Sounds.CREATED_AT), Query.ORDER_DESC);
 
-        final List<Long> playlistIds = database.query(orderedPlaylists).toList(new IdMapper());
+        final List<Long> playlistIds = database.query(orderedPlaylists).toList(RxResultMapper.scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
                 .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.DURATION), PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
@@ -155,11 +155,4 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         }
     }
 
-    private static class IdMapper extends RxResultMapper<Long> {
-
-        @Override
-        public Long map(CursorReader reader) {
-            return reader.getLong(_ID);
-        }
-    }
 }

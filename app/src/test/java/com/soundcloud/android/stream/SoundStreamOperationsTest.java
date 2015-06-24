@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.stream.SoundStreamOperations.PAGE_SIZE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,29 +12,30 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.rx.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SoundStreamOperationsTest {
+public class SoundStreamOperationsTest extends PlatformUnitTest {
 
     private static final long TIMESTAMP = 1000L;
 
@@ -44,6 +45,7 @@ public class SoundStreamOperationsTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private ContentStats contentStats;
+    @Mock private RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -51,7 +53,9 @@ public class SoundStreamOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats, eventBus, Schedulers.immediate());
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
+                removeStalePromotedTracksCommand, eventBus, Schedulers.immediate());
     }
 
     @Test
@@ -69,7 +73,6 @@ public class SoundStreamOperationsTest {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
-
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -236,6 +239,24 @@ public class SoundStreamOperationsTest {
     }
 
     @Test
+    public void initialStreamDeletesStalePromotedTracksBeforeLoadingStreamItems() {
+        final PublishSubject<List<Long>> subject = PublishSubject.create();
+        final AtomicBoolean verified = new AtomicBoolean();
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(subject);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<PropertySet>() {
+            @Override
+            public void call(Subscriber<? super PropertySet> subscriber) {
+                verified.set(subject.hasObservers());
+            }
+        }));
+
+        operations.initialStreamItems().subscribe(observer);
+        subject.onNext(Collections.<Long>emptyList());
+
+        assertThat(verified.get()).isTrue();
+    }
+
+    @Test
     public void initialStreamWithPromotedTrackTriggersPromotedTrackImpression() {
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
@@ -246,8 +267,8 @@ public class SoundStreamOperationsTest {
 
         operations.initialStreamItems().subscribe(observer);
 
-        expect(eventBus.eventsOn(EventQueue.TRACKING)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
     }
 
     @Test
@@ -261,7 +282,7 @@ public class SoundStreamOperationsTest {
 
         operations.updatedStreamItems().subscribe(observer);
 
-        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
     }
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {

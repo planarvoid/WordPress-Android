@@ -45,7 +45,7 @@ class SoundStreamStorage {
             SoundView.TRACK_COUNT,
             SoundView.LIKES_COUNT,
             SoundView.SHARING,
-            SoundStreamView.CREATED_AT,
+            field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundStreamView.REPOSTER_USERNAME,
             exists(likeQuery()).as(SoundView.USER_LIKE),
             exists(repostQuery()).as(SoundView.USER_REPOST),
@@ -84,7 +84,7 @@ class SoundStreamStorage {
                 .leftJoin(Table.PromotedTracks.name(),
                         Table.PromotedTracks.field(PromotedTracks._ID),
                         TableColumns.SoundStream.PROMOTED_ID)
-                .whereLe(SoundStreamView.CREATED_AT, Long.MAX_VALUE)
+                .whereLe(Table.SoundStreamView.field(SoundStreamView.CREATED_AT), Long.MAX_VALUE)
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
@@ -94,7 +94,7 @@ class SoundStreamStorage {
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(STREAM_SELECTION)
-                .whereLt(SoundStreamView.CREATED_AT, timestamp)
+                .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
@@ -105,7 +105,7 @@ class SoundStreamStorage {
     public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(STREAM_SELECTION)
-                .whereGt(SoundStreamView.CREATED_AT, timestamp)
+                .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
