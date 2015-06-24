@@ -12,7 +12,7 @@ configurations {
   removableDependency
 }
 
-test.dependsOn project(androidProject).testSupportJar
+test.dependsOn project(androidProject).configurations.testSupport
 
 dependencies {
   def androidModule = project(androidProject)
