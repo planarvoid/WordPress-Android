@@ -11,7 +11,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
-import com.soundcloud.android.testsupport.ModelFixtures;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
