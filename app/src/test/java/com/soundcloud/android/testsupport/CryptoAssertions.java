@@ -1,11 +1,12 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.android.Expect.expect;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CryptoAssertions {
 
     public static void expectByteArraysToBeEqual(byte[] expected, byte[] result) {
-        expect(bytesToHex(expected)).toEqual(bytesToHex(result));
+        assertThat(bytesToHex(expected)).isEqualTo(bytesToHex(result));
     }
 
     private static String bytesToHex(byte[] bytes) {

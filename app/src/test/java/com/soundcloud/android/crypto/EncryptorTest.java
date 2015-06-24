@@ -1,6 +1,6 @@
 package com.soundcloud.android.crypto;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
@@ -9,19 +9,19 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class EncryptorTest {
 
     @Mock private MessageDigest digest;
@@ -46,7 +46,7 @@ public class EncryptorTest {
 
         final String result = encryptor.hash(urn, digest);
 
-        expect(result).toEqual(ScTextUtils.hexString(testBytes));
+        assertThat(result).isEqualTo(ScTextUtils.hexString(testBytes));
     }
 
     @Test(expected = EncryptionInterruptedException.class)

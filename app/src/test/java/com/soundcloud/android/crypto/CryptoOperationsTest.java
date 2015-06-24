@@ -1,6 +1,6 @@
 package com.soundcloud.android.crypto;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -8,18 +8,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.schedulers.Schedulers;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CryptoOperationsTest {
 
     private CryptoOperations operations;
@@ -59,7 +59,7 @@ public class CryptoOperationsTest {
 
     @Test
     public void keyLengthShouldBe16() {
-        expect(operations.getKeyOrGenerateAndStore("my key").length).toBe(16);
+        assertThat(operations.getKeyOrGenerateAndStore("my key").length).isEqualTo(16);
     }
 
     @Test

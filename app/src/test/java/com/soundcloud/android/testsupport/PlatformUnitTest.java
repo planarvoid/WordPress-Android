@@ -5,6 +5,12 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.fakes.RoboSharedPreferences;
+
+import android.content.SharedPreferences;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Proxy class that test cases may inherit from whenever the test subject is derived
@@ -23,4 +29,8 @@ public abstract class PlatformUnitTest extends RobolectricUnitTest {
             return base;
         }
     };
+
+    protected static SharedPreferences sharedPreferences(String name, int mode) {
+        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), name, mode);
+    }
 }

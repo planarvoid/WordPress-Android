@@ -1,24 +1,21 @@
 package com.soundcloud.android.crypto;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-@RunWith(SoundCloudTestRunner.class)
-public class KeyStorageTest {
+public class KeyStorageTest extends PlatformUnitTest {
     private KeyStorage keyStorage;
 
     private final DeviceSecret testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");
-    private final SharedPreferences preferences = Robolectric.application.getSharedPreferences("test", Context.MODE_PRIVATE);
+    private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
 
     @Before
     public void setUp() throws Exception {
@@ -31,10 +28,10 @@ public class KeyStorageTest {
         keyStorage.put(testKey);
 
         final DeviceSecret returnedKey = keyStorage.get(testKey.getName());
-        expect(returnedKey.getName()).toEqual(testKey.getName());
+        assertThat(returnedKey.getName()).isEqualTo(testKey.getName());
 
         expectByteArraysToBeEqual(returnedKey.getKey(), testKey.getKey());
-        expect(returnedKey.hasInitVector()).toBeFalse();
+        assertThat(returnedKey.hasInitVector()).isFalse();
     }
 
     @Test
@@ -43,28 +40,28 @@ public class KeyStorageTest {
         keyStorage.put(keyWithIV);
 
         final DeviceSecret returnedKey = keyStorage.get(keyWithIV.getName());
-        expect(returnedKey.getName()).toEqual(keyWithIV.getName());
+        assertThat(returnedKey.getName()).isEqualTo(keyWithIV.getName());
         expectByteArraysToBeEqual(returnedKey.getKey(), keyWithIV.getKey());
 
-        expect(returnedKey.hasInitVector()).toBeTrue();
+        assertThat(returnedKey.hasInitVector()).isTrue();
         expectByteArraysToBeEqual(returnedKey.getInitVector(), keyWithIV.getInitVector());
     }
 
     @Test
     public void getEmptyKeyForUnknown() {
         DeviceSecret key = keyStorage.get("unknown key");
-        expect(key).toEqual(DeviceSecret.EMPTY);
+        assertThat(key).isEqualTo(DeviceSecret.EMPTY);
     }
 
     @Test
     public void containsReturnTrueWhenTheValueExists() {
         keyStorage.put(testKey);
-        expect(keyStorage.contains(testKey.getName())).toBeTrue();
+        assertThat(keyStorage.contains(testKey.getName())).isTrue();
     }
 
     @Test
     public void existReturnFalseWhenTheValueExists() {
-        expect(keyStorage.contains("unknown key")).toBeFalse();
+        assertThat(keyStorage.contains("unknown key")).isFalse();
     }
 
     @Test
@@ -72,7 +69,7 @@ public class KeyStorageTest {
         keyStorage.put(testKey);
 
         keyStorage.delete(testKey.getName());
-        expect(keyStorage.contains(testKey.getName())).toBeFalse();
+        assertThat(keyStorage.contains(testKey.getName())).isFalse();
     }
 
     private DeviceSecret getTestKeyFromString(String name, String key) {
