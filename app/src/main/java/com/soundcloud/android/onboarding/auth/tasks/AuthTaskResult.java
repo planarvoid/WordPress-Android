@@ -33,7 +33,7 @@ public final class AuthTaskResult {
             case AUTH_ERROR:
                 return AuthTaskResult.unauthorized();
             case VALIDATION_ERROR:
-                return new AuthTaskResult(Kind.VALIDATION_ERROR, exception.errorKey());
+                return AuthTaskResult.validationError(exception.errorKey());
             case NETWORK_ERROR:
                 return AuthTaskResult.networkError();
             case SERVER_ERROR:
@@ -77,6 +77,10 @@ public final class AuthTaskResult {
 
     public static AuthTaskResult networkError() {
         return new AuthTaskResult(Kind.NETWORK_ERROR);
+    }
+
+    public static AuthTaskResult validationError(String errorMessage) {
+        return new AuthTaskResult(Kind.VALIDATION_ERROR, errorMessage);
     }
 
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
@@ -186,10 +190,6 @@ public final class AuthTaskResult {
     @Deprecated
     public String getServerErrorMessage() {
         return serverErrorMessage;
-    }
-
-    public String getKindString() {
-        return kind.toString();
     }
 
     @Override
