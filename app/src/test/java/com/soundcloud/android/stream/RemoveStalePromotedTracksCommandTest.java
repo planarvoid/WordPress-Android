@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracks;
+package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;

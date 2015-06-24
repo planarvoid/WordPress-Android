@@ -2,6 +2,9 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.stream.SoundStreamOperations.PAGE_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ContentStats;
@@ -13,15 +16,13 @@ import com.soundcloud.android.rx.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.PlatformUnitTest;
-import com.soundcloud.android.testsupport.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
-import com.soundcloud.android.tracks.RemoveStalePromotedTracksCommand;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -52,30 +53,30 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
                 removeStalePromotedTracksCommand, eventBus, Schedulers.immediate());
     }
 
     @Test
     public void initialStreamItemsLoadsPageOne() {
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
 
         operations.initialStreamItems().subscribe(observer);
 
-        Mockito.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
+        verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
     }
 
     @Test
     public void initialStreamSetsLastSeen() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
         operations.initialStreamItems().subscribe(observer);
 
-        Mockito.verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
+        verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
     }
 
     @Test
@@ -87,25 +88,25 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
                 PromotedTrackProperty.AD_URN.bind("adswizz:ad:123"),
                 PlayableProperty.CREATED_AT.bind(new Date(ignoredDate))));
 
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
         operations.initialStreamItems().subscribe(observer);
-        Mockito.verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
+        verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
     }
 
     @Test
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneThenItRequestsAFullSyncAndReloads() {
         // 1st page comes back blank first, then as full page of items after sync
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(items));
         // returning true means new items have been added to local storage
-        Mockito.when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(observer, soundStreamStorage, syncInitiator);
+        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
@@ -117,14 +118,14 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
     @Test // this makes sure we don't run into sync cycles
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneEvenAfterAFullSyncItShouldNotSyncAgain() {
         // 1st page comes back blank first, then blank again even after syncing
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
         // returning true means successful sync
-        Mockito.when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(observer, soundStreamStorage, syncInitiator);
+        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
@@ -136,14 +137,14 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
     @Test
     public void streamIsConsideredEmptyWhenOnlyPromotedTrackIsReturnedAndDoesNotSyncAgain() {
         // 1st page comes back blank first, then includes promoted track only
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.just(promotedTrackProperties));
         // returning true means successful sync
-        Mockito.when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(observer, soundStreamStorage, syncInitiator);
+        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
@@ -155,12 +156,12 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
     @Test
     public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        Mockito.when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
 
         operations.pagingFunction().call(items);
 
-        Mockito.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
+        verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
     }
 
     @Test
@@ -169,14 +170,14 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
         final List<PropertySet> firstPage = createItems(PAGE_SIZE, 123L);
         // 2nd page is blank on first attempt, then filled with items from backfill
         final List<PropertySet> secondPage = createItems(PAGE_SIZE, 456L);
-        Mockito.when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(secondPage));
         // returning true means new items have been added to local storage
-        Mockito.when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
         operations.pagingFunction().call(firstPage).subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(observer, syncInitiator, soundStreamStorage);
+        InOrder inOrder = inOrder(observer, syncInitiator, soundStreamStorage);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
@@ -190,14 +191,14 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
         // 1st page is full page of items
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         // 2nd page is blank, will trigger backfill
-        Mockito.when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
+        when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty());
         // returning false means no new items have been added to local storage
-        Mockito.when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
 
         operations.pagingFunction().call(items).subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(soundStreamStorage, syncInitiator, observer);
+        InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
         inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
@@ -207,15 +208,15 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
 
     @Test
     public void shouldRequestSoundStreamSyncAndReloadFromLocalStorageWhenNewItemsAvailable() {
-        Mockito.when(syncInitiator.refreshSoundStream())
+        when(syncInitiator.refreshSoundStream())
                 .thenReturn(Observable.just(true));
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
         operations.updatedStreamItems().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(soundStreamStorage, syncInitiator, observer);
+        InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(observer).onNext(items);
@@ -225,12 +226,12 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
 
     @Test
     public void shouldRequestSoundStreamSyncAndCompleteWhenNoNewItemsAvailable() {
-        Mockito.when(syncInitiator.refreshSoundStream())
+        when(syncInitiator.refreshSoundStream())
                 .thenReturn(Observable.just(false));
 
         operations.updatedStreamItems().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(soundStreamStorage, syncInitiator, observer);
+        InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
         inOrder.verify(observer).onCompleted();
@@ -241,8 +242,8 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
     public void initialStreamDeletesStalePromotedTracksBeforeLoadingStreamItems() {
         final PublishSubject<List<Long>> subject = PublishSubject.create();
         final AtomicBoolean verified = new AtomicBoolean();
-        Mockito.when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(subject);
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<PropertySet>() {
+        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(subject);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
                 verified.set(subject.hasObservers());
@@ -260,9 +261,9 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(itemsWithPromoted));
-        Mockito.when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -272,11 +273,11 @@ public class SoundStreamOperationsTest extends PlatformUnitTest {
 
     @Test
     public void updatedItemsStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        Mockito.when(syncInitiator.refreshSoundStream())
+        when(syncInitiator.refreshSoundStream())
                 .thenReturn(Observable.just(true));
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         items.add(0, promotedTrackProperties);
-        Mockito.when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
         operations.updatedStreamItems().subscribe(observer);

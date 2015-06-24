@@ -1,4 +1,4 @@
-package com.soundcloud.android.testsupport;
+package com.soundcloud.android.testsupport.fixtures;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -15,6 +15,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.testsupport.ModelFixtures;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;

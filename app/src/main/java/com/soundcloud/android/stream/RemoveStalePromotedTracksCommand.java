@@ -1,10 +1,9 @@
-package com.soundcloud.android.tracks;
+package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
-import com.soundcloud.android.storage.IdMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.DateProvider;
@@ -12,6 +11,7 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.rx.RxResultMapper;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
             public void steps(PropellerDatabase propeller) {
                 final long staleItemCutoff = dateProvider.getCurrentTime() - STALE_TIME_MILLIS;
                 final Where whereClause = filter().whereLt(TableColumns.PromotedTracks.CREATED_AT, staleItemCutoff);
-                removeItems = propeller.query(Query.from(Table.PromotedTracks.name()).select(TableColumns.PromotedTracks._ID).where(whereClause)).toList(new IdMapper());
+                removeItems = propeller.query(Query.from(Table.PromotedTracks.name()).select(TableColumns.PromotedTracks._ID).where(whereClause)).toList(RxResultMapper.scalar(Long.class));
                 if (!removeItems.isEmpty()){
                     for (Long id : removeItems) {
                         step(propeller.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id)));

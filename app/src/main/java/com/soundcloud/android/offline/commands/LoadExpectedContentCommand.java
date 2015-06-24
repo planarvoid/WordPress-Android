@@ -14,13 +14,13 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.storage.IdMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.rx.RxResultMapper;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -98,7 +98,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .order(Sounds.field(TableColumns.Sounds.CREATED_AT), Query.ORDER_DESC);
 
-        final List<Long> playlistIds = database.query(orderedPlaylists).toList(new IdMapper());
+        final List<Long> playlistIds = database.query(orderedPlaylists).toList(RxResultMapper.scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
                 .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.DURATION), PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
