@@ -36,13 +36,13 @@ public class UpsellTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testClickingOnMidTierTrackInStreamOpensUpsell() {
+    public void ignore_testClickingOnMidTierTrackInStreamOpensUpsell() {
         final UpgradeScreen upgradeScreen = streamScreen.clickMidTierTrackForUpgrade("Muff");
 
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
-    public void testClickingOnMidTierTrackInLikesOpensUpsell() {
+    public void ignore_testClickingOnMidTierTrackInLikesOpensUpsell() {
         final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
 
         final UpgradeScreen upgradeScreen = likesScreen.clickMidTierTrackForUpgrade(0);
@@ -50,7 +50,7 @@ public class UpsellTest extends ActivityTest<MainActivity> {
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
-    public void testClickingOnMidTierTrackInPlaylistOpensUpsell() {
+    public void ignore_testClickingOnMidTierTrackInPlaylistOpensUpsell() {
         final PlaylistDetailsScreen playlistDetailsScreen = streamScreen.openMenu().clickPlaylists().clickPlaylistAt(0);
 
         final UpgradeScreen upgradeScreen = playlistDetailsScreen.clickMidTierTrackForUpgrade(0);
@@ -58,7 +58,7 @@ public class UpsellTest extends ActivityTest<MainActivity> {
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
-    public void testClickingOnMidTierTrackInSearchEverythingOpensUpsell() {
+    public void ignore_testClickingOnMidTierTrackInSearchEverythingOpensUpsell() {
         final SearchResultsScreen searchResultsScreen = streamScreen.actionBar()
                 .clickSearchButton()
                 .actionBar()
@@ -69,7 +69,7 @@ public class UpsellTest extends ActivityTest<MainActivity> {
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
-    public void testClickingOnMidTierTrackInSearchTracksOpensUpsell() {
+    public void ignore_testClickingOnMidTierTrackInSearchTracksOpensUpsell() {
         final SearchResultsScreen searchResultsScreen = streamScreen.actionBar()
                 .clickSearchButton()
                 .actionBar()
