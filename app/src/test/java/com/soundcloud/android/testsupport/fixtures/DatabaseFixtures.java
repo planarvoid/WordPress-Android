@@ -1,7 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -461,7 +459,9 @@ public class DatabaseFixtures {
 
     public long insertInto(Table table, ContentValues cv) {
         final long id = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-        assertThat(id).isNotEqualTo(-1L);
+        if (id == -1) {
+            throw new AssertionError("Failed inserting record into table " + table.name());
+        }
         return id;
     }
 
