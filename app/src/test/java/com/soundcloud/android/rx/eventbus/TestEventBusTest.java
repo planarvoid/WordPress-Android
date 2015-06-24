@@ -1,9 +1,8 @@
-package com.soundcloud.android.rx;
+package com.soundcloud.android.rx.eventbus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-import com.soundcloud.android.rx.eventbus.Queue;
 import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Test;
 import org.mockito.Mock;

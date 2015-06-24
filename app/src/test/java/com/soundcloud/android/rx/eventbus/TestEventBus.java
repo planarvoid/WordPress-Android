@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx;
+package com.soundcloud.android.rx.eventbus;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
