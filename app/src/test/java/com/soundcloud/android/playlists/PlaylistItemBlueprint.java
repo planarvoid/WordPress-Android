@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.google.common.collect.Lists.newArrayList;
+import android.net.Uri;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.ads.AdProperty;
@@ -15,16 +15,15 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.testsupport.ModelFixtures;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
-import android.net.Uri;
-
 import java.util.Arrays;
 import java.util.Date;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public abstract class TestPropertySets {
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
