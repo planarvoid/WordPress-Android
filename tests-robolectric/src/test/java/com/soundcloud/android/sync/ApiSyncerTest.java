@@ -16,7 +16,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
-import com.soundcloud.android.testsupport.matchers.SoundCloudMatchers;
+import com.soundcloud.android.testsupport.matchers.RequestMatchers;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -69,7 +69,7 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncMe() throws Exception {
         when(apiClient.fetchMappedResponse(
-                argThat(SoundCloudMatchers.isPublicApiRequestTo("GET", "/me")), eq(PublicApiUser.class)))
+                argThat(RequestMatchers.isPublicApiRequestTo("GET", "/me")), eq(PublicApiUser.class)))
                 .thenReturn(new PublicApiUser(123L));
         expect(Content.ME).toBeEmpty();
         ApiSyncResult result = sync(Content.ME.uri);

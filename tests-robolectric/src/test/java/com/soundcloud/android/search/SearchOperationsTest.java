@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.isApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;

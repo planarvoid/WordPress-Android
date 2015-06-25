@@ -4,7 +4,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
-public class SoundCloudMatchers {
+public class RequestMatchers {
 
     public static ApiRequestTo isApiRequestTo(String method, String path) {
         return new ApiRequestTo(method, path, true);

@@ -3,7 +3,7 @@ package com.soundcloud.android.testsupport.matchers;
 import com.google.common.collect.Multimap;
 import com.soundcloud.android.utils.UriUtils;
 import org.hamcrest.Description;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import android.net.Uri;
 
@@ -15,6 +15,7 @@ public class UrlMatcher extends TypeSafeMatcher<String> {
         this.expected = expected;
     }
 
+    @Override
     public boolean matchesSafely(String actual) {
         Uri expectedUri = Uri.parse(expected);
         Uri actualUri = Uri.parse(actual);

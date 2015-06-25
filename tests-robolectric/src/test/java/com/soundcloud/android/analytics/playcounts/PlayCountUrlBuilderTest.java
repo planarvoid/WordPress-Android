@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.playcounts;
 
-import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.urlEqualTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.urlEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 

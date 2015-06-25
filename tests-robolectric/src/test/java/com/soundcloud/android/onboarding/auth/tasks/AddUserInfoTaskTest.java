@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.matchers.SoundCloudMatchers.isPublicApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
