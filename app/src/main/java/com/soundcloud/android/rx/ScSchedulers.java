@@ -25,9 +25,7 @@ public final class ScSchedulers {
 
             @Override
             public Thread newThread(@NotNull Runnable r) {
-                Thread t = new Thread(r, threadIdentifier + "-" + counter.incrementAndGet());
-                t.setDaemon(true);
-                return t;
+                return new Thread(r, threadIdentifier + "-" + counter.incrementAndGet());
             }
         });
     }
