@@ -9,6 +9,8 @@
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
         <item name="android:listViewStyle">@style/ListView</item>
 
+        <item name="android:windowAnimationStyle">@style/Animation.Activity</item>
+
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
