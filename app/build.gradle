@@ -257,7 +257,9 @@ dependencies {
   /* Unit tests */
   testCompile unitTestLibraries.guava
   testCompile unitTestLibraries.junit
-  testCompile unitTestLibraries.assertj
+
+  testCompile unitTestLibraries.assertjAndroid
+  testCompile unitTestLibraries.androidSupportAnnotations
   testCompile unitTestLibraries.mockito
   testCompile unitTestLibraries.robolectric
   testCompile unitTestLibraries.modelCitizen

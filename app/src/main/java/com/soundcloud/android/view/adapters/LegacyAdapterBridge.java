@@ -115,6 +115,11 @@ public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapt
     }
 
     @Override
+    public void prependItem(T t) {
+        // no op. exists to satisy interface contract so we can use these adapters in newer code
+    }
+
+    @Override
     public void clear() {
         // no op. exists to satisy interface contract so we can use these adapters in newer code
     }

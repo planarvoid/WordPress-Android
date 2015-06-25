@@ -1,99 +1,93 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.android.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RuntimeEnvironment;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.TextView;
 
-
-@RunWith(SoundCloudTestRunner.class)
-public class TrackLikesHeaderViewTest {
+public class TrackLikesHeaderViewTest extends PlatformUnitTest {
 
     private TrackLikesHeaderView trackLikesHeaderView;
 
     @Mock private Fragment fragment;
+    @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackOperations playbackOperations;
 
     @Before
     public void setUp() throws Exception {
-        trackLikesHeaderView = new TrackLikesHeaderView(new DownloadableHeaderView(Robolectric.application.getResources()));
-        View view = mock(View.class);
-        when(view.getContext()).thenReturn(Robolectric.application);
-        trackLikesHeaderView.onViewCreated(view);
+        trackLikesHeaderView = new TrackLikesHeaderView(new DownloadableHeaderView(RuntimeEnvironment.application.getResources()));
+        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null), fragmentManager);
     }
 
     @Test
     public void hideShuffleButtonForZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(0);
-        View shuffleButton = getShuffleButton();
-        expect(shuffleButton).toBeGone();
+        assertThat(getShuffleButton()).isGone();
     }
 
     @Test
     public void disableShuffleButtonForZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(0);
-        expect(getShuffleButton()).not.toBeEnabled();
+        assertThat(getShuffleButton()).isDisabled();
     }
 
     @Test
     public void hideShuffleButtonForOneLikedTrack() {
         trackLikesHeaderView.updateTrackCount(1);
-        expect(getShuffleButton()).toBeGone();
+        assertThat(getShuffleButton()).isGone();
     }
 
     @Test
     public void disableShuffleButtonForOneTrackLike() {
         trackLikesHeaderView.updateTrackCount(1);
-        expect(getShuffleButton()).not.toBeEnabled();
+        assertThat(getShuffleButton()).isDisabled();
     }
 
     @Test
     public void displayShuffleButtonForMoreThanOneLikedTracks() {
         trackLikesHeaderView.updateTrackCount(2);
-        expect(getShuffleButton()).toBeVisible();
+        assertThat(getShuffleButton()).isVisible();
     }
 
     @Test
     public void enableShuffleButtonForMoreThanOneLikedTracks() {
         trackLikesHeaderView.updateTrackCount(2);
-        expect(getShuffleButton()).toBeEnabled();
+        assertThat(getShuffleButton()).isEnabled();
     }
 
     @Test
     public void showNumberOfLikedTracksForZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(0);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
+        assertThat(getHeaderText()).hasText(RuntimeEnvironment.application.getResources()
                 .getString(R.string.number_of_liked_tracks_you_liked_zero));
     }
 
     @Test
     public void showNumberOfLikedTracksForMoreThanZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(1);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
+        assertThat(getHeaderText()).hasText(RuntimeEnvironment.application.getResources()
                 .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
     }
 
     public void displayOverflowMenuWhenOfflineSyncOptionIsEnabled() {
         trackLikesHeaderView.updateOverflowMenuButton(true);
-        expect(getOverflowMenuButton()).toBeVisible();
+        assertThat(getOverflowMenuButton()).isVisible();
     }
 
     public void displayOverflowMenuWhenOfflineSyncOptionIsDisabled() {
         trackLikesHeaderView.updateOverflowMenuButton(false);
-        expect(getOverflowMenuButton()).toBeInvisible();
+        assertThat(getOverflowMenuButton()).isInvisible();
     }
 
     private View getShuffleButton() {

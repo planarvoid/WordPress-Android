@@ -8,18 +8,16 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackLikesActionMenuControllerTest {
+public class TrackLikesActionMenuControllerTest extends PlatformUnitTest {
 
     @Mock private DefaultActionMenuController actionMenuController;
     @Mock private FeatureOperations featureOperations;

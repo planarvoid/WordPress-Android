@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/track_likes_header"
+    style="@style/TrackLikesHeader"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/track_likes_fragment">
+    <include layout="@layout/track_likes_header_common" />
+</LinearLayout>
+

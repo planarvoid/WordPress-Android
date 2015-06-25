@@ -1,8 +1,8 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
 import static com.soundcloud.android.likes.TrackLikeOperations.INITIAL_TIMESTAMP;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -11,19 +11,18 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.rx.Pager.PagingFunction;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -40,8 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackLikeOperationsTest {
+public class TrackLikeOperationsTest extends PlatformUnitTest {
 
     private TrackLikeOperations operations;
 
@@ -91,7 +89,7 @@ public class TrackLikeOperationsTest {
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
         listPager.call(Collections.<PropertySet>emptyList()).subscribe(observer);
 
-        expect(syncObservable.hasObservers()).toBeFalse();
+        assertThat(syncObservable.hasObservers()).isFalse();
     }
 
     @Test
@@ -147,7 +145,7 @@ public class TrackLikeOperationsTest {
 
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
 
-        expect(listPager.call(likedTracks)).toBe(Pager.<List<PropertySet>>finish());
+        assertThat(listPager.call(likedTracks)).isSameAs(Pager.<List<PropertySet>>finish());
     }
 
     @Test
@@ -186,7 +184,7 @@ public class TrackLikeOperationsTest {
         operations.onTrackLiked().subscribe(observer);
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(likedTrack.get(TrackProperty.URN), true, 5));
 
-        expect(observer.getOnNextEvents()).toContainExactly(likedTrack);
+        assertThat(observer.getOnNextEvents()).containsExactly(likedTrack);
     }
 
     @Test
@@ -197,7 +195,7 @@ public class TrackLikeOperationsTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedTrackUrn, false, 5));
 
-        expect(observer.getOnNextEvents()).toContainExactly(unlikedTrackUrn);
+        assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
     }
 
     private List<PropertySet> createPageOfTrackLikes(int size){

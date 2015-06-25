@@ -11,11 +11,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.support.v4.app.FragmentActivity;
@@ -25,8 +26,7 @@ import android.view.View;
 
 import javax.inject.Provider;
 
-@RunWith(SoundCloudTestRunner.class)
-public class LikesMenuPresenterTest {
+public class LikesMenuPresenterTest extends PlatformUnitTest {
 
     private LikesMenuPresenter likesMenuPresenter;
 
@@ -35,28 +35,33 @@ public class LikesMenuPresenterTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineLikesDialog offlineLikesDialog;
     @Mock private Navigator navigator;
-
+    @Mock private FragmentManager fragmentManager;
     @Mock private FragmentActivity context;
     @Mock private MenuItem menuItem;
     @Mock private View button;
+    @Mock private PopupMenuWrapper popupMenuWrapper;
+    @Captor private ArgumentCaptor<PopupMenuWrapper.PopupMenuWrapperListener> listenerCaptor;
 
     private Provider<OfflineLikesDialog> syncLikesDialogProvider;
 
     @Before
     public void setUp() {
+        when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
+        when(button.getContext()).thenReturn(context);
         syncLikesDialogProvider = new Provider<OfflineLikesDialog>() {
             @Override
             public OfflineLikesDialog get() {
                 return offlineLikesDialog;
             }
         };
-
         likesMenuPresenter = new LikesMenuPresenter(
                 popupMenuWrapperFactory,
                 featureOperations,
                 offlineContentOperations,
                 syncLikesDialogProvider,
                 navigator);
+
+        likesMenuPresenter.show(button, fragmentManager);
     }
 
     @Test
@@ -64,7 +69,9 @@ public class LikesMenuPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_available);
-        likesMenuPresenter.onMenuItemClick(makeOfflineAvailable, context);
+
+        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
+        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
 
         verify(offlineLikesDialog).show(any(FragmentManager.class));
     }
@@ -72,7 +79,8 @@ public class LikesMenuPresenterTest {
     @Test
     public void showDisableLikesSyncingWhenClickOnMakeOfflineUnavailableMenu() {
         MenuItem makeOfflineUnavailable = mockMenuItem(R.id.action_make_offline_unavailable);
-        likesMenuPresenter.onMenuItemClick(makeOfflineUnavailable, context);
+        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
+        listenerCaptor.getValue().onMenuItemClick(makeOfflineUnavailable, context);
 
         verify(offlineContentOperations).setOfflineLikesEnabled(false);
         verifyZeroInteractions(offlineLikesDialog);
@@ -83,7 +91,8 @@ public class LikesMenuPresenterTest {
         MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_available);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
 
-        likesMenuPresenter.onMenuItemClick(makeOfflineAvailable, context);
+        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
+        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
 
         verify(navigator).openUpgrade(context);
         verifyZeroInteractions(offlineLikesDialog);
@@ -97,7 +106,7 @@ public class LikesMenuPresenterTest {
         when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(false);
 
-        likesMenuPresenter.show(button);
+        likesMenuPresenter.show(button, fragmentManager);
 
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_available, true);
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_unavailable, false);
@@ -112,7 +121,7 @@ public class LikesMenuPresenterTest {
         when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
-        likesMenuPresenter.show(button);
+        likesMenuPresenter.show(button, fragmentManager);
 
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_available, false);
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_unavailable, true);

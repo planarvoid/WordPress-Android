@@ -7,10 +7,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
 
 import javax.inject.Inject;
 
@@ -20,9 +20,10 @@ class TrackLikesHeaderView {
     private final DownloadableHeaderView downloadableHeaderView;
 
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
-    @InjectView(R.id.overflow_button) ImageView overflowMenuButton;
+    @InjectView(R.id.overflow_button) View overflowMenuButton;
 
     private int trackCount;
+    @Nullable private FragmentManager fragmentManager;
 
     @Inject
     TrackLikesHeaderView(DownloadableHeaderView downloadableHeaderView) {
@@ -34,8 +35,9 @@ class TrackLikesHeaderView {
         return headerView;
     }
 
-    void onViewCreated(View view) {
-        headerView = View.inflate(view.getContext(), R.layout.track_likes_header, null);
+    void onViewCreated(View view, FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
+        headerView = view.findViewById(R.id.track_likes_header);
         downloadableHeaderView.onViewCreated(headerView);
         ButterKnife.inject(this, headerView);
     }
@@ -43,10 +45,6 @@ class TrackLikesHeaderView {
     void onDestroyView() {
         ButterKnife.reset(this);
         headerView = null;
-    }
-
-    public void attachToList(ListView listView) {
-        listView.addHeaderView(headerView, null, false);
     }
 
     void setOnShuffleButtonClick(View.OnClickListener listener) {

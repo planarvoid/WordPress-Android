@@ -31,7 +31,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
         final ViewElement offlineItem = menuScreen
                 .open()
                 .clickLikes()
-                .clickListHeaderOverflowButton()
+                .clickHeaderOverflowButton()
                 .getMakeAvailableOfflineItem();
 
         assertThat(offlineItem, is(visible()));

@@ -45,7 +45,8 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(playerElement, is(visible()));
     }
 
-    public void testLoadsNextPage() {
+    // disabled until we fix https://soundcloud.atlassian.net/browse/TE-139
+    public void ignore_testLoadsNextPage() {
         int numberOfTracks = likesScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
 
