@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
@@ -15,8 +15,8 @@ import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
