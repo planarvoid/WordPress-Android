@@ -10,6 +10,7 @@ ext {
   androidBuildToolsVersion = '22.0.1'
 
   // Dependency versions
+  androidMultiDex = "1.0.1"
   androidSupportVersion = '22.2.0'
   playServicesVersion = '6.5.87'
   androidKitVersion = '0.10'
@@ -66,13 +67,15 @@ ext {
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
           // Android libraries
-          androidSupportLibrary       : "com.android.support:support-v4:$androidSupportVersion",
-          androidAppCompatLibrary     : "com.android.support:appcompat-v7:$androidSupportVersion",
-          androidMediaRouterLibrary   : "com.android.support:mediarouter-v7:$androidSupportVersion",
-          androidRecyclerView         : "com.android.support:recyclerview-v7:$androidSupportVersion",
-          androidDesign               : "com.android.support:design:$androidSupportVersion",
-          androidPlayServicesBase     : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
-          androidPlayServicesCast     : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
+          androidMultidex                 : "com.android.support:multidex:$androidMultiDex",
+          androidMultidexInstrumentation  : "com.android.support:multidex-instrumentation:$androidMultiDex",
+          androidSupportLibrary           : "com.android.support:support-v4:$androidSupportVersion",
+          androidAppCompatLibrary         : "com.android.support:appcompat-v7:$androidSupportVersion",
+          androidMediaRouterLibrary       : "com.android.support:mediarouter-v7:$androidSupportVersion",
+          androidRecyclerView             : "com.android.support:recyclerview-v7:$androidSupportVersion",
+          androidDesign                   : "com.android.support:design:$androidSupportVersion",
+          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
+          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
   ]
 
   unitTestLibraries = [

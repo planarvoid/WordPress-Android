@@ -1,9 +1,10 @@
 package com.soundcloud.android.framework.runner;
 
-import android.test.AndroidTestRunner;
-import android.test.InstrumentationTestRunner;
+import com.android.test.runner.MultiDexTestRunner;
 
-public class RandomizingRunner extends InstrumentationTestRunner {
+import android.test.AndroidTestRunner;
+
+public class RandomizingRunner extends MultiDexTestRunner {
     protected AndroidTestRunner runner;
 
     @Override
