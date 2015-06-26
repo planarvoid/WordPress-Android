@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 @RunWith(SoundCloudTestRunner.class)
 public class FeatureOperationsTest {
 
+    @Mock private ApplicationProperties appProperties;
     @Mock private FeatureStorage featureStorage;
     @Mock private PlanStorage planStorage;
 
@@ -23,7 +25,8 @@ public class FeatureOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        featureOperations = new FeatureOperations(featureStorage, planStorage);
+        when(appProperties.isAlphaBuild()).thenReturn(false);
+        featureOperations = new FeatureOperations(appProperties, featureStorage, planStorage);
     }
 
     @Test
