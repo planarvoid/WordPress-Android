@@ -9,8 +9,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
-import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.onboarding.auth.tasks.SignupTask;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,

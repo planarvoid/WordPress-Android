@@ -43,6 +43,7 @@ import com.soundcloud.android.onboarding.auth.SignupLog;
 import com.soundcloud.android.onboarding.auth.SignupMethodLayout;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
@@ -173,7 +174,7 @@ public class OnboardActivity extends FragmentActivity
     };
     @Nullable private Bundle loginBundle, signUpBasicsBundle, signUpDetailsBundle, acceptTermsBundle;
 
-    private final Session.StatusCallback sessionStatusCallback = new FacebookSessionCallback(this);
+    private final Session.StatusCallback sessionStatusCallback;
     private PublicCloudAPI oldCloudAPI;
     private Session currentFacebookSession;
     private final View.OnClickListener onLoginButtonClick = new View.OnClickListener() {
@@ -204,18 +205,23 @@ public class OnboardActivity extends FragmentActivity
     @Inject ApplicationProperties applicationProperties;
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
+    @Inject TokenInformationGenerator tokenUtils;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        this.sessionStatusCallback = new FacebookSessionCallback(this, tokenUtils);
     }
 
     @VisibleForTesting
     OnboardActivity(ConfigurationOperations configurationOperations,
                     BugReporter bugReporter,
-                    EventBus eventBus) {
+                    EventBus eventBus,
+                    TokenInformationGenerator tokenUtils) {
         this.configurationOperations = configurationOperations;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
+        this.tokenUtils = tokenUtils;
+        this.sessionStatusCallback = new FacebookSessionCallback(this, tokenUtils);
     }
 
     @Override

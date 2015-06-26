@@ -22,12 +22,8 @@ public final class TestApiResponses {
         return new ApiResponse(ApiRequestException.validationError(null, "validation_failed", 101));
     }
 
-    public static ApiResponse resource(Class clazz, int statusCode, String resourceName) {
-        try {
-            return new ApiResponse(null, statusCode, JsonFixtures.resourceAsString(clazz, resourceName));
-        } catch(IOException e) {
-            throw new RuntimeException();
-        }
+    public static ApiResponse resource(Class clazz, int statusCode, String resourceName) throws IOException {
+        return new ApiResponse(null, statusCode, JsonFixtures.resourceAsString(clazz, resourceName));
     }
 
     private TestApiResponses() {

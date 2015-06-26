@@ -49,6 +49,16 @@ public class SignupTaskTest {
     }
 
     @Test
+    public void shouldReturnUserWithGenderSetToNull() throws Exception {
+        PublicApiUser user = new PublicApiUser(123L);
+        setupSignupWithUser(user);
+
+        AuthTaskResult result = doSignupWithNullGender();
+        expect(result.getUser()).toEqual(user);
+        expect(result.wasSuccess()).toBeTrue();
+    }
+
+    @Test
     public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, "Email has already been taken", 101));
         AuthTaskResult result = doSignup();
@@ -130,12 +140,25 @@ public class SignupTaskTest {
         return signupTask.doSignup(getParamsBundle());
     }
 
+    private AuthTaskResult doSignupWithNullGender() {
+        return signupTask.doSignup(getParamsBundleWithNullGender());
+    }
+
     private Bundle getParamsBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(SignupTask.KEY_USERNAME, "username");
         bundle.putString(SignupTask.KEY_PASSWORD, "password");
         bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(22));
         bundle.putString(SignupTask.KEY_GENDER, "fluid");
+        return bundle;
+    }
+
+    private Bundle getParamsBundleWithNullGender() {
+        Bundle bundle = new Bundle();
+        bundle.putString(SignupTask.KEY_USERNAME, "username");
+        bundle.putString(SignupTask.KEY_PASSWORD, "password");
+        bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(22));
+        bundle.putString(SignupTask.KEY_GENDER, null);
         return bundle;
     }
 
@@ -151,6 +174,4 @@ public class SignupTaskTest {
         when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
                 .thenThrow(exception);
     }
-
-
 }

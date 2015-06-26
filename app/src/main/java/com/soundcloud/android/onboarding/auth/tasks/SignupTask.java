@@ -116,7 +116,12 @@ public class SignupTask extends AuthTask {
         params.put(Params.User.PASSWORD, parameters.getString(KEY_PASSWORD));
         params.put(Params.User.PASSWORD_CONFIRMATION, parameters.getString(KEY_PASSWORD));
         params.put(Params.User.TERMS_OF_USE, "1");
-        params.put(Params.User.GENDER, parameters.getString(KEY_GENDER));
+
+        String gender = parameters.getString(KEY_GENDER);
+        if (gender != null) {
+            params.put(Params.User.GENDER, gender);
+        }
+
         params.put(Params.User.DATE_OF_BIRTH_MONTH, String.valueOf(birthday.getMonth()));
         params.put(Params.User.DATE_OF_BIRTH_YEAR, String.valueOf(birthday.getYear()));
 

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -56,7 +55,7 @@ public class TokenInformationGeneratorTest {
     }
 
     @Test
-    public void shouldObtainAuthorizationCodeIfBundleContainsUsernameAndPassword() throws ApiRequestException, IOException {
+    public void shouldObtainAuthorizationCodeIfBundleContainsUsernameAndPassword() throws Exception {
         stubTokenResponse(
                 StringPart.from(OAuth.PARAM_GRANT_TYPE, OAuth.GRANT_TYPE_PASSWORD),
                 StringPart.from(OAuth.PARAM_USERNAME, "user"),
@@ -70,7 +69,7 @@ public class TokenInformationGeneratorTest {
     }
 
     @Test
-    public void shouldObtainAuthorizationCodeIfBundleContainsGrantTYPEExtra() throws ApiRequestException {
+    public void shouldObtainAuthorizationCodeIfBundleContainsGrantTYPEExtra() throws Exception {
         stubTokenResponse(StringPart.from(OAuth.PARAM_GRANT_TYPE, "grant"));
         addToBundle("extensionGrantType", "grant");
 
@@ -105,7 +104,7 @@ public class TokenInformationGeneratorTest {
         when(bundle.getString(key)).thenReturn(value);
     }
 
-    private void stubTokenResponse(StringPart... parts) {
+    private void stubTokenResponse(StringPart... parts) throws IOException {
         ApiRequestTo post = isPublicApiRequestTo("POST", ApiEndpoints.OAUTH2_TOKEN)
                 .withFormParts((StringPart[]) ArrayUtils.addAll(parts, COMMON_FORM_PARTS.toArray()));
 
