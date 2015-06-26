@@ -1,7 +1,6 @@
 package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -27,12 +26,9 @@ public class FeatureOperations {
     private final PlanStorage planStorage;
 
     @Inject
-    public FeatureOperations(ApplicationProperties appProperties, FeatureStorage featureStorage, PlanStorage planStorage) {
+    public FeatureOperations(FeatureStorage featureStorage, PlanStorage planStorage) {
         this.featureStorage = featureStorage;
         this.planStorage = planStorage;
-        if (appProperties.isAlphaBuild()) {
-            updateFeature(OFFLINE_CONTENT, true);
-        }
     }
 
     public void updateFeatures(Map<String, Boolean> features) {
