@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
@@ -23,58 +24,59 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.PagedTracksRecyclerItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 
 import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackLikesPresenterTest {
+public class TrackLikesPresenterTest extends PlatformUnitTest {
 
     private TrackLikesPresenter presenter;
 
-    @Mock private Context context;
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private PagedTracksAdapter adapter;
+    @Mock private PagedTracksRecyclerItemAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private ImageOperations imageOperations;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Fragment fragment;
     @Mock private View view;
-    @Mock private ListView listView;
+    @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
     @Mock private Menu menu;
     @Mock private MenuInflater menuInflater;
     @Mock private MenuItem menuItem;
     @Mock private Navigator navigator;
     @Mock private FeatureOperations featureOperations;
+    @Mock private CollapsingScrollHelper collapsingScrollHelper;
+    @Mock private Resources resources;
 
     private PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -85,15 +87,16 @@ public class TrackLikesPresenterTest {
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
                 offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, imageOperations, swipeRefreshAttacher, featureOperations, navigator);
-        when(view.findViewById(android.R.id.list)).thenReturn(listView);
-        when(listView.getHeaderViewsCount()).thenReturn(1);
+                eventBus, swipeRefreshAttacher, featureOperations, navigator, collapsingScrollHelper);
+        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
         when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
-        when(view.getContext()).thenReturn(context);
+        when(view.getContext()).thenReturn(context());
+        when(view.getResources()).thenReturn(context().getResources());
+        when(recyclerView.getAdapter()).thenReturn(adapter);
     }
 
     @Test
@@ -117,7 +120,7 @@ public class TrackLikesPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        presenter.onItemClicked(view, 1);
+        presenter.onItemClicked(view, 0);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
     }
@@ -131,9 +134,9 @@ public class TrackLikesPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        presenter.onItemClicked(view, 1);
+        presenter.onItemClicked(view, 0);
 
-        verify(navigator).openUpgrade(context);
+        verify(navigator).openUpgrade(context());
     }
 
     @Test
@@ -152,7 +155,7 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {
-        when(listView.getItemAtPosition(0)).thenReturn(null);
+        when(adapter.getItem(0)).thenReturn(null);
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 

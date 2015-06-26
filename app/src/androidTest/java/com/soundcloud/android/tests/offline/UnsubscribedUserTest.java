@@ -25,7 +25,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         final ViewElement overflowButton = menuScreen
                 .open()
                 .clickLikes()
-                .listHeaderOverflowButton();
+                .headerOverflowButton();
 
         assertThat(overflowButton, is(not(visible())));
     }

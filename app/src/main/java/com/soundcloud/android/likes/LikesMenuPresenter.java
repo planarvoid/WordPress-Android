@@ -6,9 +6,9 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +16,7 @@ import android.view.View;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class LikesMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
+class LikesMenuPresenter {
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final FeatureOperations featureOperations;
@@ -37,42 +37,38 @@ class LikesMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
         this.navigator = navigator;
     }
 
-    public void show(View button) {
-        setupMenu(button);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem menuItem, Context context) {
-        switch (menuItem.getItemId()) {
-            case R.id.action_make_offline_available:
-                if (featureOperations.isOfflineContentEnabled()) {
-                    final FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                    syncLikesDialogProvider.get().show(fragmentManager);
-                } else {
-                    navigator.openUpgrade(context);
-                }
-                return true;
-            case R.id.action_make_offline_unavailable:
-                offlineOperations.setOfflineLikesEnabled(false);
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public void onDismiss() {}
-
-    private PopupMenuWrapper setupMenu(View button) {
+    public void show(View button, final FragmentManager fragmentManager) {
         PopupMenuWrapper menu = popupMenuWrapperFactory.build(button.getContext(), button);
         menu.inflate(R.menu.likes_actions);
-        menu.setOnMenuItemClickListener(this);
-        menu.setOnDismissListener(this);
-
+        menu.setOnMenuItemClickListener(getMenuWrapperListener(fragmentManager));
         configureMenu(menu);
-
         menu.show();
-        return menu;
+    }
+
+    @NotNull
+    private PopupMenuWrapper.PopupMenuWrapperListener getMenuWrapperListener(final FragmentManager fragmentManager) {
+        return new PopupMenuWrapper.PopupMenuWrapperListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem, Context context) {
+                switch (menuItem.getItemId()) {
+                    case R.id.action_make_offline_available:
+                        if (featureOperations.isOfflineContentEnabled()) {
+                            syncLikesDialogProvider.get().show(fragmentManager);
+                        } else {
+                            navigator.openUpgrade(context);
+                        }
+                        return true;
+                    case R.id.action_make_offline_unavailable:
+                        offlineOperations.setOfflineLikesEnabled(false);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDismiss() { }
+        };
     }
 
     private void configureMenu(PopupMenuWrapper menu) {

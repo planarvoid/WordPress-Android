@@ -8,21 +8,22 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListPresenter;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.RefreshAdapterSubscriber;
+import com.soundcloud.android.rx.observers.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.PagedTracksRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -37,13 +38,13 @@ import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ListView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class TrackLikesPresenter extends ListPresenter<TrackItem> {
+class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
+    final @LightCycle CollapsingScrollHelper scrollHelper;
     final @LightCycle TrackLikesActionMenuController actionMenuController;
     final @LightCycle TrackLikesHeaderPresenter headerPresenter;
 
@@ -52,7 +53,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
     private final Navigator navigator;
     private final OfflinePlaybackOperations playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
-    private final PagedTracksAdapter adapter;
+    private final PagedTracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
@@ -61,13 +62,16 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
                         OfflinePlaybackOperations playbackOperations,
-                        OfflineContentOperations offlineContentOperations, PagedTracksAdapter adapter,
+                        OfflineContentOperations offlineContentOperations,
+                        PagedTracksRecyclerItemAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        ImageOperations imageOperations, SwipeRefreshAttacher swipeRefreshAttacher,
-                        FeatureOperations featureOperations, Navigator navigator) {
-        super(imageOperations, swipeRefreshAttacher);
+                        SwipeRefreshAttacher swipeRefreshAttacher,
+                        FeatureOperations featureOperations,
+                        Navigator navigator,
+                        CollapsingScrollHelper scrollHelper) {
+        super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
         this.offlineContentOperations = offlineContentOperations;
@@ -78,8 +82,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
         this.navigator = navigator;
-
-        setHeaderPresenter(headerPresenter);
+        this.scrollHelper = scrollHelper;
     }
 
     @Override
@@ -134,7 +137,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
                         .subscribe(new RemoveEntityListSubscriber(adapter)),
 
                 offlineContentOperations.getOfflineContentOrLikesStatus()
-                        .subscribe(new RefreshAdapterSubscriber(adapter))
+                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
     }
 
@@ -153,10 +156,9 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
     public void onItemClicked(View view, int position) {
         // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
         // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
-        final int realPosition = position - ((ListView) getListView()).getHeaderViewsCount();
-        TrackItem item = adapter.getItem(realPosition);
+        TrackItem item = adapter.getItem(position);
         if (item == null) {
-            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + realPosition;
+            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else if (shouldShowUpsell(item)) {
             navigator.openUpgrade(view.getContext());
@@ -164,7 +166,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
             Urn initialTrack = item.getEntityUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
             playbackOperations
-                    .playLikes(initialTrack, realPosition, playSessionSource)
+                    .playLikes(initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
     }

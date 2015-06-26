@@ -13,7 +13,6 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListHeaderPresenter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -24,18 +23,17 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
-import rx.observables.ConnectableObservable;
 import rx.subscriptions.CompositeSubscription;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.ListView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements ListHeaderPresenter {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final TrackLikesHeaderView headerView;
     private final TrackLikeOperations likeOperations;
@@ -70,15 +68,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     };
 
-    private final View.OnClickListener onOverflowMenuClick = new View.OnClickListener() {
-        @Override
-        public void onClick(final View view) {
-            likesMenuPresenter.show(view);
-        }
-    };
-
-    private CompositeSubscription viewLifeCycle;
+    private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
+    private Subscription collectionSubscription = RxUtils.invalidSubscription();
 
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
@@ -100,17 +92,17 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     @Override
-    public void onViewCreated(View view, ListView listView) {
-        headerView.onViewCreated(view);
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
+        headerView.onViewCreated(view, fragment.getFragmentManager());
         headerView.setOnShuffleButtonClick(onShuffleButtonClick);
-        headerView.attachToList(listView);
 
-        viewLifeCycle = new CompositeSubscription();
-        viewLifeCycle.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+
+        entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new AllLikedTracksSubscriber()));
+                .subscribe(new AllLikedTracksSubscriber());
     }
 
     @Override
@@ -120,11 +112,20 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 subscribeForOfflineContentUpdates();
             }
             headerView.showOverflowMenuButton();
-            headerView.setOnOverflowMenuClick(onOverflowMenuClick);
+            headerView.setOnOverflowMenuClick(getOnOverflowMenuClick(fragment));
         } else {
             headerView.hideOverflowMenuButton();
             headerView.show(DownloadState.NO_OFFLINE);
         }
+    }
+
+    private View.OnClickListener getOnOverflowMenuClick(final Fragment fragment) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                likesMenuPresenter.show(view, fragment.getFragmentManager());
+            }
+        };
     }
 
     private void subscribeForOfflineContentUpdates() {
@@ -156,7 +157,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onDestroyView(Fragment fragment) {
         headerView.onDestroyView();
-        viewLifeCycle.unsubscribe();
+        entityStateChangedSubscription.unsubscribe();
+        collectionSubscription.unsubscribe();
     }
 
     private boolean shouldShowOverflowMenu() {
@@ -164,13 +166,12 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     public void onSubscribeListObservers(CollectionBinding<TrackItem> collectionBinding) {
-        ConnectableObservable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
+        Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                 .first()
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
-                .replay();
-        viewLifeCycle.add(allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber()));
-        viewLifeCycle.add(allLikedTrackUrns.connect());
+                .cache();
+        collectionSubscription = allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
     }
 
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {

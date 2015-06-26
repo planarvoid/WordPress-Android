@@ -27,7 +27,7 @@ public class TrackLikesFragment extends LightCycleSupportFragment implements Ref
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
+        return inflater.inflate(R.layout.track_likes_fragment, container, false);
     }
 
     @Override
@@ -43,6 +43,6 @@ public class TrackLikesFragment extends LightCycleSupportFragment implements Ref
 
     @Override
     public View[] getRefreshableViews() {
-        return new View[]{presenter.getListView(), presenter.getEmptyView()};
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 }

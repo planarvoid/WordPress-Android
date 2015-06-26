@@ -178,4 +178,21 @@
         <item name="android:layout_below">@id/toolbar_id</item>
     </style>
 
+    <style name="DropShadow">
+        <item name="android:background">@drawable/drop_shadow</item>
+        <item name="android:layout_height">4dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_below">@id/toolbar_id</item>
+    </style>
+
+    <style name="TrackLikesHeader">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">@dimen/likes_header_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/default_list_item_padding</item>
+        <item name="android:paddingRight">@dimen/likes_header_padding_right</item>
+        <item name="android:paddingTop">@dimen/likes_header_padding_top</item>
+    </style>
+
 </resources>

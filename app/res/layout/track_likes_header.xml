@@ -5,45 +5,13 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:paddingTop="@dimen/likes_header_padding_top"
-        android:paddingBottom="@dimen/likes_header_padding_bottom"
-        android:paddingLeft="@dimen/default_list_item_padding"
-        android:paddingRight="@dimen/likes_header_padding_right">
-
-        <include layout="@layout/downloadable_header" />
-
-        <Button
-            android:id="@+id/shuffle_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="false"
-            android:layout_marginLeft="@dimen/likes_shuffle_button_margin_left"
-            android:layout_marginRight="@dimen/likes_shuffle_button_margin_right"
-            android:enabled="false"
-            android:text="@string/shuffle"
-            android:drawableLeft="@drawable/ic_shuffle"
-            android:drawablePadding="8dp"
-            android:paddingLeft="@dimen/likes_shuffle_button_padding"
-            android:paddingRight="@dimen/likes_shuffle_button_padding"
-            android:background="@drawable/btn_default_states" />
-
-        <ImageView
-            android:id="@+id/overflow_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/EngagementOverflowButton"
-            android:layout_gravity="bottom|end"
-            android:visibility="gone" />
-
+        android:id="@+id/track_likes_header"
+        style="@style/TrackLikesHeader">
+        <include layout="@layout/track_likes_header_common" />
     </LinearLayout>
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/likes_header_divider"
-        android:layout_below="@id/header"
-        android:background="@drawable/divider_list_grey" />
+        style="@style/DropShadow"
+        android:layout_below="@id/track_likes_header" />
+
 </RelativeLayout>

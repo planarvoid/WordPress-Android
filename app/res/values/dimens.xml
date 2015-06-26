@@ -104,7 +104,6 @@
     <dimen name="download_progress_indicator_margin">-6dp</dimen>
 
     <!-- Like -->
-    <dimen name="likes_header_divider">1dp</dimen>
     <dimen name="likes_header_padding_top">10dp</dimen>
     <dimen name="likes_header_padding_bottom">6dp</dimen>
     <dimen name="likes_header_padding_right">4dp</dimen>
