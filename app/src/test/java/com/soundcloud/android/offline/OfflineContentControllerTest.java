@@ -1,38 +1,41 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import android.content.Context;
 import android.content.Intent;
 
-@RunWith(SoundCloudTestRunner.class)
-public class OfflineContentControllerTest {
+public class OfflineContentControllerTest extends PlatformUnitTest {
 
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);
+
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private OfflinePlaylistStorage playlistStorage;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaylistWithTracks playlistWithTracks;
+    @Mock private Context context;
 
     private OfflineContentController controller;
     private TestEventBus eventBus;
@@ -47,7 +50,7 @@ public class OfflineContentControllerTest {
         when(settingsStorage.getOfflineLikedTracksStatusChange()).thenReturn(offlineLikeToggleSetting);
         when(playlistOperations.playlist(PLAYLIST)).thenReturn(Observable.just(playlistWithTracks));
 
-        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage, playlistStorage, playlistOperations, Schedulers.immediate());
+        controller = new OfflineContentController(context, eventBus, settingsStorage, playlistStorage, playlistOperations, Schedulers.immediate());
     }
 
     @Test
@@ -56,7 +59,7 @@ public class OfflineContentControllerTest {
 
         controller.unsubscribe();
 
-        expect(wasServiceStopped()).toBeTrue();
+        assertThat(wasServiceStopped()).isTrue();
     }
 
     @Test
@@ -65,7 +68,7 @@ public class OfflineContentControllerTest {
 
         offlineLikeToggleSetting.onNext(true);
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -74,7 +77,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(PLAYLIST, true));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -83,7 +86,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(PLAYLIST, false));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -93,7 +96,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
-        expectNoInteractionWithService();
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
@@ -102,7 +105,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, true, 1));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -111,7 +114,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, false, 1));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -120,7 +123,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -129,7 +132,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, false));
 
-        expectNoInteractionWithService();
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
@@ -139,7 +142,7 @@ public class OfflineContentControllerTest {
 
         offlineLikeToggleSetting.onNext(true);
 
-        expect(wasServiceStarted()).toBeFalse();
+        assertThat(wasServiceStarted()).isFalse();
     }
 
     @Test
@@ -150,7 +153,7 @@ public class OfflineContentControllerTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -161,7 +164,7 @@ public class OfflineContentControllerTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
 
-        expect(wasServiceStarted()).toBeFalse();
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
@@ -174,20 +177,22 @@ public class OfflineContentControllerTest {
         verify(playlistOperations).playlist(PLAYLIST);
     }
 
-    private void expectNoInteractionWithService() {
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService).toBeNull();
+    private Intent captureStartServiceIntent() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startService(captor.capture());
+
+        return captor.getValue();
     }
 
     private boolean wasServiceStarted() {
-        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        final Intent intent = captureStartServiceIntent();
         return intent != null &&
                 intent.getAction().equals(OfflineContentService.ACTION_START) &&
                 intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 
     private boolean wasServiceStopped() {
-        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        final Intent intent = captureStartServiceIntent();
         return intent != null &&
                 intent.getAction().equals(OfflineContentService.ACTION_STOP) &&
                 intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
