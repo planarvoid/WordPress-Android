@@ -3,12 +3,10 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.squareup.okhttp.OkHttpClient;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
+
+import javax.inject.Named;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {

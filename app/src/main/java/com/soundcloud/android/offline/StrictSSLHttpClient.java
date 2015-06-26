@@ -16,11 +16,8 @@ import javax.inject.Named;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
 class StrictSSLHttpClient {
-
-    private static final int READ_TIMEOUT_IN_SECOND = 10;
 
     private final OkHttpClient httpClient;
     private final OAuth oAuth;
@@ -28,14 +25,9 @@ class StrictSSLHttpClient {
 
     @Inject
     public StrictSSLHttpClient(@Named(OfflineModule.STRICT_SSL_CLIENT) OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
-        this.httpClient = configureClient(client);
+        this.httpClient = client;
         this.deviceHelper = helper;
         this.oAuth = oAuth;
-    }
-
-    private OkHttpClient configureClient(OkHttpClient client) {
-        client.setReadTimeout(READ_TIMEOUT_IN_SECOND, TimeUnit.SECONDS);
-        return client;
     }
 
     public TrackFileResponse getFileStream(String fileUrl) throws IOException {
