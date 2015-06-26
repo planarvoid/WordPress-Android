@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.PlayerDeviceCompatibility;
 import com.soundcloud.android.playback.service.Playa.PlayaListener;
 import com.soundcloud.android.playback.service.Playa.PlayaState;
 import com.soundcloud.android.playback.service.Playa.Reason;
@@ -30,7 +29,6 @@ public class StreamPlaya implements PlayaListener {
     private final MediaPlayerAdapter mediaPlayaDelegate;
     private final SkippyAdapter skippyPlayaDelegate;
     private final BufferingPlaya bufferingPlayaDelegate;
-    private final PlayerSwitcherInfo playerSwitcherInfo;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -43,13 +41,12 @@ public class StreamPlaya implements PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo, OfflinePlaybackOperations offlinePlaybackOperations,
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, OfflinePlaybackOperations offlinePlaybackOperations,
                        NetworkConnectionHelper networkConnectionHelper) {
 
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
-        this.playerSwitcherInfo = playerSwitcherInfo;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.networkConnectionHelper = networkConnectionHelper;
         currentPlaya = bufferingPlayaDelegate;
@@ -93,10 +90,9 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void play(PropertySet track) {
-        final boolean offline = isAvailableOffline(track);
-        prepareForPlay(track, offline);
+        prepareForPlay(track);
 
-        if (offline) {
+        if (isAvailableOffline(track)) {
             currentPlaya.playOffline(track, 0);
         } else {
             currentPlaya.play(track);
@@ -104,10 +100,9 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void play(PropertySet track, long fromPos) {
-        final boolean offline = isAvailableOffline(track);
-        prepareForPlay(track, offline);
+        prepareForPlay(track);
 
-        if (offline) {
+        if (isAvailableOffline(track)) {
             currentPlaya.playOffline(track, fromPos);
         } else {
             currentPlaya.play(track, fromPos);
@@ -115,15 +110,14 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void playUninterrupted(PropertySet track) {
-        final boolean offline = isAvailableOffline(track);
-        prepareForPlay(track, offline);
+        prepareForPlay(track);
 
         currentPlaya.playUninterrupted(track);
     }
 
-    private void prepareForPlay(PropertySet track, boolean isAvailableOffline) {
+    private void prepareForPlay(PropertySet track) {
         lastTrackPlayed = track;
-        configureNextPlayaToUse(isAvailableOffline);
+        configureNextPlayaToUse();
     }
 
     public boolean resume() {
@@ -210,8 +204,8 @@ public class StreamPlaya implements PlayaListener {
         }
     }
 
-    private void configureNextPlayaToUse(boolean offlinePlayback) {
-        configureNextPlayaToUse(getNextPlaya(offlinePlayback));
+    private void configureNextPlayaToUse() {
+        configureNextPlayaToUse(getNextPlaya());
     }
 
     private void configureNextPlayaToUse(Playa nextPlaya) {
@@ -225,16 +219,10 @@ public class StreamPlaya implements PlayaListener {
         currentPlaya.setListener(this);
     }
 
-    private Playa getNextPlaya(boolean forOfflinePlayback) {
-        //there is no offline playback for media player so try to force skippy
-        if (!skippyFailedToInitialize && forOfflinePlayback) {
-            return skippyPlayaDelegate;
-        }
-
-        if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()) {
+    private Playa getNextPlaya() {
+        if (skippyFailedToInitialize) {
             return mediaPlayaDelegate;
         }
-
         return skippyPlayaDelegate;
     }
 
@@ -246,17 +234,4 @@ public class StreamPlaya implements PlayaListener {
         return currentPlaya == skippyPlayaDelegate;
     }
 
-    public static class PlayerSwitcherInfo {
-
-        private final PlayerDeviceCompatibility playerDeviceCompatibility;
-
-        @Inject
-        public PlayerSwitcherInfo(PlayerDeviceCompatibility playerDeviceCompatibility) {
-            this.playerDeviceCompatibility = playerDeviceCompatibility;
-        }
-
-        public boolean shouldForceMediaPlayer() {
-            return playerDeviceCompatibility.shouldForceMediaPlayer();
-        }
-    }
 }
