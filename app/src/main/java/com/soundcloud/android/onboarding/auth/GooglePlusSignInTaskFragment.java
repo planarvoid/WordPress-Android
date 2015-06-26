@@ -68,7 +68,7 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
             activity.startActivityForResult(intent, getArguments().getInt(ARG_REQ_CODE));
             return null;
 
-        } else if (rootException instanceof CloudAPI.InvalidTokenException) {
+        } else if (result.wasUnauthorized()) {
             // Normally this indicates that we could not swap the Google token for a SoundCloud API token, which can
             // happen if users try to sign in via G+ without actually having a G+ account
             // NOTE that using a dev build signed with a debug key that is NOT registered with the G+ client ID will

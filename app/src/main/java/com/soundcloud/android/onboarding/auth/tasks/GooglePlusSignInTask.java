@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.IOException;
+
 public class GooglePlusSignInTask extends LoginTask {
     private static final String ADD_ACTIVITY = "http://schemas.google.com/AddActivity";
     private static final String CREATE_ACTIVITY = "http://schemas.google.com/CreateActivity";
@@ -60,6 +62,10 @@ public class GooglePlusSignInTask extends LoginTask {
                     // whatever token we got from g+ is invalid. force it to invalid and we should get a new one next try
                     accountOperations.invalidateGoogleAccountToken(token);
                 }
+            } catch (IOException e) {
+                Log.e(TAG, "error retrieving google token", e);
+                result = AuthTaskResult.networkError();
+                triesLeft = 0;
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);
                 result = AuthTaskResult.failure(e);
