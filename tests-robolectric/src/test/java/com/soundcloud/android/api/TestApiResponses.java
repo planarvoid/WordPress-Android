@@ -1,5 +1,7 @@
 package com.soundcloud.android.api;
 
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
+
 import java.io.IOException;
 
 public final class TestApiResponses {
@@ -17,7 +19,11 @@ public final class TestApiResponses {
     }
 
     public static ApiResponse validationError() {
-        return new ApiResponse(ApiRequestException.validationError(null, "validation_failed"));
+        return new ApiResponse(ApiRequestException.validationError(null, "validation_failed", 101));
+    }
+
+    public static ApiResponse resource(Class clazz, int statusCode, String resourceName) throws IOException {
+        return new ApiResponse(null, statusCode, JsonFixtures.resourceAsString(clazz, resourceName));
     }
 
     private TestApiResponses() {

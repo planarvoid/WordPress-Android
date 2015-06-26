@@ -1,6 +1,5 @@
 package com.soundcloud.android.onboarding.auth;
 
-
 import static android.util.Log.INFO;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
@@ -8,15 +7,16 @@ import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -39,15 +39,25 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject ConfigurationOperations configurationOperations;
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
+    @Inject TokenInformationGenerator tokenUtils;
+    @Inject ApiClient apiClient;
+    @Inject LegacyUserStorage userStorage;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
+
         void onError(String message);
+
         void onEmailTaken();
+
         void onSpam();
+
         void onBlocked();
+
         void onEmailInvalid();
+
         void onUsernameInvalid(String message);
+
         void onDeviceConflict(Bundle loginBundle);
     }
 
@@ -131,22 +141,23 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
-
-        if (rootException instanceof CloudAPI.ApiResponseException) {
-            // server error, tell them to try again later
+        final boolean isNetworkUnavailable = !networkConnectionHelper.isNetworkConnected();
+        
+        if (result.wasServerError()) {
             return activity.getString(R.string.error_server_problems_message);
+        } else if (result.wasNetworkError() && isNetworkUnavailable) {
+            return activity.getString(R.string.authentication_error_no_connection_message);
         } else if (rootException instanceof AuthTaskException) {
-            // custom exception, message provided by the individual task
-            return ((AuthTaskException) rootException).getFirstError();
+            return ((AuthTaskException) rootException).getFirstError(); // message provided by the individual task
         } else {
-            if (networkConnectionHelper.isNetworkConnected()) {
-                log(INFO, ONBOARDING_TAG, getLoginErrorDebugMessage(rootException));
-                ErrorUtils.handleSilentException("other sign in error while network connected", rootException);
-                return activity.getString(R.string.authentication_error_generic);
-            } else {
-                return activity.getString(R.string.authentication_error_no_connection_message);
-            }
+            logOnboardingError(rootException);
+            return activity.getString(R.string.authentication_error_generic);
         }
+    }
+
+    private void logOnboardingError(Throwable rootException) {
+        log(INFO, ONBOARDING_TAG, getLoginErrorDebugMessage(rootException));
+        ErrorUtils.handleSilentException("other sign in error while network connected", rootException);
     }
 
     private String getLoginErrorDebugMessage(Throwable rootException) {
@@ -157,7 +168,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 networkConnectionHelper.getNetworkOperatorName()
         );
     }
-
+    
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {
@@ -186,5 +197,4 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
         dismiss();
     }
-
 }

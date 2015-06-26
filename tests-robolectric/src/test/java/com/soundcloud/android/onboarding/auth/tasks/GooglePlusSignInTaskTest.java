@@ -15,6 +15,7 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -73,7 +74,7 @@ public class GooglePlusSignInTaskTest {
     }
 
     @Test
-    public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException {
+    public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException, ApiRequestException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("invalidtoken");
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(TokenRetrievalException.class);
         task.doInBackground(bundle);

@@ -15,6 +15,7 @@ public class ApiResponse {
 
     private static final String BAD_REQUEST_ERROR_KEY = "error_key";
     private static final String PUBLIC_API_ERRORS_KEY = "errors";
+    private static final String PUBLIC_API_ERROR_KEY = "error";
     private static final String PUBLIC_API_ERROR_MESSAGE_KEY = "error_message";
     private static final int SC_REQUEST_TOO_MANY_REQUESTS = 429;
 
@@ -34,12 +35,14 @@ public class ApiResponse {
             failure = ApiRequestException.rateLimited(request);
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
             failure = ApiRequestException.notFound(request);
+        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+            failure = ApiRequestException.authError(request);
         } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
             failure = ApiRequestException.notAllowed(request);
         } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
             failure = ApiRequestException.badRequest(request, getErrorKey());
         } else if (statusCode == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
-            failure = ApiRequestException.validationError(request, getErrorKey());
+            failure = ApiRequestException.validationError(request, getErrorKey(), getErrorCode());
         } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
             failure = ApiRequestException.serverError(request);
         } else if (!isSuccessCode(statusCode)) {
@@ -80,6 +83,19 @@ public class ApiResponse {
 
     public String getResponseBody() {
         return responseBody;
+    }
+
+    private int getErrorCode() {
+        try {
+            final JSONObject errorJson = new JSONObject(responseBody);
+            if (errorJson.has(PUBLIC_API_ERROR_KEY)) {
+                return errorJson.getInt(PUBLIC_API_ERROR_KEY);
+            } else {
+                return Consts.NOT_SET;
+            }
+        } catch (JSONException e) {
+            return Consts.NOT_SET;
+        }
     }
 
     private String getErrorKey() {

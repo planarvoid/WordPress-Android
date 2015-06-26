@@ -1,15 +1,22 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
-import com.xtremelabs.robolectric.Robolectric;
-import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,154 +24,124 @@ import org.mockito.Mock;
 
 import android.os.Bundle;
 
-import java.io.IOException;
-
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class SignupTaskTest {
+    @Mock private TokenInformationGenerator tokenInformationGenerator;
+    @Mock private ApiClient apiClient;
+    @Mock private LegacyUserStorage userStorage;
+    @Mock private SoundCloudApplication application;
 
     private SignupTask signupTask;
-    @Mock private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private LegacyUserStorage userStorage;
 
     @Before
     public void setUp() throws Exception {
-        signupTask = new SignupTask(DefaultTestRunner.application, tokenInformationGenerator, userStorage,
-                DefaultTestRunner.application.getCloudAPI());
+        signupTask = new SignupTask(application, userStorage, tokenInformationGenerator, apiClient);
     }
 
     @Test
     public void shouldReturnUser() throws Exception {
-        setupPendingHttpResponse(201, JsonFixtures.resourceAsString(getClass(), "me.json"));
+        PublicApiUser user = new PublicApiUser(123L);
+        setupSignupWithUser(user);
 
         AuthTaskResult result = doSignup();
+        expect(result.getUser()).toEqual(user);
+        expect(result.wasSuccess()).toBeTrue();
+    }
 
-        expect(result.getUser()).not.toBeNull();
-        expect(result.getUser().username).toEqual("testing");
+    @Test
+    public void shouldReturnUserWithGenderSetToNull() throws Exception {
+        PublicApiUser user = new PublicApiUser(123L);
+        setupSignupWithUser(user);
+
+        AuthTaskResult result = doSignupWithNullGender();
+        expect(result.getUser()).toEqual(user);
+        expect(result.wasSuccess()).toBeTrue();
     }
 
     @Test
     public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": [{ \"error_message\":\"Email has already been taken\"},{\"error_message\":\"Address has already been taken\"}] }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasEmailTaken()).toBeTrue();
-    }
-
-    @Test
-    public void shouldProcessLegacyErrorObjectOfNewResponseBodyDuringSignup() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": {\"error\": \"Email is taken\"}  }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasEmailTaken()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnEmailTakenAuthTaskResultOnSignupEmailTakenError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 101 }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasEmailTaken()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnEmailTakenAuthTaskResultOnSignupEmailTakenErrorWithLegacyErrors() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": [{ \"error_message\": \"Email has already been taken.\" }] }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Email has already been taken", 101));
         AuthTaskResult result = doSignup();
         expect(result.wasEmailTaken()).toBeTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 102 }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasDenied()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedErrorWithLegacyErrors() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 102, \"errors\": [{ \"error_message\": \"Email domain is blacklisted.\" }] }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Email domain is blacklisted.", 102));
         AuthTaskResult result = doSignup();
         expect(result.wasDenied()).toBeTrue();
     }
 
     @Test
     public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": \"103\" }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasSpam()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredErrorWithLegacyErrors() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 103, \"errors\": [{ \"error_message\": \"Spam detected, login on web page with captcha.\" }] }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Spam detected, login on web page with captcha.", 103));
         AuthTaskResult result = doSignup();
         expect(result.wasSpam()).toBeTrue();
     }
 
     @Test
     public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 104 }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Email is invalid.", 104));
         AuthTaskResult result = doSignup();
         expect(result.wasEmailInvalid()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidErrorWithLegacyErrors() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 104, \"errors\": [{ \"error_message\": \"Email is invalid.\" }] }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasEmailInvalid()).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 105 }");
-        AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": 105, \"errors\": [{ \"error_message\": \"Sorry we couldn't sign you up with the details you provided.\" }] }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Sorry we couldn't sign you up with the details you provided.", 105));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
-        setupPendingHttpResponse(422, "{ \"error\": \"180\" }");
+        setupSignupWithError(ApiRequestException.validationError(null, "Sorry we couldn't sign you up with the details you provided.", 180));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupWithUnreconizedError() throws Exception {
-        setupPendingHttpResponse(422, "{ \"unrecognized\": \"error\" }");
+        setupSignupWithError(ApiRequestException.validationError(null, "unknown", -1));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupForbidden() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(403, "",
-                new BasicHeader("WWW-Authenticate", "OAuth realm=\"SoundCloud\", error=\"insufficient_scope\""));
+        setupSignupWithError(ApiRequestException.notAllowed(null));
         AuthTaskResult result = doSignup();
         expect(result.wasDenied()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupServerError() throws Exception {
-        setupPendingHttpResponse(500, "");
+        setupSignupWithError(ApiRequestException.serverError(null));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupUnexpectedResponseStatus() throws Exception {
-        setupPendingHttpResponse(102, "");
+        setupSignupWithError(ApiRequestException.unexpectedResponse(null, 102));
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFailureWhenFailsVerifyingScope() throws Exception {
+        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP))
+                .thenThrow(new TokenRetrievalException(new Exception()));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     private AuthTaskResult doSignup() {
-        return signupTask.doSignup(DefaultTestRunner.application, getParamsBundle());
+        return signupTask.doSignup(getParamsBundle());
+    }
+
+    private AuthTaskResult doSignupWithNullGender() {
+        return signupTask.doSignup(getParamsBundleWithNullGender());
     }
 
     private Bundle getParamsBundle() {
@@ -176,9 +153,25 @@ public class SignupTaskTest {
         return bundle;
     }
 
-    private void setupPendingHttpResponse(int statusCode, String responseBody) throws IOException {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(statusCode, responseBody);
+    private Bundle getParamsBundleWithNullGender() {
+        Bundle bundle = new Bundle();
+        bundle.putString(SignupTask.KEY_USERNAME, "username");
+        bundle.putString(SignupTask.KEY_PASSWORD, "password");
+        bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(22));
+        bundle.putString(SignupTask.KEY_GENDER, null);
+        return bundle;
     }
 
+    private void setupSignupWithUser(PublicApiUser user) throws Exception {
+        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
+
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
+                .thenReturn(user);
+    }
+
+    private void setupSignupWithError(ApiRequestException exception) throws Exception {
+        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
+                .thenThrow(exception);
+    }
 }

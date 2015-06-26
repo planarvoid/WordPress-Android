@@ -6,7 +6,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -33,20 +32,15 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
-        return new LoginTask((SoundCloudApplication)getActivity().getApplication(), configurationOperations, eventBus, accountOperations);
+        return new LoginTask((SoundCloudApplication) getActivity().getApplication(), configurationOperations, eventBus, accountOperations, tokenUtils);
     }
 
     @Override
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
-        final Exception exception = result.getException();
-        if (isLoginCredentialsException(exception)) {
+        if (result.wasUnauthorized()) {
             return activity.getString(R.string.authentication_login_error_password_message);
         } else {
             return super.getErrorFromResult(activity, result);
         }
-    }
-
-    private boolean isLoginCredentialsException(Exception exception) {
-        return ErrorUtils.removeTokenRetrievalException(exception) instanceof CloudAPI.InvalidTokenException;
     }
 }

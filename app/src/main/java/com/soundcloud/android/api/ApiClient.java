@@ -166,7 +166,8 @@ public class ApiClient {
         final List<FormPart> parts = request.getParts();
         for (FormPart part : parts) {
             if (part instanceof StringPart) {
-                builder.addFormDataPart(part.getPartName(), ((StringPart) part).getValue());
+                String value = ((StringPart) part).getValue();
+                builder.addFormDataPart(part.getPartName(), value);
             } else if (part instanceof FilePart) {
                 final FilePart filePart = (FilePart) part;
                 final RequestBody requestBody = RequestBody.create(MediaType.parse(part.getContentType()), filePart.getFile());

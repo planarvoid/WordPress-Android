@@ -12,6 +12,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.SERVER_ERROR
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
@@ -23,6 +24,7 @@ public final class ApiRequestException extends Exception {
 
     private final Reason errorReason;
     private final String errorKey;
+    private final int errorCode;
 
     public enum Reason {
         AUTH_ERROR,
@@ -66,13 +68,17 @@ public final class ApiRequestException extends Exception {
     public static ApiRequestException authError(ApiRequest request, CloudAPI.InvalidTokenException e) {
         return new ApiRequestException(AUTH_ERROR, request, e);
     }
-    
+
+    public static ApiRequestException authError(ApiRequest request) {
+        return new ApiRequestException(AUTH_ERROR, request);
+    }
+
     public static ApiRequestException malformedInput(ApiRequest request, ApiMapperException e) {
         return new ApiRequestException(MALFORMED_INPUT, request, e);
     }
 
-    public static ApiRequestException validationError(ApiRequest request, String errorKey) {
-        return new ApiRequestException(VALIDATION_ERROR, request, errorKey);
+    public static ApiRequestException validationError(ApiRequest request, String errorKey, int errorCode) {
+        return new ApiRequestException(VALIDATION_ERROR, request, errorKey, errorCode);
     }
 
     public static ApiRequestException serverError(ApiRequest request) {
@@ -83,18 +89,28 @@ public final class ApiRequestException extends Exception {
         super("Request failed with reason " + errorReason + "; request = " + request);
         this.errorReason = errorReason;
         this.errorKey = ERROR_KEY_NONE;
+        this.errorCode = Consts.NOT_SET;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, Exception e) {
         super("Request failed with reason " + errorReason + "; request = " + request, e);
         this.errorReason = errorReason;
         this.errorKey = ERROR_KEY_NONE;
+        this.errorCode = Consts.NOT_SET;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, String errorKey) {
         super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; request = " + request);
         this.errorReason = errorReason;
         this.errorKey = errorKey;
+        this.errorCode = Consts.NOT_SET;
+    }
+
+    private ApiRequestException(Reason errorReason, ApiRequest request, String errorKey, int errorCode) {
+        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; errorCode = " + errorCode + "; request = " + request);
+        this.errorReason = errorReason;
+        this.errorKey = errorKey;
+        this.errorCode = errorCode;
     }
 
     public Reason reason() {
@@ -105,7 +121,11 @@ public final class ApiRequestException extends Exception {
         return errorKey;
     }
 
-    public boolean isNetworkError(){
+    public int errorCode() {
+        return errorCode;
+    }
+
+    public boolean isNetworkError() {
         return errorReason == NETWORK_ERROR;
     }
 

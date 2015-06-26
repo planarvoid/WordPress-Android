@@ -1,16 +1,19 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
 import com.soundcloud.android.onboarding.auth.tasks.SignupTask;
 import com.soundcloud.android.profile.BirthdayInfo;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 import android.os.Handler;
 
+import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class SignupTaskFragment extends AuthTaskFragment {
@@ -28,12 +31,12 @@ public class SignupTaskFragment extends AuthTaskFragment {
 
     private int remainingLoginTries = 0;
 
-    public static Bundle getParams(String username, String password, BirthdayInfo birthday, String gender){
+    public static Bundle getParams(String username, String password, BirthdayInfo birthday, String gender) {
         Bundle b = new Bundle();
         b.putString(SignupTask.KEY_USERNAME, username);
         b.putString(SignupTask.KEY_PASSWORD, password);
         b.putSerializable(SignupTask.KEY_BIRTHDAY, birthday);
-        b.putString(SignupTask.KEY_GENDER, gender);        
+        b.putString(SignupTask.KEY_GENDER, gender);
         return b;
     }
 
@@ -71,7 +74,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
     }
 
     private LoginTask getLoginTask() {
-        final LoginTask loginTask = new LoginTask((SoundCloudApplication) getActivity().getApplication(), configurationOperations, eventBus, accountOperations);
+        final LoginTask loginTask = new LoginTask((SoundCloudApplication) getActivity().getApplication(), configurationOperations, eventBus, accountOperations, tokenUtils);
         loginTask.setTaskOwner(this);
         return loginTask;
     }
@@ -79,7 +82,6 @@ public class SignupTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
-        return new SignupTask((SoundCloudApplication) getActivity().getApplication());
+        return new SignupTask((SoundCloudApplication) getActivity().getApplication(), userStorage, tokenUtils, apiClient);
     }
-
 }
