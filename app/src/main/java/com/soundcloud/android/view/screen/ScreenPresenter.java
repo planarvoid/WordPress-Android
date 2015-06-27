@@ -1,8 +1,10 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.ApplicationProperties;
 
 import android.support.v4.view.WindowCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,10 +16,11 @@ import javax.inject.Inject;
 public class ScreenPresenter {
 
     private AppCompatActivity activity;
+    private ApplicationProperties applicationProperties;
 
     @Inject
-    ScreenPresenter() {
-        // required for injection
+    ScreenPresenter(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
     }
 
     public void attach(AppCompatActivity activity) {
@@ -70,6 +73,11 @@ public class ScreenPresenter {
 
         final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
         activity.setContentView(layout);
+
+        final DrawerLayout drawerLayout = (DrawerLayout) layout.findViewById(R.id.drawer_layout);
+        if (drawerLayout != null && applicationProperties.isDebugBuild()){
+            View.inflate(layout.getContext(), R.layout.dev_drawer, drawerLayout);
+        }
 
         setToolBar();
         return layout;

@@ -17,6 +17,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
+import android.preference.PreferenceManager;
 
 /**
  * Play control in the widget.
@@ -51,7 +52,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                 PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
         if (!trackUrn.equals(Urn.NOT_SET)) {
 
-            Navigator navigator = new Navigator(new FeatureFlags(context.getResources())); // Can't inject here :(
+            Navigator navigator = new Navigator(new FeatureFlags(context.getResources(), PreferenceManager.getDefaultSharedPreferences(context))); // Can't inject here :(
             setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn, PENDING_INTENT_REQUEST_CODE));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);

@@ -1,20 +1,20 @@
 package com.soundcloud.android.properties;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R.string;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.res.Resources;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ApplicationPropertiesTest {
-    @Mock
-    private Resources resources;
+
+    @Mock private Resources resources;
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfNullResourcesProvided(){
@@ -43,41 +43,41 @@ public class ApplicationPropertiesTest {
     public void shouldSpecifyThatBuildIsDebug(){
         when(resources.getString(string.build_type)).thenReturn("debug");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        expect(applicationProperties.isDebugBuild()).toBeTrue();
-        expect(applicationProperties.isReleaseBuild()).toBeFalse();
+        assertThat(applicationProperties.isDebugBuild()).isTrue();
+        assertThat(applicationProperties.isReleaseBuild()).isFalse();
     }
 
     @Test
     public void shouldSpecifyThatBuildIsAlpha(){
         when(resources.getString(string.build_type)).thenReturn("alpha");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        expect(applicationProperties.isAlphaBuild()).toBeTrue();
-        expect(applicationProperties.isReleaseBuild()).toBeFalse();
+        assertThat(applicationProperties.isAlphaBuild()).isTrue();
+        assertThat(applicationProperties.isReleaseBuild()).isFalse();
     }
 
     @Test
     public void shouldSpecifyThatBuildIsRelease(){
         when(resources.getString(string.build_type)).thenReturn("RELEASE");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        expect(applicationProperties.isDebugBuild()).toBeFalse();
-        expect(applicationProperties.isReleaseBuild()).toBeTrue();
+        assertThat(applicationProperties.isDebugBuild()).isFalse();
+        assertThat(applicationProperties.isReleaseBuild()).isTrue();
     }
 
     @Test
     public void shouldDetectThatItsNotRunningOnDevice(){
-        expect(ApplicationProperties.IS_RUNNING_ON_DEVICE).toBeFalse();
+        assertThat(ApplicationProperties.IS_RUNNING_ON_DEVICE).isFalse();
     }
 
     @Test
     public void shouldDetectThatItsNotRunningOnEmulator(){
-        expect(ApplicationProperties.IS_RUNNING_ON_EMULATOR).toBeFalse();
+        assertThat(ApplicationProperties.IS_RUNNING_ON_EMULATOR).isFalse();
     }
 
     @Test
     public void shouldReturnCastReceiverAppId(){
         when(resources.getString(string.build_type)).thenReturn("debug");
         when(resources.getString(string.cast_receiver_app_id)).thenReturn("123");
-        expect(new ApplicationProperties(resources).getCastReceiverAppId()).toEqual("123");
+        assertThat(new ApplicationProperties(resources).getCastReceiverAppId()).isEqualTo("123");
     }
 
 }

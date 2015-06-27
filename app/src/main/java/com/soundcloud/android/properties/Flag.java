@@ -2,6 +2,8 @@ package com.soundcloud.android.properties;
 
 import com.soundcloud.android.R;
 
+import java.util.EnumSet;
+
 public enum Flag {
 
     TEST_FEATURE(-1),
@@ -22,6 +24,10 @@ public enum Flag {
 
     public int getId() {
         return resourceId;
+    }
+
+    public static EnumSet<Flag> realFeatures(){
+        return EnumSet.complementOf(EnumSet.of(TEST_FEATURE, PAYMENTS_TEST));
     }
 
 }
