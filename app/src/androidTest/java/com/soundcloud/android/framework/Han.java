@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -235,6 +236,16 @@ public class Han  {
 
     public void scrollToBottom() {
         solo.scrollToBottom();
+    }
+
+    public void scrollToPosition(final RecyclerView recyclerView, final int position) {
+        instrumentation.runOnMainSync(
+                new Runnable() {
+                    public void run() {
+                        recyclerView.scrollToPosition(position);
+                    }
+                }
+        );
     }
 
     public boolean searchText(String text, boolean onlyVisible) {
