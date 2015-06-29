@@ -106,7 +106,7 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
 
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
+  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
 }
 
 task slog(type: Exec) {
@@ -145,6 +145,14 @@ task assembleAcceptanceTest(dependsOn: ["assemble${project.buildType.capitalize(
 // UNIT TESTS
 // *********************************************************************************************************************
 
-task runUnitTests(dependsOn: [':app:testDebug', ':tests-robolectric:test']) {
-  description = 'Run robolectric unit tests.'
+task runLegacyUnitTests(dependsOn: ':tests-robolectric:test') {
+  description = 'Run legacy unit test suite based on Robolectric 1'
+}
+
+task runAppUnitTests(dependsOn: [':app:cleanTestDebug', ':app:testDebug']) {
+  description = 'Run new unit test suite based on Robolectric 3'
+}
+
+task runUnitTests(dependsOn: ['runAppUnitTests', 'runLegacyUnitTests']) {
+  description = 'Run all unit tests'
 }

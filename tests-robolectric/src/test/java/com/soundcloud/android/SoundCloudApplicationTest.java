@@ -3,8 +3,8 @@ package com.soundcloud.android;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -16,7 +16,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.io.File;
 
 
 @RunWith(SoundCloudTestRunner.class)
@@ -31,7 +30,7 @@ public class SoundCloudApplicationTest {
     public void shouldOnlyHaveOneLauncherActivity() throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
-        Document doc = f.newDocumentBuilder().parse(new File("app/AndroidManifest.xml"));
+        Document doc = f.newDocumentBuilder().parse(SoundCloudTestRunner.MANIFEST);
         NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//activity/intent-filter/category").evaluate(doc, XPathConstants.NODESET);
         int launchers = 0;
         for (int i = 0; i < nl.getLength(); i++) {
@@ -51,7 +50,7 @@ public class SoundCloudApplicationTest {
     public void shouldHaveOpenGLEnabled() throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
-        Document doc = f.newDocumentBuilder().parse(new File("app/AndroidManifest.xml"));
+        Document doc = f.newDocumentBuilder().parse(SoundCloudTestRunner.MANIFEST);
         NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//application").evaluate(doc, XPathConstants.NODESET);
         expect(nl.getLength()).toEqual(1);
         Node app = nl.item(0);
