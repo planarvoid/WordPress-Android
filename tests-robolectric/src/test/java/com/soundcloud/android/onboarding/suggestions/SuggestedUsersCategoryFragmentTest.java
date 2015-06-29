@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -26,6 +25,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.GridView;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -58,8 +58,8 @@ public class SuggestedUsersCategoryFragmentTest {
         fragment.setArguments(args);
         fragment.onCreate(null);
 
-        final HashSet<Long> followingSet = Sets.newHashSet(suggestedUsers.get(0).getId(), suggestedUsers.get(2).getId());
-        when(followingOperations.getFollowedUserIds()).thenReturn(followingSet);
+        final List<Long> followings = Arrays.asList(suggestedUsers.get(0).getId(), suggestedUsers.get(2).getId());
+        when(followingOperations.getFollowedUserIds()).thenReturn(new HashSet<>(followings));
         fragment.onViewCreated(fragmentView, null);
     }
 
