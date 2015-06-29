@@ -106,7 +106,7 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
 
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
+  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
 }
 
 task slog(type: Exec) {
