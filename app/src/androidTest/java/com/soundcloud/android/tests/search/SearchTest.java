@@ -153,14 +153,15 @@ public class SearchTest extends ActivityTest<SearchActivity> {
     public void testShouldFollowUser() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("andtestpl");
 
-        UserItemElement user = resultsScreen.touchPeopleTab().getFirstUser();
+        UserItemElement user = resultsScreen.touchAllTab().getFirstUser();
+        final String username = user.getUsername();
         boolean wasFollowing = user.isFollowing();
 
         user.toggleFollow();
         assertThat("Should change following state",
                 wasFollowing, is(not(equalTo(user.isFollowing()))));
 
-        user = resultsScreen.touchAllTab().getFirstUser();
+        user = resultsScreen.touchPeopleTab().scrollToUserWithUsername(username);
         assertThat("Should keep changed following state when switching tabs",
                 wasFollowing, is(not(equalTo(user.isFollowing()))));
     }

@@ -115,6 +115,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public UserItemElement getFirstUser() {
+        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
         return getUsers().get(0);
     }
 

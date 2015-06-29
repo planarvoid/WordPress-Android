@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
@@ -93,7 +94,22 @@ public abstract class Screen {
         );
     }
 
-    private ViewElement scrollListToItem(With with) {
+    public UserItemElement scrollToUserWithUsername(String username) {
+        int tries = 0;
+        while (tries < 10) {
+            scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
+            for (UserItemElement user : getUsers()) {
+                if (user.getUsername().equals(username)) {
+                    return user;
+                }
+            }
+            testDriver.scrollToBottom();
+            tries++;
+        }
+        throw new ViewNotFoundException("Unable to find user with username " + username);
+    }
+
+    protected ViewElement scrollListToItem(With with) {
         ViewElement result = testDriver.findElement(with);
         while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
             if (!testDriver.scrollDown()) {
