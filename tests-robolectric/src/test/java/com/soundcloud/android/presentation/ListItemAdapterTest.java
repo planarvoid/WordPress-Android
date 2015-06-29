@@ -106,8 +106,8 @@ public class ListItemAdapterTest {
     @Test
     public void shouldCreateItemViewForTwoDifferentViewTypes() {
         FrameLayout parent = mock(FrameLayout.class);
-        CellRenderer presenterOne = mock(CellRenderer.class);
-        CellRenderer presenterTwo = mock(CellRenderer.class);
+        CellRenderer<String> presenterOne = mock(CellRenderer.class);
+        CellRenderer<String> presenterTwo = mock(CellRenderer.class);
         adapter = new ListItemAdapter<String>(
                 new CellRendererBinding<>(0, presenterOne),
                 new CellRendererBinding<>(1, presenterTwo)) {
