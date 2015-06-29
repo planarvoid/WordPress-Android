@@ -62,7 +62,7 @@ public class TrackLikesScreen extends Screen {
 
     public int getLoadedTrackCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return likesList().getItemCount() - 1; // header
+        return likesList().getItemCount();
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
