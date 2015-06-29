@@ -7,6 +7,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIK
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UrnIteratorEvent;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
@@ -46,16 +47,24 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
+    private final Func1<SyncResult, Boolean> IS_PLAYLIST_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
-        public Boolean call(Object ignored) {
+        public Boolean call(SyncResult syncResult) {
+            return syncResult.getAction().equals(SyncActions.SYNC_PLAYLIST)
+                    && syncResult.wasChanged() && syncResult.hasChangedEntities();
+        }
+    };
+
+    private final Func1<UrnIteratorEvent, Boolean> isOfflineLikesEnabled = new Func1<UrnIteratorEvent, Boolean>() {
+        @Override
+        public Boolean call(UrnIteratorEvent ignored) {
             return settingStorage.isOfflineLikedTracksEnabled();
         }
     };
 
-    private final Func1<EntityStateChangedEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<EntityStateChangedEvent, Observable<Boolean>>() {
+    private final Func1<UrnIteratorEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<UrnIteratorEvent, Observable<Boolean>>() {
         @Override
-        public Observable<Boolean> call(EntityStateChangedEvent event) {
+        public Observable<Boolean> call(UrnIteratorEvent event) {
             return playlistStorage.isOfflinePlaylist(event.getNextUrn()).subscribeOn(scheduler);
         }
     };
@@ -103,9 +112,17 @@ public class OfflineContentController {
 
     private Observable<Object> getOfflinePlaylistChangedEvents() {
         return Observable.merge(
+                offlinePlaylistSynced(),
                 offlinePlaylistStatusChanged(),
                 offlinePlaylistContentChanged()
         );
+    }
+
+    private Observable<Boolean> offlinePlaylistSynced() {
+        return eventBus.queue(EventQueue.SYNC_RESULT)
+                .filter(IS_PLAYLIST_SYNCED_FILTER)
+                .flatMap(isOfflinePlaylist)
+                .filter(RxUtils.IS_TRUE);
     }
 
     private Observable<PlaylistWithTracks> offlinePlaylistStatusChanged() {
@@ -122,7 +139,7 @@ public class OfflineContentController {
                 .filter(RxUtils.IS_TRUE);
     }
 
-    private Observable<Object> getOfflineLikesChangedEvents() {
+    private Observable<UrnIteratorEvent> getOfflineLikesChangedEvents() {
         return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKE_EVENT_FILTER),
                 eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER)

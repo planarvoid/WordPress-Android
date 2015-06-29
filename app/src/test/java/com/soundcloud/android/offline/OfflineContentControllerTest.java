@@ -177,6 +177,36 @@ public class OfflineContentControllerTest extends PlatformUnitTest {
         verify(playlistOperations).playlist(PLAYLIST);
     }
 
+    @Test
+    public void startOfflineSyncWhenPlaylistMarkedAsOfflineSyncedAndChanged() {
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+
+        assertThat(wasServiceStarted()).isTrue();
+    }
+
+    @Test
+    public void doesNotStartOfflineSyncWhenPlaylistMarkedAsOfflineSyncedButNoChanged() {
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, false, PLAYLIST));
+
+        verify(context, never()).startService(any(Intent.class));
+    }
+
+    @Test
+    public void doesNotStartOfflineSyncOnSyncResultEventForPlaylistNotMarkedAsOffline() {
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+
+        verify(context, never()).startService(any(Intent.class));
+    }
+
     private Intent captureStartServiceIntent() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).startService(captor.capture());

@@ -6,6 +6,7 @@ import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
+import com.soundcloud.android.sync.playlists.SinglePlaylistJobRequest;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import dagger.Lazy;
 
@@ -54,9 +55,9 @@ class SyncRequestFactory {
             return entitySyncRequestFactory.create(intent, getReceiverFromIntent(intent));
 
         } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
-            Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
-            return new SingleJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
-                    intent.getAction(), true, getReceiverFromIntent(intent), eventBus);
+            final Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
+            return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
+                    intent.getAction(), true, getReceiverFromIntent(intent), eventBus, playlistUrn);
         }
 
         return syncIntentFactory.create(intent);

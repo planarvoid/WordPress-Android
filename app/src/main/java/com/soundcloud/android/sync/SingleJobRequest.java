@@ -14,11 +14,11 @@ public class SingleJobRequest implements SyncRequest {
 
     private final DefaultSyncJob syncJob;
     private final boolean isHighPriority;
-    private final String action;
     private final ResultReceiver resultReceiver;
     private final EventBus eventBus;
 
-    private SyncResult resultEvent;
+    protected final String action;
+    protected SyncResult resultEvent;
 
     public SingleJobRequest(DefaultSyncJob syncJob, String action, boolean isHighPriority, ResultReceiver resultReceiver, EventBus eventBus) {
         this.syncJob = syncJob;

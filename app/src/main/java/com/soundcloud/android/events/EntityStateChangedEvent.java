@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public final class EntityStateChangedEvent {
+public final class EntityStateChangedEvent implements UrnIteratorEvent {
 
     public static final int ENTITY_SYNCED = 0;
     public static final int LIKE = 2;
@@ -177,10 +177,6 @@ public final class EntityStateChangedEvent {
         return changeMap;
     }
 
-    /**
-     * @return for a single change event, this returns the single URN; if more than one entity changed,
-     * returns the first available URN.
-     */
     public Urn getNextUrn() {
         return changeMap.keySet().iterator().next();
     }
