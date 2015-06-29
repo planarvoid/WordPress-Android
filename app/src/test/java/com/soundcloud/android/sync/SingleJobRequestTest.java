@@ -1,18 +1,16 @@
-package com.soundcloud.android.sync.likes;
+package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.sync.*;
-import junit.framework.TestCase;
+import com.soundcloud.android.sync.likes.DefaultSyncJob;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -21,12 +19,11 @@ import android.os.ResultReceiver;
 
 import java.util.Collection;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SingleJobRequestTest extends TestCase {
+public class SingleJobRequestTest extends PlatformUnitTest {
 
     private final String ACTION = "action";
 
-    private com.soundcloud.android.sync.SingleJobRequest singleJobRequest;
+    private SingleJobRequest singleJobRequest;
 
     @Mock private DefaultSyncJob syncJob;
     @Mock private ResultReceiver resultReceiver;
@@ -35,41 +32,41 @@ public class SingleJobRequestTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        singleJobRequest = new com.soundcloud.android.sync.SingleJobRequest(syncJob, ACTION, true, resultReceiver, eventBus);
+        singleJobRequest = new SingleJobRequest(syncJob, ACTION, true, resultReceiver, eventBus);
     }
 
     @Test
     public void isHighPriorityReturnsValueFromConstructor() throws Exception {
-        expect(singleJobRequest.isHighPriority()).toBeTrue();
+        assertThat(singleJobRequest.isHighPriority()).isTrue();
     }
 
     @Test
     public void getPendingSyncItemShouldReturnSyncJobWhenNotExecuted() throws Exception {
         Collection<? extends SyncJob> jobs = singleJobRequest.getPendingJobs();
-        expect(jobs.contains(syncJob)).toBeTrue();
-        expect(jobs).toNumber(1);
+        assertThat(jobs.contains(syncJob)).isTrue();
+        assertThat(jobs).hasSize(1);
     }
 
     @Test
     public void waitingForSyncItemTrueForSyncJob() throws Exception {
-        expect(singleJobRequest.isWaitingForJob(syncJob)).toBeTrue();
+        assertThat(singleJobRequest.isWaitingForJob(syncJob)).isTrue();
     }
 
     @Test
     public void waitingForSyncItemFalseAfterProcessingSyncJob() throws Exception {
         singleJobRequest.processJobResult(syncJob);
-        expect(singleJobRequest.isWaitingForJob(syncJob)).toBeFalse();
+        assertThat(singleJobRequest.isWaitingForJob(syncJob)).isFalse();
     }
 
     @Test
     public void isSatisfiedIsFalseBeforeProcessingSyncJob() throws Exception {
-        expect(singleJobRequest.isSatisfied()).toBeFalse();
+        assertThat(singleJobRequest.isSatisfied()).isFalse();
     }
 
     @Test
     public void isSatisfiedIsTrueAfterProcessingSyncJob() throws Exception {
         singleJobRequest.processJobResult(syncJob);
-        expect(singleJobRequest.isSatisfied()).toBeTrue();
+        assertThat(singleJobRequest.isSatisfied()).isTrue();
     }
 
     @Test
@@ -80,8 +77,8 @@ public class SingleJobRequestTest extends TestCase {
         singleJobRequest.finish();
 
         final SyncResult syncResult = getSyncResult();
-        expect(syncResult.wasSuccess()).toBeTrue();
-        expect(syncResult.wasChanged()).toBeTrue();
+        assertThat(syncResult.wasSuccess()).isTrue();
+        assertThat(syncResult.wasChanged()).isTrue();
     }
 
     @Test
@@ -91,16 +88,16 @@ public class SingleJobRequestTest extends TestCase {
         singleJobRequest.finish();
 
         final SyncResult syncResult = getSyncResult();
-        expect(syncResult.wasSuccess()).toBeTrue();
-        expect(syncResult.wasChanged()).toBeFalse();
+        assertThat(syncResult.wasSuccess()).isTrue();
+        assertThat(syncResult.wasChanged()).isFalse();
     }
 
     @Test
-    public void finishSendsSuccessUnhangedResultOnEventBus() throws Exception {
+    public void finishSendsSuccessUnchangedResultOnEventBus() throws Exception {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        expect(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).toEqual(SyncResult.success(ACTION, false));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.success(ACTION, false));
     }
 
     @Test
@@ -110,7 +107,7 @@ public class SingleJobRequestTest extends TestCase {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        expect(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).toEqual(SyncResult.success(ACTION, true));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.success(ACTION, true));
     }
 
     @Test
@@ -121,7 +118,7 @@ public class SingleJobRequestTest extends TestCase {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        expect(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).toEqual(SyncResult.failure(ACTION, exception));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.failure(ACTION, exception));
     }
 
     private SyncResult getSyncResult() {
