@@ -92,6 +92,8 @@ public final class CollectionUtils {
      *
      * <p>Note that this will modify the supplied iterators, since they will have
      * been advanced some number of elements forward.
+     * <p>
+     * Based on https://github.com/google/guava/blob/master/guava/src/com/google/common/collect/Iterables.java
      */
     public static boolean elementsEqual(
             Iterator<?> iterator1, Iterator<?> iterator2) {
@@ -114,6 +116,8 @@ public final class CollectionUtils {
      * and {@code iterable2} contain the same number of elements and every element
      * of {@code iterable1} is equal to the corresponding element of
      * {@code iterable2}.
+     * <p>
+     * Based on https://github.com/google/guava/blob/master/guava/src/com/google/common/collect/Iterables.java
      */
     public static boolean elementsEqual(
             Iterable<?> iterable1, Iterable<?> iterable2) {
