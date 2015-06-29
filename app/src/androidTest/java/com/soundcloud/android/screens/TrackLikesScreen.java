@@ -66,7 +66,7 @@ public class TrackLikesScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        likesList().scrollToBottom();
+        likesList().scrollToBottomOfPage();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

@@ -36,7 +36,7 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
     public void testStreamLoadsNextPage() {
         streamScreen = new StreamScreen(solo);
         int itemsBeforePaging = streamScreen.getItemCount();
-        streamScreen.scrollToNextPage();
+        streamScreen.scrollToBottomOfPage();
         assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
     }
 }

@@ -40,13 +40,8 @@ public class StreamScreen extends Screen {
         return streamList().getBoundItemCount();
     }
 
-    public StreamScreen scrollToBottom() {
-        streamList().scrollToBottom();
-        return this;
-    }
-
-    public StreamScreen scrollToNextPage() {
-        streamList().scrollToNextPage();
+    public StreamScreen scrollToBottomOfPage() {
+        streamList().scrollToBottomOfPage();
         return this;
     }
 
@@ -112,7 +107,7 @@ public class StreamScreen extends Screen {
         ViewElement result = testDriver.findElement(with);
         while (result instanceof EmptyViewElement) {
             tries++;
-            streamList().scrollToBottom();
+            streamList().scrollDown();
             if (tries > 10) {
                 return new EmptyViewElement("Unable to scroll to item; item not in list");
             }

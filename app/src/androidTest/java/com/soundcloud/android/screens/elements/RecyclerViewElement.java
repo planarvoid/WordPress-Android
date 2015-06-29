@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.Han;
 
 import android.support.v7.widget.RecyclerView;
@@ -26,16 +25,15 @@ public class RecyclerViewElement {
         return getLayoutManager().getChildCount();
     }
 
-    public void scrollToBottom() {
-        testDriver.scrollToBottom();
+    public RecyclerViewElement scrollDown() {
+        // scrolls partially down the screen, usually about 5 items
+        testDriver.scrollDown();
+        return this;
     }
 
-    public void scrollToNextPage() {
-        int numberOfScreensBeforePagingOccurs = Consts.LIST_PAGE_SIZE/getBoundItemCount();
-        // since we start on the first page
-        for (int i=1; i<numberOfScreensBeforePagingOccurs; i++) {
-            testDriver.scrollToBottom();
-        }
+    public RecyclerViewElement scrollToBottomOfPage() {
+        testDriver.scrollToPosition(recyclerView, getItemCount()-1);
+        return this;
     }
 
     private RecyclerView.Adapter getAdapter() {
