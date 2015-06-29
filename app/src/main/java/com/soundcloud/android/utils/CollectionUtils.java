@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
@@ -12,6 +13,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 // Move this to core-utils once that module is fully integrated
@@ -79,6 +81,50 @@ public final class CollectionUtils {
             idStrings.add(String.valueOf(urn.getNumericId()));
         }
         return Joiner.on(delimiter).join(idStrings);
+    }
+
+    /**
+     * Determines whether two iterators contain equal elements in the same order.
+     * More specifically, this method returns {@code true} if {@code iterator1}
+     * and {@code iterator2} contain the same number of elements and every element
+     * of {@code iterator1} is equal to the corresponding element of
+     * {@code iterator2}.
+     *
+     * <p>Note that this will modify the supplied iterators, since they will have
+     * been advanced some number of elements forward.
+     */
+    public static boolean elementsEqual(
+            Iterator<?> iterator1, Iterator<?> iterator2) {
+        while (iterator1.hasNext()) {
+            if (!iterator2.hasNext()) {
+                return false;
+            }
+            Object o1 = iterator1.next();
+            Object o2 = iterator2.next();
+            if (!Objects.equal(o1, o2)) {
+                return false;
+            }
+        }
+        return !iterator2.hasNext();
+    }
+
+    /**
+     * Determines whether two iterables contain equal elements in the same order.
+     * More specifically, this method returns {@code true} if {@code iterable1}
+     * and {@code iterable2} contain the same number of elements and every element
+     * of {@code iterable1} is equal to the corresponding element of
+     * {@code iterable2}.
+     */
+    public static boolean elementsEqual(
+            Iterable<?> iterable1, Iterable<?> iterable2) {
+        if (iterable1 instanceof Collection && iterable2 instanceof Collection) {
+            Collection<?> collection1 = (Collection<?>) iterable1;
+            Collection<?> collection2 = (Collection<?>) iterable2;
+            if (collection1.size() != collection2.size()) {
+                return false;
+            }
+        }
+        return elementsEqual(iterable1.iterator(), iterable2.iterator());
     }
 
     private CollectionUtils() {
