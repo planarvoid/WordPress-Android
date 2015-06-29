@@ -18,10 +18,8 @@ dependencies {
   def androidModule = project(androidProject)
   def debugVariant = androidModule.android.applicationVariants.find({it.name == 'debug'})
   def testingLibraries = rootProject.ext.unitTestLibraries
-  def appLibraries = rootProject.ext.libraries
 
   compile testingLibraries.daggerCompiler
-  compile testingLibraries.guava
   compile androidModule.configurations.testSupport.artifacts.files
 
   testCompile "com.pivotallabs:robolectric:1.2_sdk_21_fix"
@@ -40,11 +38,6 @@ dependencies {
   testCompile debugVariant.javaCompile.classpath
   testCompile debugVariant.javaCompile.outputs.files
   testCompile files(androidModule.android.bootClasspath)
-
-  //Since we are using a repack of guava, and for testing
-  //scope we need the full library, this dependency must be
-  //removed from the class path to avoid conflicts
-  removableDependency appLibraries.guavaRepack
 }
 
 sourceSets {

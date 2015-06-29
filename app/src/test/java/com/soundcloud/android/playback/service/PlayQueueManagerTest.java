@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -973,12 +972,11 @@ public class PlayQueueManagerTest extends PlatformUnitTest {
     private void expectBroadcastPlayQueueUpdate() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context, atLeastOnce()).sendBroadcast(captor.capture());
-        assertThat(Iterables.find(captor.getAllValues(), new Predicate<Intent>() {
-            @Override
-            public boolean apply(@Nullable Intent input) {
-                return input.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
-            }
-        })).isNotNull();
+        boolean loadStateChangedFired = false;
+        for (Intent intent : captor.getAllValues()) {
+            loadStateChangedFired = intent.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
+        }
+        assertThat(loadStateChangedFired).isTrue();
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {

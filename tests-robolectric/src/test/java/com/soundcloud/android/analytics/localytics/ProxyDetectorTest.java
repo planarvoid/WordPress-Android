@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics.localytics;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,8 @@ import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ProxyDetectorTest {
@@ -31,35 +32,35 @@ public class ProxyDetectorTest {
 
     @Test
     public void noProxyIsNotAProxy() {
-        when(proxySelector.select(URI)).thenReturn(ImmutableList.of(Proxy.NO_PROXY));
+        when(proxySelector.select(URI)).thenReturn(Arrays.asList(Proxy.NO_PROXY));
 
         expect(proxyDetector.isProxyConfiguredFor(URI)).toBeFalse();
     }
 
     @Test
     public void someProxyIsAProxy() {
-        when(proxySelector.select(URI)).thenReturn(ImmutableList.of(A_PROXY));
+        when(proxySelector.select(URI)).thenReturn(Arrays.asList(A_PROXY));
 
         expect(proxyDetector.isProxyConfiguredFor(URI)).toBeTrue();
     }
 
     @Test
     public void mixedListIsAProxy() {
-        when(proxySelector.select(URI)).thenReturn(ImmutableList.of(A_PROXY, Proxy.NO_PROXY));
+        when(proxySelector.select(URI)).thenReturn(Arrays.asList(A_PROXY, Proxy.NO_PROXY));
 
         expect(proxyDetector.isProxyConfiguredFor(URI)).toBeTrue();
     }
 
     @Test
     public void noListIsNotAProxy() {
-        when(proxySelector.select(URI)).thenReturn(ImmutableList.<Proxy>of());
+        when(proxySelector.select(URI)).thenReturn(Collections.<Proxy>emptyList());
 
         expect(proxyDetector.isProxyConfiguredFor(URI)).toBeFalse();
     }
 
     @Test
     public void multipleNoProxiesAreStillNotAProxy() {
-        when(proxySelector.select(URI)).thenReturn(ImmutableList.of(Proxy.NO_PROXY, Proxy.NO_PROXY, Proxy.NO_PROXY));
+        when(proxySelector.select(URI)).thenReturn(Arrays.asList(Proxy.NO_PROXY, Proxy.NO_PROXY, Proxy.NO_PROXY));
 
         expect(proxyDetector.isProxyConfiguredFor(URI)).toBeFalse();
     }

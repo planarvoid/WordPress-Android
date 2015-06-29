@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -23,6 +22,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -186,7 +186,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldGetCorrectUserlistForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = ModelFixtures.create(SuggestedUser.class);
-        when(followingOperations.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
+        when(followingOperations.getFollowedUserIds()).thenReturn(Collections.singleton(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);
@@ -197,7 +197,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldCheckFollowButtonIfAtLeastOneUserIsFollowed() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = ModelFixtures.create(SuggestedUser.class);
-        when(followingOperations.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
+        when(followingOperations.getFollowedUserIds()).thenReturn(Collections.singleton(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);

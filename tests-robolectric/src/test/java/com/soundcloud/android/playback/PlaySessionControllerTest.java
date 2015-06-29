@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -38,6 +39,8 @@ import rx.Observable;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionControllerTest {
@@ -189,7 +192,8 @@ public class PlaySessionControllerTest {
     public void onStateTransitionPublishesPlayQueueCompleteEventAfterFailingToAdvancePlayQueue() throws Exception {
         when(playQueueManager.autoNextTrack()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
-        expect(eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED, new Predicate<Playa.StateTransition>() {
+        final List<Playa.StateTransition> stateTransitionEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        expect(Iterables.filter(stateTransitionEvents, new Predicate<Playa.StateTransition>() {
             @Override
             public boolean apply(Playa.StateTransition event) {
                 return event.getNewState() == Playa.PlayaState.IDLE && event.getReason() == Playa.Reason.PLAY_QUEUE_COMPLETE;
