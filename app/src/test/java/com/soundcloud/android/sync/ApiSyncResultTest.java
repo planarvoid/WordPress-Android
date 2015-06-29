@@ -1,12 +1,11 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
@@ -14,8 +13,7 @@ import android.net.Uri;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ApiSyncResultTest {
+public class ApiSyncResultTest extends PlatformUnitTest {
 
     private static final Uri URI = Uri.parse("some/uri");
     @Mock private Random random;
@@ -23,61 +21,61 @@ public class ApiSyncResultTest {
     @Test
     public void fromSuccessfulChangeIsSuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessfulChange(URI);
-        expect(apiSyncResult.success).toBeTrue();
+        assertThat(apiSyncResult.success).isTrue();
     }
 
     @Test
     public void fromSuccessfulChangeIsChanged() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessfulChange(URI);
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.CHANGED);
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
     }
 
     @Test
     public void fromSuccessfulChangeHasTimestamp() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessfulChange(URI);
-        expect(apiSyncResult.synced_at).toBeGreaterThan(0L);
+        assertThat(apiSyncResult.synced_at).isGreaterThan(0L);
     }
 
     @Test
     public void fromSuccessWithoutChangeIsSuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessWithoutChange(URI);
-        expect(apiSyncResult.success).toBeTrue();
+        assertThat(apiSyncResult.success).isTrue();
     }
 
     @Test
     public void fromSuccessWithoutChangeIsUnchanged() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessWithoutChange(URI);
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.UNCHANGED);
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
     }
 
     @Test
     public void fromSuccessWithoutHasTimestamp() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromSuccessWithoutChange(URI);
-        expect(apiSyncResult.synced_at).toBeGreaterThan(0L);
+        assertThat(apiSyncResult.synced_at).isGreaterThan(0L);
     }
 
     @Test
     public void fromAuthExceptionIsUnsuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromAuthException(URI);
-        expect(apiSyncResult.success).toBeFalse();
+        assertThat(apiSyncResult.success).isFalse();
     }
 
     @Test
     public void fromAuthExceptionIncreasesAuthExceptionCounter() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromAuthException(URI);
-        expect(apiSyncResult.syncResult.stats.numAuthExceptions).toEqual(1L);
+        assertThat(apiSyncResult.syncResult.stats.numAuthExceptions).isEqualTo(1L);
     }
 
     @Test
     public void fromIOExceptionIsUnsuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromIOException(URI);
-        expect(apiSyncResult.success).toBeFalse();
+        assertThat(apiSyncResult.success).isFalse();
     }
 
     @Test
     public void fromIOExceptionIncreasesAuthExceptionCounter() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromIOException(URI);
-        expect(apiSyncResult.syncResult.stats.numIoExceptions).toEqual(1L);
+        assertThat(apiSyncResult.syncResult.stats.numIoExceptions).isEqualTo(1L);
     }
 
     @Test
@@ -88,7 +86,7 @@ public class ApiSyncResultTest {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
 
         final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY + ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE;
-        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
     }
 
     @Test
@@ -99,20 +97,20 @@ public class ApiSyncResultTest {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
 
         final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY;
-        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
     }
 
     @Test
     public void fromUnexpectedResponseCodesDoesNotAddDelayTimeFor4XX() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404, random);
         verifyZeroInteractions(random);
-        expect(apiSyncResult.syncResult.delayUntil).toEqual(0L);
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(0L);
     }
 
     @Test
     public void fromGeneralFailureIsUnsuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
-        expect(apiSyncResult.success).toBeFalse();
+        assertThat(apiSyncResult.success).isFalse();
     }
 
     @Test
@@ -122,7 +120,7 @@ public class ApiSyncResultTest {
 
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
 
-        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY));
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY));
     }
 
     @Test
@@ -133,6 +131,6 @@ public class ApiSyncResultTest {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
 
         long expectedTimeInSeconds = ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY + ApiSyncResult.GENERAL_ERROR_DELAY_RANGE;
-        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedTimeInSeconds));
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(expectedTimeInSeconds));
     }
 }
