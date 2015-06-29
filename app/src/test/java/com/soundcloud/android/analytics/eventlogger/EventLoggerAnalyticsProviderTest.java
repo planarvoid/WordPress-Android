@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -25,15 +26,14 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -41,8 +41,7 @@ import android.content.SharedPreferences;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class EventLoggerAnalyticsProviderTest {
+public class EventLoggerAnalyticsProviderTest extends PlatformUnitTest {
 
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
@@ -76,12 +75,12 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
-        expect(allValues.size()).toEqual(2);
+        assertThat(allValues).hasSize(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(12345L);
-        expect(adEvent.getData()).toEqual("adUrl");
+        assertThat(adEvent.getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(adEvent.getTimeStamp()).isEqualTo(12345L);
+        assertThat(adEvent.getData()).isEqualTo("adUrl");
     }
 
     @Test
@@ -97,12 +96,12 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
-        expect(allValues.size()).toEqual(2);
+        assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(adEvent.getData()).toEqual("clickUrl");
+        assertThat(adEvent.getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(adEvent.getData()).isEqualTo("clickUrl");
     }
 
     @Test
@@ -114,9 +113,9 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
-        expect(captor.getValue().getData()).toEqual("url");
+        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 
     @Test
@@ -129,9 +128,9 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(captor.getValue().getData()).toEqual("url");
+        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimeStamp());
+        assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 
     @Test
@@ -143,9 +142,9 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
-        expect(captor.getValue().getData()).toEqual("url");
+        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 
     @Test
@@ -160,13 +159,13 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
-        expect(captor.getAllValues()).toNumber(2);
-        expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimestamp());
-        expect(captor.getAllValues().get(0).getData()).toEqual("url1");
-        expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimestamp());
-        expect(captor.getAllValues().get(1).getData()).toEqual("url2");
+        assertThat(captor.getAllValues()).hasSize(2);
+        assertThat(captor.getAllValues().get(0).getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getAllValues().get(0).getTimeStamp()).isEqualTo(event1.getTimestamp());
+        assertThat(captor.getAllValues().get(0).getData()).isEqualTo("url1");
+        assertThat(captor.getAllValues().get(1).getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getAllValues().get(1).getTimeStamp()).isEqualTo(event2.getTimestamp());
+        assertThat(captor.getAllValues().get(1).getData()).isEqualTo("url2");
     }
 
     @Test
@@ -178,7 +177,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getData()).toEqual("ForAudioAdImpression");
+        assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdImpression");
     }
 
     @Test
@@ -190,7 +189,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getData()).toEqual("ForAudioAdClick");
+        assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdClick");
     }
 
     @Test
@@ -203,7 +202,19 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getData()).toEqual("ForPromotedEvent");
+        assertThat(captor.getValue().getData()).isEqualTo("ForPromotedEvent");
+    }
+
+    @Test
+    public void shouldTrackMidTierTrackEvent() {
+        MidTierTrackEvent event = MidTierTrackEvent.forImpression(Urn.forTrack(123));
+        when(dataBuilder.build(event)).thenReturn("ForMidTierTrackEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForMidTierTrackEvent");
     }
 
     @Test
@@ -224,31 +235,31 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getData()).toEqual("ForScreenEvent");
+        assertThat(captor.getValue().getData()).isEqualTo("ForScreenEvent");
     }
 
     @Test
     public void shouldTrackSearchSuggestionSearchEvents() {
         SearchEvent event = SearchEvent.searchSuggestion(Content.SEARCH, false, searchQuerySourceInfo);
-        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
     }
 
     @Test
     public void shouldTrackTapTrackOnScreenSearchEvents() {
         SearchEvent event = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
     }
 
     @Test
     public void shouldTrackTapUserOnScreenSearchEvents() {
         SearchEvent event = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
     }
 
     @Test
     public void shouldTrackSearchStartSearchEvents() {
         SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
-        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+        assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
     }
 
     @Test

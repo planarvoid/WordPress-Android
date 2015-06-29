@@ -7,6 +7,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -75,6 +76,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleForegroundEvent((ForegroundEvent) event);
         } else if (event instanceof PromotedTrackEvent) {
             handlePromotedEvent((PromotedTrackEvent) event);
+        } else if (event instanceof MidTierTrackEvent) {
+            handleMidTierTrackEvent((MidTierTrackEvent) event);
         }
     }
 
@@ -114,6 +117,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             }
         }
         trackAudioPlayEvent(event);
+    }
+
+    private void handleMidTierTrackEvent(MidTierTrackEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilder.build(event));
     }
 
     private void handleUIEvent(UIEvent event) {
