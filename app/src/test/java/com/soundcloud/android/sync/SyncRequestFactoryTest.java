@@ -1,25 +1,23 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Intent;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SyncRequestFactoryTest {
+public class SyncRequestFactoryTest extends PlatformUnitTest {
 
     private SyncRequestFactory syncRequestFactory;
 
@@ -40,15 +38,13 @@ public class SyncRequestFactoryTest {
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES));
-        Expect.expect(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).toBeTrue();
-        Expect.expect(syncRequest.getPendingJobs()).toNumber(1);
+        assertThat(syncRequest.getPendingJobs()).containsExactly(syncTrackLikesJob);
     }
 
     @Test
     public void returnsSingleRequestJobWithPlaylistLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_PLAYLIST_LIKES));
-        Expect.expect(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).toBeTrue();
-        Expect.expect(syncRequest.getPendingJobs()).toNumber(1);
+        assertThat(syncRequest.getPendingJobs()).containsExactly(syncPlaylistLikesJob);
     }
 
     @Test
