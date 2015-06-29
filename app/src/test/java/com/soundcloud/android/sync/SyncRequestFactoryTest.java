@@ -38,13 +38,15 @@ public class SyncRequestFactoryTest extends PlatformUnitTest {
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES));
-        assertThat(syncRequest.getPendingJobs()).containsExactly(syncTrackLikesJob);
+        assertThat(syncRequest.getPendingJobs()).hasSize(1);
+        assertThat(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).isTrue();
     }
 
     @Test
     public void returnsSingleRequestJobWithPlaylistLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_PLAYLIST_LIKES));
-        assertThat(syncRequest.getPendingJobs()).containsExactly(syncPlaylistLikesJob);
+        assertThat(syncRequest.getPendingJobs()).hasSize(1);
+        assertThat(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).isTrue();
     }
 
     @Test
