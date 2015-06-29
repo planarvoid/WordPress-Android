@@ -40,15 +40,15 @@ public class SyncRequestFactoryTest {
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES));
-        expect(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).toBeTrue();
-        expect(syncRequest.getPendingJobs()).toNumber(1);
+        Expect.expect(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).toBeTrue();
+        Expect.expect(syncRequest.getPendingJobs()).toNumber(1);
     }
 
     @Test
     public void returnsSingleRequestJobWithPlaylistLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_PLAYLIST_LIKES));
-        expect(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).toBeTrue();
-        expect(syncRequest.getPendingJobs()).toNumber(1);
+        Expect.expect(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).toBeTrue();
+        Expect.expect(syncRequest.getPendingJobs()).toNumber(1);
     }
 
     @Test
