@@ -73,10 +73,6 @@ tasks.withType(Test) {
 
   scanForTestClasses = false
 
-  //This has to be done like this because, for some reason,
-  //the IDE and command line are having different working directories.
-  workingDir = new File('../')
-
   include '**/*Should.class'
   include '**/*Test.class'
   include '**/*Tests.class'
