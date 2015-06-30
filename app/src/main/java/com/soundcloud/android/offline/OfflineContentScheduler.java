@@ -24,10 +24,10 @@ public class OfflineContentScheduler {
     private final ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver;
     private final DownloadOperations downloadOperations;
 
-
     @Inject
     public OfflineContentScheduler(Context context, AlarmManager alarmManager,
-                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver, DownloadOperations downloadOperations) {
+                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
+                                   DownloadOperations downloadOperations) {
         this.context = context;
         this.alarmManager = alarmManager;
         this.resumeOnConnectedReceiver = resumeOnConnectedReceiver;
