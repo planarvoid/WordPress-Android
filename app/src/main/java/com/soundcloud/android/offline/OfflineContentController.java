@@ -7,7 +7,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIK
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UrnIteratorEvent;
+import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
@@ -56,17 +56,17 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<UrnIteratorEvent, Boolean> isOfflineLikesEnabled = new Func1<UrnIteratorEvent, Boolean>() {
+    private final Func1<UrnEvent, Boolean> isOfflineLikesEnabled = new Func1<UrnEvent, Boolean>() {
         @Override
-        public Boolean call(UrnIteratorEvent ignored) {
+        public Boolean call(UrnEvent ignored) {
             return settingStorage.isOfflineLikedTracksEnabled();
         }
     };
 
-    private final Func1<UrnIteratorEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<UrnIteratorEvent, Observable<Boolean>>() {
+    private final Func1<UrnEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<UrnEvent, Observable<Boolean>>() {
         @Override
-        public Observable<Boolean> call(UrnIteratorEvent event) {
-            return playlistStorage.isOfflinePlaylist(event.getNextUrn()).subscribeOn(scheduler);
+        public Observable<Boolean> call(UrnEvent event) {
+            return playlistStorage.isOfflinePlaylist(event.getFirstUrn()).subscribeOn(scheduler);
         }
     };
 
@@ -140,7 +140,7 @@ public class OfflineContentController {
                 .filter(RxUtils.IS_TRUE);
     }
 
-    private Observable<UrnIteratorEvent> getOfflineLikesChangedEvents() {
+    private Observable<UrnEvent> getOfflineLikesChangedEvents() {
         return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKE_EVENT_FILTER),
                 eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER)

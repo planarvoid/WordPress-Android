@@ -78,7 +78,7 @@ public class LikeOperationsTest {
         operations.toggleLike(targetUrn, true).subscribe(observer);
 
         EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getNextUrn()).toEqual(targetUrn);
+        expect(event.getFirstUrn()).toEqual(targetUrn);
         expect(event.getNextChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
         expect(event.getNextChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }

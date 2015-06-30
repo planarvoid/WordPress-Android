@@ -204,7 +204,7 @@ public class PlaylistOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_ADDED_TO_PLAYLIST);
-        expect(event.getNextUrn()).toEqual(playlist.getUrn());
+        expect(event.getFirstUrn()).toEqual(playlist.getUrn());
         expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
 
     }
@@ -240,7 +240,7 @@ public class PlaylistOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_REMOVED_FROM_PLAYLIST);
-        expect(event.getNextUrn()).toEqual(playlist.getUrn());
+        expect(event.getFirstUrn()).toEqual(playlist.getUrn());
         expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
 
     }

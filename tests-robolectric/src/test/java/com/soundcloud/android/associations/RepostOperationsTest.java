@@ -99,7 +99,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
@@ -131,7 +131,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         TrackProperty.URN.bind(TRACK_URN),
@@ -161,7 +161,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         TrackProperty.URN.bind(TRACK_URN),
@@ -209,7 +209,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
@@ -239,7 +239,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         TrackProperty.URN.bind(TRACK_URN),
@@ -270,7 +270,7 @@ public class RepostOperationsTest {
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getNextUrn()).toEqual(TRACK_URN);
+        expect(event.getFirstUrn()).toEqual(TRACK_URN);
         expect(event.getChangeMap().get(TRACK_URN)).toEqual(
                 PropertySet.from(
                         TrackProperty.URN.bind(TRACK_URN),

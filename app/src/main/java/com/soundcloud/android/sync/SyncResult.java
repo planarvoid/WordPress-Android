@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.events.UrnIteratorEvent;
+import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
 
 import android.os.Parcel;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public final class SyncResult implements Parcelable, UrnIteratorEvent {
+public final class SyncResult implements Parcelable, UrnEvent {
 
     private final String action;
     private final boolean wasChanged;
@@ -74,7 +74,7 @@ public final class SyncResult implements Parcelable, UrnIteratorEvent {
     }
 
     @Override
-    public Urn getNextUrn() {
+    public Urn getFirstUrn() {
         return entitiesSynced.iterator().next();
     }
 

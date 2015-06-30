@@ -26,7 +26,7 @@ public class EntityStateChangedEventTest extends PlatformUnitTest {
     public void shouldReturnSingleUrnFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
         EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromSync(track);
-        assertThat(singleChangeEvent.getNextUrn()).isEqualTo(track.get(TrackProperty.URN));
+        assertThat(singleChangeEvent.getFirstUrn()).isEqualTo(track.get(TrackProperty.URN));
     }
 
     @Test
