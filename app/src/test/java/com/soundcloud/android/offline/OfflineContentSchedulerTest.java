@@ -1,27 +1,25 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowPendingIntent;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowPendingIntent;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Intent;
+import android.content.Context;
 
-@RunWith(SoundCloudTestRunner.class)
-public class OfflineContentSchedulerTest {
+public class OfflineContentSchedulerTest extends PlatformUnitTest {
 
     private final static long RETRY_TIME = 1000;
 
@@ -30,11 +28,12 @@ public class OfflineContentSchedulerTest {
     @Mock private AlarmManager alarmManager;
     @Mock private ResumeDownloadOnConnectedReceiver resumeReceiver;
     @Mock private DownloadOperations downloadOperations;
+    @Mock private Context context;
     @Captor private ArgumentCaptor<PendingIntent> intentArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        scheduler = new OfflineContentScheduler(Robolectric.application, alarmManager,
+        scheduler = new OfflineContentScheduler(context, alarmManager,
                 resumeReceiver, downloadOperations);
     }
 
@@ -72,8 +71,9 @@ public class OfflineContentSchedulerTest {
     }
 
     private void verifyPendingIntent() {
-        final ShadowPendingIntent shadowPendingIntent = Robolectric.shadowOf(intentArgumentCaptor.getValue());
-        expect(shadowPendingIntent.getRequestCode()).toEqual(OfflineContentScheduler.REQUEST_ID);
-        expect(shadowPendingIntent.getSavedIntent()).toEqual(new Intent(Robolectric.application, OfflineContentStartReceiver.class));
+        ShadowPendingIntent intent = Shadows.shadowOf(intentArgumentCaptor.getValue());
+        assertThat(intent.getRequestCode()).isEqualTo(OfflineContentScheduler.REQUEST_ID);
+        assertThat(intent.getSavedIntent().getComponent().getClassName())
+                .isEqualTo(OfflineContentStartReceiver.class.getCanonicalName());
     }
 }
