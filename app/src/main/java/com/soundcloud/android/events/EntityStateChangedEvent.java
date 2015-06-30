@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public final class EntityStateChangedEvent {
+public final class EntityStateChangedEvent implements UrnEvent {
 
     public static final int ENTITY_SYNCED = 0;
     public static final int LIKE = 2;
@@ -28,7 +28,7 @@ public final class EntityStateChangedEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getNextUrn().isTrack();
+            return event.isSingularChange() && event.getFirstUrn().isTrack();
         }
     };
 
@@ -42,7 +42,7 @@ public final class EntityStateChangedEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getNextUrn().isPlaylist() && event.getKind() == MARKED_FOR_OFFLINE;
+            return event.isSingularChange() && event.getFirstUrn().isPlaylist() && event.getKind() == MARKED_FOR_OFFLINE;
         }
     };
 
@@ -91,7 +91,7 @@ public final class EntityStateChangedEvent {
     public static final Func1<EntityStateChangedEvent, Urn> TO_URN = new Func1<EntityStateChangedEvent, Urn>() {
         @Override
         public Urn call(EntityStateChangedEvent entityStateChangedEvent) {
-            return entityStateChangedEvent.getNextUrn();
+            return entityStateChangedEvent.getFirstUrn();
         }
     };
     public static final Func1<EntityStateChangedEvent, PropertySet> TO_SINGULAR_CHANGE = new Func1<EntityStateChangedEvent, PropertySet>() {
@@ -177,11 +177,7 @@ public final class EntityStateChangedEvent {
         return changeMap;
     }
 
-    /**
-     * @return for a single change event, this returns the single URN; if more than one entity changed,
-     * returns the first available URN.
-     */
-    public Urn getNextUrn() {
+    public Urn getFirstUrn() {
         return changeMap.keySet().iterator().next();
     }
 
@@ -198,11 +194,11 @@ public final class EntityStateChangedEvent {
     }
 
     public boolean isTrackLikeEvent() {
-        return isSingularChange() && getNextUrn().isTrack() && kind == LIKE;
+        return isSingularChange() && getFirstUrn().isTrack() && kind == LIKE;
     }
 
     public boolean isPlaylistLike() {
-        return isSingularChange() && getNextUrn().isPlaylist() && kind == LIKE;
+        return isSingularChange() && getFirstUrn().isPlaylist() && kind == LIKE;
     }
 
     private Boolean isTrackAddedEvent() {

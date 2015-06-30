@@ -79,7 +79,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
     private final Action1<EntityStateChangedEvent> invalidateTrackCacheAction = new Action1<EntityStateChangedEvent>() {
         @Override
         public void call(EntityStateChangedEvent trackChangedEvent) {
-            trackObservableCache.remove(trackChangedEvent.getNextUrn());
+            trackObservableCache.remove(trackChangedEvent.getFirstUrn());
         }
     };
 
@@ -462,7 +462,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
 
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (isTrackRelatedToView(trackPage, event.getNextUrn())) {
+            if (isTrackRelatedToView(trackPage, event.getFirstUrn())) {
                 presenter.onPlayableUpdated(trackPage, event);
             }
         }

@@ -93,7 +93,7 @@ public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapt
             final int index = Iterables.indexOf(listItems, new Predicate<PlayableItem>() {
                 @Override
                 public boolean apply(PlayableItem item) {
-                    return item.getEntityUrn().equals(event.getNextUrn());
+                    return item.getEntityUrn().equals(event.getFirstUrn());
                 }
             });
 

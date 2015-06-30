@@ -19,7 +19,7 @@ public final class PlaylistChangedSubscriber extends DefaultSubscriber<EntitySta
     public void onNext(EntityStateChangedEvent args) {
         if (adapter != null) {
 
-            long playlistId = args.getNextUrn().getNumericId();
+            long playlistId = args.getFirstUrn().getNumericId();
             int newTracksCount = args.getNextChangeSet().get(PlaylistProperty.TRACK_COUNT);
 
             for (int i = 0; i < adapter.getCount(); i++) {

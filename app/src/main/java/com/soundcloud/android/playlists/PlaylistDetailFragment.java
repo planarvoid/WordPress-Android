@@ -135,7 +135,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist = new DefaultSubscriber<EntityStateChangedEvent>() {
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (event.getNextUrn().equals(playlistWithTracks.getUrn())) {
+            if (event.getFirstUrn().equals(playlistWithTracks.getUrn())) {
                 onPlaylistContentChanged();
             }
         }

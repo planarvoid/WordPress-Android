@@ -311,7 +311,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (playlistWithTracks != null && playlistWithTracks.getUrn().equals(event.getNextUrn())) {
+            if (playlistWithTracks != null && playlistWithTracks.getUrn().equals(event.getFirstUrn())) {
                 final PropertySet changeSet = event.getNextChangeSet();
                 playlistWithTracks.update(changeSet);
 
