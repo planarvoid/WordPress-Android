@@ -130,20 +130,7 @@ public class PublicApiWrapper {
     public static final String OAUTH_SCHEME = "oauth";
     public static final String VERSION = "1.3.1";
     public static final String USER_AGENT = "SoundCloud Java Wrapper (" + PublicApiWrapper.VERSION + ")";
-
-    private static final int API_LOOKUP_BATCH_SIZE = 200;
-    private static final String UNCHECKED = "unchecked";
-
-    private static PublicApiWrapper instance;
-    private ApplicationProperties applicationProperties;
-    private ObjectMapper objectMapper;
-    private Context context;
-    private String userAgent;
-    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
-    private AccountOperations accountOperations;
-    protected final OAuth oAuth;
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
-
     public static final int BUFFER_SIZE = 8192;
     /**
      * Connection timeout
@@ -161,19 +148,8 @@ public class PublicApiWrapper {
             return new Request();
         }
     };
-    /**
-     * The current environment, only live possible for now
-     */
-    public final Env env = Env.LIVE;
-    /**
-     * debug request details to stderr
-     */
-    public boolean debugRequests;
-    transient private HttpClient httpClient;
-    transient private TokenListener listener;
-    protected String defaultContentType;
-    private String defaultAcceptEncoding;
-
+    private static final int API_LOOKUP_BATCH_SIZE = 200;
+    private static final String UNCHECKED = "unchecked";
     /**
      * We do not want to use cookies, as it will result in continued sessions between logins / logouts
      */
@@ -198,13 +174,26 @@ public class PublicApiWrapper {
 
         }
     };
-
-    public synchronized static PublicApiWrapper getInstance(Context context) {
-        if (instance == null) {
-            instance = new PublicApiWrapper(context.getApplicationContext());
-        }
-        return instance;
-    }
+    private static PublicApiWrapper instance;
+    /**
+     * The current environment, only live possible for now
+     */
+    public final Env env = Env.LIVE;
+    protected final OAuth oAuth;
+    /**
+     * debug request details to stderr
+     */
+    public boolean debugRequests;
+    protected String defaultContentType;
+    private ApplicationProperties applicationProperties;
+    private ObjectMapper objectMapper;
+    private Context context;
+    private String userAgent;
+    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    private AccountOperations accountOperations;
+    transient private HttpClient httpClient;
+    transient private TokenListener listener;
+    private String defaultAcceptEncoding;
 
     @Deprecated
     public PublicApiWrapper(Context context) {
@@ -260,12 +249,112 @@ public class PublicApiWrapper {
         setDefaultAcceptEncoding("gzip");
     }
 
+    public synchronized static PublicApiWrapper getInstance(Context context) {
+        if (instance == null) {
+            instance = new PublicApiWrapper(context.getApplicationContext());
+        }
+        return instance;
+    }
 
     public static ObjectMapper buildObjectMapper() {
         return new ObjectMapper()
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setDateFormat(new CloudDateFormat());
+    }
+
+    public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
+        StringBuilder sb = new StringBuilder(2000);
+        sb.append(request.getMethod())
+                .append(' ')
+                .append(target.getSchemeName())
+                .append(':')
+                .append(target.toHostString())
+                .append(' ')
+                .append(request.getURI())
+                .append(";headers=");
+        final Header[] headers = request.getAllHeaders();
+        for (Header header : headers) {
+            sb.append(header.toString()).append(';');
+        }
+        sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
+        return sb.toString();
+    }
+
+    /**
+     * @param enabled if true, all requests will be tagged as coming from a background process
+     */
+    public static void setBackgroundMode(boolean enabled) {
+        if (enabled) {
+            setDefaultParameter(BACKGROUND_PARAMETER, "1");
+        } else {
+            clearDefaultParameters();
+        }
+    }
+
+    public static boolean isStatusCodeOk(int code) {
+        return code >= 200 && code < 400;
+    }
+
+    public static boolean isStatusCodeClientError(int code) {
+        return code >= 400 && code < 500;
+    }
+
+    // accepts all certificates - don't use in production
+    private static SSLSocketFactory unsafeSocketFactory() {
+        try {
+            final SSLContext context = SSLContext.getInstance("TLS");
+            return new SSLSocketFactory(null, null, null, null, null, null) {
+                {
+                    context.init(null, new TrustManager[]{new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String type) throws CertificateException {
+                            Log.w(TAG, "trusting " + Arrays.asList(chain));
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String type) throws CertificateException {
+                            Log.w(TAG, "trusting " + Arrays.asList(chain));
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+                    }}, null);
+                }
+
+                @Override
+                public Socket createSocket() throws IOException {
+                    return context.getSocketFactory().createSocket();
+                }
+
+                @Override
+                public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
+                    return context.getSocketFactory().createSocket(socket, host, port, autoClose);
+                }
+            };
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Adds a default parameter which will get added to all requests in this thread.
+     * Use this method carefully since it might lead to unexpected side-effects.
+     *
+     * @param name  the name of the parameter
+     * @param value the value of the parameter.
+     */
+    public static void setDefaultParameter(String name, String value) {
+        defaultParams.get().set(name, value);
+    }
+
+    /**
+     * Clears the default parameters.
+     */
+    public static void clearDefaultParameters() {
+        defaultParams.remove();
     }
 
     public void setProxy(URI proxy) {
@@ -336,24 +425,6 @@ public class PublicApiWrapper {
 
     private boolean responseIsUnauthorised(HttpResponse response) {
         return response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
-    }
-
-    public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
-        StringBuilder sb = new StringBuilder(2000);
-        sb.append(request.getMethod())
-                .append(' ')
-                .append(target.getSchemeName())
-                .append(':')
-                .append(target.toHostString())
-                .append(' ')
-                .append(request.getURI())
-                .append(";headers=");
-        final Header[] headers = request.getAllHeaders();
-        for (Header header : headers) {
-            sb.append(header.toString()).append(';');
-        }
-        sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
-        return sb.toString();
     }
 
     @SuppressWarnings(UNCHECKED)
@@ -470,7 +541,6 @@ public class PublicApiWrapper {
         return objects;
     }
 
-
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> PublicApiResource.ResourceHolder<T> readCollection(Request req) throws IOException {
         InputStream inputStream = getInputStream(get(req), req);
@@ -489,17 +559,6 @@ public class PublicApiWrapper {
         return userAgent == null ? USER_AGENT : userAgent;
     }
 
-    /**
-     * @param enabled if true, all requests will be tagged as coming from a background process
-     */
-    public static void setBackgroundMode(boolean enabled) {
-        if (enabled) {
-            setDefaultParameter(BACKGROUND_PARAMETER, "1");
-        } else {
-            clearDefaultParameters();
-        }
-    }
-
     private InputStream getInputStream(HttpResponse response, Request originalRequest) throws IOException {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
@@ -511,110 +570,6 @@ public class PublicApiWrapper {
                 }
         }
         return response.getEntity().getContent();
-    }
-
-
-    public static boolean isStatusCodeOk(int code) {
-        return code >= 200 && code < 400;
-    }
-
-    public static boolean isStatusCodeClientError(int code) {
-        return code >= 400 && code < 500;
-    }
-
-    // accepts all certificates - don't use in production
-    private static SSLSocketFactory unsafeSocketFactory() {
-        try {
-            final SSLContext context = SSLContext.getInstance("TLS");
-            return new SSLSocketFactory(null, null, null, null, null, null) {
-                {
-                    context.init(null, new TrustManager[]{new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] chain, String type) throws CertificateException {
-                            Log.w(TAG, "trusting " + Arrays.asList(chain));
-                        }
-
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] chain, String type) throws CertificateException {
-                            Log.w(TAG, "trusting " + Arrays.asList(chain));
-                        }
-
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return new X509Certificate[0];
-                        }
-                    }}, null);
-                }
-
-                @Override
-                public Socket createSocket() throws IOException {
-                    return context.getSocketFactory().createSocket();
-                }
-
-                @Override
-                public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
-                    return context.getSocketFactory().createSocket(socket, host, port, autoClose);
-                }
-            };
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static class CloudDateFormat extends StdDateFormat {
-        /**
-         * Used by the SoundCloud API
-         */
-        private final DateFormat dateFormat;
-        // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
-        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<>();
-
-        private static CloudDateFormat instance() {
-            CloudDateFormat fmt = threadLocal.get();
-            if (fmt == null) {
-                fmt = new CloudDateFormat();
-                threadLocal.set(fmt);
-            }
-            return fmt;
-        }
-
-        public static Date fromString(String s) {
-            try {
-                return instance().parse(s);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public static long toTime(String s) {
-            return fromString(s).getTime();
-        }
-
-        public static String formatDate(long tstamp) {
-            return instance().format(tstamp);
-        }
-
-        private CloudDateFormat() {
-            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z", Locale.US);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        }
-
-        @SuppressWarnings({"CloneDoesntCallSuperClone"})
-        @Override
-        public CloudDateFormat clone() {
-            return instance();
-        }
-
-        @Override
-        public Date parse(String dateStr, ParsePosition pos) {
-            final Date d = dateFormat.parse(dateStr, pos);
-            return (d == null) ? super.parse(dateStr, pos) : d;
-        }
-
-        @Override
-        public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-            return dateFormat.format(date, toAppendTo, fieldPosition);
-        }
     }
 
     public Token login(String username, String password) throws IOException {
@@ -921,24 +876,6 @@ public class PublicApiWrapper {
     }
 
     /**
-     * Adds a default parameter which will get added to all requests in this thread.
-     * Use this method carefully since it might lead to unexpected side-effects.
-     *
-     * @param name  the name of the parameter
-     * @param value the value of the parameter.
-     */
-    public static void setDefaultParameter(String name, String value) {
-        defaultParams.get().set(name, value);
-    }
-
-    /**
-     * Clears the default parameters.
-     */
-    public static void clearDefaultParameters() {
-        defaultParams.remove();
-    }
-
-    /**
      * @return the default HttpParams
      * @see <a href="http://developer.android.com/reference/android/net/http/AndroidHttpClient.html#newInstance(java.lang.String, android.content.Context)">
      * android.net.http.AndroidHttpClient#newInstance(String, Context)</a>
@@ -1075,5 +1012,61 @@ public class PublicApiWrapper {
         return new DefaultRequestDirector(requestExec, conman, reustrat, kastrat, rouplan,
                 httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
                 stateHandler, params);
+    }
+
+    public static class CloudDateFormat extends StdDateFormat {
+        // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
+        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<>();
+        /**
+         * Used by the SoundCloud API
+         */
+        private final DateFormat dateFormat;
+
+        private CloudDateFormat() {
+            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z", Locale.US);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
+
+        private static CloudDateFormat instance() {
+            CloudDateFormat fmt = threadLocal.get();
+            if (fmt == null) {
+                fmt = new CloudDateFormat();
+                threadLocal.set(fmt);
+            }
+            return fmt;
+        }
+
+        public static Date fromString(String s) {
+            try {
+                return instance().parse(s);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public static long toTime(String s) {
+            return fromString(s).getTime();
+        }
+
+        public static String formatDate(long tstamp) {
+            return instance().format(tstamp);
+        }
+
+        @SuppressWarnings({"CloneDoesntCallSuperClone"})
+        @Override
+        public CloudDateFormat clone() {
+            return instance();
+        }
+
+        @Override
+        public Date parse(String dateStr, ParsePosition pos) {
+            final Date d = dateFormat.parse(dateStr, pos);
+            return (d == null) ? super.parse(dateStr, pos) : d;
+        }
+
+        @Override
+        public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
+            return dateFormat.format(date, toAppendTo, fieldPosition);
+        }
     }
 }
