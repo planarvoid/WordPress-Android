@@ -11,7 +11,7 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
 
-class OAuth2HttpRequestInterceptor implements HttpRequestInterceptor {
+public class OAuth2HttpRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
         if (request == null) {

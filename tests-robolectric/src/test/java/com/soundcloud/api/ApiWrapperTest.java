@@ -31,6 +31,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.AuthenticationHandler;
 import org.apache.http.client.HttpClient;
@@ -38,7 +40,11 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.RequestDirector;
 import org.apache.http.client.UserTokenHandler;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
@@ -352,6 +358,71 @@ public class ApiWrapperTest {
             @Override
             public HttpClient getHttpClient() {
                 return client;
+            }
+
+            @Override
+            public long resolve(String url) throws IOException {
+                HttpResponse resp = get(Request.to(Endpoints.RESOLVE).with("url", url));
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    Header location = resp.getFirstHeader("Location");
+                    if (location != null && location.getValue() != null) {
+                        final String path = URI.create(location.getValue()).getPath();
+                        if (path != null && path.contains("/")) {
+                            try {
+                                final String id = path.substring(path.lastIndexOf('/') + 1);
+                                return Integer.parseInt(id);
+                            } catch (NumberFormatException e) {
+                                throw new ResolverException(e, resp);
+                            }
+                        } else {
+                            throw new ResolverException("Invalid string:" + path, resp);
+                        }
+                    } else {
+                        throw new ResolverException("No location header", resp);
+                    }
+                } else {
+                    throw new ResolverException("Invalid status code", resp);
+                }
+            }
+
+            @Override
+            public HttpResponse get(Request request) throws IOException {
+                return execute(request, HttpGet.class);
+            }
+
+            @Override
+            public HttpResponse put(Request request) throws IOException {
+                return execute(request, HttpPut.class);
+            }
+
+            @Override
+            public HttpResponse post(Request request) throws IOException {
+                return execute(request, HttpPost.class);
+            }
+
+            @Override
+            public HttpResponse delete(Request request) throws IOException {
+                return execute(request, HttpDelete.class);
+            }
+
+            // This design existed when the library was brought in to the project. Changing
+            // it does not seem worthwhile, since the reassignment is once during validation
+            // of inputs.
+            @SuppressWarnings("PMD.AvoidReassigningParameters")
+            protected HttpResponse execute(Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
+                Request defaults = ApiWrapper.defaultParams.get();
+                if (defaults != null && !defaults.getParams().isEmpty()) {
+                    // copy + merge in default parameters
+                    req = new Request(req);
+                    for (NameValuePair nvp : defaults) {
+                        req.add(nvp.getName(), nvp.getValue());
+                    }
+                }
+                logRequest(reqType, req);
+                if (!req.getParams().containsKey(OAuth.PARAM_CLIENT_ID)) {
+                    req = new Request(req).add(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
+                }
+                return execute(req.buildRequest(reqType));
             }
         };
         when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new NullPointerException());

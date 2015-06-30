@@ -1,6 +1,8 @@
 package com.soundcloud.api;
 
 import com.google.common.base.Charsets;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
@@ -30,7 +32,7 @@ public final class Http {
             return null;
         }
 
-        int length = ApiWrapper.BUFFER_SIZE;
+        int length = PublicApiWrapper.BUFFER_SIZE;
         Header contentLength = null;
         try {
             contentLength = response.getFirstHeader(HTTP.CONTENT_LEN);
@@ -46,7 +48,7 @@ public final class Http {
 
         final StringBuilder sb = new StringBuilder(length);
         int n;
-        byte[] buffer = new byte[ApiWrapper.BUFFER_SIZE];
+        byte[] buffer = new byte[PublicApiWrapper.BUFFER_SIZE];
         while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n, Charsets.UTF_8));
         return sb.toString();
     }

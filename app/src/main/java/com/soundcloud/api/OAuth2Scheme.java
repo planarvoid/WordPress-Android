@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class OAuth2Scheme implements AuthScheme {
+public class OAuth2Scheme implements AuthScheme {
     public Map<String, String> params;
     public HttpParams httpParams;
     private final CloudAPI api;
@@ -148,7 +148,7 @@ class OAuth2Scheme implements AuthScheme {
         }
     }
 
-    static class Factory implements AuthSchemeFactory {
+    public static class Factory implements AuthSchemeFactory {
         private final CloudAPI api;
 
         public Factory(CloudAPI api) {
@@ -161,7 +161,7 @@ class OAuth2Scheme implements AuthScheme {
         }
     }
 
-    static class EmptyCredentials implements Credentials {
+    public static class EmptyCredentials implements Credentials {
         public static final Credentials INSTANCE = new EmptyCredentials();
 
         @Override
