@@ -15,7 +15,7 @@ import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
 public class UpsellTest extends TrackingActivityTest<MainActivity> {
-    private static final String MIDTIER_IMPRESSION_TEST_SCENARIO = "midtier-impression-test";
+    private static final String MIDTIER_TEST_SCENARIO = "midtier-tracking-test";
 
     private StreamScreen streamScreen;
 
@@ -51,11 +51,14 @@ public class UpsellTest extends TrackingActivityTest<MainActivity> {
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
-    public void testViewingMidTierTrackFiresImpression() {
+    public void testClickingOnMidTierTrackFiresTrackingEvents() {
         mrLoggaVerifier.startLogging();
-        streamScreen.openMenu().clickLikes();
+
+        final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
+        likesScreen.clickMidTierTrackForUpgrade(0);
+
         mrLoggaVerifier.finishLogging();
-        mrLoggaVerifier.isValid(MIDTIER_IMPRESSION_TEST_SCENARIO);
+        mrLoggaVerifier.isValid(MIDTIER_TEST_SCENARIO);
     }
 
     public void testClickingOnMidTierTrackInPlaylistOpensUpsell() {

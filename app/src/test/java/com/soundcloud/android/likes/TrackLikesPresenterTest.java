@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -15,6 +16,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
@@ -169,6 +171,37 @@ public class TrackLikesPresenterTest extends PlatformUnitTest {
 
         verifyZeroInteractions(navigator);
     }
+
+    @Test
+    public void shouldSendUpsellEventOnMidTierItemClick() {
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 0);
+
+        final MidTierTrackEvent trackingEvent = (MidTierTrackEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(MidTierTrackEvent.KIND_CLICK);
+        assertThat(trackingEvent.getTrackUrn()).isEqualTo(clickedTrack.getEntityUrn());
+    }
+
+    @Test
+    public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        setupPlaybackConditions(clickedTrack);
+
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 1);
+
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
 
     @Test
     public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {
