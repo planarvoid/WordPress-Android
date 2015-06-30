@@ -17,7 +17,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PaywallImpressionController implements RecyclerView.OnChildAttachStateChangeListener{
+public class PaywallImpressionController implements RecyclerView.OnChildAttachStateChangeListener {
 
     @VisibleForTesting
     static final int HANDLER_MESSAGE = 0;
@@ -38,7 +38,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
         this.deduplicateHandler = deduplicateHandler;
     }
 
-    public void attachRecyclerView(RecyclerView recyclerView){
+    public void attachRecyclerView(RecyclerView recyclerView) {
         safeAssignLayoutManager(recyclerView);
         safeAssignListAdapter(recyclerView);
         recyclerView.addOnChildAttachStateChangeListener(this);
@@ -62,7 +62,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
         listItemAdapter = (ItemAdapter) adapter;
     }
 
-    public void detachRecyclerView(RecyclerView recyclerView){
+    public void detachRecyclerView(RecyclerView recyclerView) {
         recyclerView.removeOnChildAttachStateChangeListener(this);
     }
 
@@ -91,6 +91,9 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     }
 
     private void addToDeduplicateHandler(ListItem item) {
+        /* notifyDataSetChanged will result in duplicate impressions if we do not track entities that were
+        added and removed in the same frame. This handler is a cheap way to do that,
+        as it contains a reference to the entity for a single frame, until it is processed */
         deduplicateHandler.sendMessage(Message.obtain(deduplicateHandler, 0, item.getEntityUrn()));
     }
 }
