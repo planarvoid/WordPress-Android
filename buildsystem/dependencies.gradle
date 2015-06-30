@@ -62,7 +62,7 @@ ext {
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk-repack:3.20.0-15.06.02@aar",
           butterKnife                 : "com.jakewharton:butterknife:5.1.2",
-          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.2-SOUNDCLOUD@aar",
+          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.2.1-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
           // Android libraries
