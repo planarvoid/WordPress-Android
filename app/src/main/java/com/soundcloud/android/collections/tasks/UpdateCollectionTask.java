@@ -12,7 +12,7 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 
 import android.text.TextUtils;
 import android.util.Log;

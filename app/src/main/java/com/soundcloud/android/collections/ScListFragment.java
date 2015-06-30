@@ -40,7 +40,7 @@ import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

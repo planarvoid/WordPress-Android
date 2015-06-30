@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.InvalidTokenException;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 
 import android.content.Context;
 import android.net.Uri;

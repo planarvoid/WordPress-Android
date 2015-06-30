@@ -15,7 +15,7 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.api.Params;
+import com.soundcloud.android.api.legacy.Params;
 
 import android.os.Bundle;
 import android.support.v4.util.ArrayMap;

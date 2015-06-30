@@ -11,8 +11,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Request;
 import rx.Subscription;
 
 import android.accounts.Account;

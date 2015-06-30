@@ -14,7 +14,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

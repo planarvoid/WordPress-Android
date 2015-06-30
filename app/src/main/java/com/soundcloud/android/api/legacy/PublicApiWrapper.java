@@ -21,19 +21,6 @@ import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.ApiResponseException;
-import com.soundcloud.api.BrokenHttpClientException;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.GzipDecompressingEntity;
-import com.soundcloud.api.Http;
-import com.soundcloud.api.InvalidTokenException;
-import com.soundcloud.api.OAuth2HttpRequestInterceptor;
-import com.soundcloud.api.OAuth2Scheme;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.ResolverException;
-import com.soundcloud.api.TokenListener;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
@@ -661,8 +648,8 @@ public class PublicApiWrapper implements PublicCloudAPI {
      * @param request the token request
      * @return the token
      * @throws java.io.IOException                               network error
-     * @throws com.soundcloud.api.InvalidTokenException unauthorized
-     * @throws com.soundcloud.api.ApiResponseException  http error
+     * @throws InvalidTokenException unauthorized
+     * @throws ApiResponseException  http error
      */
     private Token requestToken(Request request) throws IOException {
         HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));

@@ -27,7 +27,7 @@ import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;

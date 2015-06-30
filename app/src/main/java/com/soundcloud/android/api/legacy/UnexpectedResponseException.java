@@ -1,7 +1,6 @@
 package com.soundcloud.android.api.legacy;
 
 import com.google.common.base.Objects;
-import com.soundcloud.api.Request;
 
 import org.apache.http.StatusLine;
 

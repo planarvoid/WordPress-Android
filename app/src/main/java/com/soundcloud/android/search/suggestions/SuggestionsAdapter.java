@@ -18,7 +18,7 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;

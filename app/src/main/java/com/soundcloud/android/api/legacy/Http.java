@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import com.google.common.base.Charsets;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;

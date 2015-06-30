@@ -18,7 +18,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpResponse;
 import org.junit.Before;

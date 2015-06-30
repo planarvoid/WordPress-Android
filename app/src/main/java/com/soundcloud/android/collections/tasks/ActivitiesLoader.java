@@ -8,7 +8,7 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.api.InvalidTokenException;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 
 import org.apache.http.HttpStatus;
 

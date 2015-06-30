@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.legacy.OAuth2Scheme;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
@@ -22,13 +23,13 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class OAuth2SchemeTest {
-    OAuth2Scheme scheme;
-    CloudAPI api;
+    com.soundcloud.android.api.legacy.OAuth2Scheme scheme;
+    com.soundcloud.android.api.legacy.CloudAPI api;
 
     @Before
     public void setup() {
-        api = mock(CloudAPI.class);
-        scheme = new OAuth2Scheme(api, null);
+        api = mock(com.soundcloud.android.api.legacy.CloudAPI.class);
+        scheme = new com.soundcloud.android.api.legacy.OAuth2Scheme(api, null);
     }
 
     @Test
@@ -120,8 +121,8 @@ public class OAuth2SchemeTest {
 
     @Test
     public void shouldExtractToken() throws Exception {
-        assertThat(OAuth2Scheme.extractToken(new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth 1234")), equalTo("1234"));
-        assertThat(OAuth2Scheme.extractToken(new BasicHeader("Random", "OAuth 1234")), nullValue());
+        assertThat(com.soundcloud.android.api.legacy.OAuth2Scheme.extractToken(new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth 1234")), equalTo("1234"));
+        assertThat(com.soundcloud.android.api.legacy.OAuth2Scheme.extractToken(new BasicHeader("Random", "OAuth 1234")), nullValue());
         assertThat(OAuth2Scheme.extractToken(new BasicHeader(AUTH.WWW_AUTH_RESP, "Foo 1234")), nullValue());
     }
 }

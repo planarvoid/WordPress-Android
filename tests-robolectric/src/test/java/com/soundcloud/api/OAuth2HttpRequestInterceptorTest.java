@@ -17,14 +17,14 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 public class OAuth2HttpRequestInterceptorTest {
-    OAuth2HttpRequestInterceptor interceptor;
+    com.soundcloud.android.api.legacy.OAuth2HttpRequestInterceptor interceptor;
     HttpRequest request;
     HttpContext context;
     AuthState authState;
 
     @Before
     public void setup() {
-        interceptor = new OAuth2HttpRequestInterceptor();
+        interceptor = new com.soundcloud.android.api.legacy.OAuth2HttpRequestInterceptor();
         request = mock(HttpRequest.class);
         RequestLine line = mock(RequestLine.class);
         when(line.getMethod()).thenReturn("GET");

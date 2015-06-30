@@ -24,7 +24,7 @@ import java.io.ObjectOutputStream;
 public class StreamTest {
     @Test
     public void testParsing() throws Exception {
-        Stream s = new Stream(
+        com.soundcloud.android.api.legacy.Stream s = new com.soundcloud.android.api.legacy.Stream(
                 "http://api.soundcloud.com",
                 "http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537336&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582",
                 parse("s3-headers.txt"));
@@ -39,12 +39,12 @@ public class StreamTest {
 
     @Test
     public void testWithNewStreamUrl() throws Exception {
-        Stream s1 = new Stream(
+        com.soundcloud.android.api.legacy.Stream s1 = new com.soundcloud.android.api.legacy.Stream(
                 "http://api.soundcloud.com",
                 "http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537336&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582",
                 parse("s3-headers.txt"));
 
-        Stream s2 = s1.withNewStreamUrl("http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537337&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582");
+        com.soundcloud.android.api.legacy.Stream s2 = s1.withNewStreamUrl("http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537337&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582");
 
         assertThat(s1.eTag, equalTo(s2.eTag));
         assertThat(s1.bitRate, equalTo(s2.bitRate));
@@ -58,7 +58,7 @@ public class StreamTest {
 
     @Test
     public void shouldBeSerializable() throws Exception {
-        Stream s1 = new Stream(
+        com.soundcloud.android.api.legacy.Stream s1 = new com.soundcloud.android.api.legacy.Stream(
                 "http://api.soundcloud.com",
                 "http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537336&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582",
                 parse("s3-headers.txt"));
@@ -70,7 +70,7 @@ public class StreamTest {
         oos.close();
 
         ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
-        Stream s2 = (Stream) ois.readObject();
+        com.soundcloud.android.api.legacy.Stream s2 = (com.soundcloud.android.api.legacy.Stream) ois.readObject();
 
         assertThat(s1.eTag, equalTo(s2.eTag));
         assertThat(s1.bitRate, equalTo(s2.bitRate));

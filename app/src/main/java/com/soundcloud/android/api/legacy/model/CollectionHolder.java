@@ -7,7 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;

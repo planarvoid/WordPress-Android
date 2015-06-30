@@ -25,7 +25,7 @@ import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.api.InvalidTokenException;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpStatus;

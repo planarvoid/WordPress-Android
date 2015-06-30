@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.http.Header;

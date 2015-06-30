@@ -2,7 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

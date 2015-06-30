@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;

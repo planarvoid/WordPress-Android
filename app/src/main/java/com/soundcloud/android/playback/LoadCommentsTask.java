@@ -8,8 +8,8 @@ import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Request;
 
 import android.util.Log;
 

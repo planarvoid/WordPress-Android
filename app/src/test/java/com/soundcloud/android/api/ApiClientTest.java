@@ -22,7 +22,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;

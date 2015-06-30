@@ -1,13 +1,9 @@
 package com.soundcloud.android.api.legacy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
-import org.apache.http.StatusLine;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

@@ -5,8 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;

@@ -10,7 +10,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

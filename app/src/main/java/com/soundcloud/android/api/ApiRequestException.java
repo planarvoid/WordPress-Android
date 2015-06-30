@@ -13,7 +13,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_R
 import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.api.InvalidTokenException;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 
 import org.apache.http.HttpStatus;
 

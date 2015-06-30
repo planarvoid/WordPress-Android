@@ -25,7 +25,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Endpoints;
+import com.soundcloud.android.api.legacy.Endpoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

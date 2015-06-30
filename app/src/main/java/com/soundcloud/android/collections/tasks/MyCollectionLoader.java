@@ -18,8 +18,8 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.api.InvalidTokenException;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 

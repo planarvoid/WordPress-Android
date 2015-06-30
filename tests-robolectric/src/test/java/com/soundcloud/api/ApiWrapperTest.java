@@ -20,6 +20,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.BrokenHttpClientException;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Http;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
+import com.soundcloud.android.api.legacy.Request;
+import com.soundcloud.android.api.legacy.ResolverException;
+import com.soundcloud.android.api.legacy.TokenListener;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -125,7 +132,7 @@ public class ApiWrapperTest {
         assertThat(t.getExpiresAt(), is(greaterThan(0L)));
     }
 
-    @Test(expected = InvalidTokenException.class)
+    @Test(expected = com.soundcloud.android.api.legacy.InvalidTokenException.class)
     public void clientCredentialsShouldThrowIfScopeCanNotBeObtained() throws Exception {
         layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
@@ -177,7 +184,7 @@ public class ApiWrapperTest {
     }
 
 
-    @Test(expected = ApiResponseException.class)
+    @Test(expected = com.soundcloud.android.api.legacy.ApiResponseException.class)
     public void shouldThrowApiResponseExceptionWhenInvalidJSONReturned() throws Exception {
         layer.addPendingHttpResponse(200, "I'm invalid JSON!");
         api.login("foo", "bar");
@@ -189,7 +196,7 @@ public class ApiWrapperTest {
         try {
             api.login("foo", "bar");
             fail("expected IOException");
-        } catch (ApiResponseException e) {
+        } catch (com.soundcloud.android.api.legacy.ApiResponseException e) {
             assertThat(e.getMessage(), containsString("I'm invalid JSON!"));
         }
     }
@@ -231,7 +238,7 @@ public class ApiWrapperTest {
         assertThat(api.resolve("http://soundcloud.com/crazybob"), is(1000L));
     }
 
-    @Test(expected = ResolverException.class)
+    @Test(expected = com.soundcloud.android.api.legacy.ResolverException.class)
     public void resolveShouldReturnNegativeOneWhenInvalid() throws Exception {
         layer.addPendingHttpResponse(404, "Not found");
         api.resolve("http://soundcloud.com/nonexisto");
@@ -240,7 +247,7 @@ public class ApiWrapperTest {
     @Test
     public void shouldGetContent() throws Exception {
         layer.addHttpResponseRule("/some/resource?a=1&client_id=" + TEST_CLIENT_ID, "response");
-        assertThat(Http.getString(api.get(Request.to("/some/resource").with("a", "1"))),
+        assertThat(com.soundcloud.android.api.legacy.Http.getString(api.get(com.soundcloud.android.api.legacy.Request.to("/some/resource").with("a", "1"))),
                 equalTo("response"));
     }
 
@@ -248,7 +255,7 @@ public class ApiWrapperTest {
     public void shouldPostContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
         layer.addHttpResponseRule("POST", "/foo/something", resp);
-        assertThat(api.post(Request.to("/foo/something").with("a", 1)),
+        assertThat(api.post(com.soundcloud.android.api.legacy.Request.to("/foo/something").with("a", 1)),
                 equalTo(resp));
     }
 
@@ -256,7 +263,7 @@ public class ApiWrapperTest {
     public void shouldPutContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
         layer.addHttpResponseRule("PUT", "/foo/something", resp);
-        assertThat(api.put(Request.to("/foo/something").with("a", 1)),
+        assertThat(api.put(com.soundcloud.android.api.legacy.Request.to("/foo/something").with("a", 1)),
                 equalTo(resp));
     }
 
@@ -264,7 +271,7 @@ public class ApiWrapperTest {
     public void shouldDeleteContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
         layer.addHttpResponseRule("DELETE", "/foo/something?client_id=" + TEST_CLIENT_ID, resp);
-        assertThat(api.delete(new Request("/foo/something")), equalTo(resp));
+        assertThat(api.delete(new com.soundcloud.android.api.legacy.Request("/foo/something")), equalTo(resp));
     }
 
     @Test
@@ -283,7 +290,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldCallTokenStateListenerWhenTokenIsInvalidated() throws Exception {
-        TokenListener listener = mock(TokenListener.class);
+        com.soundcloud.android.api.legacy.TokenListener listener = mock(com.soundcloud.android.api.legacy.TokenListener.class);
         api.setTokenListener(listener);
         final Token old = api.getToken();
         api.invalidateToken();
@@ -292,7 +299,7 @@ public class ApiWrapperTest {
 
     @Test
     public void invalidateTokenShouldTryToGetAlternativeToken() throws Exception {
-        TokenListener listener = mock(TokenListener.class);
+        com.soundcloud.android.api.legacy.TokenListener listener = mock(com.soundcloud.android.api.legacy.TokenListener.class);
         final Token cachedToken = new Token("new", "fresh");
         api.setTokenListener(listener);
         when(listener.onTokenInvalid(api.getToken())).thenReturn(cachedToken);
@@ -313,7 +320,7 @@ public class ApiWrapperTest {
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
-        TokenListener listener = mock(TokenListener.class);
+        com.soundcloud.android.api.legacy.TokenListener listener = mock(TokenListener.class);
 
         api.setTokenListener(listener);
         api.refreshToken();
@@ -323,17 +330,17 @@ public class ApiWrapperTest {
     @Test
     public void testShouldAlwaysAddClientIdEvenWhenAuthenticated() throws Exception {
         layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "body");
-        final Request request = Request.to("/foo");
+        final com.soundcloud.android.api.legacy.Request request = com.soundcloud.android.api.legacy.Request.to("/foo");
         final HttpResponse response = api.get(request);
-        assertEquals("body", Http.getString(response));
+        assertEquals("body", com.soundcloud.android.api.legacy.Http.getString(response));
     }
 
     @Test
     public void testDontAddClientIdIfManuallyAdded() throws Exception {
         layer.addHttpResponseRule("/foo?client_id=12345", "body");
-        final Request req = Request.to("/foo").with("client_id", "12345");
+        final com.soundcloud.android.api.legacy.Request req = com.soundcloud.android.api.legacy.Request.to("/foo").with("client_id", "12345");
         final HttpResponse response = api.get(req);
-        assertEquals("body", Http.getString(response));
+        assertEquals("body", com.soundcloud.android.api.legacy.Http.getString(response));
     }
 
     @Test
@@ -362,7 +369,7 @@ public class ApiWrapperTest {
 
             @Override
             public long resolve(String url) throws IOException {
-                HttpResponse resp = get(Request.to(Endpoints.RESOLVE).with("url", url));
+                HttpResponse resp = get(com.soundcloud.android.api.legacy.Request.to(Endpoints.RESOLVE).with("url", url));
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
                     Header location = resp.getFirstHeader("Location");
                     if (location != null && location.getValue() != null) {
@@ -372,13 +379,13 @@ public class ApiWrapperTest {
                                 final String id = path.substring(path.lastIndexOf('/') + 1);
                                 return Integer.parseInt(id);
                             } catch (NumberFormatException e) {
-                                throw new ResolverException(e, resp);
+                                throw new com.soundcloud.android.api.legacy.ResolverException(e, resp);
                             }
                         } else {
-                            throw new ResolverException("Invalid string:" + path, resp);
+                            throw new com.soundcloud.android.api.legacy.ResolverException("Invalid string:" + path, resp);
                         }
                     } else {
-                        throw new ResolverException("No location header", resp);
+                        throw new com.soundcloud.android.api.legacy.ResolverException("No location header", resp);
                     }
                 } else {
                     throw new ResolverException("Invalid status code", resp);
@@ -386,22 +393,22 @@ public class ApiWrapperTest {
             }
 
             @Override
-            public HttpResponse get(Request request) throws IOException {
+            public HttpResponse get(com.soundcloud.android.api.legacy.Request request) throws IOException {
                 return execute(request, HttpGet.class);
             }
 
             @Override
-            public HttpResponse put(Request request) throws IOException {
+            public HttpResponse put(com.soundcloud.android.api.legacy.Request request) throws IOException {
                 return execute(request, HttpPut.class);
             }
 
             @Override
-            public HttpResponse post(Request request) throws IOException {
+            public HttpResponse post(com.soundcloud.android.api.legacy.Request request) throws IOException {
                 return execute(request, HttpPost.class);
             }
 
             @Override
-            public HttpResponse delete(Request request) throws IOException {
+            public HttpResponse delete(com.soundcloud.android.api.legacy.Request request) throws IOException {
                 return execute(request, HttpDelete.class);
             }
 
@@ -409,18 +416,18 @@ public class ApiWrapperTest {
             // it does not seem worthwhile, since the reassignment is once during validation
             // of inputs.
             @SuppressWarnings("PMD.AvoidReassigningParameters")
-            protected HttpResponse execute(Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
-                Request defaults = ApiWrapper.defaultParams.get();
+            protected HttpResponse execute(com.soundcloud.android.api.legacy.Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
+                com.soundcloud.android.api.legacy.Request defaults = ApiWrapper.defaultParams.get();
                 if (defaults != null && !defaults.getParams().isEmpty()) {
                     // copy + merge in default parameters
-                    req = new Request(req);
+                    req = new com.soundcloud.android.api.legacy.Request(req);
                     for (NameValuePair nvp : defaults) {
                         req.add(nvp.getName(), nvp.getValue());
                     }
                 }
                 logRequest(reqType, req);
                 if (!req.getParams().containsKey(OAuth.PARAM_CLIENT_ID)) {
-                    req = new Request(req).add(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
+                    req = new com.soundcloud.android.api.legacy.Request(req).add(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
                 }
                 return execute(req.buildRequest(reqType));
             }
@@ -429,7 +436,7 @@ public class ApiWrapperTest {
         try {
             broken.execute(new HttpGet("/foo"));
             fail("expected BrokenHttpClientException");
-        } catch (BrokenHttpClientException expected) {
+        } catch (com.soundcloud.android.api.legacy.BrokenHttpClientException expected) {
             // make sure client retried request
             verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
@@ -449,7 +456,7 @@ public class ApiWrapperTest {
         try {
             broken.execute(new HttpGet("/foo"));
             fail("expected BrokenHttpClientException");
-        } catch (BrokenHttpClientException expected) {
+        } catch (com.soundcloud.android.api.legacy.BrokenHttpClientException expected) {
             verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
     }
@@ -493,7 +500,7 @@ public class ApiWrapperTest {
         layer.addHttpResponseRule("/foo?t=1&client_id=" + TEST_CLIENT_ID, "Hi t1");
         layer.addHttpResponseRule("/foo?t=2&client_id=" + TEST_CLIENT_ID, "Hi t2");
 
-        final Request foo = Request.to("/foo");
+        final com.soundcloud.android.api.legacy.Request foo = Request.to("/foo");
         for (int i = 0; i < 1000; i++) {
             final Exception throwable[] = new Exception[2];
             Thread t1 = new Thread("t1") {
@@ -501,13 +508,13 @@ public class ApiWrapperTest {
                 public void run() {
                     ApiWrapper.setDefaultParameter("t", "1");
                     try {
-                        assertEquals("Hi t1", Http.getString(api.get(foo)));
+                        assertEquals("Hi t1", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[0] = e;
                     }
                     ApiWrapper.clearDefaultParameters();
                     try {
-                        assertEquals("Hi", Http.getString(api.get(foo)));
+                        assertEquals("Hi", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[0] = e;
                     }
@@ -519,13 +526,13 @@ public class ApiWrapperTest {
                 public void run() {
                     ApiWrapper.setDefaultParameter("t", "2");
                     try {
-                        assertEquals("Hi t2", Http.getString(api.get(foo)));
+                        assertEquals("Hi t2", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[1] = e;
                     }
                     ApiWrapper.clearDefaultParameters();
                     try {
-                        assertEquals("Hi", Http.getString(api.get(foo)));
+                        assertEquals("Hi", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[1] = e;
                     }
