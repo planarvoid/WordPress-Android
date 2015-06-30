@@ -28,6 +28,13 @@ public class OfflineSettingsStorage {
         }
     };
 
+    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = new Func1<String, Boolean>() {
+        @Override
+        public Boolean call(String key) {
+            return OFFLINE_WIFI_ONLY.equals(key);
+        }
+    };
+
     private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
@@ -75,6 +82,12 @@ public class OfflineSettingsStorage {
     Observable<Boolean> getOfflineLikedTracksStatusChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(FILTER_OFFLINE_LIKES_KEY)
+                .map(toValue);
+    }
+
+    Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {
+        return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
+                .filter(FILTER_WIFI_ONLY_KEY)
                 .map(toValue);
     }
 
