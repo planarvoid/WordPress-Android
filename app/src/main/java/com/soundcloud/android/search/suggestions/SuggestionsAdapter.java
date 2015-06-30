@@ -7,7 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -100,7 +100,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions localSuggestions = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
-    public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
+    public SuggestionsAdapter(Context context, PublicApiWrapper api, ContentResolver contentResolver) {
         super(context, null, 0);
         this.contentResolver = contentResolver;
         this.context = context;
@@ -470,10 +470,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private static final class SuggestionsHandler extends Handler {
         private final WeakReference<SuggestionsAdapter> adapterRef;
-        private final PublicCloudAPI api;
+        private final PublicApiWrapper api;
 
 
-        public SuggestionsHandler(SuggestionsAdapter adapter, PublicCloudAPI api, Looper looper) {
+        public SuggestionsHandler(SuggestionsAdapter adapter, PublicApiWrapper api, Looper looper) {
             super(looper);
             adapterRef = new WeakReference<>(adapter);
             this.api = api;

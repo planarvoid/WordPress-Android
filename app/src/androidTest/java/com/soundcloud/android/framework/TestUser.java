@@ -1,8 +1,8 @@
 package com.soundcloud.android.framework;
 
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.api.ApiWrapper;
 
 import android.content.Context;
 
@@ -37,7 +37,7 @@ public class TestUser {
     }
 
     public boolean logIn(Context context) {
-        ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
+        PublicApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         int maxRetries = 3;
         int tryCount = 0;
         boolean result = false;
@@ -64,14 +64,14 @@ public class TestUser {
         return result;
     }
 
-    protected PublicApiUser getUser(ApiWrapper apiWrapper) throws IOException {
+    protected PublicApiUser getUser(PublicApiWrapper apiWrapper) throws IOException {
         if (user == null){
             user = AccountAssistant.getLoggedInUser(apiWrapper);
         }
         return user;
     }
 
-    protected Token getToken(Context context, ApiWrapper apiWrapper) throws IOException {
+    protected Token getToken(Context context, PublicApiWrapper apiWrapper) throws IOException {
         if (token == null){
             token = AccountAssistant.getToken(context, apiWrapper, email, password);
         }

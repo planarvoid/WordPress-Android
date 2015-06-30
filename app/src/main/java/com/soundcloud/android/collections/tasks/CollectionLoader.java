@@ -1,8 +1,8 @@
 package com.soundcloud.android.collections.tasks;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.model.ScModel;
 
 interface CollectionLoader<T extends ScModel> {
-    ReturnData<T> load(PublicCloudAPI application, CollectionParams<T> params);
+    ReturnData<T> load(PublicApiWrapper application, CollectionParams<T> params);
 }

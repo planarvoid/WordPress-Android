@@ -1,5 +1,8 @@
 package com.soundcloud.android.api.legacy;
 
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -21,7 +24,6 @@ import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
-
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -86,13 +88,13 @@ import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
 import android.preference.PreferenceManager;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -114,10 +116,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static android.util.Log.INFO;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-
-public class PublicApiWrapper implements PublicCloudAPI {
+public class PublicApiWrapper {
 
     /**
      * the parameter which we use to tell the API that this is a non-interactive request (e.g. background syncing.
@@ -125,6 +124,12 @@ public class PublicApiWrapper implements PublicCloudAPI {
     public static final String BACKGROUND_PARAMETER = "_behavior[non_interactive]";
 
     public static final String LINKED_PARTITIONING = "linked_partitioning";
+    public static final String TAG = PublicApiWrapper.class.getSimpleName();
+    // other constants
+    public static final String REALM = "SoundCloud";
+    public static final String OAUTH_SCHEME = "oauth";
+    public static final String VERSION = "1.3.1";
+    public static final String USER_AGENT = "SoundCloud Java Wrapper (" + PublicApiWrapper.VERSION + ")";
 
     private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final String UNCHECKED = "unchecked";
@@ -217,10 +222,11 @@ public class PublicApiWrapper implements PublicCloudAPI {
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
     }
 
-    private PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
-                             AccountOperations accountOperations, ApplicationProperties applicationProperties,
-                             UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                             DeviceHelper deviceHelper) {
+    @VisibleForTesting
+    PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
+                     AccountOperations accountOperations, ApplicationProperties applicationProperties,
+                     UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+                     DeviceHelper deviceHelper) {
         this.accountOperations = accountOperations;
         this.oAuth = oAuth;
         // context can be null in tests
@@ -297,13 +303,11 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     public ObjectMapper getMapper() {
         return objectMapper;
     }
 
     // add a bunch of logging in debug mode to make it easier to see and debug API request
-    @Override
     public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
         // sends the request
         HttpResponse response = null;
@@ -319,7 +323,7 @@ public class PublicApiWrapper implements PublicCloudAPI {
 
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
         if (responseIsUnauthorised(response)) {
-            if(accountOperations.hasValidToken()) {
+            if (accountOperations.hasValidToken()) {
                 unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
             }
         }
@@ -352,7 +356,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         return sb.toString();
     }
 
-    @Override
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T read(Request request) throws NotFoundException, IOException {
         InputStream inputStream = getInputStream(get(request), request);
@@ -363,7 +366,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T update(Request request) throws NotFoundException, IOException {
         InputStream inputStream = getInputStream(put(request), request);
@@ -374,7 +376,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T create(Request request) throws IOException {
         InputStream inputStream = getInputStream(post(request), request);
@@ -385,7 +386,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     @SuppressWarnings(UNCHECKED)
     @NotNull
     public <T extends PublicApiResource> List<T> readList(Request request) throws IOException {
@@ -443,7 +443,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         return (List<T>) resources;
     }
 
-    @Override
     public
     @NotNull
     <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
@@ -472,7 +471,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
     }
 
 
-    @Override
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> PublicApiResource.ResourceHolder<T> readCollection(Request req) throws IOException {
         InputStream inputStream = getInputStream(get(req), req);
@@ -483,12 +481,10 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     public Env getEnv() {
         return env;
     }
 
-    @Override
     public String getUserAgent() {
         return userAgent == null ? USER_AGENT : userAgent;
     }
@@ -626,7 +622,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     public Token login(String username, String password) throws IOException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
@@ -647,7 +642,7 @@ public class PublicApiWrapper implements PublicCloudAPI {
      *
      * @param request the token request
      * @return the token
-     * @throws java.io.IOException                               network error
+     * @throws java.io.IOException   network error
      * @throws InvalidTokenException unauthorized
      * @throws ApiResponseException  http error
      */
@@ -676,7 +671,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
                 new ApiResponseException(response, error);
     }
 
-    @Override
     public Token clientCredentials(String... scopes) throws IOException {
         final Request req = Request.to(Endpoints.TOKEN);
         addRequestParams(req, oAuth.getTokenRequestParamsFromClientCredentials(scopes));
@@ -693,7 +687,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         return token;
     }
 
-    @Override
     public Token extensionGrantType(String grantType) throws IOException {
         final Request req = Request.to(Endpoints.TOKEN);
         addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant(grantType));
@@ -701,7 +694,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         return requestToken(req);
     }
 
-    @Override
     public Token refreshToken() throws IOException {
         final Token token = accountOperations.getSoundCloudToken();
         if (!token.hasRefreshToken()) {
@@ -713,7 +705,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
     }
 
     @Nullable
-    @Override
     public Token invalidateToken() {
         Token token = accountOperations.getSoundCloudToken();
         Token alternative = listener == null ? null : listener.onTokenInvalid(token);
@@ -766,10 +757,10 @@ public class PublicApiWrapper implements PublicCloudAPI {
                     });
 
                     getCredentialsProvider().setCredentials(
-                            new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, CloudAPI.REALM, OAUTH_SCHEME),
+                            new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, PublicApiWrapper.REALM, OAUTH_SCHEME),
                             OAuth2Scheme.EmptyCredentials.INSTANCE);
 
-                    getAuthSchemes().register(CloudAPI.OAUTH_SCHEME, new OAuth2Scheme.Factory(PublicApiWrapper.this));
+                    getAuthSchemes().register(PublicApiWrapper.OAUTH_SCHEME, new OAuth2Scheme.Factory(PublicApiWrapper.this));
 
                     addResponseInterceptor(new HttpResponseInterceptor() {
                         @Override
@@ -802,7 +793,7 @@ public class PublicApiWrapper implements PublicCloudAPI {
                 protected HttpContext createHttpContext() {
                     HttpContext ctxt = super.createHttpContext();
                     ctxt.setAttribute(ClientContext.AUTH_SCHEME_PREF,
-                            Arrays.asList(CloudAPI.OAUTH_SCHEME, "digest", "basic"));
+                            Arrays.asList(PublicApiWrapper.OAUTH_SCHEME, "digest", "basic"));
                     return ctxt;
                 }
 
@@ -835,7 +826,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
         return httpClient;
     }
 
-    @Override
     public long resolve(String url) throws IOException {
         HttpResponse resp = get(Request.to(Endpoints.RESOLVE).with("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
@@ -860,27 +850,22 @@ public class PublicApiWrapper implements PublicCloudAPI {
         }
     }
 
-    @Override
     public HttpResponse get(Request request) throws IOException {
         return execute(request, HttpGet.class);
     }
 
-    @Override
     public HttpResponse put(Request request) throws IOException {
         return execute(request, HttpPut.class);
     }
 
-    @Override
     public HttpResponse post(Request request) throws IOException {
         return execute(request, HttpPost.class);
     }
 
-    @Override
     public HttpResponse delete(Request request) throws IOException {
         return execute(request, HttpDelete.class);
     }
 
-    @Override
     public Token getToken() {
         return accountOperations.getSoundCloudToken();
     }
@@ -1120,7 +1105,6 @@ public class PublicApiWrapper implements PublicCloudAPI {
                 httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
                 stateHandler, params);
     }
-
 
 
 }

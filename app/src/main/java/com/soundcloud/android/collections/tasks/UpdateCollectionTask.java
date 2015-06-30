@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
@@ -24,13 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
-    private final PublicCloudAPI api;
+    private final PublicApiWrapper api;
     private final String endpoint;
     private final Set<Long> resourceIds;
     private final Map<Urn, PublicApiResource> updatedResources;
     private WeakReference<ScBaseAdapter> adapterReference;
 
-    public UpdateCollectionTask(PublicCloudAPI api, String endpoint, Set<Long> resourceIds) {
+    public UpdateCollectionTask(PublicApiWrapper api, String endpoint, Set<Long> resourceIds) {
         if (TextUtils.isEmpty(endpoint)) {
             throw new IllegalArgumentException("endpoint is empty");
         }

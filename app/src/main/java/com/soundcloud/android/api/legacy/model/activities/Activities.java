@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -194,14 +193,14 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static Activities fetchRecent(PublicCloudAPI api,
+    public static Activities fetchRecent(PublicApiWrapper api,
                                          final Request request,
                                          int max) throws IOException {
 
         return fetchRecent(api, request, max, 0);
     }
 
-    private static Activities fetchRecent(PublicCloudAPI api,
+    private static Activities fetchRecent(PublicApiWrapper api,
                                           final Request request,
                                           int max,
                                           int requestNumber) throws IOException {
@@ -225,7 +224,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static
     @Nullable
-    Activities fetch(PublicCloudAPI api,
+    Activities fetch(PublicApiWrapper api,
                      final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

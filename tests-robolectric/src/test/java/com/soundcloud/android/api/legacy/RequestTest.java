@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 
 import static org.hamcrest.Matchers.containsString;

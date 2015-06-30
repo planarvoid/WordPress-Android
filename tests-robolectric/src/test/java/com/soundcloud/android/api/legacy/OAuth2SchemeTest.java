@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.OAuth2Scheme;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
@@ -24,11 +25,11 @@ import java.io.IOException;
 
 public class OAuth2SchemeTest {
     com.soundcloud.android.api.legacy.OAuth2Scheme scheme;
-    com.soundcloud.android.api.legacy.CloudAPI api;
+    PublicApiWrapper api;
 
     @Before
     public void setup() {
-        api = mock(com.soundcloud.android.api.legacy.CloudAPI.class);
+        api = mock(PublicApiWrapper.class);
         scheme = new com.soundcloud.android.api.legacy.OAuth2Scheme(api, null);
     }
 

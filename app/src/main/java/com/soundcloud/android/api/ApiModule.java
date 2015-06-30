@@ -4,8 +4,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
@@ -52,8 +51,8 @@ public class ApiModule {
     }
 
     @Provides
-    public PublicCloudAPI providePublicCloudApi(Context context) {
-        return new PublicApi(context);
+    public PublicApiWrapper providePublicCloudApi(Context context) {
+        return PublicApiWrapper.getInstance(context);
     }
 
     @Provides

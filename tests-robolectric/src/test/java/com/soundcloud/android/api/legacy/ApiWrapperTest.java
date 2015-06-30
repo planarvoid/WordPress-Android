@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -19,19 +19,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.BrokenHttpClientException;
-import com.soundcloud.android.api.legacy.Endpoints;
-import com.soundcloud.android.api.legacy.Http;
-import com.soundcloud.android.api.legacy.InvalidTokenException;
-import com.soundcloud.android.api.legacy.Request;
-import com.soundcloud.android.api.legacy.ResolverException;
-import com.soundcloud.android.api.legacy.TokenListener;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.api.fakehttp.FakeHttpLayer;
-import com.soundcloud.api.fakehttp.RequestMatcher;
+
+import com.soundcloud.android.utils.BuildHelper;
+import com.soundcloud.android.utils.DeviceHelper;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -65,26 +62,35 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.net.URI;
 
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiWrapperTest {
-    private ApiWrapper api;
+    private PublicApiWrapper api;
     private final static String TEST_CLIENT_ID = "testClientId";
     private final static String TEST_CLIENT_SECRET = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
 
+    @Mock private Context context;
     @Mock private OAuth oAuth;
     @Mock private AccountOperations accountOperations;
+    @Mock private BuildHelper buildHelper;
+    @Mock private ObjectMapper objectMapper;
+    @Mock private ApplicationProperties applicationProperties;
+    @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock private DeviceHelper deviceHelper;
 
     @Before
     public void setup() {
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(oAuth.getClientId()).thenReturn(TEST_CLIENT_ID);
         when(oAuth.getClientSecret()).thenReturn(TEST_CLIENT_SECRET);
-        api = new ApiWrapper(oAuth, accountOperations) {
+        api = new PublicApiWrapper(context, objectMapper, oAuth, accountOperations, applicationProperties,
+                unauthorisedRequestRegistry, deviceHelper) {
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
                                                          ClientConnectionManager conman,
@@ -361,7 +367,8 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientNPE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
+        PublicApiWrapper broken = new PublicApiWrapper(context, objectMapper, oAuth, accountOperations, applicationProperties,
+                unauthorisedRequestRegistry, deviceHelper) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -417,7 +424,7 @@ public class ApiWrapperTest {
             // of inputs.
             @SuppressWarnings("PMD.AvoidReassigningParameters")
             protected HttpResponse execute(com.soundcloud.android.api.legacy.Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
-                com.soundcloud.android.api.legacy.Request defaults = ApiWrapper.defaultParams.get();
+                com.soundcloud.android.api.legacy.Request defaults = PublicApiWrapper.defaultParams.get();
                 if (defaults != null && !defaults.getParams().isEmpty()) {
                     // copy + merge in default parameters
                     req = new com.soundcloud.android.api.legacy.Request(req);
@@ -446,7 +453,8 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientIAE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
+        PublicApiWrapper broken = new PublicApiWrapper(context, objectMapper, oAuth, accountOperations, applicationProperties,
+                unauthorisedRequestRegistry, deviceHelper) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -466,7 +474,8 @@ public class ApiWrapperTest {
     public void shouldSafeExecute() throws Exception {
 
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
+        PublicApiWrapper broken = new PublicApiWrapper(context, objectMapper, oAuth, accountOperations, applicationProperties,
+                unauthorisedRequestRegistry, deviceHelper) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -506,13 +515,13 @@ public class ApiWrapperTest {
             Thread t1 = new Thread("t1") {
                 @Override
                 public void run() {
-                    ApiWrapper.setDefaultParameter("t", "1");
+                    PublicApiWrapper.setDefaultParameter("t", "1");
                     try {
                         assertEquals("Hi t1", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[0] = e;
                     }
-                    ApiWrapper.clearDefaultParameters();
+                    PublicApiWrapper.clearDefaultParameters();
                     try {
                         assertEquals("Hi", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
@@ -524,13 +533,13 @@ public class ApiWrapperTest {
             Thread t2 = new Thread("t2") {
                 @Override
                 public void run() {
-                    ApiWrapper.setDefaultParameter("t", "2");
+                    PublicApiWrapper.setDefaultParameter("t", "2");
                     try {
                         assertEquals("Hi t2", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {
                         throwable[1] = e;
                     }
-                    ApiWrapper.clearDefaultParameters();
+                    PublicApiWrapper.clearDefaultParameters();
                     try {
                         assertEquals("Hi", com.soundcloud.android.api.legacy.Http.getString(api.get(foo)));
                     } catch (Exception e) {

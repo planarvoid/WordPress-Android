@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.collections.ScBaseAdapter;
@@ -38,7 +38,7 @@ public class UpdateCollectionTaskTest {
         SoundCloudApplication.sModelManager.cache(existingUser);
 
         List<PublicApiResource> expectedItems = createStatleUserWithCity("refreshed");
-        PublicCloudAPI api = mock(PublicCloudAPI.class);
+        PublicApiWrapper api = mock(PublicApiWrapper.class);
         when(api.readList(any(Request.class))).thenReturn(expectedItems);
 
         UpdateCollectionTask task = new UpdateCollectionTask(api, "/tracks", new HashSet<Long>());

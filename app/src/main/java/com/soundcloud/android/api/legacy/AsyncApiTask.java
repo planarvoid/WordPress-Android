@@ -18,9 +18,9 @@ public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
     protected final List<String> errors = new ArrayList<>();
-    protected final PublicCloudAPI api;
+    protected final PublicApiWrapper api;
 
-    public AsyncApiTask(PublicCloudAPI api) {
+    public AsyncApiTask(PublicApiWrapper api) {
         this.api = api;
     }
 

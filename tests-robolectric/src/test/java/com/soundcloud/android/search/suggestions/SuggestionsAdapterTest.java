@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -46,7 +46,7 @@ public class SuggestionsAdapterTest {
 
     private SuggestionsAdapter adapter;
 
-    @Mock private PublicApi mockApi;
+    @Mock private PublicApiWrapper mockApi;
     @Mock private ContentResolver contentResolver;
     @Mock private Cursor cursor;
     @Mock private Context context;

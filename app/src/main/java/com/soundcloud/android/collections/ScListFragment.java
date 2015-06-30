@@ -11,9 +11,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -112,7 +110,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     };
     protected String nextHref;
     protected EmptyView.Status emptyViewStatus;
-    protected PublicCloudAPI publicApi;
+    protected PublicApiWrapper publicApi;
 
     @Inject AccountOperations accountOperations;
     @Inject ImageOperations imageOperations;
@@ -209,7 +207,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         SoundCloudApplication.getObjectGraph().inject(this);
 
-        publicApi = new PublicApi(getActivity());
+        publicApi = PublicApiWrapper.getInstance(getActivity());
 
         keepGoing = true;
         setupListAdapter();

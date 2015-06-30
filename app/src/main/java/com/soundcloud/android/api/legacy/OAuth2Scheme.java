@@ -29,11 +29,11 @@ import java.util.regex.Pattern;
 public class OAuth2Scheme implements AuthScheme {
     public Map<String, String> params;
     public HttpParams httpParams;
-    private final CloudAPI api;
+    private final PublicApiWrapper api;
 
     public static Pattern AUTHORIZATION_HEADER_PATTERN = Pattern.compile("^OAuth (\\w+)$");
 
-    public OAuth2Scheme(CloudAPI api, HttpParams httpParams) {
+    public OAuth2Scheme(PublicApiWrapper api, HttpParams httpParams) {
         this.api = api;
         this.httpParams = httpParams;
         this.params = new HashMap<>();
@@ -41,7 +41,7 @@ public class OAuth2Scheme implements AuthScheme {
 
     @Override
     public String getSchemeName() {
-        return CloudAPI.OAUTH_SCHEME;
+        return PublicApiWrapper.OAUTH_SCHEME;
     }
 
     @Override
@@ -149,9 +149,9 @@ public class OAuth2Scheme implements AuthScheme {
     }
 
     public static class Factory implements AuthSchemeFactory {
-        private final CloudAPI api;
+        private final PublicApiWrapper api;
 
-        public Factory(CloudAPI api) {
+        public Factory(PublicApiWrapper api) {
             this.api = api;
         }
 

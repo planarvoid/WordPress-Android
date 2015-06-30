@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.oauth.Token;
 import dagger.ObjectGraph;
 
@@ -32,7 +31,7 @@ public class TestApplication extends SoundCloudApplication {
         oldCloudApi = PublicApiWrapper.getInstance(this);
     }
 
-    public PublicCloudAPI getCloudAPI() {
+    public PublicApiWrapper getCloudAPI() {
         return oldCloudApi;
     }
 

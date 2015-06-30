@@ -7,17 +7,16 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.utils.BugReporter;
-import com.soundcloud.android.utils.DeviceHelper;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +29,7 @@ public class SearchActionBarControllerTest {
 
     @Mock private SearchActivity activity;
     @Mock private ActionBar actionBar;
-    @Mock private PublicCloudAPI cloudAPI;
+    @Mock private PublicApiWrapper cloudAPI;
     @Mock private SearchCallback callback;
     @Mock private PlaybackOperations playbackOps;
     @Mock private BugReporter bugReporter;

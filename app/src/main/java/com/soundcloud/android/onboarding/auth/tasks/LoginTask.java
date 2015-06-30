@@ -25,6 +25,8 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Request;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;

@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.api.legacy.model.CollectionHolder;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -19,7 +19,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.api.legacy.Request;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,13 +36,13 @@ public class RemoteCollectionLoaderTest {
 
     private RemoteCollectionLoader<PublicApiResource> remoteCollectionLoader;
     @Mock
-    private PublicCloudAPI publicCloudApi;
+    private PublicApiWrapper publicCloudApi;
     @Mock
     private CollectionParams<PublicApiResource> parameters;
     @Mock
     private Request request;
     @Mock
-    private CollectionHolder<PublicApiResource> collectionHolder;
+    private PublicApiResource.ResourceHolder<PublicApiResource> collectionHolder;
     @Mock
     private TrackStorage trackStorage;
 
