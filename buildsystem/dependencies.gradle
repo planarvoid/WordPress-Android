@@ -12,7 +12,7 @@ ext {
   // Dependency versions
   androidMultiDex = "1.0.1"
   androidSupportVersion = '22.2.0'
-  playServicesVersion = '6.5.87'
+  playServicesVersion = '7.5.0'
   androidKitVersion = '0.14'
   lightCycleVersion = '0.0.4'
   daggerVersion = '1.2.2'
@@ -76,6 +76,7 @@ ext {
           androidDesign                   : "com.android.support:design:$androidSupportVersion",
           androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
+          androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion@aar"
   ]
 
   unitTestLibraries = [

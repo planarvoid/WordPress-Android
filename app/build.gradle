@@ -248,6 +248,7 @@ dependencies {
   compile libraries.androidRecyclerView
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
+  compile libraries.androidPlayServicesAnalytics
 
   /* Unit tests */
   testCompile unitTestLibraries.junit
