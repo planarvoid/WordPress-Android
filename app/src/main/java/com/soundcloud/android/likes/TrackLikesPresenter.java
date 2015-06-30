@@ -11,6 +11,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.paywall.PaywallImpressionController;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -56,6 +57,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     private final PagedTracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
+    private final PaywallImpressionController paywallImpressionController;
 
     private CompositeSubscription viewLifeCycle;
 
@@ -70,7 +72,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         FeatureOperations featureOperations,
                         Navigator navigator,
-                        CollapsingScrollHelper scrollHelper) {
+                        CollapsingScrollHelper scrollHelper,
+                        PaywallImpressionController paywallImpressionController) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
@@ -83,6 +86,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         this.featureOperations = featureOperations;
         this.navigator = navigator;
         this.scrollHelper = scrollHelper;
+        this.paywallImpressionController = paywallImpressionController;
     }
 
     @Override
@@ -139,6 +143,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                 offlineContentOperations.getOfflineContentOrLikesStatus()
                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
+
+        paywallImpressionController.attachRecyclerView(getRecyclerView());
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -148,6 +154,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     @Override
     public void onDestroyView(Fragment fragment) {
         // TODO create subscription light cycle
+        paywallImpressionController.detachRecyclerView(getRecyclerView());
         viewLifeCycle.unsubscribe();
         super.onDestroyView(fragment);
     }

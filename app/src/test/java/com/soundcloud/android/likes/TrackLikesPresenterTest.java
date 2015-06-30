@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.paywall.PaywallImpressionController;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -77,6 +78,7 @@ public class TrackLikesPresenterTest extends PlatformUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
     @Mock private Resources resources;
+    @Mock private PaywallImpressionController paywallImpressionController;
 
     private PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -87,7 +89,7 @@ public class TrackLikesPresenterTest extends PlatformUnitTest {
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
                 offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, swipeRefreshAttacher, featureOperations, navigator, collapsingScrollHelper);
+                eventBus, swipeRefreshAttacher, featureOperations, navigator, collapsingScrollHelper, paywallImpressionController);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
@@ -112,6 +114,21 @@ public class TrackLikesPresenterTest extends PlatformUnitTest {
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
         headerPresenter.onDestroyView(fragment);
+    }
+
+    @Test
+    public void shouldAttachRecyclerViewToImpressionControllerInOnViewCreated() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        verify(paywallImpressionController).attachRecyclerView(recyclerView);
+    }
+
+    @Test
+    public void shouldDetachRecyclerViewToImpressionControllerInOnDestroyView() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.onDestroyView(fragment);
+        verify(paywallImpressionController).detachRecyclerView(recyclerView);
     }
 
     @Test

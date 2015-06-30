@@ -1,16 +1,13 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
-public class EventLoggerEventDataTest {
+public class EventLoggerEventDataTest extends PlatformUnitTest {
 
     @Test
     public void implementsEqualsContract() throws Exception {
@@ -25,7 +22,7 @@ public class EventLoggerEventDataTest {
 
         data.clickName("clicky");
 
-        expect(data.payload.get(CLICK_NAME)).toEqual("clicky");
+        assertThat(data.payload.get(EventLoggerParam.CLICK_NAME)).isEqualTo("clicky");
     }
 
     @Test
@@ -35,8 +32,8 @@ public class EventLoggerEventDataTest {
         data.adUrn(null);
         data.clickObject("");
 
-        expect(data.payload.containsKey(AD_URN)).toBeFalse();
-        expect(data.payload.containsKey(CLICK_OBJECT)).toBeFalse();
+        assertThat(data.payload.containsKey(EventLoggerParam.AD_URN)).isFalse();
+        assertThat(data.payload.containsKey(EventLoggerParam.CLICK_OBJECT)).isFalse();
     }
 
 }

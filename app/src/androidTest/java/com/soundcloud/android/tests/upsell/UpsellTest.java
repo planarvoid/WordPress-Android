@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -12,9 +13,9 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class UpsellTest extends ActivityTest<MainActivity> {
+public class UpsellTest extends TrackingActivityTest<MainActivity> {
+    private static final String MIDTIER_IMPRESSION_TEST_SCENARIO = "midtier-impression-test";
 
     private StreamScreen streamScreen;
 
@@ -48,6 +49,13 @@ public class UpsellTest extends ActivityTest<MainActivity> {
         final UpgradeScreen upgradeScreen = likesScreen.clickMidTierTrackForUpgrade(0);
 
         assertUpgradeScreenVisible(upgradeScreen);
+    }
+
+    public void testViewingMidTierTrackFiresImpression() {
+        mrLoggaVerifier.startLogging();
+        streamScreen.openMenu().clickLikes();
+        mrLoggaVerifier.finishLogging();
+        mrLoggaVerifier.isValid(MIDTIER_IMPRESSION_TEST_SCENARIO);
     }
 
     public void testClickingOnMidTierTrackInPlaylistOpensUpsell() {

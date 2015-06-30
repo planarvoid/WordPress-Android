@@ -30,8 +30,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -39,10 +39,8 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
@@ -50,8 +48,7 @@ import android.net.Uri;
 import java.util.Arrays;
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
-public class EventLoggerJsonDataBuilderTest {
+public class EventLoggerJsonDataBuilderTest extends PlatformUnitTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";
@@ -72,7 +69,7 @@ public class EventLoggerJsonDataBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        jsonDataBuilder = new EventLoggerJsonDataBuilder(Robolectric.application.getResources(), experimentOperations,
+        jsonDataBuilder = new EventLoggerJsonDataBuilder(context().getResources(), experimentOperations,
                 deviceHelper, accountOperations, jsonTransformer);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
