@@ -357,7 +357,7 @@ public class PublicApiWrapper {
     }
 
     @SuppressWarnings(UNCHECKED)
-    public <T extends PublicApiResource> T read(Request request) throws NotFoundException, IOException {
+    public <T extends PublicApiResource> T read(Request request) throws IOException {
         InputStream inputStream = getInputStream(get(request), request);
         try {
             return (T) getMapper().readValue(inputStream, PublicApiResource.class);
@@ -367,7 +367,7 @@ public class PublicApiWrapper {
     }
 
     @SuppressWarnings(UNCHECKED)
-    public <T extends PublicApiResource> T update(Request request) throws NotFoundException, IOException {
+    public <T extends PublicApiResource> T update(Request request) throws IOException {
         InputStream inputStream = getInputStream(put(request), request);
         try {
             return (T) getMapper().readValue(inputStream, PublicApiResource.class);
@@ -507,8 +507,7 @@ public class PublicApiWrapper {
                 throw new NotFoundException();
             default:
                 if (!isStatusCodeOk(code)) {
-                    final UnexpectedResponseException exception = new UnexpectedResponseException(originalRequest, response.getStatusLine());
-                    throw exception;
+                    throw new UnexpectedResponseException(originalRequest, response.getStatusLine());
                 }
         }
         return response.getEntity().getContent();
@@ -517,10 +516,6 @@ public class PublicApiWrapper {
 
     public static boolean isStatusCodeOk(int code) {
         return code >= 200 && code < 400;
-    }
-
-    public static boolean isStatusCodeError(int code) {
-        return code >= 400 && code < 600;
     }
 
     public static boolean isStatusCodeClientError(int code) {
@@ -687,13 +682,6 @@ public class PublicApiWrapper {
         return token;
     }
 
-    public Token extensionGrantType(String grantType) throws IOException {
-        final Request req = Request.to(Endpoints.TOKEN);
-        addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant(grantType));
-
-        return requestToken(req);
-    }
-
     public Token refreshToken() throws IOException {
         final Token token = accountOperations.getSoundCloudToken();
         if (!token.hasRefreshToken()) {
@@ -715,19 +703,6 @@ public class PublicApiWrapper {
         } else {
             return null;
         }
-    }
-
-    public URI getProxy() {
-        Object proxy = getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY);
-        if (proxy instanceof HttpHost) {
-            return URI.create(((HttpHost) proxy).toURI());
-        } else {
-            return null;
-        }
-    }
-
-    public boolean isProxySet() {
-        return getProxy() != null;
     }
 
     /**
@@ -917,12 +892,12 @@ public class PublicApiWrapper {
                 request.abort();
                 throw new BrokenHttpClientException(e);
             }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+            // IllegalArgumentException is caught because of:
             // more brokenness
             // cf. http://code.google.com/p/android/issues/detail?id=2690
-            request.abort();
-            throw new BrokenHttpClientException(e);
-        } catch (ArrayIndexOutOfBoundsException e) {
+
+            // ArrayIndexOutOfBoundsException is caught because of:
             // Caused by: java.lang.ArrayIndexOutOfBoundsException: length=7; index=-9
             // org.apache.harmony.security.asn1.DerInputStream.readBitString(DerInputStream.java:72))
             // org.apache.harmony.security.asn1.ASN1BitString.decode(ASN1BitString.java:64)
@@ -935,10 +910,6 @@ public class PublicApiWrapper {
 
     public String getDefaultContentType() {
         return (defaultContentType == null) ? DEFAULT_CONTENT_TYPE : defaultContentType;
-    }
-
-    public void setDefaultContentType(String contentType) {
-        defaultContentType = contentType;
     }
 
     public String getDefaultAcceptEncoding() {
@@ -1105,6 +1076,4 @@ public class PublicApiWrapper {
                 httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
                 stateHandler, params);
     }
-
-
 }
