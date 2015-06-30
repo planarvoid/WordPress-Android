@@ -43,15 +43,16 @@ public class OfflineContentController {
         @Override
         public Boolean call(SyncResult syncResult) {
             return syncResult.wasChanged()
-                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
+                    && SyncActions.SYNC_TRACK_LIKES.equals(syncResult.getAction());
         }
     };
 
-    private final Func1<SyncResult, Boolean> IS_PLAYLIST_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_PLAYLIST_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
-            return syncResult.getAction().equals(SyncActions.SYNC_PLAYLIST)
-                    && syncResult.wasChanged() && syncResult.hasChangedEntities();
+            return SyncActions.SYNC_PLAYLIST.equals(syncResult.getAction())
+                    && syncResult.wasChanged()
+                    && syncResult.hasChangedEntities();
         }
     };
 

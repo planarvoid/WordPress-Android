@@ -24,6 +24,6 @@ public class SinglePlaylistJobRequest extends SingleJobRequest {
         Exception exception = syncJob.getException();
         resultEvent = exception == null ?
                 SyncResult.success(action, syncJob.resultedInAChange(), playlistUrn)
-                : SyncResult.failure(action, syncJob.getException());
+                : SyncResult.failure(action, exception);
     }
 }
