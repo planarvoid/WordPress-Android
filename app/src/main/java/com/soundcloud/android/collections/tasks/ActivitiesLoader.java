@@ -8,7 +8,8 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.InvalidTokenException;
+
 import org.apache.http.HttpStatus;
 
 import android.content.Context;
@@ -40,7 +41,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
                         success = true;
                         newActivities = getOlderActivities(storage, params);
                     }
-                } catch (CloudAPI.InvalidTokenException e) {
+                } catch (InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
                     responseCode = HttpStatus.SC_UNAUTHORIZED;

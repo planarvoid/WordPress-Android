@@ -119,7 +119,7 @@ public class ApiWrapperTest {
         assertThat(t.getExpiresAt(), is(greaterThan(0L)));
     }
 
-    @Test(expected = CloudAPI.InvalidTokenException.class)
+    @Test(expected = InvalidTokenException.class)
     public void clientCredentialsShouldThrowIfScopeCanNotBeObtained() throws Exception {
         layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
@@ -162,7 +162,7 @@ public class ApiWrapperTest {
         assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
     }
 
-    @Test(expected = CloudAPI.InvalidTokenException.class)
+    @Test(expected = InvalidTokenException.class)
     public void shouldThrowInvalidTokenExceptionWhenLoginFailed() throws Exception {
         layer.addPendingHttpResponse(401, "{\n" +
                 "  \"error\":  \"Error!\"\n" +
@@ -171,7 +171,7 @@ public class ApiWrapperTest {
     }
 
 
-    @Test(expected = CloudAPI.ApiResponseException.class)
+    @Test(expected = ApiResponseException.class)
     public void shouldThrowApiResponseExceptionWhenInvalidJSONReturned() throws Exception {
         layer.addPendingHttpResponse(200, "I'm invalid JSON!");
         api.login("foo", "bar");
@@ -183,7 +183,7 @@ public class ApiWrapperTest {
         try {
             api.login("foo", "bar");
             fail("expected IOException");
-        } catch (CloudAPI.ApiResponseException e) {
+        } catch (ApiResponseException e) {
             assertThat(e.getMessage(), containsString("I'm invalid JSON!"));
         }
     }
@@ -225,7 +225,7 @@ public class ApiWrapperTest {
         assertThat(api.resolve("http://soundcloud.com/crazybob"), is(1000L));
     }
 
-    @Test(expected = CloudAPI.ResolverException.class)
+    @Test(expected = ResolverException.class)
     public void resolveShouldReturnNegativeOneWhenInvalid() throws Exception {
         layer.addPendingHttpResponse(404, "Not found");
         api.resolve("http://soundcloud.com/nonexisto");
@@ -277,7 +277,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldCallTokenStateListenerWhenTokenIsInvalidated() throws Exception {
-        CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
+        TokenListener listener = mock(TokenListener.class);
         api.setTokenListener(listener);
         final Token old = api.getToken();
         api.invalidateToken();
@@ -286,7 +286,7 @@ public class ApiWrapperTest {
 
     @Test
     public void invalidateTokenShouldTryToGetAlternativeToken() throws Exception {
-        CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
+        TokenListener listener = mock(TokenListener.class);
         final Token cachedToken = new Token("new", "fresh");
         api.setTokenListener(listener);
         when(listener.onTokenInvalid(api.getToken())).thenReturn(cachedToken);
@@ -307,7 +307,7 @@ public class ApiWrapperTest {
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
-        CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
+        TokenListener listener = mock(TokenListener.class);
 
         api.setTokenListener(listener);
         api.refreshToken();
@@ -358,7 +358,7 @@ public class ApiWrapperTest {
         try {
             broken.execute(new HttpGet("/foo"));
             fail("expected BrokenHttpClientException");
-        } catch (ApiWrapper.BrokenHttpClientException expected) {
+        } catch (BrokenHttpClientException expected) {
             // make sure client retried request
             verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
@@ -378,7 +378,7 @@ public class ApiWrapperTest {
         try {
             broken.execute(new HttpGet("/foo"));
             fail("expected BrokenHttpClientException");
-        } catch (ApiWrapper.BrokenHttpClientException expected) {
+        } catch (BrokenHttpClientException expected) {
             verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
     }
@@ -410,7 +410,7 @@ public class ApiWrapperTest {
         try {
             broken.execute(new HttpGet("/foo"));
             fail("expected BrokenHttpClientException");
-        } catch (ApiWrapper.BrokenHttpClientException expected) {
+        } catch (BrokenHttpClientException expected) {
             // make sure client retried request
             verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }

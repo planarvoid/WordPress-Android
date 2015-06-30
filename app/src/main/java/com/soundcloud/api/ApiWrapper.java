@@ -1,7 +1,6 @@
 package com.soundcloud.api;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.ConnectionReuseStrategy;
@@ -74,7 +73,6 @@ import java.util.Map;
 import static android.util.Log.INFO;
 import static com.soundcloud.android.api.legacy.PublicCloudAPI.TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 /**
  * Interface with SoundCloud, using OAuth2.
@@ -128,7 +126,7 @@ public class ApiWrapper implements CloudAPI {
      */
     public boolean debugRequests;
     transient private HttpClient httpClient;
-    transient private CloudAPI.TokenListener listener;
+    transient private TokenListener listener;
     private String defaultContentType;
     private String defaultAcceptEncoding;
 
@@ -184,8 +182,8 @@ public class ApiWrapper implements CloudAPI {
      * @param request the token request
      * @return the token
      * @throws java.io.IOException                               network error
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
-     * @throws com.soundcloud.api.CloudAPI.ApiResponseException  http error
+     * @throws InvalidTokenException unauthorized
+     * @throws ApiResponseException  http error
      */
     private Token requestToken(Request request) throws IOException {
         HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));
@@ -208,8 +206,8 @@ public class ApiWrapper implements CloudAPI {
             error = ignored.getMessage();
         }
         throw status == HttpStatus.SC_UNAUTHORIZED ?
-                new CloudAPI.InvalidTokenException(status, error) :
-                new CloudAPI.ApiResponseException(response, error);
+                new InvalidTokenException(status, error) :
+                new ApiResponseException(response, error);
     }
 
 

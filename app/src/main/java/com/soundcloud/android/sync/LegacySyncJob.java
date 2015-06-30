@@ -3,11 +3,11 @@ package com.soundcloud.android.sync;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.InvalidTokenException;
 
 import android.content.Context;
 import android.net.Uri;
@@ -96,9 +96,9 @@ public class LegacySyncJob implements SyncJob {
             Log.d(TAG, "syncing " + contentUri);
             result = apiSyncerFactory.forContentUri(context, contentUri).syncContent(contentUri, action);
             syncStateManager.onSyncComplete(result, localCollection);
-        } catch (CloudAPI.InvalidTokenException e) {
+        } catch (InvalidTokenException e) {
             handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
-        } catch (PublicCloudAPI.UnexpectedResponseException e) {
+        } catch (UnexpectedResponseException e) {
             handleSyncException(ApiSyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
         } catch (IOException e) {
             handleSyncException(ApiSyncResult.fromIOException(contentUri), e);

@@ -86,34 +86,4 @@ public interface PublicCloudAPI extends CloudAPI {
     <T extends PublicApiResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException;
 
 
-    class NotFoundException extends IOException {
-        public NotFoundException() {
-            super();
-        }
-    }
-
-    class UnexpectedResponseException extends IOException {
-        private final Request request;
-        private final StatusLine statusLine;
-
-        public UnexpectedResponseException(Request request, StatusLine statusLine) {
-            this.request = request;
-            this.statusLine = statusLine;
-        }
-
-        public int getStatusCode() {
-            return statusLine.getStatusCode();
-        }
-
-        @Override
-        public String getMessage() {
-            return toString();
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(getClass())
-                    .add("response_status", statusLine).add("request", request).toString();
-        }
-    }
 }

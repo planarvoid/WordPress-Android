@@ -9,12 +9,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.InvalidTokenException;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;
@@ -149,7 +149,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndSetStatsForAuthException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.authError(null, new CloudAPI.InvalidTokenException(401, "status test")));
+        setupExceptionThrowingSync(ApiRequestException.authError(null, new InvalidTokenException(401, "status test")));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -234,7 +234,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForUnexpectedResponseException() throws Exception {
-        final PublicCloudAPI.UnexpectedResponseException unexpectedResponseException = new PublicCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        final UnexpectedResponseException unexpectedResponseException = new UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
         setupExceptionThrowingSync(unexpectedResponseException);
 
         legacySyncItem.onQueued();

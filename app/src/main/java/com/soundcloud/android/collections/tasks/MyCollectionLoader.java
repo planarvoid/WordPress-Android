@@ -18,7 +18,7 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.InvalidTokenException;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +63,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                 // if we already have all the data, this is a NOP
                 try {
                     fetchAndStoreMissingCollectionItems(resolver, api, storedIds, params.getContent(), false);
-                } catch (CloudAPI.InvalidTokenException e) {
+                } catch (InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
                     responseCode = HttpStatus.SC_UNAUTHORIZED;

@@ -30,7 +30,7 @@ public interface CloudAPI {
      * @param username SoundCloud username
      * @param password SoundCloud password
      * @return a valid token
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
+     * @throws InvalidTokenException invalid token
      * @throws IOException                                       In case of network/server errors
      */
     Token login(String username, String password) throws IOException;
@@ -48,7 +48,7 @@ public interface CloudAPI {
      * @param scopes the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws IOException                                       IO/Error
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException if requested scope is not available
+     * @throws InvalidTokenException if requested scope is not available
      */
     Token clientCredentials(String... scopes) throws IOException;
 
@@ -69,7 +69,7 @@ public interface CloudAPI {
      *
      * @return a valid token
      * @throws IOException                                       in case of network problems
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
+     * @throws InvalidTokenException invalid token
      * @throws IllegalStateException                             if no refresh token present
      */
     Token refreshToken() throws IOException;
@@ -142,91 +142,4 @@ public interface CloudAPI {
      */
     Token getToken();
 
-    /**
-     * Interested in changes to the current token.
-     */
-    interface TokenListener {
-        /**
-         * Called when token was found to be invalid
-         *
-         * @param token the invalid token
-         * @return a cached token if available, or null
-         */
-        Token onTokenInvalid(Token token);
-
-        /**
-         * Called when the token got successfully refreshed
-         *
-         * @param token the refreshed token
-         */
-        void onTokenRefreshed(Token token);
-    }
-
-    /**
-     * Thrown when token is not valid.
-     */
-    class InvalidTokenException extends IOException {
-        private static final long serialVersionUID = 1954919760451539868L;
-
-        /**
-         * @param code   the HTTP error code
-         * @param status the HTTP status, or other error message
-         */
-        public InvalidTokenException(int code, String status) {
-            super("HTTP error:" + code + " (" + status + ")");
-        }
-    }
-
-    /**
-     * Thrown if resolving the audio stream of a SoundCloud sound fails.
-     */
-    class ResolverException extends ApiResponseException {
-
-        public ResolverException(String s, HttpResponse resp) {
-            super(resp, s);
-        }
-
-        public ResolverException(Throwable throwable, HttpResponse response) {
-            super(throwable, response);
-        }
-    }
-
-    /**
-     * Thrown if the service API responds in error. The HTTP status code can be obtained via {@link #getStatusCode()}.
-     */
-    class ApiResponseException extends IOException {
-        private static final long serialVersionUID = -2990651725862868387L;
-
-        public final HttpResponse response;
-
-        public ApiResponseException(HttpResponse resp, String error) {
-            super(resp.getStatusLine().getStatusCode() + ": [" + resp.getStatusLine().getReasonPhrase() + "] "
-                    + (error != null ? error : ""));
-            this.response = resp;
-        }
-
-        public ApiResponseException(Throwable throwable, HttpResponse response) {
-            super(throwable == null ? null : throwable.toString());
-            initCause(throwable);
-            this.response = response;
-        }
-
-        public int getStatusCode() {
-            return response.getStatusLine().getStatusCode();
-        }
-
-        @Override
-        public String getMessage() {
-            return super.getMessage() + " " + (response != null ? response.getStatusLine() : "");
-        }
-    }
-
-    class BrokenHttpClientException extends IOException {
-        private static final long serialVersionUID = -4764332412926419313L;
-
-        BrokenHttpClientException(Throwable throwable) {
-            super(throwable == null ? null : throwable.toString());
-            initCause(throwable);
-        }
-    }
 }

@@ -25,7 +25,7 @@ import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.InvalidTokenException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpStatus;
@@ -78,7 +78,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
     }
 
-    @Test(expected = CloudAPI.InvalidTokenException.class)
+    @Test(expected = InvalidTokenException.class)
     public void shouldThrowAuthExceptionFrom404FromSyncStream() throws Exception {
         Robolectric.getFakeHttpLayer().addPendingHttpResponse(new TestHttpResponse(HttpStatus.SC_NOT_FOUND, ""));
         sync(Content.ME_SOUND_STREAM.uri);

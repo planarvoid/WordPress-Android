@@ -33,7 +33,7 @@ public class Stream implements Serializable {
     public final int bitRate;
     public final long expires;
 
-    public Stream(String url, String streamUrl, HttpResponse resp) throws CloudAPI.ResolverException {
+    public Stream(String url, String streamUrl, HttpResponse resp) throws ResolverException {
         this(url, streamUrl, getHeaderValue(resp, "ETag"),
                 getLongHeader(resp, "Content-Length"),
                 getDateHeader(resp, "Last-Modified"),
@@ -62,27 +62,27 @@ public class Stream implements Serializable {
         return new Stream(url, newStreamUrl, eTag, contentLength, lastModified, duration, bitRate, getExpires(newStreamUrl));
     }
 
-    public static long getLongHeader(HttpResponse resp, String name) throws CloudAPI.ResolverException {
+    public static long getLongHeader(HttpResponse resp, String name) throws ResolverException {
         try {
             return Long.parseLong(getHeaderValue(resp, name));
         } catch (NumberFormatException e) {
-            throw new CloudAPI.ResolverException(e, resp);
+            throw new ResolverException(e, resp);
         }
     }
 
-    public static int getIntHeader(HttpResponse resp, String name) throws CloudAPI.ResolverException {
+    public static int getIntHeader(HttpResponse resp, String name) throws ResolverException {
         try {
             return Integer.parseInt(getHeaderValue(resp, name));
         } catch (NumberFormatException e) {
-            throw new CloudAPI.ResolverException(e, resp);
+            throw new ResolverException(e, resp);
         }
     }
 
-    public static long getDateHeader(HttpResponse resp, String name) throws CloudAPI.ResolverException {
+    public static long getDateHeader(HttpResponse resp, String name) throws ResolverException {
         try {
             return buildDateFormat().parse(getHeaderValue(resp, name)).getTime();
         } catch (ParseException e) {
-            throw new CloudAPI.ResolverException(e, resp);
+            throw new ResolverException(e, resp);
         }
     }
 
@@ -91,12 +91,12 @@ public class Stream implements Serializable {
         return new SimpleDateFormat(DateUtils.PATTERN_RFC1123, Locale.US);
     }
 
-    private static String getHeaderValue(HttpResponse resp, String name) throws CloudAPI.ResolverException {
+    private static String getHeaderValue(HttpResponse resp, String name) throws ResolverException {
         Header h = resp.getFirstHeader(name);
         if (h != null && h.getValue() != null) {
             return h.getValue();
         } else {
-            throw new CloudAPI.ResolverException("header " + name + " not set", resp);
+            throw new ResolverException("header " + name + " not set", resp);
         }
     }
 
