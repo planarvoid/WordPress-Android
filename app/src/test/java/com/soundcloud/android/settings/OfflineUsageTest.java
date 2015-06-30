@@ -1,17 +1,17 @@
 package com.soundcloud.android.settings;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.SecureFileStorage;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class OfflineUsageTest {
     private static final long GB = 1024l * 1024l * 1024l;
     private static final long TOTAL = 8l * GB;
@@ -37,52 +37,52 @@ public class OfflineUsageTest {
 
     @Test
     public void shouldReturnCurrentLimit() {
-        expect(offlineUsage.getOfflineLimit()).toEqual(OFFLINE_LIMIT);
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(OFFLINE_LIMIT);
     }
 
     @Test
     public void shouldReturnCurrentUsage() {
-        expect(offlineUsage.getOfflineUsed()).toEqual(OFFLINE_USED);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(OFFLINE_USED);
     }
 
     @Test
     public void shouldReturnCurrentSpaceAvailable() {
-        expect(offlineUsage.getDeviceAvailable()).toEqual(AVAILABLE);
+        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(AVAILABLE);
     }
 
     @Test
     public void shouldReturnCurrentTotalSpace() {
-        expect(offlineUsage.getDeviceTotal()).toEqual(TOTAL);
+        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(TOTAL);
     }
 
     @Test
     public void shouldReturnUsageByOtherApps() {
-        expect(offlineUsage.getUsedOthers()).toEqual(TOTAL - AVAILABLE - OFFLINE_USED);
+        assertThat(offlineUsage.getUsedOthers()).isEqualTo(TOTAL - AVAILABLE - OFFLINE_USED);
     }
 
     @Test
     public void shouldReturnOfflineAvailable() {
-        expect(offlineUsage.getOfflineAvailable()).toEqual(OFFLINE_LIMIT - OFFLINE_USED);
+        assertThat(offlineUsage.getOfflineAvailable()).isEqualTo(OFFLINE_LIMIT - OFFLINE_USED);
     }
 
     @Test
     public void shouldReturnUnusedWhenExists() {
-        expect(offlineUsage.getUnused()).toEqual(AVAILABLE - (OFFLINE_LIMIT - OFFLINE_USED));
+        assertThat(offlineUsage.getUnused()).isEqualTo(AVAILABLE - (OFFLINE_LIMIT - OFFLINE_USED));
     }
 
     @Test
     public void shouldReturnZeroWhenMaximumLimit() {
         offlineUsage.setOfflineLimitPercentage(100);
 
-        expect(offlineUsage.getUnused()).toEqual(0L);
+        assertThat(offlineUsage.getUnused()).isEqualTo(0L);
     }
 
     @Test
     public void shouldSetLimitFromPercentage() {
         offlineUsage.setOfflineLimitPercentage(50);
 
-        expect(offlineUsage.getOfflineLimitPercentage()).toEqual(50);
-        expect(offlineUsage.getOfflineLimit()).toEqual(4L * GB);
+        assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(50);
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(4L * GB);
     }
 
     @Test
@@ -92,16 +92,16 @@ public class OfflineUsageTest {
 
         offlineUsage.setOfflineLimitPercentage(2);
 
-        expect(offlineUsage.getOfflineLimitPercentage()).toEqual(6);
-        expect(offlineUsage.getOfflineLimit()).toEqual((long) (0.5 * GB));
+        assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(6);
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo((long) (0.5 * GB));
     }
 
     @Test
     public void shouldSetMaximumLimitPercentage() {
         offlineUsage.setOfflineLimitPercentage(95);
 
-        expect(offlineUsage.getOfflineLimitPercentage()).toEqual(100);
-        expect(offlineUsage.isMaximumLimit()).toBeTrue();
+        assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(100);
+        assertThat(offlineUsage.isMaximumLimit()).isTrue();
     }
 
     @Test
@@ -113,8 +113,8 @@ public class OfflineUsageTest {
 
         boolean result = offlineUsage.setOfflineLimitPercentage(5);
 
-        expect(result).toBeFalse();
-        expect(offlineUsage.getOfflineLimit()).toEqual(offlineStorageUsed);
+        assertThat(result).isFalse();
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(offlineStorageUsed);
     }
 
     @Test
@@ -125,10 +125,10 @@ public class OfflineUsageTest {
         when(fileStorage.getStorageCapacity()).thenReturn(4000l);
         offlineUsage.update();
 
-        expect(offlineUsage.getDeviceAvailable()).toEqual(1000l);
-        expect(offlineUsage.getOfflineUsed()).toEqual(2000l);
-        expect(offlineUsage.getOfflineLimit()).toEqual(3000l);
-        expect(offlineUsage.getDeviceTotal()).toEqual(4000l);
+        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(1000l);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(3000l);
+        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(4000l);
     }
 
     @Test
@@ -139,10 +139,10 @@ public class OfflineUsageTest {
         when(fileStorage.getStorageCapacity()).thenReturn(3500l);
         offlineUsage.update();
 
-        expect(offlineUsage.getDeviceAvailable()).toEqual(500l);
-        expect(offlineUsage.getOfflineUsed()).toEqual(2000l);
-        expect(offlineUsage.getDeviceTotal()).toEqual(3500l);
-        expect(offlineUsage.getOfflineLimit()).toEqual(2500l);
+        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(500l);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
+        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(3500l);
+        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(2500l);
     }
 
 }
