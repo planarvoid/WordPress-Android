@@ -29,7 +29,6 @@ import java.io.File;
 public class RecordingMetaDataLayout extends RelativeLayout {
 
     private Recording recording;
-    private File artworkFile;
     private Drawable placeholder;
     private Activity activity;
 
@@ -59,7 +58,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         View view = inflater.inflate(R.layout.metadata, this);
         ButterKnife.inject(this, view);
 
-        if(!isInEditMode()) {
+        if (!isInEditMode()) {
             IOUtils.mkdirs(Recording.IMAGE_DIR);
         }
     }
@@ -84,12 +83,13 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     @OnLongClick(R.id.artwork)
     boolean onArtworkLongClick() {
+        recording.clearArtwork();
         clearArtwork();
         return true;
     }
 
     private void showImagePickerDialog() {
-        ImageUtils.showImagePickerDialog(activity, recording.generateImageFile(Recording.IMAGE_DIR));
+        ImageUtils.showImagePickerDialog(activity, recording.getImageFile());
     }
 
     public void setRecording(Recording recording, boolean map) {
@@ -99,7 +99,9 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         }
 
         if (recording != null) {
-            titleText.setHint(recording.defaultSharingNote(getResources()));
+            titleText.setHint(recording.sharingNote(getResources()));
+            titleText.setText(recording.title);
+            setImage(recording.artwork_path);
         }
     }
 
@@ -112,11 +114,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     public void onSaveInstanceState(Bundle state) {
         state.putString("createTitleValue", titleText.getText().toString());
-
-        if (artworkFile != null) {
-            state.putString("createArtworkPath", artworkFile.getAbsolutePath());
-        }
-
         state.putParcelable("recording", recording);
     }
 
@@ -139,8 +136,9 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         if (file != null) {
             int iconWidth = (int) getResources().getDimension(R.dimen.record_progress_icon_width);
             int iconHeight = (int) getResources().getDimension(R.dimen.share_progress_icon_height);
-            artworkFile = file;
             ImageUtils.setImage(file, artwork, iconWidth, iconHeight);
+        } else {
+            clearArtwork();
         }
     }
 
@@ -158,8 +156,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     private void clearArtwork() {
-        artworkFile = null;
-
         if (hasImage()) {
             ImageUtils.recycleImageViewBitmap(artwork);
         }
@@ -175,20 +171,14 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     public void mapToRecording(final Recording recording) {
         recording.title = titleText.getText().toString();
-        recording.artwork_path = artworkFile;
     }
 
     public void mapFromRecording(final Recording recording) {
-        if (!TextUtils.isEmpty(recording.title)) {
-            titleText.setTextKeepState(recording.title);
-        }
-        if (recording.artwork_path != null) {
-            setImage(recording.artwork_path);
-        }
+        setTitle(recording.title);
+        setImage(recording.artwork_path);
     }
 
     public void onDestroy() {
         clearArtwork();
     }
-
 }

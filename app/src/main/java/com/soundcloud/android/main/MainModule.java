@@ -6,6 +6,7 @@ import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.creators.record.UploadActivity;
 import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
@@ -22,6 +23,7 @@ import dagger.Module;
                 TrackedActivity.class,
                 MeActivity.class,
                 RecordActivity.class,
+                UploadActivity.class,
                 SuggestedUsersActivity.class,
                 SuggestedUsersSyncActivity.class,
                 MetadataFragment.class,

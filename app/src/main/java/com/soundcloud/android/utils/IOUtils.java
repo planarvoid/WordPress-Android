@@ -108,11 +108,15 @@ public final class IOUtils {
                             cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
                             cursor.getColumnIndex(MediaStore.MediaColumns.DATA); // if it is a picasa image on newer devices with OS 3.0 and up
                     if (columnIndex != -1) {
-                        return new File(cursor.getString(columnIndex));
+                        String path = cursor.getString(columnIndex);
+                        if (path != null) {
+                            return new File(path);
+                        }
                     }
                 }
-            } catch (SecurityException ignored) {
+            } catch (SecurityException|IllegalArgumentException ignored) {
                 // nothing to be done
+                // When uri comes from google's drive, it crashes with _data not found
             } finally {
                 if (cursor != null) {
                     cursor.close();
@@ -120,6 +124,28 @@ public final class IOUtils {
             }
         }
         return null;
+    }
+
+    public static String getFilenameFromUri(Uri stream, ContentResolver resolver) {
+        String[] projections = {MediaStore.MediaColumns.DISPLAY_NAME};
+        Cursor cursor = resolver.query(stream, projections, null, null, null);
+
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                String title = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+                if (title != null) {
+                    return title;
+                }
+            }
+        } catch (SecurityException|IllegalArgumentException ignore) {
+            // ignore
+        } finally {
+            if(cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return stream.getLastPathSegment();
     }
 
     public static String readInputStream(InputStream in) throws IOException {

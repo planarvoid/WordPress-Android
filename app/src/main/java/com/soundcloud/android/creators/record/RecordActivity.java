@@ -38,6 +38,7 @@ public class RecordActivity extends ScActivity {
 
     @Inject @LightCycle ActionBarController actionBarController;
     @Inject EventBus eventBus;
+    @Inject SoundRecorder recorder;
 
     private Subscription initialStateSubscription = RxUtils.invalidSubscription();
 
@@ -62,11 +63,19 @@ public class RecordActivity extends ScActivity {
                     if (uploadEvent.isUploading()) {
                         displayMonitor(uploadEvent.getRecording());
                     } else {
-                        displayRecord();
+                        if (!setRecordingFromIntent(getIntent())) {
+                            displayRecord();
+                        }
                     }
                 }
             });
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setRecordingFromIntent(intent);
     }
 
     @Override
@@ -93,14 +102,14 @@ public class RecordActivity extends ScActivity {
     }
 
 
-    public void onRecordToMetadata() {
+    public void onRecordToMetadata(boolean addToBackStack) {
         Fragment fragment = getMetadataFragment();
 
         if (fragment == null) {
             fragment = MetadataFragment.create();
         }
 
-        transition(fragment, METADATA_FRAGMENT_TAG, true);
+        transition(fragment, METADATA_FRAGMENT_TAG, addToBackStack);
     }
 
     public void onUploadToRecord() {
@@ -190,5 +199,19 @@ public class RecordActivity extends ScActivity {
             default:
                 throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
+    }
+
+    private boolean setRecordingFromIntent(Intent intent) {
+        Recording recording = Recording.fromIntent(intent);
+
+        if (recording != null) {
+            recorder.reset();
+            recorder.setRecording(recording);
+            intent.removeExtra(Recording.EXTRA);
+            onRecordToMetadata(false);
+            return true;
+        }
+
+        return false;
     }
 }

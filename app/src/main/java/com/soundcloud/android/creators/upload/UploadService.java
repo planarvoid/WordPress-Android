@@ -320,7 +320,7 @@ public class UploadService extends Service {
 
                 if (upload != null) {
                     upload.track = event.getTrack();
-                    SoundRecorder.getInstance(getApplicationContext()).reset();
+                    SoundRecorder.getInstance(getApplicationContext()).reset(true);
                     releaseLocks();
                     onUploadDone(recording);
                     eventBus.publish(EventQueue.UPLOAD, UploadEvent.success(recording));

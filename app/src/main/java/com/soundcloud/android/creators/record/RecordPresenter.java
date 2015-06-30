@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragment> implements CreateWaveDisplay.Listener {
@@ -80,6 +81,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     private CreateWaveDisplay waveDisplay;
     private CreateState currentState;
     private Subscription cleanupRecordingsSubscription = RxUtils.invalidSubscription();
+    private Subscription cleanupStaleUploadsSubscription = RxUtils.invalidSubscription();
     private Map<View, Pair<BitSet, Integer>> visibilities;
     private RecordFragment recordFragment;
 
@@ -109,7 +111,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
         }
 
         recorder.shouldUseNotifications(false);
-        if (recorder.hasRecording()) {
+
+        if (hasRecording()) {
             configureStateBasedOnRecorder();
         } else {
             checkForUnsavedRecordings();
@@ -121,6 +124,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     @Override
     public void onPause(Fragment fragment) {
         cleanupRecordingsSubscription.unsubscribe();
+        cleanupStaleUploadsSubscription.unsubscribe();
 
         recorder.stopReading(); // this will stop the amplitude reading loop
 
@@ -136,15 +140,18 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
         cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(SoundRecorder.RECORD_DIR)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(getCleanupRecordingsSubscriber());
+
+        cleanupStaleUploadsSubscription = recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR)
+                .subscribe(new DefaultSubscriber<Void>() {});
     }
 
     @NotNull
-    private DefaultSubscriber<CleanupRecordingsResult> getCleanupRecordingsSubscriber() {
-        return new DefaultSubscriber<CleanupRecordingsResult>() {
+    private DefaultSubscriber<List<Recording>> getCleanupRecordingsSubscriber() {
+        return new DefaultSubscriber<List<Recording>>() {
             @Override
-            public void onNext(CleanupRecordingsResult result) {
-                if (!result.unsavedRecordings.isEmpty()) {
-                    final Recording recording = result.unsavedRecordings.get(0);
+            public void onNext(List<Recording> result) {
+                if (!result.isEmpty()) {
+                    final Recording recording = result.get(0);
                     recorder.setRecording(recording);
                 }
                 configureStateBasedOnRecorder();
@@ -326,7 +333,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
         switch (currentState) {
             case IDLE_RECORD:
                 configureRecordButton(false);
-                if (recordFragment.isResumed() && recorder.getRecording() == null) {
+                if (recordFragment.isResumed() && !hasRecording()) {
+                    recorder.reset(true);
                     recorder.startReading();
                 }
                 chrono.setText(R.string.record_instructions);
@@ -433,7 +441,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                 waveDisplay.gotoPlaybackMode(false);
             } else {
                 // we have an inactive recorder, see what is loaded in it
-                if (recorder.hasRecording()) {
+                if (hasRecording()) {
                     if (currentState != EDIT) {
                         newState = CreateState.IDLE_PLAYBACK;
                     }
@@ -441,12 +449,16 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                     waveDisplay.gotoPlaybackMode(false);
                 } else {
                     newState = CreateState.IDLE_RECORD;
-
                 }
             }
         }
 
         updateUi(newState);
+    }
+
+    private boolean hasRecording() {
+        Recording recording = recorder.getRecording();
+        return recording != null && !recording.isUploadRecording();
     }
 
     @OnClick(R.id.btn_action)
@@ -470,7 +482,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @OnClick(R.id.btn_next)
     void next() {
-        ((RecordActivity) recordFragment.getActivity()).onRecordToMetadata();
+        ((RecordActivity) recordFragment.getActivity()).onRecordToMetadata(true);
     }
 
     @OnClick(R.id.btn_apply)

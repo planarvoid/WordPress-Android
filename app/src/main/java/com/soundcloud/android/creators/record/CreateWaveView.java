@@ -371,7 +371,6 @@ public class CreateWaveView extends View {
                 drawAmplitude(bitmapCanvas, nextBitmapX, currentAmplitudeHelper.currentValue(),abovePaint, belowPaint);
             }
             nextBitmapX--;
-            Log.i("asdf", "Draw zoom view with no initial data done");
         }
         // draw amplitudes cached to canvas
         Matrix m = new Matrix();

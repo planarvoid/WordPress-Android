@@ -59,15 +59,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     public void onCreate(Fragment fragment, @Nullable Bundle state) {
         super.onCreate(fragment, state);
         this.metadataFragment = (MetadataFragment) fragment;
-
         metadataFragment.getActivity().setTitle(R.string.post);
-
-        final Bundle arguments = metadataFragment.getArguments();
-
-        // 3rd party uploads come from arguments. Otherwise, get it from the singleton SoundRecorder
-        this.recording = arguments == null || !arguments.containsKey(RECORDING_KEY)
-                ? recorder.getRecording()
-                : (Recording) arguments.getParcelable(RECORDING_KEY);
     }
 
     @Override
@@ -89,8 +81,28 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     @Override
     public void onResume(Fragment fragment) {
         super.onResume(fragment);
+        restoreRecording();
         ((RecordActivity) metadataFragment.getActivity())
                 .trackScreen(ScreenEvent.create(Screen.RECORD_UPLOAD));
+    }
+
+    @Override
+    public void onPause(Fragment fragment) {
+        recordingMetadata.mapToRecording(recording);
+        super.onPause(fragment);
+    }
+
+    private void restoreRecording() {
+        this.recording = recorder.getRecording();
+
+        if(this.recording != null) {
+            if (!recordingMetadata.hasPlaceholder()) {
+                recordingMetadata.setPlaceholder(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
+            }
+            recordingMetadata.setRecording(recording, true);
+        } else {
+            ((RecordActivity) metadataFragment.getActivity()).displayRecord();
+        }
     }
 
     @Override
@@ -112,12 +124,6 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         }
 
         recordingMetadata.setActivity(metadataFragment.getActivity());
-
-        if(!recordingMetadata.hasPlaceholder()) {
-            recordingMetadata.setPlaceholder(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
-        }
-
-        configureViews();
     }
 
     @Override
@@ -136,16 +142,8 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         super.onSaveInstanceState(fragment, state);
     }
 
-    private void configureViews() {
-        recordingMetadata.setRecording(recording, false);
-
-        if (recording.exists()) {
-            mapFromRecording(recording);
-        }
-    }
-
     public void onArtworkSelected(Intent imageSelectionResult) {
-        final Uri artworkFileUri = Uri.fromFile(recording.generateImageFile(Recording.IMAGE_DIR));
+        final Uri artworkFileUri = Uri.fromFile(recording.getImageFile());
         if (imageSelectionResult != null) {
             ImageUtils.sendCropIntent(metadataFragment.getActivity(), imageSelectionResult.getData(), artworkFileUri);
         } else {
@@ -155,16 +153,8 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     }
 
     public void onSuccessfulCrop() {
-        recordingMetadata.setImage(recording.generateImageFile(Recording.IMAGE_DIR));
-    }
-
-    private void mapFromRecording(final Recording recording) {
-        recordingMetadata.mapFromRecording(recording);
-        if (recording.is_private) {
-            rdoPrivate.setChecked(true);
-        } else {
-            rdoPublic.setChecked(true);
-        }
+        recording.artwork_path = recording.getImageFile();
+        recordingMetadata.setImage(recording.artwork_path);
     }
 
     private void mapToRecording(final Recording recording) {
