@@ -106,36 +106,36 @@ public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapt
 
     @Override
     public void addItem(T item) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void removeItem(int position) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void prependItem(T t) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void clear() {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void onNext(Iterable<T> ts) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void onCompleted() {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 
     @Override
     public void onError(Throwable e) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
+        // no op. exists to satisfy interface contract so we can use these adapters in newer code
     }
 }
