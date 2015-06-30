@@ -3,7 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
@@ -72,7 +72,7 @@ public class SyncAdapterService extends Service {
              */
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                PublicApiWrapper.setBackgroundMode(true);
+                PublicApi.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
@@ -88,7 +88,7 @@ public class SyncAdapterService extends Service {
                 }, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage)) {
                     Looper.loop(); // wait for results to come in
                 }
-                PublicApiWrapper.setBackgroundMode(false);
+                PublicApi.setBackgroundMode(false);
             }
 
             @Override

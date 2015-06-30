@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.TrackedActivity;
@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 public class RecoverActivity extends TrackedActivity {
 
-    private PublicApiWrapper publicCloudAPI;
+    private PublicApi publicCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class RecoverActivity extends TrackedActivity {
 
     protected void build() {
         setContentView(R.layout.recover);
-        publicCloudAPI = PublicApiWrapper.getInstance(this);
+        publicCloudAPI = PublicApi.getInstance(this);
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 

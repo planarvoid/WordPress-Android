@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
@@ -43,7 +43,7 @@ import java.lang.reflect.Field;
 
 public class SearchActionBarController extends ActionBarController {
     private static final String STATE_QUERY = "query";
-    private final PublicApiWrapper publicApi;
+    private final PublicApi publicApi;
     private final PlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
@@ -74,7 +74,7 @@ public class SearchActionBarController extends ActionBarController {
     private String query;
 
     @Inject
-    SearchActionBarController(PublicApiWrapper publicCloudAPI,
+    SearchActionBarController(PublicApi publicCloudAPI,
                               PlaybackOperations playbackOperations,
                               EventBus eventBus,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,

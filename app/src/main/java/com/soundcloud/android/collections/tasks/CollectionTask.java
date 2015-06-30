@@ -2,7 +2,7 @@ package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
 
@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 
 @Deprecated
 public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnData, ReturnData> {
-    private final PublicApiWrapper api;
+    private final PublicApi api;
     private final WeakReference<Callback> callback;
     private final CollectionLoaderFactory collectionLoaderFactory;
 
@@ -18,11 +18,11 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
         void onPostTaskExecute(ReturnData data);
     }
 
-    public CollectionTask(PublicApiWrapper api, Callback callback){
+    public CollectionTask(PublicApi api, Callback callback){
         this(api, callback, new CollectionLoaderFactory());
     }
 
-    protected CollectionTask(PublicApiWrapper api, Callback callback, CollectionLoaderFactory collectionLoaderFactory) {
+    protected CollectionTask(PublicApi api, Callback callback, CollectionLoaderFactory collectionLoaderFactory) {
         this.api = api;
         this.callback = new WeakReference<>(callback);
         this.collectionLoaderFactory = collectionLoaderFactory;

@@ -1,14 +1,14 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.legacy.AsyncApiTask;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.Request;
 
 import java.io.IOException;
 
 public class NewPlaylistTask extends AsyncApiTask<Request, Void, PublicApiPlaylist> {
-    public NewPlaylistTask(PublicApiWrapper api) {
+    public NewPlaylistTask(PublicApi api) {
         super(api);
     }
 

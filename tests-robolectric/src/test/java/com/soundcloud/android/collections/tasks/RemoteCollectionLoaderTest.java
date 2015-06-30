@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -36,7 +36,7 @@ public class RemoteCollectionLoaderTest {
 
     private RemoteCollectionLoader<PublicApiResource> remoteCollectionLoader;
     @Mock
-    private PublicApiWrapper publicCloudApi;
+    private PublicApi publicCloudApi;
     @Mock
     private CollectionParams<PublicApiResource> parameters;
     @Mock

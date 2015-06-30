@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -49,7 +49,7 @@ public class LegacySyncJobTest {
     private SharedPreferences sharedPreferences;
 
     static final String NON_INTERACTIVE =
-            "&" + URLEncoder.encode(PublicApiWrapper.BACKGROUND_PARAMETER) + "=1";
+            "&" + URLEncoder.encode(PublicApi.BACKGROUND_PARAMETER) + "=1";
     private ApiSyncResult apiSyncResult;
 
     @Before

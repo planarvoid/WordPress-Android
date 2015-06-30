@@ -11,7 +11,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -110,7 +110,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     };
     protected String nextHref;
     protected EmptyView.Status emptyViewStatus;
-    protected PublicApiWrapper publicApi;
+    protected PublicApi publicApi;
 
     @Inject AccountOperations accountOperations;
     @Inject ImageOperations imageOperations;
@@ -207,7 +207,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         SoundCloudApplication.getObjectGraph().inject(this);
 
-        publicApi = PublicApiWrapper.getInstance(getActivity());
+        publicApi = PublicApi.getInstance(getActivity());
 
         keepGoing = true;
         setupListAdapter();
@@ -734,7 +734,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private Request buildRequest(boolean isRefresh) {
         Request request = getRequest(isRefresh);
         if (request != null) {
-            request.add(PublicApiWrapper.LINKED_PARTITIONING, "1");
+            request.add(PublicApi.LINKED_PARTITIONING, "1");
             request.add("limit", Consts.LIST_PAGE_SIZE);
         }
         return request;

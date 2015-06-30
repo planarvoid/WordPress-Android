@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -159,7 +159,7 @@ public class ProfileApiPublic implements ProfileApi {
     private Observable<ModelCollection<PropertySetSource>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
-                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
@@ -171,7 +171,7 @@ public class ProfileApiPublic implements ProfileApi {
     private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
-                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
@@ -183,7 +183,7 @@ public class ProfileApiPublic implements ProfileApi {
     private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
-                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
@@ -195,7 +195,7 @@ public class ProfileApiPublic implements ProfileApi {
     private Observable<ModelCollection<ApiUser>> getUsers(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
-                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 

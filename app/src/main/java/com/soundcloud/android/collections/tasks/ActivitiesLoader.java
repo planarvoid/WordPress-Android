@@ -1,7 +1,7 @@
 package com.soundcloud.android.collections.tasks;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class ActivitiesLoader implements CollectionLoader<Activity> {
     @Override
-    public ReturnData<Activity> load(PublicApiWrapper api, CollectionParams<Activity> params) {
+    public ReturnData<Activity> load(PublicApi api, CollectionParams<Activity> params) {
         final ActivitiesStorage storage = new ActivitiesStorage();
 
         boolean keepGoing = true;

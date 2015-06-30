@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.Friend;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -48,7 +48,7 @@ import java.util.Set;
 public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
     @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
-    public ReturnData<T> load(PublicApiWrapper api, CollectionParams<T> params) {
+    public ReturnData<T> load(PublicApi api, CollectionParams<T> params) {
         final Context context = SoundCloudApplication.instance;
         final ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
@@ -131,7 +131,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
      */
     // TODO really pass in api as parameter?
     @Deprecated
-    public int fetchAndStoreMissingCollectionItems(ContentResolver resolver, PublicApiWrapper api,
+    public int fetchAndStoreMissingCollectionItems(ContentResolver resolver, PublicApi api,
                                                    @NotNull List<Long> modelIds,
                                                    final Content content,
                                                    boolean ignoreStored) throws IOException {
@@ -146,7 +146,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
 
     // TODO really pass in api as parameter?
     @Deprecated
-    private List<PublicApiResource> fetchMissingCollectionItems(ContentResolver resolver, PublicApiWrapper api,
+    private List<PublicApiResource> fetchMissingCollectionItems(ContentResolver resolver, PublicApi api,
                                                                 @NotNull List<Long> modelIds,
                                                                 final Content content,
                                                                 boolean ignoreStored) throws IOException {

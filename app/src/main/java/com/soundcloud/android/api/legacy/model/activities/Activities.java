@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -193,14 +193,14 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static Activities fetchRecent(PublicApiWrapper api,
+    public static Activities fetchRecent(PublicApi api,
                                          final Request request,
                                          int max) throws IOException {
 
         return fetchRecent(api, request, max, 0);
     }
 
-    private static Activities fetchRecent(PublicApiWrapper api,
+    private static Activities fetchRecent(PublicApi api,
                                           final Request request,
                                           int max,
                                           int requestNumber) throws IOException {
@@ -224,7 +224,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static
     @Nullable
-    Activities fetch(PublicApiWrapper api,
+    Activities fetch(PublicApi api,
                      final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -241,7 +241,7 @@ public class Activities extends CollectionHolder<Activity> {
                 Log.d(TAG, "Got no content response (204)");
             }
             return EMPTY;
-        } else if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
+        } else if (PublicApi.isStatusCodeClientError(statusCode)) {
             // a 404 also translates to Unauthorized here, since the API is a bit fucked up
             throw new InvalidTokenException(response.getStatusLine().getStatusCode(),
                     response.getStatusLine().getReasonPhrase());

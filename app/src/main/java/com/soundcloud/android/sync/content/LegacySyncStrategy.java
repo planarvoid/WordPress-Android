@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.content;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -15,22 +15,22 @@ import android.content.Context;
 public abstract class LegacySyncStrategy implements SyncStrategy {
     public static final String TAG = ApiSyncService.LOG_TAG;
 
-    protected final PublicApiWrapper api;
+    protected final PublicApi api;
     protected final ContentResolver resolver;
     protected final Context context;
     protected final SyncStateManager syncStateManager;
     protected final AccountOperations accountOperations;
 
     protected LegacySyncStrategy(Context context, ContentResolver resolver) {
-        this(context, resolver, PublicApiWrapper.getInstance(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)),
+        this(context, resolver, PublicApi.getInstance(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)),
                 SoundCloudApplication.fromContext(context).getAccountOperations());
     }
 
     protected LegacySyncStrategy(Context context, ContentResolver resolver, AccountOperations accountOperations){
-        this(context, resolver, PublicApiWrapper.getInstance(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)), accountOperations);
+        this(context, resolver, PublicApi.getInstance(context), new SyncStateManager(resolver, new LocalCollectionDAO(resolver)), accountOperations);
     }
 
-    protected LegacySyncStrategy(Context context, ContentResolver resolver, PublicApiWrapper api, SyncStateManager syncStateManager,
+    protected LegacySyncStrategy(Context context, ContentResolver resolver, PublicApi api, SyncStateManager syncStateManager,
                                  AccountOperations accountOperations){
         this.context = context;
         this.api = api;

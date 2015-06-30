@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.legacy.PublicApiWrapper.CloudDateFormat.toTime;
+import static com.soundcloud.android.api.legacy.PublicApi.CloudDateFormat.toTime;
 
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.activities.Activities;

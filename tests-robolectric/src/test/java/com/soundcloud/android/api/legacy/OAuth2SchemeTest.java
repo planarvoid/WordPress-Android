@@ -10,8 +10,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.OAuth2Scheme;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
@@ -25,11 +23,11 @@ import java.io.IOException;
 
 public class OAuth2SchemeTest {
     com.soundcloud.android.api.legacy.OAuth2Scheme scheme;
-    PublicApiWrapper api;
+    PublicApi api;
 
     @Before
     public void setup() {
-        api = mock(PublicApiWrapper.class);
+        api = mock(PublicApi.class);
         scheme = new com.soundcloud.android.api.legacy.OAuth2Scheme(api, null);
     }
 

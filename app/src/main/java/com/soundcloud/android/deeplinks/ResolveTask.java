@@ -1,7 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.api.legacy.AsyncApiTask;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.Env;
@@ -19,7 +19,7 @@ import java.lang.ref.WeakReference;
 public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     private WeakReference<ResolveListener> listener;
 
-    public ResolveTask(PublicApiWrapper api) {
+    public ResolveTask(PublicApi api) {
         super(api);
     }
 

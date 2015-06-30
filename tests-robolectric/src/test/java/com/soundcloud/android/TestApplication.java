@@ -1,6 +1,6 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.Token;
 import dagger.ObjectGraph;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class TestApplication extends SoundCloudApplication {
     public final Token token;
     public final List<Intent> broadcasts = new ArrayList<>();
-    private PublicApiWrapper oldCloudApi;
+    private PublicApi oldCloudApi;
 
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
@@ -28,10 +28,10 @@ public class TestApplication extends SoundCloudApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        oldCloudApi = PublicApiWrapper.getInstance(this);
+        oldCloudApi = PublicApi.getInstance(this);
     }
 
-    public PublicApiWrapper getCloudAPI() {
+    public PublicApi getCloudAPI() {
         return oldCloudApi;
     }
 

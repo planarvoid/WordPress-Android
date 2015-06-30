@@ -2,7 +2,7 @@ package com.soundcloud.android.sync;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -90,7 +90,7 @@ public class LegacySyncJob implements SyncJob {
         }
 
         // make sure all requests going out on this thread have the background parameter set
-        PublicApiWrapper.setBackgroundMode(!isUI);
+        PublicApi.setBackgroundMode(!isUI);
 
         try {
             Log.d(TAG, "syncing " + contentUri);
@@ -109,7 +109,7 @@ public class LegacySyncJob implements SyncJob {
             handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
         } finally {
             // should be taken care of when thread dies, but needed for tests
-            PublicApiWrapper.setBackgroundMode(false);
+            PublicApi.setBackgroundMode(false);
         }
 
         Log.d(TAG, "executed sync on " + this);

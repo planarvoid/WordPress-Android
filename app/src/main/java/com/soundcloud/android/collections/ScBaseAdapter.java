@@ -8,7 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -286,7 +286,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 }
             }
         }
-        final PublicApiWrapper api = PublicApiWrapper.getInstance(context);
+        final PublicApi api = PublicApi.getInstance(context);
         if (!trackUpdates.isEmpty()) {
             UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);

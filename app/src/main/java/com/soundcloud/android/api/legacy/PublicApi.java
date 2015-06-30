@@ -116,7 +116,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class PublicApiWrapper {
+public class PublicApi {
 
     /**
      * the parameter which we use to tell the API that this is a non-interactive request (e.g. background syncing.
@@ -124,12 +124,12 @@ public class PublicApiWrapper {
     public static final String BACKGROUND_PARAMETER = "_behavior[non_interactive]";
 
     public static final String LINKED_PARTITIONING = "linked_partitioning";
-    public static final String TAG = PublicApiWrapper.class.getSimpleName();
+    public static final String TAG = PublicApi.class.getSimpleName();
     // other constants
     public static final String REALM = "SoundCloud";
     public static final String OAUTH_SCHEME = "oauth";
     public static final String VERSION = "1.3.1";
-    public static final String USER_AGENT = "SoundCloud Java Wrapper (" + PublicApiWrapper.VERSION + ")";
+    public static final String USER_AGENT = "SoundCloud Java Wrapper (" + PublicApi.VERSION + ")";
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
     public static final int BUFFER_SIZE = 8192;
     /**
@@ -174,7 +174,7 @@ public class PublicApiWrapper {
 
         }
     };
-    private static PublicApiWrapper instance;
+    private static PublicApi instance;
     /**
      * The current environment, only live possible for now
      */
@@ -196,7 +196,7 @@ public class PublicApiWrapper {
     private String defaultAcceptEncoding;
 
     @Deprecated
-    public PublicApiWrapper(Context context) {
+    public PublicApi(Context context) {
         this(context,
                 SoundCloudApplication.fromContext(context).getAccountOperations(),
                 new ApplicationProperties(context.getResources()), new BuildHelper());
@@ -204,18 +204,18 @@ public class PublicApiWrapper {
     }
 
     @Deprecated
-    public PublicApiWrapper(Context context, AccountOperations accountOperations,
-                            ApplicationProperties applicationProperties, BuildHelper buildHelper) {
+    public PublicApi(Context context, AccountOperations accountOperations,
+                     ApplicationProperties applicationProperties, BuildHelper buildHelper) {
         this(context, buildObjectMapper(), new OAuth(accountOperations),
                 accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
     }
 
     @VisibleForTesting
-    PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
-                     AccountOperations accountOperations, ApplicationProperties applicationProperties,
-                     UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                     DeviceHelper deviceHelper) {
+    PublicApi(Context context, ObjectMapper mapper, OAuth oAuth,
+              AccountOperations accountOperations, ApplicationProperties applicationProperties,
+              UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+              DeviceHelper deviceHelper) {
         this.accountOperations = accountOperations;
         this.oAuth = oAuth;
         // context can be null in tests
@@ -249,9 +249,9 @@ public class PublicApiWrapper {
         setDefaultAcceptEncoding("gzip");
     }
 
-    public synchronized static PublicApiWrapper getInstance(Context context) {
+    public synchronized static PublicApi getInstance(Context context) {
         if (instance == null) {
-            instance = new PublicApiWrapper(context.getApplicationContext());
+            instance = new PublicApi(context.getApplicationContext());
         }
         return instance;
     }
@@ -687,10 +687,10 @@ public class PublicApiWrapper {
                     });
 
                     getCredentialsProvider().setCredentials(
-                            new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, PublicApiWrapper.REALM, OAUTH_SCHEME),
+                            new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, PublicApi.REALM, OAUTH_SCHEME),
                             OAuth2Scheme.EmptyCredentials.INSTANCE);
 
-                    getAuthSchemes().register(PublicApiWrapper.OAUTH_SCHEME, new OAuth2Scheme.Factory(PublicApiWrapper.this));
+                    getAuthSchemes().register(PublicApi.OAUTH_SCHEME, new OAuth2Scheme.Factory(PublicApi.this));
 
                     addResponseInterceptor(new HttpResponseInterceptor() {
                         @Override
@@ -723,7 +723,7 @@ public class PublicApiWrapper {
                 protected HttpContext createHttpContext() {
                     HttpContext ctxt = super.createHttpContext();
                     ctxt.setAttribute(ClientContext.AUTH_SCHEME_PREF,
-                            Arrays.asList(PublicApiWrapper.OAUTH_SCHEME, "digest", "basic"));
+                            Arrays.asList(PublicApi.OAUTH_SCHEME, "digest", "basic"));
                     return ctxt;
                 }
 

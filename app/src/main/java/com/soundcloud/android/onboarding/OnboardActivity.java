@@ -17,7 +17,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -173,7 +173,7 @@ public class OnboardActivity extends FragmentActivity
     @Nullable private Bundle loginBundle, signUpBasicsBundle, signUpDetailsBundle, acceptTermsBundle;
 
     private final Session.StatusCallback sessionStatusCallback;
-    private PublicApiWrapper oldCloudAPI;
+    private PublicApi oldCloudAPI;
     private Session currentFacebookSession;
     private final View.OnClickListener onLoginButtonClick = new View.OnClickListener() {
         @Override
@@ -228,7 +228,7 @@ public class OnboardActivity extends FragmentActivity
         setContentView(R.layout.start);
 
         oauth = new OAuth(SoundCloudApplication.instance.getAccountOperations());
-        oldCloudAPI = PublicApiWrapper.getInstance(this);
+        oldCloudAPI = PublicApi.getInstance(this);
 
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 

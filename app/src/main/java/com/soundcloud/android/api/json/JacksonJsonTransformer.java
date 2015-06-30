@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class JacksonJsonTransformer implements JsonTransformer {
     private final TypeFactory typeFactory;
 
     public JacksonJsonTransformer() {
-        objectMapper = PublicApiWrapper.buildObjectMapper();
+        objectMapper = PublicApi.buildObjectMapper();
         typeFactory = objectMapper.getTypeFactory();
     }
 

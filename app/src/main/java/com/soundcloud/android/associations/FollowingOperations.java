@@ -13,7 +13,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -157,7 +157,7 @@ public class FollowingOperations {
         }).flatMap(new Func1<Collection<UserAssociation>, Observable<Boolean>>() {
             @Override
             public Observable<Boolean> call(Collection<UserAssociation> userAssociations) {
-                return fetchActivities(PublicApiWrapper.getInstance(context));
+                return fetchActivities(PublicApi.getInstance(context));
             }
         });
     }
@@ -223,7 +223,7 @@ public class FollowingOperations {
 
     //TODO: didn't have enough time porting this over, next time :)
     // couldn't write tests either since Activities.fetch isn't mockable :(
-    private Observable<Boolean> fetchActivities(final PublicApiWrapper api) {
+    private Observable<Boolean> fetchActivities(final PublicApi api) {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {

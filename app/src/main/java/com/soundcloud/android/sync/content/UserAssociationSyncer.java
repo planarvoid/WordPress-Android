@@ -15,7 +15,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -141,7 +141,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
                 // load the first page of items to get proper last_seen ordering
                 // parse and add first items
                 List<PublicApiResource> resources = api.readList(Request.to(content.remoteUri)
-                        .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                        .add(PublicApi.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.LIST_PAGE_SIZE));
 
                 if (!isLoggedIn()) {

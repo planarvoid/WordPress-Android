@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.Endpoints;
@@ -23,7 +23,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiCom
     private final List<WeakReference<LoadCommentsListener>> listenerRefs;
     private long trackId;
 
-    public LoadCommentsTask(PublicApiWrapper api) {
+    public LoadCommentsTask(PublicApi api) {
         super(api);
         listenerRefs = new ArrayList<>();
     }
