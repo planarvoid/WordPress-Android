@@ -51,6 +51,15 @@ public class PlanStorageTest {
     }
 
     @Test
+    public void updateReplacesEntireValueList() {
+        storage.update("upsells", Arrays.asList("mid-tier", "high-tier"));
+
+        storage.update("upsells", Arrays.asList("mid-tier"));
+
+        expect(storage.getList("upsells")).toContainExactly("mid-tier");
+    }
+
+    @Test
     public void returnsEmptyListIfNotSet() {
         expect(storage.getList("upsells")).toBeEmpty();
     }
