@@ -8,18 +8,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Message;
 
-@RunWith(SoundCloudTestRunner.class)
-public class DownloadHandlerTest {
+public class DownloadHandlerTest extends PlatformUnitTest {
 
     @Mock MainHandler mainHandler;
     @Mock DownloadOperations downloadOperations;

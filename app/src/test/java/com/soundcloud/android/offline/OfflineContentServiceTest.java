@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -13,17 +13,15 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Message;
 
@@ -31,8 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class OfflineContentServiceTest {
+public class OfflineContentServiceTest extends PlatformUnitTest {
 
     @Mock private DownloadOperations downloadOperations;
     @Mock private DownloadNotificationController notificationController;
@@ -40,6 +37,7 @@ public class OfflineContentServiceTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
+    @Mock private Notification notification;
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
@@ -49,7 +47,7 @@ public class OfflineContentServiceTest {
     private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(downloadRequest1);
     private final DownloadResult failedResult1 = DownloadResult.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
 
-    private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
+    private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
     private TestEventBus eventBus;
     private Message downloadMessage;
@@ -58,7 +56,7 @@ public class OfflineContentServiceTest {
     public void setUp() {
         eventBus = new TestEventBus();
         downloadMessage = new Message();
-        deletePendingRemoval = TestObservables.emptyObservable();
+        deletePendingRemoval = Observable.empty();
 
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
@@ -67,6 +65,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.<OfflineContentRequests>never());
+        when(notificationController.onPendingRequests(anyInt(), any(DownloadRequest.class))).thenReturn(notification);
 
         service.onCreate();
     }
@@ -83,7 +82,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1)
@@ -102,7 +101,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
                 CurrentDownloadEvent.idle()
@@ -120,7 +119,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1)),
                 CurrentDownloadEvent.idle()
@@ -129,11 +128,13 @@ public class OfflineContentServiceTest {
 
     @Test
     public void deletePendingRemovalsWhenStarting() {
-        when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
+        final List<Urn> tracksToBeRemoved = Arrays.asList(TRACK_1, TRACK_2);
+        deletePendingRemoval = Observable.just(tracksToBeRemoved);
 
+        when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         startService();
 
-        expect(deletePendingRemoval.subscribedTo()).toBeTrue();
+        verify(downloadOperations).removeOfflineTracks(tracksToBeRemoved);
     }
 
     @Test
@@ -164,7 +165,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1)
@@ -186,7 +187,7 @@ public class OfflineContentServiceTest {
         when(downloadHandler.isDownloading()).thenReturn(true);
         startService();
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1),
@@ -200,7 +201,7 @@ public class OfflineContentServiceTest {
         startService();
         service.onSuccess(downloadResult1);
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
                 CurrentDownloadEvent.idle()
@@ -212,7 +213,7 @@ public class OfflineContentServiceTest {
         startService();
         service.onError(downloadResult1);
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)),
                 CurrentDownloadEvent.idle()
@@ -226,7 +227,7 @@ public class OfflineContentServiceTest {
         startService();
         service.onError(createFailedDownloadResult(TRACK_1, relatedPlaylists));
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.unavailable(false, Lists.newArrayList(TRACK_1)),
                 CurrentDownloadEvent.downloadRequested(false, relatedPlaylists),
@@ -344,13 +345,13 @@ public class OfflineContentServiceTest {
     }
 
     private int startService() {
-        Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
+        Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_START);
         return service.onStartCommand(intent, 0, 0);
     }
 
     private int stopService() {
-        Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
+        Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_STOP);
         return service.onStartCommand(intent, 0, 0);
     }
