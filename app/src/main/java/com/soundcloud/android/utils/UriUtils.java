@@ -44,6 +44,10 @@ public final class UriUtils {
         return params;
     }
 
+    public static String getPathWithQuery(Uri uri) {
+        return uri.getPath() + (uri.getQuery() != null ? ("?" + uri.getQuery()) : "");
+    }
+
     /**
      * Returns a set of the unique names of all query parameters. Iterating
      * over the set will return the names in order of their first occurrence.

@@ -6,7 +6,6 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;

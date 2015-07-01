@@ -7,6 +7,8 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
 @RunWith(SoundCloudTestRunner.class)
 public class UriUtilsTest {
 
@@ -30,4 +32,10 @@ public class UriUtilsTest {
         expect(result.get("b")).toContainExactly("765");
     }
 
+    @Test
+    public void shouldGetPathWithQuery() {
+        Uri uri = Uri.parse("http://soundcloud.com/some_path?some=query&and=another");
+        String pathAndQuery = UriUtils.getPathWithQuery(uri);
+        expect(pathAndQuery).toEqual("/some_path?some=query&and=another");
+    }
 }

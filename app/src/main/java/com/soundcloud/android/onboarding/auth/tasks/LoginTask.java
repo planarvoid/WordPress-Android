@@ -1,6 +1,8 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import android.os.Bundle;
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -23,12 +25,9 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-
 import org.jetbrains.annotations.NotNull;
 
-import static android.util.Log.INFO;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+import android.os.Bundle;
 
 public class LoginTask extends AuthTask {
 

@@ -1,7 +1,6 @@
 package com.soundcloud.android.tasks;
 
-import android.os.Parcelable;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
@@ -9,16 +8,16 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-
 import org.jetbrains.annotations.Nullable;
+
+import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public abstract class FetchModelTask<Model extends PublicApiResource> extends ParallelAsyncTask<ApiRequest, Void, Model> {
 

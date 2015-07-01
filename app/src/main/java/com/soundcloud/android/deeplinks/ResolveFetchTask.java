@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.HttpUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
@@ -65,7 +65,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     }
 
     private PublicApiResource fetchResource(Uri resolvedUri) {
-        final ApiRequest request = ApiRequest.get(resolvedUri.getPath() + (resolvedUri.getQuery() != null ? ("?" + resolvedUri.getQuery()) : ""))
+        final ApiRequest request = ApiRequest.get(UriUtils.getPathWithQuery(resolvedUri))
                 .forPublicApi()
                 .build();
 

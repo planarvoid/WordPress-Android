@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
-import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;

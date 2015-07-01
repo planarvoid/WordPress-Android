@@ -46,7 +46,7 @@ public class FetchUserTaskTest {
         task.execute(12345);
         expect(users[0]).not.toBeNull();
         expect(users[0].username).toEqual(user.username);
-        expect(users[0].isPrimaryEmailConfirmed()).toBe(user.isPrimaryEmailConfirmed());
+        expect(users[0].isPrimaryEmailConfirmed()).toEqual(user.isPrimaryEmailConfirmed());
 
         PublicApiUser u = new LegacyUserStorage().getUser(user.getId());
         expect(u).not.toBeNull();

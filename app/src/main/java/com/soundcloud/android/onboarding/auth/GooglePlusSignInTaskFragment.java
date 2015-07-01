@@ -11,7 +11,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
