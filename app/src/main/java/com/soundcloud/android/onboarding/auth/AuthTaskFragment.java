@@ -161,9 +161,10 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     private String getLoginErrorDebugMessage(Throwable rootException) {
+        String exceptionMessage = rootException == null ? "no exception" : rootException.getMessage();
         return String.format(
-                "other sign in error while network connected. Message:%s, Network type:%s, Operator name:%s",
-                rootException.getMessage(),
+                "other sign in error while network connected. Message: %s, Network type: %s, Operator name: %s",
+                exceptionMessage,
                 networkConnectionHelper.getCurrentConnectionType().toString(),
                 networkConnectionHelper.getNetworkOperatorName()
         );
