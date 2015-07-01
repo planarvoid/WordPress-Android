@@ -1,34 +1,37 @@
 package com.soundcloud.android.tasks;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.api.legacy.PublicCloudAPI.NotFoundException;
-
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.api.Request;
-import org.jetbrains.annotations.Nullable;
-
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.ParameterizedType;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class FetchModelTask<Model extends PublicApiResource> extends ParallelAsyncTask<Request, Void, Model> {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-    protected PublicCloudAPI api;
+public abstract class FetchModelTask<Model extends PublicApiResource> extends ParallelAsyncTask<ApiRequest, Void, Model> {
+
+    protected ApiClient api;
     private Set<WeakReference<Listener<Model>>> listenerWeakReferences;
 
     private final long modelId;
 
-    public FetchModelTask(PublicCloudAPI api) {
+    public FetchModelTask(ApiClient api) {
         this(api, -1);
     }
 
-    public FetchModelTask(PublicCloudAPI api, long id) {
+    public FetchModelTask(ApiClient api, long id) {
         this.api = api;
         modelId = id;
     }
@@ -41,9 +44,8 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
         listenerWeakReferences.add(new WeakReference<>(listener));
     }
 
-
     @Override
-    protected Model doInBackground(Request... request) {
+    protected Model doInBackground(ApiRequest... request) {
         if (request == null || request.length == 0) {
             throw new IllegalArgumentException("need request");
         }
@@ -66,25 +68,29 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
         }
     }
 
-    //TODO (Matthias:) This method returns null in 4 different, unrelated cases, which makes it hard to properly deal
-    // with API errors on the UI. We need to address this.
     @Nullable
-    public Model resolve(Request request) {
+    public Model resolve(ApiRequest request) {
         try {
             if (isCancelled()) {
                 return null;
             }
-            Model model = api.read(request);
+            Model model = api.fetchMappedResponse(request, getGenericClassType());
             model.setUpdated();
             persist(model);
             SoundCloudApplication.sModelManager.cache(model, PublicApiResource.CacheUpdateMode.FULL);
             return model;
-        } catch (NotFoundException e) {
-            return null;
-        } catch (IOException e) {
+        } catch (ApiMapperException | ApiRequestException | IOException e) {
             Log.e(TAG, "error", e);
             return null;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<Model> getGenericClassType() {
+        return (Class<Model>)
+                ((ParameterizedType) getClass()
+                        .getGenericSuperclass())
+                        .getActualTypeArguments()[0];
     }
 
     protected abstract void persist(Model model);

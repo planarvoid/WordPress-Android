@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -34,8 +35,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -80,6 +79,7 @@ public class LegacyProfileActivity extends ScActivity implements
     /* package */ @Nullable PublicApiUser user;
     @Inject ImageOperations imageOperations;
     @Inject PublicCloudAPI oldCloudAPI;
+    @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
     @Inject FeatureFlags featureFlags;
     @Inject LegacyUserStorage userStorage;
@@ -361,9 +361,9 @@ public class LegacyProfileActivity extends ScActivity implements
 
     private void loadDetails() {
         if (loadUserTask == null && user != null) {
-            loadUserTask = new FetchUserTask(oldCloudAPI);
+            loadUserTask = new FetchUserTask(apiClient);
             loadUserTask.addListener(this);
-            loadUserTask.execute(Request.to(Endpoints.USER_DETAILS, user.getId()));
+            loadUserTask.execute(user.getId());
         }
     }
 
