@@ -65,6 +65,8 @@ public class RecordActivity extends ScActivity {
                     } else {
                         if (!setRecordingFromIntent(getIntent())) {
                             displayRecord();
+                        } else {
+                            onRecordToMetadata(false);
                         }
                     }
                 }
@@ -75,7 +77,10 @@ public class RecordActivity extends ScActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setRecordingFromIntent(intent);
+
+        if(setRecordingFromIntent(intent)) {
+            onRecordToMetadata(false);
+        }
     }
 
     @Override
@@ -208,7 +213,6 @@ public class RecordActivity extends ScActivity {
             recorder.reset();
             recorder.setRecording(recording);
             intent.removeExtra(Recording.EXTRA);
-            onRecordToMetadata(false);
             return true;
         }
 

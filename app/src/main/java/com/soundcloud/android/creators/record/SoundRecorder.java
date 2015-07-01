@@ -251,10 +251,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public boolean hasRecording() {
-        return recording != null;
-    }
-
     @Nullable
     public Recording getRecording() {
         return recording;

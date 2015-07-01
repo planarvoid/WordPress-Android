@@ -2,7 +2,6 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;

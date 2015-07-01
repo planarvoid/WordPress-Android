@@ -2,6 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -50,6 +52,10 @@ public class Navigator {
                 .putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
+    public void openRecord(Context activityContext, Recording recording) {
+        activityContext.startActivity(createRecordIntent(activityContext, recording));
+    }
+
     public PendingIntent openProfileFromNotification(Context context, Urn user) {
         return PendingIntent.getActivity(context,
                 NO_FLAGS,
@@ -75,7 +81,7 @@ public class Navigator {
                 .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
-    private  Intent createPlaylistIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
+    private Intent createPlaylistIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
         return intent.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, autoPlay)
@@ -83,4 +89,9 @@ public class Navigator {
                 .putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
+    private Intent createRecordIntent(Context activityContext, Recording recording) {
+        return new Intent(activityContext, RecordActivity.class)
+                .putExtra(Recording.EXTRA, recording)
+                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
 }

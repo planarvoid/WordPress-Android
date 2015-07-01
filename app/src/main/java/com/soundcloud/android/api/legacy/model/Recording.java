@@ -217,8 +217,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
             note = original_filename;
         } else if (external_upload && !isLegacyRecording() && !isUploadRecording()) {
             note = audio_path.getName();
-        } else if (external_upload && isUploadRecording()) {
-            note = "Upload (" + getFile().length() + " bytes)";
         } else {
             note = defaultSharingNote(res);
         }

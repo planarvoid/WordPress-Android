@@ -41,9 +41,7 @@ public class RecordingStorage {
             @Override
             public void call(Subscriber<? super List<Recording>> subscriber) {
                 List<Recording> recordings = cleanupRecordings(recordingDir, accountOperations.getLoggedInUserUrn());
-                if (recordings != null) {
-                    subscriber.onNext(recordings);
-                }
+                subscriber.onNext(recordings);
                 subscriber.onCompleted();
             }
         });

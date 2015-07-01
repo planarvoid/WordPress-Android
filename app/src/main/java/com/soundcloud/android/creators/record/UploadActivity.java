@@ -1,6 +1,7 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.ScActivity;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 
 public class UploadActivity extends ScActivity {
     @Inject RecordingOperations operations;
+    @Inject Navigator navigator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class UploadActivity extends ScActivity {
         return new DefaultSubscriber<Recording>() {
             @Override
             public void onNext(Recording recording) {
-                startRecordingIntent(recording);
+                navigator.openRecord(UploadActivity.this, recording);
             }
 
             @Override
@@ -48,13 +50,6 @@ public class UploadActivity extends ScActivity {
                 finish();
             }
         };
-    }
-
-    private void startRecordingIntent(Recording recording) {
-        Intent recordIntent = new Intent(this, RecordActivity.class);
-        recordIntent.putExtra(Recording.EXTRA, recording);
-        recordIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(recordIntent);
     }
 
     private boolean isUploadIntent() {
