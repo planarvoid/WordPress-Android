@@ -8,6 +8,8 @@ import rx.functions.Action1;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
+
 public class ConfigurationHelper {
 
     // Features
@@ -16,7 +18,7 @@ public class ConfigurationHelper {
     private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
 
     // Plan
-    private static final String PLAN_UPSELL = "upsell";
+    private static final String PLAN_UPSELLS = "upsells";
     private static final String PLAN_MID_TIER = "mid_tier";
 
     public static void enableOfflineContent(Context context) {
@@ -24,7 +26,7 @@ public class ConfigurationHelper {
     }
 
     public static void enableUpsell(Context context) {
-        getPlanStorage(context).update(PLAN_UPSELL, PLAN_MID_TIER);
+        getPlanStorage(context).update(PLAN_UPSELLS, Arrays.asList(PLAN_MID_TIER));
     }
     
     public static void disableOfflineContent(Context context) {
