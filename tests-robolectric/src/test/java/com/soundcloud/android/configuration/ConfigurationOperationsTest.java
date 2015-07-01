@@ -37,6 +37,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +100,7 @@ public class ConfigurationOperationsTest {
         operations.registerDevice(token);
 
         verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
-        verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsell);
+        verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsells);
         verify(experimentOperations).update(configuration.assignment);
     }
 
@@ -123,7 +124,7 @@ public class ConfigurationOperationsTest {
         operations.update();
 
         verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
-        verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsell);
+        verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsells);
         verify(experimentOperations).update(authorized.assignment);
     }
 
@@ -135,7 +136,7 @@ public class ConfigurationOperationsTest {
     @Test
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() throws Exception {
         Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", "mid_tier"), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
+                new UserPlan("free", Arrays.asList("mid_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(configurationWithDeviceConflict));
 

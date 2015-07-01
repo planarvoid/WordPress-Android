@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -32,6 +33,7 @@ class AccountCleanupAction implements Action0 {
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final StreamSyncStorage streamSyncStorage;
+    private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     private final ClearTableCommand clearTableCommand;
 
@@ -41,7 +43,8 @@ class AccountCleanupAction implements Action0 {
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
-                         RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand, ClearTableCommand clearTableCommand) {
+                         PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
+                         ClearTableCommand clearTableCommand) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
@@ -51,6 +54,7 @@ class AccountCleanupAction implements Action0 {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.offlineSettingsStorage = offlineSettingsStorage;
         this.streamSyncStorage = streamSyncStorage;
+        this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
         this.clearTableCommand = clearTableCommand;
     }
@@ -68,6 +72,7 @@ class AccountCleanupAction implements Action0 {
         offlineSettingsStorage.clear();
         featureStorage.clear();
         streamSyncStorage.clear();
+        planStorage.clear();
         soundRecorder.reset();
         FollowingOperations.clearState();
     }

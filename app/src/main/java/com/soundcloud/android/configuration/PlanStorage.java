@@ -8,6 +8,10 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @VisibleForTesting
 public class PlanStorage {
@@ -21,10 +25,19 @@ public class PlanStorage {
         this.obfuscator = obfuscator;
     }
 
-    public void update(String name, String status) {
+    public void update(String name, String value) {
         String key = obfuscator.obfuscate(name);
-        String value = obfuscator.obfuscate(status);
-        sharedPreferences.edit().putString(key, value).apply();
+        String obfuscated = obfuscator.obfuscate(value);
+        sharedPreferences.edit().putString(key, obfuscated).apply();
+    }
+
+    public void update(String name, List<String> values) {
+        String key = obfuscator.obfuscate(name);
+        Set<String> obfuscatedValues = new HashSet<>();
+        for (String value : values) {
+            obfuscatedValues.add(obfuscator.obfuscate(value));
+        }
+        sharedPreferences.edit().putStringSet(key, obfuscatedValues).apply();
     }
 
     public String get(String name, String defaultValue) {
@@ -35,9 +48,17 @@ public class PlanStorage {
         return value;
     }
 
-    public void remove(String name) {
-        String key = obfuscator.obfuscate(name);
-        sharedPreferences.edit().remove(key).apply();
+    public List<String> getList(String name) {
+        List<String> values = new ArrayList<>();
+        Set<String> obfuscatedValues = sharedPreferences.getStringSet(obfuscator.obfuscate(name), new HashSet<String>());
+        for (String value : obfuscatedValues) {
+            values.add(obfuscator.deobfuscateString(value));
+        }
+        return values;
+    }
+
+    public void clear() {
+        sharedPreferences.edit().clear().apply();
     }
 
 }
