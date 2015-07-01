@@ -212,20 +212,20 @@ public class PublicApi {
     }
 
     @VisibleForTesting
-    PublicApi(Context context, ObjectMapper mapper, OAuth oAuth,
+    PublicApi(Context context, ObjectMapper objectMapper, OAuth oAuth,
               AccountOperations accountOperations, ApplicationProperties applicationProperties,
               UnauthorisedRequestRegistry unauthorisedRequestRegistry,
               DeviceHelper deviceHelper) {
         this.accountOperations = accountOperations;
         this.oAuth = oAuth;
+        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
+        this.applicationProperties = applicationProperties;
+        this.context = context;
+        this.objectMapper = objectMapper;
         // context can be null in tests
         if (context == null) {
             return;
         }
-        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
-        this.applicationProperties = applicationProperties;
-        this.context = context;
-        objectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(accountOperations));
         userAgent = deviceHelper.getUserAgent();
         final IntentFilter filter = new IntentFilter();
