@@ -90,8 +90,9 @@ public class ProgressController {
         progressAnimator = helper.createAnimator(progressView, playbackProgress.getProgressProportion());
         if (progressAnimator != null) {
             progressAnimator.setDuration(playbackProgress.getTimeLeft());
-            progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
             progressAnimator.start();
+            // this needs to happen after start, even though the documentation leads me to believe otherwise : JS
+            progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
         }
     }
 

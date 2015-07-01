@@ -11,11 +11,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.AdditionalMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -23,8 +21,7 @@ import org.mockito.Mockito;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ProgressControllerTest {
+public class ProgressControllerTest extends PlatformUnitTest {
 
     public static final float FLOAT_DELTA = .0001f;
     private ProgressController controller;
@@ -41,7 +38,7 @@ public class ProgressControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        progressView = new View(Robolectric.application);
+        progressView = new View(context());
         controller = new ProgressController(progressView, helper);
 
         when(progress.getProgressProportion()).thenReturn(.2f);
@@ -76,6 +73,7 @@ public class ProgressControllerTest {
 
         InOrder inOrder = inOrder(progressAnimator);
         inOrder.verify(progressAnimator).setDuration(10L);
+        inOrder.verify(progressAnimator).start();
         inOrder.verify(progressAnimator).setCurrentPlayTime(20L);
     }
 
