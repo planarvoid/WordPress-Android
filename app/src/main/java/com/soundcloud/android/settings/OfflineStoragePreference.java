@@ -31,15 +31,12 @@ public final class OfflineStoragePreference extends Preference {
     private final Resources resources;
 
     private final SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        private boolean showLimitToast = false;
+
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                if (!offlineUsage.setOfflineLimitPercentage(progress)) {
-                    Toast.makeText(getContext(),
-                            R.string.offline_cannot_set_limit_below_usage,
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }
+                showLimitToast = !offlineUsage.setOfflineLimitPercentage(progress);
                 updateView();
             }
         }
@@ -53,6 +50,12 @@ public final class OfflineStoragePreference extends Preference {
             if (onStorageLimitChangeListener != null) {
                 onStorageLimitChangeListener.onPreferenceChange(OfflineStoragePreference.this,
                         offlineUsage.getOfflineLimit());
+
+                if (showLimitToast) {
+                    Toast.makeText(getContext(),
+                            R.string.offline_cannot_set_limit_below_usage, Toast.LENGTH_SHORT).show();
+                    showLimitToast = false;
+                }
             }
         }
     };
