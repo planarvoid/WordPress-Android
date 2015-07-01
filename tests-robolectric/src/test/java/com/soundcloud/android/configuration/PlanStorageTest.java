@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.Arrays;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PlanStorageTest {
 
@@ -31,22 +33,35 @@ public class PlanStorageTest {
 
     @Test
     public void updateStoresValue() {
-        storage.update("plan", "plan1");
+        storage.update("plan", "mid-tier");
 
-        expect(storage.get("plan", "plan2")).toEqual("plan1");
+        expect(storage.get("plan", "none")).toEqual("mid-tier");
     }
 
     @Test
     public void returnsDefaultIfNotSet() {
-        expect(storage.get("plan", "default")).toEqual("default");
+        expect(storage.get("plan", "none")).toEqual("none");
     }
 
     @Test
-    public void removesStoredValue() {
-        storage.update("plan", "plan1");
-        storage.remove("plan");
+    public void updateStoresValueList() {
+        storage.update("upsells", Arrays.asList("mid-tier", "high-tier"));
 
-        expect(storage.get("plan", "default")).toEqual("default");
+        expect(storage.getList("upsells")).toContainExactlyInAnyOrder("mid-tier", "high-tier");
+    }
+
+    @Test
+    public void returnsEmptyListIfNotSet() {
+        expect(storage.getList("upsells")).toBeEmpty();
+    }
+
+    @Test
+    public void clearRemovesStoredValues() {
+        storage.update("plan", "mid-tier");
+
+        storage.clear();
+
+        expect(storage.get("plan", "none")).toEqual("none");
     }
 
     private void configureMockObfuscation() throws Exception {

@@ -3,7 +3,6 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -13,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class FeatureOperationsTest {
@@ -42,17 +43,10 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void shouldShowUpsellIfSetToKnownPlan() {
-        when(planStorage.get(eq("upsell"), anyString())).thenReturn("mid_tier");
+    public void shouldShowMidTierUpsellIfIncluded() {
+        when(planStorage.getList(eq("upsells"))).thenReturn(Arrays.asList("mid_tier"));
 
         expect(featureOperations.upsellMidTier()).toBeTrue();
-    }
-
-    @Test
-    public void clearsStoredUpsellIfNoneIsReturned() {
-        featureOperations.updatePlan("none", null);
-
-        verify(planStorage).remove("upsell");
     }
 
     @Test

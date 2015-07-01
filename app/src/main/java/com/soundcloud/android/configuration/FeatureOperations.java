@@ -2,8 +2,6 @@ package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -21,7 +19,7 @@ public class FeatureOperations {
 
     // Plan
     private static final String PLAN = "plan";
-    private static final String UPSELL = "upsell";
+    private static final String UPSELLS = "upsells";
 
     private final FeatureStorage featureStorage;
     private final PlanStorage planStorage;
@@ -51,13 +49,9 @@ public class FeatureOperations {
         return featureStorage.isEnabled(name, false);
     }
 
-    public void updatePlan(String plan, @Nullable String upsell) {
+    public void updatePlan(String plan, List<String> upsells) {
         planStorage.update(PLAN, plan);
-        if (upsell == null) {
-            planStorage.remove(UPSELL);
-        } else {
-            planStorage.update(UPSELL, upsell);
-        }
+        planStorage.update(UPSELLS, upsells);
     }
 
     public String getPlan() {
@@ -69,7 +63,7 @@ public class FeatureOperations {
     }
 
     public boolean upsellMidTier() {
-        return MID_TIER.equals(planStorage.get(UPSELL, ScTextUtils.EMPTY_STRING));
+        return planStorage.getList(UPSELLS).contains(MID_TIER);
     }
 
     public Observable<Boolean> offlineContentEnabled() {
