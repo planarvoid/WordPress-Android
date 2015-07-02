@@ -199,10 +199,6 @@
     <string name="dashboard_notifications_message_incoming">de %s</string>
     <string name="dashboard_notifications_message_incoming_2">de %1$s y %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s y otros</string>
-    <string name="dashboard_notifications_ticker">%s nuevos sonidos</string>
-    <string name="dashboard_notifications_ticker_single">1 nuevo sonido</string>
-    <string name="dashboard_notifications_title">%s nuevos sonidos</string>
-    <string name="dashboard_notifications_title_single">1 nuevo sonido</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s publicó de nuevo %2$s</string>
 
     <!-- __ONBOARDING -->

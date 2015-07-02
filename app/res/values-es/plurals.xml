@@ -10,30 +10,6 @@
     -->
 
     <!-- __NOTIFICATIONS -->
-    <plurals name="dashboard_notifications_activity_message_repost" tools:ignore="UnusedQuantity">
-        <item quantity="one">sobre %1$s</item>
-        <item quantity="two">sobre %1$s y %2$s</item>
-        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_activity" tools:ignore="UnusedQuantity">
-        <item quantity="one">de %2$s sobre %1$s</item>
-        <item quantity="two">Comentarios y gustos de %2$s y %3$s</item>
-        <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment" tools:ignore="UnusedQuantity">
-        <item quantity="two">Comentarios de %1$s y %2$s</item>
-        <item quantity="other">Comentarios de %1$s, %2$s y otros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment_single_track" tools:ignore="UnusedQuantity">
-        <item quantity="one">nuevo comentario sobre %2$s de %3$s</item>
-        <item quantity="two">%1$d nuevos comentarios sobre %2$s de %3$s y %4$s</item>
-        <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s, %4$s y otros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_like" tools:ignore="UnusedQuantity">
-        <item quantity="one">sobre %1$s</item>
-        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
-        <item quantity="two">sobre %1$s y %2$s</item>
-    </plurals>
     <plurals name="dashboard_notifications_activity_ticker_activity">
         <item quantity="one">Una nueva actividad</item>
         <item quantity="other">%d nuevas actividades</item>

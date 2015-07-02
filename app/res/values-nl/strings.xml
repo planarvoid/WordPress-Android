@@ -199,10 +199,6 @@
     <string name="dashboard_notifications_message_incoming">van %s</string>
     <string name="dashboard_notifications_message_incoming_2">van %1$s en %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">van %1$s, %2$s en anderen</string>
-    <string name="dashboard_notifications_ticker">%s nieuwe geluiden</string>
-    <string name="dashboard_notifications_ticker_single">1 nieuw geluid</string>
-    <string name="dashboard_notifications_title">%s nieuwe geluiden</string>
-    <string name="dashboard_notifications_title_single">1 nieuw geluid</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s deelde %2$s</string>
 
     <!-- __ONBOARDING -->
