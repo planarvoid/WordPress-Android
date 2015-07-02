@@ -195,7 +195,7 @@ public final class AuthTaskResult {
     @Override
     public String toString() {
         return String.format(
-                "Creating auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
+                "Auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
                 kind,
                 user != null,
                 signupVia,

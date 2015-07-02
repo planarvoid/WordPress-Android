@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.exceptions.SignInException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -80,7 +81,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         task.executeOnThreadPool(getArguments());
     }
 
-    @Override
+    @Override @NotNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog dialog = new ProgressDialog(getActivity(), AlertDialog.THEME_HOLO_DARK);
         dialog.setMessage(getString(R.string.authentication_login_progress_message));
@@ -150,9 +151,17 @@ public abstract class AuthTaskFragment extends DialogFragment {
         } else if (rootException instanceof AuthTaskException) {
             return ((AuthTaskException) rootException).getFirstError(); // message provided by the individual task
         } else {
-            logOnboardingError(rootException);
+            if (rootException == null) {
+                logOnboardingError(genericExceptionFrom(result));
+            } else {
+                logOnboardingError(rootException);
+            }
             return activity.getString(R.string.authentication_error_generic);
         }
+    }
+
+    private Throwable genericExceptionFrom(AuthTaskResult result) {
+        return new SignInException(result.toString());
     }
 
     private void logOnboardingError(Throwable rootException) {
