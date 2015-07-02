@@ -44,17 +44,22 @@ class NotificationMessage {
                     reposts.size(),
                     reposts.size());
 
+            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
             if (playables.size() == 1 && reposts.size() == 1) {
                 message = res.getString(R.string.dashboard_notifications_activity_message_repost,
                         reposts.get(0).getUser().username,
                         reposts.get(0).getPlayable().title);
-            } else {
-                message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_repost,
-                        playables.size(),
+            } else if (playables.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_one,
+                        playables.get(0).title);
+            } else if (playables.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_two,
                         playables.get(0).title,
-                        (playables.size() > 1 ? playables.get(1).title : null));
-
-
+                        playables.get(1).title);
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_other,
+                        playables.get(0).title,
+                        playables.get(1).title);
             }
         } else if (!likes.isEmpty() && comments.isEmpty() && reposts.isEmpty()) {
             // only likes
@@ -69,15 +74,22 @@ class NotificationMessage {
                     likes.size(),
                     likes.size());
 
+            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
             if (playables.size() == 1 && likes.size() == 1) {
                 message = res.getString(R.string.dashboard_notifications_activity_message_likes,
                         likes.get(0).getUser().username,
                         likes.get(0).getPlayable().title);
-            } else {
-                message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_like,
-                        playables.size(),
+            } else if (playables.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_one,
+                        playables.get(0).title);
+            } else if (playables.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_two,
                         playables.get(0).title,
-                        (playables.size() > 1 ? playables.get(1).title : null));
+                        playables.get(1).title);
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_other,
+                        playables.get(0).title,
+                        playables.get(1).title);
             }
         } else if (!comments.isEmpty() && likes.isEmpty() && reposts.isEmpty()) {
             // only comments
@@ -95,18 +107,39 @@ class NotificationMessage {
                     comments.size());
 
             if (playables.size() == 1) {
-                message = res.getQuantityString(
-                        R.plurals.dashboard_notifications_activity_message_comment_single_track,
-                        comments.size(),
-                        comments.size(),
-                        playables.get(0).title,
-                        comments.get(0).getUser().username,
-                        comments.size() > 1 ? comments.get(1).getUser().username : null);
+                if (comments.size() == 1) {
+                    message = res.getString(
+                            R.string.dashboard_notifications_activity_message_comment_single_track_one,
+                            playables.get(0).title,
+                            comments.get(0).getUser().username);
+                } else if (comments.size() == 2) {
+                    message = res.getString(
+                            R.string.dashboard_notifications_activity_message_comment_single_track_two,
+                            comments.size(),
+                            playables.get(0).title,
+                            comments.get(0).getUser().username,
+                            comments.get(1).getUser().username);
+                } else {
+                    message = res.getString(
+                            R.string.dashboard_notifications_activity_message_comment_single_track_other,
+                            comments.size(),
+                            playables.get(0).title,
+                            comments.get(0).getUser().username,
+                            comments.get(1).getUser().username);
+                }
             } else {
-                message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_comment,
-                        users.size(),
-                        users.get(0).username,
-                        (users.size() > 1 ? users.get(1).username : null));
+                if (users.size() == 1) {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_comment_one,
+                            users.get(0).username);
+                } else if (users.size() == 2) {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_comment_two,
+                            users.get(0).username,
+                            users.get(1).username);
+                } else {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_comment_other,
+                            users.get(0).username,
+                            users.get(1).username);
+                }
             }
         } else {
             // mix of likes, comments, reposts
@@ -120,11 +153,24 @@ class NotificationMessage {
                     activities.size(),
                     activities.size());
 
-            message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_activity,
-                    users.size(),
-                    playables.get(0).title,
-                    users.get(0).username,
-                    users.size() > 1 ? users.get(1).username : null);
+            if (users.size() == 1) {
+                if (playables.size() == 1) {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_one_playable,
+                            users.get(0).username,
+                            playables.get(0).title);
+                } else {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_multiple_playables,
+                            users.get(0).username);
+                }
+            } else if (users.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_activity_two,
+                        users.get(0).username,
+                        users.get(1).username);
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_activity_other,
+                        users.get(0).username,
+                        users.get(1).username);
+            }
         }
     }
 

@@ -74,23 +74,15 @@ public class StreamNotificationBuilder {
     }
 
     protected CharSequence getTitle(List<PropertySet> streamItems) {
-        CharSequence title;
-        if (streamItems.size() == 1) {
-            title = appContext.getString(R.string.dashboard_notifications_title_single);
-        } else {
-            title = appContext.getString(R.string.dashboard_notifications_title, getNotificationCount(streamItems));
-        }
-        return title;
+        return appContext.getResources().getQuantityString(R.plurals.dashboard_notifications_title,
+                streamItems.size(),
+                getNotificationCount(streamItems));
     }
 
     protected CharSequence getTicker(List<PropertySet> streamItems) {
-        CharSequence ticker;
-        if (streamItems.size() == 1) {
-            ticker = appContext.getString(R.string.dashboard_notifications_ticker_single);
-        } else {
-            ticker = appContext.getString(R.string.dashboard_notifications_ticker, getNotificationCount(streamItems));
-        }
-        return ticker;
+        return appContext.getResources().getQuantityString(R.plurals.dashboard_notifications_ticker,
+                streamItems.size(),
+                getNotificationCount(streamItems));
     }
 
     private String getNotificationCount(List<PropertySet> streamItems) {
@@ -110,7 +102,6 @@ public class StreamNotificationBuilder {
             default:
                 return appContext.getString(R.string.dashboard_notifications_message_incoming_others,
                         iterator.next(), iterator.next());
-
         }
     }
 

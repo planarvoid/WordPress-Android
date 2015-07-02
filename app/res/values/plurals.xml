@@ -11,44 +11,16 @@
     -->
 
     <!-- __NOTIFICATIONS -->
-    <plurals name="dashboard_notifications_activity_message_repost">
-        <item quantity="one">on %1$s</item>
-        <item quantity="two">on %1$s and %2$s</item>
-        <item quantity="other">on %1$s, %2$s and other sounds</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_activity">
-        <item quantity="one">from %2$s on %1$s</item>
-        <item quantity="two">Comments and likes from %2$s and %3$s</item>
-        <item quantity="other">Comments and likes from %2$s, %3$s and others</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment_single_track">
-        <item quantity="one">new comment on %2$s from %3$s</item>
-        <item quantity="two">%1$d new comments on %2$s from %3$s and %4$s</item>
-        <item quantity="other">%1$d new comments on %2$s from %3$s, %4$s and others</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_like">
-        <item quantity="one">on %1$s</item>
-        <item quantity="two">on %1$s and %2$s</item>
-        <item quantity="other">on %1$s, %2$s and other sounds</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_repost">
-        <item quantity="one">A new repost</item>
-        <item quantity="other">%d new reposts</item>
-    </plurals>
     <plurals name="dashboard_notifications_activity_ticker_repost">
         <item quantity="one">New repost</item>
         <item quantity="other">%d new reposts</item>
     </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment">
-        <item quantity="two">Comments from %1$s and %2$s</item>
-        <item quantity="other">Comments from %1$s, %2$s and others</item>
-    </plurals>
     <plurals name="dashboard_notifications_activity_ticker_activity">
-        <item quantity="one">1 new activity</item>
+        <item quantity="one">%d new activity</item>
         <item quantity="other">%d new activities</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_ticker_comment">
-        <item quantity="one">1 new comment</item>
+        <item quantity="one">%d new comment</item>
         <item quantity="other">%d new comments</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_ticker_like">
@@ -56,11 +28,11 @@
         <item quantity="other">%d new likes</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_title_activity">
-        <item quantity="one">1 new activity</item>
+        <item quantity="one">%d new activity</item>
         <item quantity="other">%d new activities</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_title_comment">
-        <item quantity="one">1 new comment</item>
+        <item quantity="one">%d new comment</item>
         <item quantity="other">%d new comments</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_title_like">
@@ -68,114 +40,133 @@
         <item quantity="other">%d new likes</item>
     </plurals>
 
+    <plurals name="dashboard_notifications_activity_title_repost">
+        <item quantity="one">A new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+
+    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
+    <plurals name="dashboard_notifications_ticker">
+        <item quantity="one">%s new sound</item>
+        <item quantity="other">%s new sounds</item>
+    </plurals>
+
+    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
+    <plurals name="dashboard_notifications_title">
+        <item quantity="one">%s new sound</item>
+        <item quantity="other">%s new sounds</item>
+    </plurals>
+
     <!-- __ACCESSIBILITY -->
     <plurals name="accessibility_stats_likes">
-        <item quantity="one">1 Like</item>
+        <item quantity="one">%d Like</item>
         <item quantity="other">%d Likes</item>
     </plurals>
 
     <!-- __PLAYER -->
     <plurals name="trackinfo_comments">
-        <item quantity="one">1 comment on this track</item>
+        <item quantity="one">%d comment on this track</item>
         <item quantity="other">%d comments on this track</item>
     </plurals>
 
     <!-- __PLAYLIST CREATION -->
     <plurals name="number_of_sounds">
-        <item quantity="one">1 track</item>
+        <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
 
     <!-- __PROFILE -->
     <plurals name="number_of_followers">
-        <item quantity="one">1 follower</item>
+        <item quantity="one">%d follower</item>
         <item quantity="other">%d followers</item>
     </plurals>
+
+    <!-- The number is formatted to a string with thousands separator (for example: 1,536,391) -->
     <plurals name="followers_message">
         <item quantity="one">Followed by %s person</item>
         <item quantity="other">Followed by %s people</item>
     </plurals>
-    <!-- Zero value is separate due to this: https://plus.google.com/+TorNorbye/posts/VYcxa1jUGNo -->
-    <string name="following_zero">Followed by you</string>
+
+    <!-- The number is formatted to a string with thousands separator (for example: 1,536,391) -->
     <plurals name="following_message">
         <item quantity="one">Followed by you and %s other person</item>
         <item quantity="other">Followed by you and %s other people</item>
     </plurals>
-    <string name="number_of_liked_tracks_you_liked_zero">You have no liked tracks</string>
+
     <plurals name="number_of_liked_tracks_you_liked">
-        <item quantity="one">You liked 1 track</item>
+        <item quantity="one">You liked %d track</item>
         <item quantity="other">You liked %d tracks</item>
     </plurals>
 
     <!-- __SINGLE_LINE_COLLECTION_TEXT_VIEW -->
     <plurals name="number_of_others">
-        <item quantity="one">and 1 other</item>
+        <item quantity="one">and %d other</item>
         <item quantity="other">and %d others</item>
     </plurals>
 
     <!-- __TIME -->
     <plurals name="elapsed_days">
-        <item quantity="one">1 day</item>
+        <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
     <plurals name="elapsed_days_ago">
-        <item quantity="one">1 day ago</item>
+        <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
     </plurals>
     <plurals name="elapsed_hours">
-        <item quantity="one">1 hour</item>
+        <item quantity="one">%d hour</item>
         <item quantity="other">%d hours</item>
     </plurals>
     <plurals name="elapsed_hours_ago">
-        <item quantity="one">1 hour ago</item>
+        <item quantity="one">%d hour ago</item>
         <item quantity="other">%d hours ago</item>
     </plurals>
     <plurals name="elapsed_minutes">
-        <item quantity="one">1 minute</item>
+        <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
     </plurals>
     <plurals name="elapsed_minutes_ago">
-        <item quantity="one">1 minute ago</item>
+        <item quantity="one">%d minute ago</item>
         <item quantity="other">%d minutes ago</item>
     </plurals>
     <plurals name="elapsed_months">
-        <item quantity="one">1 month</item>
+        <item quantity="one">%d month</item>
         <item quantity="other">%d months</item>
     </plurals>
     <plurals name="elapsed_months_ago">
-        <item quantity="one">1 month ago</item>
+        <item quantity="one">%d month ago</item>
         <item quantity="other">%d months ago</item>
     </plurals>
     <plurals name="elapsed_seconds">
-        <item quantity="one">1 second</item>
+        <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>
     </plurals>
     <plurals name="elapsed_seconds_ago">
-        <item quantity="one">1 second ago</item>
+        <item quantity="one">%d second ago</item>
         <item quantity="other">%d seconds ago</item>
     </plurals>
     <plurals name="elapsed_years">
-        <item quantity="one">1 year</item>
+        <item quantity="one">%d year</item>
         <item quantity="other">%d years</item>
     </plurals>
     <plurals name="elapsed_years_ago">
-        <item quantity="one">1 year ago</item>
+        <item quantity="one">%d year ago</item>
         <item quantity="other">%d years ago</item>
     </plurals>
 
     <!-- __OFFLINE_SYNC -->
     <plurals name="downloading_track_of_tracks">
-        <item quantity="one">1 track</item>
+        <item quantity="one">%1$d track</item>
         <item quantity="other">%1$d of %2$d tracks</item>
     </plurals>
 
     <plurals name="offline_dialog_go_online_warning_title">
-        <item quantity="one">You have 1 day to go back online</item>
+        <item quantity="one">You have %d day to go back online</item>
         <item quantity="other">You have %d days to go back online</item>
     </plurals>
 
     <plurals name="offline_dialog_go_online_warning_content">
-        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. You currently have 1 day to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d day to keep this device connected to your subscription or your offline content will become inaccessible.</item>
         <item quantity="other">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d days to keep this device connected to your subscription or your offline content will become inaccessible.</item>
     </plurals>
 
