@@ -8,8 +8,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -25,8 +25,6 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
@@ -54,9 +52,9 @@ public class LoginTask extends AuthTask {
     }
 
     public LoginTask(@NotNull SoundCloudApplication application, ConfigurationOperations configurationOperations,
-                     EventBus eventBus, AccountOperations accountOperations, TokenInformationGenerator tokenUtils) {
+                     EventBus eventBus, AccountOperations accountOperations, TokenInformationGenerator tokenUtils, ApiClient apiClient) {
         this(application, tokenUtils,
-                new FetchUserTask(new PublicApi(application)), new LegacyUserStorage(), configurationOperations, eventBus, accountOperations);
+                new FetchUserTask(apiClient), new LegacyUserStorage(), configurationOperations, eventBus, accountOperations);
     }
 
     @Override
@@ -84,7 +82,7 @@ public class LoginTask extends AuthTask {
 
             accountOperations.updateToken(token);
 
-            final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
+            final PublicApiUser user = fetchUserTask.currentUser();
             if (user == null) {
                 return AuthTaskResult.failure(getString(R.string.authentication_error_no_connection_message));
             }

@@ -81,6 +81,7 @@ public enum ApiEndpoints {
     LEGACY_TRACKS("/tracks"),
     LEGACY_TRACK("/tracks/%s"),
     LEGACY_USERS("/users"),
+    LEGACY_USER("/users/%s"),
     TRACK_COMMENTS("/tracks/%s/comments"),
 
     USER_SOUNDS("/e1/users/%s/sounds"),

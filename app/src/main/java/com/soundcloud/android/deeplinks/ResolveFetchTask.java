@@ -1,12 +1,14 @@
 package com.soundcloud.android.deeplinks;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.HttpUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
@@ -23,10 +25,12 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
 
     private WeakReference<FetchModelTask.Listener<PublicApiResource>> listener;
     private final PublicCloudAPI api;
+    private final ApiClient apiClient;
     private Uri unresolvedUrl;
 
-    public ResolveFetchTask(PublicCloudAPI api, ContentResolver contentResolver) {
+    public ResolveFetchTask(PublicCloudAPI api, ContentResolver contentResolver, ApiClient apiClient) {
         this.api = api;
+        this.apiClient = apiClient;
         this.contentResolver = contentResolver;
     }
 
@@ -61,10 +65,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     }
 
     private PublicApiResource fetchResource(Uri resolvedUri) {
-        final Request request = Request.to(resolvedUri.getPath() +
-                (resolvedUri.getQuery() != null ? ("?" + resolvedUri.getQuery()) : ""));
+        final ApiRequest request = ApiRequest.get(UriUtils.getPathWithQuery(resolvedUri))
+                .forPublicApi()
+                .build();
 
-        return new FetchModelTask(api) {
+        return new FetchModelTask<PublicApiResource>(apiClient) {
             @Override
             protected void persist(PublicApiResource scResource) {
                 new BulkStorage(contentResolver).bulkInsert(Lists.newArrayList(scResource));

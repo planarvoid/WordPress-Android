@@ -3,7 +3,6 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,12 +18,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.os.Bundle;
@@ -64,19 +60,15 @@ public class LoginTaskTest {
     }
 
     @Test
-    public void shouldMakeRequestToMyDetailsEndpointToObtainUser() throws Exception{
+    public void shouldMakeRequestToCurrentUser() throws Exception {
         setupMocksToReturnToken();
-        ArgumentCaptor<Request> captor = ArgumentCaptor.forClass(Request.class);
         loginTask.doInBackground(bundle);
-        verify(fetchUserTask).resolve(captor.capture());
-        Request request = captor.getValue();
-
-        assertThat(request.toUrl(), is(Endpoints.MY_DETAILS));
+        verify(fetchUserTask).currentUser();
     }
 
     @Test
     public void shouldReturnAuthenticationFailureIfUserPersistenceFails() throws Exception {
-        when(fetchUserTask.resolve(any(Request.class))).thenReturn(null);
+        when(fetchUserTask.currentUser()).thenReturn(null);
         AuthTaskResult result = loginTask.doInBackground(bundle);
         assertThat(result.wasSuccess(), is(false));
     }
@@ -159,7 +151,7 @@ public class LoginTaskTest {
 
     private void setupMocksToReturnToken() throws Exception {
         when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
-        when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
+        when(fetchUserTask.currentUser()).thenReturn(user);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, "device-id"));
     }
 }

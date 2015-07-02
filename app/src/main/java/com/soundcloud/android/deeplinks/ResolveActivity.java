@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -43,6 +44,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     @Nullable private ResolveFetchTask resolveTask;
 
     @Inject PublicCloudAPI oldCloudAPI;
+    @Inject ApiClient apiClient;
     @Inject AccountOperations accountOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject PlayQueueManager playQueueManager;
@@ -117,7 +119,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     private void fetchData(Uri data, boolean loadRelated) {
         this.loadRelated = loadRelated;
         findViewById(R.id.progress).setVisibility(View.VISIBLE);
-        resolveTask = new ResolveFetchTask(oldCloudAPI, getContentResolver());
+        resolveTask = new ResolveFetchTask(oldCloudAPI, getContentResolver(), apiClient);
         resolveTask.setListener(this);
         resolveTask.execute(data);
     }

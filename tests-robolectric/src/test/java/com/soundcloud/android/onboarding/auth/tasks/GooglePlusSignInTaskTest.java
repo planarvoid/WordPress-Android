@@ -27,8 +27,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +88,7 @@ public class GooglePlusSignInTaskTest {
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
-        when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
+        when(fetchUserTask.currentUser()).thenReturn(user);
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
         assertThat(task.doInBackground(bundle).wasSuccess(), is(true));
     }

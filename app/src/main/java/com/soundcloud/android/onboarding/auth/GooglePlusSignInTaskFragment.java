@@ -11,7 +11,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.GooglePlusSignInTask;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -45,7 +44,7 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
         return new GooglePlusSignInTask(
                 (SoundCloudApplication) getActivity().getApplication(),
                 getArguments().getString(ARG_ACCT_NAME),
-                GOOGLE_PLUS_SCOPE, configurationOperations, eventBus, accountOperations, tokenUtils);
+                GOOGLE_PLUS_SCOPE, configurationOperations, eventBus, accountOperations, tokenUtils, apiClient);
     }
 
     @Override
