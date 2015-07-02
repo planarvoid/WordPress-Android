@@ -37,8 +37,8 @@ public class UpsellTest extends TrackingActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testClickingOnMidTierTrackInStreamOpensUpsell() {
-        final UpgradeScreen upgradeScreen = streamScreen.clickMidTierTrackForUpgrade("mid-tier");
+    public void ignore_testClickingOnMidTierTrackInStreamOpensUpsell() {
+        final UpgradeScreen upgradeScreen = streamScreen.clickMidTierTrackForUpgrade("Muff");
 
         assertUpgradeScreenVisible(upgradeScreen);
     }
