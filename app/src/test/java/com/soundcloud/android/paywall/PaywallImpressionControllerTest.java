@@ -2,6 +2,7 @@ package com.soundcloud.android.paywall;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +50,7 @@ public class PaywallImpressionControllerTest extends PlatformUnitTest {
         impressionCreator = new PaywallImpressionController(eventBus, handler);
         when(recyclerView.getLayoutManager()).thenReturn(linearLayoutManager);
         when(recyclerView.getAdapter()).thenReturn(itemAdapter);
+        when(itemAdapter.getItemCount()).thenReturn(2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -134,6 +136,16 @@ public class PaywallImpressionControllerTest extends PlatformUnitTest {
 
         impressionCreator.detachRecyclerView(recyclerView);
         verify(recyclerView).removeOnChildAttachStateChangeListener(childAttachCaptor.getValue());
+    }
+
+    @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3413
+    public void onChildViewDetachedFromWindowDoesNotCrashWhenItemNotFound() {
+        when(itemAdapter.getItemCount()).thenReturn(1); // track was removed by unliking
+        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+
+        detachItemView(TrackItem.from(midTierTrack));
+
+        verify(itemAdapter, never()).getItemId(ITEM_POSITION);
     }
 
     private void attachItemView(ListItem listItem) {

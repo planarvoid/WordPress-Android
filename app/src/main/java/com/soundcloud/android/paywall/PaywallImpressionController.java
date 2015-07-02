@@ -76,9 +76,12 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
 
     @Override
     public void onChildViewDetachedFromWindow(View view) {
-        final ListItem item = listItemAdapter.getItem(linearLayoutManager.getPosition(view));
-        if (isMidTierTrack(item)) {
-            addToDeduplicateHandler(item);
+        final int itemPosition = linearLayoutManager.getPosition(view);
+        if (itemPosition < listItemAdapter.getItemCount()) {
+            final ListItem item = listItemAdapter.getItem(itemPosition);
+            if (isMidTierTrack(item)) {
+                addToDeduplicateHandler(item);
+            }
         }
     }
 
