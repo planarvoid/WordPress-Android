@@ -18,6 +18,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -74,9 +75,13 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
 
     private List<OfflineRequestData> tracksFromLikes() {
         final Query likesToDownload = Query.from(Sounds.name())
-                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.DURATION))
-                .innerJoin(TrackPolicies.name(), Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
-                .innerJoin(Table.Likes.name(), Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
+                .select(
+                        Sounds.field(_ID),
+                        Sounds.field(TableColumns.Sounds.DURATION))
+                .innerJoin(TrackPolicies.name(),
+                        Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
+                .innerJoin(Table.Likes.name(),
+                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
                 .where(isDownloadable())
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
@@ -93,7 +98,8 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
         final Query orderedPlaylists = Query.from(OfflineContent.name())
-                .select(OfflineContent.field(TableColumns.OfflineContent._ID))
+                .select(
+                        OfflineContent.field(TableColumns.OfflineContent._ID))
                 .innerJoin(Sounds.name(), filter().whereEq(Sounds.field(_ID), OfflineContent.field(_ID)))
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .order(Sounds.field(TableColumns.Sounds.CREATED_AT), Query.ORDER_DESC);
@@ -101,11 +107,16 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         final List<Long> playlistIds = database.query(orderedPlaylists).toList(RxResultMapper.scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
-                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.DURATION), PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .select(
+                        Sounds.field(_ID),
+                        Sounds.field(TableColumns.Sounds.DURATION),
+                        PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .innerJoin(Sounds.name(), filter()
                         .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
                         .whereIn(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistIds))
-                .innerJoin(TrackPolicies.name(), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
+                .innerJoin(TrackPolicies.name(),
+                        PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
+                        TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .where(isDownloadable())
                 .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
                 .order(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), Query.ORDER_DESC)
@@ -135,7 +146,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         }
     }
 
-    private static class PlaylistTrackMapper implements com.soundcloud.propeller.ResultMapper<OfflineRequestData> {
+    private static class PlaylistTrackMapper implements ResultMapper<OfflineRequestData> {
         @Override
         public OfflineRequestData map(CursorReader reader) {
             return new OfflineRequestData(
@@ -145,7 +156,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         }
     }
 
-    private static class LikedTrackMapper implements com.soundcloud.propeller.ResultMapper<OfflineRequestData> {
+    private static class LikedTrackMapper implements ResultMapper<OfflineRequestData> {
         @Override
         public OfflineRequestData map(CursorReader reader) {
             return new OfflineRequestData(
