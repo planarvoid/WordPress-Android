@@ -1,13 +1,12 @@
 package com.soundcloud.android.stream;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,9 +24,6 @@ import java.util.Arrays;
 public class StreamNotificationBuilderTest {
 
     private static final int NOTIFICATION_MAX = 3;
-    private static final String TITLE = "title";
-    private static final String TICKER = "ticker";
-    private static final String MESSAGE = "message";
 
     private StreamNotificationBuilder streamNotificationBuilder;
 
@@ -42,7 +38,7 @@ public class StreamNotificationBuilderTest {
     public void setUp() throws Exception {
         when(notificationBuilder.build()).thenReturn(notification);
 
-        streamNotificationBuilder = new StreamNotificationBuilder(context, new Provider<NotificationCompat.Builder>() {
+        streamNotificationBuilder = new StreamNotificationBuilder(Robolectric.application, new Provider<NotificationCompat.Builder>() {
             @Override
             public NotificationCompat.Builder get() {
                 return notificationBuilder;
@@ -70,82 +66,62 @@ public class StreamNotificationBuilderTest {
 
     @Test
     public void notificationSetsTickerForSingleTrack() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_ticker_single)).thenReturn(TICKER);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setTicker(TICKER);
+        verify(notificationBuilder).setTicker("1 new sound");
     }
 
     @Test
     public void notificationSetsTickerForTwoTracks() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_ticker, "2")).thenReturn(TICKER);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setTicker(TICKER);
+        verify(notificationBuilder).setTicker("2 new sounds");
     }
 
     @Test
     public void notificationSetsTickerForMoreThanMaxTracks() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_ticker, "3+")).thenReturn(TICKER);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"), getTrack("creator3"), getTrack("creator4"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setTicker(TICKER);
+        verify(notificationBuilder).setTicker("3+ new sounds");
     }
 
     @Test
     public void notificationSetsTitleForSingleTrack() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_title_single)).thenReturn(TITLE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentTitle(TITLE);
+        verify(notificationBuilder).setContentTitle("1 new sound");
     }
 
     @Test
     public void notificationSetsTitleForTwoTracks() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_title, "2")).thenReturn(TITLE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentTitle(TITLE);
+        verify(notificationBuilder).setContentTitle("2 new sounds");
     }
 
     @Test
     public void notificationSetsTitleForMoreThanMaxTracks() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_title, "3+")).thenReturn(TITLE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"), getTrack("creator3"), getTrack("creator4"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentTitle(TITLE);
+        verify(notificationBuilder).setContentTitle("3+ new sounds");
     }
 
     @Test
     public void notificationSetsMessageForSingleTrack() throws Exception {
-        when(context.getString(eq(R.string.dashboard_notifications_message_incoming), eq("creator1"))).thenReturn(MESSAGE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentText(MESSAGE);
+        verify(notificationBuilder).setContentText("from creator1");
     }
 
     @Test
     public void notificationSetsMessageForTwoTracksWithDifferentCreators() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_message_incoming_2, "creator1", "creator2")).thenReturn(MESSAGE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentText(MESSAGE);
+        verify(notificationBuilder).setContentText("from creator1 and creator2");
     }
 
     @Test
     public void notificationSetsMessageForTracksWithMoreThanTwoCreators() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_message_incoming_others, "creator1", "creator2")).thenReturn(MESSAGE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"), getTrack("creator3"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentText(MESSAGE);
+        verify(notificationBuilder).setContentText("from creator1, creator2 and others");
     }
 
     @Test
     public void notificationSetsMessageForThreeTracksWithOneCreator() throws Exception {
-        when(context.getString(R.string.dashboard_notifications_message_incoming, "creator1")).thenReturn(MESSAGE);
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator1"), getTrack("creator1"))).subscribe(subscriber);
-
-        verify(notificationBuilder).setContentText(MESSAGE);
+        verify(notificationBuilder).setContentText("from creator1");
     }
 
     @Test
