@@ -148,7 +148,6 @@ public class ApplicationModule {
         return SoundRecorder.getInstance(application);
     }
 
-
     @Provides
     public AppWidgetManager provideAppWidgetManager(Context context) {
         return AppWidgetManager.getInstance(context);

@@ -95,10 +95,10 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateImageFilename() throws Exception {
-        expect(new Recording(new File("/tmp/foo.wav")).generateImageFile(new File("/images")).getAbsolutePath()).
+        expect(new Recording(new File("/tmp/foo.wav")).getImageFile(new File("/images")).getAbsolutePath()).
                 toEqual("/images/foo.bmp");
 
-        expect(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath()).
+        expect(new Recording(new File("/tmp/foo")).getImageFile(new File("/images")).getAbsolutePath()).
                 toEqual("/images/foo.bmp");
     }
 
@@ -132,31 +132,10 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldGetRecordingFromIntent() throws Exception {
-        Intent i = new Intent(Actions.SHARE)
-                .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
-                .putExtra(Actions.EXTRA_DESCRIPTION, "description")
-                .putExtra(Actions.EXTRA_GENRE, "genre")
-                .putExtra(Actions.EXTRA_PUBLIC, false)
-                .putExtra(Actions.EXTRA_TITLE, "title")
-                .putExtra(Actions.EXTRA_WHERE, "where")
-                .putExtra(Actions.EXTRA_TAGS, new String[]{"tags"})
-                ;
-
-        Recording r = Recording.fromIntent(i, Robolectric.application, -1);
-        expect(r).not.toBeNull();
-        expect(r.description).toEqual("description");
-        expect(r.genre).toEqual("genre");
-        expect(r.is_private).toBeTrue();
-        expect(r.title).toEqual("title");
-        expect(r.tagString()).toEqual("tags soundcloud:source=android-3rdparty-upload");
-    }
-
-    @Test
     public void shouldGetRecordingFromIntentViaParcelable() throws Exception {
         Recording r = createRecording();
         Intent i = new Intent().putExtra(SoundRecorder.EXTRA_RECORDING, r);
-        Recording r2 = Recording.fromIntent(i, Robolectric.application, -1);
+        Recording r2 = Recording.fromIntent(i);
         expect(r2).not.toBeNull();
         expect(r2.description).toEqual(r.description);
         expect(r2.is_private).toEqual(r.is_private);
@@ -165,7 +144,7 @@ public class RecordingTest {
 
     @Test
     public void shouldReturnNullFromGetRecordingFromIntentForNullIntent() throws Exception {
-        expect(Recording.fromIntent(null, null, 0)).toBeNull();
+        expect(Recording.fromIntent(null)).toBeNull();
     }
 
     @Test

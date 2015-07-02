@@ -2,7 +2,6 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
@@ -371,7 +370,6 @@ public class CreateWaveView extends View {
                 drawAmplitude(bitmapCanvas, nextBitmapX, currentAmplitudeHelper.currentValue(),abovePaint, belowPaint);
             }
             nextBitmapX--;
-            Log.i("asdf", "Draw zoom view with no initial data done");
         }
         // draw amplitudes cached to canvas
         Matrix m = new Matrix();

@@ -37,6 +37,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
             new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
             new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
+    public static final File UPLOAD_DIR = IOUtils.ensureUpdatedDirectory(
+            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "uploads"),
+            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
     public static final String NOTIFICATION_STATE = "com.soundcloud.android.notificationState";
     public static final String RECORD_STARTED = "com.soundcloud.android.recordstarted";
     public static final String RECORD_SAMPLE = "com.soundcloud.android.recordsample";
@@ -248,17 +251,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public boolean hasRecording() {
-        return recording != null;
-    }
-
+    @Nullable
     public Recording getRecording() {
         return recording;
     }
 
-    public void setRecording(Recording recording) {
+    public void setRecording(@Nullable Recording recording) {
         if (this.recording == null) {
-
             if (isActive()) {
                 reset();
             }

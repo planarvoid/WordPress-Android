@@ -18,11 +18,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -69,6 +67,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
     // assets
     @NotNull
     public File audio_path;
+    public String original_filename;
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
     // status
@@ -92,6 +91,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         description = data.getString("description");
         genre = data.getString("genre");
         audio_path = new File(data.getString("audio_path"));
+        original_filename = data.getString("original_filename");
         if (data.containsKey("artwork_path")) {
             artwork_path = new File(data.getString("artwork_path"));
         }
@@ -133,6 +133,14 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
     }
 
+    public File getImageFile(File imageDir) {
+        return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
+    }
+
+    public File getImageFile() {
+        return getImageFile(IMAGE_DIR);
+    }
+
     /**
      * @return the file to upload, or null. this will select a processed file if there is one.
      */
@@ -156,10 +164,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
     public void setPlaybackStream(PlaybackStream stream) {
         duration = stream == null ? 0 : stream.getDuration();
         playbackStream = stream;
-    }
-
-    public File generateImageFile(File imageDir) {
-        return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
     /**
@@ -209,7 +213,9 @@ public class Recording implements Comparable<Recording>, Parcelable {
         String note;
         if (!TextUtils.isEmpty(title)) {
             note = title;
-        } else if (external_upload && !isLegacyRecording()) {
+        } else if (!TextUtils.isEmpty(original_filename)) {
+            note = original_filename;
+        } else if (external_upload && !isLegacyRecording() && !isUploadRecording()) {
             note = audio_path.getName();
         } else {
             note = defaultSharingNote(res);
@@ -223,6 +229,10 @@ public class Recording implements Comparable<Recording>, Parcelable {
 
     public boolean isLegacyRecording() {
         return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
+    }
+
+    public boolean isUploadRecording() {
+        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.UPLOAD_DIR));
     }
 
     public String getStatusMessage(Resources resources) {
@@ -307,6 +317,11 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
     }
 
+    public void clearArtwork() {
+        IOUtils.deleteFile(artwork_path);
+        artwork_path = null;
+    }
+
     @Override
     public int compareTo(@NotNull Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
@@ -327,51 +342,13 @@ public class Recording implements Comparable<Recording>, Parcelable {
         }
     }
 
-    // TODO , not sure where this belongs
-    // Yeah, because it's absolutely fucking terrible.
-    public static
+
     @Nullable
-    Recording fromIntent(@Nullable Intent intent, Context context, long userId) {
-        if (intent == null) {
-            return null;
-        }
-        final String action = intent.getAction();
-
-        if (intent.hasExtra(EXTRA)) {
+    public static Recording fromIntent(@Nullable Intent intent) {
+        if (intent != null && intent.hasExtra(EXTRA)) {
             return intent.getParcelableExtra(EXTRA);
-
-        } else if (intent.hasExtra(Intent.EXTRA_STREAM) &&
-                (Intent.ACTION_SEND.equals(action) ||
-                        Actions.SHARE.equals(action) ||
-                        Actions.EDIT.equals(action))) {
-
-            // 3rd party sharing
-            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            File file = IOUtils.getFromMediaUri(context.getContentResolver(), stream);
-            if (file != null && file.exists()) {
-                Recording r = new Recording(file);
-                r.external_upload = true;
-                r.user_id = userId;
-
-                r.title = intent.getStringExtra(Actions.EXTRA_TITLE);
-                r.is_private = !intent.getBooleanExtra(Actions.EXTRA_PUBLIC, true);
-                r.tags = intent.getStringArrayExtra(Actions.EXTRA_TAGS);
-                r.description = intent.getStringExtra(Actions.EXTRA_DESCRIPTION);
-                r.genre = intent.getStringExtra(Actions.EXTRA_GENRE);
-
-                Uri artwork = intent.getParcelableExtra(Actions.EXTRA_ARTWORK);
-
-                if (artwork != null && "file".equals(artwork.getScheme())) {
-                    r.artwork_path = new File(artwork.getPath());
-                }
-
-                return r;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
         }
+        return null;
     }
 
     public void markUploaded() {
@@ -391,6 +368,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
                 "user_id=" + user_id +
                 ", title='" + title + '\'' +
                 ", audio_path=" + audio_path +
+                ", original_filename=" + original_filename +
                 ", duration=" + duration +
                 ", artwork_path=" + artwork_path +
                 ", is_private=" + is_private +
@@ -413,6 +391,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         data.putLong("user_id", user_id);
         data.putString("title_text", title);
         data.putString("audio_path", audio_path.getAbsolutePath());
+        data.putString("original_filename", original_filename);
         if (artwork_path != null) {
             data.putString("artwork_path", artwork_path.getAbsolutePath());
         }
