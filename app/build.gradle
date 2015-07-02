@@ -176,13 +176,8 @@ android {
   }
 }
 
-/* Duplicate transitive dependencies on commons-logging, so exclude it.
- (e.g. Dependency commons-logging:commons-logging:1.1.1 is ignored for debug as it may be
- conflicting with the internal version provided by Android.
- */
 configurations {
   testSupport // for exporting our test helpers
-
 }
 
 task testSupportJar(type: Jar, dependsOn: ':app:compileDebugUnitTestSources') {

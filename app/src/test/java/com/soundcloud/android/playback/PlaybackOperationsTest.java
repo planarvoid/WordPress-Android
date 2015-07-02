@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
-import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -12,8 +11,10 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
@@ -28,7 +29,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -44,13 +44,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowApplication;
 import rx.Observable;
 import rx.observers.TestObserver;
-
-import android.content.Intent;
 
 import javax.inject.Provider;
 import java.util.Arrays;
@@ -70,6 +65,7 @@ public class PlaybackOperationsTest extends PlatformUnitTest {
 
     private PublicApiPlaylist playlist;
 
+    @Mock private ServiceInitiator serviceInitiator;
     @Mock private ScModelManager modelManager;
     @Mock private TrackStorage trackStorage;
     @Mock private PlayQueueManager playQueueManager;
@@ -97,8 +93,17 @@ public class PlaybackOperationsTest extends PlatformUnitTest {
             }
         };
 
-        playbackOperations = new PlaybackOperations(RuntimeEnvironment.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastHelper, eventBus, adsOperations, accountOperations, playQueueOperations,
+        playbackOperations = new PlaybackOperations(
+                serviceInitiator,
+                modelManager,
+                trackStorage,
+                playQueueManager,
+                playSessionStateProvider,
+                playbackToastHelper,
+                eventBus,
+                adsOperations,
+                accountOperations,
+                playQueueOperations,
                 playbackStrategyProvider);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
@@ -122,8 +127,7 @@ public class PlaybackOperationsTest extends PlatformUnitTest {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
         playbackOperations.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN));
 
-        final ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
-        assertThat(application.getNextStartedService()).isNull();
+        verifyZeroInteractions(serviceInitiator);
     }
 
     @Test
@@ -509,17 +513,14 @@ public class PlaybackOperationsTest extends PlatformUnitTest {
 
         playbackOperations.seek(350L);
 
-        ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
-        assertThat(application.getNextStartedService()).isNull();
+        verifyZeroInteractions(serviceInitiator);
     }
 
     @Test
     public void stopServiceSendsStopActionToService() {
         playbackOperations.stopService();
 
-        ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
-        Intent sentIntent = application.getNextStartedService();
-        assertThat(sentIntent.getAction()).isSameAs(PlaybackService.Actions.STOP_ACTION);
+        verify(serviceInitiator).stopPlaybackService();
     }
 
     @Test

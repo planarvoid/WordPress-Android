@@ -160,7 +160,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 relatedTracksPlaybackSubscription = playbackOperations
                         .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value()), 1)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new ExpandAndDismissDialogSubscriber(eventBus, playbackToastHelper, loadingRelatedTracksPresenter));
+                        .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, loadingRelatedTracksPresenter));
                 return true;
             default:
                 return false;
@@ -218,19 +218,22 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     private static class ExpandAndDismissDialogSubscriber extends ExpandPlayerSubscriber {
 
+        private final Context context;
         private final LoadingRelatedTracksPresenter relatedTracksPresenter;
 
-        public ExpandAndDismissDialogSubscriber(EventBus eventBus,
+        public ExpandAndDismissDialogSubscriber(Context context,
+                                                EventBus eventBus,
                                                 PlaybackToastHelper playbackToastHelper,
                                                 LoadingRelatedTracksPresenter relatedTracksPresenter) {
             super(eventBus, playbackToastHelper);
+            this.context = context;
             this.relatedTracksPresenter = relatedTracksPresenter;
         }
 
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            relatedTracksPresenter.onError();
+            relatedTracksPresenter.onError(context);
         }
 
         @Override

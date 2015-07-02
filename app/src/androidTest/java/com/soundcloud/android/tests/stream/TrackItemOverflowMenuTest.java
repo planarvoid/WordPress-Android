@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -34,6 +35,17 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
         streamScreen = new StreamScreen(solo);
 
+    }
+
+    //FIXME: https://github.com/soundcloud/SoundCloud-Android/issues/2914
+    public void ignore_testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+
+        final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackOverflowButton().
+                clickAddToPlaylist().
+                clickCreateNewPlaylist();
+
+        assertThat(createPlaylistScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
+        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(false));
     }
 
     public void testPlayRelatedTracks() {

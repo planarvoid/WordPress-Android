@@ -12,8 +12,6 @@ import com.soundcloud.android.screens.AddToPlaylistScreen;
 
 public class TrackItemMenuElement extends PopupMenuElement {
 
-    private static final int PLAY_RELATED_IDX = 2;
-
     public TrackItemMenuElement(Han solo) {
         super(solo);
     }
@@ -41,7 +39,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return getRootMenuElements().get(0);
+        return findElement(With.text(testDriver.getString(R.string.like), testDriver.getString(R.string.unlike)));
     }
 
     private void clickItemWithText(String text) {

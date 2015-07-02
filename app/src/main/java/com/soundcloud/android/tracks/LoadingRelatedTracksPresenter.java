@@ -16,16 +16,14 @@ public class LoadingRelatedTracksPresenter {
     private static final int TIME_BEFORE_SHOWING_LOADING = 800;
     private static final int MIN_TIME_ON_SCREEN = 1000;
     private final Handler handler;
-    private final Toast errorToast;
     private LoadingRelatedTracksView loadingRelatedTracksView;
     private AlertDialog dialog;
     private long timeWhenShown;
 
     @SuppressLint("ShowToast")
     @Inject
-    LoadingRelatedTracksPresenter(Context context) {
+    LoadingRelatedTracksPresenter() {
         this.handler = new Handler();
-        this.errorToast = Toast.makeText(context, R.string.unable_to_play_related_tracks, Toast.LENGTH_SHORT);
     }
 
     public void show(Context context, final DialogInterface.OnCancelListener onCancelListener) {
@@ -44,8 +42,8 @@ public class LoadingRelatedTracksPresenter {
         delayPresentation(new ShowDialogRunnable(), TIME_BEFORE_SHOWING_LOADING);
     }
 
-    public void onError() {
-        delayPresentation(new ErrorDialogRunnable(), getRemainingTimeOnScreen());
+    public void onError(Context context) {
+        delayPresentation(new ErrorDialogRunnable(context), getRemainingTimeOnScreen());
     }
 
     public void onSuccess() {
@@ -80,15 +78,24 @@ public class LoadingRelatedTracksPresenter {
         public void run() {
             loadingRelatedTracksView.stop();
             dialog.dismiss();
+            dialog = null;
         }
     }
 
     private class ErrorDialogRunnable implements Runnable {
+
+        private final Context context;
+
+        private ErrorDialogRunnable(Context context) {
+            this.context = context;
+        }
+
         @Override
         public void run() {
             loadingRelatedTracksView.stop();
             dialog.dismiss();
-            errorToast.show();
+            dialog = null;
+            Toast.makeText(context, R.string.unable_to_play_related_tracks, Toast.LENGTH_SHORT).show();
         }
     }
 }

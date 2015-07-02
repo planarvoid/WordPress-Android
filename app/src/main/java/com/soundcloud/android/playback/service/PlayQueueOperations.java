@@ -29,8 +29,7 @@ import java.util.NoSuchElementException;
 
 public class PlayQueueOperations {
 
-    @VisibleForTesting
-    static final String SHARED_PREFERENCES_KEY = "playlistPos";
+    @VisibleForTesting static final String SHARED_PREFERENCES_KEY = "playlistPos";
 
     private final Function<ApiTrack, Urn> fromApiTrackToUrn = new Function<ApiTrack, Urn>() {
         @Override
