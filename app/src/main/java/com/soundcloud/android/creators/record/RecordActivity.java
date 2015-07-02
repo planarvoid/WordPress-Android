@@ -78,7 +78,7 @@ public class RecordActivity extends ScActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if(setRecordingFromIntent(intent)) {
+        if (setRecordingFromIntent(intent)) {
             onRecordToMetadata(false);
         }
     }

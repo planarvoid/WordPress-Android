@@ -343,7 +343,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
     }
 
 
-
     @Nullable
     public static Recording fromIntent(@Nullable Intent intent) {
         if (intent != null && intent.hasExtra(EXTRA)) {

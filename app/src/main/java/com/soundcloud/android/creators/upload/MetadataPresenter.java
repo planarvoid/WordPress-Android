@@ -95,7 +95,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     private void restoreRecording() {
         this.recording = recorder.getRecording();
 
-        if(this.recording != null) {
+        if (this.recording != null) {
             if (!recordingMetadata.hasPlaceholder()) {
                 recordingMetadata.setPlaceholder(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
             }
