@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 public class MidTierTrackEvent extends TrackingEvent {
 
     public static final String KIND_IMPRESSION = "Impression";
+    public static final String KIND_CLICK = "Click";
 
     private final Urn trackUrn;
 
@@ -23,5 +24,9 @@ public class MidTierTrackEvent extends TrackingEvent {
 
     public static MidTierTrackEvent forImpression(Urn trackUrn){
         return new MidTierTrackEvent(KIND_IMPRESSION, trackUrn);
+    }
+
+    public static MidTierTrackEvent forClick(Urn trackUrn) {
+        return new MidTierTrackEvent(KIND_CLICK, trackUrn);
     }
 }

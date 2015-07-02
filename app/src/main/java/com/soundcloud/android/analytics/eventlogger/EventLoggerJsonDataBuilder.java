@@ -179,8 +179,12 @@ public class EventLoggerJsonDataBuilder {
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_track")
                         .impressionObject(String.valueOf(event.getTrackUrn())));
+            case MidTierTrackEvent.KIND_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickName("consumer_sub_track")
+                        .clickObject(String.valueOf(event.getTrackUrn())));
             default:
-                throw new IllegalStateException("Unexpected PromotedTrackEvent type: " + event);
+                throw new IllegalStateException("Unexpected MidTierTrackEvent type: " + event);
         }
     }
 

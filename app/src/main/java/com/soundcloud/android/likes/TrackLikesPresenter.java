@@ -8,6 +8,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -168,6 +170,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else if (shouldShowUpsell(item)) {
+            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forClick(item.getEntityUrn()));
             navigator.openUpgrade(view.getContext());
         } else {
             Urn initialTrack = item.getEntityUrn();

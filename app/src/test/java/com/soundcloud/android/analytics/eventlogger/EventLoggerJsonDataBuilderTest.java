@@ -17,6 +17,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -497,6 +498,30 @@ public class EventLoggerJsonDataBuilderTest extends PlatformUnitTest {
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_track")
                 .impressionObject(item.getEntityUrn().toString()));
+    }
+
+    @Test
+    public void createsMidTierTrackClickJson() throws Exception {
+        final Urn trackUrn = Urn.forTrack(123L);
+        MidTierTrackEvent click = MidTierTrackEvent.forClick(trackUrn);
+
+        jsonDataBuilder.build(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(click.getTimestamp()))
+                .clickObject(String.valueOf(trackUrn))
+                .clickName("consumer_sub_track"));
+    }
+
+    @Test
+    public void createsMidTierTrackImpressionJson() throws Exception {
+        final Urn trackUrn = Urn.forTrack(123L);
+        MidTierTrackEvent click = MidTierTrackEvent.forImpression(trackUrn);
+
+        jsonDataBuilder.build(click);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(click.getTimestamp()))
+                .impressionObject(String.valueOf(trackUrn))
+                .impressionName("consumer_sub_track"));
     }
 
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {
