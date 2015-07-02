@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline.commands;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -9,11 +9,9 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -22,7 +20,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     private LoadExpectedContentCommand command;
@@ -45,7 +42,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
+        assertThat(toBeOffline).containsExactly(
+                new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -58,7 +56,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
+        assertThat(toBeOffline).containsExactly(
+                new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
     }
 
     @Test
@@ -68,7 +67,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -78,7 +77,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -90,7 +89,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -106,7 +105,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(
+        assertThat(toBeOffline).containsExactly(
                 new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getDuration(), true, Collections.<Urn>emptyList()),
                 new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getDuration(), true, Collections.<Urn>emptyList()),
                 new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getDuration(), true, Collections.<Urn>emptyList())
@@ -127,7 +126,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(
+        assertThat(toBeOffline).containsExactly(
                 new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getDuration(), false, Arrays.asList(playlist.getUrn())),
                 new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(playlist.getUrn()))
         );
@@ -151,7 +150,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(
+        assertThat(toBeOffline).containsExactly(
                 new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(apiPlaylist1.getUrn())),
                 new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getDuration(), false, Arrays.asList(apiPlaylist2.getUrn()))
         );
@@ -169,7 +168,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(
+        assertThat(toBeOffline).containsExactly(
                 new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getDuration(), false, Arrays.asList(playlist.getUrn())),
                 new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList())
         );
@@ -185,7 +184,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
+        assertThat(toBeOffline).containsExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
     }
 
     @Test
@@ -194,7 +193,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -204,7 +203,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -214,7 +213,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -224,7 +223,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -236,7 +235,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 
     @Test
@@ -249,6 +248,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        expect(toBeOffline).toBeEmpty();
+        assertThat(toBeOffline).isEmpty();
     }
 }

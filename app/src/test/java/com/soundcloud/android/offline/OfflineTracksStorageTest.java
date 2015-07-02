@@ -1,17 +1,15 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestObserver;
 
@@ -19,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
 public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
@@ -42,7 +39,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.likesUrns().subscribe(observer);
 
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(track2, track1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(track2, track1);
     }
 
     @Test
@@ -51,8 +48,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.likesUrns().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).isEmpty();
     }
 
     @Test
@@ -61,8 +58,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.likesUrns().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).isEmpty();
     }
 
     @Test
@@ -73,8 +70,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.pendingLikedTracksUrns().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(track1, track2);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(track1, track2);
     }
 
     @Test
@@ -85,8 +82,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.playlistTrackUrns(playlistUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn1, trackUrn2);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(trackUrn1, trackUrn2);
     }
 
     @Test
@@ -97,8 +94,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.playlistTrackUrns(playlistUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).isEmpty();
     }
 
     @Test
@@ -110,8 +107,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.pendingPlaylistTracksUrns(playlistUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn1, trackUrn2);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(trackUrn1, trackUrn2);
     }
 
     @Test
@@ -125,8 +122,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.getTracksToRemove().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(TRACK_2);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(TRACK_2);
     }
 
     @Test
@@ -166,8 +163,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.getLastPolicyUpdate().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).isEmpty();
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     @Test
@@ -177,8 +174,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.getLastPolicyUpdate().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).isEmpty();
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     @Test
@@ -192,8 +189,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         storage.getLastPolicyUpdate().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(today);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).containsExactly(today);
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     private void insertCompletedDownload(long policyUpdate) {
