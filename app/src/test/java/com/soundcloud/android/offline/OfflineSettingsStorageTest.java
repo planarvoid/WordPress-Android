@@ -36,6 +36,13 @@ public class OfflineSettingsStorageTest extends PlatformUnitTest {
     }
 
     @Test
+    public void receivedUpdatesFromWifiOnlyOptionChange() {
+        storage.getWifiOnlyOfflineSyncStateChange().subscribe(testObserver);
+        storage.setWifiOnlyEnabled(true);
+        assertThat(testObserver.getOnNextEvents().get(0)).isTrue();
+    }
+
+    @Test
     public void savesWifiOnlyFlag() {
         storage.setWifiOnlyEnabled(false);
         assertThat(storage.isWifiOnlyEnabled()).isFalse();

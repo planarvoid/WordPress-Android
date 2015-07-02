@@ -37,7 +37,8 @@ public class OfflineContentController {
     private final PlaylistOperations playlistOperations;
     private final EventBus eventBus;
 
-    private final Observable<Boolean> offlineLikedTracksToggle;
+    private final Observable<Boolean> offlineLikedTracksToggled;
+    private final Observable<Boolean> syncWifiOnlyToggled;
 
     private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
@@ -56,9 +57,9 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<UrnEvent, Boolean> isOfflineLikesEnabled = new Func1<UrnEvent, Boolean>() {
+    private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
         @Override
-        public Boolean call(UrnEvent ignored) {
+        public Boolean call(Object ignored) {
             return settingStorage.isOfflineLikedTracksEnabled();
         }
     };
@@ -91,7 +92,9 @@ public class OfflineContentController {
         this.playlistStorage = playlistStorage;
         this.scheduler = scheduler;
         this.playlistOperations = playlistOperations;
-        this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksStatusChange();
+
+        this.offlineLikedTracksToggled = settingsStorage.getOfflineLikedTracksStatusChange();
+        this.syncWifiOnlyToggled = settingsStorage.getWifiOnlyOfflineSyncStateChange();
     }
 
     public void subscribe() {
@@ -107,7 +110,7 @@ public class OfflineContentController {
         return Observable
                 .merge(getOfflinePlaylistChangedEvents(),
                         getOfflineLikesChangedEvents(),
-                        offlineLikedTracksToggle
+                        getSyncOverWifiStateChanged()
                 );
     }
 
@@ -126,6 +129,10 @@ public class OfflineContentController {
                 .filter(RxUtils.IS_TRUE);
     }
 
+    private Observable<Boolean> getSyncOverWifiStateChanged() {
+        return syncWifiOnlyToggled.filter(RxUtils.IS_FALSE);
+    }
+
     private Observable<PlaylistWithTracks> offlinePlaylistStatusChanged() {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
@@ -140,11 +147,14 @@ public class OfflineContentController {
                 .filter(RxUtils.IS_TRUE);
     }
 
-    private Observable<UrnEvent> getOfflineLikesChangedEvents() {
-        return Observable.merge(
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKE_EVENT_FILTER),
-                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER)
-        ).filter(isOfflineLikesEnabled);
+    private Observable<Object> getOfflineLikesChangedEvents() {
+        return Observable.<Object>merge(
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(IS_TRACK_LIKE_EVENT_FILTER),
+                eventBus.queue(EventQueue.SYNC_RESULT)
+                        .filter(IS_LIKES_SYNC_FILTER))
+                .filter(isOfflineLikesEnabled)
+                .mergeWith(offlineLikedTracksToggled);
     }
 
 }

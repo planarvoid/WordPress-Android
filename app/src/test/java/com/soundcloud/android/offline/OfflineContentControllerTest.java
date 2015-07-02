@@ -40,13 +40,16 @@ public class OfflineContentControllerTest extends PlatformUnitTest {
     private OfflineContentController controller;
     private TestEventBus eventBus;
     private PublishSubject<Boolean> offlineLikeToggleSetting;
+    private PublishSubject<Boolean> wifiOnlyToggleSetting;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         offlineLikeToggleSetting = PublishSubject.create();
+        wifiOnlyToggleSetting = PublishSubject.create();
 
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
+        when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
         when(settingsStorage.getOfflineLikedTracksStatusChange()).thenReturn(offlineLikeToggleSetting);
         when(playlistOperations.playlist(PLAYLIST)).thenReturn(Observable.just(playlistWithTracks));
 
@@ -143,6 +146,24 @@ public class OfflineContentControllerTest extends PlatformUnitTest {
         offlineLikeToggleSetting.onNext(true);
 
         assertThat(wasServiceStarted()).isFalse();
+    }
+
+    @Test
+    public void startsOfflineSyncWhenWifiOnlySyncSettingWasDisabled() {
+        controller.subscribe();
+
+        wifiOnlyToggleSetting.onNext(false);
+
+        assertThat(wasServiceStarted()).isTrue();
+    }
+
+    @Test
+    public void doesNotStartOfflineSyncWhenWifiOnlySyncWasEnabled() {
+        controller.subscribe();
+
+        wifiOnlyToggleSetting.onNext(true);
+
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
