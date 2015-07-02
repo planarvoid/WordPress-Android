@@ -48,10 +48,6 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         }
     }
 
-    public void clearIcon() {
-        setViewVisibility(R.id.icon,View.GONE);
-    }
-
     public void setCurrentCreator(CharSequence creator) {
         setTextViewText(R.id.user_txt, creator);
     }
