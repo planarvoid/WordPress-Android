@@ -89,7 +89,7 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="full_image_margin">20dp</dimen>
 
-    <dimen name="follow_btn_text">12sp</dimen>
+    <dimen name="follow_btn_text">14sp</dimen>
 
     <dimen name="dialog_padding">24dp</dimen>
     <dimen name="dialog_item_min_height">48dp</dimen>

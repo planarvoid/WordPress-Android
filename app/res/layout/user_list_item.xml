@@ -36,5 +36,5 @@
         android:layout_alignParentRight="true"
         android:focusable="false"
         android:visibility="gone"
-        style="@style/Profile.ToggleButton.Follow"/>
+        style="@style/Profile.ToggleButton.Follow.List"/>
 </RelativeLayout>
