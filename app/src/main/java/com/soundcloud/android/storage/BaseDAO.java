@@ -55,7 +55,11 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         Uri objUri = resolver.insert(getContent().uri, values);
         if (objUri != null) {
             try {
-                return Long.parseLong(objUri.getLastPathSegment());
+                Long modelId = values.getAsLong(BaseColumns._ID);
+                if (modelId == null || modelId <= 0) {
+                    modelId = Long.parseLong(objUri.getLastPathSegment());
+                }
+                return modelId;
             } catch (NumberFormatException e) {
                 throw new DAOException(e);
             }

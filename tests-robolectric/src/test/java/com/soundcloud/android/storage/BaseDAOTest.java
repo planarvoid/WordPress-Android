@@ -12,6 +12,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.annotations.Issue;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +48,36 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
     }
 
     @Test
-    public void shouldSetRecordIdForNewRecords() {
+    public void shouldUseRowIdAsModelIdForNewRecordsIfNoneSet() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        PublicApiTrack record = new PublicApiTrack(0); // 0 is not a valid record ID
+
+        Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
+
+        getDAO().create(record);
+
+        expect(record.getId()).toEqual(123L);
+    }
+
+    @Test
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3406")
+    public void shouldNotUseRowIdAsModelIdForNewRecordsIfSet() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        PublicApiTrack record = ModelFixtures.create(PublicApiTrack.class);
+        long oldId = record.getId();
+
+        Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
+
+        getDAO().create(record);
+
+        expect(record.getId()).not.toEqual(123L);
+        expect(record.getId()).toEqual(oldId);
+    }
+
+    @Test
+    public void shouldSetRecordIdForNewRecordsIfNoneProvided() {
         ContentResolver resolverMock = getDAO().getContentResolver();
         PublicApiTrack record = new PublicApiTrack(0); // 0 is not a valid record ID
 
