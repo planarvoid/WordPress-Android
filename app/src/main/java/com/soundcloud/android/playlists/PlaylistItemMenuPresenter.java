@@ -140,7 +140,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void configureOfflineOptions(PopupMenuWrapper menu, Optional<Boolean> maybeMarkedForOffline) {
         if (featureOperations.isOfflineContentEnabled() && allowOfflineOptions && maybeMarkedForOffline.isPresent()) {
             showOfflineContentOption(menu, maybeMarkedForOffline.get());
-        } else if (featureOperations.upsellMidTier() && allowOfflineOptions) {
+        } else if (featureOperations.upsellOfflineContent() && allowOfflineOptions) {
             showUpsellOption(menu);
         } else {
             hideAllOfflineContentOptions(menu);

@@ -162,7 +162,7 @@ public class NavigationFragment extends Fragment {
     }
 
     private void updateUpsellVisibility() {
-        if (!featureOperations.isOfflineContentEnabled() && featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellMidTier()) {
             upsell.setVisibility(View.VISIBLE);
             upsell.setOnClickListener(new View.OnClickListener() {
                 @Override

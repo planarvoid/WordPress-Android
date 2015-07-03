@@ -45,7 +45,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void upsellMidTierIfUpsellAvailable() {
-        when(planStorage.getList(eq("upsells"))).thenReturn(Arrays.asList("mid_tier"));
+        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
         expect(featureOperations.upsellMidTier()).toBeTrue();
     }
@@ -56,17 +56,28 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void upsellOfflineContentIfAvailableForMidTier() {
+    public void upsellOfflineContentIfAvailableForMidTierAndMidTierIsAvailable() {
         when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
         when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
+        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
         expect(featureOperations.upsellOfflineContent()).toBeTrue();
+    }
+
+    @Test
+    public void doNotUpsellOfflineContentIfAvailableForMidTierButMidTierIsNotAvailable() {
+        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
+        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
+        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(new ArrayList<String>());
+
+        expect(featureOperations.upsellOfflineContent()).toBeFalse();
     }
 
     @Test
     public void doNotUpsellOfflineContentIfUnavailableForMidTier() {
         when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
         when(featureStorage.getPlans("offline_sync")).thenReturn(new ArrayList<String>());
+        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
         expect(featureOperations.upsellOfflineContent()).toBeFalse();
     }

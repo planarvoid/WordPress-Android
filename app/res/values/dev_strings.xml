@@ -15,17 +15,12 @@
     <string name="pref_dev_crash">Crash</string>
     <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
 
-    <string name="pref_dev_features">Configuration features</string>
-    <string name="pref_dev_features_summary">Feature states from /configuration</string>
-
     <string name="pref_dev_sync_now">Sync now</string>
     <string name="pref_dev_sync_now_summary">Request a sync</string>
 
     <string name='pref_dev_http_proxy'>HTTP proxy</string>
     <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
-
-    <string name="dev_configuration_features">Configuration Features</string>
 
     <string name="pref_dev_flush_eventlogger_instantly">Flush Eventlogger Instantly</string>
     <string name="pref_dev_flush_eventlogger_instantly_summary">Flush eventlogger whenever it receives an event. This helps with event validation.</string>

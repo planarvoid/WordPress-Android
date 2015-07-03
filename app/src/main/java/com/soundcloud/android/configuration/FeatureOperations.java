@@ -5,6 +5,8 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import rx.Observable;
 
+import android.support.annotation.VisibleForTesting;
+
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +20,8 @@ public class FeatureOperations {
     private static final String OFFLINE_CONTENT = "offline_sync";
 
     // Plan
-    private static final String PLAN = "plan";
-    private static final String UPSELLS = "upsells";
+    @VisibleForTesting static final String PLAN = "plan";
+    @VisibleForTesting static final String UPSELLS = "upsells";
 
     private final FeatureStorage featureStorage;
     private final PlanStorage planStorage;
@@ -56,7 +58,8 @@ public class FeatureOperations {
 
     public boolean upsellOfflineContent() {
         return !isOfflineContentEnabled()
-                && featureStorage.getPlans(OFFLINE_CONTENT).contains(MID_TIER);
+                && featureStorage.getPlans(OFFLINE_CONTENT).contains(MID_TIER)
+                && planStorage.getList(UPSELLS).contains(MID_TIER);
     }
 
     public boolean upsellMidTier() {
