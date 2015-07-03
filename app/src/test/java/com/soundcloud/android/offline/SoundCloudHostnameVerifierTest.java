@@ -1,12 +1,11 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import javax.net.ssl.SSLSession;
@@ -16,8 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SoundCloudHostnameVerifierTest {
+public class SoundCloudHostnameVerifierTest extends PlatformUnitTest {
 
     @Mock SSLSession session;
     @Mock X509Certificate certificate;
@@ -34,19 +32,19 @@ public class SoundCloudHostnameVerifierTest {
 
     @Test
     public void verifyValidHostname() {
-        expect(soundCloudHostnameVerifier.verify("soundcloud.com", session)).toBeTrue();
-        expect(soundCloudHostnameVerifier.verify("myapi.soundcloud.com", session)).toBeTrue();
-        expect(soundCloudHostnameVerifier.verify("vader.sndcdn.com", session)).toBeTrue();
-        expect(soundCloudHostnameVerifier.verify("tony.stark.hs.llnwd.net", session)).toBeTrue();
-        expect(soundCloudHostnameVerifier.verify("tony-asd.hs.llnwd.net", session)).toBeTrue();
-        expect(soundCloudHostnameVerifier.verify("sndcdn.com", session)).toBeTrue();
+        assertThat(soundCloudHostnameVerifier.verify("soundcloud.com", session)).isTrue();
+        assertThat(soundCloudHostnameVerifier.verify("myapi.soundcloud.com", session)).isTrue();
+        assertThat(soundCloudHostnameVerifier.verify("vader.sndcdn.com", session)).isTrue();
+        assertThat(soundCloudHostnameVerifier.verify("tony.stark.hs.llnwd.net", session)).isTrue();
+        assertThat(soundCloudHostnameVerifier.verify("tony-asd.hs.llnwd.net", session)).isTrue();
+        assertThat(soundCloudHostnameVerifier.verify("sndcdn.com", session)).isTrue();
     }
 
     @Test
     public void verifyNotValidHostname() {
-        expect(soundCloudHostnameVerifier.verify("blabla", session)).toBeFalse();
-        expect(soundCloudHostnameVerifier.verify("myapi.soundcloud.com.ar", session)).toBeFalse();
-        expect(soundCloudHostnameVerifier.verify("eoiruwerllnwd.net", session)).toBeFalse();
+        assertThat(soundCloudHostnameVerifier.verify("blabla", session)).isFalse();
+        assertThat(soundCloudHostnameVerifier.verify("myapi.soundcloud.com.ar", session)).isFalse();
+        assertThat(soundCloudHostnameVerifier.verify("eoiruwerllnwd.net", session)).isFalse();
     }
 
     private Collection<List<?>> getAlternativeNames() {

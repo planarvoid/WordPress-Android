@@ -1,18 +1,17 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class DownloadQueueTest {
+public class DownloadQueueTest extends PlatformUnitTest {
+
     private static final Urn TRACK1 = Urn.forTrack(123);
     private static final Urn TRACK2 = Urn.forTrack(456L);
     private static final Urn PLAYLIST1 = Urn.forPlaylist(123L);
@@ -30,14 +29,14 @@ public class DownloadQueueTest {
     public void isEmptyReturnsTrue() {
         downloadQueue.set(Collections.<DownloadRequest>emptyList());
 
-        expect(downloadQueue.isEmpty()).toBeTrue();
+        assertThat(downloadQueue.isEmpty()).isTrue();
     }
 
     @Test
     public void isEmptyReturnsFalse() {
         downloadQueue.set(Arrays.asList(createDownloadRequest(TRACK1)));
 
-        expect(downloadQueue.isEmpty()).toBeFalse();
+        assertThat(downloadQueue.isEmpty()).isFalse();
     }
 
     @Test
@@ -46,8 +45,8 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2);
         downloadQueue.set(Arrays.asList(request1, request2));
 
-        expect(downloadQueue.poll()).toBe(request1);
-        expect(downloadQueue.getRequests()).toContainExactly(request2);
+        assertThat(downloadQueue.poll()).isEqualTo(request1);
+        assertThat(downloadQueue.getRequests()).containsExactly(request2);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getRequested(DownloadResult.success(request2))).toBeEmpty();
+        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).isEmpty();
     }
 
     @Test
@@ -65,7 +64,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getRequested(DownloadResult.success(request2))).toContainExactly(PLAYLIST1);
+        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).containsExactly(PLAYLIST1);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getDownloaded(DownloadResult.success(request2))).toContainExactlyInAnyOrder(TRACK2, PLAYLIST2);
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getDownloaded(DownloadResult.success(request2))).toContainExactlyInAnyOrder(TRACK2);
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
     }
 
     @Test
@@ -92,7 +91,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getDownloaded(DownloadResult.success(request2))).toContainExactlyInAnyOrder(TRACK2, PLAYLIST2);
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
     }
 
     @Test
@@ -101,17 +100,15 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        expect(downloadQueue.getDownloaded(DownloadResult.success(request2))).toContainExactlyInAnyOrder(TRACK2);
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
     }
 
     @Test
     public void isAllLikedTracksDownloadedReturnsTrueWhenRequestDownloadedALikeAndNoneLikedTrackIsRequested() {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, false);
         downloadQueue.set(Collections.<DownloadRequest>emptyList());
 
-        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeTrue();
-
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isTrue();
     }
 
     @Test
@@ -119,7 +116,7 @@ public class DownloadQueueTest {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, false);
         downloadQueue.set(Collections.<DownloadRequest>emptyList());
 
-        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeFalse();
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
     }
 
     @Test
@@ -128,7 +125,7 @@ public class DownloadQueueTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, true);
         downloadQueue.set(Arrays.asList(request2));
 
-        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeFalse();
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
     }
     
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
