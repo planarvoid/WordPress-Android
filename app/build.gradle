@@ -140,6 +140,8 @@ android {
       versionNameSuffix '-debug'
       debuggable true
       signingConfig signingConfigs.debug
+
+      multiDexEnabled true
     }
 
     end2end.initWith(buildTypes.debug)
@@ -245,6 +247,7 @@ dependencies {
   compile libraries.undoBar
 
   /* Android ... keep order! */
+  compile libraries.androidMultidex
   compile libraries.androidDesign
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
@@ -265,6 +268,9 @@ dependencies {
   testCompile unitTestLibraries.propellerTest
 
   /* Acceptance Tests */
+  androidTestCompile(libraries.androidMultidexInstrumentation) {
+    exclude group: 'com.android.support', module: 'multidex'
+  }
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient
