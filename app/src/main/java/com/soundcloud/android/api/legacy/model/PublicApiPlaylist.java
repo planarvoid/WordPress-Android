@@ -265,7 +265,8 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
     }
 
     public ApiPlaylist toApiMobilePlaylist() {
-        ApiPlaylist apiPlaylist = new ApiPlaylist(getUrn());
+        ApiPlaylist apiPlaylist = new ApiPlaylist();
+        apiPlaylist.setUrn(getUrn());
         apiPlaylist.setCreatedAt(created_at);
         apiPlaylist.setArtworkUrl(artwork_url);
         apiPlaylist.setDuration(duration);

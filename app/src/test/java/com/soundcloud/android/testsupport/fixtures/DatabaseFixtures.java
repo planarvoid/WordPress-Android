@@ -107,7 +107,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLocalPlaylist(ApiPlaylist playlist) {
-        playlist.setUrn("soundcloud:playlists:-" + 1000 + playlist.getId());
+        playlist.setUrn(Urn.forPlaylist(-(1000 + playlist.getId())));
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
