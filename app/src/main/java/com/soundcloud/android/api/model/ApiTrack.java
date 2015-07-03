@@ -56,10 +56,6 @@ public final class ApiTrack implements PropertySetSource, TrackRecord {
         this.urn = urn;
     }
 
-    /**
-     * @deprecated use {@link #getUrn()}
-     */
-    @Deprecated
     public long getId() {
         return urn.getNumericId();
     }
