@@ -77,19 +77,6 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
     }
 
     @Test
-    public void shouldSetRecordIdForNewRecordsIfNoneProvided() {
-        ContentResolver resolverMock = getDAO().getContentResolver();
-        PublicApiTrack record = new PublicApiTrack(0); // 0 is not a valid record ID
-
-        Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
-        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
-
-        getDAO().create(record);
-
-        expect(record.getId()).toBe(123L);
-    }
-
-    @Test
     public void shouldStoreCollectionOfRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 
