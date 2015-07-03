@@ -1,22 +1,22 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class FeatureOperationsTest {
 
     @Mock private ApplicationProperties appProperties;
@@ -35,24 +35,24 @@ public class FeatureOperationsTest {
     public void isOfflineContentEnabledReturnsStoredState() {
         when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
 
-        expect(featureOperations.isOfflineContentEnabled()).toBeTrue();
+        assertThat(featureOperations.isOfflineContentEnabled()).isTrue();
     }
 
     @Test
     public void isOfflineContentEnabledDefaultsFalse() {
-        expect(featureOperations.isOfflineContentEnabled()).toBeFalse();
+        assertThat(featureOperations.isOfflineContentEnabled()).isFalse();
     }
 
     @Test
     public void upsellMidTierIfUpsellAvailable() {
         when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
-        expect(featureOperations.upsellMidTier()).toBeTrue();
+        assertThat(featureOperations.upsellMidTier()).isTrue();
     }
 
     @Test
     public void upsellMidTierDefaultsFalse() {
-        expect(featureOperations.upsellMidTier()).toBeFalse();
+        assertThat(featureOperations.upsellMidTier()).isFalse();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class FeatureOperationsTest {
         when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
         when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
-        expect(featureOperations.upsellOfflineContent()).toBeTrue();
+        assertThat(featureOperations.upsellOfflineContent()).isTrue();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class FeatureOperationsTest {
         when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
         when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(new ArrayList<String>());
 
-        expect(featureOperations.upsellOfflineContent()).toBeFalse();
+        assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class FeatureOperationsTest {
         when(featureStorage.getPlans("offline_sync")).thenReturn(new ArrayList<String>());
         when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
 
-        expect(featureOperations.upsellOfflineContent()).toBeFalse();
+        assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
@@ -87,14 +87,14 @@ public class FeatureOperationsTest {
         when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
         when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
 
-        expect(featureOperations.upsellOfflineContent()).toBeFalse();
+        assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
     public void getPlanReturnsStoredPlan() {
         when(planStorage.get(eq("plan"), anyString())).thenReturn("mid_tier");
 
-        expect(featureOperations.getPlan()).toEqual("mid_tier");
+        assertThat(featureOperations.getPlan()).isEqualTo("mid_tier");
     }
 
 }

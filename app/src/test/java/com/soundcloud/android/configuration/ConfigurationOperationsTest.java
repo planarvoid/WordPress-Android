@@ -1,7 +1,7 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -25,13 +25,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -42,8 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ConfigurationOperationsTest {
+public class ConfigurationOperationsTest extends PlatformUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private ApiClient apiClient;
@@ -87,7 +85,7 @@ public class ConfigurationOperationsTest {
                         .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        expect(operations.registerDevice(token)).toBe(configuration.deviceManagement);
+        assertThat(operations.registerDevice(token)).isSameAs(configuration.deviceManagement);
     }
 
     @Test
@@ -114,7 +112,7 @@ public class ConfigurationOperationsTest {
                         .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        expect(operations.forceRegisterDevice(token, deviceId)).toBe(configuration.deviceManagement);
+        assertThat(operations.forceRegisterDevice(token, deviceId)).isSameAs(configuration.deviceManagement);
     }
 
     @Test
@@ -148,7 +146,7 @@ public class ConfigurationOperationsTest {
         operations.update();
 
         logoutSubject.onNext(null);
-        expect(clearOfflineContentSubject.hasObservers()).toBeTrue();
+        assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
     }
 
 }

@@ -1,15 +1,12 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.configuration.features.Feature;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
 public class ConfigurationTest {
 
     @Test
@@ -18,7 +15,7 @@ public class ConfigurationTest {
                 new Feature("feature", false, Arrays.asList("mid_tier"))),
                 new UserPlan("free", null), null,
                 new DeviceManagement(true, null));
-        expect(configuration.assignment.isEmpty()).toBeTrue();
+        assertThat(configuration.assignment.isEmpty()).isTrue();
     }
 
 }

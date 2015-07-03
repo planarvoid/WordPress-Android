@@ -10,7 +10,6 @@
     <!-- Enable this if you want to see analytics data pushed to the dev applications in the respective analytics engines -->
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
-    <bool name="debug_feature_screen">true</bool>
     <bool name="google_plus_enabled">true</bool>
 
     <string name="public_api_base_url">https://api.soundcloud.com</string>

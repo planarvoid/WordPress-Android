@@ -20,6 +20,8 @@ public class FeatureStorage {
     private static final String ENABLED_POSTFIX = "_enabled";
     private static final String PLANS_POSTFIX = "_plans";
 
+    private static final int EXPECTED_PLANS = 2;
+
     private final SharedPreferences sharedPreferences;
     private final Obfuscator obfuscator;
 
@@ -89,8 +91,8 @@ public class FeatureStorage {
     }
 
     public List<String> getPlans(String name) {
-        List<String> values = new ArrayList<>();
         Set<String> obfuscatedValues = sharedPreferences.getStringSet(obfuscator.obfuscate(name + PLANS_POSTFIX), new HashSet<String>());
+        List<String> values = new ArrayList<>(EXPECTED_PLANS);
         for (String value : obfuscatedValues) {
             values.add(obfuscator.deobfuscateString(value));
         }
