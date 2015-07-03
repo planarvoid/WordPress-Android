@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -43,15 +44,39 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void shouldShowMidTierUpsellIfIncluded() {
+    public void upsellMidTierIfUpsellAvailable() {
         when(planStorage.getList(eq("upsells"))).thenReturn(Arrays.asList("mid_tier"));
 
         expect(featureOperations.upsellMidTier()).toBeTrue();
     }
 
     @Test
-    public void shouldShowUpsellDefaultsFalse() {
+    public void upsellMidTierDefaultsFalse() {
         expect(featureOperations.upsellMidTier()).toBeFalse();
+    }
+
+    @Test
+    public void upsellOfflineContentIfAvailableForMidTier() {
+        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
+        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
+
+        expect(featureOperations.upsellOfflineContent()).toBeTrue();
+    }
+
+    @Test
+    public void doNotUpsellOfflineContentIfUnavailableForMidTier() {
+        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
+        when(featureStorage.getPlans("offline_sync")).thenReturn(new ArrayList<String>());
+
+        expect(featureOperations.upsellOfflineContent()).toBeFalse();
+    }
+
+    @Test
+    public void doNotUpsellOfflineContentIfAlreadyEnabled() {
+        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
+        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
+
+        expect(featureOperations.upsellOfflineContent()).toBeFalse();
     }
 
     @Test

@@ -28,6 +28,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,6 @@ import rx.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -83,7 +83,7 @@ public class ConfigurationOperationsTest {
         Token token = new Token("accessToken","refreshToken");
         when(apiClient.fetchMappedResponse(
                 argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")
+                        .withQueryParam("experiment_layers", "android_listening", "ios")
                         .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
@@ -99,7 +99,7 @@ public class ConfigurationOperationsTest {
 
         operations.registerDevice(token);
 
-        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updateFeatures(TestFeatures.asList());
         verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsells);
         verify(experimentOperations).update(configuration.assignment);
     }
@@ -110,7 +110,7 @@ public class ConfigurationOperationsTest {
         String deviceId = "device-id";
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
-                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
+                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
                         .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))),
                 eq(Configuration.class))).thenReturn(configuration);
 
@@ -123,7 +123,7 @@ public class ConfigurationOperationsTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(authorized));
         operations.update();
 
-        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updateFeatures(TestFeatures.asList());
         verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsells);
         verify(experimentOperations).update(authorized.assignment);
     }
@@ -149,13 +149,6 @@ public class ConfigurationOperationsTest {
 
         logoutSubject.onNext(null);
         expect(clearOfflineContentSubject.hasObservers()).toBeTrue();
-    }
-
-    private HashMap<String, Boolean> getFeaturesAsMap() {
-        final HashMap<String, Boolean> featuresAsAMap = new HashMap<>();
-        featuresAsAMap.put("feature_disabled", false);
-        featuresAsAMap.put("feature_enabled", true);
-        return featuresAsAMap;
     }
 
 }

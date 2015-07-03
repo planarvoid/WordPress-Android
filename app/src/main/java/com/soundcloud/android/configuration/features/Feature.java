@@ -4,14 +4,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Feature {
     public final String name;
     public final boolean enabled;
+    public final List<String> plans;
 
     @JsonCreator
-    public Feature(@JsonProperty("name") String name, @JsonProperty("enabled") boolean enabled) {
+    public Feature(@JsonProperty("name") String name,
+                   @JsonProperty("enabled") boolean enabled,
+                   @JsonProperty("plans") List<String> plans) {
         this.name = name;
         this.enabled = enabled;
+        this.plans = Collections.unmodifiableList(plans);
     }
 
     @Override

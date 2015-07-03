@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration;
 
+import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import rx.Observable;
@@ -7,7 +8,6 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class FeatureOperations {
 
@@ -29,24 +29,16 @@ public class FeatureOperations {
         this.featureStorage = featureStorage;
         this.planStorage = planStorage;
         if (appProperties.isAlphaBuild()) {
-            updateFeature(OFFLINE_CONTENT, true);
+            updateFeature(new Feature(OFFLINE_CONTENT, true, Arrays.asList(MID_TIER)));
         }
     }
 
-    public void updateFeatures(Map<String, Boolean> features) {
+    public void updateFeatures(List<Feature> features) {
         featureStorage.update(features);
     }
 
-    public void updateFeature(String name, boolean value) {
-        featureStorage.update(name, value);
-    }
-
-    public List<String> listFeatures() {
-        return Arrays.asList(OFFLINE_CONTENT);
-    }
-
-    public boolean isFeatureEnabled(String name) {
-        return featureStorage.isEnabled(name, false);
+    public void updateFeature(Feature feature) {
+        featureStorage.update(feature);
     }
 
     public void updatePlan(String plan, List<String> upsells) {
@@ -60,6 +52,11 @@ public class FeatureOperations {
 
     public boolean isOfflineContentEnabled() {
         return featureStorage.isEnabled(OFFLINE_CONTENT, false);
+    }
+
+    public boolean upsellOfflineContent() {
+        return !isOfflineContentEnabled()
+                && featureStorage.getPlans(OFFLINE_CONTENT).contains(MID_TIER);
     }
 
     public boolean upsellMidTier() {
