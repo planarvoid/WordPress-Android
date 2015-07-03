@@ -1,5 +1,6 @@
 package com.soundcloud.android.api.model;
 
+import com.soundcloud.android.model.Urn;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
@@ -13,7 +14,7 @@ public class ApiUserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiUser("soundcloud:users:" + runningId++);
+            return new ApiUser(Urn.forUser(runningId++));
         }
     };
 
