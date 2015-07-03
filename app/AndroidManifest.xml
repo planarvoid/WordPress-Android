@@ -168,14 +168,10 @@
                 <data android:host="soundcloud.com" android:path="/search/people" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/search/sets" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/search/sets" android:scheme="https"/>
-                <data android:host="soundcloud.com" android:path="/search/groups" android:scheme="http"/>
-                <data android:host="soundcloud.com" android:path="/search/groups" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/people/search" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/people/search" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/tracks/search" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/tracks/search" android:scheme="https"/>
-                <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="http"/>
-                <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="https"/>
             </intent-filter>
         </activity>
 
