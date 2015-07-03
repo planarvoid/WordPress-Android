@@ -32,7 +32,7 @@ public class DatabaseFixtures {
 
     public void insertTrack(ApiTrack track) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds._ID, track.getId());
+        cv.put(TableColumns.Sounds._ID, track.getUrn().getNumericId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId());

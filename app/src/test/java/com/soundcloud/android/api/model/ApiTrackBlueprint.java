@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
@@ -18,7 +19,7 @@ public class ApiTrackBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiTrack(String.format("soundcloud:sounds:%d", runningId++));
+            return new ApiTrack(Urn.forTrack(runningId++));
         }
     };
 
@@ -33,6 +34,9 @@ public class ApiTrackBlueprint {
 
     @Default(force = true)
     long duration = 12345L;
+
+    @Default
+    String artworkUrl = "http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12";
 
     @Default
     String waveformUrl = "http://waveform.url";

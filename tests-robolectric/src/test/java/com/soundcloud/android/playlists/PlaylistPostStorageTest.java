@@ -222,7 +222,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     private void createTrackWithId(long trackId) {
         ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setUser(user);
-        apiTrack.setId(trackId);
+        apiTrack.setUrn(Urn.forTrack(trackId));
         testFixtures().insertTrack(apiTrack);
         testFixtures().insertTrackPost(apiTrack.getId(), apiTrack.getCreatedAt().getTime(), false);
     }
