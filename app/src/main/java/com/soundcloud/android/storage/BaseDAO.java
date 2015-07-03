@@ -55,6 +55,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         Uri objUri = resolver.insert(getContent().uri, values);
         if (objUri != null) {
             try {
+                // If the primary key had been provided as input, we return this as the "row ID".
+                // Otherwise we return SQLite's ROWID value.
+                // see discussion in https://groups.google.com/a/soundcloud.com/forum/#!topic/android-dev/1kgoOvSb4Fo
                 Long modelId = values.getAsLong(BaseColumns._ID);
                 if (modelId == null || modelId <= 0) {
                     modelId = Long.parseLong(objUri.getLastPathSegment());
