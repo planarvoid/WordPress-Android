@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -20,12 +21,17 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
-        clickItemWithText(1, "Add");
+        clickItemWithText(testDriver.getString(R.string.add_to_playlist));
         return new AddToPlaylistScreen(testDriver);
     }
 
+    public VisualPlayerElement clickPlayRelatedTracks() {
+        clickItemWithText(testDriver.getString(R.string.play_related_tracks));
+        return new VisualPlayerElement(testDriver);
+    }
+
     public void clickRemoveFromPlaylist() {
-        clickItemWithText(1, "Remove");
+        clickItemWithText(testDriver.getString(R.string.remove_from_playlist));
     }
 
     public boolean isLiked() {
@@ -33,12 +39,12 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return menuItems().get(0);
+        return findElement(With.text(testDriver.getString(R.string.like), testDriver.getString(R.string.unlike)));
     }
 
-    private void clickItemWithText(int position, String text) {
-        final ViewElement item = menuItems().get(position);
-        assertThat(item.findElement(With.textContaining(text)), is(visible()));
+    private void clickItemWithText(String text) {
+        final ViewElement item = findElement(With.text(text));
+        assertThat(item, is(visible()));
         item.click();
     }
 }

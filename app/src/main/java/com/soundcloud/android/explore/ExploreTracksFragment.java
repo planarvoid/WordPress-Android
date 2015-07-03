@@ -144,7 +144,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTagExtra);
         playSessionSource.setExploreVersion(trackingTag);
         playbackOperations
-                .playTrackWithRecommendations(track.getEntityUrn(), playSessionSource)
+                .playTrackWithRecommendationsLegacy(track.getEntityUrn(), playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 

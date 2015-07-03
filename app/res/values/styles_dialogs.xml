@@ -96,4 +96,21 @@
         <item name="android:layout_marginTop">20dp</item>
     </style>
 
+    <style name="LoadingRelatedTracks" parent="MaterialDialog.Content" />
+
+    <style name="LoadingRelatedTracks.LoadingBar">
+        <item name="android:background">@color/play_related_tracks_bars_color</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="LoadingRelatedTracks.Text">
+        <item name="android:text">@string/loading_related_tracks</item>
+        <item name="android:textColor">@color/play_related_tracks_text_color</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
 </resources>

@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
@@ -15,8 +16,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
@@ -24,8 +25,6 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import javax.inject.Inject;
@@ -50,7 +49,6 @@ public class PlaybackOperations {
         }
     };
 
-    private final Context context;
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
@@ -59,17 +57,21 @@ public class PlaybackOperations {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
+    private final PlayQueueOperations playQueueOperations;
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
+    private final ServiceInitiator serviceInitiator;
 
 
     @Inject
-    public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
+    public PlaybackOperations(ServiceInitiator serviceInitiator,
+                              ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
                               PlaybackToastHelper playbackToastHelper, EventBus eventBus,
                               AdsOperations adsOperations, AccountOperations accountOperations,
+                              PlayQueueOperations playQueueOperations,
                               Provider<PlaybackStrategy> playbackStrategyProvider) {
-        this.context = context;
+        this.serviceInitiator = serviceInitiator;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
@@ -78,6 +80,7 @@ public class PlaybackOperations {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
+        this.playQueueOperations = playQueueOperations;
         this.playbackStrategyProvider = playbackStrategyProvider;
     }
 
@@ -102,8 +105,28 @@ public class PlaybackOperations {
                 playSessionSource, WITHOUT_RELATED);
     }
 
-    public Observable<PlaybackResult> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
+    @Deprecated
+    // Please, use playTrackWithRecommendations instead.
+    public Observable<PlaybackResult> playTrackWithRecommendationsLegacy(Urn track, PlaySessionSource playSessionSource) {
+        // TODO : move to the alternative solution when playing the tracking story DROID-1028
         return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, WITH_RELATED);
+    }
+
+    public Observable<PlaybackResult> playTrackWithRecommendations(final Urn seedTrack, final PlaySessionSource playSessionSource, final int startPosition) {
+        return playQueueOperations
+                .getRelatedTracksUrns(seedTrack)
+                .startWith(seedTrack)
+                .toList()
+                .flatMap(playTracks(startPosition, playSessionSource));
+    }
+
+    private Func1<List<Urn>, Observable<PlaybackResult>> playTracks(final int startPosition, final PlaySessionSource playSessionSource) {
+        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(List<Urn> tracks) {
+                return playTracks(tracks, startPosition, playSessionSource);
+            }
+        };
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
@@ -221,11 +244,11 @@ public class PlaybackOperations {
     }
 
     public void stopService() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.STOP_ACTION));
+        serviceInitiator.stopPlaybackService();
     }
 
     public void resetService() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.RESET_ALL));
+        serviceInitiator.resetPlaybackService();
     }
 
     public void seek(long position) {
@@ -242,12 +265,6 @@ public class PlaybackOperations {
     public boolean shouldDisableSkipping() {
         return adsOperations.isCurrentTrackAudioAd() &&
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
-    }
-
-    private Intent createExplicitServiceIntent(String action) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(action);
-        return intent;
     }
 
     private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {

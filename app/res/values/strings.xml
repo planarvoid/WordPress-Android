@@ -41,6 +41,9 @@
     <string name="like">Like</string>
     <string name="unlike">Unlike</string>
     <string name="unlimited">unlimited</string>
+    <string name="play_related_tracks">Play related tracks</string>
+    <string name="unable_to_play_related_tracks">Unable to play related tracks</string>
+    <string name="loading_related_tracks">Loading related tracks...</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Search SoundCloud</string>

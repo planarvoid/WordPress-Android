@@ -21,12 +21,12 @@ public class PopupMenuElement {
         waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 
-    protected List<ViewElement> menuItems() {
+    protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);
         return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 
-    protected ViewElement menuItem(With matcher) {
+    protected ViewElement findElement(With matcher) {
         waiter.waitForElement(TextView.class);
         return container().findElement(matcher);
     }

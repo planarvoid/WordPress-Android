@@ -5,6 +5,9 @@
           android:title="@string/like" />
     <item android:id="@+id/add_to_playlist"
           android:title="@string/add_to_playlist" />
+    <item android:id="@+id/play_related_tracks"
+        android:title="@string/play_related_tracks"
+        android:visible="false" />
     <item android:id="@+id/remove_from_playlist"
         android:title="@string/remove_from_playlist"
         android:visible="false" />
