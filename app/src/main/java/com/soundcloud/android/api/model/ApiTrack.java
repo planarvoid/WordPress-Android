@@ -269,7 +269,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(urn);
+        return urn.hashCode();
     }
 
     public Boolean isPrivate() {

@@ -175,7 +175,7 @@ public class ApiPlaylist implements PropertySetSource, PlaylistRecord {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(urn);
+        return urn.hashCode();
     }
 
     @Override

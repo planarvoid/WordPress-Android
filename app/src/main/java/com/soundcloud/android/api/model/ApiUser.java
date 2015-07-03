@@ -137,7 +137,7 @@ public class ApiUser implements PropertySetSource, UserRecord {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(urn);
+        return urn.hashCode();
     }
 
     @Override
