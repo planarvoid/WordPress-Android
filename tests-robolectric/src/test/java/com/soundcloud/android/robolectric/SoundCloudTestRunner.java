@@ -4,7 +4,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplicationModule;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ScShadowPreferenceActivity;
-import com.soundcloud.android.robolectric.shadows.ScShadowSQLiteDatabase;
 import com.soundcloud.android.robolectric.shadows.ShadowArrayMap;
 import com.soundcloud.android.robolectric.shadows.ShadowBase64;
 import com.soundcloud.android.robolectric.shadows.ShadowBaseBundle;
@@ -73,7 +72,6 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ShadowV4Fragment.class);
         Robolectric.bindShadowClass(ShadowV4ListFragment.class);
         Robolectric.bindShadowClass(ShadowV4CursorAdapter.class);
-        Robolectric.bindShadowClass(ScShadowSQLiteDatabase.class);
         Robolectric.bindShadowClass(ScShadowPreferenceActivity.class);
         Robolectric.bindShadowClass(ShadowSystemClock.class);
         Robolectric.bindShadowClass(ShadowV7PopupMenu.class);
