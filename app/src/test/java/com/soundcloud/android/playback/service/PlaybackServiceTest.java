@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback.service;
 
+import static com.soundcloud.android.testsupport.TestServiceSupport.assertLastForegroundNotificationNull;
+import static com.soundcloud.android.testsupport.TestServiceSupport.assertServicesIsStoppedBySelf;
+import static com.soundcloud.android.testsupport.TestServiceSupport.getServiceReceiversForAction;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -27,12 +30,6 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowLooper;
-import org.robolectric.shadows.ShadowService;
 import rx.Observable;
 
 import android.content.BroadcastReceiver;
@@ -40,7 +37,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class PlaybackServiceTest extends PlatformUnitTest {
 
@@ -154,10 +150,8 @@ public class PlaybackServiceTest extends PlatformUnitTest {
     public void onStartWithNullIntentStopsSelf() throws Exception {
         playbackService.onCreate();
         playbackService.onStartCommand(null, 0, 0);
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
 
-        ShadowService service =  Shadows.shadowOf(playbackService);
-        assertThat(service.isStoppedBySelf()).isTrue();
+        assertServicesIsStoppedBySelf(playbackService);
     }
 
     @Test
@@ -274,25 +268,11 @@ public class PlaybackServiceTest extends PlatformUnitTest {
         playbackService.stop();
         playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, getTrackUrn()));
 
-        ShadowService service = Shadows.shadowOf(playbackService);
-        assertThat(service.getLastForegroundNotification()).isNull();
-
+        assertLastForegroundNotificationNull(playbackService);
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
-        ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<>();
-        for (ShadowApplication.Wrapper registeredReceiver : ShadowApplication.getInstance().getRegisteredReceivers()) {
-            if (registeredReceiver.context == playbackService) {
-                Iterator<String> actions = registeredReceiver.intentFilter.actionsIterator();
-                while (actions.hasNext()) {
-                    if (actions.next().equals(action)) {
-                        broadcastReceivers.add(registeredReceiver.broadcastReceiver);
-                    }
-                }
-            }
-
-        }
-        return broadcastReceivers;
+        return getServiceReceiversForAction(playbackService, action);
     }
 
     private Urn getTrackUrn() {
