@@ -94,8 +94,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onCreate() {
         super.onCreate();
 
-        subscribePlaybackNotifications();
-
         streamPlayer.setListener(this);
 
         playbackReceiver = playbackReceiverFactory.create(this, accountOperations, playQueueManager, eventBus);
@@ -142,7 +140,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        subscribePlaybackNotifications();
+        playbackNotificationController.subscribe(this);
 
         delayedStopHandler.removeCallbacksAndMessages(null);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
@@ -250,10 +248,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public boolean isPlayerPlaying() {
         return streamPlayer.isPlayerPlaying();
-    }
-
-    private void subscribePlaybackNotifications() {
-        playbackNotificationController.subscribe(this);
     }
 
     private void scheduleServiceShutdownCheck() {
