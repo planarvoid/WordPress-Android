@@ -211,7 +211,7 @@ public abstract class TestPropertySets {
 
     public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted){
             return PropertySet.from(
-                    TrackProperty.URN.bind(Urn.forTrack(apiTrack.getId())),
+                    TrackProperty.URN.bind(apiTrack.getUrn()),
                     PlayableProperty.TITLE.bind(apiTrack.getTitle()),
                     PlayableProperty.DURATION.bind(apiTrack.getDuration()),
                     PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),

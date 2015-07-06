@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -43,7 +44,7 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
     public void shouldRemoveJustTrackLikeWhenIdsAreTheSame() throws PropellerWriteException {
         ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        apiPlaylist.setId(apiTrack.getId());
+        apiPlaylist.setUrn(Urn.forPlaylist(apiTrack.getId()));
 
         final ApiLike trackLike = ModelFixtures.apiTrackLike(apiTrack);
         testFixtures().insertLike(trackLike);

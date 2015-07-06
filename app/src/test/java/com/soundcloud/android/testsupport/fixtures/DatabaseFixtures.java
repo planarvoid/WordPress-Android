@@ -32,7 +32,7 @@ public class DatabaseFixtures {
 
     public void insertTrack(ApiTrack track) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds._ID, track.getId());
+        cv.put(TableColumns.Sounds._ID, track.getUrn().getNumericId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId());
@@ -107,7 +107,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLocalPlaylist(ApiPlaylist playlist) {
-        playlist.setUrn("soundcloud:playlists:-" + 1000 + playlist.getId());
+        playlist.setUrn(Urn.forPlaylist(-(1000 + playlist.getId())));
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;

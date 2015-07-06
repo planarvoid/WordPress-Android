@@ -583,7 +583,8 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     public ApiTrack toApiMobileTrack() {
-        ApiTrack apiTrack = new ApiTrack(getUrn());
+        ApiTrack apiTrack = new ApiTrack();
+        apiTrack.setUrn(getUrn());
         apiTrack.setCreatedAt(created_at);
         apiTrack.setArtworkUrl(artwork_url);
         apiTrack.setCommentable(commentable);

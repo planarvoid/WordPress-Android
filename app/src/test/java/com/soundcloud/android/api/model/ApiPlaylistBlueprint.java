@@ -2,6 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.model.Urn;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -19,7 +20,7 @@ public class ApiPlaylistBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiPlaylist("soundcloud:playlists:" + runningId++);
+            return new ApiPlaylist(Urn.forPlaylist(runningId++));
         }
     };
 

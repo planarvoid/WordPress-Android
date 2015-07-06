@@ -138,6 +138,6 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     private long getSoundId(ApiStreamItem streamItem) {
         final Optional<ApiTrack> track = streamItem.getTrack();
-        return track.isPresent() ? track.get().getId() : streamItem.getPlaylist().get().getId();
+        return track.isPresent() ? track.get().getUrn().getNumericId() : streamItem.getPlaylist().get().getId();
     }
 }

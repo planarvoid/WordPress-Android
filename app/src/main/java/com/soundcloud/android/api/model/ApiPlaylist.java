@@ -1,11 +1,11 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -14,8 +14,9 @@ import com.soundcloud.propeller.PropertySet;
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistRecord {
+public class ApiPlaylist implements PropertySetSource, PlaylistRecord {
 
+    private Urn urn;
     private String title;
     private ApiUser user;
     private List<String> tags;
@@ -33,12 +34,21 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
     public ApiPlaylist() {
     }
 
-    public ApiPlaylist(String urn) {
-        super(urn);
+    ApiPlaylist(Urn urn) {
+        this.urn = urn;
     }
 
-    public ApiPlaylist(Urn urn) {
-        super(urn);
+    @Override
+    public Urn getUrn() {
+        return urn;
+    }
+
+    public void setUrn(Urn urn) {
+        this.urn = urn;
+    }
+
+    public long getId() {
+        return urn.getNumericId();
     }
 
     public String getTitle() {
@@ -149,6 +159,23 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
     public void setRelatedResources(RelatedResources relatedResources) {
         this.user = relatedResources.user;
         this.stats = relatedResources.stats;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ApiPlaylist that = (ApiPlaylist) o;
+        return Objects.equal(urn, that.urn);
+    }
+
+    @Override
+    public int hashCode() {
+        return urn.hashCode();
     }
 
     @Override

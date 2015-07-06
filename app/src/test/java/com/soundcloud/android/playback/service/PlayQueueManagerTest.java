@@ -877,7 +877,7 @@ public class PlayQueueManagerTest extends PlatformUnitTest {
 
         ArgumentCaptor<PublicApiTrack> captor = ArgumentCaptor.forClass(PublicApiTrack.class);
         verify(modelManager).cache(captor.capture());
-        assertThat(captor.getValue().getId()).isEqualTo(apiTrack.getId());
+        assertThat(captor.getValue().getUrn()).isEqualTo(apiTrack.getUrn());
     }
 
     @Test
