@@ -20,17 +20,16 @@ public class MrLoggaVerifier {
         waiter.waitFiveSeconds();
     }
 
-    public void finishLogging() {
+    public void stopLogging() {
         waiter.waitFiveSeconds();
 
-        MrLoggaResponse response = client.finishLogging();
+        MrLoggaResponse response = client.stopLogging();
         assertTrue("Failed to finish MrLoggaLogga logging\n" + response.responseBody, response.success);
     }
 
-    public void isValid(String scenarioId) {
+    public void assertScenario(String scenarioId) {
         final MrLoggaResponse response = client.validate(scenarioId);
         assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response.responseBody, response.success);
     }
-
 
 }

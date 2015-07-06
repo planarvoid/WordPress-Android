@@ -14,7 +14,7 @@ public class MrLoggaRecorder {
         client.startRecording(scenarioName);
     }
 
-    public void finishRecording() {
+    public void stopRecording() {
         client.finishRecording();
     }
 

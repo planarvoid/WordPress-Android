@@ -40,8 +40,8 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
 
-        mrLoggaVerifier.finishLogging();
-        mrLoggaVerifier.isValid(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
+        mrLoggaVerifier.stopLogging();
+        mrLoggaVerifier.assertScenario(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
     }
 
 }
