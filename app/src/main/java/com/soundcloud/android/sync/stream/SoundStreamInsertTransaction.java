@@ -1,10 +1,6 @@
 package com.soundcloud.android.sync.stream;
 
-import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
-import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
-import static com.soundcloud.propeller.query.Filter.filter;
+import android.content.ContentValues;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -19,9 +15,13 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ScalarMapper;
 import com.soundcloud.propeller.query.Query;
 
-import android.content.ContentValues;
-
 import java.util.List;
+
+import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
+import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
+import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
+import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
@@ -138,6 +138,6 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     private long getSoundId(ApiStreamItem streamItem) {
         final Optional<ApiTrack> track = streamItem.getTrack();
-        return track.isPresent() ? track.get().getUrn().getNumericId() : streamItem.getPlaylist().get().getId();
+        return track.isPresent() ? track.get().getId() : streamItem.getPlaylist().get().getId();
     }
 }
