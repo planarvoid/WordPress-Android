@@ -52,13 +52,13 @@ public class LoadingRelatedTracksView extends FrameLayout {
     private Collection<Animator> createAnimators(View... bars) {
         final ArrayList<Animator> animators = new ArrayList<>(bars.length);
         for (int i = 0; i < bars.length; i++) {
-            animators.add(createAnimator(bars[i], i * DELAY_BETWEEN_ANIMATIONS, translationYOffset));
+            animators.add(createAnimator(bars[i], i * DELAY_BETWEEN_ANIMATIONS));
         }
         return animators;
     }
 
-    private ObjectAnimator createAnimator(View view, long delayTimeMilliSeconds, float yOffset) {
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationY", 0, yOffset, 0);
+    private ObjectAnimator createAnimator(View view, long delayTimeMilliSeconds) {
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationY", 0, translationYOffset, 0);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
         animator.setDuration(ANIMATION_DURATION_PER_LOADING_BAR);
         animator.setStartDelay(delayTimeMilliSeconds);
