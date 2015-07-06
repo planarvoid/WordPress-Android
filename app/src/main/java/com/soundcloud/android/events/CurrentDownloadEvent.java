@@ -1,14 +1,14 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.DownloadState;
 import rx.functions.Func1;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public final class CurrentDownloadEvent {
@@ -27,10 +27,10 @@ public final class CurrentDownloadEvent {
     };
 
     public final DownloadState kind;
-    public final Collection<Urn> entities;
+    public final List<Urn> entities;
     public final boolean isLikedTracks;
 
-     private CurrentDownloadEvent(DownloadState kind, boolean isLikedTracks, List<Urn> entities) {
+    private CurrentDownloadEvent(DownloadState kind, boolean isLikedTracks, List<Urn> entities) {
         this.kind = kind;
         this.entities = Collections.unmodifiableList(entities);
         this.isLikedTracks = isLikedTracks;
@@ -44,7 +44,7 @@ public final class CurrentDownloadEvent {
         return new CurrentDownloadEvent(DownloadState.DOWNLOADED, isLikedTrack, urns);
     }
 
-    public static CurrentDownloadEvent downloaded(Collection<DownloadRequest> requests) {
+    public static CurrentDownloadEvent downloaded(List<DownloadRequest> requests) {
         return create(DownloadState.DOWNLOADED, requests);
     }
 
@@ -80,9 +80,9 @@ public final class CurrentDownloadEvent {
         return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, true, urns);
     }
 
-    private static CurrentDownloadEvent create(DownloadState kind, Collection<DownloadRequest> requests) {
+    private static CurrentDownloadEvent create(DownloadState kind, List<DownloadRequest> requests) {
         boolean inLikedTracks = false;
-        final List<Urn> entities = new LinkedList<>();
+        final List<Urn> entities = new ArrayList<>();
         for (DownloadRequest request : requests) {
             inLikedTracks = inLikedTracks || request.inLikedTracks;
             entities.addAll(request.inPlaylists);
@@ -97,23 +97,20 @@ public final class CurrentDownloadEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         CurrentDownloadEvent that = (CurrentDownloadEvent) o;
-        return isLikedTracks == that.isLikedTracks && entities.equals(that.entities) && kind == that.kind;
+        return Objects.equal(kind, that.kind)
+                && Objects.equal(isLikedTracks, that.isLikedTracks)
+                && Objects.equal(entities, that.entities);
     }
 
     @Override
     public int hashCode() {
-        int result = kind.hashCode();
-        result = 31 * result + entities.hashCode();
-        result = 31 * result + (isLikedTracks ? 1 : 0);
-        return result;
+        return Objects.hashCode(kind, entities, isLikedTracks);
     }
 
     @Override
     public String toString() {
-        return "CurrentDownloadEvent{" +
-                "kind=" + kind +
-                ", entities=" + entities +
-                ", isLikedTracks=" + isLikedTracks +
-                '}';
+        return Objects.toStringHelper(this).add("kind", kind)
+                .add("entities", entities)
+                .add("isLikedTracks", isLikedTracks).toString();
     }
 }
