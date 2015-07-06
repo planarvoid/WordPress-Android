@@ -24,6 +24,7 @@ import java.util.Map;
 public final class DebugUtils {
 
     public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
+    public static final char NEW_LINE_SEPARATOR = '\n';
 
     public static String getLogDump(int logTailLineCount) {
         BufferedReader bufferedReader = null;
@@ -35,6 +36,7 @@ public final class DebugUtils {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 logDump.append(line);
+                logDump.append(NEW_LINE_SEPARATOR);
             }
             return logDump.toString();
         } catch (IOException e) {
