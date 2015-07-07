@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.testsupport.TestServiceSupport.assertLastForegroundNotificationNull;
-import static com.soundcloud.android.testsupport.TestServiceSupport.assertServicesIsStoppedBySelf;
-import static com.soundcloud.android.testsupport.TestServiceSupport.getServiceReceiversForAction;
+import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -32,11 +30,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioManager;
-
-import java.util.ArrayList;
 
 public class PlaybackServiceTest extends PlatformUnitTest {
 
@@ -80,43 +75,44 @@ public class PlaybackServiceTest extends PlatformUnitTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPauseAction() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlaybackService.Actions.PAUSE_ACTION)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.PAUSE_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForSeek() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlaybackService.Actions.SEEK)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.SEEK);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForResetAllAction() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlaybackService.Actions.RESET_ALL)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.RESET_ALL);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForStopAction() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlaybackService.Actions.STOP_ACTION)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.STOP_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPlayQueueChangedAction() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
+
     }
 
     @Test
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
-        assertThat(getReceiversForAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).containsExactly(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, AudioManager.ACTION_AUDIO_BECOMING_NOISY);
     }
 
     @Test
@@ -151,7 +147,7 @@ public class PlaybackServiceTest extends PlatformUnitTest {
         playbackService.onCreate();
         playbackService.onStartCommand(null, 0, 0);
 
-        assertServicesIsStoppedBySelf(playbackService);
+        assertThat(playbackService).hasFinishedSelf();
     }
 
     @Test
@@ -268,11 +264,7 @@ public class PlaybackServiceTest extends PlatformUnitTest {
         playbackService.stop();
         playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, getTrackUrn()));
 
-        assertLastForegroundNotificationNull(playbackService);
-    }
-
-    private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
-        return getServiceReceiversForAction(playbackService, action);
+        assertThat(playbackService).doesNotHaveLastForegroundNotification();
     }
 
     private Urn getTrackUrn() {
