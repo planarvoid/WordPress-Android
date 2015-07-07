@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,17 +18,16 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
@@ -39,14 +38,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ProfileOperationsLikesTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserProfileOperationsLikesTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
     private static final Date CREATED_AT = new Date();
 
-    private ProfileOperations operations;
+    private UserProfileOperations operations;
 
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
@@ -69,7 +68,7 @@ public class ProfileOperationsLikesTest {
 
     @Before
     public void setUp() {
-        operations = new ProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
+        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
                 storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
     }
 
@@ -150,9 +149,9 @@ public class ProfileOperationsLikesTest {
 
     private void assertAllItemsEmitted(PropertySet... propertySets) {
         final List<PagedRemoteCollection> onNextEvents = observer.getOnNextEvents();
-        expect(onNextEvents).toNumber(1);
-        expect(onNextEvents.get(0).nextPageLink()).toEqual(Optional.of(NEXT_HREF));
-        expect(onNextEvents.get(0)).toContainExactly(propertySets);
+        assertThat(onNextEvents).hasSize(1);
+        assertThat(onNextEvents.get(0).nextPageLink().get()).isEqualTo(NEXT_HREF);
+        assertThat(onNextEvents.get(0)).containsExactly(propertySets);
     }
 
     @NotNull

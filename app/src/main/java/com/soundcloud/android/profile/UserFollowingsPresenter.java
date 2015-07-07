@@ -26,7 +26,7 @@ import java.util.List;
 
 class UserFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
-    private final ProfileOperations profileOperations;
+    private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
 
@@ -44,7 +44,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
     @Inject
     UserFollowingsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
-                            ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
+                            UserProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;

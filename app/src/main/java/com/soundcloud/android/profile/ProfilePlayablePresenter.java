@@ -2,16 +2,13 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
-import static com.soundcloud.android.profile.ProfileArguments.USER_URN_KEY;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -21,11 +18,9 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.rx.Pager;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -35,18 +30,17 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableItem> {
+abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> extends RecyclerViewPresenter<PlayableItem> {
 
-    protected final ProfileOperations profileOperations;
-    private final MixedPlayableRecyclerItemAdapter adapter;
+    final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private MixedItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
 
-    private final Func1<PagedRemoteCollection, List<PlayableItem>> pageTransformer = new Func1<PagedRemoteCollection, List<PlayableItem>>() {
+    protected final Func1<DataT, List<PlayableItem>> pageTransformer = new Func1<DataT, List<PlayableItem>>() {
         @Override
-        public List<PlayableItem> call(PagedRemoteCollection collection) {
+        public List<PlayableItem> call(DataT collection) {
             final List<PlayableItem> items = new ArrayList<>();
             for (PropertySet source : collection) {
                 final Urn urn = source.get(EntityProperty.URN);
@@ -64,28 +58,13 @@ abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableIt
                                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                                        MixedPlayableRecyclerItemAdapter adapter,
                                        MixedItemClickListener.Factory clickListenerFactory,
-                                       PlayableListUpdater.Factory updaterFactory,
-                                       ProfileOperations profileOperations) {
+                                       PlayableListUpdater.Factory updaterFactory) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
-        this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.listUpdater = updaterFactory.create(adapter, adapter.getTrackRenderer());
     }
-
-    @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
-        return CollectionBinding.from(getPagedObservable(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(getPagingFunction())
-                .build();
-    }
-
-    protected abstract Pager.PagingFunction<PagedRemoteCollection> getPagingFunction();
-
-    protected abstract Observable<PagedRemoteCollection> getPagedObservable(Urn userUrn);
 
     protected abstract void configureEmptyView(EmptyView emptyView);
 

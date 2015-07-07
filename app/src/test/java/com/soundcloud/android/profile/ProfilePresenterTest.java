@@ -11,8 +11,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -20,7 +20,6 @@ import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -34,8 +33,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ProfilePresenterTest {
+public class ProfilePresenterTest extends AndroidUnitTest {
 
     private static final int DIVIDER_WIDTH = 55;
     private static final Urn USER_URN = Urn.forUser(123L);
@@ -49,7 +47,7 @@ public class ProfilePresenterTest {
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
     @Mock private ProfileHeaderPresenter.ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     @Mock private ProfileHeaderPresenter profileHeaderPresenter;
-    @Mock private ProfileOperations profileOperations;
+    @Mock private UserProfileOperations profileOperations;
     @Mock private View headerView;
     @Mock private ViewPager viewPager;
     @Mock private Resources resources;

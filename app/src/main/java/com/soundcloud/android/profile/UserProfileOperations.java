@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class ProfileOperations {
+class UserProfileOperations {
 
     private static final Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection> TO_PAGED_REMOTE_COLLECTION =
             new Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection>() {
@@ -85,13 +85,13 @@ class ProfileOperations {
     };
 
     @Inject
-    ProfileOperations(ProfileApi profileApi,
-                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                             UserRepository userRepository,
-                             StoreTracksCommand storeTracksCommand,
-                             StorePlaylistsCommand storePlaylistsCommand,
-                             StoreUsersCommand storeUsersCommand) {
+    UserProfileOperations(ProfileApi profileApi,
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                          LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
+                          UserRepository userRepository,
+                          StoreTracksCommand storeTracksCommand,
+                          StorePlaylistsCommand storePlaylistsCommand,
+                          StoreUsersCommand storeUsersCommand) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;

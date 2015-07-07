@@ -6,25 +6,23 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
-import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -38,17 +36,13 @@ import android.view.View;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-// TODO : Extend New List Presenter test
-public class ProfilePlayablePresenterTest {
+public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
-    public static final String EMPTY_TEXT = "empty-text";
     private ProfilePlayablePresenter presenter;
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private ProfileOperations profileOperations;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private MixedItemClickListener.Factory mixedClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
@@ -64,6 +58,7 @@ public class ProfilePlayablePresenterTest {
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Resources resources;
     @Mock private Drawable divider;
+    @Mock private EmptyViewBuilder emptyViewBuilder;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -105,30 +100,31 @@ public class ProfilePlayablePresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
 
-        verify(emptyView).setMessageText(EMPTY_TEXT);
+        verify(emptyViewBuilder).configure(emptyView);
     }
 
     private void createPresenter() {
         presenter = new ProfilePlayablePresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
-                adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations) {
+                adapter, mixedClickListenerFactory, playableListUpdaterFactory) {
             @Override
-            protected EmptyView.Status handleError(Throwable error) {
-                return EmptyView.Status.OK;
-            }
+            public void bind(Object o) {
 
-            @Override
-            protected Pager.PagingFunction<PagedRemoteCollection> getPagingFunction() {
-                return null;
-            }
-
-            @Override
-            protected Observable<PagedRemoteCollection> getPagedObservable(Urn userUrn) {
-                return Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href"));
             }
 
             @Override
             protected void configureEmptyView(EmptyView emptyView) {
-                emptyView.setMessageText(EMPTY_TEXT);
+                emptyViewBuilder.configure(emptyView);
+            }
+
+            @Override
+            protected CollectionBinding onBuildBinding(Bundle bundle) {
+                return CollectionBinding.from(Observable.empty(), pageTransformer)
+                        .withAdapter(adapter).build();
+            }
+
+            @Override
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
         };
     }

@@ -16,15 +16,13 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -36,16 +34,14 @@ import android.view.View;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-// TODO : Extend New List Presenter test
-public class UserPostsPresenterTest {
+public class UserPostsPresenterTest extends AndroidUnitTest {
 
     private UserPostsPresenter presenter;
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private ProfileOperations profileOperations;
+    @Mock private UserProfileOperations profileOperations;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private MixedItemClickListener.Factory mixedClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
@@ -74,8 +70,8 @@ public class UserPostsPresenterTest {
         when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href")));
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
-        when(fragmentView.getResources()).thenReturn(Robolectric.application.getResources());
-        when(recyclerView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(fragmentView.getResources()).thenReturn(context().getResources());
+        when(recyclerView.getResources()).thenReturn(context().getResources());
 
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);

@@ -25,7 +25,7 @@ import java.util.List;
 
 class UserFollowersPresenter extends com.soundcloud.android.presentation.RecyclerViewPresenter<UserItem> {
 
-    private final ProfileOperations profileOperations;
+    private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
 
@@ -43,7 +43,7 @@ class UserFollowersPresenter extends com.soundcloud.android.presentation.Recycle
 
     @Inject
     UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
-                           ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
+                           UserProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;

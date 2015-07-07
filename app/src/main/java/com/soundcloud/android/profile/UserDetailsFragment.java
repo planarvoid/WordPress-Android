@@ -16,7 +16,7 @@ import javax.inject.Inject;
 public class UserDetailsFragment extends LightCycleSupportFragment {
 
     @Inject UserDetailsView userDetailsView;
-    @Inject ProfileOperations profileOperations;
+    @Inject UserProfileOperations profileOperations;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
     public static UserDetailsFragment create(Urn userUrn) {

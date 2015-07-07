@@ -28,7 +28,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    private final ProfileOperations profileOperations;
+    private final UserProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
 
     private final Func1<ProfileUser, Boolean> hasDetails = new Func1<ProfileUser, Boolean>() {
@@ -41,7 +41,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private Observable<ProfileUser> userDetailsObservable;
     private ProfileUser profileUser;
 
-    public UserDetailsPresenter(ProfileOperations profileOperations, UserDetailsView userDetailsView) {
+    public UserDetailsPresenter(UserProfileOperations profileOperations, UserDetailsView userDetailsView) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
     }
