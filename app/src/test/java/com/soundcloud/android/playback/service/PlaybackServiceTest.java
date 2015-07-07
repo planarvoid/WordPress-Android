@@ -147,7 +147,7 @@ public class PlaybackServiceTest extends PlatformUnitTest {
         playbackService.onCreate();
         playbackService.onStartCommand(null, 0, 0);
 
-        assertThat(playbackService).hasFinishedSelf();
+        assertThat(playbackService).hasStoppedSelf();
     }
 
     @Test

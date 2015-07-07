@@ -21,7 +21,7 @@ public class ServiceAssert extends AbstractAssert<ServiceAssert, Service> {
         super(actual, ServiceAssert.class);
     }
 
-    public ServiceAssert hasFinishedSelf() {
+    public ServiceAssert hasStoppedSelf() {
         isNotNull();
 
         final String assertErrorMessage = String.format("Service <%s> was not stop by self.",
