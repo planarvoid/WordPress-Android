@@ -969,7 +969,7 @@ public class OnboardActivity extends FragmentActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.i(ONBOARDING_TAG, "on send bug report");
-                            bugReporter.showFeedbackDialog(getFragmentActivity());
+                            bugReporter.showSignInFeedbackDialog(getFragmentActivity());
                         }
                     });
         }

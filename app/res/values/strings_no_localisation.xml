@@ -3,12 +3,17 @@
     <string name="hyphen">-</string>
 
     <!-- __DEBUG LOGS/FEEDBACK -->
-    <string-array name="feedback_options">
+    <string-array name="feedback_general">
         <item>@string/feedback_playback_issue</item>
+        <item>@string/feedback_other_issue</item>
+    </string-array>
+    <string-array name="feedback_sign_in">
+        <item>@string/feedback_sign_in_issue</item>
         <item>@string/feedback_other_issue</item>
     </string-array>
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>
+    <string name="feedback_sign_in_issue">Sign in issue</string>
     <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
