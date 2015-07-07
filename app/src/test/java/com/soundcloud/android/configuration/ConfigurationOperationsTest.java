@@ -1,7 +1,7 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -25,12 +25,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -39,11 +39,9 @@ import rx.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ConfigurationOperationsTest {
+public class ConfigurationOperationsTest extends PlatformUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private ApiClient apiClient;
@@ -83,11 +81,11 @@ public class ConfigurationOperationsTest {
         Token token = new Token("accessToken","refreshToken");
         when(apiClient.fetchMappedResponse(
                 argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")
+                        .withQueryParam("experiment_layers", "android_listening", "ios")
                         .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        expect(operations.registerDevice(token)).toBe(configuration.deviceManagement);
+        assertThat(operations.registerDevice(token)).isSameAs(configuration.deviceManagement);
     }
 
     @Test
@@ -99,7 +97,7 @@ public class ConfigurationOperationsTest {
 
         operations.registerDevice(token);
 
-        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updateFeatures(TestFeatures.asList());
         verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsells);
         verify(experimentOperations).update(configuration.assignment);
     }
@@ -110,11 +108,11 @@ public class ConfigurationOperationsTest {
         String deviceId = "device-id";
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
-                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
+                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
                         .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        expect(operations.forceRegisterDevice(token, deviceId)).toBe(configuration.deviceManagement);
+        assertThat(operations.forceRegisterDevice(token, deviceId)).isSameAs(configuration.deviceManagement);
     }
 
     @Test
@@ -123,7 +121,7 @@ public class ConfigurationOperationsTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(authorized));
         operations.update();
 
-        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updateFeatures(TestFeatures.asList());
         verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsells);
         verify(experimentOperations).update(authorized.assignment);
     }
@@ -148,14 +146,7 @@ public class ConfigurationOperationsTest {
         operations.update();
 
         logoutSubject.onNext(null);
-        expect(clearOfflineContentSubject.hasObservers()).toBeTrue();
-    }
-
-    private HashMap<String, Boolean> getFeaturesAsMap() {
-        final HashMap<String, Boolean> featuresAsAMap = new HashMap<>();
-        featuresAsAMap.put("feature_disabled", false);
-        featuresAsAMap.put("feature_enabled", true);
-        return featuresAsAMap;
+        assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
     }
 
 }

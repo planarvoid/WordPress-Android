@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -8,18 +8,14 @@ import static org.mockito.Mockito.when;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.IOUtils;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-
-import android.content.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ExperimentStorageTest {
+public class ExperimentStorageTest extends PlatformUnitTest {
 
     private static final String JSON = "{ \"key\": \"value\" }";
     private static final Assignment ASSIGNMENT = ModelFixtures.create(Assignment.class);
@@ -36,11 +31,10 @@ public class ExperimentStorageTest {
     @Mock private JsonTransformer jsonTransformer;
 
     private ExperimentStorage storage;
-    private Context context = Robolectric.application.getApplicationContext();
 
     @Before
     public void setUp() throws Exception {
-        storage = new ExperimentStorage(Schedulers.immediate(), context, jsonTransformer);
+        storage = new ExperimentStorage(Schedulers.immediate(), context(), jsonTransformer);
     }
 
     @Test
@@ -50,7 +44,7 @@ public class ExperimentStorageTest {
 
         TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
         storage.readAssignment().subscribe(subscriber);
-        expect(subscriber.getOnNextEvents()).toContainExactly(ASSIGNMENT);
+        assertThat(subscriber.getOnNextEvents()).containsExactly(ASSIGNMENT);
     }
 
     @Test
@@ -59,7 +53,7 @@ public class ExperimentStorageTest {
 
         TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
         storage.readAssignment().subscribe(subscriber);
-        expect(subscriber.getOnNextEvents()).toContainExactly(Assignment.empty());
+        assertThat(subscriber.getOnNextEvents()).containsExactly(Assignment.empty());
     }
 
     @Test
@@ -68,7 +62,7 @@ public class ExperimentStorageTest {
 
         TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
         storage.readAssignment().subscribe(subscriber);
-        expect(subscriber.getOnNextEvents()).toContainExactly(Assignment.empty());
+        assertThat(subscriber.getOnNextEvents()).containsExactly(Assignment.empty());
     }
 
     @Test
@@ -78,7 +72,7 @@ public class ExperimentStorageTest {
 
         storage.readAssignment().subscribe(new TestSubscriber<Assignment>());
 
-        expect(getAssignmentFile().exists()).toBeFalse();
+        assertThat(getAssignmentFile().exists()).isFalse();
     }
 
     @Test
@@ -88,12 +82,12 @@ public class ExperimentStorageTest {
         storage.storeAssignment(ASSIGNMENT);
 
         String writtenAssignmentJson = readAssignment(getAssignmentFile());
-        expect(getAssignmentFile().exists()).toBeTrue();
-        expect(writtenAssignmentJson).toEqual(JSON);
+        assertThat(getAssignmentFile().exists()).isTrue();
+        assertThat(writtenAssignmentJson).isEqualTo(JSON);
     }
 
     private File getAssignmentFile() {
-        return new File(context.getFilesDir(), ".assignment");
+        return new File(context().getFilesDir(), ".assignment");
     }
 
     private String readAssignment(File file) throws IOException {

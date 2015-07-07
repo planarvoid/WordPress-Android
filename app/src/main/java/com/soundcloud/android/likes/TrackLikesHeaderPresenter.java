@@ -162,7 +162,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private boolean shouldShowOverflowMenu() {
-        return featureOperations.isOfflineContentEnabled() || featureOperations.upsellMidTier();
+        return featureOperations.isOfflineContentEnabled() || featureOperations.upsellOfflineContent();
     }
 
     public void onSubscribeListObservers(CollectionBinding<TrackItem> collectionBinding) {

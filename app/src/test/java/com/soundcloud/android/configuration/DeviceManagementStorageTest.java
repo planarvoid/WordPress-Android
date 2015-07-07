@@ -1,20 +1,20 @@
 package com.soundcloud.android.configuration;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceManagementStorageTest {
     
     private DeviceManagementStorage deviceManagementStorage;
@@ -44,6 +44,6 @@ public class DeviceManagementStorageTest {
     @Test
     public void hadDeviceConflictReturnsDeviceConflictFromPrefs() throws Exception {
         when(sharedPreferences.getBoolean(DeviceManagementStorage.DEVICE_CONFLICT, false)).thenReturn(true);
-        expect(deviceManagementStorage.hadDeviceConflict()).toBeTrue();
+        assertThat(deviceManagementStorage.hadDeviceConflict()).isTrue();
     }
 }

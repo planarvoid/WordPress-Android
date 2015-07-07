@@ -1,22 +1,22 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ExperimentOperationsTest {
 
     private ExperimentOperations operations;
@@ -33,7 +33,7 @@ public class ExperimentOperationsTest {
     public void shouldGetEmptyAssignmentsIfHasNotInitialised() {
         Assignment assignment = operations.getAssignment();
 
-        expect(assignment.isEmpty()).toBeTrue();
+        assertThat(assignment.isEmpty()).isTrue();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ExperimentOperationsTest {
         operations.loadAssignment().subscribe();
         Assignment assignment = operations.getAssignment();
 
-        expect(assignment.isEmpty()).toBeTrue();
+        assertThat(assignment.isEmpty()).isTrue();
     }
 
     @Test
@@ -54,7 +54,7 @@ public class ExperimentOperationsTest {
         operations.loadAssignment().subscribe();
         Assignment loadedAssignment = operations.getAssignment();
 
-        expect(loadedAssignment.getLayers()).toEqual(assignment.getLayers());
+        assertThat(loadedAssignment.getLayers()).isEqualTo(assignment.getLayers());
     }
 
     @Test
@@ -77,11 +77,11 @@ public class ExperimentOperationsTest {
 
         Map<String, Integer> params = operations.getTrackingParams();
 
-        expect(params.containsKey("exp_android-ui")).toBeTrue();
-        expect(params.get("exp_android-ui")).toEqual(3);
+        assertThat(params.containsKey("exp_android-ui")).isTrue();
+        assertThat(params.get("exp_android-ui")).isEqualTo(3);
 
-        expect(params.containsKey("exp_android-listen")).toBeTrue();
-        expect(params.get("exp_android-listen")).toEqual(9);
+        assertThat(params.containsKey("exp_android-listen")).isTrue();
+        assertThat(params.get("exp_android-listen")).isEqualTo(9);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ExperimentOperationsTest {
 
         Map<String, Integer> params = operations.getTrackingParams();
 
-        expect(params.containsKey("exp_android-ui")).toBeTrue();
-        expect(params.containsKey("exp_android-listen")).toBeFalse();
+        assertThat(params.containsKey("exp_android-ui")).isTrue();
+        assertThat(params.containsKey("exp_android-listen")).isFalse();
     }
 }

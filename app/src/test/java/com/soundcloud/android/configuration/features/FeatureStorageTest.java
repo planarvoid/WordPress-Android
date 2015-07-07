@@ -1,31 +1,31 @@
 package com.soundcloud.android.configuration.features;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.Obfuscator;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import rx.observers.TestObserver;
 
-import java.util.Map;
+import android.content.Context;
 
-@RunWith(SoundCloudTestRunner.class)
-public class FeatureStorageTest {
+import java.util.Arrays;
+import java.util.List;
+
+public class FeatureStorageTest extends PlatformUnitTest {
 
     public static final String MOCK_ENCRYPTION = "-obfuscated";
 
     private FeatureStorage storage;
-    private Map<String, Boolean> features;
+    private List<Feature> features;
 
     @Mock private Obfuscator obfuscator;
 
@@ -33,56 +33,52 @@ public class FeatureStorageTest {
 
     @Before
     public void setUp() throws Exception {
-        features = TestFeatures.asMap();
-        storage = new FeatureStorage(new ScTestSharedPreferences(), obfuscator);
+        features = TestFeatures.asList();
+        storage = new FeatureStorage(sharedPreferences("test", Context.MODE_PRIVATE), obfuscator);
         configureMockObfuscation();
     }
 
     @Test
-    public void updateFeaturesEnabledValues() {
+    public void updateFeaturesStoresEnabledStates() {
         storage.update(features);
 
-        expect(storage.isEnabled("feature_disabled", true)).toBeFalse();
-        expect(storage.isEnabled("feature_enabled", false)).toBeTrue();
+        assertThat(storage.isEnabled("feature_disabled", true)).isFalse();
+        assertThat(storage.isEnabled("feature_enabled", false)).isTrue();
     }
 
     @Test
-    public void listFeaturesShouldReturnEmptyListWhenNoFeatures() {
-        expect(storage.list().isEmpty()).toBeTrue();
+    public void updateFeatureStoresEnabledState() {
+        storage.update(new Feature("feature_disabled", false, Arrays.asList("mid_tier")));
+
+        assertThat(storage.isEnabled("feature_disabled", true)).isFalse();
     }
 
     @Test
-    public void listFeaturesShouldReturnAllFeatures() {
-        storage.update(features);
+    public void updateFeatureStoresPlans() {
+        storage.update(new Feature("plan_related_feature", false, Arrays.asList("mid_tier", "high_tier")));
 
-        expect(storage.list()).toEqual(features);
-    }
-
-    @Test
-    public void updateFeatureEnabledValue() {
-        final Feature feature = new Feature("feature_disabled", false);
-        storage.update(feature.name, feature.enabled);
-
-        expect(storage.isEnabled("feature_disabled", true)).toBeFalse();
+        assertThat(storage.getPlans("plan_related_feature")).containsOnly("mid_tier", "high_tier");
     }
 
     @Test
     public void returnDefaultValueWhenFeatureIsAbsent() {
-        expect(storage.isEnabled("absent_feature", true)).toBeTrue();
+        assertThat(storage.isEnabled("absent_feature", true)).isTrue();
     }
 
     @Test
     public void receivesUpdatesToFeatureStatusChanges() {
         storage.getUpdates("my_feature").subscribe(testObserver);
-        storage.update("my_feature", true);
-        expect(testObserver.getOnNextEvents().get(0)).toBeTrue();
+
+        storage.update(new Feature("my_feature", true, Arrays.asList("mid_tier")));
+
+        assertThat(testObserver.getOnNextEvents().get(0)).isTrue();
     }
 
     @Test
     public void clearsSettingsStorage() {
         storage.update(features);
         storage.clear();
-        expect(storage.isEnabled("feature_disabled", true)).toBeTrue();
+        assertThat(storage.isEnabled("feature_disabled", true)).isTrue();
     }
 
     private void configureMockObfuscation() throws Exception {

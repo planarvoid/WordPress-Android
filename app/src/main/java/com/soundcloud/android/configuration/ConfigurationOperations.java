@@ -147,7 +147,7 @@ public class ConfigurationOperations {
     public void saveConfiguration(Configuration configuration) {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
-            featureOperations.updateFeatures(configuration.getFeatureMap());
+            featureOperations.updateFeatures(configuration.features);
             featureOperations.updatePlan(configuration.plan.id, configuration.plan.upsells);
         }
     }

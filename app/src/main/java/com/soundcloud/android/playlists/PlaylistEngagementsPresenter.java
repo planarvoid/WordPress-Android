@@ -204,7 +204,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
             playlistEngagementsView.show(playlistWithTracks.getDownloadState());
-        } else if (featureOperations.upsellMidTier()) {
+        } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
             playlistEngagementsView.hideOfflineContentOptions();

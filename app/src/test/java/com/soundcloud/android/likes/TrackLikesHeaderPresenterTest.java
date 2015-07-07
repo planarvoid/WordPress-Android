@@ -307,7 +307,7 @@ public class TrackLikesHeaderPresenterTest extends PlatformUnitTest {
     @Test
     public void showOverflowMenuIfUpsellIsEnabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellOfflineContent()).thenReturn(true);
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
 
@@ -318,7 +318,7 @@ public class TrackLikesHeaderPresenterTest extends PlatformUnitTest {
     @Test
     public void doesNotShowOverflowMenuWhenOfflineContentIsDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.upsellMidTier()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
         presenter.onViewCreated(fragment, layoutView, null);
 
         verify(headerView, never()).showOverflowMenuButton();
