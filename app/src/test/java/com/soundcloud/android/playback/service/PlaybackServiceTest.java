@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,31 +18,22 @@ import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
-import com.xtremelabs.robolectric.shadows.ShadowService;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioManager;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackServiceTest {
+public class PlaybackServiceTest extends PlatformUnitTest {
 
     public static final int DURATION = 1000;
     private PlaybackService playbackService;
@@ -83,43 +75,44 @@ public class PlaybackServiceTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPauseAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.PAUSE_ACTION)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.PAUSE_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForSeek() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.SEEK)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.SEEK);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForResetAllAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.RESET_ALL)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.RESET_ALL);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForStopAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlaybackService.Actions.STOP_ACTION)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.STOP_ACTION);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPlayQueueChangedAction() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
+
     }
 
     @Test
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
-        expect(getReceiversForAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)).toContain(playbackReceiver);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, AudioManager.ACTION_AUDIO_BECOMING_NOISY);
     }
 
     @Test
@@ -127,7 +120,7 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
 
         PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
-        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_CREATED);
+        assertThat(broadcasted.getKind()).isEqualTo(PlayerLifeCycleEvent.STATE_CREATED);
     }
 
     @Test
@@ -136,7 +129,7 @@ public class PlaybackServiceTest {
         playbackService.onDestroy();
 
         PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
-        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_DESTROYED);
+        assertThat(broadcasted.getKind()).isEqualTo(PlayerLifeCycleEvent.STATE_DESTROYED);
     }
 
     @Test
@@ -146,17 +139,22 @@ public class PlaybackServiceTest {
         playbackService.onStartCommand(new Intent(), 0, 0);
 
         PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
-        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_STARTED);
+        assertThat(broadcasted.getKind()).isEqualTo(PlayerLifeCycleEvent.STATE_STARTED);
     }
 
     @Test
     public void onStartWithNullIntentStopsSelf() throws Exception {
         playbackService.onCreate();
         playbackService.onStartCommand(null, 0, 0);
-        Robolectric.runUiThreadTasksIncludingDelayedTasks();
 
-        ShadowService service = Robolectric.shadowOf(playbackService);
-        expect(service.isStoppedBySelf()).toBeTrue();
+        assertThat(playbackService).hasFinishedSelf();
+    }
+
+    @Test
+    public void onStartWillSubscribePlaybackNotification() {
+        playbackService.onStartCommand(null, 0, 0);
+
+        verify(playbackNotificationController).subscribe(playbackService);
     }
 
     @Test
@@ -173,7 +171,7 @@ public class PlaybackServiceTest {
         playbackService.onPlaystateChanged(stateTransition);
 
         Playa.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        expect(broadcasted).toBe(stateTransition);
+        assertThat(broadcasted).isEqualTo(stateTransition);
     }
 
     @Test
@@ -182,7 +180,7 @@ public class PlaybackServiceTest {
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        expect(eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED)).toBeEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED)).isEmpty();
     }
 
     @Test
@@ -220,9 +218,9 @@ public class PlaybackServiceTest {
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        expect(broadcasted.getTrackUrn()).toEqual(getTrackUrn());
-        expect(broadcasted.getPlaybackProgress().getPosition()).toEqual(123L);
-        expect(broadcasted.getPlaybackProgress().getDuration()).toEqual(456L);
+        assertThat(broadcasted.getTrackUrn()).isEqualTo(getTrackUrn());
+        assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
+        assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }
 
     @Test
@@ -266,27 +264,9 @@ public class PlaybackServiceTest {
         playbackService.stop();
         playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, getTrackUrn()));
 
-        ShadowService service = Robolectric.shadowOf(playbackService);
-        expect(service.getLastForegroundNotification()).toBeNull();
-
+        assertThat(playbackService).doesNotHaveLastForegroundNotification();
     }
 
-    private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {
-        ArrayList<BroadcastReceiver> broadcastReceivers = new ArrayList<>();
-        for (ShadowApplication.Wrapper registeredReceiver : Robolectric.getShadowApplication().getRegisteredReceivers()) {
-            if (registeredReceiver.context == playbackService) {
-                Iterator<String> actions = registeredReceiver.intentFilter.actionsIterator();
-                while (actions.hasNext()) {
-                    if (actions.next().equals(action)) {
-                        broadcastReceivers.add(registeredReceiver.broadcastReceiver);
-                    }
-                }
-            }
-
-        }
-        return broadcastReceivers;
-    }
-    
     private Urn getTrackUrn() {
         return track.get(TrackProperty.URN);
     }

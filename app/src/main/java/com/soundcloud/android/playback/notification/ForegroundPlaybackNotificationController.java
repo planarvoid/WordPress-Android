@@ -1,14 +1,21 @@
 package com.soundcloud.android.playback.notification;
 
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.propeller.PropertySet;
+
+import android.app.NotificationManager;
+import android.util.Log;
 
 import javax.inject.Inject;
 
 class ForegroundPlaybackNotificationController implements PlaybackNotificationController.Strategy {
 
+    private final NotificationManager notificationManager;
+
     @Inject
-    public ForegroundPlaybackNotificationController() {
+    public ForegroundPlaybackNotificationController(NotificationManager notificationManager) {
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -18,8 +25,8 @@ class ForegroundPlaybackNotificationController implements PlaybackNotificationCo
 
     @Override
     public void clear(PlaybackService playbackService) {
-        final boolean removeNotification = true;
-        playbackService.stopForeground(removeNotification);
+        playbackService.stopForeground(true);
+        notificationManager.cancel(NotificationConstants.PLAYBACK_NOTIFY_ID);
     }
 
     @Override

@@ -20,6 +20,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.app.NotificationManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -78,8 +79,8 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
 
     @Override
     public void clear(PlaybackService playbackService) {
-        final boolean removeNotification = true;
-        playbackService.stopForeground(removeNotification);
+        playbackService.stopForeground(true);
+        notificationManager.cancel(NotificationConstants.PLAYBACK_NOTIFY_ID);
     }
 
     private void loadAndSetArtwork(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
