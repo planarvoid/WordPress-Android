@@ -68,8 +68,10 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     }
 
     public void subscribe(PlaybackService service) {
-        playbackService = service;
-        startStrategy();
+        if (!hasRunningPlaybackService()) {
+            playbackService = service;
+            startStrategy();
+        }
     }
 
     public void unsubscribe() {

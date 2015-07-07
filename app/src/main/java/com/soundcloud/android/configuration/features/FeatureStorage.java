@@ -10,10 +10,17 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FeatureStorage {
+
+    private static final String ENABLED_POSTFIX = "_enabled";
+    private static final String PLANS_POSTFIX = "_plans";
+
+    private static final int EXPECTED_PLANS = 2;
 
     private final SharedPreferences sharedPreferences;
     private final Obfuscator obfuscator;
@@ -31,34 +38,35 @@ public class FeatureStorage {
         this.obfuscator = obfuscator;
     }
 
-    public void update(String name, boolean enabled) {
+    public void update(List<Feature> features) {
+        for (Feature feature : features) {
+            update(feature);
+        }
+    }
+
+    public void update(Feature feature) {
+        update(feature.name + ENABLED_POSTFIX, feature.enabled);
+        update(feature.name + PLANS_POSTFIX, feature.plans);
+    }
+
+    private void update(String name, boolean enabled) {
         String key = obfuscator.obfuscate(name);
         String value = obfuscator.obfuscate(enabled);
         sharedPreferences.edit().putString(key, value).apply();
     }
 
+    private void update(String name, List<String> values) {
+        String key = obfuscator.obfuscate(name);
+        Set<String> obfuscatedValues = new HashSet<>();
+        for (String value : values) {
+            obfuscatedValues.add(obfuscator.obfuscate(value));
+        }
+        sharedPreferences.edit().putStringSet(key, obfuscatedValues).apply();
+    }
+
     public boolean isEnabled(String name, boolean defaultValue) {
-        String enabled = sharedPreferences.getString(obfuscator.obfuscate(name), null);
+        String enabled = sharedPreferences.getString(obfuscator.obfuscate(name + ENABLED_POSTFIX), null);
         return toBoolean(enabled, defaultValue);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, Boolean> list() {
-        Map<String, String> obfuscatedMap = (Map<String, String>) sharedPreferences.getAll();
-        Map<String, Boolean> featureMap = new HashMap<>();
-
-        for (Map.Entry<String, String> entry : obfuscatedMap.entrySet()) {
-            String key = obfuscator.deobfuscateString(entry.getKey());
-            boolean value = obfuscator.deobfuscateBoolean(entry.getValue());
-            featureMap.put(key, value);
-        }
-        return featureMap;
-    }
-
-    public void update(Map<String, Boolean> features) {
-        for (Map.Entry<String, Boolean> feature : features.entrySet()) {
-            update(feature.getKey(), feature.getValue());
-        }
     }
 
     public Observable<Boolean> getUpdates(final String name) {
@@ -71,7 +79,7 @@ public class FeatureStorage {
         return new Func1<String, Boolean>() {
             @Override
             public Boolean call(String s) {
-                return obfuscator.deobfuscateString(s).equals(name);
+                return obfuscator.deobfuscateString(s).equals(name + ENABLED_POSTFIX);
             }
         };
     }
@@ -80,6 +88,15 @@ public class FeatureStorage {
         return value == null
                 ? defaultValue
                 : obfuscator.deobfuscateBoolean(value);
+    }
+
+    public List<String> getPlans(String name) {
+        Set<String> obfuscatedValues = sharedPreferences.getStringSet(obfuscator.obfuscate(name + PLANS_POSTFIX), new HashSet<String>());
+        List<String> values = new ArrayList<>(EXPECTED_PLANS);
+        for (String value : obfuscatedValues) {
+            values.add(obfuscator.deobfuscateString(value));
+        }
+        return values;
     }
 
     public void clear() {

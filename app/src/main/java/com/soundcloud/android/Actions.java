@@ -19,32 +19,17 @@ public final class Actions {
     public static final String PERFORM_SEARCH   = "com.soundcloud.android.action.PERFORM_SEARCH";
     public static final String SHARE        = "com.soundcloud.android.SHARE";
     public static final String EDIT         = "com.soundcloud.android.EDIT";
-    public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
     public static final String PLAYLIST     = "com.soundcloud.android.action.PLAYLIST";
     public static final String TRACK        = "com.soundcloud.android.action.TRACK";
     public static final String EXPLORE     = "com.soundcloud.android.action.EXPLORE";
     public static final String LIKES     = "com.soundcloud.android.action.LIKES";
 
-    public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
-
-    public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
-    public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";
-    public static final String EXTRA_DESCRIPTION = "com.soundcloud.android.extra.description";
-    public static final String EXTRA_PUBLIC      = "com.soundcloud.android.extra.public";
-    public static final String EXTRA_LOCATION    = "com.soundcloud.android.extra.location" ;
-    public static final String EXTRA_TAGS        = "com.soundcloud.android.extra.tags" ;
-    public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
-    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork";
-
     // internal actions
     public static final String ACCOUNT_ADDED       = "com.soundcloud.android.action.ACCOUNT_ADDED";
     public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.action.CHANGE_PROXY";
     public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
-    public static final String CONNECTION_ERROR    = "com.soundcloud.android.connectionerror";
-    public static final String RESEND              = "com.soundcloud.android.RESEND";
 
     public static final String UPLOAD              = "com.soundcloud.android.actions.upload";
-    public static final String UPLOAD_CANCEL       = "com.soundcloud.android.actions.upload.cancel";
     public static final String UPLOAD_MONITOR      = "com.soundcloud.android.actions.upload.monitor";
 }

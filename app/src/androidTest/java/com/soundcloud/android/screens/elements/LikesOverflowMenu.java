@@ -18,6 +18,6 @@ public class LikesOverflowMenu extends PopupMenuElement {
     }
 
     public ViewElement getMakeAvailableOfflineItem() {
-        return menuItem(With.text(testDriver.getString(R.string.make_offline_available)));
+        return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
     }
 }

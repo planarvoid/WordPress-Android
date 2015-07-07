@@ -58,7 +58,7 @@ public class ExploreTracksFragmentTest {
         Observable<SuggestedTracksCollection> observable = withSubscription(subscription, just(new SuggestedTracksCollection()));
         when(exploreTracksOperations.pager()).thenReturn(TestPager.<SuggestedTracksCollection>pagerWithSinglePage());
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
-        when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class)))
+        when(playbackOperations.playTrackWithRecommendationsLegacy(any(Urn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
         fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
                 pullToRefreshController, listViewController, TestSubscribers.expandPlayerSubscriber());
@@ -113,7 +113,7 @@ public class ExploreTracksFragmentTest {
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
-        verify(playbackOperations).playTrackWithRecommendations(track.getUrn(), playSessionSource);
+        verify(playbackOperations).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ExploreTracksFragmentTest {
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
         playSessionSource.setExploreVersion("tag");
-        verify(playbackOperations).playTrackWithRecommendations(track.getUrn(), playSessionSource);
+        verify(playbackOperations).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
     }
 
     private View createFragmentView() {

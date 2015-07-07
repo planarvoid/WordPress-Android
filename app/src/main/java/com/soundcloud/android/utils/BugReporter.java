@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.ArrayRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 
@@ -34,8 +35,16 @@ public class BugReporter {
         this.resources = resources;
     }
 
-    public void showFeedbackDialog(final FragmentActivity activity) {
-        final String[] feedbackOptions = resources.getStringArray(R.array.feedback_options);
+    public void showGeneralFeedbackDialog(final FragmentActivity activity) {
+        showFeedbackDialog(activity, R.array.feedback_general);
+    }
+
+    public void showSignInFeedbackDialog(final FragmentActivity activity) {
+        showFeedbackDialog(activity, R.array.feedback_sign_in);
+    }
+
+    private void showFeedbackDialog(final FragmentActivity activity, @ArrayRes int options) {
+        final String[] feedbackOptions = resources.getStringArray(options);
         new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
                     @Override

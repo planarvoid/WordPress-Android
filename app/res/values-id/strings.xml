@@ -199,10 +199,6 @@
     <string name="dashboard_notifications_message_incoming">dari %s</string>
     <string name="dashboard_notifications_message_incoming_2">dari %1$s dan %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">dari %1$s, %2$s dan lainnya</string>
-    <string name="dashboard_notifications_ticker">%s suara baru</string>
-    <string name="dashboard_notifications_ticker_single">1 suara baru</string>
-    <string name="dashboard_notifications_title">%s suara baru</string>
-    <string name="dashboard_notifications_title_single">1 suara baru</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s mengeposkan ulang %2$s</string>
 
     <!-- __ONBOARDING -->

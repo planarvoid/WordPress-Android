@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
-import com.soundcloud.android.robolectric.shadows.ScShadowSQLiteDatabase;
 import com.soundcloud.android.robolectric.shadows.ShadowArrayMap;
 import com.soundcloud.android.robolectric.shadows.ShadowBaseBundle;
 import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
@@ -89,7 +88,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ScShadowParcel.class);
         Robolectric.bindShadowClass(ShadowArrayMap.class);
         Robolectric.bindShadowClass(ShadowBaseBundle.class);
-        Robolectric.bindShadowClass(ScShadowSQLiteDatabase.class);
     }
 
 }

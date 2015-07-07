@@ -33,7 +33,9 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
     }
 
     public void linkButtonsNotification(Context context) {
-        linkPlayerControls(context);
+        setOnClickPendingIntent(R.id.toggle_playback, createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
+        setOnClickPendingIntent(R.id.next, createPendingIntent(context, PlaybackAction.NEXT));
+        setOnClickPendingIntent(R.id.prev, createPendingIntent(context, PlaybackAction.PREVIOUS));
         setOnClickPendingIntent(R.id.close, createPendingIntent(context, PlaybackAction.CLOSE));
     }
 
@@ -44,16 +46,6 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         } else {
             setViewVisibility(R.id.icon,View.GONE);
         }
-    }
-
-    public void clearIcon() {
-        setViewVisibility(R.id.icon,View.GONE);
-    }
-
-    private void linkPlayerControls(Context context) {
-        setOnClickPendingIntent(R.id.toggle_playback, createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
-        setOnClickPendingIntent(R.id.next, createPendingIntent(context, PlaybackAction.NEXT));
-        setOnClickPendingIntent(R.id.prev, createPendingIntent(context, PlaybackAction.PREVIOUS));
     }
 
     public void setCurrentCreator(CharSequence creator) {

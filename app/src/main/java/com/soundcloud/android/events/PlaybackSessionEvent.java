@@ -37,6 +37,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String MONETIZATION_AUDIO_AD = "audio_ad";
     private static final String MONETIZATION_PROMOTED = "promoted";
 
+    public static final long FIRST_PLAY_MAX_PROGRESS = 1000L;
+
     private final Urn trackUrn;
     private final long duration;
     private final long progress;
@@ -199,7 +201,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public boolean isFirstPlay() {
-        return isPlayEvent() && progress == 0L;
+        return isPlayEvent() && 0L <= progress && progress <= FIRST_PLAY_MAX_PROGRESS;
     }
 
     public boolean hasTrackFinished() {

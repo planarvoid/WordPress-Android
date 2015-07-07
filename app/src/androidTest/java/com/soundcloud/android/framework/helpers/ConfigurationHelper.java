@@ -1,6 +1,7 @@
 package com.soundcloud.android.framework.helpers;
 
 import com.soundcloud.android.configuration.PlanStorage;
+import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import rx.functions.Action1;
@@ -30,7 +31,7 @@ public class ConfigurationHelper {
     }
     
     public static void disableOfflineContent(Context context) {
-        getFeatureStorage(context).update(OFFLINE_CONTENT, false);
+        getFeatureStorage(context).update(new Feature(OFFLINE_CONTENT, false, Arrays.asList(PLAN_MID_TIER)));
     }
 
     public static void resetOfflineSyncState(Context context) {
@@ -38,17 +39,18 @@ public class ConfigurationHelper {
         new OfflineContentHelper().clearOfflineContent(context);
     }
 
-    private static void enableFeature(Context context, final String feature) {
+    private static void enableFeature(Context context, final String name) {
+        final Feature feature = new Feature(name, true, Arrays.asList(PLAN_MID_TIER));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
-        featureStorage.update(feature, true);
+        featureStorage.update(feature);
 
-        featureStorage.getUpdates(feature)
+        featureStorage.getUpdates(name)
                 .doOnNext(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean enabled) {
                         if (!enabled) {
-                            featureStorage.update(feature, true);
+                            featureStorage.update(feature);
                         }
                     }
                 })

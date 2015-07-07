@@ -51,17 +51,17 @@ import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
 import android.app.ActivityManager;
-import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
 
-public class SoundCloudApplication extends Application {
+public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Remove these fields when we've moved to a full DI solution

@@ -1,0 +1,147 @@
+package com.soundcloud.android.offline;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+public class DownloadQueueTest extends PlatformUnitTest {
+
+    private static final Urn TRACK1 = Urn.forTrack(123);
+    private static final Urn TRACK2 = Urn.forTrack(456L);
+    private static final Urn PLAYLIST1 = Urn.forPlaylist(123L);
+    private static final Urn PLAYLIST2 = Urn.forPlaylist(456L);
+    private static final long TRACK_DURATION = 12345L;
+
+    private DownloadQueue downloadQueue;
+
+    @Before
+    public void setUp() throws Exception {
+        downloadQueue = new DownloadQueue();
+    }
+
+    @Test
+    public void isEmptyReturnsTrue() {
+        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+
+        assertThat(downloadQueue.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void isEmptyReturnsFalse() {
+        downloadQueue.set(Arrays.asList(createDownloadRequest(TRACK1)));
+
+        assertThat(downloadQueue.isEmpty()).isFalse();
+    }
+
+    @Test
+    public void pollReturnsAndRemoveTheFirstRequest() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2);
+        downloadQueue.set(Arrays.asList(request1, request2));
+
+        assertThat(downloadQueue.poll()).isEqualTo(request1);
+        assertThat(downloadQueue.getRequests()).containsExactly(request2);
+    }
+
+    @Test
+    public void getRequestedReturnsAnEmptyListWhenPlaylistsFrmTheResultAreNotInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).isEmpty();
+    }
+
+    @Test
+    public void getRequestedReturnsPlaylistsPendingInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).containsExactly(PLAYLIST1);
+    }
+
+    @Test
+    public void getCompletedReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
+    }
+
+    @Test
+    public void getCompletedReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
+    }
+
+    @Test
+    public void getUnavailableReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
+    }
+
+    @Test
+    public void getUnavailableReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        downloadQueue.set(Arrays.asList(request1));
+
+        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
+    }
+
+    @Test
+    public void isAllLikedTracksDownloadedReturnsTrueWhenRequestDownloadedALikeAndNoneLikedTrackIsRequested() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
+        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isTrue();
+    }
+
+    @Test
+    public void isAllLikedTracksDownloadedReturnsFalseRequestIsNotRelatedToLikedTrack() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, false);
+        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
+    }
+
+    @Test
+    public void isAllLikedTracksDownloadedReturnsFalseWhenLikedTrackRequested() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, true);
+        downloadQueue.set(Arrays.asList(request2));
+
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
+    }
+    
+    private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
+        return new DownloadRequest.Builder(track, TRACK_DURATION)
+                .addToLikes(isLikedTrack)
+                .build();
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
+        return new DownloadRequest.Builder(track, TRACK_DURATION)
+                .addToPlaylist(playlist)
+                .build();
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track) {
+        return new DownloadRequest.Builder(track, TRACK_DURATION).build();
+    }
+
+}

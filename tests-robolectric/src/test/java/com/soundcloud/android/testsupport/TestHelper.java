@@ -1,8 +1,15 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -10,9 +17,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
@@ -35,29 +40,22 @@ import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
+import org.apache.http.client.methods.HttpGet;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 @Deprecated
 public class TestHelper {
@@ -98,19 +96,6 @@ public class TestHelper {
     public static void addCannedResponse(Class klazz, String url, String resource) throws IOException {
         Robolectric.getFakeHttpLayer().addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, url),
                 new TestHttpResponse(200, JsonFixtures.resourceAsBytes(klazz, resource)));
-    }
-
-    public static void addPendingIOException(String path) {
-        if (path != null && path.startsWith("/")) {
-            path = path.substring(1, path.length());
-        }
-
-        FakeHttpLayer.RequestMatcherBuilder builder = new FakeHttpLayer.RequestMatcherBuilder();
-        if (path != null) {
-            builder.path(path);
-        }
-        Robolectric.getFakeHttpLayer().addHttpResponseRule(
-                new FakeHttpLayer.RequestMatcherResponseRule(builder, new IOException("boom")));
     }
 
     public static void assertFirstIdToBe(Content content, long id) {
@@ -227,14 +212,6 @@ public class TestHelper {
         return cursor.moveToFirst() ? new UserAssociation(cursor) : null;
     }
 
-    public static <T extends Persisted & Identifiable> int bulkInsert(Collection<T> items) {
-        BulkInsertMap map = new BulkInsertMap();
-        for (T m : items) {
-            m.putFullContentValues(map);
-        }
-        return map.insert(Robolectric.application.getContentResolver());
-    }
-
     public static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri) {
         return bulkInsertToUserAssociations(resources, collectionUri, null, null, null);
     }
@@ -346,14 +323,6 @@ public class TestHelper {
 
     public static void addResourceResponse(Class<?> klazz, String url, String resource) throws IOException {
         TestHelper.addCannedResponse(klazz, url, resource);
-    }
-
-    public static PublicApiPlaylist createNewUserPlaylist(PublicApiUser user, boolean isPrivate, List<PublicApiTrack> tracks) {
-        final String title = "new playlist " + System.currentTimeMillis();
-        bulkInsert(tracks);
-        PublicApiPlaylist playlist = PublicApiPlaylist.newUserPlaylist(user, title, isPrivate, tracks);
-        insertWithDependencies(playlist);
-        return playlist;
     }
 
     public static void setUserId(long id) {

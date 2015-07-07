@@ -1,8 +1,5 @@
 package com.soundcloud.android.storage;
 
-import static com.soundcloud.android.storage.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
@@ -25,10 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Deprecated
 public abstract class BaseDAO<T extends Identifiable & Persisted> {
@@ -41,13 +36,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     public long create(T resource) {
-        return create(resource, true);
-    }
-
-    public long create(T resource, boolean storeDependencies) {
-        if (storeDependencies) {
-            createDependencies(resource);
-        }
+        createDependencies(resource);
         long recordId = create(resource.buildContentValues());
         resource.setId(recordId);
         return recordId;
@@ -63,15 +52,17 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @Deprecated
     public long create(ContentValues values) {
-        return create(getContent().uri, values);
-    }
-
-    @Deprecated
-    protected long create(Uri uri, ContentValues values) {
-        Uri objUri = resolver.insert(uri, values);
+        Uri objUri = resolver.insert(getContent().uri, values);
         if (objUri != null) {
             try {
-                return Long.parseLong(objUri.getLastPathSegment());
+                // If the primary key had been provided as input, we return this as the "row ID".
+                // Otherwise we return SQLite's ROWID value.
+                // see discussion in https://groups.google.com/a/soundcloud.com/forum/#!topic/android-dev/1kgoOvSb4Fo
+                Long modelId = values.getAsLong(BaseColumns._ID);
+                if (modelId == null || modelId <= 0) {
+                    modelId = Long.parseLong(objUri.getLastPathSegment());
+                }
+                return modelId;
             } catch (NumberFormatException e) {
                 throw new DAOException(e);
             }
@@ -88,20 +79,6 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     public long createOrUpdate(T resource) {
         return createOrUpdate(resource.getId(), resource.buildContentValues());
-    }
-
-    public int deleteAll(Collection<T> resources) {
-        Set<Long> toRemove = new HashSet<>(resources.size());
-        for (T res : resources) {
-            toRemove.add(res.getId());
-        }
-        if (!toRemove.isEmpty()) {
-            return resolver.delete(getContent().uri,
-                    getWhereInClause(BaseColumns._ID, toRemove.size()),
-                    longListToStringArr(toRemove));
-        } else {
-            return 0;
-        }
     }
 
     public long createOrUpdate(long id, ContentValues values) {
@@ -123,11 +100,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     public boolean delete(T resource) {
-        return delete(resource, null);
-    }
-
-    public boolean delete(T resource, @Nullable String where, String... whereArgs) {
-        return delete(resource.toUri(), where, whereArgs);
+        return delete(resource.toUri(), null);
     }
 
     public boolean deleteAll() {
@@ -159,42 +132,6 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         return new QueryBuilder(contentUri).queryAll();
     }
 
-    @NotNull
-    private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        Cursor cursor = resolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
-        if (cursor == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            List<Long> ids = new ArrayList<>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                ids.add(cursor.getLong(0));
-            }
-            return ids;
-        } finally {
-            cursor.close();
-        }
-    }
-
-    @NotNull
-    private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
-        Cursor cursor = resolver.query(contentUri, projection, selection, selectionArgs, order);
-        if (cursor == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            List<T> objects = new ArrayList<>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                objects.add(objFromCursor(cursor));
-            }
-            return objects;
-        } finally {
-            cursor.close();
-        }
-    }
-
     @Nullable
     public T queryById(long id) {
         Cursor cursor = resolver.query(getContent().forId(id), null, null, null, null);
@@ -215,10 +152,6 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     @Nullable
     public T queryByUri(Uri uri) {
         return queryById(UriUtils.getLastSegmentAsLong(uri));
-    }
-
-    public int count() {
-        return count(null);
     }
 
     public int count(@Nullable String where, String... whereArgs) {
@@ -317,7 +250,20 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
             String selection = resolveSelection();
             String[] selectionArgs = resolveSelectionArgs();
-            return queryAllByUri(contentUri, projection, selection, selectionArgs, order);
+            Cursor cursor = resolver.query(contentUri, projection, selection, selectionArgs, order);
+            if (cursor == null) {
+                return Collections.emptyList();
+            }
+
+            try {
+                List<T> objects = new ArrayList<>(cursor.getCount());
+                while (cursor.moveToNext()) {
+                    objects.add(objFromCursor(cursor));
+                }
+                return objects;
+            } finally {
+                cursor.close();
+            }
         }
 
         public List<Long> queryIds() {
@@ -325,7 +271,20 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
             String selection = resolveSelection();
             String[] selectionArgs = resolveSelectionArgs();
-            return queryIdsByUri(contentUri, selection, selectionArgs);
+            Cursor cursor = resolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
+            if (cursor == null) {
+                return Collections.emptyList();
+            }
+
+            try {
+                List<Long> ids = new ArrayList<>(cursor.getCount());
+                while (cursor.moveToNext()) {
+                    ids.add(cursor.getLong(0));
+                }
+                return ids;
+            } finally {
+                cursor.close();
+            }
         }
 
         @Nullable

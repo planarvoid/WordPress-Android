@@ -61,7 +61,6 @@ import org.jetbrains.annotations.Nullable;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -154,7 +153,7 @@ public class OnboardActivity extends FragmentActivity
         @Override
         public void onAnimationEnd(Animation animation) {
             overlayHolder.setVisibility(View.GONE);
-            final Context context = OnboardActivity.this;
+
             if (loginLayout != null) {
                 hideView(loginLayout, false);
             }
@@ -239,7 +238,7 @@ public class OnboardActivity extends FragmentActivity
             accountAuthenticatorResponse.onRequestContinued();
         }
 
-        showPhotos(savedInstanceState == null);
+        showPhotos(savedInstanceState != null);
         setButtonListeners();
 
         if (configurationOperations.shouldDisplayDeviceConflict()) {
@@ -248,7 +247,7 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private void showPhotos(boolean isNotConfigChange) {
+    private void showPhotos(boolean isConfigChange) {
         overridePendingTransition(0, 0);
 
         photoBottomBar = findViewById(R.id.tour_bottom_bar);
@@ -263,12 +262,17 @@ public class OnboardActivity extends FragmentActivity
 
         setState(OnboardingState.PHOTOS);
 
-        if (isNotConfigChange) {
+        if (!isConfigChange) {
             trackTourScreen();
         }
 
         final View splash = findViewById(R.id.splash);
-        splash.setVisibility(isNotConfigChange ? View.VISIBLE : View.GONE);
+        splash.setVisibility(isConfigChange ? View.GONE : View.VISIBLE);
+
+        if (isConfigChange) {
+            overlayBg.setVisibility(View.GONE);
+            overlayHolder.setVisibility(View.GONE);
+        }
 
         final PhotoLoadHandler photoLoadHandler = new PhotoLoadHandler(this, splash);
         photosAdapter.load(this, photoLoadHandler);
@@ -965,7 +969,7 @@ public class OnboardActivity extends FragmentActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.i(ONBOARDING_TAG, "on send bug report");
-                            bugReporter.showFeedbackDialog(getFragmentActivity());
+                            bugReporter.showSignInFeedbackDialog(getFragmentActivity());
                         }
                     });
         }

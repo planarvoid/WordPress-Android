@@ -3,17 +3,17 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.annotations.Issue;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,21 +33,6 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
         super(new TestDAO(mock(ContentResolver.class)));
     }
 
-    //TODO 3/23/13 When gotten rid of ContentProvider, verify interaction against DB instead
-    @Test
-    public void shouldStoreSingleRecord() {
-        ContentResolver resolverMock = getDAO().getContentResolver();
-        PublicApiTrack record = new PublicApiTrack();
-        record.user = new PublicApiUser(); // should not be auto-inserted
-
-        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(record.toUri());
-
-        getDAO().create(record, false);
-
-        verify(resolverMock).insert(eq(getDAO().getContent().uri), any(ContentValues.class));
-        verifyNoMoreInteractions(resolverMock);
-    }
-
     @Test
     public void shouldStoreSingleRecordWithDependencies() {
         ContentResolver resolverMock = getDAO().getContentResolver();
@@ -63,7 +48,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
     }
 
     @Test
-    public void shouldSetRecordIdForNewRecords() {
+    public void shouldUseRowIdAsModelIdForNewRecordsIfNoneSet() {
         ContentResolver resolverMock = getDAO().getContentResolver();
         PublicApiTrack record = new PublicApiTrack(0); // 0 is not a valid record ID
 
@@ -72,7 +57,23 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
 
         getDAO().create(record);
 
-        expect(record.getId()).toBe(123L);
+        expect(record.getId()).toEqual(123L);
+    }
+
+    @Test
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3406")
+    public void shouldNotUseRowIdAsModelIdForNewRecordsIfSet() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        PublicApiTrack record = ModelFixtures.create(PublicApiTrack.class);
+        long oldId = record.getId();
+
+        Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
+
+        getDAO().create(record);
+
+        expect(record.getId()).not.toEqual(123L);
+        expect(record.getId()).toEqual(oldId);
     }
 
     @Test
@@ -84,21 +85,6 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
         getDAO().createCollection(Arrays.asList(track1, track2));
 
         verify(resolverMock).bulkInsert(eq(getDAO().getContent().uri), any(ContentValues[].class));
-    }
-
-    @Test
-    public void shouldCountRecords() {
-        ContentResolver resolverMock = getDAO().getContentResolver();
-        Cursor count = resolverMock.query(
-                eq(getDAO().getContent().uri),
-                isNull(String[].class),
-                isNull(String.class),
-                isA(String[].class),
-                isNull(String.class));
-
-        when(count).thenReturn(new CursorStub(2));
-
-        expect(getDAO().count()).toBe(2);
     }
 
     @Test
@@ -233,16 +219,6 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
     }
 
     @Test
-    public void shouldDeleteSingleRecord() {
-        ContentResolver resolverMock = getDAO().getContentResolver();
-        PublicApiTrack track = new PublicApiTrack(1);
-
-        getDAO().delete(track, "title = ?", "new track");
-
-        verify(resolverMock).delete(eq(track.toUri()), eq("title = ?"), eq(new String[]{"new track"}));
-    }
-
-    @Test
     public void shouldDeleteAllRecords() {
         ContentResolver resolverMock = getDAO().getContentResolver();
 
@@ -283,6 +259,11 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
 
         @Override
         public void close() {
+        }
+
+        @Override
+        public Uri getNotificationUri() {
+            return null;
         }
 
         @Override

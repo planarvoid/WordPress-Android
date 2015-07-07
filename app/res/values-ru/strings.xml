@@ -199,10 +199,6 @@
     <string name="dashboard_notifications_message_incoming">от %s</string>
     <string name="dashboard_notifications_message_incoming_2">от %1$s и %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">от %1$s, %2$s и других</string>
-    <string name="dashboard_notifications_ticker">%s новых звуков</string>
-    <string name="dashboard_notifications_ticker_single">1 новый звук</string>
-    <string name="dashboard_notifications_title">%s новых звуков</string>
-    <string name="dashboard_notifications_title_single">1 новый звук</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s сделал репост %2$s</string>
 
     <!-- __ONBOARDING -->

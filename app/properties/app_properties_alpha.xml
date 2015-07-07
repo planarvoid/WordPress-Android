@@ -9,7 +9,6 @@
     <string name="adjust_log_level">info</string>
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
-    <bool name="debug_feature_screen">true</bool>
     <bool name="google_plus_enabled">true</bool>
 
     <string name="public_api_base_url">https://api.soundcloud.com</string>
@@ -21,6 +20,7 @@
     <bool name="feature_google_cast">true</bool>
     <bool name="feature_promoted_in_stream">true</bool>
     <bool name="feature_follow_user_search">true</bool>
+    <bool name="feature_play_related_tracks">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_offline_sync">false</bool>

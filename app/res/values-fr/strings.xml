@@ -200,10 +200,6 @@
     <string name="dashboard_notifications_message_incoming">de %s</string>
     <string name="dashboard_notifications_message_incoming_2">de %1$s et %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s et d\'autres</string>
-    <string name="dashboard_notifications_ticker">%s nouveaux fichiers audio</string>
-    <string name="dashboard_notifications_ticker_single">Un nouveau fichier audio</string>
-    <string name="dashboard_notifications_title">%s nouveaux fichiers audio</string>
-    <string name="dashboard_notifications_title_single">Un nouveau fichier audio</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s a republié %2$s</string>
 
     <!-- __ONBOARDING -->

@@ -9,7 +9,6 @@
     <string name="adjust_log_level">error</string>
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
-    <bool name="debug_feature_screen">false</bool>
     <bool name="google_plus_enabled">false</bool>
 
     <string name="public_api_base_url">https://api.soundcloud.com</string>
@@ -28,5 +27,6 @@
     <bool name="feature_new_profile_fragments">false</bool>
     <bool name="feature_new_profile">false</bool>
     <bool name="feature_follow_user_search">false</bool>
+    <bool name="feature_play_related_tracks">false</bool>
 
 </resources>

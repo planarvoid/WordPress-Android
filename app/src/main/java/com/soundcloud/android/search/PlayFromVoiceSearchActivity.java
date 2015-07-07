@@ -48,7 +48,7 @@ public class PlayFromVoiceSearchActivity extends Activity {
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<PropertySet> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
-            return playbackOperations.playTrackWithRecommendations(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
+            return playbackOperations.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
         }
     };
 

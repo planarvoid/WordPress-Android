@@ -17,7 +17,6 @@ public class SettingKey {
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
     public static final String LEGAL = "legal";
     public static final String VERSION = "version";
-    public static final String FORCE_SKIPPY = "forceSkippy";
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
 
     // DeveloperSettings
@@ -28,7 +27,6 @@ public class SettingKey {
     public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
-    public static final String DEV_CONFIG_FEATURES = "dev.configFeatures";
     public static final String DEV_FLUSH_EVENTLOGGER_INSTANTLY = "dev.flushEventloggerInstantly";
 
     // Offline

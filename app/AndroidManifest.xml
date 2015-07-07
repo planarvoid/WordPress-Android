@@ -168,14 +168,10 @@
                 <data android:host="soundcloud.com" android:path="/search/people" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/search/sets" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/search/sets" android:scheme="https"/>
-                <data android:host="soundcloud.com" android:path="/search/groups" android:scheme="http"/>
-                <data android:host="soundcloud.com" android:path="/search/groups" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/people/search" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/people/search" android:scheme="https"/>
                 <data android:host="soundcloud.com" android:path="/tracks/search" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/tracks/search" android:scheme="https"/>
-                <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="http"/>
-                <data android:host="soundcloud.com" android:path="/groups/search" android:scheme="https"/>
             </intent-filter>
         </activity>
 
@@ -316,9 +312,6 @@
         <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_about" android:name=".settings.LicensesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
-
-        <!-- developer settings -->
-        <activity android:enabled="@bool/debug_feature_screen" android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity"/>
 
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>

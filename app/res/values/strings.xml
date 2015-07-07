@@ -41,6 +41,12 @@
     <string name="like">Like</string>
     <string name="unlike">Unlike</string>
     <string name="unlimited">unlimited</string>
+    <string name="play_related_tracks">Play related tracks</string>
+    <string name="unable_to_play_related_tracks">Unable to play related tracks</string>
+    <string name="loading_related_tracks">Loading related tracks...</string>
+
+    <string name="following_zero">Followed by you</string>
+    <string name="number_of_liked_tracks_you_liked_zero">You have no liked tracks</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Search SoundCloud</string>
@@ -88,7 +94,7 @@
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
     <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
-    <string name="authentication_sign_up">Sign up for SoundCloud</string>
+    <string name="authentication_sign_up">Create a SoundCloud account</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
@@ -207,16 +213,34 @@
     <string name="title_settings">Settings</string>
     <string name="title_feedback">Send bug report</string>
 
-    <!-- __NOTIFICATIONS -->
-    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
+
+    <!-- _NOTIFICATION_AGGREGATIONS -->
     <string name="dashboard_notifications_message_incoming">from %s</string>
     <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-    <string name="dashboard_notifications_ticker">%s new sounds</string>
-    <string name="dashboard_notifications_ticker_single">1 new sound</string>
-    <string name="dashboard_notifications_title">%s new sounds</string>
-    <string name="dashboard_notifications_title_single">1 new sound</string>
+
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
+    <string name="dashboard_notifications_activity_message_repost_one">on %1$s</string>
+    <string name="dashboard_notifications_activity_message_repost_two">on %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_repost_other">on %1$s, %2$s and other sounds</string>
+
+    <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">from %1$s on %2$s</string>
+    <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">from %1$s</string>
+    <string name="dashboard_notifications_activity_message_activity_two">Comments and likes from %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_activity_other">Comments and likes from %1$s, %2$s and others</string>
+
+    <string name="dashboard_notifications_activity_message_comment_single_track_one">new comment on %1$s from %2$s</string>
+    <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d new comments on %2$s from %3$s and %4$s</string>
+    <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d new comments on %2$s from %3$s, %4$s and others</string>
+
+    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
+    <string name="dashboard_notifications_activity_message_like_one">on %1$s</string>
+    <string name="dashboard_notifications_activity_message_like_two">on %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_like_other">on %1$s, %2$s and other sounds</string>
+
+    <string name="dashboard_notifications_activity_message_comment_one">Comments from %s</string>
+    <string name="dashboard_notifications_activity_message_comment_two">Comments from %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_comment_other">Comments from %1$s, %2$s and others</string>
 
     <!-- __ONBOARDING -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>

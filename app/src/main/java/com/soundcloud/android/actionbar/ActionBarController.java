@@ -49,7 +49,7 @@ public class ActionBarController extends DefaultLightCycleActivity<AppCompatActi
                 startActivity(activity, ActivitiesActivity.class);
                 return true;
             case R.id.action_feedback:
-                bugReporter.showFeedbackDialog(activity);
+                bugReporter.showGeneralFeedbackDialog(activity);
                 return true;
             default:
                 return false;

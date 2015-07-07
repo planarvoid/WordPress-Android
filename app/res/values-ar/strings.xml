@@ -198,10 +198,6 @@
     <string name="dashboard_notifications_message_incoming">من %s</string>
     <string name="dashboard_notifications_message_incoming_2">من %1$s و %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">من %1$s و %2$s وآخرين</string>
-    <string name="dashboard_notifications_ticker">%s أصوات جديدة</string>
-    <string name="dashboard_notifications_ticker_single">1 صوت جديد</string>
-    <string name="dashboard_notifications_title">%s أصوات جديدة</string>
-    <string name="dashboard_notifications_title_single">1 صوت جديد</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s مرسل %2$s</string>
 
     <!-- __ONBOARDING -->

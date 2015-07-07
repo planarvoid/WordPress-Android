@@ -140,6 +140,8 @@ android {
       versionNameSuffix '-debug'
       debuggable true
       signingConfig signingConfigs.debug
+
+      multiDexEnabled true
     }
 
     end2end.initWith(buildTypes.debug)
@@ -174,13 +176,7 @@ android {
   }
 }
 
-/* Duplicate transitive dependencies on commons-logging, so exclude it.
- (e.g. Dependency commons-logging:commons-logging:1.1.1 is ignored for debug as it may be
- conflicting with the internal version provided by Android.
- */
 configurations {
-  all*.exclude group: 'commons-logging', module: 'commons-logging'
-
   testSupport // for exporting our test helpers
 }
 
@@ -245,6 +241,7 @@ dependencies {
   compile libraries.undoBar
 
   /* Android ... keep order! */
+  compile libraries.androidMultidex
   compile libraries.androidDesign
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
@@ -265,6 +262,9 @@ dependencies {
   testCompile unitTestLibraries.propellerTest
 
   /* Acceptance Tests */
+  androidTestCompile(libraries.androidMultidexInstrumentation) {
+    exclude group: 'com.android.support', module: 'multidex'
+  }
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient

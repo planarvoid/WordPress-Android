@@ -6,30 +6,18 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.PropertySet;
 
-import android.os.Parcel;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord {
+public final class ApiTrack implements PropertySetSource, TrackRecord {
 
-    public static Creator<ApiTrack> CREATOR = new Creator<ApiTrack>() {
-        public ApiTrack createFromParcel(Parcel source) {
-            return new ApiTrack(source);
-        }
-
-        public ApiTrack[] newArray(int size) {
-            return new ApiTrack[size];
-        }
-    };
+    private Urn urn;
     private String title;
     private String genre;
     private ApiUser user;
@@ -55,31 +43,21 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
 
     public ApiTrack() { /* for Deserialization */ }
 
-    public ApiTrack(Parcel in) {
-        super(in);
-        this.title = in.readString();
-        this.genre = in.readString();
-        this.user = in.readParcelable(ApiUser.class.getClassLoader());
-        this.commentable = in.readByte() != 0;
-        this.duration = in.readLong();
-        this.streamUrl = in.readString();
-        this.waveformUrl = in.readString();
-        this.artworkUrl = in.readString();
-        this.userTags = new ArrayList<>();
-        in.readStringList(this.userTags);
-        this.createdAt = (Date) in.readSerializable();
-        this.permalinkUrl = in.readString();
-        this.monetizable = in.readByte() != 0;
-        this.policy = in.readString();
-        this.syncable = in.readByte() != 0;
+    ApiTrack(Urn urn) {
+        this.urn = urn;
     }
 
-    public ApiTrack(String urnString) {
-        super(urnString);
+    @Override
+    public Urn getUrn() {
+        return urn;
     }
 
-    public ApiTrack(Urn urn) {
-        super(urn);
+    public void setUrn(Urn urn) {
+        this.urn = urn;
+    }
+
+    public long getId() {
+        return urn.getNumericId();
     }
 
     public String getTitle() {
@@ -278,27 +256,20 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
     }
 
     @Override
-    public int describeContents() {
-        return 0;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ApiTrack apiTrack = (ApiTrack) o;
+        return Objects.equal(urn, apiTrack.urn);
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(this.title);
-        dest.writeString(this.genre);
-        dest.writeParcelable(this.user, flags);
-        dest.writeByte(this.commentable ? (byte) 1 : (byte) 0);
-        dest.writeLong(this.duration);
-        dest.writeString(this.streamUrl);
-        dest.writeString(this.waveformUrl);
-        dest.writeString(this.artworkUrl);
-        dest.writeStringList(this.userTags);
-        dest.writeSerializable(this.createdAt);
-        dest.writeString(this.permalinkUrl);
-        dest.writeByte(this.monetizable ? (byte) 1 : (byte) 0);
-        dest.writeString(this.policy);
-        dest.writeByte(this.syncable ? (byte) 1 : (byte) 0);
+    public int hashCode() {
+        return urn.hashCode();
     }
 
     public Boolean isPrivate() {

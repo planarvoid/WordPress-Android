@@ -54,6 +54,6 @@ public class ActionBarControllerTest {
 
         actionBarController.onOptionsItemSelected(activity, item);
 
-        verify(bugReporter).showFeedbackDialog(activity);
+        verify(bugReporter).showGeneralFeedbackDialog(activity);
     }
 }

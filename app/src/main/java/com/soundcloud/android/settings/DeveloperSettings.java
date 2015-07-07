@@ -2,7 +2,6 @@ package com.soundcloud.android.settings;
 
 import static android.preference.Preference.OnPreferenceClickListener;
 import static com.soundcloud.android.settings.SettingKey.DEV_CLEAR_NOTIFICATIONS;
-import static com.soundcloud.android.settings.SettingKey.DEV_CONFIG_FEATURES;
 import static com.soundcloud.android.settings.SettingKey.DEV_CRASH;
 import static com.soundcloud.android.settings.SettingKey.DEV_HTTP_PROXY;
 import static com.soundcloud.android.settings.SettingKey.DEV_RECORDING_TYPE;
@@ -16,7 +15,6 @@ import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -51,7 +49,6 @@ class DeveloperSettings implements OnPreferenceClickListener {
         settings.findPreference(DEV_REWIND_NOTIFICATIONS).setOnPreferenceClickListener(this);
         settings.findPreference(DEV_SYNC_NOW).setOnPreferenceClickListener(this);
         settings.findPreference(DEV_CRASH).setOnPreferenceClickListener(this);
-        settings.findPreference(DEV_CONFIG_FEATURES).setOnPreferenceClickListener(this);
 
         settings.findPreference(DEV_HTTP_PROXY).setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
@@ -87,7 +84,6 @@ class DeveloperSettings implements OnPreferenceClickListener {
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        final Activity parent = settings.getActivity();
         switch (preference.getKey()) {
             case DEV_CLEAR_NOTIFICATIONS:
                 SyncAdapterService.requestNewSync(application, SyncAdapterService.CLEAR_ALL);
@@ -102,9 +98,6 @@ class DeveloperSettings implements OnPreferenceClickListener {
                 if (!AndroidUtils.isUserAMonkey()) {
                     throw new RuntimeException("Developer requested crash");
                 }
-                return true;
-            case DEV_CONFIG_FEATURES:
-                parent.startActivity(new Intent(parent, ConfigurationFeaturesActivity.class));
                 return true;
             default:
                 return false;
