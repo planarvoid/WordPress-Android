@@ -13,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -37,19 +36,19 @@ import java.util.NoSuchElementException;
 public class RequestTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIllegalArgumentForNonEvenParams() throws Exception {
-        new com.soundcloud.android.api.legacy.Request().with("1", 2, "3");
+        new Request().with("1", 2, "3");
     }
 
     @Test
     public void shouldBuildAQueryString() throws Exception {
         assertThat(
-                new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f, "met\u00f8l", false).queryString(),
+                new Request().with("foo", 100, "baz", 22.3f, "met\u00f8l", false).queryString(),
                 equalTo("foo=100&baz=22.3&met%C3%B8l=false"));
     }
 
     @Test
     public void shouldGenerateUrlWithParameters() throws Exception {
-        com.soundcloud.android.api.legacy.Request p = new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f);
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
         assertThat(p.toUrl("http://foo.com"), equalTo("http://foo.com?foo=100&baz=22.3"));
     }
 
@@ -61,19 +60,19 @@ public class RequestTest {
                 "2cb&AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1337966965&Signature=dFluZNnDMGZiXCACfRru9VrB%2" +
                 "Bbg%3D";
 
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request(url);
+        Request r = new Request(url);
         assertThat(r.toUrl(), equalTo(url));
     }
 
     @Test
     public void shouldHaveSizeMethod() throws Exception {
-        com.soundcloud.android.api.legacy.Request p = new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f);
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
         assertThat(p.size(), is(2));
     }
 
     @Test
     public void shouldSupportWith() throws Exception {
-        com.soundcloud.android.api.legacy.Request p = new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f);
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
         p.add("baz", 66);
         assertThat(p.size(), is(3));
         assertThat(p.queryString(), equalTo("foo=100&baz=22.3&baz=66"));
@@ -81,7 +80,7 @@ public class RequestTest {
 
     @Test
     public void shouldSupportOverwritingParameters() {
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request();
+        Request r = new Request();
         r.add("foo", 1)
                 .add("foo", 2);
 
@@ -96,36 +95,36 @@ public class RequestTest {
 
     @Test
     public void shouldAddParameter() throws Exception {
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request();
+        Request r = new Request();
         r.add("param", "value");
         assertThat(r.queryString(), equalTo("param=value"));
     }
 
     @Test
     public void shouldAddOnlyParameterNameIfPassedNullValue() throws Exception {
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request();
+        Request r = new Request();
         r.add("param", null);
         assertThat(r.queryString(), equalTo("param"));
     }
 
     @Test
     public void shouldAddAllContainedValuesIfPassedArrays() throws Exception {
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request();
+        Request r = new Request();
         r.add("foo", new String[]{"1", "2"});
         assertThat(r.queryString(), equalTo("foo=1&foo=2"));
     }
 
     @Test
     public void shouldAddAllContainedValuesIfPassedIterable() throws Exception {
-        com.soundcloud.android.api.legacy.Request r = new com.soundcloud.android.api.legacy.Request();
+        Request r = new Request();
         r.add("foo", Arrays.asList("1", "2"));
         assertThat(r.queryString(), equalTo("foo=1&foo=2"));
     }
 
     @Test
     public void shouldCopyRequestWithNewResource() throws Exception {
-        com.soundcloud.android.api.legacy.Request p = new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f);
-        com.soundcloud.android.api.legacy.Request p2 = p.newResource("baz");
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
+        Request p2 = p.newResource("baz");
         assertThat(p, not(sameInstance(p2)));
         assertThat(p2.toString(),
                 equalTo("Request{resource='baz', params=[foo=100, baz=22.3], entity=null, token=null, listener=null}"));
@@ -133,7 +132,7 @@ public class RequestTest {
 
     @Test
     public void shouldImplementIterable() throws Exception {
-        com.soundcloud.android.api.legacy.Request p = new com.soundcloud.android.api.legacy.Request().with("foo", 100, "baz", 22.3f);
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
         Iterator<NameValuePair> it = p.iterator();
         assertThat(it.next().getName(), equalTo("foo"));
         assertThat(it.next().getName(), equalTo("baz"));
@@ -156,13 +155,13 @@ public class RequestTest {
 
     @Test
     public void shouldBuildARequest() throws Exception {
-        HttpGet request = com.soundcloud.android.api.legacy.Request.to("/foo").with("1", "2").buildRequest(HttpGet.class);
+        HttpGet request = Request.to("/foo").with("1", "2").buildRequest(HttpGet.class);
         assertThat(request.getURI().toString(), equalTo("/foo?1=2"));
     }
 
     @Test
     public void shouldAddTokenToHeaderIfSpecified() throws Exception {
-        HttpGet request = com.soundcloud.android.api.legacy.Request.to("/foo")
+        HttpGet request = Request.to("/foo")
                 .with("1", "2")
                 .usingToken(new Token("acc3ss", "r3fr3sh"))
                 .buildRequest(HttpGet.class);
@@ -174,7 +173,7 @@ public class RequestTest {
 
     @Test
     public void shouldAddRangeHeaderIfSpecified() throws Exception {
-        HttpGet request = com.soundcloud.android.api.legacy.Request.to("/foo")
+        HttpGet request = Request.to("/foo")
                 .range(1, 200)
                 .buildRequest(HttpGet.class);
 
@@ -185,7 +184,7 @@ public class RequestTest {
 
     @Test
     public void shouldPreservePostUri() throws Exception {
-        HttpPost request = com.soundcloud.android.api.legacy.Request.to("/foo")
+        HttpPost request = Request.to("/foo")
                 .buildRequest(HttpPost.class);
 
         assertThat(request.getURI(), notNullValue());
@@ -194,7 +193,7 @@ public class RequestTest {
 
     @Test
     public void shouldIncludeAnyEntityInRequest() throws Exception {
-        HttpPost request = com.soundcloud.android.api.legacy.Request.to("/too")
+        HttpPost request = Request.to("/too")
                 .withEntity(new StringEntity("foo"))
                 .buildRequest(HttpPost.class);
 
@@ -206,7 +205,7 @@ public class RequestTest {
 
     @Test
     public void shouldIncludeContentInRequest() throws Exception {
-        HttpPost request = com.soundcloud.android.api.legacy.Request.to("/too")
+        HttpPost request = Request.to("/too")
                 .withContent("<foo><baz>content</baz></foo>", "application/xml")
                 .buildRequest(HttpPost.class);
 
@@ -220,7 +219,7 @@ public class RequestTest {
 
     @Test
     public void shouldUseUTF8AsDefaultEncodingForStringPayloads() throws Exception {
-        HttpPost request = com.soundcloud.android.api.legacy.Request.to("/too")
+        HttpPost request = Request.to("/too")
                 .withContent("{ string:\"îøüöéí\" }", "application/json")
                 .buildRequest(HttpPost.class);
 
@@ -233,7 +232,7 @@ public class RequestTest {
 
     @Test
     public void shouldBuildARequestWithContentAndPreserveQueryParameters() throws Exception {
-        HttpPost post = com.soundcloud.android.api.legacy.Request
+        HttpPost post = Request
                 .to("/foo")
                 .withContent("{}", "application/json")
                 .with("1", "2").buildRequest(HttpPost.class);
@@ -247,60 +246,60 @@ public class RequestTest {
 
     @Test
     public void shouldDoStringFormattingInFactoryMethod() throws Exception {
-        assertThat(com.soundcloud.android.api.legacy.Request.to("/resource/%d", 200).toUrl(), equalTo("/resource/200"));
+        assertThat(Request.to("/resource/%d", 200).toUrl(), equalTo("/resource/200"));
     }
 
     @Test(expected = IllegalFormatException.class)
     public void shouldThrowIllegalFormatExceptionWhenInvalidParameters() throws Exception {
-        com.soundcloud.android.api.legacy.Request.to("/resource/%d", "int").toUrl();
+        Request.to("/resource/%d", "int").toUrl();
     }
 
     @Test
     public void toStringShouldWork() throws Exception {
         assertThat(
-                new com.soundcloud.android.api.legacy.Request("/foo").with("1", "2").toString(),
+                new Request("/foo").with("1", "2").toString(),
                 equalTo("Request{resource='/foo', params=[1=2], entity=null, token=null, listener=null}"));
     }
 
     @Test
     public void itShouldParseExistingQueryParameters() throws Exception {
         assertThat(
-                new com.soundcloud.android.api.legacy.Request("/foo?bar=baz").with("1", "2").toUrl(),
+                new Request("/foo?bar=baz").with("1", "2").toUrl(),
                 equalTo("/foo?bar=baz&1=2"));
 
         assertThat(
-                new com.soundcloud.android.api.legacy.Request("/foo?").with("1", "2").toUrl(),
+                new Request("/foo?").with("1", "2").toUrl(),
                 equalTo("/foo?1=2"));
 
         assertThat(
-                new com.soundcloud.android.api.legacy.Request("/foo?bar=baz&foo=bar").with("1", "2").toUrl(),
+                new Request("/foo?bar=baz&foo=bar").with("1", "2").toUrl(),
                 equalTo("/foo?bar=baz&foo=bar&1=2"));
 
         String s3 = "http://ak-media.soundcloud.com/XAGeEabPextR.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319547723&Signature=o53ozj2b%2BrdARFBEZoAziK7mWIY%3D&__gda__=1319547723_e7e8d73cf3af2b003d891ecc01c20143";
 
-        assertThat(com.soundcloud.android.api.legacy.Request.to(s3).toUrl(), equalTo(s3));
+        assertThat(Request.to(s3).toUrl(), equalTo(s3));
 
     }
 
     @Test
     public void itShouldParseFullURI() throws Exception {
         assertThat(
-                new com.soundcloud.android.api.legacy.Request(URI.create("http://foo.soundcloud.com/foo?bar=baz")).with("1", "2").toUrl(),
+                new Request(URI.create("http://foo.soundcloud.com/foo?bar=baz")).with("1", "2").toUrl(),
                 equalTo("/foo?bar=baz&1=2"));
 
         assertThat(
-                new com.soundcloud.android.api.legacy.Request(URI.create("http://foo.soundcloud.com/foo")).with("1", "2").toUrl(),
+                new Request(URI.create("http://foo.soundcloud.com/foo")).with("1", "2").toUrl(),
                 equalTo("/foo?1=2"));
 
         assertThat(
-                new com.soundcloud.android.api.legacy.Request(URI.create("http://foo.soundcloud.com/")).toUrl(),
+                new Request(URI.create("http://foo.soundcloud.com/")).toUrl(),
                 equalTo("/"));
     }
 
     @Test
     public void shouldHaveCopyConstructor() {
-        com.soundcloud.android.api.legacy.Request orig = new com.soundcloud.android.api.legacy.Request("/foo").with("1", 2, "3", 4);
-        com.soundcloud.android.api.legacy.Request copy = new com.soundcloud.android.api.legacy.Request(orig);
+        Request orig = new Request("/foo").with("1", 2, "3", 4);
+        Request copy = new Request(orig);
         assertThat(copy.toUrl(), equalTo(orig.toUrl()));
         assertThat(copy.getToken(), equalTo(orig.getToken()));
     }
@@ -308,18 +307,18 @@ public class RequestTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAcceptNullStringInCtor() throws Exception {
-        new com.soundcloud.android.api.legacy.Request((String) null);
+        new Request((String) null);
     }
 
     @Test
     public void shouldNotModifyOriginal() {
-        com.soundcloud.android.api.legacy.Request orig = new com.soundcloud.android.api.legacy.Request("/foo").with("1", 2, "3", 4);
-        orig.setProgressListener(new com.soundcloud.android.api.legacy.Request.TransferProgressListener() {
+        Request orig = new Request("/foo").with("1", 2, "3", 4);
+        orig.setProgressListener(new Request.TransferProgressListener() {
             @Override
             public void transferred(long amount) {
             }
         });
-        com.soundcloud.android.api.legacy.Request copy = new com.soundcloud.android.api.legacy.Request(orig);
+        Request copy = new Request(orig);
         orig.add("cursor", "asdf");
         orig.usingToken(new Token("access", "refresh"));
         assertThat(copy.toUrl(), not(equalTo(orig.toUrl())));
@@ -329,24 +328,24 @@ public class RequestTest {
 
     @Test
     public void testFormatRange() throws Exception {
-        assertThat(com.soundcloud.android.api.legacy.Request.formatRange(1, 1000), equalTo("bytes=1-1000"));
-        assertThat(com.soundcloud.android.api.legacy.Request.formatRange(1), equalTo("bytes=1-"));
-        assertThat(com.soundcloud.android.api.legacy.Request.formatRange(), equalTo("bytes=0-"));
+        assertThat(Request.formatRange(1, 1000), equalTo("bytes=1-1000"));
+        assertThat(Request.formatRange(1), equalTo("bytes=1-"));
+        assertThat(Request.formatRange(), equalTo("bytes=0-"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFormatRangeInvalidArgument() throws Exception {
-        com.soundcloud.android.api.legacy.Request.formatRange(100, 200, 300);
+        Request.formatRange(100, 200, 300);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFormatRangeInvalidArgument2() throws Exception {
-        com.soundcloud.android.api.legacy.Request.formatRange(1000, 1);
+        Request.formatRange(1000, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFormatRangeInvalidArgument3() throws Exception {
-        com.soundcloud.android.api.legacy.Request.formatRange(-1);
+        Request.formatRange(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
