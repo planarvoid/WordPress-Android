@@ -12,7 +12,7 @@ public class TestEvents {
         return ModelFixtures.create(PlaybackSessionEvent.class);
     }
 
-    public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(int playbackProgress) {
+    public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(long playbackProgress) {
         return PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L)),
                 Urn.forUser(1), new TrackSourceInfo("screen", false), playbackProgress, 1000L, "hls", "playa", "3g");

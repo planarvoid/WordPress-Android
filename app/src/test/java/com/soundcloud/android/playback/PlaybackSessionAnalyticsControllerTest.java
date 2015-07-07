@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
@@ -17,27 +17,25 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackSessionAnalyticsControllerTest {
+public class PlaybackSessionAnalyticsControllerTest extends PlatformUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn USER_URN = Urn.forUser(2L);
-    private static final long PROGRESS = 123L;
-    private static final long DURATION = 456L;
+    private static final long PROGRESS = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
+    private static final long DURATION = 2001L;
 
     private PlaybackSessionAnalyticsController analyticsController;
     private TestEventBus eventBus = new TestEventBus();
@@ -73,7 +71,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+        assertThat(playbackSessionEvent.isStopEvent()).isFalse();
     }
 
     @Test
@@ -84,16 +82,16 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+        assertThat(playbackSessionEvent.isStopEvent()).isFalse();
     }
 
     private void expectCommonAudioEventData(Playa.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).toEqual(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
-        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
-        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
-        expect(playbackSessionEvent.getTimestamp()).toBeGreaterThan(0L);
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).isEqualTo(USER_URN.toString());
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
+        assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
+        assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
+        assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
     }
 
     @Test
@@ -107,10 +105,10 @@ public class PlaybackSessionAnalyticsControllerTest {
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // track properties
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+        assertThat(playbackSessionEvent.isStopEvent()).isFalse();
         // ad specific properties
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AUDIO_AD_URN));
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -127,10 +125,10 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
-        expect(playbackSessionEvent.hasTrackFinished()).toBeTrue();
+        assertThat(playbackSessionEvent.hasTrackFinished()).isTrue();
         // ad specific properties
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AUDIO_AD_URN));
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -144,8 +142,8 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual("ad:urn:123");
-        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).toEqual(promoter.toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("ad:urn:123");
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promoter.toString());
     }
 
     @Test
@@ -156,7 +154,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         publishPlayingEvent();
 
-        expect(source.isFromPromotedTrack()).toBeFalse();
+        assertThat(source.isFromPromotedTrack()).isFalse();
     }
 
     @Test
@@ -211,10 +209,10 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEventForTrack(nextTrack);
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
-        expect(events).toNumber(3);
-        expect(events.get(1)).toBeInstanceOf(PlaybackSessionEvent.class);
-        expect(((PlaybackSessionEvent) events.get(1)).isStopEvent()).toBeTrue();
-        expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
+        assertThat(events).hasSize(3);
+        assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
+        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
+        assertThat(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
     }
 
     @Test
@@ -232,11 +230,11 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEventForTrack(nextTrack);
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
-        expect(events).toNumber(3);
-        expect(events.get(1)).toBeInstanceOf(PlaybackSessionEvent.class);
-        expect(((PlaybackSessionEvent) events.get(1)).isStopEvent()).toBeTrue();
-        expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
-        expect(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AUDIO_AD_URN));
+        assertThat(events).hasSize(3);
+        assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
+        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
+        assertThat(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
     }
 
     protected Playa.StateTransition publishPlayingEvent() {
@@ -263,13 +261,13 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     protected void verifyStopEvent(int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
-        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
-        expect(playbackSessionEvent.isStopEvent()).toBeTrue();
-        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
-        expect(playbackSessionEvent.getTimestamp()).toBeGreaterThan(0L);
-        expect(playbackSessionEvent.getStopReason()).toEqual(stopReason);
-        expect(playbackSessionEvent.getDuration()).toEqual(DURATION);
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).isEqualTo(USER_URN.toString());
+        assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
+        assertThat(playbackSessionEvent.isStopEvent()).isTrue();
+        assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
+        assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
+        assertThat(playbackSessionEvent.getStopReason()).isEqualTo(stopReason);
+        assertThat(playbackSessionEvent.getDuration()).isEqualTo(DURATION);
     }
 }

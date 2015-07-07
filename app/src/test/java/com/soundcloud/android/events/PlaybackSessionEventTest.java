@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.ads.AdProperty;
@@ -8,18 +8,16 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackSessionEventTest {
+public class PlaybackSessionEventTest extends PlatformUnitTest {
 
     private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;
@@ -43,7 +41,7 @@ public class PlaybackSessionEventTest {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
         );
-        expect(stopEvent.getListenTime()).toEqual(stopEvent.getTimestamp() - playEvent.getTimestamp());
+        assertThat(stopEvent.getListenTime()).isEqualTo(stopEvent.getTimestamp() - playEvent.getTimestamp());
     }
 
     @Test
@@ -51,21 +49,35 @@ public class PlaybackSessionEventTest {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
         );
-        expect(stopEvent.getStopReason()).toEqual(PlaybackSessionEvent.STOP_REASON_BUFFERING);
+        assertThat(stopEvent.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_BUFFERING);
+    }
+
+    @Test
+    public void playEventWithNegativeProgressIsNotAFirstPlay() throws Exception {
+        long progress = -1L;
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        assertThat(playEvent.isFirstPlay()).isFalse();
     }
 
     @Test
     public void playEventWithProgressZeroIsAFirstPlay() throws Exception {
         long progress = 0L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        expect(playEvent.isFirstPlay()).toBeTrue();
+        assertThat(playEvent.isFirstPlay()).isTrue();
     }
 
     @Test
-    public void playEventWithProgressOtherThanZeroIsNotAFirstPlay() {
-        long progress = 1000L;
+    public void playEventWithProgress500msIsAFirstPlay() {
+        long progress = 500L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        expect(playEvent.isFirstPlay()).toBeFalse();
+        assertThat(playEvent.isFirstPlay()).isTrue();
+    }
+
+    @Test
+    public void playEventWithProgressGreaterThan500msIsNotAFirstPlay() {
+        long progress = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        assertThat(playEvent.isFirstPlay()).isFalse();
     }
 
     @Test
@@ -73,14 +85,14 @@ public class PlaybackSessionEventTest {
         long progress = 0L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
-        expect(stopEvent.isFirstPlay()).toBeFalse();
+        assertThat(stopEvent.isFirstPlay()).isFalse();
     }
 
     @Test
     public void noMonetizationTypeIndicatesNoAudioAdOrPromotedTrack() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        expect(playEvent.isAd()).toBeFalse();
-        expect(playEvent.isPromotedTrack()).toBeFalse();
+        assertThat(playEvent.isAd()).isFalse();
+        assertThat(playEvent.isPromotedTrack()).isFalse();
     }
 
     @Test
@@ -92,7 +104,7 @@ public class PlaybackSessionEventTest {
                 PLAYER_TYPE,
                 CONNECTION_TYPE).withAudioAd(AUDIO_AD_DATA);
 
-        expect(playEvent.isAd()).toBeTrue();
+        assertThat(playEvent.isAd()).isTrue();
     }
 
     @Test
@@ -106,7 +118,7 @@ public class PlaybackSessionEventTest {
                 PLAYER_TYPE,
                 CONNECTION_TYPE).withPromotedTrack(promotedInfo);
 
-        expect(playEvent.isPromotedTrack()).toBeTrue();
+        assertThat(playEvent.isPromotedTrack()).isTrue();
     }
 
     @Test
@@ -117,12 +129,12 @@ public class PlaybackSessionEventTest {
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
                 USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAd);
 
-        expect(event.isAd()).toBeTrue();
-        expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual("ad:audio:123");
-        expect(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(TRACK_URN.toString());
-        expect(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
-        expect(event.getAudioAdImpressionUrls()).toContain("adswizzUrl", "advertiserUrl");
-        expect(event.getAudioAdCompanionImpressionUrls()).toContain("visual1", "visual2");
-        expect(event.getAudioAdFinishUrls()).toContain("finish1", "finish2");
+        assertThat(event.isAd()).isTrue();
+        assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("ad:audio:123");
+        assertThat(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.get(AdProperty.ARTWORK).toString());
+        assertThat(event.getAudioAdImpressionUrls()).contains("adswizzUrl", "advertiserUrl");
+        assertThat(event.getAudioAdCompanionImpressionUrls()).contains("visual1", "visual2");
+        assertThat(event.getAudioAdFinishUrls()).contains("finish1", "finish2");
     }
 }

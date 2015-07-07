@@ -1,33 +1,34 @@
 package com.soundcloud.android.analytics.playcounts;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayCountAnalyticsProviderTest {
+public class PlayCountAnalyticsProviderTest extends PlatformUnitTest {
 
     private PlayCountAnalyticsProvider provider;
 
-    @Mock EventTracker eventTracker;
-    @Mock PlayCountUrlBuilder urlBuilder;
-    @Captor ArgumentCaptor<TrackingRecord> trackingEventCaptor;
+    @Mock
+    EventTracker eventTracker;
+    @Mock
+    PlayCountUrlBuilder urlBuilder;
+    @Captor
+    ArgumentCaptor<TrackingRecord> trackingEventCaptor;
 
     @Before
     public void setup() {
@@ -42,9 +43,9 @@ public class PlayCountAnalyticsProviderTest {
         provider.handleTrackingEvent(sessionEvent);
 
         verify(eventTracker).trackEvent(trackingEventCaptor.capture());
-        expect(trackingEventCaptor.getValue().getBackend()).toEqual(PlayCountAnalyticsProvider.BACKEND_NAME);
-        expect(trackingEventCaptor.getValue().getTimeStamp()).toEqual(1000L);
-        expect(trackingEventCaptor.getValue().getData()).toEqual("url");
+        assertThat(trackingEventCaptor.getValue().getBackend()).isEqualTo(PlayCountAnalyticsProvider.BACKEND_NAME);
+        assertThat(trackingEventCaptor.getValue().getTimeStamp()).isEqualTo(1000L);
+        assertThat(trackingEventCaptor.getValue().getData()).isEqualTo("url");
     }
 
     @Test
@@ -68,7 +69,7 @@ public class PlayCountAnalyticsProviderTest {
 
     @Test
     public void shouldNotTrackSubsequentPlayEvents() {
-        PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(1);
+        PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handleTrackingEvent(sessionEvent);
