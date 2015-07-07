@@ -37,7 +37,7 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:2.0.3@aar",
+          skippy                      : "com.soundcloud.android:skippy:3.0.2@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking

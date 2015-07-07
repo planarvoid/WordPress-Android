@@ -323,6 +323,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, createPerformanceEvent(metric, value, cdnHost));
     }
 
+    @Override
+    public void onDownloadPerformed(long startPosition, long endPosition, int bytesLoaded, int bytesTotal, String uri) {
+        //Not implemented yet!
+    }
+
     private PlayaState getTranslatedState(Skippy.State state, Skippy.Reason reason) {
         switch (state) {
             case IDLE:
