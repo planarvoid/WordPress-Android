@@ -12,8 +12,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
-
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     private final Context context;
@@ -46,7 +44,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public Observable<PlaybackResult> playNewQueue(final List<Urn> playQueueTracks,
+    public Observable<PlaybackResult> playNewQueue(final PlayQueue playQueue,
                                                    final Urn initialTrackUrn,
                                                    final int initialTrackPosition,
                                                    final boolean loadRelated,
@@ -55,7 +53,9 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 .create(new Observable.OnSubscribe<PlaybackResult>() {
                     @Override
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
-                        setAndPlayNewQueue(playQueueTracks, initialTrackPosition, initialTrackUrn, playSessionSource);
+                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition, initialTrackUrn);
+
+                        setAndPlayNewQueue(playQueue, updatedPosition, playSessionSource);
                         fetchRelatedTracks(loadRelated);
                         subscriber.onNext(PlaybackResult.success());
                         subscriber.onCompleted();
@@ -64,10 +64,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 .subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    private void setAndPlayNewQueue(List<Urn> playQueueTracks, int initialTrackPosition, Urn initialTrackUrn, PlaySessionSource playSessionSource) {
-        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
+    private void setAndPlayNewQueue(PlayQueue playQueue, int startPosition, PlaySessionSource playSessionSource) {
+        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
         playCurrent();
     }
 

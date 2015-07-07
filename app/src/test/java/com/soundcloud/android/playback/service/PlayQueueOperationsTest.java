@@ -187,16 +187,14 @@ public class PlayQueueOperationsTest extends PlatformUnitTest {
     }
 
     @Test
-    public void getRelatedTracksUrnsShouldReturnAneErrorWhenNoRelatedTracksReceivedFromApi() {
+    public void getRelatedTracksUrnsShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(new RecommendedTracksCollection()));
 
-        TestSubscriber<Object> objectTestSubscriber = new TestSubscriber<>();
-        playQueueOperations.getRelatedTracksUrns(Urn.forTrack(123)).subscribe(objectTestSubscriber);
+        TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
+        playQueueOperations.getRelatedTracksPlayQueue(Urn.forTrack(123)).subscribe(testSubscriber);
 
-        assertThat(objectTestSubscriber.getOnNextEvents()).isEmpty();
-        assertThat(objectTestSubscriber.getOnCompletedEvents()).isEmpty();
-        assertThat(objectTestSubscriber.getOnErrorEvents()).hasSize(1);
+        testSubscriber.assertValues(PlayQueue.empty());
     }
 
     @Test

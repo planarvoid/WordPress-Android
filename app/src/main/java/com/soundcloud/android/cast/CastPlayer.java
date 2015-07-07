@@ -1,7 +1,7 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
-import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
+import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPositionLegacy;
 
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
@@ -221,7 +221,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private void setNewPlayQueue(LocalPlayQueue localPlayQueue, PlaySessionSource playSessionSource) {
         playQueueManager.setNewPlayQueue(
                 PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns, playSessionSource),
-                correctInitialPosition(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn),
+                correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn),
                 playSessionSource);
     }
 

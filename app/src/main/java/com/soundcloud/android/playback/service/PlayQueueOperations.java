@@ -137,8 +137,21 @@ public class PlayQueueOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Urn> getRelatedTracksUrns(Urn seedTrack) {
-        return getRelatedTracks(seedTrack).flatMap(toUrns);
+    public Observable<PlayQueue> getRelatedTracksPlayQueue(final Urn seedTrack) {
+        return getRelatedTracks(seedTrack).map(toPlayQueue(seedTrack));
+    }
+
+    private Func1<RecommendedTracksCollection, PlayQueue> toPlayQueue(final Urn seedTrack) {
+        return new Func1<RecommendedTracksCollection, PlayQueue>() {
+            @Override
+            public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
+                if (recommendedTracks.getCollection().isEmpty()) {
+                    return PlayQueue.empty();
+                }
+
+                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks);
+            }
+        };
     }
 
     enum Keys {

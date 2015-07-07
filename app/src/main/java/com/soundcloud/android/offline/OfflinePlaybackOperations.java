@@ -88,7 +88,7 @@ public class OfflinePlaybackOperations {
         return new Func1<List<Urn>, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(List<Urn> urns) {
-                int corrected = PlaybackUtils.correctInitialPosition(urns, position, trackUrn);
+                int corrected = PlaybackUtils.correctInitialPositionLegacy(urns, position, trackUrn);
                 if (corrected < 0) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE));
                 }

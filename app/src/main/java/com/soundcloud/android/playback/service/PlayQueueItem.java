@@ -2,9 +2,10 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
-final class PlayQueueItem {
+public final class PlayQueueItem {
 
     private final Urn trackUrn;
     private final String source;
@@ -12,6 +13,10 @@ final class PlayQueueItem {
 
     private final PropertySet metaData;
     private final boolean shouldPersist;
+
+    public static PlayQueueItem fromTrack(Urn trackUrn) {
+        return fromTrack(trackUrn, ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING);
+    }
 
     public static PlayQueueItem fromTrack(Urn trackUrn, String source, String sourceVersion) {
         return new PlayQueueItem(trackUrn, source, sourceVersion, PropertySet.create(), true);
