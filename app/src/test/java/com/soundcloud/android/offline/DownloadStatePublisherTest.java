@@ -6,7 +6,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class DownloadStatePublisherTest extends PlatformUnitTest {
+public class DownloadStatePublisherTest extends AndroidUnitTest {
 
     private final DownloadRequest downloadRequest1 = createDownloadRequest(Urn.forTrack(123L));
     private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
