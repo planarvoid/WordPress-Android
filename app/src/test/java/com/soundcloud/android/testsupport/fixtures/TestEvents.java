@@ -3,7 +3,7 @@ package com.soundcloud.android.testsupport.fixtures;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
 
 public class TestEvents {

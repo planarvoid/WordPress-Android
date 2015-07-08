@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlaySessionSource;
 import rx.Observable;
 
 public interface PlaybackStrategy {

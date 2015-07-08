@@ -1,15 +1,15 @@
 package com.soundcloud.android.deeplinks;
 
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static com.soundcloud.android.Expect.expect;
+import android.net.Uri;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UrnResolverTest {

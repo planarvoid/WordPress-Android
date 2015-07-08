@@ -5,8 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -20,7 +20,6 @@ import rx.subscriptions.CompositeSubscription;
 import android.app.NotificationManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

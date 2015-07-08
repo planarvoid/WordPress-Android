@@ -7,10 +7,6 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;

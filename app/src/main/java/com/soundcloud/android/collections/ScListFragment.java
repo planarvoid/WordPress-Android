@@ -1,6 +1,6 @@
 package com.soundcloud.android.collections;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.PlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.soundcloud.android.Consts;

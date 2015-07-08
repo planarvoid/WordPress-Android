@@ -4,8 +4,6 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;

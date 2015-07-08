@@ -1,9 +1,9 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.PlayaState;
-import static com.soundcloud.android.playback.service.Playa.Reason;
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
+import static com.soundcloud.android.playback.Playa.PlayaState;
+import static com.soundcloud.android.playback.Playa.Reason;
+import static com.soundcloud.android.playback.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -19,7 +19,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;

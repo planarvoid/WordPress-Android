@@ -7,10 +7,6 @@ import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
@@ -19,7 +15,7 @@ import rx.subjects.ReplaySubject;
 
 import javax.inject.Inject;
 
-public class PlaybackSessionAnalyticsController {
+class PlaybackSessionAnalyticsController {
 
     private final EventBus eventBus;
     private final TrackRepository trackRepository;

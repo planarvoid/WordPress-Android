@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.playback.service.NotificationTrack;
+import com.soundcloud.android.playback.NotificationTrack;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.propeller.PropertySet;
 

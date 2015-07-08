@@ -1,10 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.service.PlaybackService;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;

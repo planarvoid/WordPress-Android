@@ -6,7 +6,7 @@ import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.utils.Log;
 
