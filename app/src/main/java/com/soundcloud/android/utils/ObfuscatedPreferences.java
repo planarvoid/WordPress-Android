@@ -97,17 +97,21 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     @Override
     public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener register) {
-        ObfuscatedOnSharedPreferenceChangeListener listener = new ObfuscatedOnSharedPreferenceChangeListener(register);
-        listeners.put(register, listener);
-        wrappedPrefs.registerOnSharedPreferenceChangeListener(listener);
+        synchronized(this) {
+            ObfuscatedOnSharedPreferenceChangeListener listener = new ObfuscatedOnSharedPreferenceChangeListener(register);
+            listeners.put(register, listener);
+            wrappedPrefs.registerOnSharedPreferenceChangeListener(listener);
+        }
     }
 
     @Override
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener unregister) {
-        for (Map.Entry<OnSharedPreferenceChangeListener, ObfuscatedOnSharedPreferenceChangeListener> entry : listeners.entrySet()) {
-            if (entry.getKey().equals(unregister)) {
-                listeners.remove(entry.getKey());
-                wrappedPrefs.unregisterOnSharedPreferenceChangeListener(entry.getValue());
+        synchronized(this) {
+            for (Map.Entry<OnSharedPreferenceChangeListener, ObfuscatedOnSharedPreferenceChangeListener> entry : listeners.entrySet()) {
+                if (entry.getKey().equals(unregister)) {
+                    listeners.remove(entry.getKey());
+                    wrappedPrefs.unregisterOnSharedPreferenceChangeListener(entry.getValue());
+                }
             }
         }
     }
