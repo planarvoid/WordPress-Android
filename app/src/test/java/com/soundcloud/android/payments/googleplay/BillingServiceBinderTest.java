@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,7 +25,7 @@ import android.content.pm.ResolveInfo;
 import java.util.Collections;
 import java.util.List;
 
-public class BillingServiceBinderTest extends PlatformUnitTest {
+public class BillingServiceBinderTest extends AndroidUnitTest {
 
     private BillingServiceBinder binder;
 

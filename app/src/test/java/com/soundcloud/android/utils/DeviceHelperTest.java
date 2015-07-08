@@ -3,7 +3,7 @@ package com.soundcloud.android.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,7 +15,7 @@ import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
-public class DeviceHelperTest extends PlatformUnitTest {
+public class DeviceHelperTest extends AndroidUnitTest {
 
     public static final String PACKAGE_NAME = "package-name";
     private DeviceHelper deviceHelper;

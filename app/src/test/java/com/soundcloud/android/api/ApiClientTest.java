@@ -19,7 +19,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.Request;
@@ -36,7 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-public class ApiClientTest extends PlatformUnitTest {
+public class ApiClientTest extends AndroidUnitTest {
 
     private static final String URL = "/path/to/resource";
     private static final String JSON_DATA = "{}";

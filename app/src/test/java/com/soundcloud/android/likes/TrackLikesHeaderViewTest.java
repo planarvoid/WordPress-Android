@@ -5,7 +5,7 @@ import static org.assertj.android.api.Assertions.assertThat;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,7 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.TextView;
 
-public class TrackLikesHeaderViewTest extends PlatformUnitTest {
+public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     private TrackLikesHeaderView trackLikesHeaderView;
 

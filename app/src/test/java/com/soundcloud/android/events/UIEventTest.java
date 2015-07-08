@@ -6,13 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UIEventTest extends PlatformUnitTest {
+public class UIEventTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(30L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(42L);

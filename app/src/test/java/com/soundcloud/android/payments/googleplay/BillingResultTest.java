@@ -2,10 +2,10 @@ package com.soundcloud.android.payments.googleplay;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 
-public class BillingResultTest extends PlatformUnitTest {
+public class BillingResultTest extends AndroidUnitTest {
 
     @Test
     public void isForRequestIfRequestCodeMatches() {

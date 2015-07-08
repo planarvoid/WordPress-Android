@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 
 import java.util.Arrays;
 
-public class PagingListItemAdapterTest extends PlatformUnitTest {
+public class PagingListItemAdapterTest extends AndroidUnitTest {
 
     @Mock private CellRenderer cellRenderer;
     @Mock private AbsListView absListView;

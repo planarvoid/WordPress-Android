@@ -2,13 +2,13 @@ package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import android.content.Context;
 
-public class TokenStorageTest extends PlatformUnitTest{
+public class TokenStorageTest extends AndroidUnitTest {
 
     private TokenStorage tokenStorage;
 

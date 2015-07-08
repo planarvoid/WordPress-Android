@@ -18,7 +18,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
@@ -30,7 +30,7 @@ import rx.Observable;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlaybackSessionAnalyticsControllerTest extends PlatformUnitTest {
+public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn USER_URN = Urn.forUser(2L);

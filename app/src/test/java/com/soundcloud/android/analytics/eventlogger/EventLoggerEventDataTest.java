@@ -2,12 +2,12 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
 
-public class EventLoggerEventDataTest extends PlatformUnitTest {
+public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void implementsEqualsContract() throws Exception {

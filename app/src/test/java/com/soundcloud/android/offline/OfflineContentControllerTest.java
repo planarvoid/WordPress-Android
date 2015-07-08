@@ -14,7 +14,7 @@ import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,7 +26,7 @@ import rx.subjects.PublishSubject;
 import android.content.Context;
 import android.content.Intent;
 
-public class OfflineContentControllerTest extends PlatformUnitTest {
+public class OfflineContentControllerTest extends AndroidUnitTest {
 
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);

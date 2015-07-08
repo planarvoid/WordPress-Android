@@ -3,14 +3,14 @@ package com.soundcloud.android.offline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DownloadQueueTest extends PlatformUnitTest {
+public class DownloadQueueTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123);
     private static final Urn TRACK2 = Urn.forTrack(456L);

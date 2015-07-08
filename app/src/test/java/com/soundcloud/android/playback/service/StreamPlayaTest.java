@@ -13,7 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -26,7 +26,7 @@ import org.mockito.Mock;
 
 import android.content.Context;
 
-public class StreamPlayaTest extends PlatformUnitTest {
+public class StreamPlayaTest extends AndroidUnitTest {
 
     private final Urn trackUrn = Urn.forTrack(1L);
 

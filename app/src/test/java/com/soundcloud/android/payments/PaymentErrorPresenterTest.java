@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -13,7 +13,7 @@ import android.support.v4.app.FragmentActivity;
 
 import java.io.IOException;
 
-public class PaymentErrorPresenterTest extends PlatformUnitTest {
+public class PaymentErrorPresenterTest extends AndroidUnitTest {
 
     private PaymentErrorPresenter paymentErrorPresenter;
 

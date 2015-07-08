@@ -32,7 +32,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -49,7 +49,7 @@ import android.net.Uri;
 import java.util.Arrays;
 import java.util.Date;
 
-public class EventLoggerJsonDataBuilderTest extends PlatformUnitTest {
+public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";

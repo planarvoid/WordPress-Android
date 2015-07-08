@@ -17,7 +17,7 @@ import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import rx.schedulers.TestScheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public class PaymentOperationsVerifyTest extends PlatformUnitTest {
+public class PaymentOperationsVerifyTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx api;
     @Mock private BillingService billingService;

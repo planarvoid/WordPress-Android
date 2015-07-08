@@ -18,7 +18,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
@@ -31,7 +31,7 @@ import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
 
-public class PlaylistItemMenuPresenterTest extends PlatformUnitTest {
+public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Mock private Context context;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;

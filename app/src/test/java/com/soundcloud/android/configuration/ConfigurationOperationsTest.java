@@ -26,7 +26,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.InjectionSupport;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class ConfigurationOperationsTest extends PlatformUnitTest {
+public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private ApiClient apiClient;

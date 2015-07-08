@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SoundCloudHostnameVerifierTest extends PlatformUnitTest {
+public class SoundCloudHostnameVerifierTest extends AndroidUnitTest {
 
     @Mock SSLSession session;
     @Mock X509Certificate certificate;

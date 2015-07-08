@@ -2,14 +2,14 @@ package com.soundcloud.android.payments.googleplay;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import android.content.Intent;
 import android.os.Bundle;
 
-public class BillingUtilTest extends PlatformUnitTest {
+public class BillingUtilTest extends AndroidUnitTest {
 
     private Bundle bundle;
     private Intent intent;

@@ -13,7 +13,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import rx.subjects.PublishSubject;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
-public class UpgradePresenterTest extends PlatformUnitTest {
+public class UpgradePresenterTest extends AndroidUnitTest {
 
     private static final String PRODUCT_ID = "id";
     private static final String PRICE = "$100";

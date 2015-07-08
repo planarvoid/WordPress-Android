@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.AdditionalMatchers;
@@ -21,7 +21,7 @@ import org.mockito.Mockito;
 
 import android.view.View;
 
-public class ProgressControllerTest extends PlatformUnitTest {
+public class ProgressControllerTest extends AndroidUnitTest {
 
     public static final float FLOAT_DELTA = .0001f;
     private ProgressController controller;

@@ -8,14 +8,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import android.os.ResultReceiver;
 
-public class SinglePlaylistJobRequestTest extends PlatformUnitTest {
+public class SinglePlaylistJobRequestTest extends AndroidUnitTest {
     private final String ACTION = "action";
     private final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 

@@ -11,7 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import android.view.View;
 
 import javax.inject.Provider;
 
-public class LikesMenuPresenterTest extends PlatformUnitTest {
+public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     private LikesMenuPresenter likesMenuPresenter;
 

@@ -21,7 +21,7 @@ import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.json.JSONException;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import android.os.RemoteException;
 
 import java.util.ArrayList;
 
-public class BillingServiceTest extends PlatformUnitTest {
+public class BillingServiceTest extends AndroidUnitTest {
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ResponseProcessor responseProcessor;

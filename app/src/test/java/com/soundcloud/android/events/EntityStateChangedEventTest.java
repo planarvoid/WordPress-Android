@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-public class EntityStateChangedEventTest extends PlatformUnitTest {
+public class EntityStateChangedEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldIndicateSingularChangeEvents() {

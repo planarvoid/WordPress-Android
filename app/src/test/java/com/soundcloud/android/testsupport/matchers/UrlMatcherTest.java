@@ -4,10 +4,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 
-public class UrlMatcherTest extends PlatformUnitTest {
+public class UrlMatcherTest extends AndroidUnitTest {
 
     @Test
     public void urlsAreEqualIfSchemeAndHostAndPathAndQueryMatches() {

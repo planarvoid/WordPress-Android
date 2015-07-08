@@ -3,12 +3,12 @@ package com.soundcloud.android.rx.eventbus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observer;
 
-public class TestEventBusTest extends PlatformUnitTest {
+public class TestEventBusTest extends AndroidUnitTest {
 
     private static final Queue<String> STRING_QUEUE = Queue.of(String.class).get();
     private static final Queue<Integer> INT_QUEUE = Queue.of(Integer.class).get();

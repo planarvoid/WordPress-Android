@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-public class PlayCountAnalyticsProviderTest extends PlatformUnitTest {
+public class PlayCountAnalyticsProviderTest extends AndroidUnitTest {
 
     private PlayCountAnalyticsProvider provider;
 

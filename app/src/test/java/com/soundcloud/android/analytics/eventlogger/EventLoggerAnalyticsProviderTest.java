@@ -27,7 +27,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -41,7 +41,7 @@ import android.content.SharedPreferences;
 
 import java.util.List;
 
-public class EventLoggerAnalyticsProviderTest extends PlatformUnitTest {
+public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 

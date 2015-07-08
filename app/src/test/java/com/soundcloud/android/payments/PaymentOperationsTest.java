@@ -16,7 +16,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ import android.app.Activity;
 
 import java.util.ArrayList;
 
-public class PaymentOperationsTest extends PlatformUnitTest {
+public class PaymentOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx api;
     @Mock private BillingService billingService;

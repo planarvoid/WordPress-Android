@@ -15,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -35,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SoundStreamOperationsTest extends PlatformUnitTest {
+public class SoundStreamOperationsTest extends AndroidUnitTest {
 
     private static final long TIMESTAMP = 1000L;
 

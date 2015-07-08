@@ -3,12 +3,12 @@ package com.soundcloud.android.payments.googleplay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.payments.ProductDetails;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResponseProcessorTest extends PlatformUnitTest {
+public class ResponseProcessorTest extends AndroidUnitTest {
 
     // Real responses from Google Play billing service
     private static final String PRODUCT_JSON = "{\"title\":\"subscription title\",\"price\":\"€4.75\",\"type\":\"subs\",\"description\":\"placeholder description\",\"price_amount_micros\":4750000,\"price_currency_code\":\"EUR\",\"productId\":\"product_id\"}";

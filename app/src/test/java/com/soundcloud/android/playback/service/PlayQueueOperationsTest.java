@@ -21,7 +21,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -41,7 +41,7 @@ import android.content.SharedPreferences;
 
 import java.util.Iterator;
 
-public class PlayQueueOperationsTest extends PlatformUnitTest {
+public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     private static final String ORIGIN_PAGE = "origin:page";
     private static final long PLAYLIST_ID = 123L;

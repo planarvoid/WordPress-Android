@@ -4,14 +4,14 @@ import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArra
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class KeyStorageTest extends PlatformUnitTest {
+public class KeyStorageTest extends AndroidUnitTest {
     private KeyStorage keyStorage;
 
     private final DeviceSecret testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");

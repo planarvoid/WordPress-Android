@@ -3,7 +3,7 @@ package com.soundcloud.android.configuration.features;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.crypto.Obfuscator;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import android.content.SharedPreferences;
 import java.util.Arrays;
 import java.util.List;
 
-public class FeatureStorageTest extends PlatformUnitTest {
+public class FeatureStorageTest extends AndroidUnitTest {
 
     private FeatureStorage storage;
     private List<Feature> features;

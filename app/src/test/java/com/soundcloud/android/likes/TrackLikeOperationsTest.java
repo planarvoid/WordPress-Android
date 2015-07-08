@@ -16,7 +16,7 @@ import com.soundcloud.android.rx.Pager.PagingFunction;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackLikeOperationsTest extends PlatformUnitTest {
+public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     private TrackLikeOperations operations;
 

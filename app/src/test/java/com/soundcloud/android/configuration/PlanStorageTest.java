@@ -3,7 +3,7 @@ package com.soundcloud.android.configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.crypto.Obfuscator;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import android.content.SharedPreferences;
 
 import java.util.Arrays;
 
-public class PlanStorageTest extends PlatformUnitTest {
+public class PlanStorageTest extends AndroidUnitTest {
 
     private PlanStorage storage;
 

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.IOUtils;
 import org.junit.Before;
@@ -23,7 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ExperimentStorageTest extends PlatformUnitTest {
+public class ExperimentStorageTest extends AndroidUnitTest {
 
     private static final String JSON = "{ \"key\": \"value\" }";
     private static final Assignment ASSIGNMENT = ModelFixtures.create(Assignment.class);

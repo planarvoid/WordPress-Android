@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import org.mockito.Mock;
 
 import android.os.Message;
 
-public class DownloadHandlerTest extends PlatformUnitTest {
+public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Mock MainHandler mainHandler;
     @Mock DownloadOperations downloadOperations;

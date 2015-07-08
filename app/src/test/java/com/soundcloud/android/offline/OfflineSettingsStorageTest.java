@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestObserver;
@@ -10,7 +10,7 @@ import rx.observers.TestObserver;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class OfflineSettingsStorageTest extends PlatformUnitTest {
+public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
     private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
 

@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -40,7 +40,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ListPresenterTest extends PlatformUnitTest {
+public class ListPresenterTest extends AndroidUnitTest {
 
     private ListPresenter<String> presenter;
     private PublishSubject<List<String>> source = PublishSubject.create();

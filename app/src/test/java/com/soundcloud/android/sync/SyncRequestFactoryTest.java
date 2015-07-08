@@ -10,14 +10,14 @@ import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import android.content.Intent;
 
-public class SyncRequestFactoryTest extends PlatformUnitTest {
+public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     private SyncRequestFactory syncRequestFactory;
 

@@ -14,7 +14,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class OfflineContentServiceTest extends PlatformUnitTest {
+public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Mock private DownloadOperations downloadOperations;
     @Mock private DownloadNotificationController notificationController;

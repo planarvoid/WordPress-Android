@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -13,7 +13,7 @@ import android.net.Uri;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class ApiSyncResultTest extends PlatformUnitTest {
+public class ApiSyncResultTest extends AndroidUnitTest {
 
     private static final Uri URI = Uri.parse("some/uri");
     @Mock private Random random;

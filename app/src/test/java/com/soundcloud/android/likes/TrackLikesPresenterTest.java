@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackLikesPresenterTest extends PlatformUnitTest {
+public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     private TrackLikesPresenter presenter;
 

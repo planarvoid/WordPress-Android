@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.InjectionSupport;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -33,7 +33,7 @@ import rx.Observable;
 import android.content.Intent;
 import android.media.AudioManager;
 
-public class PlaybackServiceTest extends PlatformUnitTest {
+public class PlaybackServiceTest extends AndroidUnitTest {
 
     public static final int DURATION = 1000;
     private PlaybackService playbackService;

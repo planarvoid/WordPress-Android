@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +19,7 @@ import android.os.ResultReceiver;
 
 import java.util.Collection;
 
-public class SingleJobRequestTest extends PlatformUnitTest {
+public class SingleJobRequestTest extends AndroidUnitTest {
 
     private final String ACTION = "action";
 

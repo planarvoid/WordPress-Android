@@ -29,7 +29,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
@@ -52,7 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PlayQueueManagerTest extends PlatformUnitTest {
+public class PlayQueueManagerTest extends AndroidUnitTest {
 
     private static final String ORIGIN_PAGE = "explore:music:techno";
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(6L);

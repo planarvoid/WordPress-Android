@@ -8,7 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -17,7 +17,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 
-public class PlaybackSessionEventTest extends PlatformUnitTest {
+public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;
