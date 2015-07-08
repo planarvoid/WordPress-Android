@@ -104,6 +104,15 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
                         screenProvider.getLastScreenTag(), playlistUrn));
+
+        if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
+            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
+        }
+    }
+
+    private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike) {
+        boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && allowOfflineOptions;
+        return offlineContentEnabled && !addLike && !playlist.isPosted();
     }
 
     private PopupMenuWrapper setupMenu(View button) {
