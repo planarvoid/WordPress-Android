@@ -33,6 +33,8 @@ Clone and build this project:
     $ ./gradlew assembleDebug
     $ ./gradlew installDebug
 
+If you encounter problems, check (and update) the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
+
 ## Opening the project in Android Studio
 
 Open Android Studio, select "Import project", select `build.gradle` from the root project directory.
