@@ -32,7 +32,7 @@ task uploadGithub << {
   def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
   def result = ['curl', '-vsi', '--data', json, url].execute().text
   if (!result.contains("Status: 201 Created")) {
-    throw new GradleException("Could not create a new github release: $result")
+    throw new GradleException("Could not create a new github release\n\nurl: $url\n\njson post:\n$json\n\nresponse:\n$result")
   }
 
   def jsonIndex = result.indexOf("{")
@@ -49,6 +49,6 @@ task uploadGithub << {
   println "uploadCmd: $cmd"
   def uploadResult = cmd.execute().text
   if (!uploadResult.contains("HTTP/1.1 201 Created")) {
-    throw new GradleException("Could not upload APK to github release: $uploadResult")
+    throw new GradleException("Could not upload APK to github release:\n\nurl: $uploadUrl\n\nresponse:\n$uploadResult")
   }
 }
