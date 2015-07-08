@@ -10,7 +10,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;

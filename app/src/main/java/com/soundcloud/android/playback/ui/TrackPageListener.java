@@ -12,7 +12,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;

@@ -1,11 +1,10 @@
 package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.NotificationConstants;
-import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.propeller.PropertySet;
 
 import android.app.NotificationManager;
-import android.util.Log;
 
 import javax.inject.Inject;
 

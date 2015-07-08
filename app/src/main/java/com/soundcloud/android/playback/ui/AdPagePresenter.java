@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;

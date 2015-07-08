@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;

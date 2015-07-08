@@ -18,7 +18,7 @@ import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;

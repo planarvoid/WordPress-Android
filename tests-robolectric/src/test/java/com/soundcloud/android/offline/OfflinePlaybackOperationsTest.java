@@ -13,7 +13,7 @@ import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.NetworkConnectionHelper;

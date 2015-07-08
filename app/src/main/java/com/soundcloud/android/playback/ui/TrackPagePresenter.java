@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
+import static com.soundcloud.android.playback.Playa.StateTransition;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

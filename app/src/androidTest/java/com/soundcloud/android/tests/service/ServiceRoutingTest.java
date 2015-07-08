@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.service;
 
-import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.PlaybackService;
 
 import android.content.ComponentName;
 import android.content.Intent;

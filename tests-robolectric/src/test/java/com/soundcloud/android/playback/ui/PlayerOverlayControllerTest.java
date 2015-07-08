@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;

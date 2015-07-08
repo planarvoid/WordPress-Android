@@ -21,7 +21,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
-import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;

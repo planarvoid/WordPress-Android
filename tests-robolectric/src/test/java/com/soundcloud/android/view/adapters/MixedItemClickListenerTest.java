@@ -13,7 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

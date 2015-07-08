@@ -2,8 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.google.common.collect.Sets;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlayQueueItem;
 import com.soundcloud.android.utils.ErrorUtils;
 
 import java.util.Iterator;

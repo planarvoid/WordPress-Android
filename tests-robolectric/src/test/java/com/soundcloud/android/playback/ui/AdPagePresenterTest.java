@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.PlayaState;
-import static com.soundcloud.android.playback.service.Playa.Reason;
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
+import static com.soundcloud.android.playback.Playa.PlayaState;
+import static com.soundcloud.android.playback.Playa.Reason;
+import static com.soundcloud.android.playback.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

@@ -1,6 +1,6 @@
 [107m                          [0m Process created for activity com.soundcloud.android/.main.LauncherActivity
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.search.suggestions.SuggestionsAdapter$SuggestionsHandler.handleMessage(SuggestionsAdapter.java:472)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.getInputStream(PublicApiWrapper.java:393)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.readFullCollection(PublicApiWrapper.java:331)
@@ -11,20 +11,20 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:168)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:158)
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/3/32cb0229e39f1bd2b823acb0af76f8d2/a9622024653fb7a70849b5d4819ecbb4.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/5/5d8fc6bf53de42974186136ee8022a7d/08d1a94d2ba332e6944e1d960ef3a1ac.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/d/dcd4a4edf45a1f687dfe12621eacadf9/745cb64d2ae5e47a38393591d393f2b9.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [33m          EventTracker[0m [30;103m W [0m     at com.soundcloud.android.analytics.TrackingApi.pushToRemote(TrackingApi.java:52)
 [33m          EventTracker[0m [30;103m W [0m     at com.soundcloud.android.analytics.TrackingHandler.submitEvents(TrackingHandler.java:92)
 [33m          EventTracker[0m [30;103m W [0m     at com.soundcloud.android.analytics.TrackingHandler.flushTrackingEvents(TrackingHandler.java:84)
 [33m          EventTracker[0m [30;103m W [0m     at com.soundcloud.android.analytics.TrackingHandler.handleTrackingEvent(TrackingHandler.java:62)
 [33m          EventTracker[0m [30;103m W [0m     at com.soundcloud.android.analytics.TrackingHandler.handleMessage(TrackingHandler.java:40)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.getInputStream(PublicApiWrapper.java:393)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.readList(PublicApiWrapper.java:269)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApi.readList(PublicApi.java:97)
@@ -38,9 +38,9 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.LegacySyncJob.run(LegacySyncJob.java:96)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:168)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:158)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/2/2b62659f3235763e3900e81fc0edc844/7961c65538a70c4f2b6dddf2cb0d5a92.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.getInputStream(PublicApiWrapper.java:393)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.readList(PublicApiWrapper.java:269)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApi.readList(PublicApi.java:97)
@@ -49,7 +49,7 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.LegacySyncJob.run(LegacySyncJob.java:96)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:168)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:158)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.getInputStream(PublicApiWrapper.java:393)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.read(PublicApiWrapper.java:233)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApi.read(PublicApi.java:85)
@@ -77,16 +77,16 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.LegacySyncJob.run(LegacySyncJob.java:96)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:168)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:158)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/1/1ee7d19552735e0fc652aed33e8a6371/6a0b2c774b68c63d43b2bf4e398b4398.part, EOS: 0, Error: 0, Dat
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/9/9a78e8df8051d355be2678161826bfa0/7ae63db1d6608301d3bb57f4bf3cbdca.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/9/9a78e8df8051d355be2678161826bfa0/15fc1981012450b2ed7cc77c94c324c9.part, EOS: 0, Error: 0, Dat
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/0/0ed033f585574839cd4a046275e7d00b/16946bc70ad934e3ff501e98342cc0a8.part, EOS: 0, Error: 0, Dat
 [36mBufferUnderrunListener[0m [30;102m I [0m Playa buffer underrun. com.soundcloud.android.events.BufferUnderrunEvent@39ad92ed
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/0/0ed033f585574839cd4a046275e7d00b/3110da602505d3e23ff2a310de8ff208.part, EOS: 0, Error: 0, Dat
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [32m SoundCloudApplication[0m [30;104m D [0m CollectionTaskLoading collection with params: CollectionParams{loadModel=class com.soundcloud.android.api.legacy.model.SoundAssociation, contentUri=content://com.soundcl
 [32m SoundCloudApplication[0m [30;104m D [0m CollectionTaskLoading collection with params: CollectionParams{loadModel=class com.soundcloud.android.api.legacy.model.PublicApiPlaylist, contentUri=content://com.soundc
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.api.legacy.PublicApiWrapper.getInputStream(PublicApiWrapper.java:393)
@@ -124,7 +124,7 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.playlists.AddToPlaylistDialogFragment$4.loadInBackground(AddToPlaylistDialogFragment.java:174)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.playlists.AddToPlaylistDialogFragment$4.loadInBackground(AddToPlaylistDialogFragment.java:186)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.playlists.AddToPlaylistDialogFragment$4.loadInBackground(AddToPlaylistDialogFragment.java:174)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
 [36mBufferUnderrunListener[0m [30;102m I [0m Playa buffer underrun. com.soundcloud.android.events.BufferUnderrunEvent@3a70c70c
 [36mBufferUnderrunListener[0m [30;102m I [0m Playa buffer underrun. com.soundcloud.android.events.BufferUnderrunEvent@3a7f0436
 [36mBufferUnderrunListener[0m [30;102m I [0m Playa buffer underrun. com.soundcloud.android.events.BufferUnderrunEvent@3a86f3ec
@@ -162,8 +162,8 @@
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.LegacySyncJob.run(LegacySyncJob.java:96)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:168)
 [37m            StrictMode[0m [30;101m E [0m     at com.soundcloud.android.sync.ApiSyncService$ApiTask.doInBackground(ApiSyncService.java:158)
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/f/faf70ad47cb0557097d7bbc64d3c1a3d/8f821fbe3ea84b432953c1fcd6d704d3.part, EOS: 0, Error: 0, Dat
 [35m         error-context[0m [30;101m E [0m com.soundcloud.android.utils.CallsiteToken
 [35m         error-context[0m [30;101m E [0m     at com.soundcloud.android.rx.observers.DefaultSubscriber.<init>(DefaultSubscriber.java:15)
@@ -222,14 +222,14 @@
 [37m            StrictMode[0m [30;101m E [0m android.os.StrictMode$InstanceCountViolation: class com.soundcloud.android.main.MainActivity; instances=2; limit=1
 [37m            StrictMode[0m [30;101m E [0m class com.soundcloud.android.playlists.PlaylistDetailActivity; instances=2; limit=1
 [37m            StrictMode[0m [30;101m E [0m android.os.StrictMode$InstanceCountViolation: class com.soundcloud.android.playlists.PlaylistDetailActivity; instances=2; limit=1
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/7/776d262dfb2d41f680f975c05ef04e63/7bcd7e8cd959c70e3db63de34f6d128e.part, EOS: 0, Error: 0, Dat
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/9/934e3dc877d66918c3a809a540df0cfd/45c345a874cc6313724138f1ea2f124c.part, EOS: 0, Error: 0, Dat
 [37m            StrictMode[0m [30;101m E [0m class com.soundcloud.android.playlists.PlaylistDetailActivity; instances=2; limit=1
 [37m            StrictMode[0m [30;101m E [0m android.os.StrictMode$InstanceCountViolation: class com.soundcloud.android.playlists.PlaylistDetailActivity; instances=2; limit=1
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/9/934e3dc877d66918c3a809a540df0cfd/c7e91298e8b5c5f182f63122110d1872.part, EOS: 0, Error: 0, Dat
                            ile: /storage/emulated/0/Android/data/com.soundcloud.android/files/skippy/1/1d6e894e815db6e738228af1829e9f9f/d8fc7a3cb4e369f0575c5a58a6212334.part, EOS: 0, Error: 0, Dat
 [36mBufferUnderrunListener[0m [30;102m I [0m Playa buffer underrun. com.soundcloud.android.events.BufferUnderrunEvent@3afe9fea
@@ -243,9 +243,9 @@
 [32m SoundCloudApplication[0m [30;104m D [0m CollectionTaskLoading collection with params: CollectionParams{loadModel=class com.soundcloud.android.api.legacy.model.PublicApiTrack, contentUri=content://com.soundclou
 [32m SoundCloudApplication[0m [30;104m D [0m CollectionTaskLoading collection with params: CollectionParams{loadModel=class com.soundcloud.android.api.legacy.model.PublicApiUser, contentUri=content://com.soundcloud
 [32m SoundCloudApplication[0m [30;104m D [0m CollectionTaskLoading collection with params: CollectionParams{loadModel=class com.soundcloud.android.api.legacy.model.PublicApiUser, contentUri=content://com.soundcloud
-[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.service.skippy.SkippyAdapter@530007c0
-[34m            System.err[0m [30;103m W [0m com.soundcloud.android.playback.service.skippy.SkippyAdapter$SkippyException: NETWORK_TIMEOUT
-[34m            System.err[0m [30;103m W [0m     at com.soundcloud.android.playback.service.skippy.SkippyAdapter.onErrorMessage(SkippyAdapter.java:418)
+[31m           StreamPlaya[0m [30;102m I [0m Configuring next player to use : com.soundcloud.android.playback.skippy.SkippyAdapter@530007c0
+[34m            System.err[0m [30;103m W [0m com.soundcloud.android.playback.skippy.SkippyAdapter$SkippyException: NETWORK_TIMEOUT
+[34m            System.err[0m [30;103m W [0m     at com.soundcloud.android.playback.skippy.SkippyAdapter.onErrorMessage(SkippyAdapter.java:418)
 [34m            System.err[0m [30;103m W [0m     at com.soundcloud.android.skippy.Skippy.onErrorMessage(Skippy.java:195)
                            rage/emulated/0/Android/data/com.soundcloud.android/files/skippy/6/6ce0372d5d672cc330a1449a9b9ef0ed/0.part, EOS: 0, Error: 0, Data: 0
 [31m           StreamProxy[0m [30;101m E [0m     at com.soundcloud.android.playback.streaming.StreamProxy.acceptLoop(StreamProxy.java:159)

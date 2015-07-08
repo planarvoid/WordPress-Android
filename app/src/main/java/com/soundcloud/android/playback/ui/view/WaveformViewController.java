@@ -1,14 +1,14 @@
 package com.soundcloud.android.playback.ui.view;
 
-import static com.soundcloud.android.playback.service.Playa.PlayaState.BUFFERING;
-import static com.soundcloud.android.playback.service.Playa.PlayaState.IDLE;
-import static com.soundcloud.android.playback.service.Playa.PlayaState.PLAYING;
+import static com.soundcloud.android.playback.Playa.PlayaState.BUFFERING;
+import static com.soundcloud.android.playback.Playa.PlayaState.IDLE;
+import static com.soundcloud.android.playback.Playa.PlayaState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;

@@ -328,7 +328,7 @@
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>
-        <service android:exported="false" android:name=".playback.service.PlaybackService"/>
+        <service android:exported="false" android:name=".playback.PlaybackService"/>
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
@@ -399,7 +399,7 @@
 
 
         <!-- headphone + remoteclient control -->
-        <receiver android:name=".playback.service.RemoteControlReceiver">
+        <receiver android:name=".playback.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>

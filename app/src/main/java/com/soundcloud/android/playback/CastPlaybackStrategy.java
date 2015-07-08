@@ -5,9 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlayQueueItem;
-import com.soundcloud.android.playback.service.PlaySessionSource;
 import rx.Observable;
 
 import java.util.List;

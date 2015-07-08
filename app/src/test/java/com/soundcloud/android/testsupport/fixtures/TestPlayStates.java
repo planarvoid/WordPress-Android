@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.android.playback.service.Playa.*;
+import static com.soundcloud.android.playback.Playa.*;
 
 import com.soundcloud.android.model.Urn;
 

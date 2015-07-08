@@ -9,7 +9,7 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 

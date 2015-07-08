@@ -9,7 +9,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackItem;

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.Playa;
 
 import android.support.annotation.Nullable;
 import android.view.View;
