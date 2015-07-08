@@ -44,7 +44,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
-    private String action;
+    private boolean isStopping;
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
         @Override
@@ -104,7 +104,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        action = intent.getAction();
+        final String action = intent.getAction();
+        isStopping = ACTION_STOP.equals(intent.getAction());
 
         Log.d(TAG, " Starting offlineContentService for action: " + action);
         offlineContentScheduler.cancelPendingRetries();
@@ -159,7 +160,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notificationController.onDownloadCancel(result);
         publisher.publishDownloadCancelEvents(queue, result);
 
-        if (ACTION_STOP.equalsIgnoreCase(action)) {
+        if (isStopping) {
             stop();
         } else {
             Log.d(TAG, "Single track download cancelled.. work continues");
