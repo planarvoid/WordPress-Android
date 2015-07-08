@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.Obfuscator;
-import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,7 +21,7 @@ import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ObfuscatedPreferencesTest extends PlatformUnitTest {
+public class ObfuscatedPreferencesTest extends AndroidUnitTest {
 
     public static final String KEY = "my_key";
     public static final String MOCK_OBFUSCATION = "-obfuscated";
