@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -166,7 +167,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void downloadNextOrFinish(DownloadResult result) {
+    private void downloadNextOrFinish(@Nullable DownloadResult result) {
         if (queue.isEmpty()) {
             stopAndFinish(result);
         } else {
