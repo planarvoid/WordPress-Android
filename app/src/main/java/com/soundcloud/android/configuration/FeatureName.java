@@ -1,7 +1,7 @@
 package com.soundcloud.android.configuration;
 
-public interface FeatureName {
+public class FeatureName {
 
-    String OFFLINE_SYNC = "offline_sync";
+    public static final String OFFLINE_SYNC = "offline_sync";
 
 }

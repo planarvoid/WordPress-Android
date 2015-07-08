@@ -17,8 +17,8 @@ import java.util.WeakHashMap;
  */
 public class ObfuscatedPreferences implements SharedPreferences {
 
-    private Obfuscator obfuscator;
-    private SharedPreferences wrappedPrefs;
+    private final Obfuscator obfuscator;
+    private final SharedPreferences wrappedPrefs;
 
     private final WeakHashMap<OnSharedPreferenceChangeListener, ObfuscatedOnSharedPreferenceChangeListener> listeners = new WeakHashMap<>();
 
@@ -114,7 +114,7 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     public class ObfuscatedEditor implements SharedPreferences.Editor {
 
-        private SharedPreferences.Editor wrappedEditor;
+        private final SharedPreferences.Editor wrappedEditor;
 
         public ObfuscatedEditor() {
             wrappedEditor = wrappedPrefs.edit();
@@ -180,7 +180,7 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     public class ObfuscatedOnSharedPreferenceChangeListener implements OnSharedPreferenceChangeListener {
 
-        private OnSharedPreferenceChangeListener wrappedListener;
+        private final OnSharedPreferenceChangeListener wrappedListener;
 
         public ObfuscatedOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener wrappedListener) {
             this.wrappedListener = wrappedListener;
