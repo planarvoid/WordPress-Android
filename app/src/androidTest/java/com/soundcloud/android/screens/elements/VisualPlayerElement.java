@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
+import static junit.framework.Assert.assertTrue;
+
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -50,6 +52,11 @@ public class VisualPlayerElement extends Element {
 
     public boolean isInterstitialVisible() {
         return interstitial().isVisible();
+    }
+
+    public void waitForTheExpandedPlayerToPlayNextTrack() {
+        waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()));
+        assertTrue(isExpandedPlayerPlaying());
     }
 
     private ViewElement previousButton() {
@@ -244,10 +251,6 @@ public class VisualPlayerElement extends Element {
         solo.sleep(MILISECONDS_UNTIL_AD_DONE);
     }
 
-    public void waitForTrackToFinish(int firstTrackLengthInMiliSeconds) {
-        solo.sleep(firstTrackLengthInMiliSeconds);
-    }
-
     public VisualPlayerElement waitForSkipAdButton() {
         waiter.waitForElement(R.id.skip_ad);
         return this;
@@ -327,6 +330,20 @@ public class VisualPlayerElement extends Element {
         @Override
         public boolean isSatisfied() {
             return !textElement.getText().equals(original);
+        }
+    }
+
+    private class TrackChangedCondition implements Condition {
+
+        private final String original;
+
+        private TrackChangedCondition(String original) {
+            this.original = original;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !trackTitle().equals(original);
         }
     }
 }

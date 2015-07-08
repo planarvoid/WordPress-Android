@@ -49,7 +49,7 @@ class MrLoggaLoggaClient {
         return sendPostLoggingRequest(loggingEndpoint, ACTION_START_LOGGING);
     }
 
-    MrLoggaResponse finishLogging() {
+    MrLoggaResponse stopLogging() {
         return sendPostLoggingRequest(loggingEndpoint, ACTION_FINISH_LOGGING);
     }
 

@@ -76,7 +76,8 @@ public class DefaultPlaybackStrategyTest {
 
     @Test
     public void playNewQueueOpensCurrentTrackThroughService() {
-        defaultPlaybackStrategy.playNewQueue(Arrays.asList(TRACK1), TRACK1, 0, false, PlaySessionSource.EMPTY).subscribe(observer);
+        final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
+        defaultPlaybackStrategy.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
@@ -85,8 +86,8 @@ public class DefaultPlaybackStrategyTest {
     @Test
     public void playNewQueueRemovesDuplicates() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-        defaultPlaybackStrategy.playNewQueue(Lists.newArrayList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1),
-                TRACK1, 0, false, playSessionSource).subscribe(observer);
+        defaultPlaybackStrategy.playNewQueue(
+                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
 
         PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2, TRACK3), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(0), eq(playSessionSource));
@@ -95,8 +96,8 @@ public class DefaultPlaybackStrategyTest {
     @Test
     public void playNewQueueShouldFallBackToPositionZeroIfInitialTrackNotFound() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-        defaultPlaybackStrategy.playNewQueue(Lists.newArrayList(TRACK1, TRACK2),
-                TRACK1, 2, false, playSessionSource).subscribe(observer);
+        defaultPlaybackStrategy.playNewQueue(
+                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, false, playSessionSource).subscribe(observer);
 
         PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(0), eq(playSessionSource));
@@ -104,16 +105,18 @@ public class DefaultPlaybackStrategyTest {
 
     @Test
     public void playNewQueueShouldFetchRelatedTracksWhenLoadRelatedTracksIsTrue() {
-        defaultPlaybackStrategy.playNewQueue(Lists.newArrayList(TRACK1, TRACK2),
-                TRACK1, 2, true, PlaySessionSource.EMPTY).subscribe(observer);
+        final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
+        defaultPlaybackStrategy.playNewQueue(
+                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, true, playSessionSource).subscribe(observer);
 
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
     @Test
     public void playNewQueueShouldNotFetchRelatedTracksWhenLoadRelatedTracksIsFalse() {
-        defaultPlaybackStrategy.playNewQueue(Lists.newArrayList(TRACK1, TRACK2),
-                TRACK1, 2, false, PlaySessionSource.EMPTY);
+        final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
+        defaultPlaybackStrategy.playNewQueue(
+                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, false, playSessionSource);
 
         verify(playQueueManager, never()).fetchTracksRelatedToCurrentTrack();
     }

@@ -57,8 +57,8 @@ public class UpsellTest extends TrackingActivityTest<MainActivity> {
         final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
         likesScreen.clickMidTierTrackForUpgrade(0);
 
-        mrLoggaVerifier.finishLogging();
-        mrLoggaVerifier.isValid(MIDTIER_TEST_SCENARIO);
+        mrLoggaVerifier.stopLogging();
+        mrLoggaVerifier.assertScenario(MIDTIER_TEST_SCENARIO);
     }
 
     public void ignore_testClickingOnMidTierTrackInPlaylistOpensUpsell() {
