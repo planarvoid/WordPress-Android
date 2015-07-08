@@ -29,55 +29,62 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     private Message successMessage;
     private Message failureMessage;
     private Message notEnoughSpaceMessage;
+    private Message cancelMessage;
     private DownloadRequest downloadRequest;
-    private DownloadResult downloadResultSuccess;
-    private DownloadResult downloadResultFailed;
-    private DownloadResult downloadResultUnavailable;
-    private DownloadResult downloadResultNotEnoughSpace;
+
+    private DownloadResult successResult;
+    private DownloadResult failedResult;
+    private DownloadResult cancelledResult;
+    private DownloadResult unavailableResult;
+    private DownloadResult notEnoughSpaceResult;
 
     @Before
     public void setUp() throws Exception {
         downloadRequest = new DownloadRequest(Urn.forTrack(123), 12345);
-        downloadResultSuccess = DownloadResult.success(downloadRequest);
-        downloadResultFailed = DownloadResult.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
-        downloadResultUnavailable = DownloadResult.unavailable(downloadRequest);
-        downloadResultNotEnoughSpace = DownloadResult.notEnoughSpace(downloadRequest);
+        successResult = DownloadResult.success(downloadRequest);
+        failedResult = DownloadResult.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        unavailableResult = DownloadResult.unavailable(downloadRequest);
+        notEnoughSpaceResult = DownloadResult.notEnoughSpace(downloadRequest);
+        cancelledResult = DownloadResult.canceled(downloadRequest);
 
         successMessage = createMessage(downloadRequest);
         failureMessage = createMessage(downloadRequest);
         notEnoughSpaceMessage = createMessage(downloadRequest);
+        cancelMessage = createMessage(downloadRequest);
 
         handler = new DownloadHandler(mainHandler, downloadOperations, secureFileStorage, tracksStorage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, downloadResultSuccess)).thenReturn(successMessage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultFailed)).thenReturn(failureMessage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultNotEnoughSpace)).thenReturn(notEnoughSpaceMessage);
+        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, successResult)).thenReturn(successMessage);
+        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, failedResult)).thenReturn(failureMessage);
+        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, notEnoughSpaceResult))
+                .thenReturn(notEnoughSpaceMessage);
+        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_CANCEL, cancelledResult)).thenReturn(cancelMessage);
+
         when(writeResult.success()).thenReturn(true);
         when(tracksStorage.storeCompletedDownload(any(DownloadResult.class))).thenReturn(writeResult);
         when(tracksStorage.markTrackAsUnavailable(any(Urn.class))).thenReturn(writeResult);
-
     }
 
     @Test
     public void storesCompletedDownloadResult() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultSuccess);
+        when(downloadOperations.download(downloadRequest)).thenReturn(successResult);
 
         handler.handleMessage(successMessage);
 
-        verify(tracksStorage).storeCompletedDownload(downloadResultSuccess);
+        verify(tracksStorage).storeCompletedDownload(successResult);
     }
 
     @Test
     public void doesNotStoreCompletedDownloadResultWhenDownloadFailed() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultFailed);
+        when(downloadOperations.download(downloadRequest)).thenReturn(failedResult);
 
         handler.handleMessage(failureMessage);
 
-        verify(tracksStorage, never()).storeCompletedDownload(downloadResultFailed);
+        verify(tracksStorage, never()).storeCompletedDownload(failedResult);
     }
 
     @Test
     public void sendsSuccessMessageWithDownloadResult() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultSuccess);
+        when(downloadOperations.download(downloadRequest)).thenReturn(successResult);
 
         handler.handleMessage(successMessage);
 
@@ -85,8 +92,17 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void sendsCancelMessageWhenDownloadWasCancelled() {
+        when(downloadOperations.download(downloadRequest)).thenReturn(cancelledResult);
+
+        handler.handleMessage(cancelMessage);
+
+        verify(mainHandler).sendMessage(cancelMessage);
+    }
+
+    @Test
     public void sendsNotEnoughSpaceMessageWhenThereIsNotEnoughSpaceForTrack() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultNotEnoughSpace);
+        when(downloadOperations.download(downloadRequest)).thenReturn(notEnoughSpaceResult);
 
         handler.handleMessage(notEnoughSpaceMessage);
 
@@ -95,7 +111,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsFailureMessageWhenDownloadFailed() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultFailed);
+        when(downloadOperations.download(downloadRequest)).thenReturn(failedResult);
 
         handler.handleMessage(failureMessage);
 
@@ -104,9 +120,9 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void deletesFileWhenFailToStoreSuccessStatus() throws PropellerWriteException {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultSuccess);
+        when(downloadOperations.download(downloadRequest)).thenReturn(successResult);
         when(writeResult.success()).thenReturn(false);
-        when(tracksStorage.storeCompletedDownload(downloadResultSuccess)).thenReturn(writeResult);
+        when(tracksStorage.storeCompletedDownload(successResult)).thenReturn(writeResult);
 
         handler.handleMessage(successMessage);
 
@@ -115,11 +131,11 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void markTrackAsUnavailable() {
-        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultUnavailable);
+        when(downloadOperations.download(downloadRequest)).thenReturn(unavailableResult);
 
         handler.handleMessage(successMessage);
 
-        verify(tracksStorage).markTrackAsUnavailable(downloadResultUnavailable.getTrack());
+        verify(tracksStorage).markTrackAsUnavailable(unavailableResult.getTrack());
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {
