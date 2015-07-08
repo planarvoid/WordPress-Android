@@ -24,8 +24,6 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void diabled_testPlayAndPauseTrackFromStream() {
-        mrLoggaVerifier.startLogging();
-
         final VisualPlayerElement playerElement =
                 menuScreen
                         .open()
@@ -39,12 +37,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(playerElement, is(not(playing())));
 
-        finishMrLogga();
-    }
-
-    private void finishMrLogga() {
-        mrLoggaVerifier.stopLogging();
-        mrLoggaVerifier.assertScenario(TEST_SCENARIO);
+        verifier.assertScenario(TEST_SCENARIO);
     }
 
 }
