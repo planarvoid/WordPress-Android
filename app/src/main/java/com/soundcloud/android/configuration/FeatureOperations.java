@@ -2,11 +2,9 @@ package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
-import com.soundcloud.android.properties.ApplicationProperties;
 import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.List;
 
 public class FeatureOperations {
@@ -15,12 +13,9 @@ public class FeatureOperations {
     private final PlanStorage planStorage;
 
     @Inject
-    public FeatureOperations(ApplicationProperties appProperties, FeatureStorage featureStorage, PlanStorage planStorage) {
+    public FeatureOperations(FeatureStorage featureStorage, PlanStorage planStorage) {
         this.featureStorage = featureStorage;
         this.planStorage = planStorage;
-        if (appProperties.isAlphaBuild()) {
-            updateFeature(new Feature(FeatureName.OFFLINE_SYNC, true, Arrays.asList(Plan.MID_TIER)));
-        }
     }
 
     public void updateFeatures(List<Feature> features) {
