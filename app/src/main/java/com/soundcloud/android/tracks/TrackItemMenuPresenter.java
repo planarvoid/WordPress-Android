@@ -158,7 +158,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                     }
                 });
                 relatedTracksPlaybackSubscription = playbackOperations
-                        .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value()), 1)
+                        .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(screenProvider.getLastScreenTag()), 1)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, loadingRelatedTracksPresenter));
                 return true;

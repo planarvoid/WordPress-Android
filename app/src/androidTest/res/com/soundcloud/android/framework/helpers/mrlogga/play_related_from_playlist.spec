@@ -1,0 +1,91 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    source: recommender
+    client_id: '[0-9]+'
+    source_version: naive-source
+    action: play
+    player_type: Skippy
+    sound: soundcloud:sounds:[0-9]+
+    duration: '[0-9]+'
+    page_name: playlists:main
+    user: soundcloud:users:[0-9]+
+    protocol: hls
+    ts: '[0-9]+'
+    connection_type: wifi
+    trigger: manual
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    source: recommender
+    client_id: '[0-9]+'
+    source_version: naive-source
+    action: stop
+    player_type: Skippy
+    sound: soundcloud:sounds:[0-9]+
+    duration: '[0-9]+'
+    page_name: playlists:main
+    user: soundcloud:users:[0-9]+
+    protocol: hls
+    ts: '[0-9]+'
+    connection_type: wifi
+    reason: skip
+    trigger: manual
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    protocol: hls
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    client_id: '[0-9]+'
+    connection_type: wifi
+    action: play
+    player_type: Skippy
+    trigger: manual
+    sound: soundcloud:sounds:[0-9]+
+    duration: '[0-9]+'
+    page_name: playlists:main
+    user: soundcloud:users:[0-9]+
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    protocol: hls
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    client_id: '[0-9]+'
+    connection_type: wifi
+    action: stop
+    reason: track_finished
+    player_type: Skippy
+    trigger: manual
+    sound: soundcloud:sounds:[0-9]+
+    duration: '[0-9]+'
+    page_name: playlists:main
+    user: soundcloud:users:[0-9]+
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    source: recommender
+    client_id: '[0-9]+'
+    source_version: naive-source
+    action: play
+    player_type: Skippy
+    sound: soundcloud:sounds:[0-9]+
+    duration: '[0-9]+'
+    page_name: playlists:main
+    user: soundcloud:users:[0-9]+
+    protocol: hls
+    ts: '[0-9]+'
+    connection_type: wifi
+    trigger: auto
+  version: '0'
+whitelisted_events: audio

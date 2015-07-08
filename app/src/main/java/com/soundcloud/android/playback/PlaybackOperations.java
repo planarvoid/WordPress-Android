@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
@@ -15,6 +14,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -29,7 +29,6 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,15 +38,6 @@ public class PlaybackOperations {
 
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
-
-    private static final Func1<List<Urn>, List<Urn>> SHUFFLE_TRACKS = new Func1<List<Urn>, List<Urn>>() {
-        @Override
-        public List<Urn> call(List<Urn> trackUrns) {
-            List<Urn> shuffled = Lists.newArrayList(trackUrns);
-            Collections.shuffle(shuffled);
-            return shuffled;
-        }
-    };
 
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
@@ -114,37 +104,35 @@ public class PlaybackOperations {
 
     public Observable<PlaybackResult> playTrackWithRecommendations(final Urn seedTrack, final PlaySessionSource playSessionSource, final int startPosition) {
         return playQueueOperations
-                .getRelatedTracksUrns(seedTrack)
-                .startWith(seedTrack)
-                .toList()
-                .flatMap(playTracks(startPosition, playSessionSource));
-    }
-
-    private Func1<List<Urn>, Observable<PlaybackResult>> playTracks(final int startPosition, final PlaySessionSource playSessionSource) {
-        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
-            @Override
-            public Observable<PlaybackResult> call(List<Urn> tracks) {
-                return playTracks(tracks, startPosition, playSessionSource);
-            }
-        };
+                .getRelatedTracksPlayQueue(seedTrack)
+                .flatMap(toPlaybackResult(playbackStrategyProvider.get(), startPosition, playSessionSource, false));
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
-                                                    PlaySessionSource playSessionSource) {
+                                                    final PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return trackUrnsObservable
-                    .map(SHUFFLE_TRACKS)
-                    .flatMap(playNewQueue(playbackStrategyProvider.get(), Urn.NOT_SET, 0, playSessionSource, WITHOUT_RELATED))
+                    .map(toShuffledPlayQueue(playSessionSource))
+                    .flatMap(toPlaybackResult(playbackStrategyProvider.get(), Urn.NOT_SET, 0, playSessionSource, WITHOUT_RELATED))
                     .observeOn(AndroidSchedulers.mainThread());
         }
+    }
+
+    private Func1<List<Urn>, PlayQueue> toShuffledPlayQueue(final PlaySessionSource playSessionSource) {
+        return new Func1<List<Urn>, PlayQueue>() {
+            @Override
+            public PlayQueue call(List<Urn> urns) {
+                return PlayQueue.shuffled(urns, playSessionSource);
+            }
+        };
     }
 
     private Observable<PlaybackResult> playTracksList(Observable<List<Urn>> trackUrns,
                                                       Urn initialTrack,
                                                       int startPosition,
-                                                      PlaySessionSource playSessionSource,
+                                                      final PlaySessionSource playSessionSource,
                                                       boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return Observable.just(PlaybackResult.success());
@@ -152,26 +140,56 @@ public class PlaybackOperations {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return trackUrns
-                    .flatMap(playNewQueue(playbackStrategyProvider.get(), initialTrack, startPosition, playSessionSource, loadRelated))
+                    .map(toDefaultPlayQueue(playSessionSource))
+                    .flatMap(toPlaybackResult(playbackStrategyProvider.get(), initialTrack, startPosition, playSessionSource, loadRelated))
                     .observeOn(AndroidSchedulers.mainThread());
         }
     }
 
-    private Func1<List<Urn>, Observable<PlaybackResult>> playNewQueue(final PlaybackStrategy playbackStrategy,
-                                                                      final Urn initialTrack,
-                                                                      final int startPosition,
-                                                                      final PlaySessionSource playSessionSource,
-                                                                      final boolean loadRelated) {
-        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
+    private Func1<List<Urn>, PlayQueue> toDefaultPlayQueue(final PlaySessionSource playSessionSource) {
+        return new Func1<List<Urn>, PlayQueue>() {
             @Override
-            public Observable<PlaybackResult> call(List<Urn> trackUrns) {
-                if (trackUrns.isEmpty()) {
-                    return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
+            public PlayQueue call(List<Urn> urns) {
+                if (urns.isEmpty()) {
+                    return PlayQueue.empty();
                 } else {
-                    return playbackStrategy.playNewQueue(trackUrns, initialTrack, startPosition, loadRelated, playSessionSource);
+                    return PlayQueue.fromTrackUrnList(urns, playSessionSource);
                 }
             }
         };
+    }
+
+    private Func1<PlayQueue, Observable<PlaybackResult>> toPlaybackResult(final PlaybackStrategy playbackStrategy,
+                                                                          final int startPosition,
+                                                                          final PlaySessionSource playSessionSource,
+                                                                          final boolean loadRelated) {
+        return new Func1<PlayQueue, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(PlayQueue playQueue) {
+                return playNewQueue(playbackStrategy, playQueue, playQueue.getUrn(startPosition), startPosition, loadRelated, playSessionSource);
+            }
+        };
+    }
+
+    private Func1<PlayQueue, Observable<PlaybackResult>> toPlaybackResult(final PlaybackStrategy playbackStrategy,
+                                                                          final Urn initialTrack,
+                                                                          final int startPosition,
+                                                                          final PlaySessionSource playSessionSource,
+                                                                          final boolean loadRelated) {
+        return new Func1<PlayQueue, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(PlayQueue playQueue) {
+                return playNewQueue(playbackStrategy, playQueue, initialTrack, startPosition, loadRelated, playSessionSource);
+            }
+        };
+    }
+
+    private Observable<PlaybackResult> playNewQueue(PlaybackStrategy playbackStrategy, PlayQueue playQueue, Urn initialTrack, int startPosition, boolean loadRelated, PlaySessionSource playSessionSource) {
+        if (playQueue.isEmpty()) {
+            return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
+        } else {
+            return playbackStrategy.playNewQueue(playQueue, initialTrack, startPosition, loadRelated, playSessionSource);
+        }
     }
 
     public Observable<PlaybackResult> startPlayback(PublicApiTrack track, Screen screen, boolean withRecommendations) {

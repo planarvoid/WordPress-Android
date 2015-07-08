@@ -1,10 +1,9 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import rx.Observable;
-
-import java.util.List;
 
 public interface PlaybackStrategy {
 
@@ -16,7 +15,7 @@ public interface PlaybackStrategy {
 
     void playCurrent();
 
-    Observable<PlaybackResult> playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
+    Observable<PlaybackResult> playNewQueue(final PlayQueue playQueue, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
 
     void seek(long position);
 

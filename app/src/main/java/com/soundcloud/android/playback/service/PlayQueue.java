@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -79,6 +80,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : Urn.NOT_SET;
     }
 
+    public int indexOf(Urn initialTrack) {
+        return playQueueItems.indexOf(initialTrack);
+    }
+
     @Deprecated
     public long getTrackId(int position) {
         return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().getNumericId() : Consts.NOT_SET;
@@ -98,6 +103,24 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         checkElementIndex(position, size());
 
         playQueueItems.get(position).getMetaData().update(metadata);
+    }
+
+    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
+        List<Urn> shuffled = Lists.newArrayList(tracks);
+        Collections.shuffle(shuffled);
+        return fromTrackUrnList(shuffled, playSessionSource);
+    }
+
+    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
+        List<PlayQueueItem> playQueueItems = new ArrayList<>();
+
+        playQueueItems.add(PlayQueueItem.fromTrack(seedTrack));
+        for (ApiTrack relatedTrack : relatedTracks) {
+            playQueueItems.add(PlayQueueItem.fromTrack(relatedTrack.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
+                    relatedTracks.getSourceVersion()));
+        }
+
+        return new PlayQueue(playQueueItems);
     }
 
     String getTrackSource(int position) {

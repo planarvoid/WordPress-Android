@@ -43,8 +43,8 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     }
 
     private void finishMrLogga() {
-        mrLoggaVerifier.finishLogging();
-        mrLoggaVerifier.isValid(TEST_SCENARIO);
+        mrLoggaVerifier.stopLogging();
+        mrLoggaVerifier.assertScenario(TEST_SCENARIO);
     }
 
 }
