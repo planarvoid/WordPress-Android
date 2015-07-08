@@ -15,7 +15,7 @@ import rx.subjects.ReplaySubject;
 
 import javax.inject.Inject;
 
-public class PlaybackSessionAnalyticsController {
+class PlaybackSessionAnalyticsController {
 
     private final EventBus eventBus;
     private final TrackRepository trackRepository;

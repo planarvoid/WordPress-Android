@@ -1,19 +1,24 @@
 package com.soundcloud.android.robolectric.shadows;
 
+import com.xtremelabs.robolectric.internal.Implementation;
+import com.xtremelabs.robolectric.internal.Implements;
+import com.xtremelabs.robolectric.shadows.ShadowParcel;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
-import com.xtremelabs.robolectric.internal.Implementation;
-import com.xtremelabs.robolectric.internal.Implements;
-import com.xtremelabs.robolectric.shadows.ShadowParcel;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Implements(Parcel.class)
 public class ScShadowParcel extends ShadowParcel {

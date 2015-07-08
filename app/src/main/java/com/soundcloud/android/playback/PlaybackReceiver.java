@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.playback.PlaybackService.Actions;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
 
@@ -39,20 +40,20 @@ class PlaybackReceiver extends BroadcastReceiver {
             trackPlayControlEvent(intent);
         }
 
-        if (PlaybackService.Actions.RESET_ALL.equals(action)) {
+        if (Actions.RESET_ALL.equals(action)) {
             playQueueManager.clearAll();
             playbackService.resetAll();
 
         } else if (accountOperations.isUserLoggedIn()) {
-            if (PlaybackService.Actions.PLAY_CURRENT.equals(action)) {
+            if (Actions.PLAY_CURRENT.equals(action)) {
                 playbackService.openCurrent();
-            } else if (PlaybackService.Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
+            } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
                 playbackService.togglePlayback();
-            } else if (PlaybackService.Actions.PLAY_ACTION.equals(action)) {
+            } else if (Actions.PLAY_ACTION.equals(action)) {
                 playbackService.play();
-            } else if (PlaybackService.Actions.PAUSE_ACTION.equals(action)) {
+            } else if (Actions.PAUSE_ACTION.equals(action)) {
                 playbackService.pause();
-            } else if (PlaybackService.Actions.SEEK.equals(action)) {
+            } else if (Actions.SEEK.equals(action)) {
                 long seekPosition = intent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, DEFAULT_SEEK_POSITION);
                 playbackService.seek(seekPosition, true);
             } else if (PlayQueueManager.PLAYQUEUE_CHANGED_ACTION.equals(action)) {
@@ -62,7 +63,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
                 playbackService.pause();
 
-            } else if (PlaybackService.Actions.STOP_ACTION.equals(action)) {
+            } else if (Actions.STOP_ACTION.equals(action)) {
                 // make sure we go to a stopped stat. No-op if there already
                 playbackService.stop();
             }
@@ -74,9 +75,9 @@ class PlaybackReceiver extends BroadcastReceiver {
     private void trackPlayControlEvent(Intent intent) {
         String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
 
-        if (PlaybackService.Actions.PLAY_ACTION.equals(intent.getAction())) {
+        if (Actions.PLAY_ACTION.equals(intent.getAction())) {
             eventBus.publish(EventQueue.TRACKING, PlayControlEvent.play(source));
-        } else if (PlaybackService.Actions.PAUSE_ACTION.equals(intent.getAction())) {
+        } else if (Actions.PAUSE_ACTION.equals(intent.getAction())) {
             eventBus.publish(EventQueue.TRACKING, PlayControlEvent.pause(source));
         }
     }

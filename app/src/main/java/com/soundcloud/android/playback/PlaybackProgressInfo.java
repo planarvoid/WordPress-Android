@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
 
-public class PlaybackProgressInfo {
+class PlaybackProgressInfo {
     private final long trackId;
     private final long time;
 

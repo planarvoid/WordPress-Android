@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayQueueStorage {
+class PlayQueueStorage {
 
     private static final Table TABLE = Table.PlayQueue;
 

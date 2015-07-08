@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.Playa.PlayaListener;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.Log;
@@ -15,7 +16,7 @@ import android.content.Context;
 import javax.inject.Inject;
 
 //Not a hater
-public class StreamPlaya implements Playa.PlayaListener {
+class StreamPlaya implements PlayaListener {
 
     public static final String TAG = "StreamPlaya";
 
@@ -29,7 +30,7 @@ public class StreamPlaya implements Playa.PlayaListener {
     private final NetworkConnectionHelper networkConnectionHelper;
 
     private Playa currentPlaya;
-    private Playa.PlayaListener playaListener;
+    private PlayaListener playaListener;
 
     // store start info so we can fallback and retry after Skippy failures
     private PropertySet lastTrackPlayed;
@@ -152,7 +153,7 @@ public class StreamPlaya implements Playa.PlayaListener {
         }
     }
 
-    public void setListener(Playa.PlayaListener playaListener) {
+    public void setListener(PlayaListener playaListener) {
         this.playaListener = playaListener;
         if (currentPlaya != null) {
             currentPlaya.setListener(playaListener);

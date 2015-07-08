@@ -1,8 +1,10 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.android.playback.Playa.*;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.Playa.PlayaState;
+import com.soundcloud.android.playback.Playa.Reason;
+import com.soundcloud.android.playback.Playa.StateTransition;
 
 public class TestPlayStates {
 

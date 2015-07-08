@@ -27,7 +27,7 @@ import javax.inject.Named;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class PlayQueueOperations {
+class PlayQueueOperations {
 
     @VisibleForTesting static final String SHARED_PREFERENCES_KEY = "playlistPos";
 

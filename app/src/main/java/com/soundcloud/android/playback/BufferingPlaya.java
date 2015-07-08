@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 // this class is getting deleted
 @SuppressWarnings({"PMD.UncommentedEmptyMethod"})
-public class BufferingPlaya implements Playa {
+class BufferingPlaya implements Playa {
 
     @Inject
     public BufferingPlaya() {

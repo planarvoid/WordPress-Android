@@ -6,7 +6,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 
 import java.util.List;
 
-public class RecommendedTracksCollection extends ModelCollection<ApiTrack> {
+class RecommendedTracksCollection extends ModelCollection<ApiTrack> {
 
     private String sourceVersion;
 
