@@ -1,9 +1,12 @@
 package com.soundcloud.android.framework.helpers;
 
+import com.soundcloud.android.configuration.FeatureName;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.utils.ObfuscatedPreferences;
 import rx.functions.Action1;
 
 import android.content.Context;
@@ -13,25 +16,20 @@ import java.util.Arrays;
 
 public class ConfigurationHelper {
 
-    // Features
+    private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
-    private static final String OFFLINE_CONTENT = "offline_sync";
     private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
 
-    // Plan
-    private static final String PLAN_UPSELLS = "upsells";
-    private static final String PLAN_MID_TIER = "mid_tier";
-
     public static void enableOfflineContent(Context context) {
-        enableFeature(context, OFFLINE_CONTENT);
+        enableFeature(context, FeatureName.OFFLINE_SYNC);
     }
 
     public static void enableUpsell(Context context) {
-        getPlanStorage(context).update(PLAN_UPSELLS, Arrays.asList(PLAN_MID_TIER));
+        getPlanStorage(context).updateUpsells(Arrays.asList(Plan.MID_TIER));
     }
     
     public static void disableOfflineContent(Context context) {
-        getFeatureStorage(context).update(new Feature(OFFLINE_CONTENT, false, Arrays.asList(PLAN_MID_TIER)));
+        getFeatureStorage(context).update(new Feature(FeatureName.OFFLINE_SYNC, false, Arrays.asList(Plan.MID_TIER)));
     }
 
     public static void resetOfflineSyncState(Context context) {
@@ -40,7 +38,7 @@ public class ConfigurationHelper {
     }
 
     private static void enableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, true, Arrays.asList(PLAN_MID_TIER));
+        final Feature feature = new Feature(name, true, Arrays.asList(Plan.MID_TIER));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);
@@ -58,13 +56,13 @@ public class ConfigurationHelper {
     }
 
     private static FeatureStorage getFeatureStorage(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
-        return new FeatureStorage(sharedPreferences, new Obfuscator());
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
+        return new FeatureStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
     }
 
     private static PlanStorage getPlanStorage(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
-        return new PlanStorage(sharedPreferences, new Obfuscator());
+        return new PlanStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
     }
 
     private static SharedPreferences getOfflineSettingsPreferences(Context context) {

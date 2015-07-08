@@ -1,91 +1,68 @@
 package com.soundcloud.android.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.PlatformUnitTest;
+import com.soundcloud.android.utils.ObfuscatedPreferences;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import java.util.Arrays;
 
 public class PlanStorageTest extends PlatformUnitTest {
 
-    public static final String MOCK_ENCRYPTION = "-obfuscated";
-
     private PlanStorage storage;
-
-    @Mock private Obfuscator obfuscator;
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlanStorage(sharedPreferences("test", Context.MODE_PRIVATE), obfuscator);
-        configureMockObfuscation();
+        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences("test", Context.MODE_PRIVATE), new Obfuscator());
+        storage = new PlanStorage(prefs);
     }
 
     @Test
     public void updateStoresValue() {
-        storage.update("plan", "mid-tier");
+        storage.updatePlan(Plan.MID_TIER);
 
-        assertThat(storage.get("plan", "none")).isEqualTo("mid-tier");
+        assertThat(storage.getPlan()).isEqualTo(Plan.MID_TIER);
     }
 
     @Test
     public void returnsDefaultIfNotSet() {
-        assertThat(storage.get("plan", "none")).isEqualTo("none");
+        assertThat(storage.getPlan()).isEqualTo(Plan.NONE);
     }
 
     @Test
     public void updateStoresValueList() {
-        storage.update("upsells", Arrays.asList("mid-tier", "high-tier"));
+        storage.updateUpsells(Arrays.asList(Plan.MID_TIER, Plan.HIGH_TIER));
 
-        assertThat(storage.getList("upsells")).containsOnly("mid-tier", "high-tier");
+        assertThat(storage.getUpsells()).containsOnly(Plan.MID_TIER, Plan.HIGH_TIER);
     }
 
     @Test
     public void updateReplacesEntireValueList() {
-        storage.update("upsells", Arrays.asList("mid-tier", "high-tier"));
+        storage.updateUpsells(Arrays.asList(Plan.MID_TIER, Plan.HIGH_TIER));
 
-        storage.update("upsells", Arrays.asList("mid-tier"));
+        storage.updateUpsells(Arrays.asList(Plan.MID_TIER));
 
-        assertThat(storage.getList("upsells")).containsExactly("mid-tier");
+        assertThat(storage.getUpsells()).containsExactly(Plan.MID_TIER);
     }
 
     @Test
     public void returnsEmptyListIfNotSet() {
-        assertThat(storage.getList("upsells")).isEmpty();
+        assertThat(storage.getUpsells()).isEmpty();
     }
 
     @Test
     public void clearRemovesStoredValues() {
-        storage.update("plan", "mid-tier");
+        storage.updatePlan(Plan.MID_TIER);
 
         storage.clear();
 
-        assertThat(storage.get("plan", "none")).isEqualTo("none");
-    }
-
-    private void configureMockObfuscation() throws Exception {
-        when(obfuscator.obfuscate(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0] + MOCK_ENCRYPTION;
-            }
-        });
-        when(obfuscator.deobfuscateString(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                String encrypted = invocation.getArguments()[0].toString();
-                return encrypted.substring(0, encrypted.length() - MOCK_ENCRYPTION.length());
-            }
-        });
+        assertThat(storage.getPlan()).isEqualTo(Plan.NONE);
     }
 
 }

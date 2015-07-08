@@ -1,6 +1,8 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
 import dagger.Module;
@@ -12,6 +14,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 @Module(complete = false, library = true)
 public class StorageModule {
@@ -67,10 +70,10 @@ public class StorageModule {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
-    @Provides
+    @Provides @Singleton
     @Named(FEATURES)
-    public SharedPreferences provideFeaturePrefs(Context context) {
-        return context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE);
+    public SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
+        return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE), obfuscator);
     }
 
     @Provides

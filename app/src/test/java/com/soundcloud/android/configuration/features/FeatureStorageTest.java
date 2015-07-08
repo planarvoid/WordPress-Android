@@ -1,41 +1,33 @@
 package com.soundcloud.android.configuration.features;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
+import com.soundcloud.android.utils.ObfuscatedPreferences;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import rx.observers.TestObserver;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class FeatureStorageTest extends PlatformUnitTest {
 
-    public static final String MOCK_ENCRYPTION = "-obfuscated";
-
     private FeatureStorage storage;
     private List<Feature> features;
-
-    @Mock private Obfuscator obfuscator;
 
     private TestObserver<Boolean> testObserver = new TestObserver<>();
 
     @Before
     public void setUp() throws Exception {
         features = TestFeatures.asList();
-        storage = new FeatureStorage(sharedPreferences("test", Context.MODE_PRIVATE), obfuscator);
-        configureMockObfuscation();
+        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences("test", Context.MODE_PRIVATE), new Obfuscator());
+        storage = new FeatureStorage(prefs);
     }
 
     @Test
@@ -79,35 +71,6 @@ public class FeatureStorageTest extends PlatformUnitTest {
         storage.update(features);
         storage.clear();
         assertThat(storage.isEnabled("feature_disabled", true)).isTrue();
-    }
-
-    private void configureMockObfuscation() throws Exception {
-        when(obfuscator.obfuscate(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0] + MOCK_ENCRYPTION;
-            }
-        });
-        when(obfuscator.deobfuscateString(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                String encrypted = invocation.getArguments()[0].toString();
-                return encrypted.substring(0, encrypted.length() - MOCK_ENCRYPTION.length());
-            }
-        });
-        when(obfuscator.obfuscate(anyBoolean())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0].toString() + MOCK_ENCRYPTION;
-            }
-        });
-        when(obfuscator.deobfuscateBoolean(anyString())).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                String obfuscated = invocation.getArguments()[0].toString();
-                return Boolean.parseBoolean(obfuscated.substring(0, obfuscated.length() - MOCK_ENCRYPTION.length()));
-            }
-        });
     }
 
 }

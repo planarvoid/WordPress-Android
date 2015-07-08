@@ -1,8 +1,6 @@
 package com.soundcloud.android.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -33,7 +31,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void isOfflineContentEnabledReturnsStoredState() {
-        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
 
         assertThat(featureOperations.isOfflineContentEnabled()).isTrue();
     }
@@ -45,7 +43,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void upsellMidTierIfUpsellAvailable() {
-        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
 
         assertThat(featureOperations.upsellMidTier()).isTrue();
     }
@@ -57,44 +55,44 @@ public class FeatureOperationsTest {
 
     @Test
     public void upsellOfflineContentIfAvailableForMidTierAndMidTierIsAvailable() {
-        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
-        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
-        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.MID_TIER));
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isTrue();
     }
 
     @Test
     public void doNotUpsellOfflineContentIfAvailableForMidTierButMidTierIsNotAvailable() {
-        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
-        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
-        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(new ArrayList<String>());
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.MID_TIER));
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<String>());
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
     public void doNotUpsellOfflineContentIfUnavailableForMidTier() {
-        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(false);
-        when(featureStorage.getPlans("offline_sync")).thenReturn(new ArrayList<String>());
-        when(planStorage.getList(FeatureOperations.UPSELLS)).thenReturn(Arrays.asList("mid_tier"));
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<String>());
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
     public void doNotUpsellOfflineContentIfAlreadyEnabled() {
-        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
-        when(featureStorage.getPlans("offline_sync")).thenReturn(Arrays.asList("mid_tier"));
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.MID_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
 
     @Test
     public void getPlanReturnsStoredPlan() {
-        when(planStorage.get(eq("plan"), anyString())).thenReturn("mid_tier");
+        when(planStorage.getPlan()).thenReturn(Plan.MID_TIER);
 
-        assertThat(featureOperations.getPlan()).isEqualTo("mid_tier");
+        assertThat(featureOperations.getPlan()).isEqualTo(Plan.MID_TIER);
     }
 
 }
