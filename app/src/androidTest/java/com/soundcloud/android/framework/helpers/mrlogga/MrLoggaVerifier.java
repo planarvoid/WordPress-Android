@@ -26,6 +26,8 @@ public class MrLoggaVerifier {
     }
 
     public void stopLogging() {
+        // This is a temporary solution  
+        // https://github.com/soundcloud/mr-logger-logger/issues/29
         waiter.waitFiveSeconds();
         waiter.waitFiveSeconds();
 
