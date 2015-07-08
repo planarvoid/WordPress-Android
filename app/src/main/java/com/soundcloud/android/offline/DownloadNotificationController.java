@@ -69,9 +69,7 @@ class DownloadNotificationController {
     }
 
     public void onDownloadCancel(DownloadResult cancelled) {
-        if (completed > 0) {
-            completed--;
-        }
+        completed = Math.max(completed - 1, 0);
 
         if (totalDownloads > 0) {
             totalDownloads--;
