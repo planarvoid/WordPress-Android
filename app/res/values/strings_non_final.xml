@@ -33,7 +33,7 @@
     <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
     <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
     <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
-    <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
+    <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
     <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
 
     <string name="payments_sign_out">Sign out</string>
