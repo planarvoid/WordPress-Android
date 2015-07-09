@@ -4,7 +4,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -56,7 +56,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadableHeaderView.onViewCreated(engagementsView);
     }
 
-    void show(DownloadState state) {
+    void show(OfflineState state) {
         downloadableHeaderView.show(state);
     }
 

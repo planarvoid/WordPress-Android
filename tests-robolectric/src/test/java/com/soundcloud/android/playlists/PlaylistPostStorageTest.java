@@ -9,7 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.likes.ApiLike;
@@ -166,13 +166,13 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     private PropertySet createPostAndRequestedPropertySet(ApiPlaylist postedPlaylistRequested) {
         return createPostPropertySet(postedPlaylistRequested)
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
     }
 
     private PropertySet createPostAndDownloadedPropertySet(ApiPlaylist postedPlaylistDownloaded) {
         return createPostPropertySet(postedPlaylistDownloaded)
                     .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                    .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+                    .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
     }
 
     private ApiPlaylist insertPlaylistWithRequestedDownload(Date postedDate, long requestedAt) {

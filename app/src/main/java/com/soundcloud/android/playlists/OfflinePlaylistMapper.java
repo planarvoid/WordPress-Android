@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
@@ -16,8 +16,8 @@ public abstract class OfflinePlaylistMapper extends PlaylistMapper {
         final boolean isMarkedForOffline = cursorReader.getBoolean(IS_MARKED_FOR_OFFLINE);
         propertySet.put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
         if (isMarkedForOffline) {
-            final DownloadState downloadState = cursorReader.getBoolean(HAS_PENDING_DOWNLOAD_REQUEST) ? DownloadState.REQUESTED : DownloadState.DOWNLOADED;
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, downloadState);
+            final OfflineState offlineState = cursorReader.getBoolean(HAS_PENDING_DOWNLOAD_REQUEST) ? OfflineState.REQUESTED : OfflineState.DOWNLOADED;
+            propertySet.put(OfflineProperty.OFFLINE_STATE, offlineState);
         }
         return propertySet;
     }

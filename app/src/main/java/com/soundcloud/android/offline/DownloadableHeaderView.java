@@ -34,13 +34,13 @@ public class DownloadableHeaderView {
         }
     }
 
-    public void show(DownloadState downloadState) {
-        downloadStateView.setState(downloadState);
-        updateHeaderText(downloadState);
+    public void show(OfflineState offlineState) {
+        downloadStateView.setState(offlineState);
+        updateHeaderText(offlineState);
     }
 
-    private void updateHeaderText(DownloadState downloadState) {
-        if (downloadState == DownloadState.DOWNLOADING) {
+    private void updateHeaderText(OfflineState offlineState) {
+        if (offlineState == OfflineState.DOWNLOADING) {
             headerView.setText(resources.getString(R.string.offline_update_in_progress));
         } else {
             headerView.setText(headerText);

@@ -22,7 +22,7 @@ public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<CurrentD
             final Urn urn = item.getEntityUrn();
             if (event.entities.contains(urn)){
                 changed = true;
-                item.update(PropertySet.from(OfflineProperty.DOWNLOAD_STATE.bind(event.kind)));
+                item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.kind)));
             }
         }
         if (changed) {

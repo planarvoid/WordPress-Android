@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 
 import android.content.res.Resources;
@@ -41,7 +41,7 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(playlistItem.getDownloadState());
         } else {
-            downloadProgressIcon.setState(DownloadState.NO_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NO_OFFLINE);
         }
     }
 }

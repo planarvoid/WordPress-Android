@@ -199,7 +199,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         operations.clearOfflineContent().subscribe();
 
         CurrentDownloadEvent publishedEvent = eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD);
-        assertThat(publishedEvent.kind).isEqualTo(DownloadState.NO_OFFLINE);
+        assertThat(publishedEvent.kind).isEqualTo(OfflineState.NO_OFFLINE);
         assertThat(publishedEvent.entities).contains(Urn.forTrack(123), Urn.forPlaylist(1234));
     }
 
@@ -216,30 +216,30 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     public void getLikedTracksDownloadStateReturnsNoOfflineWhenOfflineLikedTrackNotEnabled() {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
 
-        final TestObserver<DownloadState> observer = new TestObserver<>();
+        final TestObserver<OfflineState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.NO_OFFLINE);
+        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.NO_OFFLINE);
     }
 
     @Test
     public void getLikedTracksDownloadStateReturnsRequestedWhenPendingRequestsExists() {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
-        final TestObserver<DownloadState> observer = new TestObserver<>();
+        final TestObserver<OfflineState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.REQUESTED);
+        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.REQUESTED);
     }
 
     @Test
     public void getLikedTracksDownloadStateReturnsDownloadedWhenNoPendingRequest() {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        final TestObserver<DownloadState> observer = new TestObserver<>();
+        final TestObserver<OfflineState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.DOWNLOADED);
+        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.DOWNLOADED);
     }
 
     @Test

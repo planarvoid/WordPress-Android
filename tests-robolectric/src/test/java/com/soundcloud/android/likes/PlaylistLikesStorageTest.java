@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -160,14 +160,14 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
     private PropertySet expectedDownloadRequestedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
         return expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt)
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
 
     }
 
     private PropertySet expectedDownloadedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
         return expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt)
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
 
     }
 

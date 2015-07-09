@@ -14,7 +14,7 @@ public class DownloadImageView extends ImageView {
     private final Drawable downloading;
     private final Drawable downloaded;
 
-    private DownloadState downloadState;
+    private OfflineState offlineState;
 
     public DownloadImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -26,19 +26,19 @@ public class DownloadImageView extends ImageView {
     }
 
     public boolean isUnavailable() {
-        return downloadState == DownloadState.UNAVAILABLE;
+        return offlineState == OfflineState.UNAVAILABLE;
     }
 
     public boolean isRequested() {
-        return downloadState == DownloadState.REQUESTED;
+        return offlineState == OfflineState.REQUESTED;
     }
 
     public boolean isDownloading() {
-        return downloadState == DownloadState.DOWNLOADING;
+        return offlineState == OfflineState.DOWNLOADING;
     }
 
     public boolean isDownloaded() {
-        return downloadState == DownloadState.DOWNLOADED;
+        return offlineState == OfflineState.DOWNLOADED;
     }
 
     private void setNoOfflineState() {
@@ -58,8 +58,8 @@ public class DownloadImageView extends ImageView {
         setImageDrawable(drawable);
     }
 
-    public void setState(DownloadState state) {
-        downloadState = state;
+    public void setState(OfflineState state) {
+        offlineState = state;
         switch (state) {
             case NO_OFFLINE:
                 setNoOfflineState();

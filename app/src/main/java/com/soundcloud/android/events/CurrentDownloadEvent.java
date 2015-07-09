@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import rx.functions.Func1;
 
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.List;
 
 public final class CurrentDownloadEvent {
-    public static final Func1<CurrentDownloadEvent, DownloadState> TO_DOWNLOAD_STATE = new Func1<CurrentDownloadEvent, DownloadState>() {
+    public static final Func1<CurrentDownloadEvent, OfflineState> TO_DOWNLOAD_STATE = new Func1<CurrentDownloadEvent, OfflineState>() {
         @Override
-        public DownloadState call(CurrentDownloadEvent event) {
+        public OfflineState call(CurrentDownloadEvent event) {
             return event.kind;
         }
     };
@@ -26,61 +26,61 @@ public final class CurrentDownloadEvent {
         }
     };
 
-    public final DownloadState kind;
+    public final OfflineState kind;
     public final List<Urn> entities;
     public final boolean isLikedTracks;
 
-    private CurrentDownloadEvent(DownloadState kind, boolean isLikedTracks, List<Urn> entities) {
+    private CurrentDownloadEvent(OfflineState kind, boolean isLikedTracks, List<Urn> entities) {
         this.kind = kind;
         this.entities = Collections.unmodifiableList(entities);
         this.isLikedTracks = isLikedTracks;
     }
 
     public static CurrentDownloadEvent idle() {
-        return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, false, Collections.<Urn>emptyList());
+        return new CurrentDownloadEvent(OfflineState.NO_OFFLINE, false, Collections.<Urn>emptyList());
     }
 
     public static CurrentDownloadEvent downloaded(boolean isLikedTrack, List<Urn> urns) {
-        return new CurrentDownloadEvent(DownloadState.DOWNLOADED, isLikedTrack, urns);
+        return new CurrentDownloadEvent(OfflineState.DOWNLOADED, isLikedTrack, urns);
     }
 
     public static CurrentDownloadEvent downloaded(List<DownloadRequest> requests) {
-        return create(DownloadState.DOWNLOADED, requests);
+        return create(OfflineState.DOWNLOADED, requests);
     }
 
     public static CurrentDownloadEvent unavailable(boolean isLikedTrack, List<Urn> urns) {
-        return new CurrentDownloadEvent(DownloadState.UNAVAILABLE, isLikedTrack, urns);
+        return new CurrentDownloadEvent(OfflineState.UNAVAILABLE, isLikedTrack, urns);
     }
 
     public static CurrentDownloadEvent unavailable(List<DownloadRequest> requests) {
-        return create(DownloadState.UNAVAILABLE, requests);
+        return create(OfflineState.UNAVAILABLE, requests);
     }
 
     public static CurrentDownloadEvent downloading(DownloadRequest requests) {
-        return create(DownloadState.DOWNLOADING, Arrays.asList(requests));
+        return create(OfflineState.DOWNLOADING, Arrays.asList(requests));
     }
 
     public static CurrentDownloadEvent downloadRequestRemoved(List<DownloadRequest> requests) {
-        return create(DownloadState.NO_OFFLINE, requests);
+        return create(OfflineState.NO_OFFLINE, requests);
     }
 
     public static CurrentDownloadEvent downloadRemoved(List<Urn> requests) {
-        return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, false, requests);
+        return new CurrentDownloadEvent(OfflineState.NO_OFFLINE, false, requests);
     }
 
     public static CurrentDownloadEvent downloadRequested(boolean isLikedTrack, List<Urn> urns) {
-        return new CurrentDownloadEvent(DownloadState.REQUESTED, isLikedTrack, urns);
+        return new CurrentDownloadEvent(OfflineState.REQUESTED, isLikedTrack, urns);
     }
 
     public static CurrentDownloadEvent downloadRequested(List<DownloadRequest> requests) {
-        return create(DownloadState.REQUESTED, requests);
+        return create(OfflineState.REQUESTED, requests);
     }
 
     public static CurrentDownloadEvent offlineContentRemoved(List<Urn> urns) {
-        return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, true, urns);
+        return new CurrentDownloadEvent(OfflineState.NO_OFFLINE, true, urns);
     }
 
-    private static CurrentDownloadEvent create(DownloadState kind, List<DownloadRequest> requests) {
+    private static CurrentDownloadEvent create(OfflineState kind, List<DownloadRequest> requests) {
         boolean inLikedTracks = false;
         final List<Urn> entities = new ArrayList<>();
         for (DownloadRequest request : requests) {

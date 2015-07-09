@@ -3,7 +3,7 @@ package com.soundcloud.android.tracks;
 import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -66,8 +66,8 @@ public class TrackItem extends PlayableItem {
         return source.get(TrackProperty.DURATION);
     }
 
-    public DownloadState getDownloadedState() {
-        return source.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+    public OfflineState getDownloadedState() {
+        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
     }
 
     public boolean isMidTier() {

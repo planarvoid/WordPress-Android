@@ -22,13 +22,13 @@ public class DownloadStateMapper extends RxResultMapper<PropertySet> {
 
         final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
         } else if (isMostRecentDate(removedAt, requestedAt, downloadedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
         } else if (isMostRecentDate(downloadedAt, requestedAt, removedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         } else if (isMostRecentDate(unavailableAt, requestedAt, removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.UNAVAILABLE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
         }
         return propertySet;
     }

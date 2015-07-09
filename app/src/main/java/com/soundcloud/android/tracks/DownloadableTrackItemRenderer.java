@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.view.View;
@@ -43,7 +43,7 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(track.getDownloadedState());
         } else {
-            downloadProgressIcon.setState(DownloadState.NO_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NO_OFFLINE);
         }
     }
 }

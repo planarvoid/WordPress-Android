@@ -2,7 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -132,15 +132,15 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
     }
 
     private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
     }
 
     private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
     }
 
     private PropertySet expectedMidTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {

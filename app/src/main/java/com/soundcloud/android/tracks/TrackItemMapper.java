@@ -5,7 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
@@ -66,9 +66,9 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         final Date downloadedAt = getDateOr(cursorReader, SoundView.OFFLINE_DOWNLOADED_AT, defaultDate);
 
         if (isMostRecentDate(downloadedAt, removedAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         } else if (isMostRecentDate(removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
         }
     }
 

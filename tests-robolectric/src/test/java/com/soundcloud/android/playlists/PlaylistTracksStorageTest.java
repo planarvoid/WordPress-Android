@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
@@ -183,11 +183,11 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         expect(tracks).toContain(
                 fromApiTrack(apiTrack1)
-                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED),
+                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED),
                 fromApiTrack(apiTrack2)
-                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED),
+                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED),
                 fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE)
+                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE)
         );
     }
 

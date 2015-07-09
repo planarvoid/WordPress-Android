@@ -226,11 +226,11 @@ public class OfflinePlaybackOperationsTest {
     }
 
     private PropertySet downloadedTrack() {
-        return PropertySet.from(OfflineProperty.DOWNLOAD_STATE.bind(DownloadState.DOWNLOADED));
+        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.DOWNLOADED));
     }
 
     private PropertySet removedTrack() {
-        return PropertySet.from(OfflineProperty.DOWNLOAD_STATE.bind(DownloadState.NO_OFFLINE));
+        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE));
     }
 
     private PropertySet notDownloadedTrack() {

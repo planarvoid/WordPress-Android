@@ -14,7 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -166,7 +166,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     private final class CurrentDownloadSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
         @Override
         public void onNext(final CurrentDownloadEvent event) {
-            if (event.kind == DownloadState.DOWNLOADED) {
+            if (event.kind == OfflineState.DOWNLOADED) {
                 refreshStoragePreference();
             }
         }

@@ -1,5 +1,5 @@
 package com.soundcloud.android.offline;
 
-public enum DownloadState {
+public enum OfflineState {
     NO_OFFLINE, REQUESTED, DOWNLOADING, DOWNLOADED, UNAVAILABLE
 }

@@ -9,7 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -153,7 +153,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         final PropertySet expected = TestPropertySets
                 .fromApiPlaylist(apiPlaylist, false, false, true, false)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
 
         expect(playlist).toEqual(expected);
     }
@@ -168,7 +168,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         final PropertySet expected = TestPropertySets
                 .fromApiPlaylist(apiPlaylist, false, false, true, false)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
 
         expect(playlist).toEqual(expected);
     }
@@ -187,7 +187,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         final PropertySet expected = TestPropertySets
                 .fromApiPlaylist(downloadedPlaylist, false, false, true, false)
-                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
 
         expect(result).toEqual(expected);
     }

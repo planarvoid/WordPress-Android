@@ -18,7 +18,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -331,9 +331,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
+    private class DownloadStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
-        public void onNext(DownloadState state) {
+        public void onNext(OfflineState state) {
             playlistEngagementsView.show(state);
         }
     }
@@ -342,7 +342,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         @Override
         public void onNext(PropertySet entityChanges) {
             if (!entityChanges.get(Collection.IS_MARKED_FOR_OFFLINE)) {
-                playlistEngagementsView.show(DownloadState.NO_OFFLINE);
+                playlistEngagementsView.show(OfflineState.NO_OFFLINE);
             }
         }
     }

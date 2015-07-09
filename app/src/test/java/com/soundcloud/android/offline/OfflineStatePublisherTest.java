@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class DownloadStatePublisherTest extends AndroidUnitTest {
+public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     private final DownloadRequest downloadRequest1 = createDownloadRequest(Urn.forTrack(123L));
     private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));

@@ -60,9 +60,9 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<List<Urn>, Observable<DownloadState>> toDownloadState = new Func1<List<Urn>, Observable<DownloadState>>() {
+    private final Func1<List<Urn>, Observable<OfflineState>> toDownloadState = new Func1<List<Urn>, Observable<OfflineState>>() {
         @Override
-        public Observable<DownloadState> call(List<Urn> urns) {
+        public Observable<OfflineState> call(List<Urn> urns) {
             return getDownloadState(urns);
         }
     };
@@ -181,22 +181,22 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<DownloadState> getLikedTracksDownloadStateFromStorage() {
+    public Observable<OfflineState> getLikedTracksDownloadStateFromStorage() {
         if (!settingsStorage.isOfflineLikedTracksEnabled()) {
-            return Observable.just(DownloadState.NO_OFFLINE);
+            return Observable.just(OfflineState.NO_OFFLINE);
         }
 
         return getRequestedOrDownloaded(tracksStorage.pendingLikedTracksUrns()).subscribeOn(scheduler);
     }
 
-    private Observable<DownloadState> getRequestedOrDownloaded(Observable<List<Urn>> requestedTracks) {
+    private Observable<OfflineState> getRequestedOrDownloaded(Observable<List<Urn>> requestedTracks) {
         return requestedTracks.flatMap(toDownloadState);
     }
 
-    private Observable<DownloadState> getDownloadState(List<Urn> urns) {
+    private Observable<OfflineState> getDownloadState(List<Urn> urns) {
         if (urns.isEmpty()) {
-            return Observable.just(DownloadState.DOWNLOADED);
+            return Observable.just(OfflineState.DOWNLOADED);
         }
-        return Observable.just(DownloadState.REQUESTED);
+        return Observable.just(OfflineState.REQUESTED);
     }
 }

@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -49,8 +49,8 @@ public class UpdateCurrentDownloadSubscriberTest {
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
         subscriber.onNext(event);
 
-        expect(track1.get(OfflineProperty.DOWNLOAD_STATE)).toEqual(DownloadState.DOWNLOADING);
-        expect(track2.contains(OfflineProperty.DOWNLOAD_STATE)).toBeFalse();
+        expect(track1.get(OfflineProperty.OFFLINE_STATE)).toEqual(OfflineState.DOWNLOADING);
+        expect(track2.contains(OfflineProperty.OFFLINE_STATE)).toBeFalse();
         verify(adapter).notifyDataSetChanged();
     }
 
@@ -64,8 +64,8 @@ public class UpdateCurrentDownloadSubscriberTest {
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Arrays.asList(TRACK1));
         subscriber.onNext(event);
 
-        expect(track1.get(OfflineProperty.DOWNLOAD_STATE)).toEqual(DownloadState.DOWNLOADED);
-        expect(track2.contains(OfflineProperty.DOWNLOAD_STATE)).toBeFalse();
+        expect(track1.get(OfflineProperty.OFFLINE_STATE)).toEqual(OfflineState.DOWNLOADED);
+        expect(track2.contains(OfflineProperty.OFFLINE_STATE)).toBeFalse();
         verify(adapter).notifyDataSetChanged();
     }
 
