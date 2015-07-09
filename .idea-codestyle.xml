@@ -15,6 +15,7 @@
       <emptyLine />
     </value>
   </option>
+  <option name="JD_P_AT_EMPTY_LINES" value="false" />
   <AndroidXmlCodeStyleSettings>
     <option name="USE_CUSTOM_SETTINGS" value="true" />
   </AndroidXmlCodeStyleSettings>
