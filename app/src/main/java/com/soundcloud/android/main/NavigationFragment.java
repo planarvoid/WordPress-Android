@@ -9,6 +9,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -44,23 +46,21 @@ public class NavigationFragment extends Fragment {
     private static final int NO_TEXT = -1;
     private static final int NO_IMAGE = -1;
 
-    // Selectable nav rows
-    private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
-            EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
-
     private static final String STREAM = "stream";
     private static final String SOUNDCLOUD_COM = "soundcloud.com";
 
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
     @Inject FeatureOperations featureOperations;
+    @Inject FeatureFlags featureFlags;
 
     private NavigationCallbacks callbacks;
     private ListView listView;
     private View upsell;
     private ProfileViewHolder profileViewHolder;
 
-    private int currentSelectedPosition = NavItem.STREAM.ordinal();
+    private NavItem currentSelectedItem = NavItem.STREAM;
+    private NavigationAdapter adapter;
 
     public NavigationFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -68,10 +68,11 @@ public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                 FeatureOperations featureOperations) {
+                                 FeatureOperations featureOperations, FeatureFlags featureFlags) {
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -102,13 +103,13 @@ public class NavigationFragment extends Fragment {
         if (ScTextUtils.isNotBlank(action)) {
             switch (action) {
                 case Actions.STREAM:
-                    selectItem(NavItem.STREAM.ordinal());
+                    selectItem(NavItem.STREAM);
                     return true;
                 case Actions.LIKES:
-                    selectItem(NavItem.LIKES.ordinal());
+                    selectItem(NavItem.LIKES);
                     return true;
                 case Actions.EXPLORE:
-                    selectItem(NavItem.EXPLORE.ordinal());
+                    selectItem(NavItem.EXPLORE);
                     return true;
             }
         }
@@ -116,10 +117,10 @@ public class NavigationFragment extends Fragment {
         final Uri data = intent.getData();
         if (data != null) {
             if (shouldGoToStream(data)) {
-                selectItem(NavItem.STREAM.ordinal());
+                selectItem(NavItem.STREAM);
                 return true;
             } else if (data.getLastPathSegment().equals("explore")) {
-                selectItem(NavItem.EXPLORE.ordinal());
+                selectItem(NavItem.EXPLORE);
                 return true;
             } else if (ResolveActivity.accept(data, getResources())) {
                 // facebook deeplink, as they need to be routed through the launcher activity
@@ -157,7 +158,7 @@ public class NavigationFragment extends Fragment {
         // Update the checked state of the nav items to the last known position. It's important to do this in onResume
         // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
         // not update it to the last selected content fragment
-        listView.setItemChecked(currentSelectedPosition, true);
+        listView.setItemChecked(adapter.getPosition(currentSelectedItem), true);
         updateUpsellVisibility();
     }
 
@@ -167,7 +168,7 @@ public class NavigationFragment extends Fragment {
             upsell.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    selectItem(NavItem.UPSELL.ordinal());
+                    selectItem(NavItem.UPSELL);
                 }
             });
         } else {
@@ -182,14 +183,14 @@ public class NavigationFragment extends Fragment {
     }
 
     public void storeState(Bundle bundle) {
-        bundle.putInt(STATE_SELECTED_POSITION, currentSelectedPosition);
+        bundle.putInt(STATE_SELECTED_POSITION, currentSelectedItem.ordinal());
     }
 
     public void initState(Bundle bundle) {
         if (bundle != null) {
-            selectItem(bundle.getInt(STATE_SELECTED_POSITION));
+            selectItem(NavItem.values()[bundle.getInt(STATE_SELECTED_POSITION)]);
         } else if (!handleIntent(getActivity().getIntent())) {
-            selectItem(currentSelectedPosition);
+            selectItem(currentSelectedItem);
         }
     }
 
@@ -213,20 +214,20 @@ public class NavigationFragment extends Fragment {
         actionBar.setHomeButtonEnabled(false);
     }
 
-    protected void selectItem(int position) {
-        adjustSelectionIfNecessary(position);
+    protected void selectItem(NavItem item) {
+        adjustSelectionIfNecessary(item);
 
         if (callbacks != null) {
-            callbacks.onSelectItem(position);
+            callbacks.onSelectItem(item);
         }
         getActivity().supportInvalidateOptionsMenu();
     }
 
-    protected void smoothSelectItem(int position) {
-        adjustSelectionIfNecessary(position);
+    protected void smoothSelectItem(int position, NavItem item) {
+        adjustSelectionIfNecessary(item);
 
         if (callbacks != null) {
-            callbacks.onSmoothSelectItem(position);
+            callbacks.onSmoothSelectItem(item);
         }
         getActivity().supportInvalidateOptionsMenu();
     }
@@ -240,7 +241,7 @@ public class NavigationFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                smoothSelectItem(position);
+                smoothSelectItem(position, navItemAtPosition(position));
             }
         });
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -248,15 +249,18 @@ public class NavigationFragment extends Fragment {
         View userProfileHeader = setupUserProfileHeader(inflater, listView);
         listView.addHeaderView(userProfileHeader);
 
-        int i = 0;
-        NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
-        for (NavItem navItem : TEXT_NAV_ITEMS) {
-            data[i++] = navItem;
-        }
-
-        listView.setAdapter(new NavigationAdapter(getActivity(), R.layout.nav_item, data));
+        adapter = new NavigationAdapter(getActivity(), R.layout.nav_item, getEnabledNavItems());
+        listView.setAdapter(adapter);
 
         return listView;
+    }
+
+    private NavItem navItemAtPosition(int position) {
+        if (position == 0) {
+            return NavItem.PROFILE;
+        } else {
+            return (NavItem) listView.getAdapter().getItem(position);
+        }
     }
 
     private View setupUserProfileHeader(LayoutInflater inflater, ListView listView) {
@@ -274,26 +278,28 @@ public class NavigationFragment extends Fragment {
         return view;
     }
 
-    private void adjustSelectionIfNecessary(int position) {
-        if (NavItem.isSelectable(position)) {
-            currentSelectedPosition = position;
+    private void adjustSelectionIfNecessary(NavItem item) {
+        if (NavItem.isSelectable(item)) {
+            currentSelectedItem = item;
         }
     }
 
     @VisibleForTesting
-    int getCurrentSelectedPosition() {
-        return currentSelectedPosition;
+    NavItem getCurrentSelectedItem() {
+        return currentSelectedItem;
     }
 
     public enum NavItem {
         PROFILE(NO_TEXT, NO_IMAGE),
+        STATIONS(R.string.side_menu_stations, NO_IMAGE),
         STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
         EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
         LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
         PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states),
-        UPSELL(NO_TEXT, NO_IMAGE);
+        UPSELL(NO_TEXT, NO_IMAGE),
+        NONE(NO_TEXT, NO_IMAGE);
 
-        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STREAM, EXPLORE, LIKES, PLAYLISTS);
+        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STATIONS, STREAM, EXPLORE, LIKES, PLAYLISTS);
 
         private final int textId;
         private final int imageId;
@@ -303,8 +309,16 @@ public class NavigationFragment extends Fragment {
             this.imageId = imageId;
         }
 
-        public static boolean isSelectable(int position) {
-            return SELECTABLE.contains(NavItem.values()[position]);
+        public static boolean isSelectable(NavItem item) {
+            return SELECTABLE.contains(item);
+        }
+    }
+
+    public NavItem[] getEnabledNavItems() {
+        if (featureFlags.isEnabled(Flag.STATIONS)) {
+            return new NavItem[]{NavItem.STATIONS, NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
+        } else {
+            return new NavItem[]{NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
         }
     }
 
@@ -313,9 +327,9 @@ public class NavigationFragment extends Fragment {
      */
     public interface NavigationCallbacks {
 
-        void onSmoothSelectItem(int position);
+        void onSmoothSelectItem(NavItem item);
 
-        void onSelectItem(int position);
+        void onSelectItem(NavItem item);
     }
 
     private static class ProfileViewHolder {
