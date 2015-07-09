@@ -37,7 +37,7 @@ public class OfflineUsageTest {
 
     @Test
     public void shouldReturnCurrentLimit() {
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(OFFLINE_LIMIT);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(OFFLINE_LIMIT);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class OfflineUsageTest {
         offlineUsage.setOfflineLimitPercentage(50);
 
         assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(50);
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(4L * GB);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(4L * GB);
     }
 
     @Test
@@ -93,15 +93,15 @@ public class OfflineUsageTest {
         offlineUsage.setOfflineLimitPercentage(2);
 
         assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(6);
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo((long) (0.5 * GB));
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo((long) (0.5 * GB));
     }
 
     @Test
-    public void shouldSetMaximumLimitPercentage() {
-        offlineUsage.setOfflineLimitPercentage(95);
+    public void shouldSetUnlimitedPercentage() {
+        offlineUsage.setOfflineLimitPercentage(100);
 
         assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(100);
-        assertThat(offlineUsage.isMaximumLimit()).isTrue();
+        assertThat(offlineUsage.isUnlimited()).isTrue();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class OfflineUsageTest {
         boolean result = offlineUsage.setOfflineLimitPercentage(5);
 
         assertThat(result).isFalse();
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(offlineStorageUsed);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(offlineStorageUsed);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class OfflineUsageTest {
 
         assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(1000l);
         assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(3000l);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(3000l);
         assertThat(offlineUsage.getDeviceTotal()).isEqualTo(4000l);
     }
 
@@ -142,7 +142,7 @@ public class OfflineUsageTest {
         assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(500l);
         assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
         assertThat(offlineUsage.getDeviceTotal()).isEqualTo(3500l);
-        assertThat(offlineUsage.getOfflineLimit()).isEqualTo(2500l);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(2500l);
     }
 
 }
