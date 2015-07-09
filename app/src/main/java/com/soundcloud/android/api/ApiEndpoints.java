@@ -75,6 +75,7 @@ public enum ApiEndpoints {
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
+    RESOLVE("/resolve"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     BULK_FOLLOW_USERS("/me/suggested/users"),

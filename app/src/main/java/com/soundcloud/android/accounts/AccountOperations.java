@@ -330,6 +330,12 @@ public class AccountOperations extends ScheduledOperations {
         return loggedInUser != null && loggedInUser.isCrawler();
     }
 
+    public void clearCrawler() {
+        if (isCrawler()) {
+            clearLoggedInUser();
+        }
+    }
+
     private boolean isAnonymousUser() {
         return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
     }

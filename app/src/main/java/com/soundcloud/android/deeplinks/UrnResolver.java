@@ -14,11 +14,10 @@ class UrnResolver {
     private static final String SOUNDS_TYPE = "sounds|tracks";
     private static final String PLAYLISTS_TYPE = "playlists";
     private static final String USERS_TYPE = "users";
+    private static final String ALL_TYPES = SOUNDS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE;
 
-    private static final Pattern DEEP_LINK_PATTERN = Pattern.compile("^soundcloud://(" + SOUNDS_TYPE +
-            "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):(\\d+).*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern WEB_URN_PATTERN = Pattern.compile("^soundcloud:(" + SOUNDS_TYPE +
-            "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):(\\d+).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DEEP_LINK_PATTERN = Pattern.compile("^soundcloud://(" + ALL_TYPES + "):(\\d+).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern WEB_URN_PATTERN = Pattern.compile("^soundcloud:(" + ALL_TYPES + "):(\\d+).*", Pattern.CASE_INSENSITIVE);
 
     Urn toUrn(@NotNull Uri uri) {
         final String urnString = uri.toString();

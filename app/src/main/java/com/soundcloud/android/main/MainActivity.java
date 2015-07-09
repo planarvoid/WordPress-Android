@@ -111,7 +111,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onBackPressed() {
-        if (!(playerController.handleBackPressed() || navigationFragment.handleBackPressed())) {
+        if (accountOperations.isCrawler() || !(playerController.handleBackPressed() || navigationFragment.handleBackPressed())) {
             super.onBackPressed();
         }
     }

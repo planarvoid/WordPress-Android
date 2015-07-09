@@ -152,7 +152,7 @@ public class MixedItemClickListenerTest {
 
         listener.onItemClick(items, view, 2);
 
-        verify(navigator).openProfile(context, userItem.getEntityUrn(), searchQuerySourceInfo);
+        verify(navigator).openProfile(context, userItem.getEntityUrn(), screen, searchQuerySourceInfo);
     }
 
     @Test
@@ -206,6 +206,6 @@ public class MixedItemClickListenerTest {
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).openProfile(context, userItem.getEntityUrn(), searchQuerySourceInfo);
+        verify(navigator).openProfile(context, userItem.getEntityUrn(), screen, searchQuerySourceInfo);
     }
 }

@@ -73,7 +73,7 @@ public class MixedItemClickListener {
         if (entityUrn.isPlaylist()) {
             navigator.openPlaylist(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else if (entityUrn.isUser()) {
-            navigator.openProfile(view.getContext(), entityUrn, searchQuerySourceInfo);
+            navigator.openProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn in " + this.getClass().getSimpleName() + ": " + entityUrn);
         }
