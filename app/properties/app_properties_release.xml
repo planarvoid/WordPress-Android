@@ -28,5 +28,6 @@
     <bool name="feature_new_profile">false</bool>
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_follow_user_search">false</bool>
+    <bool name="feature_stations">false</bool>
 
 </resources>

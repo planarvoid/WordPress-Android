@@ -482,6 +482,11 @@
     <string name="pref_extras_skippy">Force Experimental Player</string>
     <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 
+    <!-- __STATIONS -->
+    <string name="start_radio">Start radio</string>
+    <string name="unable_to_start_radio">Unable to start radio</string>
+    <string name="starting_radio">Starting radio...</string>
+
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>

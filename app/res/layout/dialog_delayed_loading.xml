@@ -5,12 +5,13 @@
     android:gravity="center"
     android:padding="12dp">
     
-    <com.soundcloud.android.tracks.LoadingRelatedTracksView
-        android:id="@+id/loading_tracks_animation"
+    <com.soundcloud.android.tracks.LoadingAnimationView
+        android:id="@+id/loading_animation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/loading_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:theme="@style/LoadingRelatedTracks.Text" />

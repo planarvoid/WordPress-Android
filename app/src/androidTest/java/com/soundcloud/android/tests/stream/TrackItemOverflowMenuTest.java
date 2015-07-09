@@ -66,4 +66,22 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         networkManagerClient.switchWifiOn();
     }
 
+    public void testStartRadio() {
+        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+
+        assertThat(player, is(visible()));
+    }
+
+    public void testStartRadioVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
+        toastObserver.observe();
+        networkManagerClient.switchWifiOff();
+
+        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+
+        assertThat(playerElement, is(not(visible())));
+        assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_radio)));
+
+        networkManagerClient.switchWifiOn();
+    }
+
 }
