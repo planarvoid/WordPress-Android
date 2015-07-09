@@ -101,6 +101,7 @@ android {
       debuggable false
       minifyEnabled false
       signingConfig signingConfigs.release
+      multiDexEnabled true
     }
 
     release.initWith(buildTypes.releaseNoProguard)
@@ -109,7 +110,8 @@ android {
       minifyEnabled true
       shrinkResources false
       zipAlignEnabled true
-      proguardFiles 'buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg'
+      multiDexEnabled false
+      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
     }
 
     release_non_play_store.initWith(buildTypes.release)
@@ -118,22 +120,18 @@ android {
       signingConfig signingConfigs.release
     }
 
-    beta.initWith(buildTypes.releaseNoProguard)
+    beta.initWith(buildTypes.release)
     beta {
       versionNameSuffix '-beta'
-      minifyEnabled true
-      shrinkResources false
-      zipAlignEnabled true
-      proguardFiles 'buildsystem/proguard.cfg'
+      proguardFiles = ['buildsystem/proguard.cfg']
     }
 
     alpha.initWith(buildTypes.release)
     alpha {
-      minifyEnabled true
       versionNameSuffix '-alpha'
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
-      proguardFiles 'buildsystem/proguard.cfg'
+      proguardFiles = ['buildsystem/proguard.cfg']
     }
 
     debug {
