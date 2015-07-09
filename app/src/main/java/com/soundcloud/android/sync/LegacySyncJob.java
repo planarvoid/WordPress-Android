@@ -2,12 +2,12 @@ package com.soundcloud.android.sync;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 
 import android.content.Context;
 import android.net.Uri;
@@ -90,15 +90,15 @@ public class LegacySyncJob implements SyncJob {
         }
 
         // make sure all requests going out on this thread have the background parameter set
-        PublicApiWrapper.setBackgroundMode(!isUI);
+        PublicApi.setBackgroundMode(!isUI);
 
         try {
             Log.d(TAG, "syncing " + contentUri);
             result = apiSyncerFactory.forContentUri(context, contentUri).syncContent(contentUri, action);
             syncStateManager.onSyncComplete(result, localCollection);
-        } catch (CloudAPI.InvalidTokenException e) {
+        } catch (InvalidTokenException e) {
             handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
-        } catch (PublicCloudAPI.UnexpectedResponseException e) {
+        } catch (UnexpectedResponseException e) {
             handleSyncException(ApiSyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
         } catch (IOException e) {
             handleSyncException(ApiSyncResult.fromIOException(contentUri), e);
@@ -109,7 +109,7 @@ public class LegacySyncJob implements SyncJob {
             handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
         } finally {
             // should be taken care of when thread dies, but needed for tests
-            PublicApiWrapper.setBackgroundMode(false);
+            PublicApi.setBackgroundMode(false);
         }
 
         Log.d(TAG, "executed sync on " + this);

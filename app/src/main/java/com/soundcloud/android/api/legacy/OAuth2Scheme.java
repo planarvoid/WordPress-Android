@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -26,14 +26,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class OAuth2Scheme implements AuthScheme {
+public class OAuth2Scheme implements AuthScheme {
     public Map<String, String> params;
     public HttpParams httpParams;
-    private final CloudAPI api;
+    private final PublicApi api;
 
     public static Pattern AUTHORIZATION_HEADER_PATTERN = Pattern.compile("^OAuth (\\w+)$");
 
-    public OAuth2Scheme(CloudAPI api, HttpParams httpParams) {
+    public OAuth2Scheme(PublicApi api, HttpParams httpParams) {
         this.api = api;
         this.httpParams = httpParams;
         this.params = new HashMap<>();
@@ -41,7 +41,7 @@ class OAuth2Scheme implements AuthScheme {
 
     @Override
     public String getSchemeName() {
-        return CloudAPI.OAUTH_SCHEME;
+        return PublicApi.OAUTH_SCHEME;
     }
 
     @Override
@@ -148,10 +148,10 @@ class OAuth2Scheme implements AuthScheme {
         }
     }
 
-    static class Factory implements AuthSchemeFactory {
-        private final CloudAPI api;
+    public static class Factory implements AuthSchemeFactory {
+        private final PublicApi api;
 
-        public Factory(CloudAPI api) {
+        public Factory(PublicApi api) {
             this.api = api;
         }
 
@@ -161,7 +161,7 @@ class OAuth2Scheme implements AuthScheme {
         }
     }
 
-    static class EmptyCredentials implements Credentials {
+    public static class EmptyCredentials implements Credentials {
         public static final Credentials INSTANCE = new EmptyCredentials();
 
         @Override

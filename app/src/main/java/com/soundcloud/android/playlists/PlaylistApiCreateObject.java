@@ -10,7 +10,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.api.Params;
+import com.soundcloud.android.api.legacy.Params;
 
 import java.util.ArrayList;
 import java.util.List;

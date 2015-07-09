@@ -13,7 +13,8 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_R
 import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
+
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public final class ApiRequestException extends Exception {
         return new ApiRequestException(RATE_LIMITED, request);
     }
 
-    public static ApiRequestException authError(ApiRequest request, CloudAPI.InvalidTokenException e) {
+    public static ApiRequestException authError(ApiRequest request, InvalidTokenException e) {
         return new ApiRequestException(AUTH_ERROR, request, e);
     }
 

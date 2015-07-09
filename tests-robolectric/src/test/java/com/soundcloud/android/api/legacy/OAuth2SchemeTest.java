@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -23,11 +23,11 @@ import java.io.IOException;
 
 public class OAuth2SchemeTest {
     OAuth2Scheme scheme;
-    CloudAPI api;
+    PublicApi api;
 
     @Before
     public void setup() {
-        api = mock(CloudAPI.class);
+        api = mock(PublicApi.class);
         scheme = new OAuth2Scheme(api, null);
     }
 

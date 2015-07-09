@@ -3,7 +3,7 @@ package com.soundcloud.android.api.legacy;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Endpoints;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -18,9 +18,9 @@ public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
     protected final List<String> errors = new ArrayList<>();
-    protected final PublicCloudAPI api;
+    protected final PublicApi api;
 
-    public AsyncApiTask(PublicCloudAPI api) {
+    public AsyncApiTask(PublicApi api) {
         this.api = api;
     }
 

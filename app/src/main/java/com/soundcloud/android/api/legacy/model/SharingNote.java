@@ -2,7 +2,7 @@ package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.json.Views;
 
 import android.os.Parcel;
@@ -67,6 +67,6 @@ public class SharingNote implements Parcelable {
 
     public String getDateString() {
         return created_at == null ? null :
-                PublicApiWrapper.CloudDateFormat.formatDate(created_at.getTime());
+                PublicApi.CloudDateFormat.formatDate(created_at.getTime());
     }
 }

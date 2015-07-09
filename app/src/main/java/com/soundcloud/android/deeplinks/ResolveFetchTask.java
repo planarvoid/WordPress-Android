@@ -3,7 +3,7 @@ package com.soundcloud.android.deeplinks;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -24,11 +24,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     private final ContentResolver contentResolver;
 
     private WeakReference<FetchModelTask.Listener<PublicApiResource>> listener;
-    private final PublicCloudAPI api;
+    private final PublicApi api;
     private final ApiClient apiClient;
     private Uri unresolvedUrl;
 
-    public ResolveFetchTask(PublicCloudAPI api, ContentResolver contentResolver, ApiClient apiClient) {
+    public ResolveFetchTask(PublicApi api, ContentResolver contentResolver, ApiClient apiClient) {
         this.api = api;
         this.apiClient = apiClient;
         this.contentResolver = contentResolver;

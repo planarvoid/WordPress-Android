@@ -16,7 +16,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class AsyncApiTaskTest {
     private List<String> parse(String input) throws IOException {
-        ObjectReader reader = PublicApiWrapper.buildObjectMapper().reader();
+        ObjectReader reader = PublicApi.buildObjectMapper().reader();
         return IOUtils.parseError(reader, new ByteArrayInputStream(input.getBytes()));
     }
 

@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.Friend;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -18,8 +18,8 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ import java.util.Set;
 public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
     @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
-    public ReturnData<T> load(PublicCloudAPI api, CollectionParams<T> params) {
+    public ReturnData<T> load(PublicApi api, CollectionParams<T> params) {
         final Context context = SoundCloudApplication.instance;
         final ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
@@ -63,7 +63,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                 // if we already have all the data, this is a NOP
                 try {
                     fetchAndStoreMissingCollectionItems(resolver, api, storedIds, params.getContent(), false);
-                } catch (CloudAPI.InvalidTokenException e) {
+                } catch (InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
                     responseCode = HttpStatus.SC_UNAUTHORIZED;
@@ -131,7 +131,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
      */
     // TODO really pass in api as parameter?
     @Deprecated
-    public int fetchAndStoreMissingCollectionItems(ContentResolver resolver, PublicCloudAPI api,
+    public int fetchAndStoreMissingCollectionItems(ContentResolver resolver, PublicApi api,
                                                    @NotNull List<Long> modelIds,
                                                    final Content content,
                                                    boolean ignoreStored) throws IOException {
@@ -146,7 +146,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
 
     // TODO really pass in api as parameter?
     @Deprecated
-    private List<PublicApiResource> fetchMissingCollectionItems(ContentResolver resolver, PublicCloudAPI api,
+    private List<PublicApiResource> fetchMissingCollectionItems(ContentResolver resolver, PublicApi api,
                                                                 @NotNull List<Long> modelIds,
                                                                 final Content content,
                                                                 boolean ignoreStored) throws IOException {

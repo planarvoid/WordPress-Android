@@ -1,14 +1,15 @@
 package com.soundcloud.android.collections.tasks;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
+
 import org.apache.http.HttpStatus;
 
 import android.content.Context;
@@ -18,7 +19,7 @@ import java.io.IOException;
 
 public class ActivitiesLoader implements CollectionLoader<Activity> {
     @Override
-    public ReturnData<Activity> load(PublicCloudAPI api, CollectionParams<Activity> params) {
+    public ReturnData<Activity> load(PublicApi api, CollectionParams<Activity> params) {
         final ActivitiesStorage storage = new ActivitiesStorage();
 
         boolean keepGoing = true;
@@ -40,7 +41,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
                         success = true;
                         newActivities = getOlderActivities(storage, params);
                     }
-                } catch (CloudAPI.InvalidTokenException e) {
+                } catch (InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
                     responseCode = HttpStatus.SC_UNAUTHORIZED;

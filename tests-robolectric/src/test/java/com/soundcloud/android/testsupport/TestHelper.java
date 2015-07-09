@@ -1,22 +1,15 @@
 package com.soundcloud.android.testsupport;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -40,8 +33,18 @@ import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-
 import org.apache.http.client.methods.HttpGet;
+
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,10 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-
 @Deprecated
 public class TestHelper {
     private TestHelper() {
@@ -67,7 +66,7 @@ public class TestHelper {
     }
 
     public static ObjectMapper getObjectMapper() {
-        return PublicApiWrapper.buildObjectMapper();
+        return PublicApi.buildObjectMapper();
     }
 
     public static Activities getActivities(String path) throws IOException {

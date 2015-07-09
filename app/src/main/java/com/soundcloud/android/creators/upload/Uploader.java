@@ -22,7 +22,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Params;
+import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 

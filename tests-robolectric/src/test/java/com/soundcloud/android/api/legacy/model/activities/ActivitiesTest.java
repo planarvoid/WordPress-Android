@@ -1,7 +1,7 @@
 package com.soundcloud.android.api.legacy.model.activities;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.legacy.PublicApiWrapper.CloudDateFormat.fromString;
+import static com.soundcloud.android.api.legacy.PublicApi.CloudDateFormat.fromString;
 import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 
 import com.soundcloud.android.SoundCloudApplication;

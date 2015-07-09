@@ -2,17 +2,15 @@ package com.soundcloud.android.framework;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.api.ApiWrapper;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import rx.Subscription;
 
 import android.accounts.Account;
@@ -41,7 +39,7 @@ public final class AccountAssistant {
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
 
-    protected static Token getToken(Context context, ApiWrapper apiWrapper, String username, String password) throws IOException {
+    protected static Token getToken(Context context, PublicApi apiWrapper, String username, String password) throws IOException {
         final Token token = apiWrapper.login(username, password);
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
@@ -140,15 +138,13 @@ public final class AccountAssistant {
         }
     }
 
-    static PublicApiUser getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
+    static PublicApiUser getLoggedInUser(PublicApi apiWrapper) throws IOException {
         final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
-        return PublicApiWrapper.buildObjectMapper().readValue(content, PublicApiUser.class);
+        return PublicApi.buildObjectMapper().readValue(content, PublicApiUser.class);
     }
 
-    static ApiWrapper createApiWrapper(Context context) {
-        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+    static PublicApi createApiWrapper(Context context) {
         waitForAccountOperationsToBeInjected(context);
-        final OAuth oAuth = new OAuth(application.getAccountOperations());
-        return new ApiWrapper(oAuth, application.getAccountOperations());
+        return new PublicApi(context);
     }
 }

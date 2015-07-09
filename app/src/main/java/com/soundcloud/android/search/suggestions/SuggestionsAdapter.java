@@ -7,7 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -18,7 +18,7 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +100,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions localSuggestions = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
-    public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
+    public SuggestionsAdapter(Context context, PublicApi api, ContentResolver contentResolver) {
         super(context, null, 0);
         this.contentResolver = contentResolver;
         this.context = context;
@@ -470,10 +470,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private static final class SuggestionsHandler extends Handler {
         private final WeakReference<SuggestionsAdapter> adapterRef;
-        private final PublicCloudAPI api;
+        private final PublicApi api;
 
 
-        public SuggestionsHandler(SuggestionsAdapter adapter, PublicCloudAPI api, Looper looper) {
+        public SuggestionsHandler(SuggestionsAdapter adapter, PublicApi api, Looper looper) {
             super(looper);
             adapterRef = new WeakReference<>(adapter);
             this.api = api;

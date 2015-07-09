@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import org.mockito.Mock;
 public class CollectionTaskTest {
     private CollectionTask collectionTask;
     @Mock
-    private PublicCloudAPI publicCloudApi;
+    private PublicApi publicCloudApi;
     @Mock
     private CollectionTask.Callback callback;
     @Mock

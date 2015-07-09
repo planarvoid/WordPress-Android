@@ -12,7 +12,7 @@ import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.api.Params;
+import com.soundcloud.android.api.legacy.Params;
 
 import android.os.Bundle;
 

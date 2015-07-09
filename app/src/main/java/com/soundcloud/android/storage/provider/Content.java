@@ -20,8 +20,8 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;

@@ -9,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -25,7 +24,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Endpoints;
+import com.soundcloud.android.api.legacy.Endpoints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -287,7 +286,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 }
             }
         }
-        final PublicCloudAPI api = new PublicApi(context);
+        final PublicApi api = PublicApi.getInstance(context);
         if (!trackUpdates.isEmpty()) {
             UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);

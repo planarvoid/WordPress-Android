@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 
 import static org.hamcrest.Matchers.containsString;
@@ -150,7 +150,7 @@ public class RequestTest {
         when(ent.getContent()).thenReturn(new ByteArrayInputStream("foo".getBytes()));
         when(resp.getEntity()).thenReturn(ent);
 
-        assertThat(Http.getString(resp), equalTo("foo"));
+        assertThat(com.soundcloud.android.api.legacy.Http.getString(resp), equalTo("foo"));
     }
 
     @Test

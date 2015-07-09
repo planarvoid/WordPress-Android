@@ -1,16 +1,16 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.soundcloud.android.api.legacy.AsyncApiTask;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 
 public class RecoverPasswordTask extends AsyncApiTask<String, Void, Boolean> {
-    public RecoverPasswordTask(PublicCloudAPI api) {
+    public RecoverPasswordTask(PublicApi api) {
         super(api);
     }
 

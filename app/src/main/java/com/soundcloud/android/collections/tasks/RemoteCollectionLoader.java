@@ -6,7 +6,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -34,7 +35,7 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
     }
 
     @Override
-    public ReturnData<T> load(PublicCloudAPI app, CollectionParams<T> params) {
+    public ReturnData<T> load(PublicApi app, CollectionParams<T> params) {
         try {
             CollectionHolder<T> holder = app.readCollection(params.getRequest());
 
@@ -50,7 +51,7 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
                     holder.moreResourcesExist(),
                     true);
 
-        } catch (PublicCloudAPI.UnexpectedResponseException e){
+        } catch (UnexpectedResponseException e){
             Log.e(TAG, "error", e);
             return new ReturnData.Error<>(params, e.getStatusCode());
         } catch (IOException e) {

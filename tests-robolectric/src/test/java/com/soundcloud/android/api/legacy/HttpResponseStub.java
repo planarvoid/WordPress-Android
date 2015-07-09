@@ -1,4 +1,4 @@
-package com.soundcloud.api.fakehttp;
+package com.soundcloud.android.api.legacy;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;

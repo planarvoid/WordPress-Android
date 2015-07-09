@@ -1,4 +1,4 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.legacy;
 
 import org.apache.http.HttpHost;
 
@@ -37,7 +37,8 @@ public enum Env {
         return hostToUri(getSecureAuthResourceHost());
     }
 
-    /* package */ boolean isApiHost(HttpHost host) {
+    /* package */
+    public boolean isApiHost(HttpHost host) {
         return ("http".equals(host.getSchemeName()) ||
                 "https".equals(host.getSchemeName())) &&
                 sslResourceHost.getHostName().equals(host.getHostName());

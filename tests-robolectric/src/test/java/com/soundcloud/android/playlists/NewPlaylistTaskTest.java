@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.api.legacy.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
