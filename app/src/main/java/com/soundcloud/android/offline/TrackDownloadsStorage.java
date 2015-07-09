@@ -33,7 +33,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class OfflineTracksStorage {
+class TrackDownloadsStorage {
     private static final long DELAY_BEFORE_REMOVAL = TimeUnit.MINUTES.toMillis(3);
 
     private final PropellerDatabase propeller;
@@ -41,7 +41,7 @@ class OfflineTracksStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    OfflineTracksStorage(PropellerDatabase propeller, PropellerRx propellerRx, DateProvider dateProvider) {
+    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, DateProvider dateProvider) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;

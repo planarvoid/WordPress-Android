@@ -17,18 +17,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class OfflineTracksStorageTest extends StorageIntegrationTest {
+public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     @Mock private DateProvider dateProvider;
 
-    private OfflineTracksStorage storage;
+    private TrackDownloadsStorage storage;
     private TestObserver<List<Urn>> observer;
 
     @Before
     public void setup() {
-        storage = new OfflineTracksStorage(propeller(), propellerRx(), dateProvider);
+        storage = new TrackDownloadsStorage(propeller(), propellerRx(), dateProvider);
         observer = new TestObserver<>();
     }
 
