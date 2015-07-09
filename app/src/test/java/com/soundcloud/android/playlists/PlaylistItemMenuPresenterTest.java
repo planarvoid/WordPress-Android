@@ -2,7 +2,9 @@ package com.soundcloud.android.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +21,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -45,19 +49,29 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private MenuItem menuItem;
     @Mock private View button;
 
-    private final PlaylistItem playlist = createPlaylistItem();
     private final TestEventBus eventBus = new TestEventBus();
 
     private PlaylistItemMenuPresenter presenter;
+    private  PlaylistItem playlist = createPlaylistItem();
 
     @Before
     public void setUp() throws Exception {
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
+
+        when(offlineContentOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
+        when(offlineContentOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
+                .thenReturn(Observable.<PropertySet>empty());
+
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, playlistOperations,
                 likeOperations, screenProvider, featureOperations, offlineContentOperations, navigator);
+
+        presenter.show(button, playlist, true);
     }
 
     @Test
@@ -71,7 +85,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
-        prepareForLikes(false);
+        when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.onMenuItemClick(menuItem, context);
 
@@ -80,7 +94,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesSendsTrackingEvents() {
-        prepareForLikes(false);
+        when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.onMenuItemClick(menuItem, context);
 
@@ -90,15 +104,57 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                 .containsValue(String.valueOf(playlist.getEntityUrn().getNumericId()))).isTrue();
     }
 
-    private PlaylistItem createPlaylistItem() {
-        return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    @Test
+    public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(offlineContentOperations).makePlaylistAvailableOffline(playlist.getEntityUrn());
     }
 
-    private void prepareForLikes(boolean isOfflineEnabled) {
+    @Test
+    public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(offlineContentOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+    }
+
+    @Test
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3431")
+    public void clickingOnUnlikeNotOwnedPlaylistRemovesItFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
-        when(likeOperations.toggleLike(playlist.getEntityUrn(), !playlist.isLiked()))
-                .thenReturn(Observable.<PropertySet>empty());
-        presenter.show(button, playlist, isOfflineEnabled);
+
+        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
+        PropertySet likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, false);
+
+        playlist = PlaylistItem.from(likedPlaylist);
+        presenter.show(button, playlist, true);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(offlineContentOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+    }
+
+    @Test
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3431")
+    public void clickingOnUnlikeOwnPlaylistDoesNotRemoveItFromOfflineContent() {
+        when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
+
+        ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
+        PropertySet likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
+        playlist = PlaylistItem.from(likedAndPostedPlaylist);
+        presenter.show(button, playlist, true);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(offlineContentOperations, never()).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+    }
+
+    private PlaylistItem createPlaylistItem() {
+        return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
     }
 
 }
