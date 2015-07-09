@@ -30,6 +30,7 @@ public final class TestConsts {
     public static final Uri UNRESOLVABLE_SC_USER_URI = Uri.parse("soundcloud:users:99999999999");
 
     public static final Uri JOBS_PAGE = Uri.parse("https://soundcloud.com/jobs");
+    public static final Uri RESET_PASSWORD_LINK_WITH_TRACKING = Uri.parse("http://soundcloud.com/-/t/click/postman-email-account_lifecycle-password_reset_request?url=http%3A%2F%2Fsoundcloud.com%2Flogin%2Freset%2F123456789abcdef1234567");
 
     public static final Uri BROKEN_LINK = Uri.parse("soundcloud:ounds:274334> Track</a></td>");
 

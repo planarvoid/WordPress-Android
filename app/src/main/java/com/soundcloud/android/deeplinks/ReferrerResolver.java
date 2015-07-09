@@ -122,7 +122,7 @@ class ReferrerResolver {
             String host = uri.getHost();
 
             if (host != null) {
-                return Referrer.fromHost(uri.getHost());
+                return Referrer.fromHost(host);
             }
         }
 

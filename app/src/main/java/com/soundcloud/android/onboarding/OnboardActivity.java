@@ -89,6 +89,8 @@ public class OnboardActivity extends FragmentActivity
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
 
+    public static final String EXTRA_URN = "EXTRA_URN";
+
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
     private static final String BUNDLE_USER = "BUNDLE_USER";
