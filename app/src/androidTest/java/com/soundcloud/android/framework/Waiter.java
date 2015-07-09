@@ -99,6 +99,10 @@ public class Waiter {
         return solo.waitForCondition(new CheckedViewCondition(matcher), ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForNetworkCondition(Condition condition) {
+        return solo.waitForCondition(condition, NETWORK_TIMEOUT);
+    }
+
     private boolean waitForListContent() {
         return solo.waitForCondition(new NoProgressBarCondition(), NETWORK_TIMEOUT);
     }

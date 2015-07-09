@@ -14,8 +14,8 @@ import android.preference.PreferenceManager;
 
 public abstract class TrackingActivityTest<T extends Activity> extends ActivityTest<T> {
 
-    protected MrLoggaVerifier mrLoggaVerifier;
-    protected MrLoggaRecorder mrLoggaRecorder;
+    protected MrLoggaVerifier verifier;
+    protected MrLoggaRecorder recorder;
     private Context context;
 
     public TrackingActivityTest(Class<T> activityClass) {
@@ -29,10 +29,17 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
 
-        mrLoggaVerifier = new MrLoggaVerifier(client, waiter);
-        mrLoggaRecorder = new MrLoggaRecorder(client);
+        verifier = new MrLoggaVerifier(client, waiter);
+        recorder = new MrLoggaRecorder(client);
 
         enableEventLoggerInstantFlush(context);
+        verifier.start();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        verifier.stop();
+        super.tearDown();
     }
 
     protected void enableEventLoggerInstantFlush(Context context) {

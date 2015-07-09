@@ -26,8 +26,6 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
     }
 
     public void testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
-        mrLoggaVerifier.startLogging();
-
         final VisualPlayerElement player = menuScreen
                 .open()
                 .clickPlaylists()
@@ -39,8 +37,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         player.swipePrevious();
         player.waitForTheExpandedPlayerToPlayNextTrack();
 
-        mrLoggaVerifier.stopLogging();
-        mrLoggaVerifier.assertScenario(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
+        verifier.assertScenario(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
     }
 
 }

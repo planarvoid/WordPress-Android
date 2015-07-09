@@ -27,8 +27,6 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
 
     // TODO: https://github.com/soundcloud/SoundCloud-Android/issues/3202
     public void ignoreTestPlayPromotedTrackFromStream() {
-        mrLoggaVerifier.startLogging();
-
         StreamScreen streamScreen = menuScreen
                 .open()
                 .clickStream();
@@ -40,8 +38,7 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
 
-        mrLoggaVerifier.stopLogging();
-        mrLoggaVerifier.assertScenario(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
+        verifier.assertScenario(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
     }
 
 }

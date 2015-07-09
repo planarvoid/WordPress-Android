@@ -28,6 +28,8 @@ class MrLoggaLoggaClient {
     private static final String ACTION_VALIDATION = "validation";
     private static final String ACTION_START_RECORDING = "start_recording";
     private static final String ACTION_FINISH_RECORDING = "finish_recording";
+    private static final String IS_SCENARIO_COMPLETE_SCENARIO_ID = "is_scenario_complete";
+    private static final String IS_FINISHED_LOGGING = "true";
 
     private final OkHttpClient httpClient;
     private final String loggingEndpoint;
@@ -46,11 +48,19 @@ class MrLoggaLoggaClient {
     }
 
     MrLoggaResponse startLogging() {
-        return sendPostLoggingRequest(loggingEndpoint, ACTION_START_LOGGING);
+        return sendPostLoggingRequest(ACTION_START_LOGGING);
+    }
+
+    boolean isScenarioComplete(String scenarioId) {
+        final Request request = new Request.Builder()
+                .url(buildIsScenarioCompletedUrl(scenarioId))
+                .get()
+                .build();
+        return executeRequest(request).responseBody.equals(IS_FINISHED_LOGGING);
     }
 
     MrLoggaResponse stopLogging() {
-        return sendPostLoggingRequest(loggingEndpoint, ACTION_FINISH_LOGGING);
+        return sendPostLoggingRequest(ACTION_FINISH_LOGGING);
     }
 
     MrLoggaResponse validate(String scenarioId) {
@@ -77,21 +87,29 @@ class MrLoggaLoggaClient {
 
     private MrLoggaResponse sendValidateRequest(String scenarioId) {
         final Request request = new Request.Builder()
-                .url(buildValidationUrl(deviceUDID, scenarioId))
+                .url(buildIsValidationUrl(scenarioId))
                 .get().build();
         return executeRequest(request);
     }
 
-    private String buildValidationUrl(String deviceUDID, String scenarioId) {
-        return Uri.parse(loggingEndpoint).buildUpon().appendPath(ACTION_VALIDATION)
+    private String buildIsScenarioCompletedUrl(String scenarioId) {
+        return buildValidationUrl(IS_SCENARIO_COMPLETE_SCENARIO_ID, scenarioId);
+    }
+
+    private String buildIsValidationUrl(String scenarioId) {
+        return buildValidationUrl(ACTION_VALIDATION, scenarioId);
+    }
+
+    private String buildValidationUrl(String action, String scenarioId) {
+        return Uri.parse(loggingEndpoint).buildUpon().appendPath(action)
                 .appendQueryParameter(PARAM_ANONYMOUS_ID, deviceUDID)
                 .appendQueryParameter(PARAM_SCENARIO_ID, scenarioId)
                 .build().toString();
     }
 
-    private MrLoggaResponse sendPostLoggingRequest(String endpoint, String action) {
+    private MrLoggaResponse sendPostLoggingRequest(String action) {
         final Request request = new Request.Builder()
-                .url(endpoint + action)
+                .url(loggingEndpoint + action)
                 .post(RequestBody.create(MEDIA_TYPE_PLAIN_TEXT, deviceUDID))
                 .build();
         return executeRequest(request);
