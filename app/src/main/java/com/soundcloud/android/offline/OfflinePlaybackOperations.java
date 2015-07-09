@@ -30,7 +30,7 @@ public class OfflinePlaybackOperations {
     private final FeatureOperations featureOperations;
     private final PlaybackOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
-    private final OfflineTracksStorage offlineTracksStorage;
+    private final TrackDownloadsStorage offlineTracksStorage;
     private final Scheduler scheduler;
 
     @Inject
@@ -39,7 +39,7 @@ public class OfflinePlaybackOperations {
                                      PlaybackOperations playbackOperations,
                                      TrackLikeOperations likeOperations,
                                      PlaylistOperations playlistOperations,
-                                     OfflineTracksStorage offlineTracksStorage,
+                                     TrackDownloadsStorage offlineTracksStorage,
                                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.featureOperations = featureOperations;
         this.connectionHelper = connectionHelper;

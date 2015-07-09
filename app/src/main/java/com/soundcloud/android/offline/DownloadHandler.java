@@ -19,7 +19,7 @@ public class DownloadHandler extends Handler {
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
     private final SecureFileStorage secureFileStorage;
-    private final OfflineTracksStorage offlineTracksStorage;
+    private final TrackDownloadsStorage offlineTracksStorage;
 
     private DownloadRequest current;
 
@@ -45,7 +45,7 @@ public class DownloadHandler extends Handler {
 
     public DownloadHandler(Looper looper, MainHandler mainHandler,
                            DownloadOperations downloadOperations,
-                           SecureFileStorage secureFileStorage, OfflineTracksStorage offlineTracksStorage) {
+                           SecureFileStorage secureFileStorage, TrackDownloadsStorage offlineTracksStorage) {
         super(looper);
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
@@ -56,7 +56,7 @@ public class DownloadHandler extends Handler {
     @VisibleForTesting
     DownloadHandler(MainHandler mainHandler,
                     DownloadOperations downloadOperations,
-                    SecureFileStorage secureFileStorage, OfflineTracksStorage offlineTracksStorage) {
+                    SecureFileStorage secureFileStorage, TrackDownloadsStorage offlineTracksStorage) {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
@@ -108,11 +108,11 @@ public class DownloadHandler extends Handler {
     @VisibleForTesting
     static class Builder {
         private final DownloadOperations downloadOperations;
-        private final OfflineTracksStorage tracksStorage;
+        private final TrackDownloadsStorage tracksStorage;
         private final SecureFileStorage secureFileStorage;
 
         @Inject
-        Builder(DownloadOperations operations, OfflineTracksStorage tracksStorage, SecureFileStorage secureFiles) {
+        Builder(DownloadOperations operations, TrackDownloadsStorage tracksStorage, SecureFileStorage secureFiles) {
             this.downloadOperations = operations;
             this.tracksStorage = tracksStorage;
             this.secureFileStorage = secureFiles;

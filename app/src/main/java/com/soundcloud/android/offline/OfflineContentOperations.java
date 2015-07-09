@@ -35,7 +35,7 @@ public class OfflineContentOperations {
 
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
-    private final OfflineTracksStorage tracksStorage;
+    private final TrackDownloadsStorage tracksStorage;
     private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
     private final FeatureOperations featureOperations;
@@ -91,7 +91,7 @@ public class OfflineContentOperations {
                              PolicyOperations policyOperations,
                              LoadExpectedContentCommand loadExpectedContentCommand,
                              LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
-                             FeatureOperations featureOperations, OfflineTracksStorage tracksStorage,
+                             FeatureOperations featureOperations, TrackDownloadsStorage tracksStorage,
                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
