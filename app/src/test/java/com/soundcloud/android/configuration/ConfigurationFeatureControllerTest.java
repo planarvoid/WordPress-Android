@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.offline.OfflineContentController;
+import com.soundcloud.android.offline.OfflineServiceInitiator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +15,7 @@ import rx.subjects.PublishSubject;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationFeatureControllerTest {
 
-    @Mock private OfflineContentController offlineController;
+    @Mock private OfflineServiceInitiator offlineController;
     @Mock private FeatureOperations featureOperations;
 
     private ConfigurationFeatureController controller;

@@ -28,7 +28,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
-public class OfflineContentController {
+public class OfflineServiceInitiator {
 
     private final Context context;
     private final OfflineSettingsStorage settingStorage;
@@ -81,11 +81,11 @@ public class OfflineContentController {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public OfflineContentController(Context context, EventBus eventBus,
-                                    OfflineSettingsStorage settingsStorage,
-                                    OfflinePlaylistStorage playlistStorage,
-                                    PlaylistOperations playlistOperations,
-                                    @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    public OfflineServiceInitiator(Context context, EventBus eventBus,
+                                   OfflineSettingsStorage settingsStorage,
+                                   OfflinePlaylistStorage playlistStorage,
+                                   PlaylistOperations playlistOperations,
+                                   @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;
@@ -98,7 +98,9 @@ public class OfflineContentController {
     }
 
     public void subscribe() {
-        subscription = startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context));
+        subscription = startOfflineContent()
+                .doOnSubscribe(OfflineContentServiceSubscriber.startServiceAction(context))
+                .subscribe(new OfflineContentServiceSubscriber(context));
     }
 
     public void unsubscribe() {

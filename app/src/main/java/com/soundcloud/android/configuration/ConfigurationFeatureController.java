@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration;
 
-import com.soundcloud.android.offline.OfflineContentController;
+import com.soundcloud.android.offline.OfflineServiceInitiator;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
 
@@ -8,14 +8,14 @@ import javax.inject.Inject;
 
 public class ConfigurationFeatureController {
 
-    private final OfflineContentController offlineContentController;
     private final FeatureOperations featureOperations;
+    private final OfflineServiceInitiator offlineServiceInitiator;
     private final Observable<Boolean> offlineSyncFeatureUpdatesObservable;
 
     @Inject
-    public ConfigurationFeatureController(OfflineContentController offlineContentController,
+    public ConfigurationFeatureController(OfflineServiceInitiator offlineServiceInitiator,
                                           FeatureOperations featureOperations) {
-        this.offlineContentController = offlineContentController;
+        this.offlineServiceInitiator = offlineServiceInitiator;
         this.featureOperations = featureOperations;
         this.offlineSyncFeatureUpdatesObservable = featureOperations.offlineContentEnabled();
     }
@@ -28,7 +28,7 @@ public class ConfigurationFeatureController {
 
     private void initialise() {
         if (featureOperations.isOfflineContentEnabled()) {
-            offlineContentController.subscribe();
+            offlineServiceInitiator.subscribe();
         }
     }
 
@@ -36,9 +36,9 @@ public class ConfigurationFeatureController {
         @Override
         public void onNext(Boolean enabled) {
             if (enabled) {
-                offlineContentController.subscribe();
+                offlineServiceInitiator.subscribe();
             } else {
-                offlineContentController.unsubscribe();
+                offlineServiceInitiator.unsubscribe();
             }
         }
     }
