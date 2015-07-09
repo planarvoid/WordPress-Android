@@ -10,7 +10,7 @@
             android:title="@string/pref_notifications_frequency"
             android:summary="@string/pref_notifications_frequency_description"
             android:defaultValue="14400000"
-            android:entries="@array/pref_notifications_frequency"
+            android:entries="@array/pref_notifications_frequency_entries"
             android:entryValues="@array/pref_notifications_frequency_values"/>
     <PreferenceCategory android:title="@string/pref_notifications_stream">
         <CheckBoxPreference

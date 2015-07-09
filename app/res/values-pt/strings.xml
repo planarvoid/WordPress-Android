@@ -424,7 +424,7 @@
     <string name="pref_notifications_wifi_only_description">Solicite atualizações apenas quando estiver conectado via Wi-Fi</string>
     <string name="pref_notifications_reposts">Reenvios</string>
     <string name="pref_notifications_reposts_description">Receba atualizações sobre novos reenvios de seus sons</string>
-    <string-array name="pref_notifications_frequency">
+    <string-array name="pref_notifications_frequency_entries">
         <item>A cada hora</item>
         <item>A cada 4 horas</item>
         <item>A cada 12 horas</item>

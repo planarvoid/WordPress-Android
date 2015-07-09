@@ -421,7 +421,7 @@
     <string name="pref_notifications_wifi_only_description">Ne demander de mises à jour qu\'en cas de connexion via le Wifi</string>
     <string name="pref_notifications_reposts">Republications</string>
     <string name="pref_notifications_reposts_description">Recevez des mises à jour des nouvelles republications sur vos fichiers audio</string>
-    <string-array name="pref_notifications_frequency">
+    <string-array name="pref_notifications_frequency_entries">
         <item>Toutes les heures</item>
         <item>Toutes les 4 heures</item>
         <item>Toutes les 12 heures</item>
