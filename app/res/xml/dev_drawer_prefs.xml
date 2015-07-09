@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orderingFromXml="true">
+    <PreferenceCategory
+        android:key="@string/dev_drawer_category_actions_key"
+        android:title="@string/dev_drawer_category_actions_title">
+        <Preference
+            android:key="@string/dev_drawer_action_kill_app_key"
+            android:title="@string/dev_drawer_action_kill_app_title" />
+        <Preference
+            android:key="@string/dev_drawer_action_reset_flags_key"
+            android:title="@string/dev_drawer_action_reset_flags_title" />
+    </PreferenceCategory>
+</PreferenceScreen>

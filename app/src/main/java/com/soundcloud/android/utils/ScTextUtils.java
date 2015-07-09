@@ -347,4 +347,19 @@ public class ScTextUtils {
             return shortenFactorialNumber(number / 1000000000.0) + "BN";
         }
     }
+
+    public static String fromSnakeCaseToCamelCase(String string) {
+        String[] parts = string.split("_");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String part : parts) {
+            stringBuilder.append(toTitleCase(part));
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String toTitleCase(String word) {
+        return word.substring(0, 1).toUpperCase() +
+                word.substring(1).toLowerCase();
+    }
+
 }

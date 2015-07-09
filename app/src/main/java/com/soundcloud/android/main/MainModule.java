@@ -28,6 +28,7 @@ import dagger.Module;
                 SuggestedUsersSyncActivity.class,
                 MetadataFragment.class,
                 NavigationFragment.class,
+                DevDrawerFragment.class,
                 NavigationDrawerFragment.class,
                 EmailOptInDialogFragment.class,
                 WhoToFollowActivity.class,

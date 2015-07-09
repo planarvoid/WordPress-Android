@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
@@ -131,7 +132,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     private FeatureFlags getFeatureFlags() {
         Resources res = getActivity().getResources();
-        return new FeatureFlags(res);
+        return new FeatureFlags(res, PreferenceManager.getDefaultSharedPreferences(getActivity()));
     }
 
     public MenuScreen getMenuScreen() {

@@ -6,11 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.properties.ApplicationProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ScreenPresenterTest {
 
     private ScreenPresenter presenter;
@@ -28,11 +29,12 @@ public class ScreenPresenterTest {
     @Mock private View layout;
     @Mock private ViewGroup container;
     @Mock private View content;
+    @Mock private ApplicationProperties applicationProperties;
 
 
     @Before
     public void setUp() throws Exception {
-        presenter = new ScreenPresenter();
+        presenter = new ScreenPresenter(applicationProperties);
         presenter.attach(activity);
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
@@ -41,6 +43,8 @@ public class ScreenPresenterTest {
 
     @Test
     public void shouldRequestActionBarOverlayFeatureOnSettingLayout() {
+        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
+
         presenter.setBaseLayout();
 
         verify(activity).supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
