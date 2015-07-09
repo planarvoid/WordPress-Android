@@ -1,5 +1,12 @@
 package com.soundcloud.android.framework;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.app.Instrumentation;
+import android.content.Context;
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.Endpoints;
@@ -11,14 +18,8 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Subscription;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.util.Log;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import rx.Subscription;
 
 public final class AccountAssistant {
 
@@ -139,7 +142,12 @@ public final class AccountAssistant {
     }
 
     static PublicApiUser getLoggedInUser(PublicApi apiWrapper) throws IOException {
-        final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
+        HttpResponse response = apiWrapper.get(Request.to(Endpoints.MY_DETAILS));
+        int status = response.getStatusLine().getStatusCode();
+        if (status != 200) {
+            throw new IOException(String.format("%s response status was: %d", Endpoints.MY_DETAILS, status));
+        }
+        final InputStream content = response.getEntity().getContent();
         return PublicApi.buildObjectMapper().readValue(content, PublicApiUser.class);
     }
 
