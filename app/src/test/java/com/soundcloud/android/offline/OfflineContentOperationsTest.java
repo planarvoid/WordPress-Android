@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -128,7 +128,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestObserver<OfflineContentRequests> observer = new TestObserver<>();
         operations.loadOfflineContentUpdates().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(offlineContentRequests);
+        assertThat(observer.getOnNextEvents()).containsExactly(offlineContentRequests);
     }
 
 
@@ -140,7 +140,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(true);
+        assertThat(observer.getOnNextEvents()).containsExactly(true);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(true);
+        assertThat(observer.getOnNextEvents()).containsExactly(true);
     }
 
     @Test
@@ -163,8 +163,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
-        Expect.expect(eventPropertySet.get(PlaylistProperty.URN)).toEqual(playlistUrn);
-        Expect.expect(eventPropertySet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)).toEqual(true);
+        assertThat(eventPropertySet.get(PlaylistProperty.URN)).isEqualTo(playlistUrn);
+        assertThat(eventPropertySet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)).isEqualTo(true);
     }
 
     @Test
@@ -176,8 +176,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
-        Expect.expect(eventPropertySet.get(PlaylistProperty.URN)).toEqual(playlistUrn);
-        Expect.expect(eventPropertySet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)).toEqual(false);
+        assertThat(eventPropertySet.get(PlaylistProperty.URN)).isEqualTo(playlistUrn);
+        assertThat(eventPropertySet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)).isEqualTo(false);
     }
 
     @Test
@@ -188,7 +188,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestObserver<List<Urn>> observer = new TestObserver<>();
         operations.clearOfflineContent().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(removed);
+        assertThat(observer.getOnNextEvents()).containsExactly(removed);
     }
 
     @Test
@@ -199,8 +199,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         operations.clearOfflineContent().subscribe();
 
         CurrentDownloadEvent publishedEvent = eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD);
-        Expect.expect(publishedEvent.kind).toEqual(DownloadState.NO_OFFLINE);
-        Expect.expect(publishedEvent.entities).toContain(Urn.forTrack(123), Urn.forPlaylist(1234));
+        assertThat(publishedEvent.kind).isEqualTo(DownloadState.NO_OFFLINE);
+        assertThat(publishedEvent.entities).contains(Urn.forTrack(123), Urn.forPlaylist(1234));
     }
 
     @Test
@@ -219,7 +219,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestObserver<DownloadState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(DownloadState.NO_OFFLINE);
+        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -229,7 +229,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestObserver<DownloadState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(DownloadState.REQUESTED);
+        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.REQUESTED);
     }
 
     @Test
@@ -239,20 +239,21 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestObserver<DownloadState> observer = new TestObserver<>();
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(DownloadState.DOWNLOADED);
+        assertThat(observer.getOnNextEvents()).containsExactly(DownloadState.DOWNLOADED);
     }
 
     @Test
     public void tryToUpdateAndLoadLastPoliciesUpdateTimeFetchThePolicies() {
         final TestObserver<Long> observer = new TestObserver<>();
-        final TestObservables.MockObservable<Void> fetchingObservable = TestObservables.just(null);
+        final List<Urn> tracksWithStalePolicies = Arrays.asList(Urn.forTrack(123), Urn.forTrack(143), Urn.forTrack(222));
 
         when(trackDownloadsStorage.getLastPolicyUpdate()).thenReturn(Observable.<Long>empty());
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(fetchingObservable);
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracksWithStalePolicies));
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
-        Expect.expect(fetchingObservable.subscribedTo()).toBeTrue();
+        verify(policyOperations).updatePolicies(tracksWithStalePolicies);
     }
 
     @Test
@@ -263,8 +264,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(12344567L);
-        Expect.expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).containsExactly(12344567L);
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     @Test
@@ -275,8 +276,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
-        Expect.expect(observer.getOnNextEvents()).toContainExactly(12344567L);
-        Expect.expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).containsExactly(12344567L);
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     @Test
@@ -286,21 +287,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
         operations.loadOfflineContentUpdates().subscribe(observer);
 
-        Expect.expect(observer.getOnCompletedEvents()).toNumber(1);
-        Expect.expect(observer.getOnErrorEvents()).toBeEmpty();
-    }
-
-    private static class WriteResultStub extends WriteResult {
-        private final boolean isStubbedSuccess;
-
-        private WriteResultStub(boolean isStubbedSuccess) {
-            this.isStubbedSuccess = isStubbedSuccess;
-        }
-
-        @Override
-        public boolean success() {
-            return isStubbedSuccess;
-        }
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
+        assertThat(observer.getOnErrorEvents()).isEmpty();
     }
 
 }
