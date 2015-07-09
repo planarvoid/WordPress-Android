@@ -21,7 +21,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Mock MainHandler mainHandler;
     @Mock DownloadOperations downloadOperations;
-    @Mock OfflineTracksStorage tracksStorage;
+    @Mock TrackDownloadsStorage tracksStorage;
     @Mock SecureFileStorage secureFileStorage;
     @Mock WriteResult writeResult;
 
