@@ -50,6 +50,20 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void indexOfReturnsMinusOneWhenTrackIsNotPresent() {
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
+
+        expect(playQueue.indexOf(Urn.forTrack(4l))).toEqual(-1);
+    }
+
+    @Test
+    public void indexOfReturnsIndexInQueueWhenTrackIsPresent() {
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L), playSessionSource);
+
+        expect(playQueue.indexOf(Urn.forTrack(2l))).toEqual(1);
+    }
+
+    @Test
     public void insertsTrackAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
