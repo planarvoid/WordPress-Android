@@ -23,17 +23,17 @@ class DownloadStatePublisher {
         this.eventBus = eventBus;
     }
 
-    void publishDownloadSuccessfulEvents(DownloadQueue queue, DownloadResult result) {
+    void publishDownloadSuccessfulEvents(DownloadQueue queue, DownloadState result) {
         publishTrackDownloaded(queue, result);
         publishRelatedQueuedCollectionsAsRequested(queue, result);
     }
 
-    void publishDownloadErrorEvents(DownloadQueue queue, DownloadResult result) {
+    void publishDownloadErrorEvents(DownloadQueue queue, DownloadState result) {
         publishTrackUnavailable(result);
         publishRelatedAndQueuedCollectionsAsRequested(queue, result);
     }
 
-    void publishDownloadCancelEvents(DownloadQueue queue, DownloadResult result) {
+    void publishDownloadCancelEvents(DownloadQueue queue, DownloadState result) {
         publishTrackDownloadCanceled(result);
         publishCollectionsDownloadedForCancelledTrack(queue, result);
     }
@@ -86,7 +86,7 @@ class DownloadStatePublisher {
         };
     }
 
-    private void publishTrackDownloaded(DownloadQueue queue, DownloadResult result) {
+    private void publishTrackDownloaded(DownloadQueue queue, DownloadState result) {
         final List<Urn> completed = queue.getDownloaded(result);
         final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
 
@@ -96,12 +96,12 @@ class DownloadStatePublisher {
         }
     }
 
-    private void publishTrackUnavailable(DownloadResult result) {
+    private void publishTrackUnavailable(DownloadState result) {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.unavailable(false, Arrays.asList(result.getTrack())));
     }
 
-    private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadResult result) {
+    private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
         final List<Urn> requested = queue.getRequested(result);
         final boolean likedTrackRequested = queue.isLikedTrackRequested();
 
@@ -111,7 +111,7 @@ class DownloadStatePublisher {
         }
     }
 
-    private void publishRelatedAndQueuedCollectionsAsRequested(DownloadQueue queue, DownloadResult result) {
+    private void publishRelatedAndQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
         List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
         if (!relatedPlaylists.isEmpty() || result.request.inLikedTracks) {
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
@@ -119,12 +119,12 @@ class DownloadStatePublisher {
         }
     }
 
-    private void publishTrackDownloadCanceled(DownloadResult result) {
+    private void publishTrackDownloadCanceled(DownloadState result) {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.downloadRemoved(Arrays.asList(result.getTrack())));
     }
 
-    private void publishCollectionsDownloadedForCancelledTrack(DownloadQueue queue, DownloadResult result) {
+    private void publishCollectionsDownloadedForCancelledTrack(DownloadQueue queue, DownloadState result) {
         final List<Urn> completedCollections = queue.getDownloadedPlaylists(result);
         final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
 

@@ -5,6 +5,8 @@ import com.google.common.base.Charsets;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.support.annotation.Nullable;
+
 import javax.crypto.Cipher;
 import javax.inject.Inject;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Encryptor {
 
+    private static final int REPORT_INTERVAL = 20; // prevents spammy progress reporting
     private static final int BLOCK_SIZE = 8192;
     private static final String CIPHER_ALG = "AES/CBC/PKCS7Padding";
     private static final String KEY_ALG = "AES";
@@ -29,19 +32,19 @@ public class Encryptor {
         this.cipher = cipher;
     }
 
-    public void encrypt(InputStream in, OutputStream out, DeviceSecret secret) throws EncryptionException, IOException {
-        runCipher(in, out, secret, Cipher.ENCRYPT_MODE);
+    public void encrypt(InputStream in, OutputStream out, DeviceSecret secret, EncryptionProgressListener listener) throws EncryptionException, IOException {
+        runCipher(in, out, secret, Cipher.ENCRYPT_MODE, listener);
     }
 
     public void decrypt(InputStream in, OutputStream out, DeviceSecret secret) throws EncryptionException, IOException {
-        runCipher(in, out, secret, Cipher.DECRYPT_MODE);
+        runCipher(in, out, secret, Cipher.DECRYPT_MODE, null);
     }
 
     public void tryToCancelRequest() {
         cancelRequest.set(true);
     }
 
-    private void runCipher(InputStream in, OutputStream out, DeviceSecret secret, int cipherMode)
+    private void runCipher(InputStream in, OutputStream out, DeviceSecret secret, int cipherMode, @Nullable EncryptionProgressListener listener)
             throws EncryptionException, IOException {
 
         initCipher(secret, cipherMode);
@@ -51,13 +54,25 @@ public class Encryptor {
         byte[] buffer = new byte[BLOCK_SIZE];
         byte[] encrypted = new byte[cipher.getOutputSize(buffer.length)];
 
+        long processed = 0;
+
         while (!cancelRequest.get() && (readBytes = in.read(buffer)) != -1) {
             cipherBytes = cipher.update(buffer, 0, readBytes, encrypted);
             out.write(encrypted, 0, cipherBytes);
+            processed += readBytes;
+
+            if (listener != null && (processed / buffer.length) % REPORT_INTERVAL == 0){
+                listener.onBytesEncrypted(processed);
+            }
         }
 
         if (cancelRequest.getAndSet(false)) {
             throw new EncryptionInterruptedException("File encryption cancelled");
+        } else {
+            if (listener != null) {
+                // send final report
+                listener.onBytesEncrypted(processed);
+            }
         }
 
         cipherBytes = cipher.doFinal(encrypted, 0);
@@ -83,4 +98,7 @@ public class Encryptor {
         }
     }
 
+    public interface EncryptionProgressListener {
+        void onBytesEncrypted(long totalProcessed);
+    }
 }

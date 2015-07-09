@@ -1,19 +1,20 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
@@ -24,12 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SecureFileStorageTest {
+public class SecureFileStorageTest extends AndroidUnitTest { // just because of logging
 
     @Mock private CryptoOperations operations;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private InputStream inputStream;
+    @Mock private Encryptor.EncryptionProgressListener listener;
 
     private SecureFileStorage storage;
     private final Urn TRACK_URN = Urn.forTrack(123L);
@@ -42,42 +43,42 @@ public class SecureFileStorageTest {
 
     @Test
     public void offlineTracksDirectoryIsCreated() throws IOException, EncryptionException {
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        expect(storage.OFFLINE_DIR.exists()).toBeTrue();
+        assertThat(storage.OFFLINE_DIR.exists()).isTrue();
     }
 
     @Test
     public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException, EncryptionException {
         final SecureFileStorage otherStorage = new SecureFileStorage(operations, settingsStorage);
 
-        storage.storeTrack(TRACK_URN, inputStream);
-        otherStorage.storeTrack(Urn.forTrack(234L), inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
+        otherStorage.storeTrack(Urn.forTrack(234L), inputStream, listener);
 
-        expect(otherStorage.createDirectoryIfNeeded()).toBeTrue();
+        assertThat(otherStorage.createDirectoryIfNeeded()).isTrue();
     }
 
     @Test
     public void storeTrackGeneratesFileNameFromTrackUrn() throws IOException, EncryptionException {
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
         verify(operations).generateHashForUrn(TRACK_URN);
     }
 
     @Test
     public void storeTrackUsesCryptoOperationsToEncryptTheStream() throws IOException, EncryptionException {
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        verify(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+        verify(operations).encryptStream(eq(inputStream), any(OutputStream.class), same(listener));
     }
 
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
 
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        expect(file.exists()).toBeTrue();
+        assertThat(file.exists()).isTrue();
     }
 
     @Test(expected = EncryptionException.class)
@@ -85,11 +86,11 @@ public class SecureFileStorageTest {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
 
         final EncryptionException ioException = new EncryptionException("Test encrypt exception", new Exception());
-        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class), same(listener));
 
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        expect(file.exists()).toBeFalse();
+        assertThat(file.exists()).isFalse();
     }
 
     @Test(expected = IOException.class)
@@ -97,29 +98,29 @@ public class SecureFileStorageTest {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
 
         final IOException ioException = new IOException("Test IOException");
-        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class), same(listener));
 
-        storage.storeTrack(TRACK_URN, inputStream);
+        storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        expect(file.exists()).toBeFalse();
+        assertThat(file.exists()).isFalse();
     }
 
     @Test
     public void returnsFileUriForTrack() throws Exception {
-        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.fromFile(getEncryptedFile()));
+        assertThat(storage.getFileUriForOfflineTrack(TRACK_URN)).isEqualTo(Uri.fromFile(getEncryptedFile()));
     }
 
     @Test
     public void returnsEmptyUriWhenUnableToGenerateFileUri() throws Exception {
         when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems", new IOException()));
-        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.EMPTY);
+        assertThat(storage.getFileUriForOfflineTrack(TRACK_URN)).isEqualTo(Uri.EMPTY);
     }
 
     @Test
     public void deleteTrackRemovesTrackFromStorage() throws Exception {
         final File file = createOfflineFile();
         storage.deleteTrack(TRACK_URN);
-        expect(file.exists()).toBeFalse();
+        assertThat(file.exists()).isFalse();
     }
 
     @Test
@@ -127,7 +128,7 @@ public class SecureFileStorageTest {
         storage.OFFLINE_DIR.mkdirs();
         when(settingsStorage.getStorageLimit()).thenReturn(1024L * 1024 * 1024);
 
-        expect(storage.isEnoughSpaceForTrack(1000)).toBeTrue();
+        assertThat(storage.isEnoughSpaceForTrack(1000)).isTrue();
     }
 
     @Test
@@ -136,7 +137,7 @@ public class SecureFileStorageTest {
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
-        expect(storage.isEnoughSpaceForTrack(1000000L)).toBeFalse();
+        assertThat(storage.isEnoughSpaceForTrack(1000000L)).isFalse();
     }
 
     @Test
@@ -144,8 +145,8 @@ public class SecureFileStorageTest {
         long fileSizeFor1SecondTrackDuration = storage.calculateFileSizeInBytes(1000);
         long fileSizeFor1MinuteTrackDuration = storage.calculateFileSizeInBytes(1000 * 60);
 
-        expect(fileSizeFor1SecondTrackDuration).toEqual(16384L);   //16 KB
-        expect(fileSizeFor1MinuteTrackDuration).toEqual(983040L);  //960 KB
+        assertThat(fileSizeFor1SecondTrackDuration).isEqualTo(16384L);   //16 KB
+        assertThat(fileSizeFor1MinuteTrackDuration).isEqualTo(983040L);  //960 KB
     }
 
     @Test
@@ -154,20 +155,20 @@ public class SecureFileStorageTest {
 
         storage.deleteAllTracks();
 
-        expect(file.exists()).toBeFalse();
-        expect(storage.OFFLINE_DIR.exists()).toBeFalse();
+        assertThat(file.exists()).isFalse();
+        assertThat(storage.OFFLINE_DIR.exists()).isFalse();
     }
 
     @Test
     public void returnsUsedStorage() throws Exception {
-        expect(storage.getStorageUsed()).toEqual(0l);
+        assertThat(storage.getStorageUsed()).isEqualTo(0l);
 
         final File file = createOfflineFile();
         OutputStream os = new FileOutputStream(file);
         os.write(new byte[8192]);
         os.close();
 
-        expect(storage.getStorageUsed()).toEqual(8192l);
+        assertThat(storage.getStorageUsed()).isEqualTo(8192l);
         storage.deleteTrack(TRACK_URN);
     }
 
@@ -175,7 +176,7 @@ public class SecureFileStorageTest {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
         storage.OFFLINE_DIR.mkdirs();
         file.createNewFile();
-        expect(file.exists()).toBeTrue(); // just to ensure we have write permissions
+        assertThat(file.exists()).isTrue(); // just to ensure we have write permissions
         return file;
     }
 

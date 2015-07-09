@@ -9,7 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadResult;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserRecord;
@@ -319,7 +319,7 @@ public class DatabaseAssertions {
                 .whereNotNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
     }
 
-    public void assertDownloadResultsInserted(DownloadResult result) {
+    public void assertDownloadResultsInserted(DownloadState result) {
         assertThat(select(from(Table.TrackDownloads.name())
                 .whereNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)
                 .whereEq(TableColumns.TrackDownloads._ID, result.getTrack().getNumericId())

@@ -1,7 +1,10 @@
 package com.soundcloud.android.offline;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -11,15 +14,16 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.EncryptionInterruptedException;
+import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
-import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.playback.StreamUrlBuilder;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.schedulers.Schedulers;
@@ -27,8 +31,7 @@ import rx.schedulers.Schedulers;
 import java.io.IOException;
 import java.io.InputStream;
 
-@RunWith(SoundCloudTestRunner.class)
-public class DownloadOperationsTest {
+public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage fileStorage;
@@ -39,6 +42,7 @@ public class DownloadOperationsTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
+    @Mock private DownloadOperations.DownloadProgressListener listener;
 
     private DownloadOperations operations;
 
@@ -66,12 +70,25 @@ public class DownloadOperationsTest {
     public void downloadWritesToFileStorage() throws IOException, EncryptionException {
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
 
-        operations.download(downloadRequest);
+        operations.download(downloadRequest, listener);
 
         InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, response);
         inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
-        inOrder.verify(fileStorage).storeTrack(trackUrn, downloadStream);
+        inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
         inOrder.verify(response).close();
+    }
+
+    @Test
+    public void reportsProgressToListener() throws IOException, EncryptionException {
+        when(httpClient.getFileStream(streamUrl)).thenReturn(response);
+
+        operations.download(downloadRequest, listener);
+
+        ArgumentCaptor<Encryptor.EncryptionProgressListener> listenerArgumentCaptor = ArgumentCaptor.forClass(Encryptor.EncryptionProgressListener.class);
+        verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), listenerArgumentCaptor.capture());
+        listenerArgumentCaptor.getValue().onBytesEncrypted(1000L);
+
+        verify(listener).onProgress(1000L);
     }
 
     @Test
@@ -79,16 +96,16 @@ public class DownloadOperationsTest {
         final IOException ioException = new IOException("Test IOException");
         when(httpClient.getFileStream(streamUrl)).thenThrow(ioException);
 
-        expect(operations.download(downloadRequest).isSuccess()).toBeFalse();
+        assertThat(operations.download(downloadRequest, listener).isSuccess()).isFalse();
     }
 
     @Test
     public void returnsDownloadFailedWhenEncryptionFailed() throws IOException, EncryptionException {
         final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
-        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, downloadStream);
+        doThrow(encryptionException).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
 
-        expect(operations.download(downloadRequest).isSuccess()).toBeFalse();
+        assertThat(operations.download(downloadRequest, listener).isSuccess()).isFalse();
     }
 
     @Test
@@ -98,14 +115,14 @@ public class DownloadOperationsTest {
         when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(false);
 
-        expect(operations.download(downloadRequest).isDownloadFailed()).toBeTrue();
+        assertThat(operations.download(downloadRequest, listener).isDownloadFailed()).isTrue();
     }
 
     @Test
     public void returnConnectionErrorWhenIOExceptionThrown() throws IOException {
         when(httpClient.getFileStream(streamUrl)).thenThrow(new IOException());
 
-        expect(operations.download(downloadRequest).isConnectionError()).toBeTrue();
+        assertThat(operations.download(downloadRequest, listener).isConnectionError()).isTrue();
     }
 
     @Test
@@ -115,7 +132,7 @@ public class DownloadOperationsTest {
         when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(true);
 
-        expect(operations.download(downloadRequest).isUnavailable()).toBeTrue();
+        assertThat(operations.download(downloadRequest, listener).isUnavailable()).isTrue();
     }
 
     @Test
@@ -129,18 +146,18 @@ public class DownloadOperationsTest {
 
     @Test
     public void cancelledDownloadReturnsDownloadCancelledResult() throws IOException, EncryptionException {
-        doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage).storeTrack(trackUrn, downloadStream);
+        doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
 
-        DownloadResult result = operations.download(downloadRequest);
+        DownloadState result = operations.download(downloadRequest, listener);
 
-        expect(result.isCancelled()).toBeTrue();
+        assertThat(result.isCancelled()).isTrue();
     }
 
     @Test
     public void doesNotDownloadTrackWhenNotEnoughSpace() {
         when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
 
-        operations.download(downloadRequest);
+        operations.download(downloadRequest, listener);
 
         verifyZeroInteractions(httpClient);
     }
@@ -149,16 +166,16 @@ public class DownloadOperationsTest {
     public void doesNotStoreTrackWhenNotEnoughSpace() throws IOException, EncryptionException {
         when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
 
-        operations.download(downloadRequest);
+        operations.download(downloadRequest, listener);
 
-        verify(fileStorage, never()).storeTrack(trackUrn, downloadStream);
+        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
     }
 
     @Test
     public void returnsNotEnoughSpaceResult() {
         when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
 
-        expect(operations.download(downloadRequest).isNotEnoughSpace()).toBeTrue();
+        assertThat(operations.download(downloadRequest, listener).isNotEnoughSpace()).isTrue();
     }
 
     @Test
@@ -166,16 +183,16 @@ public class DownloadOperationsTest {
         when(response.isSuccess()).thenReturn(false);
         when(response.isFailure()).thenReturn(true);
 
-        operations.download(downloadRequest);
+        operations.download(downloadRequest, listener);
 
-        verify(fileStorage, never()).storeTrack(trackUrn, downloadStream);
+        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
     }
 
     @Test
     public void invalidNetworkWhenDisconnected() {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
-        expect(operations.isValidNetwork()).toBeFalse();
+        assertThat(operations.isValidNetwork()).isFalse();
     }
 
     @Test
@@ -183,7 +200,7 @@ public class DownloadOperationsTest {
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
-        expect(operations.isValidNetwork()).toBeTrue();
+        assertThat(operations.isValidNetwork()).isTrue();
     }
 
     @Test
@@ -192,7 +209,7 @@ public class DownloadOperationsTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
-        expect(operations.isValidNetwork()).toBeFalse();
+        assertThat(operations.isValidNetwork()).isFalse();
     }
 
     @Test
@@ -201,6 +218,6 @@ public class DownloadOperationsTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
 
-        expect(operations.isValidNetwork()).toBeTrue();
+        assertThat(operations.isValidNetwork()).isTrue();
     }
 }

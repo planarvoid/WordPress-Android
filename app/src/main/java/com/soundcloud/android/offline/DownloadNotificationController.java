@@ -2,6 +2,10 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
@@ -17,23 +21,31 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 class DownloadNotificationController {
+    @VisibleForTesting
+    static final int PROGRESS_MAX = 1000;
 
     private final Context context;
     private final Resources resources;
     private final NotificationManager notificationManager;
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
 
-    private NotificationCompat.Builder progressNotification;
-    private int completed;
-    private int errors;
-    private int storageErrors;
+
     private int totalDownloads;
+    private int totalBytesToDownload;
+    private long completedBytes;
+    private List<DownloadState> previousDownloads = new ArrayList<>();
+    private DownloadState currentDownload;
+    private NotificationCompat.Builder progressNotification;
+    private ProgressNotificationData lastProgressNotificationData;
 
     @Inject
     public DownloadNotificationController(Context context, NotificationManager notificationManager,
@@ -45,56 +57,90 @@ class DownloadNotificationController {
         this.notificationBuilderProvider = notificationBuilderProvider;
     }
 
-    public Notification onPendingRequests(int pending, DownloadRequest firstRequest) {
-        totalDownloads = completed + pending + errors + storageErrors;
+    public Notification onPendingRequests(DownloadQueue pendingQueue) {
+        final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
+        totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
+        totalBytesToDownload = (int) (currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes());
+
+        for (DownloadRequest request : pendingQueue.getRequests()){
+            totalBytesToDownload += SecureFileStorage.calculateFileSizeInBytes(request.duration);
+        }
+
         progressNotification = notificationBuilderProvider.get();
 
-        return updateProgressNotification(firstRequest);
-    }
-
-    public void onDownloadSuccess(DownloadResult lastDownload) {
-        completed++;
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                updateProgressNotification(lastDownload.request));
-    }
-
-    public void onDownloadError(DownloadResult lastDownload) {
-        if (lastDownload.isNotEnoughSpace()) {
-            storageErrors++;
+        if (currentDownload == null){
+            return updateProgressNotification(pendingQueue.getFirst(), new ProgressNotificationData(previousDownloads.size() + 1,
+                    totalDownloads, calculateAdjustedProgress((int) completedBytes, totalBytesToDownload)));
         } else {
-            errors++;
+            return updateProgressNotification(currentDownload.request, new ProgressNotificationData(previousDownloads.size() + 1,
+                    totalDownloads, calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload)));
         }
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                updateProgressNotification(lastDownload.request));
     }
 
-    public void onDownloadCancel(DownloadResult cancelled) {
-        completed = Math.max(completed - 1, 0);
+    public void onDownloadProgress(DownloadState currentDownload) {
+        this.currentDownload = currentDownload;
+        updateProgressNotificationIfChanged(currentDownload);
+    }
 
+    public void onDownloadSuccess(DownloadState lastDownload) {
+        currentDownload = null;
+        previousDownloads.add(lastDownload);
+        updateProgressNotificationIfChanged(lastDownload);
+        completedBytes += lastDownload.getTotalBytes();
+    }
+
+    public void onDownloadError(DownloadState lastDownload) {
+        // we want to show this as completed in the progress bar, even though it failed
+        completedBytes += lastDownload.getTotalBytes();
+        currentDownload = null;
+        previousDownloads.add(lastDownload);
+        updateProgressNotificationIfChanged(lastDownload);
+    }
+
+    public void onDownloadCancel(DownloadState cancelled) {
         if (totalDownloads > 0) {
             totalDownloads--;
-            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                    updateProgressNotification(cancelled.request));
+            updateProgressNotificationIfChanged(cancelled);
         }
     }
 
-    public void onDownloadsFinished(@Nullable DownloadResult lastDownload) {
-        if (storageErrors > 0) {
+    public void onDownloadsFinished(@Nullable DownloadState lastDownload) {
+        if (hasStorageErrors()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
                     completedWithStorageErrorsNotification());
-        } else if (lastDownload != null && totalDownloads != errors) {
+        } else if (lastDownload != null && totalDownloads != getErrorCount()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
                     completedNotification(lastDownload.request));
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
 
-        completed = 0;
         totalDownloads = 0;
-        storageErrors = errors = 0;
+        completedBytes = 0;
+        previousDownloads = new ArrayList<>();
     }
 
-    public void onConnectionError(DownloadResult lastDownload) {
+    private int getErrorCount() {
+        return Collections2.filter(previousDownloads, new Predicate<DownloadState>() {
+            @Override
+            public boolean apply(DownloadState downloadState) {
+                return downloadState.isConnectionError()
+                        || downloadState.isDownloadFailed()
+                        || downloadState.isUnavailable();
+            }
+        }).size();
+    }
+
+    private boolean hasStorageErrors() {
+        return Iterables.tryFind(previousDownloads, new Predicate<DownloadState>() {
+            @Override
+            public boolean apply(DownloadState downloadState) {
+                return downloadState.isNotEnoughSpace();
+            }
+        }).isPresent();
+    }
+
+    public void onConnectionError(DownloadState lastDownload) {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
         notification.setContentIntent(getPendingIntent(lastDownload.request));
@@ -124,10 +170,27 @@ class DownloadNotificationController {
         return notification.build();
     }
 
-    private Notification updateProgressNotification(DownloadRequest request) {
-        final int currentDownload = getCurrentPosition() + 1;
+    private void updateProgressNotificationIfChanged(DownloadState currentDownload) {
+        ProgressNotificationData newProgressNotificationData = new ProgressNotificationData(previousDownloads.size() + 1, totalDownloads,
+                calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload));
+
+        // this logic is here to throttle notifications spamming, and only update when the notification changed.
+        if (!newProgressNotificationData.equals(lastProgressNotificationData)) {
+            lastProgressNotificationData = newProgressNotificationData;
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                    updateProgressNotification(currentDownload.request, newProgressNotificationData));
+        }
+    }
+
+    private int calculateAdjustedProgress(float downloadedBytes, int totalBytesToDownload) {
+        return (int) (PROGRESS_MAX * downloadedBytes / totalBytesToDownload);
+    }
+
+    private Notification updateProgressNotification(DownloadRequest request, ProgressNotificationData notificationData) {
+
         final String downloadDescription = resources
-                .getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, currentDownload, totalDownloads);
+                .getQuantityString(R.plurals.downloading_track_of_tracks, notificationData.totalDownloads,
+                        notificationData.currentDownload, notificationData.totalDownloads);
 
         progressNotification.setSmallIcon(R.drawable.ic_notification_cloud);
         progressNotification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -135,14 +198,9 @@ class DownloadNotificationController {
 
         progressNotification.setContentIntent(getPendingIntent(request));
         progressNotification.setContentTitle(resources.getString(R.string.offline_update_in_progress));
-        progressNotification.setProgress(totalDownloads, getCurrentPosition(), false);
+        progressNotification.setProgress(PROGRESS_MAX, notificationData.downloadProgress, false);
         progressNotification.setContentText(downloadDescription);
-
         return progressNotification.build();
-    }
-
-    private int getCurrentPosition() {
-        return completed + errors;
     }
 
     private NotificationCompat.Builder buildBaseCompletedNotification() {
@@ -173,5 +231,36 @@ class DownloadNotificationController {
     private PendingIntent getSettingsIntent() {
         final Intent intent = new Intent(context, OfflineSettingsActivity.class);
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private static class ProgressNotificationData {
+        private final int currentDownload;
+        private final int totalDownloads;
+        private final int downloadProgress;
+
+        private ProgressNotificationData(int currentDownload, int totalDownloads, int downloadProgress) {
+            this.currentDownload = currentDownload;
+            this.totalDownloads = totalDownloads;
+            this.downloadProgress = downloadProgress;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof ProgressNotificationData)) {
+                return false;
+            }
+            ProgressNotificationData that = (ProgressNotificationData) o;
+            return Objects.equal(currentDownload, that.currentDownload) &&
+                    Objects.equal(totalDownloads, that.totalDownloads) &&
+                    Objects.equal(downloadProgress, that.downloadProgress);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(currentDownload, totalDownloads, downloadProgress);
+        }
     }
 }

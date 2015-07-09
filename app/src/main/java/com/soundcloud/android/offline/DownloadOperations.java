@@ -7,6 +7,7 @@ import com.google.common.collect.Collections2;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.EncryptionInterruptedException;
+import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
 import com.soundcloud.android.playback.StreamUrlBuilder;
@@ -73,47 +74,47 @@ class DownloadOperations {
         fileStorage.tryCancelRunningEncryption();
     }
 
-    DownloadResult download(DownloadRequest request) {
+    DownloadState download(DownloadRequest request, DownloadProgressListener listener) {
         if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
-            return DownloadResult.notEnoughSpace(request);
+            return DownloadState.notEnoughSpace(request);
         }
 
         if (!isValidNetwork()) {
-            return DownloadResult.connectionError(request, getConnectionState());
+            return DownloadState.connectionError(request, getConnectionState());
         }
 
-        return downloadAndStore(request);
+        return downloadAndStore(request, listener);
     }
 
     boolean isValidNetwork() {
         return getConnectionState() == ConnectionState.CONNECTED;
     }
 
-    private DownloadResult downloadAndStore(DownloadRequest request) {
+    private DownloadState downloadAndStore(DownloadRequest request, DownloadProgressListener listener) {
         TrackFileResponse response = null;
         try {
             response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.track));
             if (response.isSuccess()) {
-                return saveFile(request, response);
+                return saveFile(request, response, listener);
             } else {
                 return mapFailureToDownloadResult(request, response);
             }
         } catch (EncryptionInterruptedException interrupted) {
-            return DownloadResult.canceled(request);
+            return DownloadState.canceled(request);
         } catch (EncryptionException encryptionException) {
-            return DownloadResult.error(request);
+            return DownloadState.error(request);
         } catch (IOException ioException) {
-            return DownloadResult.connectionError(request, getConnectionState());
+            return DownloadState.connectionError(request, getConnectionState());
         } finally {
             IOUtils.close(response);
         }
     }
 
-    private DownloadResult mapFailureToDownloadResult(DownloadRequest request, TrackFileResponse response) {
+    private DownloadState mapFailureToDownloadResult(DownloadRequest request, TrackFileResponse response) {
         if (response.isUnavailable()) {
-            return DownloadResult.unavailable(request);
+            return DownloadState.unavailable(request);
         }
-        return DownloadResult.error(request);
+        return DownloadState.error(request);
     }
 
     private ConnectionState getConnectionState() {
@@ -126,11 +127,20 @@ class DownloadOperations {
         }
     }
 
-    private DownloadResult saveFile(DownloadRequest request, TrackFileResponse response)
+    private DownloadState saveFile(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
-        fileStorage.storeTrack(request.track, response.getInputStream());
+        fileStorage.storeTrack(request.track, response.getInputStream(), new Encryptor.EncryptionProgressListener() {
+            @Override
+            public void onBytesEncrypted(long totalProcessed) {
+                listener.onProgress(totalProcessed);
+            }
+        });
         Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
-        return DownloadResult.success(request);
+        return DownloadState.success(request);
+    }
+
+    public interface DownloadProgressListener {
+        void onProgress(long downloaded);
     }
 }
