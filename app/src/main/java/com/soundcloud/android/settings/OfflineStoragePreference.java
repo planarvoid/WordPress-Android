@@ -3,6 +3,7 @@ package com.soundcloud.android.settings;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,8 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public final class OfflineStoragePreference extends Preference {
-
-    public static final long UNLIMITED = -1;
 
     private static final double ONE_GIGABYTE = 1024 * 1024 * 1024;
 
@@ -52,7 +51,7 @@ public final class OfflineStoragePreference extends Preference {
             if (onStorageLimitChangeListener != null) {
 
                 onStorageLimitChangeListener.onPreferenceChange(OfflineStoragePreference.this,
-                        offlineUsage.isUnlimited() ? UNLIMITED : offlineUsage.getActualOfflineLimit());
+                        offlineUsage.isUnlimited() ? OfflineSettingsStorage.UNLIMITED : offlineUsage.getActualOfflineLimit());
 
                 if (showLimitToast) {
                     Toast.makeText(getContext(),

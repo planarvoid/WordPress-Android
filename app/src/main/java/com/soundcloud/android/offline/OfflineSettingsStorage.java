@@ -12,7 +12,7 @@ import javax.inject.Named;
 
 public class OfflineSettingsStorage {
 
-    private static final long UNLIMITED_STORAGE = -1;
+    public static final long UNLIMITED = Long.MAX_VALUE;
 
     private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
@@ -64,15 +64,15 @@ public class OfflineSettingsStorage {
     }
 
     public boolean hasStorageLimit() {
-        return getStorageLimit() != UNLIMITED_STORAGE;
+        return getStorageLimit() != UNLIMITED;
     }
 
     public long getStorageLimit() {
-        return sharedPreferences.getLong(OFFLINE_STORAGE_LIMIT, UNLIMITED_STORAGE);
+        return sharedPreferences.getLong(OFFLINE_STORAGE_LIMIT, UNLIMITED);
     }
 
     public void setStorageUnlimited() {
-        setStorageLimit(UNLIMITED_STORAGE);
+        setStorageLimit(UNLIMITED);
     }
 
     public void setStorageLimit(long limit) {
