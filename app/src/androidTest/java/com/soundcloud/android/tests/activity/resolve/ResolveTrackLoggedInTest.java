@@ -14,15 +14,6 @@ import com.soundcloud.android.tests.TestConsts;
 import android.net.Uri;
 
 public class ResolveTrackLoggedInTest extends ResolveBaseTest {
-    private VisualPlayerElement visualPlayer;
-
-    @Override
-    protected void setUp() throws Exception {
-        // Note : ResolveBaseTest launch the Activity with the data provided by getUri()
-        super.setUp();
-        visualPlayer = new VisualPlayerElement(solo);
-    }
-
     @Override
     protected Uri getUri() {
         return TestConsts.CHE_FLUTE_URI;
@@ -30,9 +21,9 @@ public class ResolveTrackLoggedInTest extends ResolveBaseTest {
 
     @AvailabilityTest
     public void testShouldOpenPlayerFromDeeplink() {
+        VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
         assertThat(new StreamScreen(solo), is(visible()));
         assertThat(visualPlayer, is(expanded()));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
-        // Assert track is playing
     }
 }
