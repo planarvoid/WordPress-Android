@@ -53,7 +53,7 @@ public class EncryptionTest extends InstrumentationTestCase {
         encryptor.tryToCancelRequest();
         boolean exceptionThrown = false;
         try {
-            encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+            encryptor.encrypt(plainTextInput, encryptedOutput, secret, null);
         } catch (EncryptionException | IOException ex){
             assertTrue(ex instanceof EncryptionInterruptedException);
             exceptionThrown = true;
@@ -61,7 +61,7 @@ public class EncryptionTest extends InstrumentationTestCase {
             assertTrue(exceptionThrown);
         }
 
-        encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+        encryptor.encrypt(plainTextInput, encryptedOutput, secret, null);
         assertCipherTextWithoutPadding(encryptedOutput.toByteArray(), hexStringToBytes(CIPHER_TEXT_1));
     }
 
@@ -70,7 +70,7 @@ public class EncryptionTest extends InstrumentationTestCase {
 
         final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(PLAIN_TEXT_1));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
-        encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+        encryptor.encrypt(plainTextInput, encryptedOutput, secret, null);
 
         // we cannot verify against test vectors because decryption expects padded input
         final InputStream encryptedInput = new ByteArrayInputStream(encryptedOutput.toByteArray());
@@ -85,7 +85,7 @@ public class EncryptionTest extends InstrumentationTestCase {
         final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(plainText));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
 
-        encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+        encryptor.encrypt(plainTextInput, encryptedOutput, secret, null);
         assertCipherTextWithoutPadding(encryptedOutput.toByteArray(), hexStringToBytes(cipherText));
     }
 
