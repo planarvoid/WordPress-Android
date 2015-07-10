@@ -47,6 +47,7 @@ class SoundStreamOperations {
     private final ContentStats contentStats;
     private final EventBus eventBus;
     private final RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
+    private final MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand;
     private final Scheduler scheduler;
 
     private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
@@ -74,7 +75,7 @@ class SoundStreamOperations {
                 PropertySet first = propertySets.get(0);
                 if (first.contains(PromotedTrackProperty.AD_URN)) {
                     // seen the track once, don't see it again until we refresh the stream
-                    soundStreamStorage.markPromotedTrackAsStale(first);
+                    markPromotedTrackAsStaleCommand.call(first);
                     eventBus.publish(EventQueue.TRACKING,
                             PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
                 }
@@ -85,11 +86,13 @@ class SoundStreamOperations {
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
                           ContentStats contentStats, RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand,
-                          EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand, EventBus eventBus,
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
         this.removeStalePromotedTracksCommand = removeStalePromotedTracksCommand;
+        this.markPromotedTrackAsStaleCommand = markPromotedTrackAsStaleCommand;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
     }
@@ -222,7 +225,7 @@ class SoundStreamOperations {
 
     @Nullable
     private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
-        for (PropertySet propertySet : result){
+        for (PropertySet propertySet : result) {
             if (!propertySet.contains(PromotedTrackProperty.AD_URN)) {
                 return propertySet;
             }

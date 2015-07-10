@@ -23,14 +23,11 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
-import android.content.ContentValues;
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
@@ -66,7 +63,6 @@ class SoundStreamStorage {
     };
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
-
     private static Object[] buildPromotedSelection() {
         Object[] promotedSelection = new Object[STREAM_SELECTION.length + PROMOTED_EXTRAS.length];
         System.arraycopy(STREAM_SELECTION, 0, promotedSelection, 0, STREAM_SELECTION.length);
@@ -123,17 +119,6 @@ class SoundStreamStorage {
                 .select(field(SoundStreamView.SOUND_ID).as(BaseColumns._ID))
                 .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
         return propellerRx.query(query).map(new TrackUrnMapper());
-    }
-
-    /**
-     * @see RemoveStalePromotedTracksCommand
-     * @see SoundStreamOperations#promotedImpressionAction
-     */
-    public void markPromotedTrackAsStale(PropertySet track) {
-        ContentValues values = new ContentValues();
-        values.put(TableColumns.PromotedTracks.CREATED_AT, 0L);
-        Where where = Filter.filter().whereEq(TableColumns.PromotedTracks.AD_URN, track.get(PromotedTrackProperty.AD_URN));
-        database.update(Table.PromotedTracks, values, where);
     }
 
     private static class StreamItemMapper extends RxResultMapper<PropertySet> {
