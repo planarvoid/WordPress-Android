@@ -28,6 +28,7 @@ public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity>
         setActivityIntent(activityIntent);
         super.setUp();
         waiter = new Waiter(solo);
+        waiter.waitFiveSeconds();
     }
 
     protected abstract Uri getUri();
