@@ -55,7 +55,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         context = context();
-        setupIntent("soundcloud://playlists:1");
+        setupIntentForUrl("soundcloud://playlists:1");
         setupResource(PublicApiPlaylist.class);
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -158,7 +158,189 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openOnboarding(context, resource.getUrn(), Screen.DEEPLINK);
     }
 
-    public void setupIntent(String url) {
+    @Test
+    public void shouldLaunchSearchForWebScheme() throws Exception {
+        setupIntentForUrl("https://soundcloud.com/search?q=skrillex");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchSearchForSoundCloudScheme() throws Exception {
+        setupIntentForUrl("soundcloud://search?q=skrillex");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchSearchForLoggedOutUsers() throws Exception {
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
+        setupIntentForUrl("soundcloud://search?q=skrillex");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchSearchForCrawlers() throws Exception {
+        setupReferrer(Referrer.GOOGLE_CRAWLER);
+        setupIntentForUrl("soundcloud://search?q=skrillex");
+
+        resolver.handleIntent(intent, context);
+
+        verify(accountOperations).loginCrawlerUser();
+        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchExploreForWebScheme() throws Exception {
+        setupIntentForUrl("https://soundcloud.com/explore");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openExplore(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchExploreForSoundCloudScheme() throws Exception {
+        setupIntentForUrl("soundcloud://explore");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openExplore(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchExploreForLoggedOutUsers() throws Exception {
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
+        setupIntentForUrl("soundcloud://explore");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchExploreForCrawlers() throws Exception {
+        setupReferrer(Referrer.GOOGLE_CRAWLER);
+        setupIntentForUrl("soundcloud://explore");
+
+        resolver.handleIntent(intent, context);
+
+        verify(accountOperations).loginCrawlerUser();
+        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
+        verify(navigator).openExplore(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchRecordForWebScheme() throws Exception {
+        setupIntentForUrl("https://soundcloud.com/upload");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openRecord(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
+        setupIntentForUrl("soundcloud://upload");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openRecord(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
+        setupIntentForUrl("soundcloud://record");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openRecord(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchRecordForLoggedOutUsers() throws Exception {
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
+        setupIntentForUrl("soundcloud://record");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchRecordForCrawlers() throws Exception {
+        setupReferrer(Referrer.GOOGLE_CRAWLER);
+        setupIntentForUrl("soundcloud://upload");
+
+        resolver.handleIntent(intent, context);
+
+        verify(accountOperations).loginCrawlerUser();
+        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
+        verify(navigator).openRecord(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchWhoToFollowForWebScheme() throws Exception {
+        setupIntentForUrl("https://soundcloud.com/people");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchWhoToFollowForSoundCloudScheme() throws Exception {
+        setupIntentForUrl("soundcloud://people");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchWhoToFollowForLoggedOutUsers() throws Exception {
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
+        setupIntentForUrl("soundcloud://people");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchWhoToFollowForCrawlers() throws Exception {
+        setupReferrer(Referrer.GOOGLE_CRAWLER);
+        setupIntentForUrl("soundcloud://people");
+
+        resolver.handleIntent(intent, context);
+
+        verify(accountOperations).loginCrawlerUser();
+        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
+        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
+    }
+
+    public void setupIntentForUrl(String url) {
         uri = Uri.parse(url);
         intent = new Intent().setData(uri);
     }

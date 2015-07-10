@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.provider.Content;
@@ -152,9 +153,11 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     }
 
     private boolean isInterceptedSearchUrl(Intent intent) {
-        return intent.getData() != null
-                && intent.getData().getHost().equals(INTENT_URL_HOST)
-                && ScTextUtils.isNotBlank(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
+        Uri uri = intent.getData();
+
+        return uri != null
+                && (uri.getHost().equals(INTENT_URL_HOST) || Urn.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
+                && ScTextUtils.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
     private void handleUri(final Intent intent) {

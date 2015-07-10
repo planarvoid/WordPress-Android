@@ -22,12 +22,10 @@ import rx.exceptions.OnErrorThrowable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 
 class ResolveOperations {
@@ -95,23 +93,13 @@ class ResolveOperations {
 
     @NonNull
     private Uri followClickTrackingUrl(@NonNull Uri uri) {
-        if (!WebUrlResolver.isClickTrackingUrl(uri)) {
+        if (DeepLink.isClickTrackingUrl(uri)) {
+            // Just hit the click tracking url and extract the url
+            apiClient.fetchResponse(ApiRequest.get(uri.toString()).forPublicApi().build());
+            return DeepLink.extractClickTrackingRedirectUrl(uri);
+        } else {
             return uri;
         }
-
-        // Just hit the click tracking url and extract the url
-        apiClient.fetchResponse(ApiRequest.get(uri.toString()).forPublicApi().build());
-        return extractClickTrackingRedirectUrl(uri);
-    }
-
-    private Uri extractClickTrackingRedirectUrl(@NonNull Uri uri) {
-        if (WebUrlResolver.isClickTrackingUrl(uri)) {
-            String url = uri.getQueryParameter("url");
-            if (!TextUtils.isEmpty(url)) {
-                return Uri.parse(url);
-            }
-        }
-        return uri;
     }
 
     @NonNull

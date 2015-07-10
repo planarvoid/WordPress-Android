@@ -12,8 +12,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -23,14 +23,10 @@ import rx.exceptions.OnErrorThrowable;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
 public class IntentResolver {
-    private static final String SOUNDCLOUD_HOME = "home";
-    private static final String SOUNDCLOUD_STREAM = "stream";
-
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
     private final PlaybackOperations playbackOperations;
@@ -59,12 +55,52 @@ public class IntentResolver {
     public void handleIntent(Intent intent, Context context) {
         Uri uri = intent.getData();
         Referrer referrer = getReferrer(context, intent);
+        DeepLink deepLink = DeepLink.fromUri(uri);
 
-        if (uri == null || isHomeDeepLink(uri)) {
-            showHomeScreen(context, referrer);
+        if (shouldShowLogInMessage(deepLink, referrer)) {
+            showOnboardingForUrn(context, Urn.NOT_SET, referrer);
         } else {
-            resolve(context, uri, referrer);
+            handleDeepLink(context, uri, deepLink, referrer);
         }
+    }
+
+    private void handleDeepLink(Context context, Uri uri, DeepLink deepLink, Referrer referrer) {
+        switch (deepLink) {
+            case HOME:
+            case STREAM:
+                showHomeScreen(context, referrer);
+                break;
+            case EXPLORE:
+                showExploreScreen(context, referrer);
+                break;
+            case RECORD:
+                showRecordScreen(context, referrer);
+                break;
+            case SEARCH:
+                showSearchScreen(context, uri, referrer);
+                break;
+            case WHO_TO_FOLLOW:
+                showWhoToFollowScreen(context, referrer);
+                break;
+            case WEB_VIEW:
+                startWebView(context, uri, referrer);
+                break;
+            default:
+                resolve(context, uri, referrer);
+        }
+    }
+
+    private boolean shouldShowLogInMessage(DeepLink deepLink, Referrer referrer) {
+        if (deepLink.requiresLoggedInUser()) {
+            if (deepLink.requiresResolve()) {
+                return false;
+            } else if (isCrawler(referrer)) {
+                loginCrawler();
+            } else if (!accountOperations.isUserLoggedIn()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void resolve(Context context, Uri uri, Referrer referrer) {
@@ -83,8 +119,9 @@ public class IntentResolver {
             @Override
             public void onError(Throwable e) {
                 Uri resolvedUri = uriFromResolveException(e, uri);
+                DeepLink deepLink = DeepLink.fromUri(resolvedUri);
 
-                if (WebUrlResolver.shouldOpenInBrowser(resolvedUri)) {
+                if (DeepLink.WEB_VIEW.equals(deepLink)) {
                     startWebView(context, resolvedUri, referrer);
                 } else {
                     launchApplicationWithMessage(context, referrer, R.string.error_loading_url);
@@ -96,7 +133,6 @@ public class IntentResolver {
     private void startWebView(Context context, Uri uri, Referrer referrer) {
         trackForegroundEvent(referrer);
         navigator.openWebView(context, uri);
-
     }
 
     private boolean shouldLoadRelated(Referrer referrer) {
@@ -109,6 +145,26 @@ public class IntentResolver {
         accountOperations.clearCrawler();
         trackForegroundEvent(referrer);
         navigator.openStream(context, Screen.DEEPLINK);
+    }
+
+    private void showExploreScreen(Context context, Referrer referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openExplore(context, Screen.DEEPLINK);
+    }
+
+    private void showSearchScreen(Context context, Uri uri, Referrer referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openSearch(context, uri, Screen.DEEPLINK);
+    }
+
+    private void showRecordScreen(Context context, Referrer referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openRecord(context, Screen.DEEPLINK);
+    }
+
+    private void showWhoToFollowScreen(Context context, Referrer referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openWhoToFollow(context, Screen.DEEPLINK);
     }
 
     private void startActivityForResource(Context context, PublicApiResource resource, Referrer referrer) {
@@ -151,7 +207,11 @@ public class IntentResolver {
     }
 
     private void showOnboardingForUrn(Context context, Urn urn, Referrer referrer) {
-        trackForegroundEventForResource(urn, referrer);
+        if (Urn.NOT_SET.equals(urn)) {
+            trackForegroundEvent(referrer);
+        } else {
+            trackForegroundEventForResource(urn, referrer);
+        }
         AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in);
         navigator.openOnboarding(context, urn, Screen.DEEPLINK);
     }
@@ -180,11 +240,6 @@ public class IntentResolver {
         accountOperations.loginCrawlerUser();
         playbackOperations.resetService();
         playQueueManager.clearAll(); // do not leave previous played tracks visible for crawlers
-    }
-
-    private boolean isHomeDeepLink(@NonNull Uri uri) {
-        return Urn.SOUNDCLOUD_SCHEME.equalsIgnoreCase(uri.getScheme()) &&
-                (SOUNDCLOUD_HOME.equals(uri.getHost()) || SOUNDCLOUD_STREAM.equals(uri.getHost()));
     }
 
     private Referrer getReferrer(Context context, Intent intent) {

@@ -16,6 +16,7 @@ import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.search.SearchActivity;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.PendingIntent;
@@ -82,6 +83,10 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
+    public void openRecord(Context activityContext, Screen screen) {
+        activityContext.startActivity(createRecordIntent(activityContext, null, screen));
+    }
+
     public void openRecord(Context activityContext, Recording recording) {
         activityContext.startActivity(createRecordIntent(activityContext, recording));
     }
@@ -104,6 +109,38 @@ public class Navigator {
 
     public void openWebView(Context activityContext, Uri uri) {
         activityContext.startActivity(createWebViewIntent(activityContext, uri));
+    }
+
+    public void openExplore(Context activityContext, Screen screen) {
+        activityContext.startActivity(createExploreIntent(screen));
+    }
+
+    public void openSearch(Context activityContext, Uri uri, Screen screen) {
+        activityContext.startActivity(createSearchIntent(activityContext, uri, screen));
+    }
+
+    public void openWhoToFollow(Context activityContext, Screen screen) {
+        activityContext.startActivity(createWhoToFollowIntent(screen));
+    }
+
+    private Intent createWhoToFollowIntent(Screen screen) {
+        Intent intent = new Intent(Actions.WHO_TO_FOLLOW).setFlags(FLAGS_TOP);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createSearchIntent(Context activityContext, Uri uri, Screen screen) {
+        Intent intent = new Intent(activityContext, SearchActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createExploreIntent(Screen screen) {
+        Intent intent = new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
+        screen.addToIntent(intent);
+        return intent;
     }
 
     private Intent createStreamIntent(Screen screen) {
@@ -146,6 +183,13 @@ public class Navigator {
                 .putExtra(Recording.EXTRA, recording)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
+
+    private Intent createRecordIntent(Context activityContext, Recording recording, Screen screen) {
+        Intent intent = createRecordIntent(activityContext, recording);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
 
     private Intent createLauncherIntent(Context activityContext) {
         return new Intent(activityContext, LauncherActivity.class);
