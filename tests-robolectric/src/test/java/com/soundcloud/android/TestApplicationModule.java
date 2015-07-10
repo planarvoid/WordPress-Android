@@ -64,6 +64,7 @@ public class TestApplicationModule {
 
     public TestApplicationModule(SoundCloudApplication application) {
         this.application = application;
+        this.application.attachBaseContext(application);
     }
 
     @Provides
