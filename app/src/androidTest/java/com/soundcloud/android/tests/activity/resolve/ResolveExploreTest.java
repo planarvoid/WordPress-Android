@@ -26,6 +26,7 @@ public class ResolveExploreTest extends ActivityTest<ResolveActivity> {
         Uri uri = Uri.parse("http://soundcloud.com/explore");
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(uri));
         super.setUp();
+        waiter.waitFiveSeconds();
     }
 
     public void testResolveExploreUrl() {
