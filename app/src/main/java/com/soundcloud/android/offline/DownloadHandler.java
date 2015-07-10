@@ -36,11 +36,13 @@ public class DownloadHandler extends Handler {
     }
 
     interface Listener {
-        void onSuccess(DownloadResult result);
+        void onSuccess(DownloadState state);
 
-        void onCancel(DownloadResult result);
+        void onCancel(DownloadState state);
 
-        void onError(DownloadResult request);
+        void onError(DownloadState state);
+
+        void onProgress(DownloadState state);
     }
 
     public DownloadHandler(Looper looper, MainHandler mainHandler,
@@ -67,7 +69,8 @@ public class DownloadHandler extends Handler {
     public void handleMessage(Message msg) {
         final DownloadRequest request = (DownloadRequest) msg.obj;
         current = request;
-        final DownloadResult result = downloadOperations.download(request);
+        sendDownloadResult(MainHandler.ACTION_DOWNLOAD_PROGRESS, DownloadState.inProgress(request, 0));
+        final DownloadState result = downloadOperations.download(request, createDownloadProgressListener(request));
         current = null;
 
         if (result.isSuccess()) {
@@ -82,7 +85,16 @@ public class DownloadHandler extends Handler {
         }
     }
 
-    private void tryToStoreDownloadSuccess(DownloadResult result) {
+    private DownloadOperations.DownloadProgressListener createDownloadProgressListener(final DownloadRequest request) {
+        return new DownloadOperations.DownloadProgressListener() {
+            @Override
+            public void onProgress(long downloaded) {
+                sendDownloadResult(MainHandler.ACTION_DOWNLOAD_PROGRESS, DownloadState.inProgress(request, downloaded));
+            }
+        };
+    }
+
+    private void tryToStoreDownloadSuccess(DownloadState result) {
         final WriteResult writeResult = offlineTracksStorage.storeCompletedDownload(result);
         if (writeResult.success()) {
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
@@ -92,8 +104,8 @@ public class DownloadHandler extends Handler {
         }
     }
 
-    private void sendDownloadResult(int status, DownloadResult result) {
-        mainHandler.sendMessage(mainHandler.obtainMessage(status, result));
+    private void sendDownloadResult(int status, DownloadState state) {
+        mainHandler.sendMessage(mainHandler.obtainMessage(status, state));
     }
 
     void cancel() {
@@ -135,6 +147,7 @@ public class DownloadHandler extends Handler {
         static final int ACTION_DOWNLOAD_SUCCESS = 0;
         static final int ACTION_DOWNLOAD_FAILED = 1;
         static final int ACTION_DOWNLOAD_CANCEL = 2;
+        static final int ACTION_DOWNLOAD_PROGRESS = 3;
 
         private final WeakReference<Listener> listenerRef;
 
@@ -147,7 +160,7 @@ public class DownloadHandler extends Handler {
         public void handleMessage(Message msg) {
             final Listener listener = listenerRef.get();
             if (listener != null) {
-                final DownloadResult result = (DownloadResult) msg.obj;
+                final DownloadState result = (DownloadState) msg.obj;
                 switch (msg.what) {
                     case ACTION_DOWNLOAD_SUCCESS:
                         listener.onSuccess(result);
@@ -157,6 +170,9 @@ public class DownloadHandler extends Handler {
                         break;
                     case ACTION_DOWNLOAD_FAILED:
                         listener.onError(result);
+                        break;
+                    case ACTION_DOWNLOAD_PROGRESS:
+                        listener.onProgress(result);
                         break;
                     default:
                         throw new IllegalArgumentException("Unknown action received by DownloadHandler: " + msg.what);

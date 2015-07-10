@@ -130,45 +130,51 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     }
 
     @Override
-    public void onSuccess(DownloadResult result) {
-        Log.d(TAG, "Download finished " + result);
+    public void onSuccess(DownloadState state) {
+        Log.d(TAG, "Download finished " + state);
 
-        notificationController.onDownloadSuccess(result);
-        publisher.publishDownloadSuccessfulEvents(queue, result);
-        downloadNextOrFinish(result);
+        notificationController.onDownloadSuccess(state);
+        publisher.publishDownloadSuccessfulEvents(queue, state);
+        downloadNextOrFinish(state);
     }
 
     @Override
-    public void onError(DownloadResult result) {
-        Log.d(TAG, "Download failed " + result);
+    public void onError(DownloadState state) {
+        Log.d(TAG, "Download failed " + state);
 
-        notificationController.onDownloadError(result);
-        publisher.publishDownloadErrorEvents(queue, result);
+        notificationController.onDownloadError(state);
+        publisher.publishDownloadErrorEvents(queue, state);
 
-        if (result.isConnectionError()) {
+        if (state.isConnectionError()) {
             stopAndRetryLater();
-            notificationController.onConnectionError(result);
+            notificationController.onConnectionError(state);
         } else {
-            downloadNextOrFinish(result);
+            downloadNextOrFinish(state);
         }
     }
 
     @Override
-    public void onCancel(DownloadResult result) {
-        Log.d(TAG, "Download cancelled " + result);
+    public void onProgress(DownloadState state) {
+        notificationController.onDownloadProgress(state);
+    }
 
-        notificationController.onDownloadCancel(result);
-        publisher.publishDownloadCancelEvents(queue, result);
+
+    @Override
+    public void onCancel(DownloadState state) {
+        Log.d(TAG, "Download cancelled " + state);
+
+        notificationController.onDownloadCancel(state);
+        publisher.publishDownloadCancelEvents(queue, state);
 
         if (isStopping) {
             stop();
         } else {
             Log.d(TAG, "Single track download cancelled.. work continues");
-            downloadNextOrFinish(result);
+            downloadNextOrFinish(state);
         }
     }
 
-    private void downloadNextOrFinish(@Nullable DownloadResult result) {
+    private void downloadNextOrFinish(@Nullable DownloadState result) {
         if (queue.isEmpty()) {
             stopAndFinish(result);
         } else {
@@ -176,7 +182,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void stopAndFinish(DownloadResult result) {
+    private void stopAndFinish(DownloadState result) {
         stop();
         notificationController.onDownloadsFinished(result);
     }
@@ -248,8 +254,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private void updateNotification() {
         if (!queue.isEmpty()) {
-            final int size = downloadHandler.isDownloading() ? queue.size() + 1 : queue.size();
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size, queue.getFirst()));
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(queue));
         }
     }
 }

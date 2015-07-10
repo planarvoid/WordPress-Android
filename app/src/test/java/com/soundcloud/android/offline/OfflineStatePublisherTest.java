@@ -138,7 +138,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishDownloadSuccessfulEventsEmitsTrackDownloadedEvent() {
-        final DownloadResult result = DownloadResult.success(downloadRequest1);
+        final DownloadState result = DownloadState.success(downloadRequest1);
         publisher.publishDownloadSuccessfulEvents(queue, result);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
@@ -155,7 +155,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 new DownloadRequest(Urn.forTrack(124L), 0, false, relatedPlaylists));
 
         queue.set(queueState);
-        publisher.publishDownloadSuccessfulEvents(queue, DownloadResult.success(toBeDownloaded));
+        publisher.publishDownloadSuccessfulEvents(queue, DownloadState.success(toBeDownloaded));
 
         List<CurrentDownloadEvent> actual = eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD);
         assertThat(actual).containsExactly(
@@ -167,7 +167,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishDownloadErrorEventsEmitsTrackUnavailableEvent() {
-        publisher.publishDownloadErrorEvents(queue, DownloadResult.error(downloadRequest1));
+        publisher.publishDownloadErrorEvents(queue, DownloadState.error(downloadRequest1));
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -183,7 +183,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 new DownloadRequest(Urn.forTrack(124L), 0, false, relatedPlaylists));
 
         queue.set(queueState);
-        publisher.publishDownloadErrorEvents(queue, DownloadResult.error(toBeDownloaded));
+        publisher.publishDownloadErrorEvents(queue, DownloadState.error(toBeDownloaded));
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -194,7 +194,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishDownloadCancelEventsEmitsDownloadRemoved() {
-        publisher.publishDownloadCancelEvents(queue, DownloadResult.canceled(downloadRequest1));
+        publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(downloadRequest1));
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -210,7 +210,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 new DownloadRequest(Urn.forTrack(124L), 0, false, Arrays.asList(Urn.forPlaylist(222L))));
 
         queue.set(queueState);
-        publisher.publishDownloadCancelEvents(queue, DownloadResult.canceled(toBeDownloaded));
+        publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(toBeDownloaded));
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),

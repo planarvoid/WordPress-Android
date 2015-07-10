@@ -3,14 +3,12 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,10 +39,10 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     private final DownloadRequest downloadRequest1 = createDownloadRequest(TRACK_1);
     private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
-    private final DownloadResult downloadResult1 = DownloadResult.success(downloadRequest1);
-    private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(downloadRequest1);
-    private final DownloadResult failedResult1 =
-            DownloadResult.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
+    private final DownloadState downloadState1 = DownloadState.success(downloadRequest1);
+    private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
+    private final DownloadState failedResult1 =
+            DownloadState.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
 
     private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -63,7 +61,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(offlineContentOperations.loadOfflineContentUpdates())
                 .thenReturn(Observable.<OfflineContentRequests>never());
-        when(notificationController.onPendingRequests(anyInt(), any(DownloadRequest.class))).thenReturn(notification);
+        when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 offlineContentScheduler, handlerFactory, publisher, downloadQueue);
@@ -154,25 +152,25 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void publishesDownloadSuccessEventWhenTrackDownloadSucceeded() {
         startService();
-        service.onSuccess(downloadResult1);
+        service.onSuccess(downloadState1);
 
-        verify(publisher).publishDownloadSuccessfulEvents(downloadQueue, downloadResult1);
+        verify(publisher).publishDownloadSuccessfulEvents(downloadQueue, downloadState1);
     }
 
     @Test
     public void publishesDownloadErrorEventsEventWhenTrackDownloadFailed() {
         startService();
-        service.onError(downloadResult1);
+        service.onError(downloadState1);
 
-        verify(publisher).publishDownloadErrorEvents(downloadQueue, downloadResult1);
+        verify(publisher).publishDownloadErrorEvents(downloadQueue, downloadState1);
     }
 
     @Test
     public void publishesDownloadCancelEventsWhenTrackDownloadWasCancelled() {
         startService();
-        service.onCancel(downloadResult1);
+        service.onCancel(downloadState1);
 
-        verify(publisher).publishDownloadCancelEvents(downloadQueue, downloadResult1);
+        verify(publisher).publishDownloadCancelEvents(downloadQueue, downloadState1);
     }
 
     @Test
@@ -225,7 +223,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(notificationController).onPendingRequests(2, downloadRequest1);
+        verify(notificationController).onPendingRequests(downloadQueue);
     }
 
     @Test
@@ -235,21 +233,21 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(notificationController).onPendingRequests(3, downloadRequest1);
+        verify(notificationController).onPendingRequests(downloadQueue);
     }
 
     @Test
     public void updatesNotificationWhenTrackDownloaded() {
-        service.onSuccess(downloadResult1);
+        service.onSuccess(downloadState1);
 
-        verify(notificationController).onDownloadSuccess(downloadResult1);
+        verify(notificationController).onDownloadSuccess(downloadState1);
     }
 
     @Test
     public void showsNotificationWhenAllTrackDownloaded() {
-        service.onSuccess(downloadResult1);
+        service.onSuccess(downloadState1);
 
-        verify(notificationController).onDownloadsFinished(downloadResult1);
+        verify(notificationController).onDownloadsFinished(downloadState1);
     }
 
     @Test
@@ -258,7 +256,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(notificationController, never()).onPendingRequests(anyInt(), any(DownloadRequest.class));
+        verify(notificationController, never()).onPendingRequests(any(DownloadQueue.class));
     }
 
     @Test
@@ -271,7 +269,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         observable.onNext(createSingleDownloadRequestUpdate());
 
-        verify(notificationController, never()).onPendingRequests(anyInt(), any(DownloadRequest.class));
+        verify(notificationController, never()).onPendingRequests(any(DownloadQueue.class));
         verify(downloadHandler).quit();
     }
 
@@ -336,5 +334,4 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 Collections.<Urn>emptyList()
         );
     }
-
 }

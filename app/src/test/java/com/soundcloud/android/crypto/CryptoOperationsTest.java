@@ -29,6 +29,7 @@ public class CryptoOperationsTest {
     @Mock private OutputStream outputStream;
     @Mock private Encryptor encryptor;
     @Mock private DeviceSecret deviceSecret;
+    @Mock private Encryptor.EncryptionProgressListener listener;
 
     private final static String KEY_NAME = "some key";
 
@@ -96,16 +97,16 @@ public class CryptoOperationsTest {
         when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(true);
         when(storage.get(CryptoOperations.DEVICE_KEY)).thenReturn(deviceSecret);
 
-        operations.encryptStream(inputStream, outputStream);
+        operations.encryptStream(inputStream, outputStream, listener);
 
-        verify(encryptor).encrypt(inputStream, outputStream, deviceSecret);
+        verify(encryptor).encrypt(inputStream, outputStream, deviceSecret, listener);
     }
 
     @Test
     public void encryptStreamShouldRegenerateDeviceKeyIfNotPresent() throws Exception {
         when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(false);
 
-        operations.encryptStream(inputStream, outputStream);
+        operations.encryptStream(inputStream, outputStream, listener);
 
         InOrder inOrder = inOrder(storage);
         inOrder.verify(storage).contains(CryptoOperations.DEVICE_KEY);

@@ -42,41 +42,41 @@ final class DownloadQueue {
         return queue.isEmpty();
     }
 
-    List<Urn> getRequested(DownloadResult result) {
+    List<Urn> getRequested(DownloadState result) {
         return getIntersectionWith(result);
     }
 
-    List<Urn> getRequestedWithOwningPlaylists(DownloadResult result) {
+    List<Urn> getRequestedWithOwningPlaylists(DownloadState result) {
         final List<Urn> requestedAndRelated = getRequestedEntities();
         addAllRemovingDuplication(requestedAndRelated, result.request.inPlaylists);
 
         return requestedAndRelated;
     }
 
-    private List<Urn> getIntersectionWith(DownloadResult result) {
+    private List<Urn> getIntersectionWith(DownloadState result) {
         final List<Urn> stillRequested = new ArrayList<>(getRequestedEntities());
         stillRequested.retainAll(result.request.inPlaylists);
         return stillRequested;
     }
 
-    List<Urn> getDownloaded(DownloadResult result) {
+    List<Urn> getDownloaded(DownloadState result) {
         return getComplementWith(result);
     }
 
-    List<Urn> getDownloadedPlaylists(DownloadResult result) {
+    List<Urn> getDownloadedPlaylists(DownloadState result) {
         final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
         completed.removeAll(getRequestedEntities());
         return completed;
     }
 
-    private List<Urn> getComplementWith(DownloadResult result) {
+    private List<Urn> getComplementWith(DownloadState result) {
         final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
         completed.removeAll(getRequestedEntities());
         completed.add(result.getTrack());
         return completed;
     }
 
-    boolean isAllLikedTracksDownloaded(DownloadResult result) {
+    boolean isAllLikedTracksDownloaded(DownloadState result) {
         return result.request.inLikedTracks && !isLikedTrackRequested();
     }
 

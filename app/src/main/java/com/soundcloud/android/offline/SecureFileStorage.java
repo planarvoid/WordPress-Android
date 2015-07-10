@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -46,7 +47,7 @@ public class SecureFileStorage {
         }
     }
 
-    public void storeTrack(Urn urn, InputStream input) throws IOException, EncryptionException {
+    public void storeTrack(Urn urn, InputStream input, Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         if (!createDirectoryIfNeeded()) {
             throw new IOException("Failed to create directory for " + OFFLINE_DIR.getAbsolutePath());
         }
@@ -56,7 +57,7 @@ public class SecureFileStorage {
         isRunningEncryption = true;
 
         try {
-            cryptoOperations.encryptStream(input, output);
+            cryptoOperations.encryptStream(input, output, listener);
         } catch (Exception e) {
             IOUtils.close(output);
             deleteFile(trackFile);
@@ -104,13 +105,6 @@ public class SecureFileStorage {
         return !settingsStorage.hasStorageLimit() || settingsStorage.getStorageLimit() > dirSizeWithTrack;
     }
 
-    @VisibleForTesting
-    protected long calculateFileSizeInBytes(long trackDurationMillis) {
-        long trackSeconds = TimeUnit.MILLISECONDS.toSeconds(trackDurationMillis);
-        long fileSizeKB = trackSeconds * MP3_128_KBPS / 8L; //(KB is kilobytes, not kilobits, hence the 8).
-        return fileSizeKB * 1024;
-    }
-
     public long getStorageUsed() {
         return IOUtils.getDirSize(OFFLINE_DIR);
     }
@@ -130,5 +124,12 @@ public class SecureFileStorage {
     @VisibleForTesting
     protected final boolean createDirectoryIfNeeded() {
         return OFFLINE_DIR.exists() || IOUtils.mkdirs(OFFLINE_DIR);
+    }
+
+    @VisibleForTesting
+    public static long calculateFileSizeInBytes(long trackDurationMillis) {
+        long trackSeconds = TimeUnit.MILLISECONDS.toSeconds(trackDurationMillis);
+        long fileSizeKB = trackSeconds * MP3_128_KBPS / 8L; //(KB is kilobytes, not kilobits, hence the 8).
+        return fileSizeKB * 1024;
     }
 }

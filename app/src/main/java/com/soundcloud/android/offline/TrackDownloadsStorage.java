@@ -125,11 +125,11 @@ class TrackDownloadsStorage {
                 .take(1);
     }
 
-    WriteResult storeCompletedDownload(DownloadResult downloadResult) {
+    WriteResult storeCompletedDownload(DownloadState downloadState) {
         final ContentValues contentValues = ContentValuesBuilder.values(3)
-                .put(_ID, downloadResult.getTrack().getNumericId())
+                .put(_ID, downloadState.getTrack().getNumericId())
                 .put(UNAVAILABLE_AT, null)
-                .put(DOWNLOADED_AT, downloadResult.timestamp)
+                .put(DOWNLOADED_AT, downloadState.timestamp)
                 .get();
 
         return propeller.upsert(TrackDownloads, contentValues);

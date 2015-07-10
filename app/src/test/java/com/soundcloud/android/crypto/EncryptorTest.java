@@ -28,6 +28,7 @@ public class EncryptorTest {
     @Mock private InputStream inputStream;
     @Mock private OutputStream outputStream;
     @Mock private CipherWrapper cipher;
+    @Mock private Encryptor.EncryptionProgressListener listener;
 
     private DeviceSecret secret;
     private Encryptor encryptor;
@@ -52,14 +53,14 @@ public class EncryptorTest {
     @Test(expected = EncryptionInterruptedException.class)
     public void cancelThrowsEncryptionInterrupted() throws IOException, EncryptionException {
         encryptor.tryToCancelRequest();
-        encryptor.encrypt(inputStream, outputStream, secret);
+        encryptor.encrypt(inputStream, outputStream, secret, listener);
     }
 
     @Test
     public void cancelStopsEncryption() throws IOException, EncryptionException {
         encryptor.tryToCancelRequest();
         try {
-            encryptor.encrypt(inputStream, outputStream, secret);
+            encryptor.encrypt(inputStream, outputStream, secret, listener);
         } catch (Exception ignored) {
         }
 

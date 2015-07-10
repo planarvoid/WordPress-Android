@@ -55,7 +55,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).isEmpty();
+        assertThat(downloadQueue.getRequested(DownloadState.success(request2))).isEmpty();
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getRequested(DownloadResult.success(request2))).containsExactly(PLAYLIST1);
+        assertThat(downloadQueue.getRequested(DownloadState.success(request2))).containsExactly(PLAYLIST1);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1, request2));
 
-        assertThat(downloadQueue.getRequested(DownloadResult.success(request1)))
+        assertThat(downloadQueue.getRequested(DownloadState.success(request1)))
                 .containsExactly(PLAYLIST1, PLAYLIST2);
     }
 
@@ -83,7 +83,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
+        assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2, PLAYLIST2);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
+        assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
         downloadQueue.set(Arrays.asList(request2));
 
-        assertThat(downloadQueue.getDownloadedPlaylists(DownloadResult.canceled(request1))).contains(PLAYLIST1);
+        assertThat(downloadQueue.getDownloadedPlaylists(DownloadState.canceled(request1))).contains(PLAYLIST1);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
         downloadQueue.set(Arrays.asList(request2));
 
-        assertThat(downloadQueue.getDownloadedPlaylists(DownloadResult.canceled(request1))).isEmpty();
+        assertThat(downloadQueue.getDownloadedPlaylists(DownloadState.canceled(request1))).isEmpty();
     }
 
     @Test
@@ -121,7 +121,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2, PLAYLIST2);
+        assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2, PLAYLIST2);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
-        assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
+        assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
         downloadQueue.set(Collections.<DownloadRequest>emptyList());
 
-        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isTrue();
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadState.success(request1))).isTrue();
     }
 
     @Test
@@ -146,7 +146,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, false);
         downloadQueue.set(Collections.<DownloadRequest>emptyList());
 
-        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadState.success(request1))).isFalse();
     }
 
     @Test
@@ -155,7 +155,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
         final DownloadRequest request2 = createDownloadRequest(TRACK2, true);
         downloadQueue.set(Arrays.asList(request2));
 
-        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
+        assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadState.success(request1))).isFalse();
     }
 
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
