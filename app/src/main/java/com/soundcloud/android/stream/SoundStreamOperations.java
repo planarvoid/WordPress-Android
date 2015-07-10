@@ -73,6 +73,8 @@ class SoundStreamOperations {
             if (!propertySets.isEmpty()) {
                 PropertySet first = propertySets.get(0);
                 if (first.contains(PromotedTrackProperty.AD_URN)) {
+                    // seen the track once, don't see it again until we refresh the stream
+                    soundStreamStorage.markPromotedTrackAsStale(first);
                     eventBus.publish(EventQueue.TRACKING,
                             PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
                 }
