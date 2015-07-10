@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 
@@ -21,7 +23,7 @@ public class OfflineLikesDialog extends DialogFragment {
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
-            offlineOperations.setOfflineLikesEnabled(true);
+            fireAndForget(offlineOperations.enableOfflineLikedTracks());
             dismiss();
         }
     };

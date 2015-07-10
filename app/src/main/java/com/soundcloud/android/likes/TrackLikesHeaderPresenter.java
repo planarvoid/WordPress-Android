@@ -97,7 +97,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         headerView.onViewCreated(view, fragment.getFragmentManager());
         headerView.setOnShuffleButtonClick(onShuffleButtonClick);
 
-
         entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
                 .flatMap(loadAllTrackUrns)
@@ -134,7 +133,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DownloadStateSubscriber()),
                 offlineContentOperations
-                        .getOfflineLikesSettingsStatus()
+                        .getOfflineLikedTracksStatusChanges()
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new OfflineLikesSettingSubscriber())
         );
     }
@@ -185,8 +185,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class DownloadStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
-            if (featureOperations.isOfflineContentEnabled()
-                    && (state == OfflineState.NO_OFFLINE || offlineContentOperations.isOfflineLikedTracksEnabled())) {
+            if (featureOperations.isOfflineContentEnabled()) {
                 headerView.show(state);
             }
         }

@@ -31,8 +31,7 @@ public class OfflineContentOperations {
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private final TrackDownloadsStorage tracksStorage;
-    private final OfflinePlaylistStorage playlistStorage;
-    private final OfflineSettingsStorage settingsStorage;
+    private final OfflineContentStorage offlineContentStorage;
     private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
@@ -55,6 +54,26 @@ public class OfflineContentOperations {
         }
     };
 
+    private static final Func1<EntityStateChangedEvent, Boolean> OFFLINE_LIKES_EVENT_TO_BOOLEAN =
+            new Func1<EntityStateChangedEvent, Boolean>() {
+                @Override
+                public Boolean call(EntityStateChangedEvent event) {
+                    return event.getNextChangeSet()
+                            .getOrElse(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false);
+                }
+            };
+
+    private final Func1<Boolean, Observable<OfflineState>> PENDING_LIKES_TO_DOWNLOAD_STATE = new Func1<Boolean, Observable<OfflineState>>() {
+        @Override
+        public Observable<OfflineState> call(Boolean enabled) {
+            if (enabled) {
+                return tracksStorage.pendingLikedTracksUrns().flatMap(toDownloadState);
+            } else {
+                return Observable.just(OfflineState.NO_OFFLINE);
+            }
+        }
+    };
+
     private final Func1<List<Urn>, Observable<OfflineState>> toDownloadState = new Func1<List<Urn>, Observable<OfflineState>>() {
         @Override
         public Observable<OfflineState> call(List<Urn> urns) {
@@ -68,7 +87,7 @@ public class OfflineContentOperations {
             return tracksStorage.getLastPolicyUpdate();
         }
     };
-    
+
     private final Action1<List<Urn>> publishOfflineContentRemoved = new Action1<List<Urn>>() {
         @Override
         public void call(List<Urn> urns) {
@@ -80,9 +99,8 @@ public class OfflineContentOperations {
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
                              ClearTrackDownloadsCommand clearTrackDownloadsCommand,
-                             OfflineSettingsStorage settingsStorage,
                              EventBus eventBus,
-                             OfflinePlaylistStorage playlistStorage,
+                             OfflineContentStorage offlineContentStorage,
                              PolicyOperations policyOperations,
                              LoadExpectedContentCommand loadExpectedContentCommand,
                              LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
@@ -91,9 +109,8 @@ public class OfflineContentOperations {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
-        this.settingsStorage = settingsStorage;
         this.eventBus = eventBus;
-        this.playlistStorage = playlistStorage;
+        this.offlineContentStorage = offlineContentStorage;
         this.policyOperations = policyOperations;
         this.loadExpectedContentCommand = loadExpectedContentCommand;
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
@@ -102,39 +119,54 @@ public class OfflineContentOperations {
         this.scheduler = scheduler;
     }
 
-    public void setOfflineLikesEnabled(boolean isEnabled) {
-        settingsStorage.setOfflineLikedTracksEnabled(isEnabled);
+    public Observable<Boolean> disableOfflineLikedTracks() {
+        return offlineContentStorage.storeOfflineLikesDisabled()
+                .map(WRITE_RESULT_TO_SUCCESS)
+                .doOnNext(publishLikesMarkedForOfflineChange(false))
+                .subscribeOn(scheduler);
     }
 
-    public boolean isOfflineLikedTracksEnabled() {
-        return settingsStorage.isOfflineLikedTracksEnabled();
+    public Observable<Boolean> enableOfflineLikedTracks() {
+        return offlineContentStorage.storeOfflineLikesEnabled()
+                .map(WRITE_RESULT_TO_SUCCESS)
+                .doOnNext(publishLikesMarkedForOfflineChange(true))
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<Boolean> isOfflineLikedTracksEnabled() {
+        return offlineContentStorage.isOfflineLikesEnabled().subscribeOn(scheduler);
+    }
+
+    public Observable<Boolean> getOfflineLikedTracksStatusChanges() {
+        return isOfflineLikedTracksEnabled()
+                .concatWith(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(EntityStateChangedEvent.IS_OFFLINE_LIKES_EVENT_FILTER)
+                        .map(OFFLINE_LIKES_EVENT_TO_BOOLEAN));
+    }
+
+    public Observable<Boolean> isOfflinePlaylist(Urn playlist) {
+        return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
     public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
-        return playlistStorage.storeAsOfflinePlaylist(playlistUrn)
+        return offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, true))
                 .subscribeOn(scheduler);
     }
 
     public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn) {
-        return playlistStorage.removeFromOfflinePlaylists(playlistUrn)
+        return offlineContentStorage.removeFromOfflinePlaylists(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, false))
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Boolean> getOfflineContentOrLikesStatus() {
-        return featureOperations.offlineContentEnabled()
-                .concatWith(settingsStorage.getOfflineLikedTracksStatusChange());
-    }
-
-    public Observable<Boolean> getOfflineLikesSettingsStatus() {
-        return settingsStorage.getOfflineLikedTracksStatusChange();
+    public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
+        return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
 
     public Observable<List<Urn>> clearOfflineContent() {
-        setOfflineLikesEnabled(false);
         return clearTrackDownloadsCommand.toObservable(null)
                 .doOnNext(publishOfflineContentRemoved)
                 .subscribeOn(scheduler);
@@ -144,7 +176,18 @@ public class OfflineContentOperations {
         return new Action1<Boolean>() {
             @Override
             public void call(Boolean aBoolean) {
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistUrn, isMarkedOffline));
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                        EntityStateChangedEvent.fromMarkedForOffline(playlistUrn, isMarkedOffline));
+            }
+        };
+    }
+
+    private Action1<Boolean> publishLikesMarkedForOfflineChange(final boolean isMarkedOffline) {
+        return new Action1<Boolean>() {
+            @Override
+            public void call(Boolean aBoolean) {
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                        EntityStateChangedEvent.fromLikesMarkedForOffline(isMarkedOffline));
             }
         };
     }
@@ -177,17 +220,11 @@ public class OfflineContentOperations {
     }
 
     public Observable<OfflineState> getLikedTracksDownloadStateFromStorage() {
-        if (!settingsStorage.isOfflineLikedTracksEnabled()) {
-            return Observable.just(OfflineState.NO_OFFLINE);
-        }
-
-        return getRequestedOrDownloaded(tracksStorage.pendingLikedTracksUrns()).subscribeOn(scheduler);
+        return offlineContentStorage.isOfflineLikesEnabled()
+                .flatMap(PENDING_LIKES_TO_DOWNLOAD_STATE)
+                .subscribeOn(scheduler);
     }
-
-    private Observable<OfflineState> getRequestedOrDownloaded(Observable<List<Urn>> requestedTracks) {
-        return requestedTracks.flatMap(toDownloadState);
-    }
-
+    
     private Observable<OfflineState> getDownloadState(List<Urn> urns) {
         if (urns.isEmpty()) {
             return Observable.just(OfflineState.DOWNLOADED);

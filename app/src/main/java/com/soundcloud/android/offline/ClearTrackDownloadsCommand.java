@@ -1,13 +1,19 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentStorage.offlineLikesFilter;
+import static com.soundcloud.android.storage.TableColumns.OfflineContent._TYPE;
+
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -32,11 +38,11 @@ class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
         final TxnResult txnResult = propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
+                step(propeller.delete(Table.OfflineContent, offlineLikesFilter()));
                 step(propeller.delete(Table.TrackDownloads));
                 step(propeller.delete(Table.OfflineContent));
             }
         });
-
 
         if (txnResult.success()) {
             secureFileStorage.deleteAllTracks();
@@ -59,7 +65,12 @@ class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     }
 
     private List<Urn> queryOfflinePlaylistsUrns(PropellerDatabase propeller) {
-        return propeller.query(Query.from(Table.OfflineContent.name())).toList(new PlaylistUrnMapper());
+        final Where isOfflinePlaylist = Filter.filter()
+                .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+
+        return propeller.query(Query.from(Table.OfflineContent.name())
+                .where(isOfflinePlaylist))
+                .toList(new PlaylistUrnMapper());
     }
 
 }

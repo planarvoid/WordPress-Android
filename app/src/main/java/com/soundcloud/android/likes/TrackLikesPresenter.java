@@ -143,7 +143,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RemoveEntityListSubscriber(adapter)),
 
-                offlineContentOperations.getOfflineContentOrLikesStatus()
+                offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 

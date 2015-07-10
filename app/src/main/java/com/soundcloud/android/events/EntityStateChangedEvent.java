@@ -46,6 +46,13 @@ public final class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_OFFLINE_LIKES_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isSingularChange() && event.getKind() == MARKED_FOR_OFFLINE && event.isOfflineLikesEvent();
+        }
+    };
+
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
@@ -143,6 +150,13 @@ public final class EntityStateChangedEvent implements UrnEvent {
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
     }
 
+    public static EntityStateChangedEvent fromLikesMarkedForOffline(boolean isMarkedForOffline) {
+        return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
+                PlayableProperty.URN.bind(Urn.NOT_SET),
+                OfflineProperty.Collection.OFFLINE_LIKES.bind(true),
+                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
+    }
+
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {
         return fromTrackAddedToPlaylist(PropertySet.from(
                 PlayableProperty.URN.bind(playlistUrn),
@@ -201,12 +215,16 @@ public final class EntityStateChangedEvent implements UrnEvent {
         return isSingularChange() && getFirstUrn().isPlaylist() && kind == LIKE;
     }
 
-    private Boolean isTrackAddedEvent() {
+    private boolean isTrackAddedEvent() {
         return kind == TRACK_ADDED_TO_PLAYLIST;
     }
 
-    private Boolean isTrackRemovedEvent() {
+    private boolean isTrackRemovedEvent() {
         return kind == TRACK_REMOVED_FROM_PLAYLIST;
+    }
+
+    private boolean isOfflineLikesEvent() {
+        return getNextChangeSet().contains(OfflineProperty.Collection.OFFLINE_LIKES);
     }
 
     @Override

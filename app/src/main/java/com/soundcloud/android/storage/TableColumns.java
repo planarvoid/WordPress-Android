@@ -91,6 +91,7 @@ public final class TableColumns {
 
         public static final int TYPE_TRACK    = 0;
         public static final int TYPE_PLAYLIST = 1;
+        public static final int TYPE_COLLECTION = 2;
 
         public static final String[] ALL_FIELDS = {
                 _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, GENRE, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL,
@@ -315,6 +316,9 @@ public final class TableColumns {
         public static final String _TYPE = "_type";
 
         public static final int TYPE_PLAYLIST = Sounds.TYPE_PLAYLIST;
+        public static final int TYPE_COLLECTION = Sounds.TYPE_COLLECTION;
+
+        public static final int ID_OFFLINE_LIKES = 0;
     }
 
     public static class SoundView extends ResourceTable implements BaseColumns {

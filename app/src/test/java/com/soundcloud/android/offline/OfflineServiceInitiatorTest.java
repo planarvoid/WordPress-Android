@@ -33,29 +33,30 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);
 
     @Mock private OfflineSettingsStorage settingsStorage;
-    @Mock private OfflinePlaylistStorage playlistStorage;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaylistWithTracks playlistWithTracks;
+    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private Context context;
 
     private OfflineServiceInitiator controller;
     private TestEventBus eventBus;
-    private PublishSubject<Boolean> offlineLikeToggleSetting;
+    private PublishSubject<Boolean> offlineLikeToggle;
     private PublishSubject<Boolean> wifiOnlyToggleSetting;
+
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        offlineLikeToggleSetting = PublishSubject.create();
+        offlineLikeToggle = PublishSubject.create();
         wifiOnlyToggleSetting = PublishSubject.create();
 
-        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
-        when(settingsStorage.getOfflineLikedTracksStatusChange()).thenReturn(offlineLikeToggleSetting);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(offlineLikeToggle);
         when(playlistOperations.playlist(PLAYLIST)).thenReturn(Observable.just(playlistWithTracks));
 
         controller = new OfflineServiceInitiator(context, eventBus, settingsStorage,
-                playlistStorage, playlistOperations, Schedulers.immediate());
+                playlistOperations, offlineContentOperations, Schedulers.immediate());
 
         controller.subscribe();
         reset(context); // required as we start on subscribe
@@ -80,7 +81,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startsServiceWhenOfflineLikeToggleEnabled() {
-        offlineLikeToggleSetting.onNext(true);
+        offlineLikeToggle.onNext(true);
 
         assertThat(wasServiceStarted()).isTrue();
     }
@@ -100,8 +101,8 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotStartOfflineSyncWhenTheFeatureIsDisabled() {
-        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
+    public void doesNotStartOfflineSyncWhenLikesChangedButOfflineLikesAreDisabled() {
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(false));
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
@@ -140,7 +141,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
     public void ignoreStartEventsWhenUnsubscribed() {
         controller.unsubscribe();
 
-        offlineLikeToggleSetting.onNext(true);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLikesMarkedForOffline(true));
 
         assertThat(wasServiceStarted()).isFalse();
     }
@@ -161,7 +162,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startsOfflineSyncWhenTrackAddedToPlaylistMarkedAsAvailableOffline() {
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
@@ -171,7 +172,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenTrackAddedToNonOfflinePlaylist() {
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
@@ -189,7 +190,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startOfflineSyncWhenPlaylistMarkedAsOfflineSyncedAndChanged() {
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 
@@ -198,7 +199,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenPlaylistMarkedAsOfflineSyncedButNoChanged() {
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, false, PLAYLIST));
 
@@ -207,7 +208,7 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStartOfflineSyncOnSyncResultEventForPlaylistNotMarkedAsOffline() {
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 

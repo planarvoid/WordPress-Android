@@ -1,7 +1,6 @@
 package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -10,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,20 +21,19 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     private LoadExpectedContentCommand command;
 
     private long NOW;
-    @Mock private OfflineSettingsStorage settingsStorage;
 
     @Before
     public void setUp() {
         NOW = System.currentTimeMillis();
-        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
-        command = new LoadExpectedContentCommand(propeller(), settingsStorage);
+        command = new LoadExpectedContentCommand(propeller());
     }
 
     @Test
     public void returnsLikedTracksAsPendingDownloads() throws Exception {
+        enableOfflineLikes();
+
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        Urn urn = apiTrack.getUrn();
-        testFixtures().insertPolicyAllow(urn, NOW);
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
@@ -46,7 +43,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOfflinePlaylistTracksAsPendingDownloads() throws Exception {
-        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn = track1.getUrn();
@@ -81,7 +77,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void doesNotReturnDownloadedTrackPendingRemoval() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-            testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
+        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
         database().execSQL("UPDATE TrackDownloads SET downloaded_at=100"
                 + " WHERE _id=" + apiTrack.getUrn().getNumericId());
 
@@ -92,6 +88,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsLikesPendingDownloadOrderedByLikeDate() throws Exception {
+        enableOfflineLikes();
+
         final ApiTrack apiTrack1 = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertPolicyAllow(apiTrack1.getUrn(), NOW);
 
@@ -156,6 +154,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOfflinePlaylistTracksBeforeLikes() throws Exception {
+        enableOfflineLikes();
+
         final ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
@@ -174,6 +174,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotReturnDuplicatedDownloadRequests() throws Exception {
+        enableOfflineLikes();
+
         final ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
@@ -182,7 +184,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        assertThat(toBeOffline).containsExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
+        assertThat(toBeOffline).containsExactly(
+                new DownloadRequest(
+                        apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
@@ -238,7 +242,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotReturnOfflinePlaylistTracksWhenPolicyUpdateHappenedAfterTheLast30Days() throws Exception {
-        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn = track1.getUrn();
@@ -247,5 +250,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).isEmpty();
+    }
+
+    private void enableOfflineLikes() {
+        testFixtures().insertLikesMarkedForOfflineSync();
     }
 }

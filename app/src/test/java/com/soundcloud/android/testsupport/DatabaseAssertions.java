@@ -353,4 +353,16 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.OfflineContent._ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)), counts(0));
     }
+
+    public void assertOfflineLikesDisabled() {
+        assertThat(select(from(Table.OfflineContent.name())
+                .whereEq(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION)), counts(0));
+    }
+
+    public void assertOfflineLikesEnabled() {
+        assertThat(select(from(Table.OfflineContent.name())
+                .whereEq(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION)), counts(1));
+    }
 }

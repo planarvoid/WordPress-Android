@@ -6,6 +6,7 @@ import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
+import static com.soundcloud.android.storage.TableColumns.Sounds.*;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.google.common.base.Function;
@@ -31,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
 
     private final PropellerDatabase database;
-    private final OfflineSettingsStorage settingsStorage;
 
     private final Function<DownloadRequest.Builder, DownloadRequest> toDownloadRequest = new Function<DownloadRequest.Builder, DownloadRequest>() {
         @Override
@@ -41,17 +41,16 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     };
 
     @Inject
-    LoadExpectedContentCommand(PropellerDatabase database, OfflineSettingsStorage settingsStorage) {
+    LoadExpectedContentCommand(PropellerDatabase database) {
         this.database = database;
-        this.settingsStorage = settingsStorage;
     }
 
     @Override
     public Collection<DownloadRequest> call(Void ignored) {
-
         final List<OfflineRequestData> requestsData = new LinkedList<>();
         requestsData.addAll(tracksFromOfflinePlaylists());
-        if (settingsStorage.isOfflineLikedTracksEnabled()) {
+
+        if (isOfflineLikedTracksEnabled()) {
             requestsData.addAll(tracksFromLikes());
         }
 
@@ -75,17 +74,23 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(
                         Sounds.field(_ID),
-                        Sounds.field(TableColumns.Sounds.DURATION))
+                        Sounds.field(DURATION))
                 .innerJoin(TrackPolicies.name(),
                         Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
                 .innerJoin(Table.Likes.name(),
-                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
+                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
                 .where(isDownloadable())
-                .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC);
 
         return database.query(likesToDownload).toList(new LikedTrackMapper());
+    }
+
+    private boolean isOfflineLikedTracksEnabled() {
+        return database
+                .query(OfflineContentStorage.isOfflineLikesEnabledQuery())
+                .first(Boolean.class);
     }
 
     private Where isDownloadable() {
@@ -98,16 +103,18 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         final Query orderedPlaylists = Query.from(OfflineContent.name())
                 .select(
                         OfflineContent.field(TableColumns.OfflineContent._ID))
-                .innerJoin(Sounds.name(), filter().whereEq(Sounds.field(_ID), OfflineContent.field(_ID)))
-                .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .order(Sounds.field(TableColumns.Sounds.CREATED_AT), Query.ORDER_DESC);
+                .innerJoin(Sounds.name(), filter()
+                        .whereEq(Sounds.field(_ID), OfflineContent.field(_ID))
+                        .whereEq(Sounds.field(_TYPE), OfflineContent.field(_TYPE)))
+                .whereEq(Sounds.field(_TYPE), TYPE_PLAYLIST)
+                .order(Sounds.field(CREATED_AT), Query.ORDER_DESC);
 
         final List<Long> playlistIds = database.query(orderedPlaylists).toList(RxResultMapper.scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
                 .select(
                         Sounds.field(_ID),
-                        Sounds.field(TableColumns.Sounds.DURATION),
+                        Sounds.field(DURATION),
                         PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .innerJoin(Sounds.name(), filter()
                         .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
@@ -149,7 +156,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         public OfflineRequestData map(CursorReader reader) {
             return new OfflineRequestData(
                     reader.getLong(_ID),
-                    reader.getLong(TableColumns.Sounds.DURATION),
+                    reader.getLong(DURATION),
                     reader.getLong(TableColumns.PlaylistTracks.PLAYLIST_ID));
         }
     }
@@ -159,7 +166,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         public OfflineRequestData map(CursorReader reader) {
             return new OfflineRequestData(
                     reader.getLong(_ID),
-                    reader.getLong(TableColumns.Sounds.DURATION),
+                    reader.getLong(DURATION),
                     true);
         }
     }

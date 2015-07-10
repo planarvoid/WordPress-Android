@@ -67,7 +67,8 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                 offlinePlaylistValues.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
 
                 final ChangeResult changeResult = step(propeller.delete(Table.OfflineContent,
-                        filter().whereEq(Sounds._ID, localPlaylistUrn.getNumericId())));
+                        filter().whereEq(TableColumns.OfflineContent._ID, localPlaylistUrn.getNumericId())
+                                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)));
 
                 if (changeResult.getNumRowsAffected() > 0) {
                     step(propeller.insert(Table.OfflineContent, offlinePlaylistValues));
