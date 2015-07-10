@@ -1,6 +1,7 @@
 package com.soundcloud.android.paywall;
 
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.presentation.ItemAdapter;
@@ -24,18 +25,20 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
 
     private final EventBus eventBus;
     private final Handler deduplicateHandler;
+    private final ScreenProvider screenProvider;
 
     private LinearLayoutManager linearLayoutManager;
     private ItemAdapter<ListItem> listItemAdapter;
 
     @Inject
-    public PaywallImpressionController(EventBus eventBus) {
-        this(eventBus, new Handler());
+    public PaywallImpressionController(EventBus eventBus, ScreenProvider screenProvider) {
+        this(eventBus, new Handler(), screenProvider);
     }
 
-    public PaywallImpressionController(EventBus eventBus, Handler deduplicateHandler) {
+    public PaywallImpressionController(EventBus eventBus, Handler deduplicateHandler, ScreenProvider screenProvider) {
         this.eventBus = eventBus;
         this.deduplicateHandler = deduplicateHandler;
+        this.screenProvider = screenProvider;
     }
 
     public void attachRecyclerView(RecyclerView recyclerView) {
@@ -70,7 +73,8 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     public void onChildViewAttachedToWindow(View view) {
         final ListItem item = listItemAdapter.getItem(linearLayoutManager.getPosition(view));
         if (isMidTierTrack(item) && isNotDuplicate(item)) {
-            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forImpression(item.getEntityUrn()));
+            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forImpression(item.getEntityUrn(),
+                    screenProvider.getLastScreenTag()));
         }
     }
 
