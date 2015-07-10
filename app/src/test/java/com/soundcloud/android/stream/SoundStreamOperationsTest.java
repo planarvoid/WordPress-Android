@@ -46,6 +46,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private ContentStats contentStats;
     @Mock private RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
+    @Mock private MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -55,7 +56,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
-                removeStalePromotedTracksCommand, eventBus, Schedulers.immediate());
+                removeStalePromotedTracksCommand, markPromotedTrackAsStaleCommand, eventBus, Schedulers.immediate());
     }
 
     @Test
