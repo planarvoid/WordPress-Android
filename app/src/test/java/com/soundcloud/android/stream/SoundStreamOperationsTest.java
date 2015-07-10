@@ -270,6 +270,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
+        verify(markPromotedTrackAsStaleCommand).call(promotedTrackProperties);
     }
 
     @Test
@@ -284,6 +285,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         operations.updatedStreamItems().subscribe(observer);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
+        verify(markPromotedTrackAsStaleCommand).call(promotedTrackProperties);
     }
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
