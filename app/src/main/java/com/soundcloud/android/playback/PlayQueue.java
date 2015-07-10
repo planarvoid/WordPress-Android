@@ -20,6 +20,12 @@ import java.util.List;
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private final List<PlayQueueItem> playQueueItems;
+    private final Function<PlayQueueItem, Urn> toUrn = new Function<PlayQueueItem, Urn>() {
+        @Override
+        public Urn apply(PlayQueueItem playQueueItem) {
+            return playQueueItem.getTrackUrn();
+        }
+    };
 
     public static PlayQueue empty() {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList());
@@ -81,7 +87,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public int indexOf(Urn initialTrack) {
-        return playQueueItems.indexOf(initialTrack);
+        return Lists.transform(playQueueItems, toUrn).indexOf(initialTrack);
     }
 
     @Deprecated
