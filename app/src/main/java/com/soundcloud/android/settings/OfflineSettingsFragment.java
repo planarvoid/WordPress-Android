@@ -109,13 +109,13 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         }
     }
 
-    private void onUpdateStorageLimit(long newValue) {
-        final long previousLimit = offlineSettings.getStorageLimit();
-        offlineSettings.setStorageLimit(newValue);
-
-        if (newValue > previousLimit) {
-            OfflineContentService.start(getActivity());
+    private void onUpdateStorageLimit(long limit) {
+        if (limit == OfflineSettingsStorage.UNLIMITED) {
+            offlineSettings.setStorageUnlimited();
+        } else {
+            offlineSettings.setStorageLimit(limit);
         }
+        OfflineContentService.start(getActivity());
     }
 
     @Override

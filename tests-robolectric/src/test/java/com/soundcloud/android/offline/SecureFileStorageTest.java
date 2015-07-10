@@ -133,6 +133,7 @@ public class SecureFileStorageTest {
     @Test
     public void shouldNotBeEnoughSpaceForTrackInStorage() throws Exception {
         storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
         expect(storage.isEnoughSpaceForTrack(1000000L)).toBeFalse();

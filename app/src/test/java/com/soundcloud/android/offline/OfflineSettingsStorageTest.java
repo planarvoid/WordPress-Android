@@ -49,6 +49,19 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
+    public void offlineStorageIsUnlimitedByDefault() {
+        assertThat(storage.hasStorageLimit()).isFalse();
+    }
+
+    @Test
+    public void offlineStorageLimitCanBeSet() {
+        storage.setStorageLimit(1000);
+
+        assertThat(storage.hasStorageLimit()).isTrue();
+        assertThat(storage.getStorageLimit()).isEqualTo(1000);
+    }
+
+    @Test
     public void clearsSettingsStorage() {
         storage.setOfflineLikedTracksEnabled(true);
         storage.clear();

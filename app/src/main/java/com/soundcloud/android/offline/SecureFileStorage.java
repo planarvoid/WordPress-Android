@@ -95,10 +95,13 @@ public class SecureFileStorage {
     }
 
     public boolean isEnoughSpaceForTrack(long trackDurationMillis) {
-        final long storageLimit = settingsStorage.getStorageLimit();
-        final long trackSize = calculateFileSizeInBytes(trackDurationMillis);
-        final long dirSizeWithTrack = getStorageUsed() + trackSize;
-        return getStorageAvailable() > trackSize && storageLimit > dirSizeWithTrack;
+        long trackSize = calculateFileSizeInBytes(trackDurationMillis);
+        long dirSizeWithTrack = getStorageUsed() + trackSize;
+        return getStorageAvailable() > trackSize && isWithinStorageLimit(dirSizeWithTrack);
+    }
+
+    private boolean isWithinStorageLimit(long dirSizeWithTrack) {
+        return !settingsStorage.hasStorageLimit() || settingsStorage.getStorageLimit() > dirSizeWithTrack;
     }
 
     @VisibleForTesting

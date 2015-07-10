@@ -3,6 +3,7 @@ package com.soundcloud.android.settings;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -48,8 +49,9 @@ public final class OfflineStoragePreference extends Preference {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             if (onStorageLimitChangeListener != null) {
+
                 onStorageLimitChangeListener.onPreferenceChange(OfflineStoragePreference.this,
-                        offlineUsage.getOfflineLimit());
+                        offlineUsage.isUnlimited() ? OfflineSettingsStorage.UNLIMITED : offlineUsage.getActualOfflineLimit());
 
                 if (showLimitToast) {
                     Toast.makeText(getContext(),
@@ -110,7 +112,7 @@ public final class OfflineStoragePreference extends Preference {
         storageFreeTextView.setText(formatFreeGigabytes());
         storageOtherLabelTextView.setText(formatGigabytes(offlineUsage.getUsedOthers()));
         storageUsedLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineUsed()));
-        storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineLimit()));
+        storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getUsableOfflineLimit()));
     }
 
     private String formatGigabytes(long bytes) {
@@ -124,10 +126,10 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private String formatLimitGigabytes() {
-        if (offlineUsage.isMaximumLimit()) {
+        if (offlineUsage.isUnlimited()) {
             return resources.getString(R.string.unlimited);
         } else {
-            return formatGigabytes(offlineUsage.getOfflineLimit());
+            return formatGigabytes(offlineUsage.getActualOfflineLimit());
         }
     }
 
