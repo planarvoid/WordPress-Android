@@ -1,6 +1,6 @@
 package com.soundcloud.android.stream;
 
-import com.soundcloud.android.commands.WriteStorageCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
@@ -18,7 +18,7 @@ import javax.inject.Inject;
  * @see RemoveStalePromotedTracksCommand
  * @see SoundStreamOperations#promotedImpressionAction
  */
-public class MarkPromotedTrackAsStaleCommand extends WriteStorageCommand<PropertySet, WriteResult, Boolean> {
+public class MarkPromotedTrackAsStaleCommand extends DefaultWriteStorageCommand<PropertySet, WriteResult> {
 
     @Inject
     protected MarkPromotedTrackAsStaleCommand(PropellerDatabase propeller) {
@@ -31,10 +31,5 @@ public class MarkPromotedTrackAsStaleCommand extends WriteStorageCommand<Propert
         values.put(TableColumns.PromotedTracks.CREATED_AT, 0L);
         Where where = Filter.filter().whereEq(TableColumns.PromotedTracks.AD_URN, track.get(PromotedTrackProperty.AD_URN));
         return database.update(Table.PromotedTracks, values, where);
-    }
-
-    @Override
-    protected Boolean transform(WriteResult result) {
-        return result.success();
     }
 }
