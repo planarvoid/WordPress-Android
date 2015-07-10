@@ -46,8 +46,7 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
         offlineSettingsScreen = settingsScreen.clickOfflineSettings();
         assertTrue(offlineSettingsScreen.isVisible());
 
-        assertEquals("1.0 GB", offlineSettingsScreen.getSliderLimitText());
-        assertEquals("1.0 GB", offlineSettingsScreen.getLegendLimitText());
+        assertEquals("unlimited", offlineSettingsScreen.getSliderLimitText());
 
         offlineSettingsScreen.tapOnSlider(0); // minimum is 0.5
         assertEquals("0.5 GB", offlineSettingsScreen.getSliderLimitText());
