@@ -104,7 +104,9 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     protected ObjectGraph objectGraph;
 
-    public SoundCloudApplication() {
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
         objectGraph = ObjectGraph.create(
                 new ApplicationModule(this),
                 new AnalyticsModule(),
