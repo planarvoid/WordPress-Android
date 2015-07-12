@@ -297,6 +297,15 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void precacheTrackArtworkCachesImageOnDisc() {
+        imageOperations.precacheTrackArtwork(URN, ApiImageSize.LARGE);
+
+        verify(imageLoader).loadImage(eq(RESOLVER_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isFalse();
+    }
+
+    @Test
     public void displayLeaveBehindDoesNotCacheAndHasNoPlaceholder() {
         imageOperations.displayLeaveBehind(Uri.parse(URL), imageView, imageListener);
 
