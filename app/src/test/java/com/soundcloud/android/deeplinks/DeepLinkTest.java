@@ -62,6 +62,38 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.fromUri(Uri.parse("https://soundcloud.com/skrillex/sets/other"))).isEqualTo(DeepLink.OTHER);
     }
 
+    @Test
+    public void shouldRequireResolve() {
+        assertThat(DeepLink.TRACK.requiresResolve()).isTrue();
+        assertThat(DeepLink.PLAYLIST.requiresResolve()).isTrue();
+        assertThat(DeepLink.USER.requiresResolve()).isTrue();
+
+        assertThat(DeepLink.EXPLORE.requiresResolve()).isFalse();
+        assertThat(DeepLink.WHO_TO_FOLLOW.requiresResolve()).isFalse();
+        assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
+        assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
+        assertThat(DeepLink.HOME.requiresResolve()).isFalse();
+        assertThat(DeepLink.STREAM.requiresResolve()).isFalse();
+        assertThat(DeepLink.WEB_VIEW.requiresResolve()).isFalse();
+        assertThat(DeepLink.OTHER.requiresResolve()).isFalse();
+    }
+
+    @Test
+    public void shouldRequireLoggedIn() {
+        assertThat(DeepLink.EXPLORE.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.WHO_TO_FOLLOW.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.USER.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.TRACK.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.PLAYLIST.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.SEARCH.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.RECORD.requiresLoggedInUser()).isTrue();
+
+        assertThat(DeepLink.HOME.requiresLoggedInUser()).isFalse();
+        assertThat(DeepLink.STREAM.requiresLoggedInUser()).isFalse();
+        assertThat(DeepLink.WEB_VIEW.requiresLoggedInUser()).isFalse();
+        assertThat(DeepLink.OTHER.requiresLoggedInUser()).isFalse();
+    }
+
     private void assertDeeplink(DeepLink deepLink, String url) {
         assertThat(DeepLink.fromUri(Uri.parse(url))).isEqualTo(deepLink);
     }
