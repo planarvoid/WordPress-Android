@@ -10,17 +10,22 @@ import android.text.TextUtils;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME(false),
-    STREAM(false),
-    EXPLORE(true),
-    WHO_TO_FOLLOW(true),
-    USER(true),
-    TRACK(true),
-    PLAYLIST(true),
-    SEARCH(true),
-    RECORD(true),
-    WEB_VIEW(false),
-    OTHER(false);
+    HOME            (DeepLink.LOGGED_IN_NOT_REQUIRED,    DeepLink.RESOLVE_NOT_REQUIRED),
+    STREAM          (DeepLink.LOGGED_IN_NOT_REQUIRED,    DeepLink.RESOLVE_NOT_REQUIRED),
+    EXPLORE         (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_NOT_REQUIRED),
+    WHO_TO_FOLLOW   (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_NOT_REQUIRED),
+    USER            (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_REQUIRED),
+    TRACK           (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_REQUIRED),
+    PLAYLIST        (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_REQUIRED),
+    SEARCH          (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_NOT_REQUIRED),
+    RECORD          (DeepLink.LOGGED_IN_REQUIRED,        DeepLink.RESOLVE_NOT_REQUIRED),
+    WEB_VIEW        (DeepLink.LOGGED_IN_NOT_REQUIRED,    DeepLink.RESOLVE_NOT_REQUIRED),
+    OTHER           (DeepLink.LOGGED_IN_NOT_REQUIRED,    DeepLink.RESOLVE_NOT_REQUIRED);
+
+    public static final boolean LOGGED_IN_REQUIRED = true;
+    public static final boolean LOGGED_IN_NOT_REQUIRED = false;
+    public static final boolean RESOLVE_REQUIRED = true;
+    public static final boolean RESOLVE_NOT_REQUIRED = false;
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -31,9 +36,11 @@ public enum DeepLink {
     };
 
     private final boolean requiresLoggedInUser;
+    private final boolean requiresResolve;
 
-    DeepLink(boolean requiresLoggedInUser) {
+    DeepLink(boolean requiresLoggedInUser, boolean requiresResolve) {
         this.requiresLoggedInUser = requiresLoggedInUser;
+        this.requiresResolve = requiresResolve;
     }
 
     public boolean requiresLoggedInUser() {
@@ -41,14 +48,7 @@ public enum DeepLink {
     }
 
     public boolean requiresResolve() {
-        switch(this) {
-            case TRACK:
-            case PLAYLIST:
-            case USER:
-                return true;
-            default:
-                return false;
-        }
+        return requiresResolve;
     }
 
     @NonNull
