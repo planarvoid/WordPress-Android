@@ -19,8 +19,6 @@ public class MarkPromotedTrackAsStaleCommandTest extends StorageIntegrationTest 
 
     private MarkPromotedTrackAsStaleCommand command;
 
-    private final long now = System.currentTimeMillis();
-
     @Before
     public void setUp() throws Exception {
         command = new MarkPromotedTrackAsStaleCommand(propeller());
@@ -45,7 +43,7 @@ public class MarkPromotedTrackAsStaleCommandTest extends StorageIntegrationTest 
     public void insertPromotedTrackMetadata(String adUrn) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PromotedTracks._ID, 123);
-        cv.put(TableColumns.PromotedTracks.CREATED_AT, now);
+        cv.put(TableColumns.PromotedTracks.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.PromotedTracks.AD_URN, adUrn);
         cv.put(TableColumns.PromotedTracks.PROMOTER_ID, 83);
         cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, "SoundCloud");
