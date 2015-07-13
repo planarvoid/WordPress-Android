@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import javax.inject.Inject;
+import java.io.File;
 
 public class UploadActivity extends ScActivity {
     @Inject RecordingOperations operations;
@@ -34,14 +35,26 @@ public class UploadActivity extends ScActivity {
         Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
         operations.upload(SoundRecorder.UPLOAD_DIR, stream, intent.getType(), getContentResolver())
-                .subscribe(uploadSubscriber());
+                .subscribe(uploadSubscriber(intent));
     }
 
     @NotNull
-    private Subscriber<Recording> uploadSubscriber() {
+    private Subscriber<Recording> uploadSubscriber(final Intent intent) {
         return new DefaultSubscriber<Recording>() {
             @Override
             public void onNext(Recording recording) {
+                recording.title = intent.getStringExtra(Actions.EXTRA_TITLE);
+                recording.is_private = !intent.getBooleanExtra(Actions.EXTRA_PUBLIC, true);
+                recording.tags = intent.getStringArrayExtra(Actions.EXTRA_TAGS);
+                recording.description = intent.getStringExtra(Actions.EXTRA_DESCRIPTION);
+                recording.genre = intent.getStringExtra(Actions.EXTRA_GENRE);
+
+                Uri artwork = intent.getParcelableExtra(Actions.EXTRA_ARTWORK);
+
+                if (artwork != null && "file".equals(artwork.getScheme())) {
+                    recording.artwork_path = new File(artwork.getPath());
+                }
+
                 navigator.openRecord(UploadActivity.this, recording);
             }
 

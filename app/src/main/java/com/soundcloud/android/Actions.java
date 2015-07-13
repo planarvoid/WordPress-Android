@@ -25,6 +25,14 @@ public final class Actions {
     public static final String EXPLORE     = "com.soundcloud.android.action.EXPLORE";
     public static final String LIKES     = "com.soundcloud.android.action.LIKES";
 
+    // recording share from third-party apps
+    public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
+    public static final String EXTRA_DESCRIPTION = "com.soundcloud.android.extra.description";
+    public static final String EXTRA_PUBLIC      = "com.soundcloud.android.extra.public";
+    public static final String EXTRA_TAGS        = "com.soundcloud.android.extra.tags" ;
+    public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
+    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork";
+
     // internal actions
     public static final String ACCOUNT_ADDED       = "com.soundcloud.android.action.ACCOUNT_ADDED";
     public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.action.CHANGE_PROXY";
