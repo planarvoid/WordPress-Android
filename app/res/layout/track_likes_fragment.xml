@@ -41,7 +41,6 @@
                 layout="@layout/track_likes_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
                 app:layout_collapseMode="none"
                 app:layout_scrollFlags="scroll|enterAlways"/>
 
