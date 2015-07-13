@@ -231,7 +231,7 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
         return customGenderEditText.getText().toString();
     }
 
-    @OnClick(R.id.txt_choose_gender)
+    @OnClick({R.id.txt_choose_gender, R.id.gender_label})
     public void onGenderClick() {
         final FragmentActivity activity = signUpHandler.getFragmentActivity();
         DialogFragment fragment = GenderPickerDialogFragment.build(selectedGenderOption);
@@ -262,7 +262,12 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
     private void updateGenderLabel() {
         String label = (selectedGenderOption != null) ? getResources().getString(selectedGenderOption.getResId()) : null;
         genderOptionTextView.setText(label);
-        genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
+
+        if(selectedGenderOption != null) {
+            genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
+        } else {
+            genderOptionTextView.setHint(R.string.onboarding_indicate_gender);
+        }
     }
 
     private void hideKeyboardOnSignup(AutoCompleteTextView emailField, EditText passwordField) {
