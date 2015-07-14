@@ -4,6 +4,7 @@
         android:id="@+id/empty_item"
         android:icon="@null"
         android:enabled="false"
+        android:visible="false"
         android:title=""
         app:showAsAction="always"/>
 </menu>
