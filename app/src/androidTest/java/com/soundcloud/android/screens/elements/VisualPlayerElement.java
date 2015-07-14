@@ -59,6 +59,10 @@ public class VisualPlayerElement extends Element {
         assertTrue(isExpandedPlayerPlaying());
     }
 
+    private ViewElement playButton() {
+        return solo.findElement(With.id(R.id.player_play));
+    }
+
     private ViewElement previousButton() {
         return solo.findElement(With.id(R.id.player_previous));
     }
@@ -131,8 +135,8 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.interstitial_now_playing_title));
     }
 
-    private TextElement progress() {
-        return new TextElement(solo.findElement(With.id(R.id.timestamp_progress)));
+    private ViewElement progress() {
+        return solo.findElement(With.id(R.id.timestamp_progress));
     }
 
     public boolean isExpanded() {
@@ -144,7 +148,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpandedPlayerPlaying() {
-        return waiter.waitForElementCondition(new TextChangedCondition(progress()));
+        return !playButton().isVisible() && progress().isVisible() && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 
     public void tapFooter() {
@@ -322,9 +326,9 @@ public class VisualPlayerElement extends Element {
         private final String original;
         private final TextElement textElement;
 
-        private TextChangedCondition(TextElement textElement) {
-            this.textElement = textElement;
-            original = textElement.getText();
+        private TextChangedCondition(ViewElement textElement) {
+            this.textElement = new TextElement(textElement);
+            original = this.textElement.getText();
         }
 
         @Override

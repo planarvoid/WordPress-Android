@@ -40,4 +40,5 @@ public final class TestConsts {
     public static final Uri HOME_URI = Uri.parse("soundcloud://home");
 
     public static final Uri OTHER_PROFILE_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.otherProfileUser.getPermalink());
+    public static final Uri PRIVATE_SHARED_TRACK = Uri.parse("https://soundcloud.com/slawek-smiechura/sounds-from-thursday-afternoon/s-vw1Yl");
 }
