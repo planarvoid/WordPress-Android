@@ -126,8 +126,10 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     @Override
     public void onTagSelected(String tag) {
-        searchActionBarController.setQuery("#" + tag);
-        addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+        if (!isFinishing()) {
+            searchActionBarController.setQuery("#" + tag);
+            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+        }
     }
 
     @Override
