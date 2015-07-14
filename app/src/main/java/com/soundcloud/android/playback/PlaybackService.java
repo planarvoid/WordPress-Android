@@ -306,7 +306,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (!(playQueueManager.isCurrentTrack(getCurrentTrackUrn()) && streamPlayer.playbackHasPaused() && streamPlayer.resume())) {
                 openCurrent();
             }
+            resetVolume();
         }
+    }
+
+    private void resetVolume() {
+        fadeHandler.removeCallbacksAndMessages(null);
+        streamPlayer.setVolume(1);
     }
 
     // Pauses playback (call play() to resume)
