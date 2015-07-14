@@ -16,6 +16,7 @@ import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.search.SearchActivity;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.PendingIntent;
@@ -37,33 +38,33 @@ public class Navigator {
         this.featureFlags = featureFlags;
     }
 
-    public void openUpgrade(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, UpgradeActivity.class));
+    public void openUpgrade(Context context) {
+        context.startActivity(new Intent(context, UpgradeActivity.class));
     }
 
-    public void openPlaylist(Context activityContext, Urn playlist, Screen screen) {
-        activityContext.startActivity(createPlaylistIntent(playlist, screen, false));
+    public void openPlaylist(Context context, Urn playlist, Screen screen) {
+        context.startActivity(createPlaylistIntent(playlist, screen, false));
     }
 
-    public void openPlaylist(Context activityContext, Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        activityContext.startActivity(createPlaylistIntent(playlist, screen, false)
+    public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(createPlaylistIntent(playlist, screen, false)
                 .putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
-    public void openMyProfile(Context activityContext, Urn user) {
-        activityContext.startActivity(createMyProfileIntent(activityContext, user));
+    public void openMyProfile(Context context, Urn user) {
+        context.startActivity(createMyProfileIntent(context, user));
     }
 
-    public void openProfile(Context activityContext, Urn user) {
-        activityContext.startActivity(createProfileIntent(activityContext, user));
+    public void openProfile(Context context, Urn user) {
+        context.startActivity(createProfileIntent(context, user));
     }
 
-    public void openProfile(Context activityContext, Urn user, Screen screen) {
-        activityContext.startActivity(createProfileIntent(activityContext, user, screen));
+    public void openProfile(Context context, Urn user, Screen screen) {
+        context.startActivity(createProfileIntent(context, user, screen));
     }
 
-    public void openProfile(Context activityContext, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        activityContext.startActivity(createProfileIntent(activityContext, user, screen)
+    public void openProfile(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(createProfileIntent(context, user, screen)
                 .putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
@@ -82,28 +83,64 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public void openRecord(Context activityContext, Recording recording) {
-        activityContext.startActivity(createRecordIntent(activityContext, recording));
+    public void openRecord(Context context, Screen screen) {
+        context.startActivity(createRecordIntent(context, null, screen));
     }
 
-    public void openOnboarding(Context activityContext, Urn urn, Screen screen) {
-        activityContext.startActivity(createOnboardingIntent(activityContext, screen, urn));
+    public void openRecord(Context context, Recording recording) {
+        context.startActivity(createRecordIntent(context, recording));
     }
 
-    public void openStream(Context activityContext, Screen screen) {
-        activityContext.startActivity(createStreamIntent(screen));
+    public void openOnboarding(Context context, Urn urn, Screen screen) {
+        context.startActivity(createOnboardingIntent(context, screen, urn));
     }
 
-    public void openLauncher(Context activityContext) {
-        activityContext.startActivity(createLauncherIntent(activityContext));
+    public void openStream(Context context, Screen screen) {
+        context.startActivity(createStreamIntent(screen));
     }
 
-    public void openStreamWithExpandedPlayer(Context activityContext, Screen screen) {
-        activityContext.startActivity(createStreamWithExpandedPlayerIntent(screen));
+    public void openLauncher(Context context) {
+        context.startActivity(createLauncherIntent(context));
     }
 
-    public void openWebView(Context activityContext, Uri uri) {
-        activityContext.startActivity(createWebViewIntent(activityContext, uri));
+    public void openStreamWithExpandedPlayer(Context context, Screen screen) {
+        context.startActivity(createStreamWithExpandedPlayerIntent(screen));
+    }
+
+    public void openWebView(Context context, Uri uri) {
+        context.startActivity(createWebViewIntent(context, uri));
+    }
+
+    public void openExplore(Context context, Screen screen) {
+        context.startActivity(createExploreIntent(screen));
+    }
+
+    public void openSearch(Context context, Uri uri, Screen screen) {
+        context.startActivity(createSearchIntent(context, uri, screen));
+    }
+
+    public void openWhoToFollow(Context context, Screen screen) {
+        context.startActivity(createWhoToFollowIntent(screen));
+    }
+
+    private Intent createWhoToFollowIntent(Screen screen) {
+        Intent intent = new Intent(Actions.WHO_TO_FOLLOW).setFlags(FLAGS_TOP);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
+        Intent intent = new Intent(context, SearchActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createExploreIntent(Screen screen) {
+        Intent intent = new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
+        screen.addToIntent(intent);
+        return intent;
     }
 
     private Intent createStreamIntent(Screen screen) {
@@ -141,25 +178,32 @@ public class Navigator {
 
     }
 
-    private Intent createRecordIntent(Context activityContext, Recording recording) {
-        return new Intent(activityContext, RecordActivity.class)
+    private Intent createRecordIntent(Context context, Recording recording) {
+        return new Intent(context, RecordActivity.class)
                 .putExtra(Recording.EXTRA, recording)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
-    private Intent createLauncherIntent(Context activityContext) {
-        return new Intent(activityContext, LauncherActivity.class);
+    private Intent createRecordIntent(Context context, Recording recording, Screen screen) {
+        Intent intent = createRecordIntent(context, recording);
+        screen.addToIntent(intent);
+        return intent;
     }
 
-    private Intent createOnboardingIntent(Context activityContext, Screen screen, Urn urn) {
-        Intent intent = new Intent(activityContext, OnboardActivity.class)
+
+    private Intent createLauncherIntent(Context context) {
+        return new Intent(context, LauncherActivity.class);
+    }
+
+    private Intent createOnboardingIntent(Context context, Screen screen, Urn urn) {
+        Intent intent = new Intent(context, OnboardActivity.class)
                 .putExtra(OnboardActivity.EXTRA_URN, urn)
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
     }
 
-    private Intent createWebViewIntent(Context activityContext, Uri uri) {
-        return new Intent(activityContext, WebViewActivity.class).setData(uri);
+    private Intent createWebViewIntent(Context context, Uri uri) {
+        return new Intent(context, WebViewActivity.class).setData(uri);
     }
 }
