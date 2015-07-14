@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.with.With;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +33,8 @@ public class Han  {
 
     private final Solo solo;
     private final Instrumentation instrumentation;
+    Instrumentation.ActivityMonitor activityMonitor;
+    IntentFilter filter = null;
 
     @Deprecated
     public Solo getSolo() {
@@ -40,6 +43,7 @@ public class Han  {
 
     public Han(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
+        activityMonitor = instrumentation.addMonitor(filter, null, false);
         solo = new Solo(instrumentation);
         viewFetcher = new ViewFetcher(this);
     }
@@ -218,7 +222,7 @@ public class Han  {
     }
 
     public Activity getCurrentActivity() {
-        return solo.getCurrentActivity();
+        return activityMonitor.getLastActivity();
     }
 
     public boolean scrollListToTop(int index) {
