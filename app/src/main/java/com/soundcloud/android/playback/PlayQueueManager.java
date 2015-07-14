@@ -127,7 +127,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public boolean isQueueEmpty() {
-        return getQueueSize() == 0;
+        return playQueue.isEmpty();
     }
 
     public int getQueueSize() {
