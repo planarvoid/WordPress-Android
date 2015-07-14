@@ -26,6 +26,7 @@ public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
     protected void setUp() throws Exception {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         super.setUp();
+        waiter.waitFiveSeconds();
     }
 
     public VisualPlayerElement getPlayerElement() {
