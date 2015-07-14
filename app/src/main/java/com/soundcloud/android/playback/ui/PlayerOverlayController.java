@@ -36,8 +36,9 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     private void configureOverlay() {
         if (notScrubbing() && isExpanded() && playingAndNotShowingAd()) {
             overlayAnimator.hideOverlay(overlay);
-        } else if (isExpanded()){
+        } else if (isExpanded()) {
             overlayAnimator.showOverlay(overlay);
+
         }
     }
 
@@ -57,10 +58,10 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     public void scrubStateChanged(int newScrubState) {
         isScrubbing = newScrubState == ScrubController.SCRUB_STATE_SCRUBBING;
 
-        if (isScrubbing){
+        if (isScrubbing) {
             overlayAnimator.showOverlay(overlay);
 
-        } else if (playingAndNotShowingAd() && isExpanded()){
+        } else if (playingAndNotShowingAd() && isExpanded()) {
             overlayAnimator.hideOverlay(overlay);
         }
     }

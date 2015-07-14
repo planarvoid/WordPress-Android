@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.SlidingPlayerController.EXTRA_EXPAND_PLAYER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -19,11 +19,10 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -36,8 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SlidingPlayerControllerTest {
+public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
@@ -176,7 +174,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onSaveInstanceState(activity, bundle);
 
-        expect(bundle.getBoolean(EXTRA_EXPAND_PLAYER)).toBeTrue();
+        assertThat(bundle.getBoolean(EXTRA_EXPAND_PLAYER)).isTrue();
     }
 
     @Test
@@ -184,7 +182,7 @@ public class SlidingPlayerControllerTest {
         controller.onPanelCollapsed(mock(View.class));
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+        assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test
@@ -196,7 +194,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume(activity);
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+        assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test
@@ -208,8 +206,8 @@ public class SlidingPlayerControllerTest {
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE);
-        expect(event.getKind()).toEqual(expected.getKind());
-        expect(event.getAttributes()).toEqual(expected.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expected.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
 
     @Test
@@ -221,8 +219,8 @@ public class SlidingPlayerControllerTest {
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER);
-        expect(event.getKind()).toEqual(expected.getKind());
-        expect(event.getAttributes()).toEqual(expected.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expected.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
 
     @Test
@@ -231,7 +229,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume(activity);
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+        assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_EXPANDED);
     }
 
     @Test
@@ -241,7 +239,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume(activity);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_EXPANDED);
     }
 
     @Test
@@ -251,7 +249,18 @@ public class SlidingPlayerControllerTest {
         controller.onResume(activity);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
+    }
+
+    @Test
+    public void sendsCollapsedPlayerEventWhenResumingAndPlayQueueIsEmpty() {
+        when(slidingPanel.isPanelExpanded()).thenReturn(false);
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+
+        controller.onResume(activity);
+
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
+        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test
@@ -275,7 +284,7 @@ public class SlidingPlayerControllerTest {
     public void onBackPressedShouldDoNothingWhenPlayerIsCollapsed() {
         collapsePanel();
 
-        expect(controller.handleBackPressed()).toBeFalse();
+        assertThat(controller.handleBackPressed()).isFalse();
         verify(slidingPanel, never()).collapsePanel();
     }
 
@@ -283,7 +292,7 @@ public class SlidingPlayerControllerTest {
     public void onBackPressedShouldCollapsedWhenPlayerIsExpanding() {
         expandPanel();
 
-        expect(controller.handleBackPressed()).toBeTrue();
+        assertThat(controller.handleBackPressed()).isTrue();
         verify(slidingPanel).collapsePanel();
     }
 
@@ -295,8 +304,8 @@ public class SlidingPlayerControllerTest {
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private void attachController() {
