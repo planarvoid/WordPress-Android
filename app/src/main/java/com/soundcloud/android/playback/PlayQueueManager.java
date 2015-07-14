@@ -347,6 +347,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;
+        clearCurrentPlayingTrack();
+    }
+
+    private void clearCurrentPlayingTrack() {
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
     }
 
     public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations) {

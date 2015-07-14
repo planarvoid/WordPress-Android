@@ -934,6 +934,13 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clearAllShouldClearNowPlayingTrack() {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.clearAll();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isEqualTo(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+    }
+
+    @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
         playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
