@@ -78,7 +78,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         navigationFragment.initState(savedInstanceState);
 
         if (savedInstanceState == null) {
-            lastTitle = getTitle();
+            restoreTitle();
             if (accountOperations.isUserLoggedIn()) {
                 handleLoggedInUser();
             }
@@ -96,6 +96,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (playQueueManager.shouldReloadQueue()) {
             playQueueManager.loadPlayQueueAsync(true);
         }
+    }
+
+    private void restoreTitle() {
+        lastTitle = isNotBlank(lastTitle) ? lastTitle : getTitle();
     }
 
     private void setupEmailOptIn() {
