@@ -7,11 +7,6 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.ClearTrackDownloadsCommand;
-import com.soundcloud.android.offline.commands.LoadExpectedContentCommand;
-import com.soundcloud.android.offline.commands.LoadOfflineContentUpdatesCommand;
-import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
-import com.soundcloud.android.offline.commands.StoreDownloadUpdatesCommand;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.WriteResult;
@@ -176,7 +171,7 @@ public class OfflineContentOperations {
 
     @VisibleForTesting
     Observable<Void> updateOfflineContentStalePolicies() {
-        return loadTracksWithStalePolicies.toObservable()
+        return loadTracksWithStalePolicies.toObservable(null)
                 .flatMap(UPDATE_POLICIES)
                 .subscribeOn(scheduler);
     }

@@ -1,11 +1,10 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Filter;
@@ -15,7 +14,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class DeleteOfflineTrackCommand extends Command<Collection<Urn>, Collection<Urn>> {
+class DeleteOfflineTrackCommand extends Command<Collection<Urn>, Collection<Urn>> {
 
     private final SecureFileStorage fileStorage;
     private final PropellerDatabase database;

@@ -326,11 +326,10 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
-    public void assertTrackDownloadNotStored(Urn trackUrn) {
+    public void assertNotDownloaded(Urn trackUrn) {
         assertThat(select(from(Table.TrackDownloads.name())
                 .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())), counts(0));
     }
-
 
     public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
         assertThat(select(from(Table.TrackDownloads.name())

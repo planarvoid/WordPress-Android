@@ -9,7 +9,6 @@ import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.EncryptionInterruptedException;
 import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.utils.IOUtils;
