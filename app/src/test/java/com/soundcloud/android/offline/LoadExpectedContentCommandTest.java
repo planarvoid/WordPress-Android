@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -7,8 +7,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +55,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
+                new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test

@@ -1,20 +1,14 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineContentRequests;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Mock private Thread backgroundThread;
@@ -37,7 +31,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(TRACK)
+                Collections.singletonList(TRACK)
         );
 
         command.call(offlineContentRequests);
@@ -49,14 +43,14 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storesNewDownloadRequestsAsPendingDownload() {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(new DownloadRequest(TRACK, 12345L)),
+                Collections.singletonList(new DownloadRequest(TRACK, 12345L)),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
         command.call(offlineContentRequests);
 
-        databaseAssertions().assertDownloadRequestsInserted(Arrays.asList(TRACK));
+        databaseAssertions().assertDownloadRequestsInserted(Collections.singletonList(TRACK));
     }
 
     @Test
@@ -65,7 +59,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(new DownloadRequest(TRACK, 12345L)),
+                Collections.singletonList(new DownloadRequest(TRACK, 12345L)),
                 Collections.<Urn>emptyList()
         );
 

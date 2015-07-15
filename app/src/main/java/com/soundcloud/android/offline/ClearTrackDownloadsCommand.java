@@ -1,10 +1,9 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
+class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
 
     private final PropellerDatabase propeller;
     private final SecureFileStorage secureFileStorage;

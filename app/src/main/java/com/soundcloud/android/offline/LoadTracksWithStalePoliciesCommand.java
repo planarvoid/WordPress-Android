@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.OfflineContent;
@@ -7,10 +7,9 @@ import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.commands.LegacyCommand;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -24,7 +23,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.TreeSet;
 
-public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
+class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> {
 
     private final PropellerDatabase database;
     private final OfflineSettingsStorage settingsStorage;
@@ -36,7 +35,7 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Coll
     }
 
     @Override
-    public Collection<Urn> call() throws Exception {
+    public Collection<Urn> call(Void ignored) {
         final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILISECONDS;
         final Collection<Urn> set = new TreeSet<>();
         final Where stalePolicyCondition = filter()

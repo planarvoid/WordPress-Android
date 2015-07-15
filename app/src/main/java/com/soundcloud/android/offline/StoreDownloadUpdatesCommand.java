@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
@@ -8,8 +8,6 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAIL
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineContentRequests;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -19,7 +17,7 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-public class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineContentRequests, WriteResult> {
+class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineContentRequests, WriteResult> {
 
     @Inject
     protected StoreDownloadUpdatesCommand(PropellerDatabase propeller) {
@@ -31,15 +29,15 @@ public class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<Offl
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                for (Urn urn : requests.newRemovedTracks){
+                for (Urn urn : requests.newRemovedTracks) {
                     step(propeller.upsert(TrackDownloads, buildContentValuesForRemoval(urn)));
                 }
 
-                for (DownloadRequest downloadRequest : requests.newRestoredRequests){
+                for (DownloadRequest downloadRequest : requests.newRestoredRequests) {
                     step(propeller.upsert(TrackDownloads, buildContentValuesForDownloaded(downloadRequest.track)));
                 }
 
-                for (DownloadRequest downloadRequest : requests.newDownloadRequests){
+                for (DownloadRequest downloadRequest : requests.newDownloadRequests) {
                     step(propeller.upsert(TrackDownloads, buildContentValuesForPendingDownload(downloadRequest.track)));
                 }
             }

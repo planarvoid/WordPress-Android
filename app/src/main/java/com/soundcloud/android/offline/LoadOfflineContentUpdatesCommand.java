@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
@@ -15,8 +15,6 @@ import com.google.common.collect.Collections2;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineContentRequests;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -27,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadRequest>, OfflineContentRequests> {
+class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadRequest>, OfflineContentRequests> {
 
     private static final long PENDING_REMOVAL_DELAY = TimeUnit.MINUTES.toMillis(3);
 

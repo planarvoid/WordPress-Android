@@ -12,11 +12,6 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.ClearTrackDownloadsCommand;
-import com.soundcloud.android.offline.commands.LoadExpectedContentCommand;
-import com.soundcloud.android.offline.commands.LoadOfflineContentUpdatesCommand;
-import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
-import com.soundcloud.android.offline.commands.StoreDownloadUpdatesCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -63,7 +58,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         subscriber = new TestSubscriber<>();
 
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
         when(changeResult.success()).thenReturn(true);
 
@@ -84,7 +79,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
         operations.updateOfflineContentStalePolicies().subscribe(subscriber);
 
         verifyZeroInteractions(policyOperations);
@@ -93,7 +88,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void updateStalePoliciesRequestsPolicyUpdatesFromPolicyOperations() {
         final List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracks));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(tracks));
 
         operations.updateOfflineContentStalePolicies().subscribe();
 
@@ -105,7 +100,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Collection<DownloadRequest> downloadRequests = Collections.emptyList();
         final OfflineContentRequests offlineContentRequests = mock(OfflineContentRequests.class);
 
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentRequests));
@@ -120,7 +115,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Collection<DownloadRequest> downloadRequests = Collections.emptyList();
         final OfflineContentRequests offlineContentRequests = mock(OfflineContentRequests.class);
 
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentRequests));
@@ -249,7 +244,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         when(trackDownloadsStorage.getLastPolicyUpdate()).thenReturn(Observable.<Long>empty());
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracksWithStalePolicies));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(tracksWithStalePolicies));
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 

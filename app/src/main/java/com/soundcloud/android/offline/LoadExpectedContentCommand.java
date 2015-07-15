@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline.commands;
+package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Likes;
@@ -12,8 +12,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
@@ -30,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
+class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
 
     private final PropellerDatabase database;
     private final OfflineSettingsStorage settingsStorage;
