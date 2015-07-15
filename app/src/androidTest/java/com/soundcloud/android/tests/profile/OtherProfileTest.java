@@ -37,7 +37,7 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testPostsLoadNextPage() {
+    public void disabled_testPostsLoadNextPage() {
         int postItemsBefore = profileScreen.getCurrentListItemCount();
         profileScreen.scrollToBottomOfCurrentListAndLoadMoreItems();
         assertThat(postItemsBefore, is(lessThan(profileScreen.getCurrentListItemCount())));
