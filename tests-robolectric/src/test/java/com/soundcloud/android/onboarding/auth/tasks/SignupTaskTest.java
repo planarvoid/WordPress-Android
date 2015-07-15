@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -60,70 +61,70 @@ public class SignupTaskTest {
 
     @Test
     public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Email has already been taken", 101));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Email has already been taken", 101));
         AuthTaskResult result = doSignup();
         expect(result.wasEmailTaken()).toBeTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Email domain is blacklisted.", 102));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Email domain is blacklisted.", 102));
         AuthTaskResult result = doSignup();
         expect(result.wasDenied()).toBeTrue();
     }
 
     @Test
     public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Spam detected, login on web page with captcha.", 103));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Spam detected, login on web page with captcha.", 103));
         AuthTaskResult result = doSignup();
         expect(result.wasSpam()).toBeTrue();
     }
 
     @Test
     public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Email is invalid.", 104));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Email is invalid.", 104));
         AuthTaskResult result = doSignup();
         expect(result.wasEmailInvalid()).toBeTrue();
     }
 
     @Test
     public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Sorry we couldn't sign you up with the details you provided.", 105));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 105));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "Sorry we couldn't sign you up with the details you provided.", 180));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 180));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupWithUnreconizedError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, "unknown", -1));
+        setupSignupWithError(ApiRequestException.validationError(null, null, "unknown", -1));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupForbidden() throws Exception {
-        setupSignupWithError(ApiRequestException.notAllowed(null));
+        setupSignupWithError(ApiRequestException.notAllowed(null, null));
         AuthTaskResult result = doSignup();
         expect(result.wasDenied()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupServerError() throws Exception {
-        setupSignupWithError(ApiRequestException.serverError(null));
+        setupSignupWithError(ApiRequestException.serverError(null, null));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupUnexpectedResponseStatus() throws Exception {
-        setupSignupWithError(ApiRequestException.unexpectedResponse(null, 102));
+        setupSignupWithError(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 403, "body")));
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
     }

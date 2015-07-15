@@ -50,7 +50,7 @@ public class SignupTask extends AuthTask {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
             } catch (ApiRequestException e) {
-                return AuthTaskResult.signUpFailedToLogin();
+                return AuthTaskResult.signUpFailedToLogin(e);
             }
         }
         return result;
@@ -78,33 +78,33 @@ public class SignupTask extends AuthTask {
         }
     }
 
-    private AuthTaskResult handleError(ApiRequestException error) {
-        switch (error.reason()) {
+    private AuthTaskResult handleError(ApiRequestException exception) {
+        switch (exception.reason()) {
             case VALIDATION_ERROR:
-                return handleUnprocessableEntity(error.errorCode());
+                return handleUnprocessableEntity(exception.errorCode(), exception);
             case NOT_ALLOWED:
-                return AuthTaskResult.denied();
+                return AuthTaskResult.denied(exception);
             case SERVER_ERROR:
-                return AuthTaskResult.failure(getString(R.string.error_server_problems_message));
+                return AuthTaskResult.failure(getString(R.string.error_server_problems_message), exception);
             default:
-                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
+                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
         }
     }
 
-    private AuthTaskResult handleUnprocessableEntity(int errorCode) {
+    private AuthTaskResult handleUnprocessableEntity(int errorCode, ApiRequestException exception) {
         switch (errorCode) {
             case SignupResponseBody.ERROR_EMAIL_TAKEN:
-                return AuthTaskResult.emailTaken();
+                return AuthTaskResult.emailTaken(exception);
             case SignupResponseBody.ERROR_DOMAIN_BLACKLISTED:
-                return AuthTaskResult.denied();
+                return AuthTaskResult.denied(exception);
             case SignupResponseBody.ERROR_CAPTCHA_REQUIRED:
-                return AuthTaskResult.spam();
+                return AuthTaskResult.spam(exception);
             case SignupResponseBody.ERROR_EMAIL_INVALID:
-                return AuthTaskResult.emailInvalid();
+                return AuthTaskResult.emailInvalid(exception);
             case SignupResponseBody.ERROR_OTHER:
-                return AuthTaskResult.failure(getString(R.string.authentication_email_other_error_message));
+                return AuthTaskResult.failure(getString(R.string.authentication_email_other_error_message), exception);
             default:
-                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
+                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
         }
     }
 

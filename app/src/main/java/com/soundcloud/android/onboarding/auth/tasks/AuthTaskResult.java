@@ -31,13 +31,13 @@ public final class AuthTaskResult {
     public static AuthTaskResult failure(ApiRequestException exception) {
         switch (exception.reason()) {
             case AUTH_ERROR:
-                return AuthTaskResult.unauthorized();
+                return AuthTaskResult.unauthorized(exception);
             case VALIDATION_ERROR:
-                return AuthTaskResult.validationError(exception.errorKey());
+                return AuthTaskResult.validationError(exception.errorKey(), exception);
             case NETWORK_ERROR:
-                return AuthTaskResult.networkError();
+                return AuthTaskResult.networkError(exception.getException());
             case SERVER_ERROR:
-                return AuthTaskResult.serverError();
+                return AuthTaskResult.serverError(exception);
             default:
                 return new AuthTaskResult(exception);
         }
@@ -47,40 +47,44 @@ public final class AuthTaskResult {
         return failure(new AuthTaskException(errorMessage));
     }
 
-    public static AuthTaskResult emailTaken() {
-        return new AuthTaskResult(Kind.EMAIL_TAKEN);
+    public static AuthTaskResult failure(String errorMessge, ApiRequestException exception) {
+        return new AuthTaskResult(Kind.FAILURE, errorMessge, exception);
     }
 
-    public static AuthTaskResult spam() {
-        return new AuthTaskResult(Kind.SPAM);
+    public static AuthTaskResult emailTaken(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.EMAIL_TAKEN, exception);
     }
 
-    public static AuthTaskResult denied() {
-        return new AuthTaskResult(Kind.DENIED);
+    public static AuthTaskResult spam(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.SPAM, exception);
     }
 
-    public static AuthTaskResult emailInvalid() {
-        return new AuthTaskResult(Kind.EMAIL_INVALID);
+    public static AuthTaskResult denied(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.DENIED, exception);
     }
 
-    public static AuthTaskResult signUpFailedToLogin() {
-        return new AuthTaskResult(Kind.FLAKY_SIGNUP_ERROR);
+    public static AuthTaskResult emailInvalid(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.EMAIL_INVALID, exception);
     }
 
-    public static AuthTaskResult unauthorized() {
-        return new AuthTaskResult(Kind.UNAUTHORIZED);
+    public static AuthTaskResult signUpFailedToLogin(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.FLAKY_SIGNUP_ERROR, exception);
     }
 
-    public static AuthTaskResult serverError() {
-        return new AuthTaskResult(Kind.SERVER_ERROR);
+    public static AuthTaskResult unauthorized(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.UNAUTHORIZED, exception);
     }
 
-    public static AuthTaskResult networkError() {
-        return new AuthTaskResult(Kind.NETWORK_ERROR);
+    public static AuthTaskResult serverError(ApiRequestException exception) {
+        return new AuthTaskResult(Kind.SERVER_ERROR, exception);
     }
 
-    public static AuthTaskResult validationError(String errorMessage) {
-        return new AuthTaskResult(Kind.VALIDATION_ERROR, errorMessage);
+    public static AuthTaskResult networkError(Exception exception) {
+        return new AuthTaskResult(Kind.NETWORK_ERROR, exception);
+    }
+
+    public static AuthTaskResult validationError(String errorMessage, ApiRequestException exception) {
+        return new AuthTaskResult(Kind.VALIDATION_ERROR, errorMessage, exception);
     }
 
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
@@ -99,12 +103,12 @@ public final class AuthTaskResult {
         this(Kind.FAILURE, null, null, exception, false, null, null);
     }
 
-    private AuthTaskResult(Kind kind) {
-        this(kind, null, null, null, false, null, null);
+    private AuthTaskResult(Kind kind, String serverErrorMessage, ApiRequestException exception) {
+        this(kind, null, null, exception, false, null, serverErrorMessage);
     }
 
-    private AuthTaskResult(Kind kind, String serverErrorMessage) {
-        this(kind, null, null, null, false, null, serverErrorMessage);
+    private AuthTaskResult(Kind kind, Exception exception) {
+        this(kind, null, null, exception, false, null, null);
     }
 
     private AuthTaskResult(@NotNull Kind kind, PublicApiUser user, SignupVia signupVia,

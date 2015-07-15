@@ -64,7 +64,7 @@ public class GooglePlusSignInTask extends LoginTask {
                 }
             } catch (IOException e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = AuthTaskResult.networkError();
+                result = AuthTaskResult.networkError(e);
                 triesLeft = 0;
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);

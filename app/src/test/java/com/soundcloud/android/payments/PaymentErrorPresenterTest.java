@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,10 +22,12 @@ public class PaymentErrorPresenterTest extends AndroidUnitTest {
     @Mock private PaymentErrorView errorPresenter;
 
     private ApiRequest apiRequest;
+    private ApiResponse apiResponse;
 
     @Before
     public void setUp() {
         apiRequest = ApiRequest.get("/").forPrivateApi(1).build();
+        apiResponse = new ApiResponse(apiRequest, 200, "body");
         paymentErrorPresenter = new PaymentErrorPresenter(errorPresenter);
         paymentErrorPresenter.setActivity(activity);
     }
@@ -36,13 +39,13 @@ public class PaymentErrorPresenterTest extends AndroidUnitTest {
 
     @Test
     public void badRequestFromAlreadySubscribedShowsCorrectError() {
-        paymentErrorPresenter.onError(ApiRequestException.badRequest(apiRequest, "already_subscribed"));
+        paymentErrorPresenter.onError(ApiRequestException.badRequest(apiRequest, apiResponse, "already_subscribed"));
         verify(errorPresenter).showAlreadySubscribed();
     }
 
     @Test
     public void notFoundShowsStaleCheckout() {
-        paymentErrorPresenter.onError(ApiRequestException.notFound(apiRequest));
+        paymentErrorPresenter.onError(ApiRequestException.notFound(apiRequest, apiResponse));
         verify(errorPresenter).showStaleCheckout();
     }
 

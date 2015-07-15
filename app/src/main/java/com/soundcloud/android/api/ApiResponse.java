@@ -32,21 +32,21 @@ public class ApiResponse {
 
     private void determineFailure(ApiRequest request, int statusCode) {
         if (statusCode == SC_REQUEST_TOO_MANY_REQUESTS) {
-            failure = ApiRequestException.rateLimited(request);
+            failure = ApiRequestException.rateLimited(request, this);
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-            failure = ApiRequestException.notFound(request);
+            failure = ApiRequestException.notFound(request, this);
         } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-            failure = ApiRequestException.authError(request);
+            failure = ApiRequestException.authError(request, this);
         } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-            failure = ApiRequestException.notAllowed(request);
+            failure = ApiRequestException.notAllowed(request, this);
         } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
-            failure = ApiRequestException.badRequest(request, getErrorKey());
+            failure = ApiRequestException.badRequest(request, this, getErrorKey());
         } else if (statusCode == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
-            failure = ApiRequestException.validationError(request, getErrorKey(), getErrorCode());
+            failure = ApiRequestException.validationError(request, this, getErrorKey(), getErrorCode());
         } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-            failure = ApiRequestException.serverError(request);
+            failure = ApiRequestException.serverError(request, this);
         } else if (!isSuccessCode(statusCode)) {
-            failure = ApiRequestException.unexpectedResponse(request, statusCode);
+            failure = ApiRequestException.unexpectedResponse(request, this);
         }
     }
 
