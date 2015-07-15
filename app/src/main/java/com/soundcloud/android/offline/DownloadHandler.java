@@ -19,7 +19,7 @@ public class DownloadHandler extends Handler {
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
     private final SecureFileStorage secureFileStorage;
-    private final TrackDownloadsStorage offlineTracksStorage;
+    private final TrackDownloadsStorage trackDownloadsStorage;
 
     private DownloadRequest current;
 
@@ -47,22 +47,22 @@ public class DownloadHandler extends Handler {
 
     public DownloadHandler(Looper looper, MainHandler mainHandler,
                            DownloadOperations downloadOperations,
-                           SecureFileStorage secureFileStorage, TrackDownloadsStorage offlineTracksStorage) {
+                           SecureFileStorage secureFileStorage, TrackDownloadsStorage trackDownloadsStorage) {
         super(looper);
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
-        this.offlineTracksStorage = offlineTracksStorage;
+        this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
     @VisibleForTesting
     DownloadHandler(MainHandler mainHandler,
                     DownloadOperations downloadOperations,
-                    SecureFileStorage secureFileStorage, TrackDownloadsStorage offlineTracksStorage) {
+                    SecureFileStorage secureFileStorage, TrackDownloadsStorage trackDownloadsStorage) {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
-        this.offlineTracksStorage = offlineTracksStorage;
+        this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class DownloadHandler extends Handler {
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_CANCEL, result);
         } else {
             if (result.isUnavailable()) {
-                offlineTracksStorage.markTrackAsUnavailable(result.getTrack());
+                trackDownloadsStorage.markTrackAsUnavailable(result.getTrack());
             }
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
@@ -95,7 +95,7 @@ public class DownloadHandler extends Handler {
     }
 
     private void tryToStoreDownloadSuccess(DownloadState result) {
-        final WriteResult writeResult = offlineTracksStorage.storeCompletedDownload(result);
+        final WriteResult writeResult = trackDownloadsStorage.storeCompletedDownload(result);
         if (writeResult.success()) {
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
         } else {

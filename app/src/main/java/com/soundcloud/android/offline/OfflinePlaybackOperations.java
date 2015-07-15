@@ -30,7 +30,7 @@ public class OfflinePlaybackOperations {
     private final FeatureOperations featureOperations;
     private final PlaybackOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
-    private final TrackDownloadsStorage offlineTracksStorage;
+    private final TrackDownloadsStorage trackDownloadsStorage;
     private final Scheduler scheduler;
 
     @Inject
@@ -39,14 +39,14 @@ public class OfflinePlaybackOperations {
                                      PlaybackOperations playbackOperations,
                                      TrackLikeOperations likeOperations,
                                      PlaylistOperations playlistOperations,
-                                     TrackDownloadsStorage offlineTracksStorage,
+                                     TrackDownloadsStorage trackDownloadsStorage,
                                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.featureOperations = featureOperations;
         this.connectionHelper = connectionHelper;
         this.playbackOperations = playbackOperations;
         this.likeOperations = likeOperations;
         this.playlistOperations = playlistOperations;
-        this.offlineTracksStorage = offlineTracksStorage;
+        this.trackDownloadsStorage = trackDownloadsStorage;
         this.scheduler = scheduler;
     }
 
@@ -57,7 +57,7 @@ public class OfflinePlaybackOperations {
 
     public Observable<PlaybackResult> playLikes(final Urn trackUrn, final int position, final PlaySessionSource playSessionSource) {
         if (shouldCreateOfflinePlayQueue()) {
-            return offlineTracksStorage.likesUrns()
+            return trackDownloadsStorage.likesUrns()
                     .subscribeOn(scheduler)
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(playIfAvailableOffline(trackUrn, position, playSessionSource));
@@ -67,7 +67,7 @@ public class OfflinePlaybackOperations {
 
     public Observable<PlaybackResult> playPlaylist(Urn playlistUrn, Urn initialTrack, int position, PlaySessionSource sessionSource) {
         if (shouldCreateOfflinePlayQueue()) {
-            return offlineTracksStorage.playlistTrackUrns(playlistUrn)
+            return trackDownloadsStorage.playlistTrackUrns(playlistUrn)
                     .subscribeOn(scheduler)
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(playIfAvailableOffline(initialTrack, position, sessionSource));
@@ -78,7 +78,7 @@ public class OfflinePlaybackOperations {
 
     public Observable<PlaybackResult> playPlaylistShuffled(Urn playlistUrn, final PlaySessionSource sessionSource) {
         final Observable<List<Urn>> trackUrnsObservable = shouldCreateOfflinePlayQueue()
-                ? offlineTracksStorage.playlistTrackUrns(playlistUrn)
+                ? trackDownloadsStorage.playlistTrackUrns(playlistUrn)
                 : playlistOperations.trackUrnsForPlayback(playlistUrn);
 
         return playbackOperations.playTracksShuffled(trackUrnsObservable.subscribeOn(scheduler), sessionSource);
@@ -99,7 +99,7 @@ public class OfflinePlaybackOperations {
 
     public Observable<PlaybackResult> playLikedTracksShuffled(PlaySessionSource playSessionSource) {
         final Observable<List<Urn>> likedTracks = shouldCreateOfflinePlayQueue()
-                ? offlineTracksStorage.likesUrns()
+                ? trackDownloadsStorage.likesUrns()
                 : likeOperations.likedTrackUrns();
 
         return playbackOperations.playTracksShuffled(likedTracks.subscribeOn(scheduler), playSessionSource);
