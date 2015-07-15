@@ -1,17 +1,14 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
 public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
 
     private OfflinePlaylistStorage playlistStorage;
@@ -46,7 +43,7 @@ public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
 
         playlistStorage.isOfflinePlaylist(playlistUrn).subscribe(testObserver);
 
-        testObserver.assertReceivedOnNext(Arrays.asList(true));
+        testObserver.assertReceivedOnNext(Collections.singletonList(true));
     }
 
     @Test
@@ -55,6 +52,6 @@ public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
 
         playlistStorage.isOfflinePlaylist(Urn.forPlaylist(123L)).subscribe(testObserver);
 
-        testObserver.assertReceivedOnNext(Arrays.asList(false));
+        testObserver.assertReceivedOnNext(Collections.singletonList(false));
     }
 }

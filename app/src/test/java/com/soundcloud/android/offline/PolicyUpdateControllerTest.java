@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -10,23 +10,22 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DateProvider;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PolicyUpdateControllerTest {
+public class PolicyUpdateControllerTest extends AndroidUnitTest {
     private PolicyUpdateController controller;
 
     @Mock private FeatureOperations featureOperations;
@@ -34,6 +33,7 @@ public class PolicyUpdateControllerTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private DateProvider dateProvider;
     @Mock private GoBackOnlineDialogPresenter goOnlinePresenter;
+    @Mock private Context context;
 
     private long yesterday;
     private long now;
@@ -48,7 +48,7 @@ public class PolicyUpdateControllerTest {
         yesterday = now - TimeUnit.DAYS.toMillis(1);
         tomorrow = now + TimeUnit.DAYS.toMillis(1);
         controller = new PolicyUpdateController(
-                Robolectric.application,
+                context,
                 featureOperations,
                 offlineContentOperations,
                 offlineSettingsStorage,
@@ -118,7 +118,7 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(wasServiceStarted()).toBeFalse();
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
@@ -136,13 +136,20 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(wasServiceStarted()).toBeTrue();
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     private boolean wasServiceStarted() {
-        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        final Intent intent = captureStartServiceIntent();
         return intent != null &&
                 intent.getAction().equals(OfflineContentService.ACTION_START) &&
                 intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
+    }
+
+    private Intent captureStartServiceIntent() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startService(captor.capture());
+
+        return captor.getValue();
     }
 }

@@ -1,18 +1,16 @@
 package com.soundcloud.android.offline;
 
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -23,8 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ResumeDownloadOnConnectedReceiverTest {
+public class ResumeDownloadOnConnectedReceiverTest extends AndroidUnitTest {
 
     private ResumeDownloadOnConnectedReceiver receiver;
 
@@ -42,7 +39,7 @@ public class ResumeDownloadOnConnectedReceiverTest {
         receiver.register();
 
         verify(context).registerReceiver(same(receiver), intentFilterCaptor.capture());
-        expect(intentFilterCaptor.getValue().getAction(0)).toEqual(ConnectivityManager.CONNECTIVITY_ACTION);
+        assertThat(intentFilterCaptor.getValue().getAction(0)).isEqualTo(ConnectivityManager.CONNECTIVITY_ACTION);
     }
 
     @Test
@@ -70,30 +67,40 @@ public class ResumeDownloadOnConnectedReceiverTest {
 
     @Test
     public void onReceiveDoesNotStartSyncServiceIfNotConnected() throws Exception {
-        receiver.onReceive(Robolectric.application, null);
+        receiver.onReceive(context, null);
 
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService).toBeNull();
+        verify(context, never()).startService(any(Intent.class));
     }
 
     @Test
     public void onReceiveStartsSyncServiceWhenValidNetwork() throws Exception {
         when(downloadOperations.isValidNetwork()).thenReturn(true);
 
-        receiver.onReceive(Robolectric.application, null);
+        receiver.onReceive(context, null);
 
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     @Test
     public void onReceiveDoesNotStartOfflineServiceWhenNetworkNotValid() throws Exception {
         when(downloadOperations.isValidNetwork()).thenReturn(false);
 
-        receiver.onReceive(Robolectric.application, null);
+        receiver.onReceive(context, null);
 
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService).toBeNull();
+        verify(context, never()).startService(any(Intent.class));
+    }
+
+    private Intent captureStartServiceIntent() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startService(captor.capture());
+
+        return captor.getValue();
+    }
+
+    private boolean wasServiceStarted() {
+        final Intent intent = captureStartServiceIntent();
+        return intent != null &&
+                intent.getAction().equals(OfflineContentService.ACTION_START) &&
+                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 }

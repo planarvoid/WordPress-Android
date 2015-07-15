@@ -1,8 +1,7 @@
 package com.soundcloud.android.offline;
 
-
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,16 +10,15 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -31,8 +29,7 @@ import rx.schedulers.Schedulers;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class OfflinePlaybackOperationsTest {
+public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
 
     @Mock private TrackLikeOperations likeOperations;
     @Mock private PlaylistOperations playlistOperations;
@@ -61,42 +58,42 @@ public class OfflinePlaybackOperationsTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
-        expect(operations.shouldCreateOfflinePlayQueue()).toBeTrue();
+        assertThat(operations.shouldCreateOfflinePlayQueue()).isTrue();
     }
 
     @Test
     public void shouldNotCreateOfflinePlayQueueWhenFeatureDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
 
-        expect(operations.shouldCreateOfflinePlayQueue()).toBeFalse();
+        assertThat(operations.shouldCreateOfflinePlayQueue()).isFalse();
     }
 
     @Test
     public void shouldPlayOfflineWhenFeatureEnabledAndTrackDownloaded() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        expect(operations.shouldPlayOffline(downloadedTrack())).toBeTrue();
+        assertThat(operations.shouldPlayOffline(downloadedTrack())).isTrue();
     }
 
     @Test
     public void shouldNotPlayOfflineWhenFeatureEnabledAndTrackRemoved() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        expect(operations.shouldPlayOffline(removedTrack())).toBeFalse();
+        assertThat(operations.shouldPlayOffline(removedTrack())).isFalse();
     }
 
     @Test
     public void shouldNotPlayOfflineWhenFeatureEnabledAndTrackNotDownloaded() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        expect(operations.shouldPlayOffline(notDownloadedTrack())).toBeFalse();
+        assertThat(operations.shouldPlayOffline(notDownloadedTrack())).isFalse();
     }
 
     @Test
     public void shouldNotPlayOfflineWhenFeatureDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
 
-        expect(operations.shouldPlayOffline(downloadedTrack())).toBeFalse();
+        assertThat(operations.shouldPlayOffline(downloadedTrack())).isFalse();
     }
 
     @Test
@@ -132,9 +129,9 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playLikes(trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
-        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(TRACK_UNAVAILABLE_OFFLINE);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
+        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(TRACK_UNAVAILABLE_OFFLINE);
     }
 
     @Test
@@ -147,7 +144,7 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
-        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
+        assertThat(playedTracksCaptor.getValue().toBlocking().single()).isEqualTo(tracksObservable.toBlocking().single());
     }
 
     @Test
@@ -159,7 +156,7 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
-        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
+        assertThat(playedTracksCaptor.getValue().toBlocking().single()).isEqualTo(tracksObservable.toBlocking().single());
     }
 
     @Test
@@ -172,7 +169,7 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
-        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
+        assertThat(playedTracksCaptor.getValue().toBlocking().single()).isEqualTo(tracksObservable.toBlocking().single());
     }
 
     @Test
@@ -184,7 +181,7 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
-        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
+        assertThat(playedTracksCaptor.getValue().toBlocking().single()).isEqualTo(tracksObservable.toBlocking().single());
     }
 
     @Test
@@ -220,9 +217,9 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playPlaylist(playlistUrn, trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
-        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(TRACK_UNAVAILABLE_OFFLINE);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
+        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(TRACK_UNAVAILABLE_OFFLINE);
     }
 
     private PropertySet downloadedTrack() {
