@@ -18,9 +18,9 @@ import rx.exceptions.OnErrorFailedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
-import java.io.StringReader;
 
 public final class ErrorUtils {
 
@@ -155,6 +155,8 @@ public final class ErrorUtils {
     public static void log(int priority, String tag, String message) {
         if (Fabric.isInitialized()) {
             Crashlytics.log(priority, tag, message);
+        } else {
+            android.util.Log.println(priority, tag, message);
         }
     }
 
