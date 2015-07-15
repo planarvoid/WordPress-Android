@@ -29,6 +29,7 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
         // cheap deeplink to the empty user
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/scEmpty")));
         super.setUp();
+        waiter.waitFiveSeconds();
         screen = new ProfileScreen(solo);
     }
 
