@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -14,21 +14,21 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -39,8 +39,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaySessionControllerTest {
+public class PlaySessionControllerTest extends AndroidUnitTest {
 
     private Urn trackUrn;
     private PropertySet track;
@@ -133,7 +132,7 @@ public class PlaySessionControllerTest {
         InOrder inOrder = Mockito.inOrder(audioManager);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
         inOrder.verify(audioManager).onTrackChanged(track, null);
-        inOrder.verify(audioManager).onTrackChanged(track, bitmap);
+        inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
     }
 
     @Test
@@ -144,7 +143,7 @@ public class PlaySessionControllerTest {
         InOrder inOrder = Mockito.inOrder(audioManager);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, audioAdProperties(Urn.forTrack(123L))));
         inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), eq(((Bitmap) null)));
-        inOrder.verify(audioManager).onTrackChanged(trackWithAdMeta, bitmap);
+        inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), any(Bitmap.class));
     }
 
     @Test
@@ -172,10 +171,48 @@ public class PlaySessionControllerTest {
     }
 
     @Test
+    public void onStateTransitionToAdvanceTrackIfTrackEndedWithNotFoundErrorAndNotUserTriggered() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, trackUrn));
+        verify(playQueueManager).autoNextTrack();
+        verify(playbackOperations).playCurrent();
+    }
+
+    @Test
+    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWithNotFoundErrorAndUserTriggered() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), true));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void onStateTransitionToAdvanceTrackIfTrackEndedWithForbiddenErrorAndNotUserTriggered() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN, trackUrn));
+        verify(playQueueManager).autoNextTrack();
+        verify(playbackOperations).playCurrent();
+    }
+
+    @Test
+    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWithForbiddenErrorAndUserTriggered() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), true));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWithFailedErrorAndNotUserTriggered() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
     public void onStateTransitionTriesToAdvanceTrackIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
         verify(playQueueManager).autoNextTrack();
+        verify(playbackOperations, never()).playCurrent();
     }
 
     @Test
@@ -190,12 +227,12 @@ public class PlaySessionControllerTest {
         when(playQueueManager.autoNextTrack()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
         final List<Playa.StateTransition> stateTransitionEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        expect(Iterables.filter(stateTransitionEvents, new Predicate<Playa.StateTransition>() {
+        assertThat(Iterables.filter(stateTransitionEvents, new Predicate<Playa.StateTransition>() {
             @Override
             public boolean apply(Playa.StateTransition event) {
                 return event.getNewState() == Playa.PlayaState.IDLE && event.getReason() == Playa.Reason.PLAY_QUEUE_COMPLETE;
             }
-        })).toNumber(1);
+        })).hasSize(1);
     }
 
     @Test

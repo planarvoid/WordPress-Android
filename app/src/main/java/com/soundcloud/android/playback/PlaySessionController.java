@@ -81,17 +81,27 @@ public class PlaySessionController {
         public void onNext(StateTransition stateTransition) {
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
-                skipOnTrackFinish(stateTransition);
+                skipOnTrackFinishOrUnplayable(stateTransition);
             }
         }
     }
 
-    private void skipOnTrackFinish(StateTransition stateTransition) {
-        if (stateTransition.isPlayerIdle()
-                && !stateTransition.isPlayQueueComplete()
-                && stateTransition.trackEnded()) {
+    private void skipOnTrackFinishOrUnplayable(StateTransition stateTransition) {
+
+        if (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
+                && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition))) {
+            
             tryToSkipTrack(stateTransition);
+            if (!stateTransition.playSessionIsActive()) {
+                playbackOperations.playCurrent();
+            }
         }
+    }
+
+    private boolean unrecoverableErrorDuringAutoplay(StateTransition stateTransition) {
+        final TrackSourceInfo currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        return stateTransition.wasError() && !stateTransition.wasGeneralFailure() &&
+                currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered();
     }
 
     private void tryToSkipTrack(StateTransition stateTransition) {
