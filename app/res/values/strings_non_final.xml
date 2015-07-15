@@ -5,17 +5,17 @@
     <string name="pref_subscription_buy_title">Upgrade</string>
     <string name="pref_subscription_buy_summary">Upgrade your account</string>
     <string name="upgrade_page_title">Upgrade</string>
-    <string name="upgrade_title">SoundCloud Go</string>
+    <string name="upgrade_title">SoundCloud SC</string>
     <string name="upgrade_description">No ads. Offline listening. Support creators.</string>
     <string name="upgrade_buy_price">Subscribe for %s/month</string>
-    <string name="upgrade_features_title">SoundCloud Go features:</string>
+    <string name="upgrade_features_title">SoundCloud SC features:</string>
     <string name="upgrade_feature_1_title">No more ads</string>
     <string name="upgrade_feature_1_description">Remove all audio ads and interstitials from all platforms</string>
     <string name="upgrade_feature_2_title">Offline listening</string>
     <string name="upgrade_feature_2_description">Download tracks to your phone, so you can listen to them offline</string>
     <string name="upgrade_feature_3_title">Support creators</string>
     <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
-    <string name="upgrade_success_title">Welcome to SoundCloud Go!</string>
+    <string name="upgrade_success_title">Welcome to SoundCloud SC!</string>
     <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
 
     <!-- __PAYMENTS -->
@@ -83,5 +83,5 @@
     <string name="upsell_remove_ads">Remove ads</string>
     <string name="upsell_nav_title">Upgrade SoundCloud</string>
     <string name="upsell_nav_body">Listen Offline &amp; Ad Free</string>
-    <string name="upsell_track_item">Available on SoundCloud Go</string>
+    <string name="upsell_track_item">Available on SoundCloud SC</string>
 </resources>
