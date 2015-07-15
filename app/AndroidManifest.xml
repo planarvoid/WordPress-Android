@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
-    android:versionCode="247"
+    android:versionCode="248"
     android:versionName="15.07.15"
     package="com.soundcloud.android">
 
