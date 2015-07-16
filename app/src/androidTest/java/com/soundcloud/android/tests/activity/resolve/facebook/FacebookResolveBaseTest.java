@@ -11,8 +11,6 @@ import android.net.Uri;
 
 public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity> {
 
-    protected Waiter waiter;
-
     public FacebookResolveBaseTest() {
         super(MainActivity.class);
     }
@@ -27,8 +25,6 @@ public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity>
         final Intent activityIntent = new Intent(getInstrumentation().getTargetContext(), MainActivity.class).setData(getUri());
         setActivityIntent(activityIntent);
         super.setUp();
-        waiter = new Waiter(solo);
-        waiter.waitFiveSeconds();
     }
 
     protected abstract Uri getUri();

@@ -17,7 +17,6 @@ public class ResolvePrivateTrackTest extends ResolveBaseTest {
 
     public void bug_3205_testShouldOpenPrivatelySharedTrack() {
         final VisualPlayerElement playerElement = getPlayerElement();
-        waiter.waitFiveSeconds();
         assertThat("Player should be playing a track", playerElement.isExpandedPlayerPlaying(), is(true));
     }
 }

@@ -19,6 +19,5 @@ public abstract class ResolveGoogleCrawlerBaseTest extends ActivityTest<ResolveA
         intent.putExtra("android.intent.extra.REFERRER", Uri.parse("android-app://com.google.appcrawler"));
         setActivityIntent(intent);
         super.setUp();
-        waiter.waitFiveSeconds();
     }
 }
