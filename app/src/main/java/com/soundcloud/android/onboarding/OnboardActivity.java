@@ -14,6 +14,7 @@ import com.facebook.SessionLoginBehavior;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -28,6 +29,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
@@ -173,6 +175,7 @@ public class OnboardActivity extends FragmentActivity
         }
     };
     @Nullable private Bundle loginBundle, signUpBasicsBundle, signUpDetailsBundle, acceptTermsBundle;
+    private Urn resourceUrn = Urn.NOT_SET;
 
     private final Session.StatusCallback sessionStatusCallback;
     private PublicApi oldCloudAPI;
@@ -206,6 +209,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
     @Inject TokenInformationGenerator tokenUtils;
+    @Inject Navigator navigator;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -216,12 +220,14 @@ public class OnboardActivity extends FragmentActivity
     OnboardActivity(ConfigurationOperations configurationOperations,
                     BugReporter bugReporter,
                     EventBus eventBus,
-                    TokenInformationGenerator tokenUtils) {
+                    TokenInformationGenerator tokenUtils,
+                    Navigator navigator) {
         this.configurationOperations = configurationOperations;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
         this.tokenUtils = tokenUtils;
         this.sessionStatusCallback = new FacebookSessionCallback(this, tokenUtils);
+        this.navigator = navigator;
     }
 
     @Override
@@ -237,6 +243,10 @@ public class OnboardActivity extends FragmentActivity
         accountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (accountAuthenticatorResponse != null) {
             accountAuthenticatorResponse.onRequestContinued();
+        }
+
+        if (getIntent().hasExtra(EXTRA_URN)) {
+            resourceUrn = getIntent().getParcelableExtra(EXTRA_URN);
         }
 
         showPhotos(savedInstanceState != null);
@@ -582,7 +592,11 @@ public class OnboardActivity extends FragmentActivity
                         .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, showFacebookSuggestions)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             } else {
-                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                if (Urn.NOT_SET.equals(resourceUrn)) {
+                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                } else {
+                    navigator.openResolveForUrn(this, resourceUrn);
+                }
             }
 
             finish();
@@ -603,6 +617,10 @@ public class OnboardActivity extends FragmentActivity
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, state);
         outState.putParcelable(BUNDLE_USER, user);
+
+        if (!Urn.NOT_SET.equals(resourceUrn)) {
+            outState.putParcelable(EXTRA_URN, resourceUrn);
+        }
 
         if (loginLayout != null) {
             outState.putBundle(BUNDLE_LOGIN, loginLayout.getStateBundle());
@@ -629,6 +647,10 @@ public class OnboardActivity extends FragmentActivity
         signUpBasicsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_BASICS);
         signUpDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
         acceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
+
+        if (savedInstanceState.containsKey(EXTRA_URN)) {
+            resourceUrn = savedInstanceState.getParcelable(EXTRA_URN);
+        }
 
         final OnboardingState state = (OnboardingState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);

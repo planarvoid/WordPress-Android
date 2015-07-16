@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -32,10 +33,11 @@ public class OnboardActivityTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private BugReporter bugReporter;
     @Mock private TokenInformationGenerator tokenUtils;
+    @Mock private Navigator navigator;
 
     @Before
     public void setup() throws Exception {
-        activity = new OnboardActivity(configurationOperations, bugReporter, new TestEventBus(), tokenUtils) {
+        activity = new OnboardActivity(configurationOperations, bugReporter, new TestEventBus(), tokenUtils, navigator) {
             @Override
             protected boolean wasAuthorizedViaSignupScreen() {
                 return false;
