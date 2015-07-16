@@ -68,7 +68,7 @@ public class EmptyViewControllerTest {
     @Test
     public void shouldSetEmptyViewStateToServerErrorWhenControllerReceivesErrorForApiRequestExceptionNotRelatedToNetwork() {
         controller.onViewCreated(fragment, layout, null);
-        controller.connect(reactiveComponent, Observable.error(ApiRequestException.notFound(null)));
+        controller.connect(reactiveComponent, Observable.error(ApiRequestException.notFound(null, null)));
         verify(emptyView).setStatus(EmptyView.Status.SERVER_ERROR);
     }
 

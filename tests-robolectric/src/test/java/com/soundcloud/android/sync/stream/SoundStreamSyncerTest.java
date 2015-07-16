@@ -193,7 +193,7 @@ public class SoundStreamSyncerTest {
         when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
-                .thenThrow(ApiRequestException.notFound(null));
+                .thenThrow(ApiRequestException.notFound(null, null));
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
                 .thenReturn(streamWithFutureLink());
 
@@ -208,7 +208,7 @@ public class SoundStreamSyncerTest {
         when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
-                .thenThrow(ApiRequestException.notFound(null));
+                .thenThrow(ApiRequestException.notFound(null, null));
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
                 .thenReturn(streamWithFutureLink());
 

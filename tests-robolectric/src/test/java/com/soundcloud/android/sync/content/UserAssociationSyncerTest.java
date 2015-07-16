@@ -251,7 +251,7 @@ public class UserAssociationSyncerTest {
 
     @Test
     public void shouldDeleteAssociationsPushedThatReceiveForbiddenResponse() throws Exception {
-        ApiRequestException apiRequestException = ApiRequestException.notAllowed(mock(ApiRequest.class));
+        ApiRequestException apiRequestException = ApiRequestException.notAllowed(mock(ApiRequest.class), null);
         List<UserAssociation> userAssociations = getDirtyUserAssociations();
 
         UserAssociationSyncer.BulkFollowSubscriber bulkFollowObserver = new UserAssociationSyncer.BulkFollowSubscriber(userAssociations, userAssociationStorage, followingOperations);

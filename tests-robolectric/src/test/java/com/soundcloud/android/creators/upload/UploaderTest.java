@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -125,7 +126,7 @@ public class UploaderTest {
     public void shouldNotSetSuccessAfterFailedUpload() throws Exception {
         when(apiClient.fetchMappedResponse(
                 argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
-                .thenThrow(ApiRequestException.unexpectedResponse(null, 499));
+                .thenThrow(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 499, "error")));
 
         uploader(recording).run();
         

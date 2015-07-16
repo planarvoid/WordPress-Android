@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
@@ -137,7 +138,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsFoUnexpectedResponseException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.unexpectedResponse(null, HttpStatus.SC_CONFLICT));
+        setupExceptionThrowingSync(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, HttpStatus.SC_CONFLICT, "conflict")));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -149,7 +150,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndSetStatsForAuthException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.authError(null, new InvalidTokenException(401, "status test")));
+        setupExceptionThrowingSync(ApiRequestException.authError(null, new ApiResponse(null, 401, "status test")));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -161,7 +162,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForNotFoundException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.notFound(null));
+        setupExceptionThrowingSync(ApiRequestException.notFound(null, null));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -173,7 +174,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForNotAllowedException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.notAllowed(null));
+        setupExceptionThrowingSync(ApiRequestException.notAllowed(null, null));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -185,7 +186,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForRateLimitException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.rateLimited(null));
+        setupExceptionThrowingSync(ApiRequestException.rateLimited(null, null));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -197,7 +198,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForBadRequestException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.badRequest(null, "key test"));
+        setupExceptionThrowingSync(ApiRequestException.badRequest(null, null, "key test"));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -221,7 +222,7 @@ public class LegacySyncJobTest {
 
     @Test
     public void shouldSetSyncStateToIdleSetDelayAndNotSetStatsForApiExceptionFromServerError() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.serverError(null));
+        setupExceptionThrowingSync(ApiRequestException.serverError(null, null));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();

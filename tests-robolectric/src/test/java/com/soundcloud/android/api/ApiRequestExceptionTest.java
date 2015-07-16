@@ -13,15 +13,17 @@ import java.io.IOException;
 public class ApiRequestExceptionTest {
 
     private ApiRequest request;
+    private ApiResponse response;
 
     @Before
     public void setUp() {
         request = ApiRequest.get("/").forPrivateApi(1).build();
+        response = new ApiResponse(request, 400, "bad request");
     }
 
     @Test
     public void errorKeyIsSetFromBadRequest () {
-        expect(ApiRequestException.badRequest(request, "some_error").errorKey())
+        expect(ApiRequestException.badRequest(request, response, "some_error").errorKey())
                 .toBe("some_error");
     }
 

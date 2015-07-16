@@ -19,7 +19,7 @@ public final class TestApiResponses {
     }
 
     public static ApiResponse validationError() {
-        return new ApiResponse(ApiRequestException.validationError(null, "validation_failed", 101));
+        return new ApiResponse(ApiRequestException.validationError(null, null, "validation_failed", 101));
     }
 
     public static ApiResponse resource(Class clazz, int statusCode, String resourceName) throws IOException {

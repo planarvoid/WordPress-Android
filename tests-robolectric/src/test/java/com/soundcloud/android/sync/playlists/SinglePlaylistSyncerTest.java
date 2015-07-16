@@ -56,7 +56,7 @@ public class SinglePlaylistSyncerTest {
 
     @Test
     public void removesNotFoundPlaylist() throws Exception {
-        doThrow(ApiRequestException.notFound(apiRequest)).when(fetchPlaylistWithTracks).call();
+        doThrow(ApiRequestException.notFound(apiRequest, null)).when(fetchPlaylistWithTracks).call();
 
         singlePlaylistSyncer.call();
 
@@ -66,7 +66,7 @@ public class SinglePlaylistSyncerTest {
 
     @Test
     public void removesInaccessiblePlaylist() throws Exception {
-        doThrow(ApiRequestException.notAllowed(apiRequest)).when(fetchPlaylistWithTracks).call();
+        doThrow(ApiRequestException.notAllowed(apiRequest, null)).when(fetchPlaylistWithTracks).call();
 
         singlePlaylistSyncer.call();
 

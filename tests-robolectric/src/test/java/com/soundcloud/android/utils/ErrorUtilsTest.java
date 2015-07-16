@@ -160,7 +160,7 @@ public class ErrorUtilsTest {
 
     @Test
     public void emptyViewStatusFromApiServerError() {
-        ApiRequestException exception = ApiRequestException.serverError(mock(ApiRequest.class));
+        ApiRequestException exception = ApiRequestException.serverError(mock(ApiRequest.class), null);
         expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.SERVER_ERROR);
     }
 
