@@ -196,7 +196,7 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     private Display getDisplay() {
-        return ((WindowManager) testDriver.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        return testDriver.getDisplay();
     }
 
     private boolean hasVisibility() {

@@ -2,12 +2,15 @@ package com.soundcloud.android.framework;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
@@ -344,6 +347,10 @@ public class Han  {
 
     public boolean scrollDown() {
         return solo.scrollDown();
+    }
+
+    public Display getDisplay() {
+        return ((WindowManager) instrumentation.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
     }
 
     class EmptyActivity extends Activity {}
