@@ -477,6 +477,13 @@ public class DatabaseFixtures {
         insertInto(Table.OfflineContent, cv);
     }
 
+    public void insertLikesMarkedForOfflineSync() {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES);
+        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION);
+        insertInto(Table.OfflineContent, cv);
+    }
+
     public void insertInto(Table table, ContentValues cv) {
         final long rowId = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         if (rowId == -1) {

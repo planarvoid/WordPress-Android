@@ -1,12 +1,16 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.jetbrains.annotations.NotNull;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
@@ -42,7 +46,6 @@ class LikesMenuPresenter {
         menu.inflate(R.menu.likes_actions);
         menu.setOnMenuItemClickListener(getMenuWrapperListener(fragmentManager));
         configureMenu(menu);
-        menu.show();
     }
 
     @NotNull
@@ -59,7 +62,7 @@ class LikesMenuPresenter {
                         }
                         return true;
                     case R.id.action_make_offline_unavailable:
-                        offlineOperations.setOfflineLikesEnabled(false);
+                        fireAndForget(offlineOperations.disableOfflineLikedTracks());
                         return true;
                     default:
                         return false;
@@ -67,25 +70,43 @@ class LikesMenuPresenter {
             }
 
             @Override
-            public void onDismiss() { }
+            public void onDismiss() {
+            }
         };
     }
 
     private void configureMenu(PopupMenuWrapper menu) {
-        if (offlineOperations.isOfflineLikedTracksEnabled()) {
-            showOfflineRemovalOption(menu);
-        } else {
-            showOfflineDownloadOption(menu);
+        offlineOperations
+                .isOfflineLikedTracksEnabled()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new UpdatePopupMenuOptionsSubscriber(menu));
+    }
+
+    private final class UpdatePopupMenuOptionsSubscriber extends DefaultSubscriber<Boolean> {
+        private final PopupMenuWrapper menu;
+
+        UpdatePopupMenuOptionsSubscriber(final PopupMenuWrapper menu) {
+            this.menu = menu;
         }
-    }
 
-    private void showOfflineDownloadOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.action_make_offline_available, true);
-        menu.setItemVisible(R.id.action_make_offline_unavailable, false);
-    }
+        @Override
+        public void onNext(Boolean offlineLikesEnabled) {
+            if (offlineLikesEnabled) {
+                showOfflineRemovalOption(menu);
+            } else {
+                showOfflineDownloadOption(menu);
+            }
+            menu.show();
+        }
 
-    private void showOfflineRemovalOption(PopupMenuWrapper menu) {
-        menu.setItemVisible(R.id.action_make_offline_available, false);
-        menu.setItemVisible(R.id.action_make_offline_unavailable, true);
+        private void showOfflineDownloadOption(PopupMenuWrapper menu) {
+            menu.setItemVisible(R.id.action_make_offline_available, true);
+            menu.setItemVisible(R.id.action_make_offline_unavailable, false);
+        }
+
+        private void showOfflineRemovalOption(PopupMenuWrapper menu) {
+            menu.setItemVisible(R.id.action_make_offline_available, false);
+            menu.setItemVisible(R.id.action_make_offline_unavailable, true);
+        }
     }
 }

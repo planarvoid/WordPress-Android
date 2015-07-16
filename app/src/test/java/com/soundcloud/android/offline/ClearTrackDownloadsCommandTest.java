@@ -35,7 +35,16 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void removesOfflineContent() {
+    public void removesLikesFromOfflineContent() {
+        testFixtures().insertLikesMarkedForOfflineSync();
+
+        List<Urn> removed = command.call(null);
+        databaseAssertions().assertOfflineLikesDisabled();
+        assertThat(removed).isEmpty();
+    }
+
+    @Test
+    public void removesPlaylistsFromOfflineContent() {
         ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
 
         List<Urn> removed = command.call(null);

@@ -98,7 +98,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
-        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
         when(view.getContext()).thenReturn(context());
         when(view.getResources()).thenReturn(context().getResources());
         when(recyclerView.getAdapter()).thenReturn(adapter);
@@ -243,7 +243,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateAdapterOnOfflineLikesOrOfflineContentStateChange() {
         PublishSubject<Boolean> featureChange = PublishSubject.create();
-        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(featureChange);
+        when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(featureChange);
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 

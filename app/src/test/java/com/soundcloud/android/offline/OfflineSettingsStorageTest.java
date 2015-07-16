@@ -23,19 +23,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void savesOfflineLikesStatus() {
-        storage.setOfflineLikedTracksEnabled(true);
-        assertThat(storage.isOfflineLikedTracksEnabled()).isTrue();
-    }
-
-    @Test
-    public void receivesUpdatesFromLikeStatusChanges() {
-        storage.getOfflineLikedTracksStatusChange().subscribe(testObserver);
-        storage.setOfflineLikedTracksEnabled(true);
-        assertThat(testObserver.getOnNextEvents().get(0)).isTrue();
-    }
-
-    @Test
     public void receivedUpdatesFromWifiOnlyOptionChange() {
         storage.getWifiOnlyOfflineSyncStateChange().subscribe(testObserver);
         storage.setWifiOnlyEnabled(true);
@@ -63,10 +50,9 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
     @Test
     public void clearsSettingsStorage() {
-        storage.setOfflineLikedTracksEnabled(true);
+        storage.setWifiOnlyEnabled(false);
         storage.clear();
 
-        assertThat(storage.isOfflineLikedTracksEnabled()).isFalse();
         assertThat(storage.isWifiOnlyEnabled()).isTrue();
     }
 

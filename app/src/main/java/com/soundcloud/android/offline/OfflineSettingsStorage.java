@@ -14,19 +14,11 @@ public class OfflineSettingsStorage {
 
     public static final long UNLIMITED = Long.MAX_VALUE;
 
-    private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
     private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
 
     private final SharedPreferences sharedPreferences;
-
-    private static final Func1<String, Boolean> FILTER_OFFLINE_LIKES_KEY = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return OFFLINE_LIKES_ENABLED.equals(key);
-        }
-    };
 
     private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = new Func1<String, Boolean>() {
         @Override
@@ -45,14 +37,6 @@ public class OfflineSettingsStorage {
     @Inject
     public OfflineSettingsStorage(@Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
-    }
-
-    public boolean isOfflineLikedTracksEnabled() {
-        return sharedPreferences.getBoolean(OFFLINE_LIKES_ENABLED, false);
-    }
-
-    void setOfflineLikedTracksEnabled(final boolean enabled) {
-        sharedPreferences.edit().putBoolean(OFFLINE_LIKES_ENABLED, enabled).apply();
     }
 
     public boolean isWifiOnlyEnabled() {
@@ -85,12 +69,6 @@ public class OfflineSettingsStorage {
 
     long getPolicyUpdateCheckTime() {
         return sharedPreferences.getLong(LAST_POLICY_UPDATE_CHECK, 0);
-    }
-
-    Observable<Boolean> getOfflineLikedTracksStatusChange() {
-        return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                .filter(FILTER_OFFLINE_LIKES_KEY)
-                .map(toValue);
     }
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {

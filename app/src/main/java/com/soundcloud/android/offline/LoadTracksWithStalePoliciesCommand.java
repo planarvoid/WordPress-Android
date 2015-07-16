@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentStorage.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
@@ -26,22 +27,17 @@ import java.util.TreeSet;
 class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> {
 
     private final PropellerDatabase database;
-    private final OfflineSettingsStorage settingsStorage;
 
     @Inject
-    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database, OfflineSettingsStorage settingsStorage) {
+    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database) {
         this.database = database;
-        this.settingsStorage = settingsStorage;
     }
 
     @Override
     public Collection<Urn> call(Void ignored) {
-        final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILISECONDS;
         final Collection<Urn> set = new TreeSet<>();
-        final Where stalePolicyCondition = filter()
-                .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
-                .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
-        if (settingsStorage.isOfflineLikedTracksEnabled()) {
+        final Where stalePolicyCondition = stalePolicyCondition();
+        if (isOfflineLikesEnabled()) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
                     .where(stalePolicyCondition)).toList(new TrackUrnMapper()));
         }
@@ -51,20 +47,34 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
         return set;
     }
 
+    private boolean isOfflineLikesEnabled() {
+        return database.query(isOfflineLikesEnabledQuery()).firstOrDefault(Boolean.class, false);
+    }
+
+    private Where stalePolicyCondition() {
+        final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILISECONDS;
+
+        return filter()
+                .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
+                .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
+    }
+
     static Query buildOfflineLikedTracksQuery() {
-        final String likeId = Likes + "." + TableColumns.Likes._ID;
+        final String likeId = Likes.field(TableColumns.Likes._ID);
         return Query.from(Likes.name())
-                .select(field(likeId).as(BaseColumns._ID))
+                .select(
+                        field(likeId).as(BaseColumns._ID))
                 .leftJoin(TrackPolicies.name(), likeId, TableColumns.TrackPolicies.TRACK_ID)
-                .whereEq(Likes.name() + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Likes.name() + "." + TableColumns.Likes.REMOVED_AT);
+                .whereEq(Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     static Query buildOfflinePlaylistTracksQuery() {
-        final String trackIdFromPlaylistTracks = Table.PlaylistTracks + "." + TableColumns.PlaylistTracks.TRACK_ID;
+        final String trackIdFromPlaylistTracks = Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
         return Query.from(PlaylistTracks.name())
-                .select(field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
+                .select(
+                        field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
                 .innerJoin(OfflineContent.name(), TableColumns.PlaylistTracks.PLAYLIST_ID, TableColumns.OfflineContent._ID)
-                .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, Table.TrackPolicies + "." + TableColumns.TrackPolicies.TRACK_ID);
+                .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
     }
 }

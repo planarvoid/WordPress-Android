@@ -3,6 +3,7 @@ package com.soundcloud.android.rx.eventbus;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subjects.Subject;
 
 import android.util.Log;
@@ -68,6 +69,16 @@ public class DefaultEventBus implements EventBus {
             logEvent(queue, event);
         }
         this.queue(queue).onNext(event);
+    }
+
+    @Override
+    public <T, E> Action1<E> publishAction(final Queue<T> queue, final T event) {
+        return new Action1<E>() {
+            @Override
+            public void call(E o) {
+                publish(queue, event);
+            }
+        };
     }
 
     // for logging events in debug mode

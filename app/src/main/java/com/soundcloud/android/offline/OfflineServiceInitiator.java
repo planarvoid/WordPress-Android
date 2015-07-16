@@ -31,13 +31,11 @@ import javax.inject.Singleton;
 public class OfflineServiceInitiator {
 
     private final Context context;
-    private final OfflineSettingsStorage settingStorage;
-    private final OfflinePlaylistStorage playlistStorage;
     private final Scheduler scheduler;
+    private final OfflineContentOperations offlineContentOperations;
     private final PlaylistOperations playlistOperations;
     private final EventBus eventBus;
 
-    private final Observable<Boolean> offlineLikedTracksToggled;
     private final Observable<Boolean> syncWifiOnlyToggled;
 
     private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
@@ -57,17 +55,17 @@ public class OfflineServiceInitiator {
         }
     };
 
-    private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
-        @Override
-        public Boolean call(Object ignored) {
-            return settingStorage.isOfflineLikedTracksEnabled();
-        }
-    };
-
     private final Func1<UrnEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<UrnEvent, Observable<Boolean>>() {
         @Override
         public Observable<Boolean> call(UrnEvent event) {
-            return playlistStorage.isOfflinePlaylist(event.getFirstUrn()).subscribeOn(scheduler);
+            return offlineContentOperations.isOfflinePlaylist(event.getFirstUrn());
+        }
+    };
+
+    private final Func1<UrnEvent, Observable<Boolean>> areOfflineLikesEnabled = new Func1<UrnEvent, Observable<Boolean>>() {
+        @Override
+        public Observable<Boolean> call(UrnEvent urnEvent) {
+            return offlineContentOperations.isOfflineLikedTracksEnabled();
         }
     };
 
@@ -83,17 +81,15 @@ public class OfflineServiceInitiator {
     @Inject
     public OfflineServiceInitiator(Context context, EventBus eventBus,
                                    OfflineSettingsStorage settingsStorage,
-                                   OfflinePlaylistStorage playlistStorage,
                                    PlaylistOperations playlistOperations,
+                                   OfflineContentOperations offlineContentOperations,
                                    @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
-        this.settingStorage = settingsStorage;
-        this.playlistStorage = playlistStorage;
         this.scheduler = scheduler;
         this.playlistOperations = playlistOperations;
+        this.offlineContentOperations = offlineContentOperations;
 
-        this.offlineLikedTracksToggled = settingsStorage.getOfflineLikedTracksStatusChange();
         this.syncWifiOnlyToggled = settingsStorage.getWifiOnlyOfflineSyncStateChange();
     }
 
@@ -149,14 +145,20 @@ public class OfflineServiceInitiator {
                 .filter(RxUtils.IS_TRUE);
     }
 
-    private Observable<Object> getOfflineLikesChangedEvents() {
-        return Observable.<Object>merge(
+    private Observable<Boolean> getOfflineLikesChangedEvents() {
+        return Observable.merge(
+                getOfflineLikedTracksContentChanged(),
+                offlineContentOperations.getOfflineLikedTracksStatusChanges());
+    }
+
+    private Observable<Boolean> getOfflineLikedTracksContentChanged() {
+        return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                         .filter(IS_TRACK_LIKE_EVENT_FILTER),
                 eventBus.queue(EventQueue.SYNC_RESULT)
                         .filter(IS_LIKES_SYNC_FILTER))
-                .filter(isOfflineLikesEnabled)
-                .mergeWith(offlineLikedTracksToggled);
+                .flatMap(areOfflineLikesEnabled)
+                .filter(RxUtils.IS_TRUE);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -43,6 +44,13 @@ public final class EntityStateChangedEvent implements UrnEvent {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isSingularChange() && event.getFirstUrn().isPlaylist() && event.getKind() == MARKED_FOR_OFFLINE;
+        }
+    };
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_OFFLINE_LIKES_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isOfflineLikesEvent();
         }
     };
 
@@ -143,6 +151,12 @@ public final class EntityStateChangedEvent implements UrnEvent {
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
     }
 
+    public static EntityStateChangedEvent fromLikesMarkedForOffline(boolean isMarkedForOffline) {
+        return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
+                PlayableProperty.URN.bind(Urn.NOT_SET),
+                OfflineProperty.Collection.OFFLINE_LIKES.bind(isMarkedForOffline)));
+    }
+
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {
         return fromTrackAddedToPlaylist(PropertySet.from(
                 PlayableProperty.URN.bind(playlistUrn),
@@ -201,19 +215,20 @@ public final class EntityStateChangedEvent implements UrnEvent {
         return isSingularChange() && getFirstUrn().isPlaylist() && kind == LIKE;
     }
 
-    private Boolean isTrackAddedEvent() {
+    private boolean isTrackAddedEvent() {
         return kind == TRACK_ADDED_TO_PLAYLIST;
     }
 
-    private Boolean isTrackRemovedEvent() {
+    private boolean isTrackRemovedEvent() {
         return kind == TRACK_REMOVED_FROM_PLAYLIST;
+    }
+
+    private boolean isOfflineLikesEvent() {
+        return kind == MARKED_FOR_OFFLINE && getNextChangeSet().contains(OfflineProperty.Collection.OFFLINE_LIKES);
     }
 
     @Override
     public String toString() {
-        return "EntityStateChangedEvent{" +
-                "kind=" + kind +
-                ", changeMap=" + changeMap +
-                '}';
+        return Objects.toStringHelper(this).add("kind", kind).add("changeMap", changeMap).toString();
     }
 }

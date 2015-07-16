@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import rx.Observer;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.observers.TestObserver;
 import rx.subjects.Subject;
 
@@ -99,6 +100,16 @@ public class TestEventBus implements EventBus {
     public <T> void publish(Queue<T> queue, T event) {
         monitorQueue(queue);
         eventBus.publish(queue, event);
+    }
+
+    @Override
+    public <T, E> Action1<E> publishAction(final Queue<T> queue, final T event) {
+        return new Action1<E>() {
+            @Override
+            public void call(E e) {
+                publish(queue, event);
+            }
+        };
     }
 
     @Override
