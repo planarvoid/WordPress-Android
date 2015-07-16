@@ -30,7 +30,7 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setDependsOn(Flag.NEW_PROFILE);
+        setRequiredEnabledFeatures(Flag.NEW_PROFILE);
         super.setUp();
 
         screen = new MenuScreen(solo)

@@ -27,7 +27,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.FOLLOW_USER_SEARCH);
+        setRequiredEnabledFeatures(Flag.FOLLOW_USER_SEARCH);
         super.setUp();
 
         streamScreen = new StreamScreen(solo);

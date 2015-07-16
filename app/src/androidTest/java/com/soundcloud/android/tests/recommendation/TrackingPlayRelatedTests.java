@@ -21,7 +21,8 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.PLAY_RELATED_TRACKS);
+        setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
+        setRequiredDisabledFeatures(Flag.STATIONS);
         super.setUp();
     }
 

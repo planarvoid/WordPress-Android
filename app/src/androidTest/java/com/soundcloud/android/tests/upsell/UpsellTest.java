@@ -30,7 +30,7 @@ public class UpsellTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.OFFLINE_SYNC);
+        setRequiredEnabledFeatures(Flag.OFFLINE_SYNC);
         super.setUp();
         ConfigurationHelper.enableUpsell(solo.getCurrentActivity());
 
