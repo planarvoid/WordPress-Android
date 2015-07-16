@@ -1,14 +1,8 @@
 package com.soundcloud.android.framework;
 
-import com.robotium.solo.By;
-import com.robotium.solo.Condition;
-import com.robotium.solo.Solo;
-import com.soundcloud.android.framework.viewelements.DefaultViewElement;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.with.With;
-
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +13,13 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
+
+import com.robotium.solo.By;
+import com.robotium.solo.Condition;
+import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.viewelements.DefaultViewElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class Han  {
 
     private final Solo solo;
     private final Instrumentation instrumentation;
+    private Activity visibleActivity = new EmptyActivity();
 
     @Deprecated
     public Solo getSolo() {
@@ -42,6 +44,31 @@ public class Han  {
         this.instrumentation = instrumentation;
         solo = new Solo(instrumentation);
         viewFetcher = new ViewFetcher(this);
+
+        setupActivityListener();
+    }
+
+    private void setupActivityListener() {
+        IntentFilter filter = null;
+        final Instrumentation.ActivityMonitor activityMonitor = instrumentation.addMonitor(filter, null, false);
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+                while (true) {
+                    Activity activity = activityMonitor.getLastActivity();
+                    if(activity != null && !activity.isFinishing() && activity.hasWindowFocus()) {
+                        visibleActivity = activity;
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread thread = new Thread(runnable, "activityListenerThread");
+        thread.start();
     }
 
     public ViewElement wrap(View view) {
@@ -218,7 +245,7 @@ public class Han  {
     }
 
     public Activity getCurrentActivity() {
-        return solo.getCurrentActivity();
+        return visibleActivity;
     }
 
     public boolean scrollListToTop(int index) {
@@ -318,4 +345,6 @@ public class Han  {
     public boolean scrollDown() {
         return solo.scrollDown();
     }
+
+    class EmptyActivity extends Activity {}
 }
