@@ -49,7 +49,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testPlayRelatedTracks() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
+        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
 
         assertThat(player, is(visible()));
     }
@@ -58,7 +58,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
+        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
 
         assertThat(playerElement, is(not(visible())));
         assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_play_related_tracks)));

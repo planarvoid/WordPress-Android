@@ -31,7 +31,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
                 .clickPlaylists()
                 .clickPlaylistAt(0)
                 .clickFirstTrackOverflowButton()
-                .clickPlayRelatedTracks();
+                .clickStartRadio();
 
         assertTrue(player.isExpandedPlayerPlaying());
         player.swipePrevious();
