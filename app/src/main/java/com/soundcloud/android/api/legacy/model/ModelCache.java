@@ -1,4 +1,6 @@
-package com.soundcloud.android.cache;
+package com.soundcloud.android.api.legacy.model;
+
+import com.soundcloud.android.model.ScModel;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,33 +25,39 @@ import java.util.concurrent.atomic.AtomicInteger;
  * com/android/camera/gallery/LruCache.java
  * </a>
  */
-public class LruCache<K, V> {
-    private final Map<K, V> lruMap;
+@Deprecated // use LruCache from the support-v4 library
+class ModelCache<V extends ScModel> {
+
+    private final Map<Long, V> lruMap;
     private final Object mapLock;
     private final AtomicInteger lruHits, requests;
 
     /**
      * @param capacity max capacity for the LRU cache
      */
-    public LruCache(final int capacity) {
+    ModelCache(final int capacity) {
         mapLock = new Object();
         lruHits = new AtomicInteger(0);
         requests = new AtomicInteger(0);
-        lruMap = new LinkedHashMap<K, V>(capacity, 0.75f, true) {
+        lruMap = new LinkedHashMap<Long, V>(capacity, 0.75f, true) {
             @Override
-            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+            protected boolean removeEldestEntry(Map.Entry<Long, V> eldest) {
                 return size() > capacity;
             }
         };
     }
 
-    public V put(K key, V value) {
+    public V put(V resource) {
+        return resource != null ? put(resource.getId(), resource) : null;
+    }
+
+    public V put(Long key, V value) {
         synchronized (mapLock) {
             return lruMap.put(key, value);
         }
     }
 
-    public V get(K key) {
+    public synchronized V get(Long key) {
         requests.incrementAndGet();
 
         V value;
@@ -70,13 +78,13 @@ public class LruCache<K, V> {
         requests.set(0);
     }
 
-    public boolean containsKey(K key) {
+    public boolean containsKey(Long key) {
         synchronized (mapLock) {
             return lruMap.containsKey(key);
         }
     }
 
-    public void remove(K key) {
+    public void remove(Long key) {
         synchronized (mapLock) {
             lruMap.remove(key);
         }
@@ -87,4 +95,5 @@ public class LruCache<K, V> {
                 " lru ratio: " + String.format("%.2f", lruHits.doubleValue() / requests.doubleValue()) +
                 "}";
     }
+
 }
