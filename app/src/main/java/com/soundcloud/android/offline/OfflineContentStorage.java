@@ -82,7 +82,7 @@ class OfflineContentStorage {
                 .get();
     }
 
-    public static Where offlineLikesFilter() {
+    static Where offlineLikesFilter() {
         return Filter.filter()
                 .whereEq(_ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
                 .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_COLLECTION);

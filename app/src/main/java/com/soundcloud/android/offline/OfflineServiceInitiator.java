@@ -55,17 +55,17 @@ public class OfflineServiceInitiator {
         }
     };
 
-    private final Func1<Object, Observable<Boolean>> isOfflineLikesEnabled = new Func1<Object, Observable<Boolean>>() {
-        @Override
-        public Observable<Boolean> call(Object ignored) {
-            return offlineContentOperations.isOfflineLikedTracksEnabled();
-        }
-    };
-
     private final Func1<UrnEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<UrnEvent, Observable<Boolean>>() {
         @Override
         public Observable<Boolean> call(UrnEvent event) {
             return offlineContentOperations.isOfflinePlaylist(event.getFirstUrn());
+        }
+    };
+
+    private final Func1<UrnEvent, Observable<Boolean>> areOfflineLikesEnabled = new Func1<UrnEvent, Observable<Boolean>>() {
+        @Override
+        public Observable<Boolean> call(UrnEvent urnEvent) {
+            return offlineContentOperations.isOfflineLikedTracksEnabled();
         }
     };
 
@@ -147,13 +147,18 @@ public class OfflineServiceInitiator {
 
     private Observable<Boolean> getOfflineLikesChangedEvents() {
         return Observable.merge(
+                getOfflineLikedTracksContentChanged(),
+                offlineContentOperations.getOfflineLikedTracksStatusChanges());
+    }
+
+    private Observable<Boolean> getOfflineLikedTracksContentChanged() {
+        return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                         .filter(IS_TRACK_LIKE_EVENT_FILTER),
                 eventBus.queue(EventQueue.SYNC_RESULT)
                         .filter(IS_LIKES_SYNC_FILTER))
-                .flatMap(isOfflineLikesEnabled)
-                .filter(RxUtils.IS_TRUE)
-                .mergeWith(offlineContentOperations.getOfflineLikedTracksStatusChanges());
+                .flatMap(areOfflineLikesEnabled)
+                .filter(RxUtils.IS_TRUE);
     }
 
 }

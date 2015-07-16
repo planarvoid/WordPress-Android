@@ -51,7 +51,6 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
         wifiOnlyToggleSetting = PublishSubject.create();
 
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(offlineLikeToggle);
         when(playlistOperations.playlist(PLAYLIST)).thenReturn(Observable.just(playlistWithTracks));
 
@@ -111,6 +110,8 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startsOfflineSyncWhenATrackIsLiked() {
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, true, 1));
 
         assertThat(wasServiceStarted()).isTrue();
@@ -118,6 +119,8 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startsOfflineSyncWhenATrackIsUnliked() {
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, false, 1));
 
         assertThat(wasServiceStarted()).isTrue();
@@ -125,6 +128,8 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void startsOfflineSyncWhenLikeSyncingUpdatedTheLikes() {
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
+
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
         assertThat(wasServiceStarted()).isTrue();
