@@ -20,13 +20,11 @@ import java.util.List;
 public abstract class Screen {
     protected Han testDriver;
     protected Waiter waiter;
-    protected static final int CONTENT_ROOT = android.R.id.content;
 
     public Screen(Han solo) {
         this.testDriver = solo;
         this.waiter = new Waiter(solo);
         waiter.waitForActivity(getActivity());
-        waiter.waitForElement(CONTENT_ROOT);
     }
 
     public void pullToRefresh() {
