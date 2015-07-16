@@ -1,8 +1,6 @@
 package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
@@ -22,7 +20,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.BetterLruCache.ValueProvider;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.WeakLruCache;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -48,8 +48,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,8 +67,8 @@ public class ImageOperations {
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
 
-    private final Cache<String, TransitionDrawable> placeholderCache;
-    private final Cache<Urn, Bitmap> blurredImageCache;
+    private final WeakLruCache<String, TransitionDrawable> placeholderCache;
+    private final WeakLruCache<Urn, Bitmap> blurredImageCache;
 
     private final Func1<Bitmap, Bitmap> blurBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
@@ -84,8 +82,8 @@ public class ImageOperations {
     public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
         this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, imageProcessor,
-                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
-                CacheBuilder.newBuilder().weakValues().maximumSize(10).<Urn, Bitmap>build(),
+                new WeakLruCache<String, TransitionDrawable>(50),
+                new WeakLruCache<Urn, Bitmap>(10),
                 new HashCodeFileNameGenerator());
 
     }
@@ -95,8 +93,8 @@ public class ImageOperations {
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                     FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor,
-                    Cache<String, TransitionDrawable> placeholderCache,
-                    Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
+                    WeakLruCache<String, TransitionDrawable> placeholderCache,
+                    WeakLruCache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.urlBuilder = urlBuilder;
         this.placeholderGenerator = placeholderGenerator;
@@ -225,7 +223,7 @@ public class ImageOperations {
 
     public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn,
                                                    Scheduler scheduleOn, Scheduler observeOn) {
-        final Bitmap cachedBlurImage = blurredImageCache.getIfPresent(resourceUrn);
+        final Bitmap cachedBlurImage = blurredImageCache.get(resourceUrn);
         if (cachedBlurImage != null) {
             return Observable.just(cachedBlurImage);
         } else {
@@ -356,17 +354,12 @@ public class ImageOperations {
     @Nullable
     private TransitionDrawable getPlaceholderDrawable(final Urn urn, int width, int height) {
         final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
-        try {
-            return placeholderCache.get(key, new Callable<TransitionDrawable>() {
-                @Override
-                public TransitionDrawable call() throws Exception {
-                    return placeholderGenerator.generateTransitionDrawable(urn.toString());
-                }
-            });
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return placeholderCache.get(key, new ValueProvider<String, TransitionDrawable>() {
+            @Override
+            public TransitionDrawable get(String key) {
+                return placeholderGenerator.generateTransitionDrawable(urn.toString());
+            }
+        });
     }
 
     @Nullable

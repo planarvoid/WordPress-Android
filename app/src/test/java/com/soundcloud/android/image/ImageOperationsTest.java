@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.cache.Cache;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.MemoryCache;
@@ -27,6 +26,8 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.BetterLruCache.ValueProvider;
+import com.soundcloud.android.utils.WeakLruCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -53,7 +54,6 @@ import android.widget.ImageView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ImageOperationsTest extends AndroidUnitTest {
@@ -79,8 +79,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock GradientDrawable gradientDrawable;
     @Mock View parentView;
     @Mock FailReason failReason;
-    @Mock Cache placeholderCache;
-    @Mock Cache blurCache;
+    @Mock WeakLruCache<String, TransitionDrawable> placeholderCache;
+    @Mock WeakLruCache blurCache;
     @Mock FallbackBitmapLoadingAdapter.Factory viewlessLoadingAdapterFactory;
     @Mock FallbackBitmapLoadingAdapter fallbackBitmapLoadingAdapter;
     @Mock FileNameGenerator fileNameGenerator;
@@ -123,7 +123,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
-        when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
     }
 
     @Test
@@ -244,7 +244,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL;
-        when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
 
@@ -259,7 +259,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL;
-        when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, true);
@@ -276,7 +276,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayInPlayerShouldDelayLoadingIfHighPriorityFlagIsNotSet() throws ExecutionException {
         final String imageUrl = RESOLVER_URL;
-        when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, false);
@@ -314,7 +314,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(transitionDrawable);
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageAware.class),
@@ -327,7 +327,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Test
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(transitionDrawable);
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
@@ -373,7 +373,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
-        when(blurCache.getIfPresent(URN)).thenReturn(blurredBitmap);
+        when(blurCache.get(URN)).thenReturn(blurredBitmap);
 
         imageOperations.blurredPlayerArtwork(resources(), URN,
                 scheduler, scheduler).subscribe(subscriber);
