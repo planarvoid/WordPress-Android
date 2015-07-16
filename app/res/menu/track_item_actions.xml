@@ -3,6 +3,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/add_to_likes"
           android:title="@string/like" />
+    <item android:id="@+id/start_radio"
+        android:title="@string/start_radio"
+        android:visible="false" />
     <item android:id="@+id/play_related_tracks"
         android:title="@string/play_related_tracks"
         android:visible="false" />

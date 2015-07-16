@@ -25,6 +25,7 @@
     <bool name="feature_follow_user_search">true</bool>
     <bool name="feature_play_related_tracks">true</bool>
     <bool name="feature_never_ending_playqueue">true</bool>
+    <bool name="feature_stations">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_new_profile_fragments">false</bool>

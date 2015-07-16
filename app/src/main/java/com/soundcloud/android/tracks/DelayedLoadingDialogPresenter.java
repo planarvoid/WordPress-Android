@@ -8,27 +8,36 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class LoadingRelatedTracksPresenter {
+public class DelayedLoadingDialogPresenter {
     private static final int TIME_BEFORE_SHOWING_LOADING = 800;
     private static final int MIN_TIME_ON_SCREEN = 1000;
     private final Handler handler;
-    private LoadingRelatedTracksView loadingRelatedTracksView;
+    private LoadingAnimationView loadingAnimationView;
     private AlertDialog dialog;
     private long timeWhenShown;
+    private final String loadingMessage;
+    private final String onErrorToastText;
+    private final DialogInterface.OnCancelListener onCancelListener;
 
     @SuppressLint("ShowToast")
-    @Inject
-    LoadingRelatedTracksPresenter() {
+    DelayedLoadingDialogPresenter(String loadingMessage, String onErrorToastText, DialogInterface.OnCancelListener onCancelListener) {
+        this.loadingMessage = loadingMessage;
+        this.onErrorToastText = onErrorToastText;
+        this.onCancelListener = onCancelListener;
         this.handler = new Handler();
     }
 
-    public void show(Context context, final DialogInterface.OnCancelListener onCancelListener) {
-        final View content = View.inflate(context, R.layout.dialog_loading_related_tracks, null);
-        loadingRelatedTracksView = (LoadingRelatedTracksView) content.findViewById(R.id.loading_tracks_animation);
+    public DelayedLoadingDialogPresenter show(Context context) {
+        final View content = View.inflate(context, R.layout.dialog_delayed_loading, null);
+
+        loadingAnimationView = (LoadingAnimationView) content.findViewById(R.id.loading_animation);
+        ((TextView) content.findViewById(R.id.loading_message)).setText(loadingMessage);
+
         dialog = new AlertDialog.Builder(context)
                 .setOnCancelListener((new DialogInterface.OnCancelListener() {
                     @Override
@@ -40,6 +49,8 @@ public class LoadingRelatedTracksPresenter {
                 .setView(content)
                 .create();
         delayPresentation(new ShowDialogRunnable(), TIME_BEFORE_SHOWING_LOADING);
+
+        return this;
     }
 
     public void onError(Context context) {
@@ -69,14 +80,14 @@ public class LoadingRelatedTracksPresenter {
         public void run() {
             timeWhenShown = System.currentTimeMillis();
             dialog.show();
-            loadingRelatedTracksView.start();
+            loadingAnimationView.start();
         }
     }
 
     private class DismissDialogRunnable implements Runnable {
         @Override
         public void run() {
-            loadingRelatedTracksView.stop();
+            loadingAnimationView.stop();
             dialog.dismiss();
             dialog = null;
         }
@@ -92,10 +103,39 @@ public class LoadingRelatedTracksPresenter {
 
         @Override
         public void run() {
-            loadingRelatedTracksView.stop();
+            loadingAnimationView.stop();
             dialog.dismiss();
             dialog = null;
-            Toast.makeText(context, R.string.unable_to_play_related_tracks, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, onErrorToastText, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static class Builder {
+        private String loadingMessage;
+        private String onErrorToastText;
+        private DialogInterface.OnCancelListener onCancelListener;
+
+        @Inject
+        Builder() {
+        }
+
+        public DelayedLoadingDialogPresenter create() {
+            return new DelayedLoadingDialogPresenter(loadingMessage, onErrorToastText, onCancelListener);
+        }
+
+        public Builder setLoadingMessage(String loadingMessage) {
+            this.loadingMessage = loadingMessage;
+            return this;
+        }
+
+        public Builder setOnErrorToastText(String onErrorToastText) {
+            this.onErrorToastText = onErrorToastText;
+            return this;
+        }
+
+        public Builder setOnCancelListener(DialogInterface.OnCancelListener onCancelListener) {
+            this.onCancelListener = onCancelListener;
+            return this;
         }
     }
 }

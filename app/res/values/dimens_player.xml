@@ -41,5 +41,5 @@
     <dimen name="player_error_text_margin">40dp</dimen>
 
     <!-- Play related tracks animation -->
-    <dimen name="play_related_loading_transition_y_offset">3dp</dimen>
+    <dimen name="play_loading_transition_y_offset">3dp</dimen>
 </resources>

@@ -35,10 +35,14 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     @Override
     public void onNext(PlaybackResult result) {
         if (result.isSuccess()) {
-            expandDelayHandler.sendEmptyMessageDelayed(0, EXPAND_DELAY_MILLIS);
+            expandPlayer();
         } else {
             playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
         }
+    }
+
+    protected boolean expandPlayer() {
+        return expandDelayHandler.sendEmptyMessageDelayed(0, EXPAND_DELAY_MILLIS);
     }
 
 }

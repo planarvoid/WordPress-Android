@@ -16,7 +16,7 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class LoadingRelatedTracksView extends FrameLayout {
+public class LoadingAnimationView extends FrameLayout {
 
     private static final int DELAY_BETWEEN_ANIMATIONS = 50;
     private static final int DELAY_BEFORE_REPEATING_ANIMATION = 700;
@@ -26,10 +26,10 @@ public class LoadingRelatedTracksView extends FrameLayout {
 
     private AnimatorSet animators;
 
-    public LoadingRelatedTracksView(Context context, AttributeSet attrs) {
+    public LoadingAnimationView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        LayoutInflater.from(context).inflate(R.layout.related_tracks_loading_icon, this, true);
+        LayoutInflater.from(context).inflate(R.layout.loading_icon, this, true);
         animators = new AnimatorSet();
         loadingBars = new View[]{
                 findViewById(R.id.loading_bar_1),
@@ -38,7 +38,7 @@ public class LoadingRelatedTracksView extends FrameLayout {
                 findViewById(R.id.loading_bar_4),
                 findViewById(R.id.loading_bar_5)
         };
-        translationYOffset = -getResources().getDimension(R.dimen.play_related_loading_transition_y_offset);
+        translationYOffset = -getResources().getDimension(R.dimen.play_loading_transition_y_offset);
     }
 
     public void start() {
@@ -47,6 +47,11 @@ public class LoadingRelatedTracksView extends FrameLayout {
         animators.addListener(new InfiniteAnimationListener());
         animators.setInterpolator(new LinearInterpolator());
         animators.start();
+    }
+
+    public void stop() {
+        animators.cancel();
+        clearAnimations(loadingBars);
     }
 
     private Collection<Animator> createAnimators(View... bars) {
@@ -63,11 +68,6 @@ public class LoadingRelatedTracksView extends FrameLayout {
         animator.setDuration(ANIMATION_DURATION_PER_LOADING_BAR);
         animator.setStartDelay(delayTimeMilliSeconds);
         return animator;
-    }
-
-    public void stop() {
-        animators.cancel();
-        clearAnimations(loadingBars);
     }
 
     private void clearAnimations(View... views) {

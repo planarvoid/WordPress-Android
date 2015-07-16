@@ -15,7 +15,8 @@ public enum Flag {
     FOLLOW_USER_SEARCH(R.bool.feature_follow_user_search),
     NEW_PROFILE_FRAGMENTS(R.bool.feature_new_profile_fragments),
     PLAY_RELATED_TRACKS(R.bool.feature_play_related_tracks),
-    NEVER_ENDING_PLAY_QUEUE(R.bool.feature_never_ending_playqueue);
+    NEVER_ENDING_PLAY_QUEUE(R.bool.feature_never_ending_playqueue),
+    STATIONS(R.bool.feature_stations);
 
     private final int resourceId;
 
