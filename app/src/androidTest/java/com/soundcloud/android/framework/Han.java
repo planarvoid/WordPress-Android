@@ -58,14 +58,10 @@ public class Han  {
         Runnable runnable = new Runnable() {
             public void run() {
                 while (true) {
-                    Activity activity = activityMonitor.getLastActivity();
-                    if(activity != null && !activity.isFinishing() && activity.hasWindowFocus()) {
+                    Activity activity = activityMonitor.waitForActivity();
+                    if(activity != null && !activity.isFinishing()) {
                         visibleActivity = activity;
-                    }
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.i("ActivityMonitor:", visibleActivity.toString());
                     }
                 }
             }
