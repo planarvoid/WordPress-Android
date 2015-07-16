@@ -177,10 +177,12 @@ public class EventLoggerJsonDataBuilder {
         switch (event.getKind()) {
             case MidTierTrackEvent.KIND_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .pageName(event.getPageName())
                         .impressionName("consumer_sub_track")
                         .impressionObject(String.valueOf(event.getTrackUrn())));
             case MidTierTrackEvent.KIND_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .pageName(event.getPageName())
                         .clickName("consumer_sub_track")
                         .clickObject(String.valueOf(event.getTrackUrn())));
             default:

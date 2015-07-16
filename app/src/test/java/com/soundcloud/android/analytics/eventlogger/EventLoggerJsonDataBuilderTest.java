@@ -58,6 +58,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
     private static final String CDN_URL = "host.com";
+    private static final String SCREEN_TAG = "screen_tag";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -503,11 +504,12 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsMidTierTrackClickJson() throws Exception {
         final Urn trackUrn = Urn.forTrack(123L);
-        MidTierTrackEvent click = MidTierTrackEvent.forClick(trackUrn);
+        MidTierTrackEvent click = MidTierTrackEvent.forClick(trackUrn, SCREEN_TAG);
 
         jsonDataBuilder.build(click);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(click.getTimestamp()))
+                .pageName(SCREEN_TAG)
                 .clickObject(String.valueOf(trackUrn))
                 .clickName("consumer_sub_track"));
     }
@@ -515,11 +517,12 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsMidTierTrackImpressionJson() throws Exception {
         final Urn trackUrn = Urn.forTrack(123L);
-        MidTierTrackEvent click = MidTierTrackEvent.forImpression(trackUrn);
+        MidTierTrackEvent click = MidTierTrackEvent.forImpression(trackUrn, SCREEN_TAG);
 
         jsonDataBuilder.build(click);
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(click.getTimestamp()))
+                .pageName(SCREEN_TAG)
                 .impressionObject(String.valueOf(trackUrn))
                 .impressionName("consumer_sub_track"));
     }

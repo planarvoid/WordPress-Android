@@ -6,9 +6,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
@@ -35,6 +35,7 @@ import android.view.View;
 public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     private static final int ITEM_POSITION = 1;
+    private static final String PAGE_NAME = "page_name";
     private PaywallImpressionController impressionCreator;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -42,12 +43,14 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
     @Mock private LinearLayoutManager linearLayoutManager;
     @Mock private View itemView;
     @Mock private Handler handler;
+    @Mock private ScreenProvider screenProvider;
     @Mock(extraInterfaces = ItemAdapter.class) private RecyclerView.Adapter itemAdapter;
     @Captor ArgumentCaptor<RecyclerView.OnChildAttachStateChangeListener> childAttachCaptor;
 
     @Before
     public void setUp() throws Exception {
-        impressionCreator = new PaywallImpressionController(eventBus, handler);
+        when(screenProvider.getLastScreenTag()).thenReturn(PAGE_NAME);
+        impressionCreator = new PaywallImpressionController(eventBus, handler, screenProvider);
         when(recyclerView.getLayoutManager()).thenReturn(linearLayoutManager);
         when(recyclerView.getAdapter()).thenReturn(itemAdapter);
         when(itemAdapter.getItemCount()).thenReturn(2);
@@ -103,9 +106,9 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
         final PropertySet midTierTrack = TestPropertySets.midTierTrack();
         attachItemView(TrackItem.from(midTierTrack));
 
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isInstanceOf(MidTierTrackEvent.class);
-        assertThat(((MidTierTrackEvent) event).getTrackUrn()).isEqualTo(midTierTrack.get(TrackProperty.URN));
+        final MidTierTrackEvent event1 = (MidTierTrackEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event1.getTrackUrn()).isEqualTo(midTierTrack.get(TrackProperty.URN));
+        assertThat(event1.getPageName()).isEqualTo(PAGE_NAME);
     }
 
     @Test

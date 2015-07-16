@@ -207,7 +207,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackMidTierTrackEvent() {
-        MidTierTrackEvent event = MidTierTrackEvent.forImpression(Urn.forTrack(123));
+        MidTierTrackEvent event = MidTierTrackEvent.forImpression(Urn.forTrack(123), "screen_tag");
         when(dataBuilder.build(event)).thenReturn("ForMidTierTrackEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

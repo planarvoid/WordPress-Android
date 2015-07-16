@@ -171,7 +171,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else if (shouldShowUpsell(item)) {
-            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forClick(item.getEntityUrn()));
+            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forClick(item.getEntityUrn(), Screen.SIDE_MENU_LIKES.name()));
             navigator.openUpgrade(view.getContext());
         } else {
             Urn initialTrack = item.getEntityUrn();
