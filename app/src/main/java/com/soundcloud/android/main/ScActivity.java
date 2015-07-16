@@ -19,7 +19,6 @@ import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -104,7 +103,6 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Override
     protected void setActivityContentView() {
         setContentView();
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     // Override this in activities with custom content views
