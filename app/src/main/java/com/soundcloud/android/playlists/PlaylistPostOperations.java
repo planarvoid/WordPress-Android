@@ -53,7 +53,9 @@ class PlaylistPostOperations {
     private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialPlaylistPosts = new Func1<Boolean, Observable<List<PropertySet>>>() {
         @Override
         public Observable<List<PropertySet>> call(Boolean aBoolean) {
-            return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE).subscribeOn(scheduler);
+            return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)
+                    .doOnNext(requestPlaylistsSyncAction)
+                    .subscribeOn(scheduler);
         }
     };
 

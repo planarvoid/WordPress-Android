@@ -1,21 +1,20 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.PlaylistPostOperations.PAGE_SIZE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
@@ -28,8 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistPostOperationsTest {
+public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
@@ -159,10 +157,22 @@ public class PlaylistPostOperationsTest {
         expectObserverOnNextEventToEqual(postedPlaylists);
     }
 
+    @Test
+    public void updatedPostedPlaylistsRequestsUpdatesFromSyncerWhenOnWifi() {
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+        when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
+
+        operations.updatedPostedPlaylists().subscribe(observer);
+
+        verify(syncInitiator).requestPlaylistSync(postedPlaylists);
+    }
+
     private void expectObserverOnNextEventToEqual(List<PropertySet> firstPage) {
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(firstPage);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(firstPage);
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     private List<PropertySet> createPageOfPostedPlaylists(int size){
