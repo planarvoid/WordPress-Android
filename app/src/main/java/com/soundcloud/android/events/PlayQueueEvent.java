@@ -34,6 +34,10 @@ public class PlayQueueEvent {
         return kind == QUEUE_UPDATE;
     }
 
+    public boolean isNewQueue() {
+        return kind == NEW_QUEUE;
+    }
+
     public boolean audioAdRemoved() {
         return kind == AUDIO_AD_REMOVED;
     }

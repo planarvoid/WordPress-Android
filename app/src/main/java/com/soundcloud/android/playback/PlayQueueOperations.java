@@ -38,6 +38,17 @@ class PlayQueueOperations {
         }
     };
 
+    private static final Func1<RecommendedTracksCollection, PlayQueue> TO_PLAY_QUEUE = new Func1<RecommendedTracksCollection, PlayQueue>() {
+        @Override
+        public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
+            if (recommendedTracks.getCollection().isEmpty()) {
+                return PlayQueue.empty();
+            }
+
+            return PlayQueue.fromRecommendations(recommendedTracks);
+        }
+    };
+
     private final Func1<RecommendedTracksCollection, Observable<Urn>> toUrns = new Func1<RecommendedTracksCollection, Observable<Urn>>() {
         @Override
         public Observable<Urn> call(RecommendedTracksCollection apiTracks) {
@@ -128,17 +139,25 @@ class PlayQueueOperations {
         );
     }
 
-    Observable<RecommendedTracksCollection> getRelatedTracks(Urn seedTrack) {
+    public Observable<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), seedTrack.toEncodedString());
-        final ApiRequest request = ApiRequest.get(endpoint).forPrivateApi(1).build();
+        final ApiRequest request = ApiRequest.get(endpoint)
+                .forPrivateApi(1)
+                .addQueryParam("continuous_play", continuousPlay ? "true" : "false")
+                .build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
                 .doOnNext(storeTracksCommand.toAction())
                 .subscribeOn(scheduler);
     }
 
-    public Observable<PlayQueue> getRelatedTracksPlayQueue(final Urn seedTrack) {
-        return getRelatedTracks(seedTrack).map(toPlayQueue(seedTrack));
+    public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack, boolean continuousPlay) {
+        return relatedTracks(seedTrack, continuousPlay).map(TO_PLAY_QUEUE);
+    }
+
+    // this is only used to create radio, which never should have the continuousPlay flag
+    public Observable<PlayQueue> relatedTracksPlayQueueWithSeedTrack(final Urn seedTrack) {
+        return relatedTracks(seedTrack, false).map(toPlayQueue(seedTrack));
     }
 
     private Func1<RecommendedTracksCollection, PlayQueue> toPlayQueue(final Urn seedTrack) {

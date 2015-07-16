@@ -117,17 +117,26 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource);
     }
 
-    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
+    public static PlayQueue fromRecommendations(RecommendedTracksCollection relatedTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
 
-        playQueueItems.add(PlayQueueItem.fromTrack(seedTrack));
         for (ApiTrack relatedTrack : relatedTracks) {
             playQueueItems.add(PlayQueueItem.fromTrack(relatedTrack.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
                     relatedTracks.getSourceVersion()));
         }
-
         return new PlayQueue(playQueueItems);
     }
+
+    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
+        PlayQueue playQueue = fromRecommendations(relatedTracks);
+        playQueue.playQueueItems.add(0, PlayQueueItem.fromTrack(seedTrack));
+        return playQueue;
+    }
+
+    public void addPlayQueueItem(PlayQueueItem playQueueItem) {
+        playQueueItems.add(playQueueItem);
+    }
+
 
     String getTrackSource(int position) {
         return playQueueItems.get(position).getSource();

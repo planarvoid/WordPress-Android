@@ -156,11 +156,12 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.<RecommendedTracksCollection>empty());
-        playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(observer);
+        playQueueOperations.relatedTracks(Urn.forTrack(123), true).subscribe(observer);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(RecommendedTracksCollection.class));
         assertThat(argumentCaptor.getValue().getMethod()).isEqualTo("GET");
+        assertThat(argumentCaptor.getValue().getQueryParameters().get("continuous_play")).containsExactly("true");
         assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
 
@@ -175,7 +176,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(collection));
 
-        playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
+        playQueueOperations.relatedTracks(Urn.forTrack(123), false).subscribe(relatedObserver);
 
         ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
         verify(relatedObserver).onNext(argumentCaptor.capture());
@@ -187,12 +188,23 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getRelatedTracksUrnsShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
+    public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(new RecommendedTracksCollection()));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
-        playQueueOperations.getRelatedTracksPlayQueue(Urn.forTrack(123)).subscribe(testSubscriber);
+        playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false).subscribe(testSubscriber);
+
+        testSubscriber.assertValues(PlayQueue.empty());
+    }
+
+    @Test
+    public void getRelatedTracksPlayQueueWithSeedTrackShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
+                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+
+        TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
+        playQueueOperations.relatedTracksPlayQueueWithSeedTrack(Urn.forTrack(123)).subscribe(testSubscriber);
 
         testSubscriber.assertValues(PlayQueue.empty());
     }
@@ -204,7 +216,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(collection));
 
-        playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
+        playQueueOperations.relatedTracks(Urn.forTrack(1), false).subscribe(observer);
 
         verify(storeTracksCommand).call(collection);
     }

@@ -162,7 +162,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
 
     @Test
     public void playTrackWithRecommendationsReturnsAnErrorWhenNoRecommendation() {
-        when(playQueueOperations.getRelatedTracksPlayQueue(TRACK1)).thenReturn(Observable.<PlayQueue>error(new NoSuchElementException()));
+        when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.<PlayQueue>error(new NoSuchElementException()));
 
         playbackOperations.playTrackWithRecommendations(TRACK1, new PlaySessionSource(ORIGIN_SCREEN), 0).subscribe(observer);
 
@@ -173,7 +173,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
     public void playTrackWithRecommendationsPlaysQueueWithSeedAtSpecifiedPosition() {
         final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(Arrays.asList(new ApiTrack()), "");
         final PlayQueue relatedUrns = PlayQueue.fromRecommendations(TRACK1, relatedTracks);
-        when(playQueueOperations.getRelatedTracksPlayQueue(TRACK1)).thenReturn(Observable.just(relatedUrns));
+        when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.just(relatedUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         playbackOperations.playTrackWithRecommendations(TRACK1, playSessionSource, 0).subscribe(observer);

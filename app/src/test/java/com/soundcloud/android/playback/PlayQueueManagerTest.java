@@ -10,18 +10,13 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -31,7 +26,6 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +43,6 @@ import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class PlayQueueManagerTest extends AndroidUnitTest {
@@ -63,7 +56,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Mock private Context context;
     @Mock private PlayQueue playQueue;
-    @Mock private ScModelManager modelManager;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -75,7 +67,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Before
     public void before() throws CreateModelException {
-        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, modelManager, policyOperations);
+        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, policyOperations);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -115,8 +107,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         PlaySessionSource source2 = new PlaySessionSource("screen:something");
         PlayQueue queue2 = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L, 5L), source2);
 
-        playQueueManager.setNewPlayQueue(queue1, 0, source1);
-        playQueueManager.setNewPlayQueue(queue2, 2, source2);
+        playQueueManager.setNewPlayQueue(queue1, source1);
+        playQueueManager.setNewPlayQueue(queue2, source2, 2);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue());
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).containsExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L)),
@@ -136,7 +128,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void getCurrentTrackUrnReturnsCurrentTrackUrnFromPlayQueue() {
-        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 5);
         when(playQueue.getUrn(5)).thenReturn(Urn.forTrack(5L));
 
         assertThat(playQueueManager.getCurrentTrackUrn()).isEqualTo(Urn.forTrack(5L));
@@ -164,6 +156,42 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
 
         assertThat(playQueueManager.hasSameTrackList(TestUrns.createTrackUrns(3L, 2L, 1L))).isFalse();
+    }
+
+    @Test
+    public void appendUniquePlayQueueItemsAppendsPlayQueueItemsThrowingOutDuplicates() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
+
+        playQueueManager.appendUniquePlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(3L, 4L, 5L), playSessionSource));
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(5);
+        assertThat(playQueueManager.getUrnAtPosition(3)).isEqualTo(Urn.forTrack(4L));
+        assertThat(playQueueManager.getUrnAtPosition(4)).isEqualTo(Urn.forTrack(5L));
+    }
+
+    @Test
+    public void appendUniquePlayQueueItemsSavesQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
+
+        playQueueManager.appendUniquePlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(4L, 5L), playSessionSource));
+
+        verify(playQueueOperations).saveQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L), playSessionSource));
+    }
+
+    @Test
+    public void appendUniquePlayQueueItemsBroadcastsPlayQueueUpdate() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource);
+
+        playQueueManager.appendUniquePlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(4L, 5L), playSessionSource));
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(2);
     }
 
     @Test
@@ -234,7 +262,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnTrackSourceInfoWithPlaylistInfoSetIfSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         assertThat(trackSourceInfo.getPlaylistUrn()).isEqualTo(PLAYLIST_URN);
@@ -243,7 +271,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnTrackSourceInfoWithExploreTrackingTagIfSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         assertThat(trackSourceInfo.getSource()).isEqualTo("explore");
@@ -256,7 +284,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         searchQuerySourceInfo.setQueryResults(new ArrayList<>(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))));
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
         assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
@@ -264,7 +292,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnTrackSourceInfoWithoutQuerySourceInfoIfNotSet() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
         assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isNull();
@@ -302,7 +330,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(currentPosition)).thenReturn(currentUrn);
 
-        playQueueManager.setNewPlayQueue(playQueue, currentPosition, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, currentPosition);
         verify(playQueueOperations).saveQueue(playQueue);
     }
 
@@ -338,7 +366,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource, 1);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
         playQueueManager.setPosition(3);
 
@@ -352,7 +380,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource, 1);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
         playQueueManager.setPosition(2);
 
@@ -381,7 +409,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
-                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource, 1);
 
         final CurrentPlayQueueTrackEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK);
         playQueueManager.setPosition(1);
@@ -423,7 +451,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishTrackChangeEventOnPreviousTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 5);
         when(playQueue.hasPreviousTrack(5)).thenReturn(true);
         when(playQueue.getUrn(4)).thenReturn(Urn.forTrack(3L));
 
@@ -434,7 +462,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldMoveToPreviousTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 5);
         when(playQueue.hasPreviousTrack(5)).thenReturn(true);
 
         playQueueManager.moveToPreviousTrack();
@@ -462,7 +490,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void moveToPreviousShouldResultInManualTrigger() {
-        playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 5);
         when(playQueue.hasPreviousTrack(5)).thenReturn(true);
         when(playQueue.isEmpty()).thenReturn(false);
 
@@ -473,7 +501,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishTrackChangeEventOnNextTrack() {
-        playQueueManager.setNewPlayQueue(playQueue, 0, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(true);
         when(playQueue.getUrn(1)).thenReturn(Urn.forTrack(3L));
 
@@ -514,7 +542,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
 
         assertThat(playQueueManager.nextTrack()).isFalse();
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
@@ -544,13 +572,13 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void getNextTrackUrnReturnsNotSetTrackUrnIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
-                TestUrns.createTrackUrns(1L, 2L), playSessionSource), 1, playSessionSource);
+                TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
         assertThat(playQueueManager.getNextTrackUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
     public void performPlayQueueUpdateOperationsExecutesOperationsInOrder() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 1);
 
         final QueueUpdateOperation queueUpdateOperation1 = mock(QueueUpdateOperation.class);
         final QueueUpdateOperation queueUpdateOperation2 = mock(QueueUpdateOperation.class);
@@ -564,7 +592,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void performPlayQueueUpdateOperationsPublishesQueueChangeEvent() throws Exception {
-        playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 1);
         playQueueManager.performPlayQueueUpdateOperations();
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.QUEUE_UPDATE);
@@ -575,7 +603,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
         final PropertySet metaDataToRemove = PropertySet.create();
         playQueue.insertTrack(1, Urn.forTrack(123L), metaDataToRemove, true);
-        playQueueManager.setNewPlayQueue(playQueue, 3, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 3);
 
         playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
             @Override
@@ -623,7 +651,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final PropertySet metaDataToSelect = PropertySet.create();
         final Urn expectedSelectedTrackUrn = Urn.forTrack(789L);
         playQueue.insertTrack(1, expectedSelectedTrackUrn, metaDataToSelect, true);
-        playQueueManager.setNewPlayQueue(playQueue, 3, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, 3);
 
         List<Urn> urns = playQueueManager.filterTrackUrnsWithMetadata(new Predicate<PropertySet>() {
             @Override
@@ -674,7 +702,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void shouldNotSetEmptyPlayQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
-                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+                TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource), playSessionSource, 1);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
@@ -778,131 +806,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks() {
-        Urn currentUrn = Urn.forTrack(123L);
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
-        when(playQueue.getUrn(0)).thenReturn(currentUrn);
-
-        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        verify(playQueueOperations).getRelatedTracks(currentUrn);
-    }
-
-    @Test
-    public void shouldAppendNewTracksToPlayQueueWhenFetchingRelatedTracks() {
-        ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
-        Observable<RecommendedTracksCollection> observable =
-                Observable.just(new RecommendedTracksCollection(
-                        Collections.singletonList(recommendedTrack), "123"));
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
-
-        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY);
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        verify(playQueue).addTrack(recommendedTrack.getUrn(),
-                PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
-    }
-
-    @Test
-    public void shouldRetryFetchingRelatedTracksFromSameSource() {
-        ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
-        Observable<RecommendedTracksCollection> observable =
-                Observable.just(new RecommendedTracksCollection(
-                        Collections.singletonList(recommendedTrack), "123"));
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
-
-        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY);
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-        playQueueManager.retryRelatedTracksFetch();
-
-        verify(playQueue, times(2)).addTrack(recommendedTrack.getUrn(),
-                PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
-    }
-
-    @Test
-    public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks() {
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        expectBroadcastPlayQueueUpdate();
-    }
-
-    @Test
-    public void shouldNotPublishPlayQueueRelatedTracksEventOnEmptyRelatedLoad() throws CreateModelException {
-        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        eventBus.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
-    }
-
-    @Test
-    public void shouldPublishPlayQueueUpdateEventOnRelatedTracksReturned() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final Urn trackUrn = Urn.forTrack(123L);
-        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(
-                Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource), playSessionSource);
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.QUEUE_UPDATE);
-    }
-
-    @Test
-    public void relatedTrackLoadShouldCauseQueueToBeSaved() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final Urn trackUrn = Urn.forTrack(123L);
-        final RecommendedTracksCollection related = new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123");
-        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(related));
-
-        final PlayQueue playQueueOrig = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource);
-        final PlayQueue expPlayQueue1 = playQueueOrig.copy();
-        final PlayQueue expPlayQueue2 = playQueueOrig.copy();
-        expPlayQueue2.addTrack(apiTrack.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
-
-        playQueueManager.setNewPlayQueue(playQueueOrig, playSessionSource);
-        playQueueManager.fetchTracksRelatedToCurrentTrack();
-
-        InOrder inOrder = Mockito.inOrder(playQueueOperations);
-        inOrder.verify(playQueueOperations).saveQueue(eq(expPlayQueue1));
-        inOrder.verify(playQueueOperations).saveQueue(eq(expPlayQueue2));
-
-    }
-
-    @Test
-    public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L), playSessionSource), playSessionSource);
-        playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
-
-        ArgumentCaptor<PublicApiTrack> captor = ArgumentCaptor.forClass(PublicApiTrack.class);
-        verify(modelManager).cache(captor.capture());
-        assertThat(captor.getValue().getUrn()).isEqualTo(apiTrack.getUrn());
-    }
-
-    @Test
-    public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad() {
-        playQueueManager.onNext(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "123"));
-        playQueueManager.onCompleted();
-
-        expectBroadcastPlayQueueUpdate();
-    }
-
-    @Test
-    public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad() {
-        playQueueManager.onCompleted();
-
-        expectBroadcastPlayQueueUpdate();
-    }
-
-    @Test
-    public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled() {
-        playQueueManager.onError(new Throwable());
-
-        expectBroadcastPlayQueueUpdate();
-    }
-
-    @Test
     public void clearAllShouldClearPreferences() {
         playQueueManager.clearAll();
         verify(playQueueOperations).clear();
@@ -938,6 +841,23 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.clearAll();
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isEqualTo(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+    }
+
+    @Test
+    public void isCurrentPlaylistReturnsTrueIfPlaylistUrnMatchesAndCurrentTrackHasNoSource() {
+        playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isTrue();
+    }
+
+    @Test
+    public void isCurrentPlaylistReturnsFalseIfPlaylistUrnMatchesAndCurrentTrackHasAlternateSource() {
+        when(playQueue.getTrackSource(0)).thenReturn("recommender");
+        playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+
+        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isFalse();
     }
 
     @Test
@@ -979,11 +899,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     private void expectBroadcastPlayQueueUpdate() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context, atLeastOnce()).sendBroadcast(captor.capture());
-        boolean loadStateChangedFired = false;
-        for (Intent intent : captor.getAllValues()) {
-            loadStateChangedFired = intent.getAction().equals(PlayQueueManager.RELATED_LOAD_STATE_CHANGED_ACTION);
-        }
-        assertThat(loadStateChangedFired).isTrue();
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {

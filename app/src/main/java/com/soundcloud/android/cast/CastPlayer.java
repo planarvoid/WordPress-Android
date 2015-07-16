@@ -221,8 +221,8 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private void setNewPlayQueue(LocalPlayQueue localPlayQueue, PlaySessionSource playSessionSource) {
         playQueueManager.setNewPlayQueue(
                 PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns, playSessionSource),
-                correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn),
-                playSessionSource);
+                playSessionSource, correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
+        );
     }
 
     private void playLocalQueueOnRemote(LocalPlayQueue localPlayQueue, long progressPosition) {

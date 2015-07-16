@@ -176,6 +176,14 @@ public class PlaySessionSource implements Parcelable {
         promotedSourceInfo = null;
     }
 
+    public boolean originatedFromDeeplink() {
+        return originScreen.equals(Screen.DEEPLINK.get());
+    }
+
+    public boolean originatedInSearchSuggestions() {
+        return originScreen.startsWith(Screen.SEARCH_SUGGESTIONS.get());
+    }
+
     public enum DiscoverySource {
         RECOMMENDER, EXPLORE;
 

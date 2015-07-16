@@ -3,12 +3,16 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.Playa.PlayaState;
 import static com.soundcloud.android.playback.Playa.StateTransition;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -19,10 +23,12 @@ import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import dagger.Lazy;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,15 +37,20 @@ import java.util.Collections;
 @Singleton
 public class PlaySessionController {
 
+    @VisibleForTesting
+    static final int RECOMMENDED_LOAD_TOLERANCE = 5;
+
     private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
+    private final PlayQueueOperations playQueueOperations;
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
+    private final FeatureFlags featureFlags;
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
@@ -48,7 +59,10 @@ public class PlaySessionController {
     };
 
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
+    private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
+
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
+    private boolean stopContinuousPlayback; // killswitch. If the api returns no tracks, stop asking for them
 
     @Inject
     public PlaySessionController(Resources resources,
@@ -57,14 +71,17 @@ public class PlaySessionController {
                                  PlayQueueManager playQueueManager,
                                  TrackRepository trackRepository,
                                  Lazy<IRemoteAudioManager> audioManager,
+                                 PlayQueueOperations playQueueOperations,
                                  ImageOperations imageOperations,
                                  PlaySessionStateProvider playSessionStateProvider,
-                                 CastConnectionHelper castConnectionHelper) {
+                                 CastConnectionHelper castConnectionHelper, FeatureFlags featureFlags) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
+        this.playQueueOperations = playQueueOperations;
+        this.featureFlags = featureFlags;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -74,6 +91,7 @@ public class PlaySessionController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK,  new PlayQueueTrackSubscriber());
+        eventBus.subscribe(EventQueue.PLAY_QUEUE,  new PlayQueueSubscriber());
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
@@ -110,15 +128,67 @@ public class PlaySessionController {
         }
     }
 
+    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+        @Override
+        public void onNext(PlayQueueEvent event) {
+            if (event.isNewQueue()){
+                loadRecommendedSubscription.unsubscribe();
+                stopContinuousPlayback = false;
+            }
+        }
+    }
+
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
+            if (currentQueueAllowsRecommendations() && withinRecommendedFetchTolerance()
+                    && isNotAlreadyLoadingRecommendations()) {
+                loadRecommendations();
+            }
+
             currentTrackSubscription.unsubscribe();
             currentTrackSubscription = trackRepository
                     .track(event.getCurrentTrackUrn())
                     .map(PropertySetFunctions.mergeInto(event.getCurrentMetaData()))
                     .subscribe(new CurrentTrackSubscriber());
         }
+    }
+
+    private boolean currentQueueAllowsRecommendations() {
+        if (stopContinuousPlayback) {
+            return false;
+        } else {
+            final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
+            return featureFlags.isEnabled(Flag.NEVER_ENDING_PLAY_QUEUE) ||
+                    currentPlaySessionSource.originatedInExplore() ||
+                    Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
+        }
+    }
+
+    private boolean withinRecommendedFetchTolerance() {
+        return !playQueueManager.isQueueEmpty() &&
+                playQueueManager.getQueueSize() - playQueueManager.getCurrentPosition() <= RECOMMENDED_LOAD_TOLERANCE;
+    }
+
+    private boolean isNotAlreadyLoadingRecommendations() {
+        return loadRecommendedSubscription.isUnsubscribed();
+    }
+
+    private void loadRecommendations() {
+        loadRecommendedSubscription = playQueueOperations
+                .relatedTracksPlayQueue(playQueueManager.getLastTrackUrn(), fromContinuousPlay())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new RecommendedTracksSubscriber());
+    }
+
+    // Hacky, but the similar sounds service needs to know if it is allowed to not fulfill this request. This should
+    // only be allowed if we are not in explore, or serving a deeplink. This should be removed after rollout and we
+    // have determined the service can handle the load we give it...
+    private boolean fromContinuousPlay() {
+        final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
+        return !(currentPlaySessionSource.originatedInExplore() ||
+                currentPlaySessionSource.originatedFromDeeplink() ||
+                currentPlaySessionSource.originatedInSearchSuggestions());
     }
 
     private final class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -195,5 +265,13 @@ public class PlaySessionController {
 
     private StateTransition createPlayQueueCompleteEvent(Urn trackUrn){
         return new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
+    }
+
+    private class RecommendedTracksSubscriber extends DefaultSubscriber<PlayQueue> {
+        @Override
+        public void onNext(PlayQueue playQueue) {
+            playQueueManager.appendUniquePlayQueueItems(playQueue);
+            stopContinuousPlayback = playQueue.isEmpty();
+        }
     }
 }

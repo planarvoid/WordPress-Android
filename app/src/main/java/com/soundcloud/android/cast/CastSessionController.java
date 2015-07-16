@@ -110,7 +110,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
             final PlayQueue playQueue = PlayQueue.fromTrackUrnList(
                     remoteTrackList.isEmpty() ? Arrays.asList(remoteCurrentUrn) : remoteTrackList,
                     PlaySessionSource.EMPTY);
-            playQueueManager.setNewPlayQueue(playQueue, remotePosition, PlaySessionSource.EMPTY);
+            playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
             castPlayer.playCurrent();
         }
 

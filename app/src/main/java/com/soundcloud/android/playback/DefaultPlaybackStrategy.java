@@ -1,42 +1,39 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.content.Context;
-import android.content.Intent;
-
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
-    private final Context context;
     private final PlayQueueManager playQueueManager;
+    private final ServiceInitiator serviceInitiator;
 
-    public DefaultPlaybackStrategy(Context context,
-                                   PlayQueueManager playQueueManager) {
-        this.context = context;
+    public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, ServiceInitiator serviceInitiator) {
         this.playQueueManager = playQueueManager;
+        this.serviceInitiator = serviceInitiator;
     }
 
     @Override
     public void togglePlayback() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        serviceInitiator.togglePlayback();
     }
 
     @Override
     public void resume() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_ACTION));
+        serviceInitiator.resume();
     }
 
     @Override
     public void pause() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PAUSE_ACTION));
+        serviceInitiator.pause();
     }
 
     @Override
     public void playCurrent() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_CURRENT));
+        serviceInitiator.playCurrent();
     }
 
     @Override
@@ -50,9 +47,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                     @Override
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
                         final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition, initialTrackUrn);
-
                         setAndPlayNewQueue(playQueue, updatedPosition, playSessionSource);
-                        fetchRelatedTracks(loadRelated);
                         subscriber.onNext(PlaybackResult.success());
                         subscriber.onCompleted();
                     }
@@ -61,26 +56,12 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     private void setAndPlayNewQueue(PlayQueue playQueue, int startPosition, PlaySessionSource playSessionSource) {
-        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource, startPosition);
         playCurrent();
-    }
-
-    private void fetchRelatedTracks(boolean loadRelated) {
-        if (loadRelated) {
-            playQueueManager.fetchTracksRelatedToCurrentTrack();
-        }
     }
 
     @Override
     public void seek(long position) {
-        Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
-        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
-        context.startService(intent);
-    }
-
-    private Intent createExplicitServiceIntent(String action) {
-        Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(action);
-        return intent;
+        serviceInitiator.seek(position);
     }
 }

@@ -24,6 +24,28 @@ public class ServiceInitiator {
         context.startService(createExplicitServiceIntent(PlaybackService.Actions.RESET_ALL));
     }
 
+    public void togglePlayback() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+    }
+
+    public void resume() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_ACTION));
+    }
+
+    public void pause() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PAUSE_ACTION));
+    }
+
+    public void playCurrent() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_CURRENT));
+    }
+
+    public void seek(long position) {
+        Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
+        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
+        context.startService(intent);
+    }
+
     private Intent createExplicitServiceIntent(String action) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(action);

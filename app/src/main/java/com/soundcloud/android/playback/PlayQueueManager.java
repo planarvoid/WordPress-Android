@@ -8,9 +8,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -21,14 +18,13 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -40,17 +36,14 @@ import java.util.Iterator;
 import java.util.List;
 
 @Singleton
-public class PlayQueueManager implements Observer<RecommendedTracksCollection>, OriginProvider {
+public class PlayQueueManager implements OriginProvider {
 
     public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
-    public static final String RELATED_LOAD_STATE_CHANGED_ACTION = "com.soundcloud.android.related.changed";
-
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
     private static final String TAG = "PlayQueueManager";
 
     private final Context context;
 
-    private final ScModelManager modelManager;
     private final PlayQueueOperations playQueueOperations;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
@@ -59,46 +52,49 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-
     private Subscription playQueueSubscription = RxUtils.invalidSubscription();
-    private Subscription fetchRecommendedSubscription = RxUtils.invalidSubscription();
-    private Observable<RecommendedTracksCollection> recommendedTracksObservable;
-
     private PlaybackProgressInfo playbackProgressInfo;
-    private boolean gotRecommendedTracks;
 
     @Inject
     public PlayQueueManager(Context context,
                             PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            ScModelManager modelManager,
                             PolicyOperations policyOperations) {
         this.context = context;
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
-        this.modelManager = modelManager;
         this.policyOperations = policyOperations;
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
-        assertOnUiThread(UI_ASSERTION_MESSAGE);
-        setNewPlayQueue(playQueue, 0, playSessionSource);
+        setNewPlayQueue(playQueue, playSessionSource, 0);
     }
 
-    public void setNewPlayQueue(PlayQueue playQueue, int position, PlaySessionSource playSessionSource) {
+    public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, int startPosition) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
-            this.currentPosition = position;
+            this.currentPosition = startPosition;
             eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn(), getCurrentMetaData()));
         } else {
-            currentPosition = position;
+            currentPosition = startPosition;
             setNewPlayQueueInternal(playQueue, playSessionSource);
         }
         saveQueue();
         saveCurrentProgress(0L);
 
         fireAndForget(policyOperations.updatePolicies(playQueue.getTrackUrns()));
+    }
+
+    public void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
+        final List<Urn> trackUrns = this.playQueue.getTrackUrns();
+        for (PlayQueueItem playQueueItem : playQueueItems){
+            if (!trackUrns.contains(playQueueItem.getTrackUrn())){
+                this.playQueue.addPlayQueueItem(playQueueItem);
+            }
+        }
+        publishQueueUpdate();
+        saveQueue();
     }
 
     @Deprecated // use URNs instead
@@ -108,6 +104,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public Urn getCurrentTrackUrn() {
         return playQueue.getUrn(currentPosition);
+    }
+
+    public Urn getLastTrackUrn() {
+        return playQueue.getUrn(playQueue.size() - 1);
     }
 
     public boolean isCurrentTrack(@NotNull Urn trackUrn) {
@@ -212,7 +212,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        stopLoadingOperations();
+        playQueueSubscription.unsubscribe();
 
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentTrackIsUserTriggered = true;
@@ -320,7 +320,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public boolean isCurrentPlaylist(Urn playlistUrn) {
-        return getPlaylistUrn().equals(playlistUrn);
+        return getPlaylistUrn().equals(playlistUrn) && ScTextUtils.isBlank(getCurrentTrackSource());
     }
 
     @Override
@@ -330,15 +330,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public boolean shouldReloadQueue() {
         return playQueue.isEmpty() && playQueueSubscription == RxUtils.invalidSubscription();
-    }
-
-    public void fetchTracksRelatedToCurrentTrack() {
-        recommendedTracksObservable = playQueueOperations.getRelatedTracks(getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread());
-        loadRecommendedTracks();
-    }
-
-    public void retryRelatedTracksFetch() {
-        loadRecommendedTracks();
     }
 
     public void clearAll() {
@@ -398,55 +389,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return trackUrns;
     }
 
-    private void loadRecommendedTracks() {
-        setNewRelatedLoadingState();
-        gotRecommendedTracks = false;
-        fetchRecommendedSubscription = recommendedTracksObservable.subscribe(this);
-    }
-
-    @Override
-    public void onNext(RecommendedTracksCollection relatedTracks) {
-        for (ApiTrack item : relatedTracks) {
-            final PublicApiTrack track = new PublicApiTrack(item);
-            modelManager.cache(track);
-            playQueue.addTrack(track.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
-                    relatedTracks.getSourceVersion());
-        }
-        gotRecommendedTracks = true;
-    }
-
-    @Override
-    public void onCompleted() {
-        if (gotRecommendedTracks) {
-            setNewRelatedLoadingState();
-            publishQueueUpdate();
-            saveQueue();
-        } else {
-            setNewRelatedLoadingState();
-        }
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        setNewRelatedLoadingState();
-    }
-
     private void saveQueue() {
         if (playQueue.hasItems()) {
             playQueueOperations.saveQueue(playQueue.copy());
         }
     }
 
-    private void setNewRelatedLoadingState() {
-        broadcastRelatedLoadStateChanged();
-    }
-
     private void publishQueueUpdate() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
-    }
-
-    private void broadcastRelatedLoadStateChanged() {
-        context.sendBroadcast(new Intent(RELATED_LOAD_STATE_CHANGED_ACTION));
     }
 
     private void broadcastNewPlayQueue() {
@@ -457,16 +407,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
             eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCurrentMetaData()));
         }
-    }
-
-    private void stopLoadingOperations() {
-        fetchRecommendedSubscription.unsubscribe();
-        fetchRecommendedSubscription = Subscriptions.empty();
-
-        if (playQueueSubscription != null) {
-            playQueueSubscription.unsubscribe();
-        }
-
     }
 
     public interface QueueUpdateOperation {

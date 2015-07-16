@@ -221,14 +221,14 @@ public class ApplicationModule {
     }
 
     @Provides
-    public PlaybackStrategy providePlaybackStrategy(Context context,
+    public PlaybackStrategy providePlaybackStrategy(ServiceInitiator serviceInitiator,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer) {
         if (castConnectionHelper.isCasting()){
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
-            return new DefaultPlaybackStrategy(context, playQueueManager);
+            return new DefaultPlaybackStrategy(playQueueManager, serviceInitiator);
         }
     }
 

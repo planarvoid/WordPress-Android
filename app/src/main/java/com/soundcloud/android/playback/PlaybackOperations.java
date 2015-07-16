@@ -100,7 +100,7 @@ public class PlaybackOperations {
 
     public Observable<PlaybackResult> playTrackWithRecommendations(final Urn seedTrack, final PlaySessionSource playSessionSource, final int startPosition) {
         return playQueueOperations
-                .getRelatedTracksPlayQueue(seedTrack)
+                .relatedTracksPlayQueueWithSeedTrack(seedTrack)
                 .flatMap(toPlaybackResult(playbackStrategyProvider.get(), startPosition, playSessionSource, false));
     }
 

@@ -123,7 +123,7 @@ public class CastSessionControllerTest {
 
         callOnMetadatUpdated();
 
-        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
+        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), any(PlaySessionSource.class), anyInt());
     }
 
     @Test
