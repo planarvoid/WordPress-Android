@@ -14,10 +14,10 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -58,7 +58,6 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         subscription = new CompositeSubscription();
         if (featureOperations.isOfflineContentEnabled()) {
             addPreferencesFromResource(R.xml.settings_offline);
-            subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));
             setupOffline();
         } else if (featureOperations.upsellMidTier()) {
             addPreferencesFromResource(R.xml.settings_subscribe);
@@ -83,6 +82,8 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         wifi.setChecked(offlineSettings.isWifiOnlyEnabled());
         wifi.setOnPreferenceChangeListener(this);
         setupClearContent();
+
+        subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));
     }
 
     private void setupClearContent() {
@@ -156,7 +157,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     private final class ClearOfflineContentSubscriber extends DefaultSubscriber<List<Urn>> {
         @Override
         public void onNext(List<Urn> result) {
-            if (!result.isEmpty()){
+            if (!result.isEmpty()) {
                 refreshStoragePreference();
             }
             OfflineContentService.stop(getActivity());
@@ -173,7 +174,10 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     private void refreshStoragePreference() {
-        ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
+        OfflineStoragePreference offlinePreferences = (OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT);
+        if (offlinePreferences != null) {
+            offlinePreferences.updateAndRefresh();
+        }
     }
 
 }
