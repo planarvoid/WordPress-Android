@@ -26,7 +26,6 @@ public final class ApiRequestException extends Exception {
     private final Reason errorReason;
     private final String errorKey;
     private final int errorCode;
-    @Nullable private final Exception exception;
 
     public enum Reason {
         AUTH_ERROR,
@@ -89,7 +88,6 @@ public final class ApiRequestException extends Exception {
         this.errorReason = errorReason;
         this.errorKey = ERROR_KEY_NONE;
         this.errorCode = Consts.NOT_SET;
-        this.exception = null;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, Exception e) {
@@ -97,7 +95,6 @@ public final class ApiRequestException extends Exception {
         this.errorReason = errorReason;
         this.errorKey = ERROR_KEY_NONE;
         this.errorCode = Consts.NOT_SET;
-        this.exception = e;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response, String errorKey) {
@@ -105,7 +102,6 @@ public final class ApiRequestException extends Exception {
         this.errorReason = errorReason;
         this.errorKey = errorKey;
         this.errorCode = Consts.NOT_SET;
-        this.exception = null;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response, String errorKey, int errorCode) {
@@ -113,7 +109,6 @@ public final class ApiRequestException extends Exception {
         this.errorReason = errorReason;
         this.errorKey = errorKey;
         this.errorCode = errorCode;
-        this.exception = null;
     }
 
     public Reason reason() {
@@ -130,11 +125,6 @@ public final class ApiRequestException extends Exception {
 
     public boolean isNetworkError() {
         return errorReason == NETWORK_ERROR;
-    }
-
-    @Nullable
-    public Exception getException() {
-        return exception;
     }
 
     public boolean loggable() {

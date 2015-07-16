@@ -35,7 +35,7 @@ public final class AuthTaskResult {
             case VALIDATION_ERROR:
                 return AuthTaskResult.validationError(exception.errorKey(), exception);
             case NETWORK_ERROR:
-                return AuthTaskResult.networkError(exception.getException());
+                return AuthTaskResult.networkError((Exception) exception.getCause());
             case SERVER_ERROR:
                 return AuthTaskResult.serverError(exception);
             default:
