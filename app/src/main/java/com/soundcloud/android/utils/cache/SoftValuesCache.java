@@ -1,35 +1,40 @@
 package com.soundcloud.android.utils.cache;
 
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 
-class WeakValuesCache<K, V> extends Cache<K, V> {
+/**
+ * An LRU cache implementation that uses soft values.
+ *
+ * @see {@link java.lang.ref.SoftReference}
+ */
+class SoftValuesCache<K, V> extends Cache<K, V> {
 
-    private final DefaultCache<K, WeakReference<V>> cache;
+    private final DefaultCache<K, SoftReference<V>> cache;
 
-    WeakValuesCache(int maxSize) {
+    SoftValuesCache(int maxSize) {
         cache = new DefaultCache<>(maxSize);
     }
 
     /**
-     * Caches the given value using a {@link WeakReference}
+     * Caches the given value using a {@link SoftReference}
      */
     @Override
     public Cache<K, V> put(K key, V value) {
-        cache.put(key, new WeakReference<>(value));
+        cache.put(key, new SoftReference<>(value));
         return this;
     }
 
     /**
      * @return the value for this key or null if no mapping found or
-     * the weak reference has been released
+     * the reference has been released
      */
     @Override
     public V get(K key) {
-        final WeakReference<V> weakValue = cache.get(key);
-        if (weakValue == null) {
+        final SoftReference<V> softValue = cache.get(key);
+        if (softValue == null) {
             return null;
         }
-        return weakValue.get();
+        return softValue.get();
     }
 
     /**

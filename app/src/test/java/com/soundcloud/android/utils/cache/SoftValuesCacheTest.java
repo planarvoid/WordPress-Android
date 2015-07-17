@@ -10,9 +10,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WeakValuesCacheTest {
+public class SoftValuesCacheTest {
 
-    private WeakValuesCache<String, Object> cache = new WeakValuesCache<>(10);
+    private SoftValuesCache<String, Object> cache = new SoftValuesCache<>(10);
 
     @Mock private DefaultCache.ValueProvider<String, Object> valueProvider;
 

@@ -2,12 +2,18 @@ package com.soundcloud.android.utils.cache;
 
 public abstract class Cache<K, V> {
 
+    /**
+     * Creates an LRU cache with strongly reachable keys and values.
+     */
     public static <K, V> Cache<K, V> create(int maxSize) {
         return new DefaultCache<>(maxSize);
     }
 
-    public static <K, V> Cache<K, V> weakValues(int maxSize) {
-        return new WeakValuesCache<>(maxSize);
+    /**
+     * Creates an LRU cache with strongly reachable keys and softly reachable values.
+     */
+    public static <K, V> Cache<K, V> softValues(int maxSize) {
+        return new SoftValuesCache<>(maxSize);
     }
 
     public abstract Cache<K, V> put(K key, V value);

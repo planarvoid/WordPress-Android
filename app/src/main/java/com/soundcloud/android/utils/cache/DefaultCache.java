@@ -2,6 +2,9 @@ package com.soundcloud.android.utils.cache;
 
 import android.support.v4.util.LruCache;
 
+/**
+ * An LRU cache that uses strong references for keys and values.
+ */
 class DefaultCache<K, V> extends Cache<K, V> {
 
     private final LruCache<K, V> cache;
