@@ -1,7 +1,7 @@
 package com.soundcloud.android.collections.tasks;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import org.apache.http.HttpStatus;
 
 import java.util.List;

@@ -2,7 +2,6 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;

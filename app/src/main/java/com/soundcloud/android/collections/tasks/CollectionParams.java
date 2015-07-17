@@ -1,6 +1,6 @@
 package com.soundcloud.android.collections.tasks;
 
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.api.legacy.Request;

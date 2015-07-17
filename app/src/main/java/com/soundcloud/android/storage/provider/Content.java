@@ -17,7 +17,7 @@ import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.api.legacy.Endpoints;

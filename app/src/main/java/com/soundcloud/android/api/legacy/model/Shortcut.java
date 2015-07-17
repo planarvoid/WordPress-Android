@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.NotNull;

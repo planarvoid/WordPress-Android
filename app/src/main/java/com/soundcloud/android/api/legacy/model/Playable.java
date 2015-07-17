@@ -11,7 +11,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;

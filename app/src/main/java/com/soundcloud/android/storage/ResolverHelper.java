@@ -1,6 +1,6 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import org.jetbrains.annotations.NotNull;
 

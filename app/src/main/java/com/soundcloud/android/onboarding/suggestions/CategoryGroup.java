@@ -4,7 +4,7 @@ import static com.google.common.collect.Collections2.filter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

@@ -9,7 +9,7 @@ import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Sharing;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.Params;
 
 import java.util.ArrayList;

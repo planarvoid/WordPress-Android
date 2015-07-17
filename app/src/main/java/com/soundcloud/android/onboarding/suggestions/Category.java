@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.google.common.base.Predicate;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 
 import android.content.Context;
 import android.content.res.Resources;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import com.soundcloud.android.model.Model;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.Model;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.os.Parcel;

@@ -20,7 +20,7 @@ import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.collections.tasks.UpdateCollectionTask;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;

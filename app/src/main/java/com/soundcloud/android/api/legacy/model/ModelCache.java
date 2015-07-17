@@ -1,7 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.model.ScModel;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
