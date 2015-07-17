@@ -4,6 +4,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
@@ -125,6 +126,18 @@ public class Navigator {
 
     public void openWhoToFollow(Context context, Screen screen) {
         context.startActivity(createWhoToFollowIntent(screen));
+    }
+
+    public void openResolveForUrn(Context context, Urn urn) {
+        context.startActivity(createResolveIntent(context, urn));
+    }
+
+    private Intent createResolveIntent(Context context, Urn urn) {
+        Intent intent = new Intent(context, ResolveActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(urn.toString()));
+        intent.setFlags(FLAGS_TOP);
+        return intent;
     }
 
     private Intent createWhoToFollowIntent(Screen screen) {
