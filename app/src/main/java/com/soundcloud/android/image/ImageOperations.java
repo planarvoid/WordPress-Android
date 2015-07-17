@@ -82,8 +82,8 @@ public class ImageOperations {
     public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
         this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, imageProcessor,
-                Cache.<String, TransitionDrawable>softValues(50),
-                Cache.<Urn, Bitmap>softValues(10),
+                Cache.<String, TransitionDrawable>withSoftValues(50),
+                Cache.<Urn, Bitmap>withSoftValues(10),
                 new HashCodeFileNameGenerator());
 
     }

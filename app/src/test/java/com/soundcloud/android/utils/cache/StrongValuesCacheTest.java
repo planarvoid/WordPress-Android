@@ -11,9 +11,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultCacheTest {
+public class StrongValuesCacheTest {
 
-    private DefaultCache<String, Object> cache = new DefaultCache<>(10);
+    private StrongValuesCache<String, Object> cache = new StrongValuesCache<>(10);
 
     @Mock private ValueProvider<String, Object> valueProvider;
 

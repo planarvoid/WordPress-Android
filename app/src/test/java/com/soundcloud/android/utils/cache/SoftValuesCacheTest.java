@@ -14,7 +14,7 @@ public class SoftValuesCacheTest {
 
     private SoftValuesCache<String, Object> cache = new SoftValuesCache<>(10);
 
-    @Mock private DefaultCache.ValueProvider<String, Object> valueProvider;
+    @Mock private StrongValuesCache.ValueProvider<String, Object> valueProvider;
 
     @Before
     public void setUp() throws Exception {

@@ -9,10 +9,10 @@ import java.lang.ref.SoftReference;
  */
 class SoftValuesCache<K, V> extends Cache<K, V> {
 
-    private final DefaultCache<K, SoftReference<V>> cache;
+    private final StrongValuesCache<K, SoftReference<V>> cache;
 
     SoftValuesCache(int maxSize) {
-        cache = new DefaultCache<>(maxSize);
+        cache = new StrongValuesCache<>(maxSize);
     }
 
     /**
@@ -38,7 +38,7 @@ class SoftValuesCache<K, V> extends Cache<K, V> {
     }
 
     /**
-     * @see DefaultCache#get(Object, ValueProvider)
+     * @see StrongValuesCache#get(Object, ValueProvider)
      */
     @Override
     public V get(K key, ValueProvider<K, V> valueProvider) {

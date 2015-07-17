@@ -5,11 +5,11 @@ import android.support.v4.util.LruCache;
 /**
  * An LRU cache that uses strong references for keys and values.
  */
-class DefaultCache<K, V> extends Cache<K, V> {
+class StrongValuesCache<K, V> extends Cache<K, V> {
 
     private final LruCache<K, V> cache;
 
-    DefaultCache(int maxSize) {
+    StrongValuesCache(int maxSize) {
         cache = new LruCache<>(maxSize);
     }
 
@@ -26,7 +26,7 @@ class DefaultCache<K, V> extends Cache<K, V> {
 
     /**
      * Returns the value under the given key if present, or falls back to the given
-     * {@link DefaultCache.ValueProvider} to create
+     * {@link StrongValuesCache.ValueProvider} to create
      * and cache a new value. This method provides a simple substitute for the conventional
      * "if cached, return; otherwise create, cache and return" pattern.
      * Returns null if valueProvider returns null or throws.
