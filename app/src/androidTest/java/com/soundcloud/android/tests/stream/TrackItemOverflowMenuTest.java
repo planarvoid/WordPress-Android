@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -29,6 +30,8 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
+        setRequiredDisabledFeatures(Flag.STATIONS);
 
         menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487

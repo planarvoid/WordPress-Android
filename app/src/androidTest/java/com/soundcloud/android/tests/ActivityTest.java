@@ -29,8 +29,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected Waiter waiter;
     protected ToastObserver toastObserver;
 
-    private Flag dependency;
-    private boolean runBasedOnResource = true;
+    private Flag[] requiredEnabledFeatures;
+    private Flag[] requiredDisabledFeatures;
+
+    private boolean runBasedOnTestResource = true;
 
     protected Han solo;
 
@@ -101,16 +103,15 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     @Override
     protected void runTest() throws Throwable {
-        if (shouldSkip()) {
-            return;
-        }
-        try {
-            super.runTest();
-            LogCollector.markFileForDeletion();
-        } catch (Throwable t) {
-            solo.takeScreenshot(testCaseName);
-            Log.w("Boom! Screenshot!", String.format("Captured screenshot for failed test: %s", testCaseName));
-            throw t;
+        if (shouldRunTest()) {
+            try {
+                super.runTest();
+                LogCollector.markFileForDeletion();
+            } catch (Throwable t) {
+                solo.takeScreenshot(testCaseName);
+                Log.w("Boom! Screenshot!", String.format("Captured screenshot for failed test: %s", testCaseName));
+                throw t;
+            }
         }
     }
 
@@ -118,16 +119,44 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
 
-    protected void setDependsOn(Flag dependency) {
-        this.dependency = dependency;
+    protected void setRequiredEnabledFeatures(Flag... requiredEnabledFeatures) {
+        this.requiredEnabledFeatures = requiredEnabledFeatures;
     }
 
-    protected void setRunBasedOnResource(int id) {
-        runBasedOnResource = getInstrumentation().getContext().getResources().getBoolean(id);
+    protected void setRequiredDisabledFeatures(Flag... requiredDisabledFeatures) {
+        this.requiredDisabledFeatures = requiredDisabledFeatures;
     }
 
-    protected boolean shouldSkip() {
-        return !runBasedOnResource || (dependency != null && getFeatureFlags().isDisabled(dependency));
+    protected void setRunBasedOnTestResource(int id) {
+        runBasedOnTestResource = getInstrumentation().getContext().getResources().getBoolean(id);
+    }
+
+    protected boolean shouldRunTest() {
+        return runBasedOnTestResource && requiredEnabledFeaturesAreEnabled() && requiredDisabledFeaturesAreDisabled();
+    }
+
+    private boolean requiredEnabledFeaturesAreEnabled() {
+        if (requiredEnabledFeatures != null) {
+            for (Flag dependency : requiredEnabledFeatures) {
+                if (getFeatureFlags().isDisabled(dependency)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean requiredDisabledFeaturesAreDisabled() {
+        if (requiredDisabledFeatures != null) {
+            for (Flag disabledDependency : requiredDisabledFeatures) {
+                if (getFeatureFlags().isEnabled(disabledDependency)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private FeatureFlags getFeatureFlags() {

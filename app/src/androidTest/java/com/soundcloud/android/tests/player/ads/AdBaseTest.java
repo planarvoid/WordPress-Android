@@ -16,7 +16,7 @@ public abstract class AdBaseTest extends ResolveBaseTest {
     public void setUp() throws Exception {
         super.setUp();
         playAdPlaylist();
-        setRunBasedOnResource(R.bool.run_ads_tests);
+        setRunBasedOnTestResource(R.bool.run_ads_tests);
     }
 
     /**

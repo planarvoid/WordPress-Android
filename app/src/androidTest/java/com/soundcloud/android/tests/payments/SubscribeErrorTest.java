@@ -26,7 +26,7 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.PAYMENTS_TEST);
+        setRequiredEnabledFeatures(Flag.PAYMENTS_TEST);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
         settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();

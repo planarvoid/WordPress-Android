@@ -48,9 +48,8 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     }
 
     @Override
-    protected boolean shouldSkip() {
-        final ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
-        return !applicationProperties.isDebugBuild();
+    protected boolean shouldRunTest() {
+        return new ApplicationProperties(context.getResources()).isDebugBuild();
     }
 
 }
