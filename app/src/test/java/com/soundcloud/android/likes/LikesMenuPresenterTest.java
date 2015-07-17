@@ -127,7 +127,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
         verify(popupMenuWrapper).show();
     }
 
-    private void showMenu(boolean offlineFeatureEnabled, boolean offlineLikesEnabled){
+    private void showMenu(boolean offlineFeatureEnabled, boolean offlineLikesEnabled) {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(offlineFeatureEnabled);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(offlineLikesEnabled));
         likesMenuPresenter.show(button, fragmentManager);

@@ -22,7 +22,6 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
     @Override
     public void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
-        setRequiredDisabledFeatures(Flag.STATIONS);
         super.setUp();
     }
 
@@ -32,7 +31,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
                 .clickPlaylists()
                 .clickPlaylistAt(0)
                 .clickFirstTrackOverflowButton()
-                .clickStartRadio();
+                .clickPlayRelatedTracks();
 
         assertTrue(player.isExpandedPlayerPlaying());
         player.swipePrevious();
