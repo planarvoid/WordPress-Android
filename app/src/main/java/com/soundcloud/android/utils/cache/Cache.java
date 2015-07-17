@@ -1,0 +1,30 @@
+package com.soundcloud.android.utils.cache;
+
+public abstract class Cache<K, V> {
+
+    public static <K, V> Cache<K, V> create(int maxSize) {
+        return new DefaultCache<>(maxSize);
+    }
+
+    public static <K, V> Cache<K, V> weakValues(int maxSize) {
+        return new WeakValuesCache<>(maxSize);
+    }
+
+    public abstract Cache<K, V> put(K key, V value);
+
+    public abstract V get(K key);
+
+    public abstract V get(K key, ValueProvider<K, V> valueProvider);
+
+    public abstract void clear();
+
+    public abstract int size();
+
+    public abstract int hitCount();
+
+    public abstract int missCount();
+
+    public interface ValueProvider<K, V> {
+        V get(K key) throws Exception;
+    }
+}

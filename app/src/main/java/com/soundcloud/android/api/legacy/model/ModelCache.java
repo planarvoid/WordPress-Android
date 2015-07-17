@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * com/android/camera/gallery/LruCache.java
  * </a>
  */
-@Deprecated // use LruCache from the support-v4 library
+@Deprecated // use our own Cache class
 class ModelCache<V extends ScModel> {
 
     private final Map<Long, V> lruMap;

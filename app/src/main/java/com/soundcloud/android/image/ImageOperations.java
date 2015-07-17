@@ -20,9 +20,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.BetterLruCache.ValueProvider;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.WeakLruCache;
+import com.soundcloud.android.utils.cache.Cache;
+import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -67,8 +67,8 @@ public class ImageOperations {
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
 
-    private final WeakLruCache<String, TransitionDrawable> placeholderCache;
-    private final WeakLruCache<Urn, Bitmap> blurredImageCache;
+    private final Cache<String, TransitionDrawable> placeholderCache;
+    private final Cache<Urn, Bitmap> blurredImageCache;
 
     private final Func1<Bitmap, Bitmap> blurBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
@@ -82,8 +82,8 @@ public class ImageOperations {
     public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
         this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, imageProcessor,
-                new WeakLruCache<String, TransitionDrawable>(50),
-                new WeakLruCache<Urn, Bitmap>(10),
+                Cache.<String, TransitionDrawable>weakValues(50),
+                Cache.<Urn, Bitmap>weakValues(10),
                 new HashCodeFileNameGenerator());
 
     }
@@ -93,8 +93,8 @@ public class ImageOperations {
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                     FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor,
-                    WeakLruCache<String, TransitionDrawable> placeholderCache,
-                    WeakLruCache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
+                    Cache<String, TransitionDrawable> placeholderCache,
+                    Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.urlBuilder = urlBuilder;
         this.placeholderGenerator = placeholderGenerator;

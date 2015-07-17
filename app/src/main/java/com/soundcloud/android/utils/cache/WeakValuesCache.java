@@ -1,28 +1,29 @@
-package com.soundcloud.android.utils;
-
-import com.soundcloud.android.utils.BetterLruCache.ValueProvider;
+package com.soundcloud.android.utils.cache;
 
 import java.lang.ref.WeakReference;
 
-public class WeakLruCache<K, V> {
+class WeakValuesCache<K, V> extends Cache<K, V> {
 
-    private final BetterLruCache<K, WeakReference<V>> cache;
+    private final DefaultCache<K, WeakReference<V>> cache;
 
-    public WeakLruCache(int maxSize) {
-        cache = new BetterLruCache<>(maxSize);
+    WeakValuesCache(int maxSize) {
+        cache = new DefaultCache<>(maxSize);
     }
 
     /**
      * Caches the given value using a {@link WeakReference}
      */
-    public void put(K key, V value) {
+    @Override
+    public Cache<K, V> put(K key, V value) {
         cache.put(key, new WeakReference<>(value));
+        return this;
     }
 
     /**
      * @return the value for this key or null if no mapping found or
      * the weak reference has been released
      */
+    @Override
     public V get(K key) {
         final WeakReference<V> weakValue = cache.get(key);
         if (weakValue == null) {
@@ -32,8 +33,9 @@ public class WeakLruCache<K, V> {
     }
 
     /**
-     * @see BetterLruCache#get(Object, ValueProvider)
+     * @see DefaultCache#get(Object, ValueProvider)
      */
+    @Override
     public V get(K key, ValueProvider<K, V> valueProvider) {
         V value = get(key);
         if (value == null) {
@@ -46,6 +48,26 @@ public class WeakLruCache<K, V> {
             }
         }
         return value;
+    }
+
+    @Override
+    public void clear() {
+        cache.clear();
+    }
+
+    @Override
+    public int size() {
+        return cache.size();
+    }
+
+    @Override
+    public int hitCount() {
+        return cache.hitCount();
+    }
+
+    @Override
+    public int missCount() {
+        return cache.missCount();
     }
 
     @Override
