@@ -157,11 +157,11 @@ public class Waiter {
     }
 
     public boolean waitForDrawerToClose() {
-        return solo.waitForCondition(new DrawerStateCondition(false), TIMEOUT);
+        return solo.waitForCondition(new DrawerStateCondition(false), ELEMENT_TIMEOUT);
     }
 
     public boolean waitForDrawerToOpen() {
-        return solo.waitForCondition(new DrawerStateCondition(true), TIMEOUT);
+        return solo.waitForCondition(new DrawerStateCondition(true), ELEMENT_TIMEOUT);
     }
 
     public void waitForDialogToClose() {
@@ -327,16 +327,20 @@ public class Waiter {
 
     private class DrawerStateCondition implements Condition {
         private final MenuScreen menuScreen;
-        private boolean state;
+        private boolean shouldBeOpen;
 
         DrawerStateCondition(boolean shouldBeOpen) {
-            this.state = shouldBeOpen;
+            this.shouldBeOpen = shouldBeOpen;
             menuScreen = new MenuScreen(solo);
         }
 
         @Override
         public boolean isSatisfied() {
-            return menuScreen.isOpened() == state;
+            if(shouldBeOpen) {
+                return menuScreen.isOpened();
+            } else {
+                return menuScreen.isClosed();
+            }
         }
     }
 

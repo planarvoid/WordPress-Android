@@ -76,6 +76,10 @@ public class MenuScreen {
         return menuDrawer != null && menuDrawer.isVisible();
     }
 
+    public boolean isClosed() {
+        return !testDriver.isElementDisplayed(With.id(R.id.navigation_fragment_id));
+    }
+
     public StreamScreen clickStream() {
         streamMenuItem().click();
         waiter.waitForDrawerToClose();

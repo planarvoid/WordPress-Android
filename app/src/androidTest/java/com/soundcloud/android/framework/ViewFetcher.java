@@ -46,7 +46,7 @@ public class ViewFetcher {
     }
 
     public boolean isElementDisplayed(With matcher) {
-        testDriver.sleep(1000);
+        testDriver.sleep(500);
         return findVisibleElement(matcher).isVisible();
     }
 
