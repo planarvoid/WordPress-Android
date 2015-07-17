@@ -41,10 +41,7 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
                 .clickLogInButton()
                 .loginAs(defaultUser.getEmail(), defaultUser.getPassword());
 
-        waiter.waitFiveSeconds();
-
         VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
-        assertThat(new StreamScreen(solo), is(visible()));
         assertThat(visualPlayer, is(expanded()));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
     }
