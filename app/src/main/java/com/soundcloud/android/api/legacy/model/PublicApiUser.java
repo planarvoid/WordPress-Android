@@ -37,7 +37,6 @@ import android.text.TextUtils;
 @Deprecated
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Model
 public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource, UserRecord {
     public static final int CRAWLER_USER_ID = -2;
     public static final int TYPE = 0;
