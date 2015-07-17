@@ -11,8 +11,9 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
         super(testDriver);
     }
 
-    public void shuffle() {
+    public VisualPlayerElement shuffle() {
         shuffleItem().click();
+        return new VisualPlayerElement(testDriver);
     }
 
     public PlaylistDetailsScreen clickMakeAvailableOffline() {
