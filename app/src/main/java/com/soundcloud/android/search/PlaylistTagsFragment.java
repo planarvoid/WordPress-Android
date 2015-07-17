@@ -38,8 +38,6 @@ import java.util.List;
 public class PlaylistTagsFragment extends LightCycleSupportFragment implements ListenableScrollView.OnScrollListener,
         ReactiveComponent<ConnectableObservable<List<String>>> {
 
-    public static final String TAG = "playlist_tags";
-
     @Inject PlaylistDiscoveryOperations operations;
     @Inject EventBus eventBus;
     @Inject @LightCycle EmptyViewController emptyViewController;

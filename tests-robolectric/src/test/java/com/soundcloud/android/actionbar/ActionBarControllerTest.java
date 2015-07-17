@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -25,6 +26,7 @@ public class ActionBarControllerTest {
     @Mock private ScActivity activity;
     @Mock private ActionBar actionBar;
     @Mock private BugReporter bugReporter;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -32,7 +34,7 @@ public class ActionBarControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        actionBarController = new ActionBarController(eventBus, bugReporter);
+        actionBarController = new ActionBarController(eventBus, bugReporter, navigator);
     }
 
     @Test

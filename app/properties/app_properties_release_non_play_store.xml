@@ -29,6 +29,7 @@
     <bool name="feature_new_profile_fragments">false</bool>
     <bool name="feature_new_profile">false</bool>
     <bool name="feature_follow_user_search">false</bool>
+    <bool name="feature_personal_recommendations">true</bool>
     <bool name="feature_stations">false</bool>
 
 </resources>

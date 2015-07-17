@@ -1,5 +1,6 @@
 package com.soundcloud.android.actionbar;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
@@ -7,7 +8,6 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
@@ -22,18 +22,20 @@ import javax.inject.Inject;
 public class ActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
     protected EventBus eventBus;
     private final BugReporter bugReporter;
+    private final Navigator navigator;
 
     @Inject
-    protected ActionBarController(EventBus eventBus, BugReporter bugReporter) {
+    protected ActionBarController(EventBus eventBus, BugReporter bugReporter, Navigator navigator) {
         this.eventBus = eventBus;
         this.bugReporter = bugReporter;
+        this.navigator = navigator;
     }
 
     @Override
     public boolean onOptionsItemSelected(final AppCompatActivity activity, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search:
-                startActivity(activity, SearchActivity.class);
+                navigator.openSearch(activity);
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:

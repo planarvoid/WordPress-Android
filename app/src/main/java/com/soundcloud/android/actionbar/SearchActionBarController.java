@@ -2,6 +2,7 @@ package com.soundcloud.android.actionbar;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -78,8 +79,9 @@ public class SearchActionBarController extends ActionBarController {
                               PlaybackOperations playbackOperations,
                               EventBus eventBus,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                              BugReporter bugReporter) {
-        super(eventBus, bugReporter);
+                              BugReporter bugReporter,
+                              Navigator navigator) {
+        super(eventBus, bugReporter, navigator);
         this.publicApi = publicCloudAPI;
         this.playbackOperations = playbackOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;

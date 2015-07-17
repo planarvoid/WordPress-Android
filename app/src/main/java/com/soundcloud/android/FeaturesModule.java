@@ -13,6 +13,7 @@ import com.soundcloud.android.payments.PaymentModule;
 import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
+import com.soundcloud.android.recommendations.RecommendationsModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.settings.SettingsModule;
 import com.soundcloud.android.stream.SoundStreamModule;
@@ -36,6 +37,7 @@ import dagger.Module;
         RecordModule.class,
         UploadModule.class,
         LikesModule.class,
-        SettingsModule.class
+        SettingsModule.class,
+        RecommendationsModule.class
 })
 public class FeaturesModule {}

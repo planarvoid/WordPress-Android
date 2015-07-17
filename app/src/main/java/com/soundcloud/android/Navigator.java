@@ -59,6 +59,10 @@ public class Navigator {
         context.startActivity(createProfileIntent(context, user));
     }
 
+    public void openSearch(Context activityContext) {
+        startActivity(activityContext, SearchActivity.class);
+    }
+    
     public void openProfile(Context context, Urn user, Screen screen) {
         context.startActivity(createProfileIntent(context, user, screen));
     }
@@ -206,4 +210,8 @@ public class Navigator {
     private Intent createWebViewIntent(Context context, Uri uri) {
         return new Intent(context, WebViewActivity.class).setData(uri);
     }
+
+    private void startActivity(Context activityContext, Class target) {
+        activityContext.startActivity(new Intent(activityContext, target));
+    }    
 }

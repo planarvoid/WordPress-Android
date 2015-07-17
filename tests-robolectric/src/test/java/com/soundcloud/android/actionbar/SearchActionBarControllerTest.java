@@ -7,6 +7,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -33,6 +34,7 @@ public class SearchActionBarControllerTest {
     @Mock private SearchCallback callback;
     @Mock private PlaybackOperations playbackOps;
     @Mock private BugReporter bugReporter;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchActionBarController actionBarController;
@@ -40,7 +42,7 @@ public class SearchActionBarControllerTest {
     @Before
     public void setUp() throws Exception {
         actionBarController = new SearchActionBarController(cloudAPI, playbackOps, eventBus,
-                TestSubscribers.expandPlayerSubscriber(), bugReporter);
+                TestSubscribers.expandPlayerSubscriber(), bugReporter, navigator);
         actionBarController.setSearchCallback(callback);
     }
 

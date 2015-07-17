@@ -12,6 +12,9 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.recommendations.RecommendationsFragment;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.lightcycle.LightCycle;
@@ -37,7 +40,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
+
     @Inject PlaybackOperations playbackOperations;
+    @Inject FeatureFlags featureFlags;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -109,10 +114,14 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         return true;
     }
 
-    private void addPlaylistTagsFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, new PlaylistTagsFragment(), PlaylistTagsFragment.TAG)
-                .commit();
+    private void addContentFragment() {
+        Fragment fragment;
+        if (featureFlags.isEnabled(Flag.SEARCH_AND_RECOMMENDATIONS)) {
+            fragment = new RecommendationsFragment();
+        } else {
+            fragment = new PlaylistTagsFragment();
+        }
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
     private void addContent(Fragment fragment, String tag) {
@@ -138,7 +147,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     }
 
     private void handleIntent() {
-        addPlaylistTagsFragment();
+        addContentFragment();
         final Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())
                 || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())
