@@ -1,6 +1,6 @@
 package com.soundcloud.android.image;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.never;
@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.observers.TestSubscriber;
 
 import android.graphics.Bitmap;
@@ -20,7 +20,7 @@ import android.view.View;
 
 import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class FallbackBitmapLoadingAdapterTest {
 
     private FallbackBitmapLoadingAdapter adapter;
@@ -36,8 +36,8 @@ public class FallbackBitmapLoadingAdapterTest {
         adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         adapter.onLoadingFailed("uri", view, "failure reason");
 
-        expect(subscriber.getOnErrorEvents()).toBeEmpty();
-        expect(subscriber.getOnNextEvents()).toEqual(Lists.newArrayList(fallbackImage));
+        assertThat(subscriber.getOnErrorEvents()).isEmpty();
+        assertThat(subscriber.getOnNextEvents()).isEqualTo(Lists.newArrayList(fallbackImage));
     }
 
     @Test

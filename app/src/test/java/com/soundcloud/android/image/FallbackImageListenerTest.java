@@ -1,7 +1,7 @@
 package com.soundcloud.android.image;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.soundcloud.android.image.ImageOperations.FallbackImageListener;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -11,11 +11,9 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -23,12 +21,12 @@ import android.widget.ImageView;
 import java.io.FileNotFoundException;
 import java.util.Set;
 
+public class FallbackImageListenerTest extends AndroidUnitTest {
 
-@RunWith(SoundCloudTestRunner.class)
-public class FallbackImageListenerTest {
     private final String IMAGE_URI = "http://image.com";
     private final FailReason FAIL_FILE_NOT_FOUND = new FailReason(FailReason.FailType.UNKNOWN, new FileNotFoundException());
     private final FailReason FAIL_ANY_ERROR = new FailReason(FailReason.FailType.UNKNOWN, new RuntimeException());
+
     private Set<String> notFoundsUri;
     private ImageView view;
     private Bitmap bitmap;
@@ -36,7 +34,7 @@ public class FallbackImageListenerTest {
     @Before
     public void setUp() throws Exception {
         notFoundsUri = Sets.newHashSet();
-        view = new ImageView(Robolectric.application);
+        view = new ImageView(context());
         bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
     }
 
@@ -46,7 +44,7 @@ public class FallbackImageListenerTest {
 
         listener.onLoadingComplete(IMAGE_URI, view, bitmap);
 
-        expect(notFoundsUri).toBeEmpty();
+        assertThat(notFoundsUri).isEmpty();
     }
 
     @Test
@@ -80,7 +78,7 @@ public class FallbackImageListenerTest {
     }
 
     @Test
-         public void listenerShouldDisplayFallbackDrawableWhenImageNoFound() {
+    public void listenerShouldDisplayFallbackDrawableWhenImageNoFound() {
         final FallbackImageListener listener = new FallbackImageListener(notFoundsUri);
         final OneShotTransitionDrawable transitionDrawable = mock(OneShotTransitionDrawable.class);
         view.setImageDrawable(transitionDrawable);
@@ -107,7 +105,7 @@ public class FallbackImageListenerTest {
 
         listener.onLoadingFailed(IMAGE_URI, view, FAIL_FILE_NOT_FOUND);
 
-        expect(notFoundsUri).toContain(IMAGE_URI);
+        assertThat(notFoundsUri).contains(IMAGE_URI);
     }
 
     @Test
@@ -116,6 +114,6 @@ public class FallbackImageListenerTest {
 
         listener.onLoadingFailed(IMAGE_URI, view, FAIL_ANY_ERROR);
 
-        expect(notFoundsUri).toBeEmpty();
+        assertThat(notFoundsUri).isEmpty();
     }
 }

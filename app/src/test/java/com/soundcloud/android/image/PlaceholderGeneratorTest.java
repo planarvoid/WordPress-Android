@@ -1,21 +1,18 @@
 package com.soundcloud.android.image;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaceholderGeneratorTest {
+public class PlaceholderGeneratorTest extends AndroidUnitTest {
 
     private PlaceholderGenerator generator;
 
     @Before
     public void setUp() throws Exception {
-        generator = new PlaceholderGenerator(Robolectric.application.getResources());
+        generator = new PlaceholderGenerator(resources());
     }
 
     @Test
@@ -23,7 +20,7 @@ public class PlaceholderGeneratorTest {
         int index1 = generator.pickCombination("soundcloud:something:47");
         int index2 = generator.pickCombination("soundcloud:something:47");
 
-        expect(index1).toEqual(index2);
+        assertThat(index1).isEqualTo(index2);
     }
 
     @Test
@@ -31,7 +28,7 @@ public class PlaceholderGeneratorTest {
         int index1 = generator.pickCombination("soundcloud:something:47");
         int index2 = generator.pickCombination("soundcloud:something:48");
 
-        expect(index1).not.toEqual(index2);
+        assertThat(index1).isNotEqualTo(index2);
     }
 
     /*
@@ -44,7 +41,7 @@ public class PlaceholderGeneratorTest {
 
         int index = generator.pickCombination(key);
 
-        expect(index).toBeGreaterThan(-1);
+        assertThat(index).isGreaterThan(-1);
     }
 
 }

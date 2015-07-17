@@ -3,27 +3,20 @@ package com.soundcloud.android.image;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.view.View;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ImageListenerUILAdapterTest {
 
-    @Mock
-    ImageListener imageListener;
-
-    @Mock
-    View view;
-
-    @Before
-    public void setUp() {
-        initMocks(this);
-    }
+    @Mock ImageListener imageListener;
+    @Mock View view;
 
     @Test
     public void shouldAcceptNullFailReasonOnLoadingFailed() throws Exception {
