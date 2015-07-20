@@ -400,7 +400,6 @@
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">Over</string>
     <string name="title_legal">Legaal</string>
-    <string name="pref_extras">Extra\'s</string>
     <string name="title_offline_settings">Offline Sync Instellingen</string>
     <string name="title_notification_settings">Notificatie Instellingen</string>
 
@@ -429,10 +428,6 @@
     <item>Om de 12 uur</item>
     <item>Om de 24 uur</item>
   </string-array>
-
-    <!-- __SKIPPY -->
-    <string name="pref_extras_skippy">Forceer Experimentele Speler</string>
-    <string name="pref_extras_skippy_desc">Speel alle nummers door middel van de experimentele speler. Dit zal van kracht worden bij het afspelen van de volgende track.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

@@ -24,9 +24,6 @@
     <string name="key_notifications_reposts">notificationsReposts</string>
     <string name="key_notifications_followers">notificationsFollowers</string>
 
-    <!-- Extra settings -->
-    <string name="key_force_skippy">forceSkippy</string>
-
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>
 

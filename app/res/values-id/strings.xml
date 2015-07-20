@@ -400,7 +400,6 @@
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">Tentang</string>
     <string name="title_legal">Legal</string>
-    <string name="pref_extras">Ekstra</string>
     <string name="title_offline_settings">Pengaturan Sinkronisasi Offline</string>
     <string name="title_notification_settings">Pengaturan Pemberitahuan</string>
 
@@ -429,10 +428,6 @@
         <item>Setiap 12 jam</item>
         <item>Setiap 24 jam</item>
     </string-array>
-
-    <!-- __SKIPPY -->
-    <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
-    <string name="pref_extras_skippy_desc">Mainkan semua trek melalui pemutar eksperimental. Ini akan mulai berlaku saat memainkan trek berikutnya.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d dtk.</string>

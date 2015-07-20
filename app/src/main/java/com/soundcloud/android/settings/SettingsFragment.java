@@ -1,6 +1,5 @@
 package com.soundcloud.android.settings;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.properties.ApplicationProperties;
 
@@ -28,10 +27,6 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         generalSettings.addTo(this);
-
-        if (!appProperties.isReleaseBuild()) {
-            addPreferencesFromResource(R.xml.settings_extras);
-        }
 
         if (appProperties.isDebugBuild()) {
             developerSettings.addTo(this);
