@@ -84,7 +84,7 @@ public class SoundStreamSyncerTest {
     @Test
     public void hardRefreshUsesStorageToReplaceStreamItemsWithPromotedContent() throws Exception {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedStreamItemWithoutPromoter())));
+                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedTrackWithoutPromoter())));
 
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
@@ -248,7 +248,7 @@ public class SoundStreamSyncerTest {
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedStreamItemWithoutPromoter())));
+                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedPlaylistWithoutPromoter())));
 
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
 

@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -14,11 +15,13 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,16 +62,20 @@ public class NavigatorTest {
 
     @Test
     public void opensPlaylist() {
-        Urn playlist = Urn.forPlaylist(123L);
-        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forPlaylist(1234L));
+        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        Urn playlistUrn = playlist.getEntityUrn();
 
-        navigator.openPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS, searchQuerySourceInfo);
+        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);
+
+        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
 
         Intent intent = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist);
-        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO)).toEqual(searchQuerySourceInfo);
+        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlistUrn);
+        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO)).toEqual(queryInfo);
+        expect(intent.getExtras().get(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO)).toEqual(promotedInfo);
         expect(Screen.fromIntent(intent)).toEqual(Screen.SEARCH_PLAYLISTS);
     }
 

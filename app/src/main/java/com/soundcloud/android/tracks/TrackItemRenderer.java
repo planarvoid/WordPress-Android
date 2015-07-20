@@ -5,14 +5,13 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.PromoterClickViewListener;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -38,8 +37,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                             EventBus eventBus, ScreenProvider screenProvider, Navigator navigator, FeatureOperations featureOperations, TrackItemView.Factory trackItemViewFactory) {
+    public TrackItemRenderer(ImageOperations imageOperations,
+                             TrackItemMenuPresenter trackItemMenuPresenter,
+                             EventBus eventBus,
+                             ScreenProvider screenProvider,
+                             Navigator navigator,
+                             FeatureOperations featureOperations,
+                             TrackItemView.Factory trackItemViewFactory) {
+
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
@@ -116,15 +121,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final Context context = itemView.getContext();
         if (track.hasPromoter()) {
             itemView.showPromotedTrack(context.getString(R.string.promoted_by_label, track.getPromoterName().get()));
-            itemView.setPromotedClickable(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigator.openProfile(context, track.getPromoterUrn().get());
-                    eventBus.publish(EventQueue.TRACKING,
-                            PromotedTrackEvent.forPromoterClick(track, screenProvider.getLastScreenTag()));
-                }
-            });
-
+            itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted_label));
         }
@@ -136,7 +133,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.showPlaycount(ScTextUtils.formatNumberWithCommas(playCount));
         }
     }
-
 
 
     private boolean hasPlayCount(int playCount) {

@@ -6,15 +6,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -33,6 +35,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -136,7 +139,18 @@ public class MixedItemClickListenerTest {
 
         listener.onItemClick(items, view, 2);
 
-        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo, null);
+    }
+
+    @Test
+    public void itemClickOnPromotedPlaylistSendsPlaylistDetailIntent() {
+        Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
+        PromotedPlaylistItem playlistItem = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedSourceInfo info = PromotedSourceInfo.fromItem(playlistItem);
+
+        listener.onItemClick(playables, view, 0, playlistItem);
+
+        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo, info);
     }
 
     @Test
@@ -196,7 +210,7 @@ public class MixedItemClickListenerTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo, null);
     }
 
     @Test

@@ -66,6 +66,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(deviceHelper.getUserAgent()).thenReturn("");
         when(deviceHelper.hasUdid()).thenReturn(true);
         when(deviceHelper.getUdid()).thenReturn("my-udid");
+        when(deviceHelper.getAppVersionCode()).thenReturn(0);
         when(adIdHelper.getAdId()).thenReturn("my-adid");
         when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);

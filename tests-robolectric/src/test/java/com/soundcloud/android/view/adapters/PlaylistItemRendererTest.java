@@ -4,7 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -12,7 +14,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -35,6 +40,9 @@ public class PlaylistItemRendererTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter playlistItemMenuPresenter;
+    @Mock private EventBus eventBus;
+    @Mock private ScreenProvider screenProvider;
+    @Mock private Navigator navigator;
 
     private View itemView;
 
@@ -56,7 +64,8 @@ public class PlaylistItemRendererTest {
         final Context context = Robolectric.application;
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, playlistItemMenuPresenter);
+        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, playlistItemMenuPresenter,
+                eventBus, screenProvider, navigator);
     }
 
     @Test
@@ -146,6 +155,44 @@ public class PlaylistItemRendererTest {
 
         expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldHidePrivateIndicatorIfPlaylistIsPromoted() {
+        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+
+        renderer.bindItemView(0, itemView, Arrays.asList(item));
+
+        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void shouldHideLikesCountIfPlaylistIsPromoted() {
+        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+
+        renderer.bindItemView(0, itemView, Arrays.asList(item));
+
+        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void shouldShowPromotedLabelWithPromoterIfPlaylistIsPromotedByPromoter() {
+        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+
+        renderer.bindItemView(0, itemView, Arrays.asList(item));
+
+        expect(textView(R.id.promoted_playlist).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.promoted_playlist).getText()).toEqual("Promoted by SoundCloud");
+    }
+
+    @Test
+    public void shouldShowPromotedLabelWithoutPromoterIfPlaylistIsPromotedWithoutPromoter() {
+        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylistWithoutPromoter());
+
+        renderer.bindItemView(0, itemView, Arrays.asList(item));
+
+        expect(textView(R.id.promoted_playlist).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.promoted_playlist).getText()).toEqual("Promoted");
     }
 
     @Test

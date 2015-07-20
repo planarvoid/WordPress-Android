@@ -16,7 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -27,6 +27,7 @@ import rx.Observer;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -302,13 +303,13 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     private PropertySet createPromotedTrackPropertySet(final ApiTrack track) {
         return createTrackPropertySet(track)
-                .put(PromotedTrackProperty.AD_URN, "promoted:track:123")
-                .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(83)))
-                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"))
-                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
-                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
-                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
-                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+                .put(PromotedItemProperty.AD_URN, "promoted:track:123")
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(83)))
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud"))
+                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
+                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
+                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
+                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
     }
 
 }

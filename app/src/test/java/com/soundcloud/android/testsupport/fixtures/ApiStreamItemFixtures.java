@@ -8,8 +8,12 @@ import com.soundcloud.android.api.model.stream.ApiStreamTrackRepost;
 
 public class ApiStreamItemFixtures {
 
-    public static ApiStreamItem promotedStreamItemWithoutPromoter() {
-        return new ApiStreamItem(PromotedFixtures.promotedStreamItemWithoutPromoter());
+    public static ApiStreamItem promotedTrackWithoutPromoter() {
+        return new ApiStreamItem(PromotedFixtures.promotedTrackItemWithoutPromoter());
+    }
+
+    public static ApiStreamItem promotedPlaylistWithoutPromoter() {
+        return new ApiStreamItem(PromotedFixtures.promotedPlaylistItemWithoutPromoter());
     }
 
     public static ApiStreamItem trackPost() {

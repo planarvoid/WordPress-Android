@@ -1,13 +1,15 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
 import rx.Observable;
@@ -56,27 +58,32 @@ public class MixedItemClickListener {
                         .subscribe(subscriberProvider.get());
             }
         } else {
-            handleNonTrackItemClick(view, clickedItem.getEntityUrn());
+            handleNonTrackItemClick(view, clickedItem);
         }
     }
 
     public void onItemClick(List<? extends ListItem> playables, View view, int position) {
-        final Urn entityUrn = playables.get(position).getEntityUrn();
-        if (entityUrn.isTrack()) {
+        ListItem playable = playables.get(position);
+        if (playable.getEntityUrn().isTrack()) {
             handleTrackClick(view.getContext(), playables, position);
         } else {
-            handleNonTrackItemClick(view, entityUrn);
+            handleNonTrackItemClick(view, playable);
         }
     }
 
-    private void handleNonTrackItemClick(View view, Urn entityUrn) {
+    private void handleNonTrackItemClick(View view, ListItem item) {
+        Urn entityUrn = item.getEntityUrn();
         if (entityUrn.isPlaylist()) {
-            navigator.openPlaylist(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
+            navigator.openPlaylist(view.getContext(), entityUrn, screen, searchQuerySourceInfo, promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
             navigator.openProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn in " + this.getClass().getSimpleName() + ": " + entityUrn);
         }
+    }
+
+    private PromotedSourceInfo promotedPlaylistInfo(ListItem item) {
+        return (item instanceof PromotedPlaylistItem) ? PromotedSourceInfo.fromItem((PromotedPlaylistItem) item) : null;
     }
 
     private void handleTrackClick(Context context, List<? extends ListItem> playables, int position) {

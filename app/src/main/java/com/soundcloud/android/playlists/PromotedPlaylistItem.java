@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracks;
+package com.soundcloud.android.playlists;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.model.PromotedItemProperty;
@@ -8,13 +8,13 @@ import com.soundcloud.propeller.PropertySet;
 
 import java.util.List;
 
-public class PromotedTrackItem extends TrackItem implements PromotedListItem {
+public class PromotedPlaylistItem extends PlaylistItem implements PromotedListItem {
 
-    public static PromotedTrackItem from(PropertySet source) {
-        return new PromotedTrackItem(source);
+    public static PromotedPlaylistItem from(PropertySet source) {
+        return new PromotedPlaylistItem(source);
     }
 
-    PromotedTrackItem(PropertySet source) {
+    PromotedPlaylistItem(PropertySet source) {
         super(source);
     }
 
@@ -57,5 +57,4 @@ public class PromotedTrackItem extends TrackItem implements PromotedListItem {
     public List<String> getPlayUrls() {
         return source.get(PromotedItemProperty.TRACK_PLAYED_URLS);
     }
-
 }

@@ -22,7 +22,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -35,6 +35,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -469,8 +470,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackClickJson() throws Exception {
-        PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(item, "stream");
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(item, "stream");
 
         jsonDataBuilder.build(click);
 
@@ -487,8 +488,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackImpressionJson() throws Exception {
-        PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(item, "stream");
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);
 

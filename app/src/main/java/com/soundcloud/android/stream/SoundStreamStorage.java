@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -59,7 +59,8 @@ class SoundStreamStorage {
             PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
             PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
             PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
-            PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS
+            PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
+            PromotedTracks.TRACKING_PROFILE_CLICKED_URLS
     };
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
@@ -210,22 +211,22 @@ class SoundStreamStorage {
 
         private void addOptionalPromotedProperties(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
-                propertySet.put(PromotedTrackProperty.AD_URN, cursorReader.getString(PromotedTracks.AD_URN));
-                propertySet.put(PromotedTrackProperty.TRACK_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS)));
-                propertySet.put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS)));
-                propertySet.put(PromotedTrackProperty.TRACK_PLAYED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_PLAYED_URLS)));
-                propertySet.put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS)));
+                propertySet.put(PromotedItemProperty.AD_URN, cursorReader.getString(PromotedTracks.AD_URN));
+                propertySet.put(PromotedItemProperty.TRACK_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS)));
+                propertySet.put(PromotedItemProperty.TRACK_IMPRESSION_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS)));
+                propertySet.put(PromotedItemProperty.TRACK_PLAYED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_PLAYED_URLS)));
+                propertySet.put(PromotedItemProperty.PROMOTER_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS)));
                 addOptionalPromoter(cursorReader, propertySet);
             }
         }
 
         private void addOptionalPromoter(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(PromotedTracks.PROMOTER_ID)) {
-                propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
-                propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
+                propertySet.put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
+                propertySet.put(PromotedItemProperty.PROMOTER_NAME, Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
             } else {
-                propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent());
-                propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
+                propertySet.put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent());
+                propertySet.put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent());
             }
         }
 

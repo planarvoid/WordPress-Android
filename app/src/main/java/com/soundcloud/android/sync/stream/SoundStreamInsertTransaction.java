@@ -120,8 +120,8 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
                 .put(TableColumns.PromotedTracks.AD_URN, streamItem.getAdUrn().get())
                 .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingTrackClickedUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, urlJoiner.join(streamItem.getTrackingTrackImpressionUrls()))
+                .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingItemClickedUrls()))
+                .put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, urlJoiner.join(streamItem.getTrackingItemImpressionUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, urlJoiner.join(streamItem.getTrackingTrackPlayedUrls()));
 
         final Optional<ApiUser> promoter = streamItem.getPromoter();

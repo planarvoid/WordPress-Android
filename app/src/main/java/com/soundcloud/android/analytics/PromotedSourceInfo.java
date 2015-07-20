@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.presentation.PromotedListItem;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -25,23 +25,23 @@ public final class PromotedSourceInfo implements Parcelable {
     };
 
     private final String adUrn;
-    private final Urn trackUrn;
+    private final Urn promotedItemUrn;
     private final Optional<Urn> promoterUrn;
     private final List<String> trackingUrls;
 
-    public static PromotedSourceInfo fromTrack(PromotedTrackItem promotedTrack) {
+    public static PromotedSourceInfo fromItem(PromotedListItem item) {
         return new PromotedSourceInfo(
-                promotedTrack.getAdUrn(),
-                promotedTrack.getEntityUrn(),
-                promotedTrack.getPromoterUrn(),
-                promotedTrack.getPlayUrls()
+                item.getAdUrn(),
+                item.getEntityUrn(),
+                item.getPromoterUrn(),
+                item.getPlayUrls()
         );
     }
 
     @VisibleForTesting
-    public PromotedSourceInfo(String adUrn, Urn trackUrn, Optional<Urn> promoterUrn, List<String> trackingUrls) {
+    public PromotedSourceInfo(String adUrn, Urn promotedItemUrn, Optional<Urn> promoterUrn, List<String> trackingUrls) {
         this.adUrn = adUrn;
-        this.trackUrn = trackUrn;
+        this.promotedItemUrn = promotedItemUrn;
         this.trackingUrls = trackingUrls;
         this.promoterUrn = promoterUrn;
     }
@@ -49,7 +49,7 @@ public final class PromotedSourceInfo implements Parcelable {
     public PromotedSourceInfo(Parcel in) {
         ClassLoader loader = PromotedSourceInfo.class.getClassLoader();
         adUrn = in.readString();
-        trackUrn = in.readParcelable(loader);
+        promotedItemUrn = in.readParcelable(loader);
         Urn nullableUrn = in.readParcelable(loader);
         promoterUrn = Optional.fromNullable(nullableUrn);
         trackingUrls = in.readArrayList(loader);
@@ -59,8 +59,8 @@ public final class PromotedSourceInfo implements Parcelable {
         return adUrn;
     }
 
-    public Urn getTrackUrn() {
-        return trackUrn;
+    public Urn getPromotedItemUrn() {
+        return promotedItemUrn;
     }
 
     public Optional<Urn> getPromoterUrn() {
@@ -74,7 +74,7 @@ public final class PromotedSourceInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(adUrn);
-        dest.writeParcelable(trackUrn, NO_FLAGS);
+        dest.writeParcelable(promotedItemUrn, NO_FLAGS);
         dest.writeParcelable(promoterUrn.isPresent() ? promoterUrn.get() : null, NO_FLAGS);
         dest.writeList(trackingUrls);
     }
@@ -96,14 +96,14 @@ public final class PromotedSourceInfo implements Parcelable {
         PromotedSourceInfo that = (PromotedSourceInfo) o;
 
         return Objects.equal(that.adUrn, this.adUrn)
-                && Objects.equal(that.trackUrn, this.promoterUrn)
+                && Objects.equal(that.promotedItemUrn, this.promotedItemUrn)
                 && Objects.equal(that.promoterUrn, this.promoterUrn)
                 && Objects.equal(that.trackingUrls, this.trackingUrls);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(adUrn, trackUrn, promoterUrn, trackingUrls);
+        return Objects.hashCode(adUrn, promotedItemUrn, promoterUrn, trackingUrls);
     }
 
 }

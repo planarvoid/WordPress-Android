@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
@@ -265,6 +266,15 @@ public class DatabaseAssertions {
         ), counts(1));
     }
 
+    public void assertPromotionInserted(ApiPromotedPlaylist promotedPlaylist) {
+        assertThat(select(attachPromotedTrackingQueries(
+                        from(Table.PromotedTracks.name())
+                                .whereEq(TableColumns.PromotedTracks.AD_URN, promotedPlaylist.getAdUrn())
+                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedPlaylist.getPromoter().getId()),
+                        promotedPlaylist)
+        ), counts(1));
+    }
+
     public void assertPromotionWithoutPromoterInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
@@ -274,12 +284,29 @@ public class DatabaseAssertions {
         ), counts(1));
     }
 
+    public void assertPromotionWithoutPromoterInserted(ApiPromotedPlaylist promotedPlaylist) {
+        assertThat(select(attachPromotedTrackingQueries(
+                        from(Table.PromotedTracks.name())
+                                .whereEq(TableColumns.PromotedTracks.AD_URN, promotedPlaylist.getAdUrn())
+                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID),
+                        promotedPlaylist)
+        ), counts(1));
+    }
+
     private Query attachPromotedTrackingQueries(Query query, ApiPromotedTrack promotedTrack) {
         return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackPlayedUrls()))
                 .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackClickedUrls()))
                 .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackImpressionUrls()))
                 .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingProfileClickedUrls()))
                 .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingPromoterClickedUrls()));
+    }
+
+    private Query attachPromotedTrackingQueries(Query query, ApiPromotedPlaylist promotedPlaylist) {
+        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingTrackPlayedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistClickedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistImpressionUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingProfileClickedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPromoterClickedUrls()));
     }
 
     public void assertUserInserted(UserRecord user) {

@@ -13,7 +13,7 @@ import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -190,18 +190,18 @@ public class EventLoggerJsonDataBuilder {
         }
     }
 
-    public String build(PromotedTrackEvent event) {
+    public String build(PromotedTrackingEvent event) {
         switch (event.getKind()) {
-            case PromotedTrackEvent.KIND_CLICK:
+            case PromotedTrackingEvent.KIND_CLICK:
                 return transform(getPromotedTrackClickEvent(event));
-            case PromotedTrackEvent.KIND_IMPRESSION:
+            case PromotedTrackingEvent.KIND_IMPRESSION:
                 return transform(getPromotedTrackImpressionEvent(event));
             default:
                 throw new IllegalStateException("Unexpected PromotedTrackEvent type: " + event);
         }
     }
 
-    private EventLoggerEventData getPromotedTrackClickEvent(PromotedTrackEvent event) {
+    private EventLoggerEventData getPromotedTrackClickEvent(PromotedTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
@@ -212,7 +212,7 @@ public class EventLoggerJsonDataBuilder {
                 .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_TARGET_URN));
     }
 
-    private EventLoggerEventData getPromotedTrackImpressionEvent(PromotedTrackEvent event) {
+    private EventLoggerEventData getPromotedTrackImpressionEvent(PromotedTrackingEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))

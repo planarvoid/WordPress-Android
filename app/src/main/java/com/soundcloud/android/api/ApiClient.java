@@ -124,6 +124,7 @@ public class ApiClient {
         // default headers
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
+        builder.header(ApiHeaders.APP_VERSION, String.valueOf(deviceHelper.getAppVersionCode()));
 
         if (accountOperations.getSoundCloudToken().valid()) {
             builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());

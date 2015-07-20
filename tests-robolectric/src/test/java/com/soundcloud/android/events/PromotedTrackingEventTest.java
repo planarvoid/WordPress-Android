@@ -4,18 +4,19 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PromotedTrackEventTest {
+public class PromotedTrackingEventTest {
 
-    private PromotedTrackItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+    private PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
 
     @Test
     public void createsEventForPromoterClick() {
-        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(promotedTrack, "stream");
+        PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
 
         assertCommonProperties(click);
         expect(click.getKind()).toEqual("click");
@@ -26,7 +27,7 @@ public class PromotedTrackEventTest {
 
     @Test
     public void createsEventForTrackClick() {
-        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(promotedTrack, "stream");
+        PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(promotedTrack, "stream");
 
         assertCommonProperties(click);
         expect(click.getKind()).toEqual("click");
@@ -37,7 +38,7 @@ public class PromotedTrackEventTest {
 
     @Test
     public void createsEventForImpression() {
-        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(promotedTrack, "stream");
+        PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(promotedTrack, "stream");
 
         assertCommonProperties(impression);
         expect(impression.getKind()).toEqual("impression");
@@ -46,13 +47,13 @@ public class PromotedTrackEventTest {
 
     @Test
     public void omitsPromoterUrnPropertyIfPromoterIsAbsent() {
-        PromotedTrackItem noPromoter = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
-        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(noPromoter, "stream");
+        PromotedListItem noPromoter = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
+        PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(noPromoter, "stream");
 
         expect(click.get(AdTrackingKeys.KEY_PROMOTER_URN)).toBeNull();
     }
 
-    private void assertCommonProperties(PromotedTrackEvent event) {
+    private void assertCommonProperties(PromotedTrackingEvent event) {
         expect(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).toEqual("stream");
         expect(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).toEqual("promoted");
         expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual(promotedTrack.getAdUrn());

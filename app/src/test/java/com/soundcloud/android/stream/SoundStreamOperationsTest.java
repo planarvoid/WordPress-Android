@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -17,7 +17,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +45,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private ContentStats contentStats;
-    @Mock private RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
-    @Mock private MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand;
+    @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
+    @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -54,9 +54,9 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
+        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
-                removeStalePromotedTracksCommand, markPromotedTrackAsStaleCommand, eventBus, Schedulers.immediate());
+                removeStalePromotedItemsCommand, markPromotedItemAsStaleCommand, eventBus, Schedulers.immediate());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final long ignoredDate = Long.MAX_VALUE - 1;
         items.add(0, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(12345L)),
-                PromotedTrackProperty.AD_URN.bind("adswizz:ad:123"),
+                PromotedItemProperty.AD_URN.bind("adswizz:ad:123"),
                 PlayableProperty.CREATED_AT.bind(new Date(ignoredDate))));
 
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
@@ -243,7 +243,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     public void initialStreamDeletesStalePromotedTracksBeforeLoadingStreamItems() {
         final PublishSubject<List<Long>> subject = PublishSubject.create();
         final AtomicBoolean verified = new AtomicBoolean();
-        when(removeStalePromotedTracksCommand.toObservable(null)).thenReturn(subject);
+        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(subject);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.create(new Observable.OnSubscribe<PropertySet>() {
             @Override
             public void call(Subscriber<? super PropertySet> subscriber) {
@@ -269,8 +269,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         operations.initialStreamItems().subscribe(observer);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
-        verify(markPromotedTrackAsStaleCommand).call(promotedTrackProperties);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
+        verify(markPromotedItemAsStaleCommand).call(promotedTrackProperties);
     }
 
     @Test
@@ -284,8 +284,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
         operations.updatedStreamItems().subscribe(observer);
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackEvent.class);
-        verify(markPromotedTrackAsStaleCommand).call(promotedTrackProperties);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
+        verify(markPromotedItemAsStaleCommand).call(promotedTrackProperties);
     }
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {

@@ -12,10 +12,10 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -131,24 +131,24 @@ public abstract class TestPropertySets {
 
     public static PropertySet expectedPromotedTrack() {
         return basePromotedTrack()
-                .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
-                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
     }
 
     public static PropertySet expectedPromotedTrackWithoutPromoter() {
         return basePromotedTrack()
-                .put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent())
-                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent());
     }
 
     private static PropertySet basePromotedTrack() {
         return expectedTrackForListItem(Urn.forTrack(12345L))
-                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
-                .put(PromotedTrackProperty.CREATED_AT, new Date(Long.MAX_VALUE))
-                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
-                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
-                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
-                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+                .put(PromotedItemProperty.AD_URN, "ad:urn:123")
+                .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
+                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
+                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
+                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
+                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {
@@ -185,6 +185,28 @@ public abstract class TestPropertySets {
                 PlaylistProperty.IS_PRIVATE.bind(false));
     }
 
+    private static PropertySet basePromotedPlaylist() {
+        return expectedPostedPlaylistsForPostedPlaylistsScreen()
+                .put(PromotedItemProperty.AD_URN, "ad:urn:123")
+                .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
+                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
+                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
+                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
+                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+    }
+
+    public static PropertySet expectedPromotedPlaylist() {
+        return basePromotedPlaylist()
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
+    }
+
+    public static PropertySet expectedPromotedPlaylistWithoutPromoter() {
+        return basePromotedPlaylist()
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent())
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent());
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,34 +223,34 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
-    public static PropertySet fromApiTrack(){
+    public static PropertySet fromApiTrack() {
         return fromApiTrack(ModelFixtures.create(ApiTrack.class));
     }
 
-    public static PropertySet fromApiTrack(ApiTrack apiTrack){
+    public static PropertySet fromApiTrack(ApiTrack apiTrack) {
         return fromApiTrack(apiTrack, false, false, false);
     }
 
-    public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted){
-            return PropertySet.from(
-                    TrackProperty.URN.bind(apiTrack.getUrn()),
-                    PlayableProperty.TITLE.bind(apiTrack.getTitle()),
-                    PlayableProperty.DURATION.bind(apiTrack.getDuration()),
-                    PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
-                    PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
-                    TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),
-                    TrackProperty.STREAM_URL.bind(apiTrack.getStreamUrl()),
-                    TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
-                    TrackProperty.COMMENTS_COUNT.bind(apiTrack.getStats().getCommentsCount()),
-                    PlayableProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
-                    PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
-                    TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
-                    TrackProperty.POLICY.bind(apiTrack.getPolicy()),
-                    PlayableProperty.IS_LIKED.bind(isLiked),
-                    PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
-                    PlayableProperty.IS_PRIVATE.bind(isPrivate),
-                    PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
-                    PlayableProperty.IS_REPOSTED.bind(isReposted));
+    public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
+        return PropertySet.from(
+                TrackProperty.URN.bind(apiTrack.getUrn()),
+                PlayableProperty.TITLE.bind(apiTrack.getTitle()),
+                PlayableProperty.DURATION.bind(apiTrack.getDuration()),
+                PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
+                PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
+                TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),
+                TrackProperty.STREAM_URL.bind(apiTrack.getStreamUrl()),
+                TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
+                TrackProperty.COMMENTS_COUNT.bind(apiTrack.getStats().getCommentsCount()),
+                PlayableProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
+                PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
+                TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
+                TrackProperty.POLICY.bind(apiTrack.getPolicy()),
+                PlayableProperty.IS_LIKED.bind(isLiked),
+                PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
+                PlayableProperty.IS_PRIVATE.bind(isPrivate),
+                PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
+                PlayableProperty.IS_REPOSTED.bind(isReposted));
     }
 
     public static PropertySet likedEntityChangeSet(Urn targetUrn, int likesCount) {

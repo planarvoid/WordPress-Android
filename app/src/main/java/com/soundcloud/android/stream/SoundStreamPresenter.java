@@ -5,22 +5,24 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -53,13 +55,17 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                     for (PropertySet source : bindings) {
                         final Urn urn = source.get(EntityProperty.URN);
                         if (urn.isTrack()) {
-                            if (source.contains(PromotedTrackProperty.AD_URN)) {
+                            if (source.contains(PromotedItemProperty.AD_URN)) {
                                 items.add(PromotedTrackItem.from(source));
                             } else {
                                 items.add(TrackItem.from(source));
                             }
                         } else if (urn.isPlaylist()) {
-                            items.add(PlaylistItem.from(source));
+                            if (source.contains(PromotedItemProperty.AD_URN)) {
+                                items.add(PromotedPlaylistItem.from(source));
+                            } else {
+                                items.add(PlaylistItem.from(source));
+                            }
                         }
                     }
                     return items;
@@ -154,11 +160,13 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     @Override
     protected void onItemClicked(View view, int position) {
         final ListItem item = adapter.getItem(position);
-        final Urn playableUrn = item.getEntityUrn();
         if (item instanceof PromotedTrackItem) {
-            playFromPromotedTrack(position, (PromotedTrackItem) item, playableUrn);
+            playFromPromotedTrack(position, (PromotedTrackItem) item);
+        } else if (item instanceof PromotedPlaylistItem) {
+            publishPromotedItemClickEvent((PromotedPlaylistItem) item);
+            handleListItemClick(view, position, item);
         } else {
-            itemClickListener.onItemClick(streamOperations.trackUrnsForPlayback(), view,position, item);
+            handleListItemClick(view, position, item);
         }
     }
 
@@ -167,12 +175,19 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack, Urn playableUrn) {
-        eventBus.publish(EventQueue.TRACKING,
-                PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
+    private void handleListItemClick(View view, int position, ListItem item) {
+        itemClickListener.onItemClick(streamOperations.trackUrnsForPlayback(), view, position, item);
+    }
+
+    private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack) {
+        publishPromotedItemClickEvent(promotedTrack);
         PlaySessionSource source = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        source.setPromotedSourceInfo(PromotedSourceInfo.fromTrack(promotedTrack));
-        playTracks(position, playableUrn, source);
+        source.setPromotedSourceInfo(PromotedSourceInfo.fromItem(promotedTrack));
+        playTracks(position, promotedTrack.getEntityUrn(), source);
+    }
+
+    private void publishPromotedItemClickEvent(PromotedListItem item) {
+        eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.SIDE_MENU_STREAM.get()));
     }
 
     private void playTracks(int position, Urn playableUrn, PlaySessionSource playSessionSource) {

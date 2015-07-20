@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -18,7 +19,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
-import org.jetbrains.annotations.NotNull;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -44,12 +44,11 @@ public class Navigator {
     }
 
     public void openPlaylist(Context context, Urn playlist, Screen screen) {
-        context.startActivity(createPlaylistIntent(playlist, screen, false));
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
     }
 
-    public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(createPlaylistIntent(playlist, screen, false)
-                .putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+    public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
 
     public void openMyProfile(Context context, Urn user) {
@@ -185,14 +184,6 @@ public class Navigator {
     private Intent createMyProfileIntent(Context context, Urn user) {
         return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
                 .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
-    }
-
-    private Intent createPlaylistIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
-        Intent intent = new Intent(Actions.PLAYLIST);
-        screen.addToIntent(intent);
-        return intent.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, autoPlay)
-                .putExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn);
-
     }
 
     private Intent createRecordIntent(Context context, Recording recording) {

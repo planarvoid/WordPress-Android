@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -21,12 +22,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
@@ -68,6 +69,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
+    public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
@@ -141,10 +143,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     };
 
-    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
-        bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+        bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
+        bundle.putParcelable(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
         screen.addToBundle(bundle);
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
         fragment.setArguments(bundle);
@@ -289,6 +292,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         return getArguments().getParcelable(EXTRA_QUERY_SOURCE_INFO);
     }
 
+    private PromotedSourceInfo getPromotedSourceInfo() {
+        return getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO);
+    }
+
     private void configureInfoViews(View layout) {
         View details = layout.findViewById(R.id.playlist_details);
         if (details == null) {
@@ -338,13 +345,17 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private void playTracksAtPosition(int trackPosition, Subscriber<PlaybackResult> playbackSubscriber) {
         final PlaySessionSource playSessionSource = getPlaySessionSource();
         final TrackItem initialTrack = controller.getAdapter().getItem(trackPosition);
+
+        PromotedSourceInfo promotedSourceInfo = getPromotedSourceInfo();
         SearchQuerySourceInfo searchQuerySourceInfo = getSearchQuerySourceInfo();
 
-        if (searchQuerySourceInfo != null) {
+        if (promotedSourceInfo != null) {
+            playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
+        } else if (searchQuerySourceInfo != null) {
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
         }
 
-        if (shouldShowUpsell(initialTrack)){
+        if (shouldShowUpsell(initialTrack)) {
             navigator.openUpgrade(getActivity());
         } else {
             offlinePlaybackOperations

@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
@@ -28,6 +29,7 @@ public class PlaylistDetailActivity extends ScActivity {
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_AUTO_PLAY = "autoplay";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
+    public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
 
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
@@ -49,20 +51,25 @@ public class PlaylistDetailActivity extends ScActivity {
 
     @Deprecated // Use Navigator
     public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(getIntent(playlistUrn, screen, autoPlay, searchQuerySourceInfo));
+        context.startActivity(getIntent(playlistUrn, screen, autoPlay, searchQuerySourceInfo, null));
     }
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen) {
-        return getIntent(playlistUrn, screen, false, null);
+        return getIntent(playlistUrn, screen, false);
     }
 
-    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
+        return getIntent(playlistUrn, screen, autoPlay, null, null);
+    }
+
+    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
-
-        return intent.putExtra(EXTRA_AUTO_PLAY, autoPlay)
+        return intent
                 .putExtra(EXTRA_URN, playlistUrn)
-                .putExtra(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+                .putExtra(EXTRA_AUTO_PLAY, autoPlay)
+                .putExtra(EXTRA_QUERY_SOURCE_INFO, queryInfo)
+                .putExtra(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
     }
 
     @Override
@@ -77,12 +84,14 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     private void createFragmentForPlaylist() {
-        Urn urn = getIntent().getParcelableExtra(EXTRA_URN);
-        SearchQuerySourceInfo searchQuerySourceInfo = getIntent().getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
-        Screen screen = Screen.fromIntent(getIntent());
+        Intent intent = getIntent();
+        Screen screen = Screen.fromIntent(intent);
+        Urn urn = intent.getParcelableExtra(EXTRA_URN);
+        PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
+        SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo);
+        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 

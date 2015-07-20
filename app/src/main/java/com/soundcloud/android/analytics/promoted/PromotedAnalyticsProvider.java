@@ -10,7 +10,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -71,8 +71,8 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindImpression((AdOverlayTrackingEvent) event);
-        } else if (event instanceof PromotedTrackEvent) {
-            handlePromotedTrackEvent((PromotedTrackEvent) event);
+        } else if (event instanceof PromotedTrackingEvent) {
+            handlePromotedTrackEvent((PromotedTrackingEvent) event);
         }
     }
 
@@ -87,7 +87,7 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
         trackAllUrls(event.getTimestamp(), event.getImpressionUrls());
     }
 
-    private void handlePromotedTrackEvent(PromotedTrackEvent event) {
+    private void handlePromotedTrackEvent(PromotedTrackingEvent event) {
         trackAllUrls(event.getTimestamp(), event.getTrackingUrls());
     }
 
