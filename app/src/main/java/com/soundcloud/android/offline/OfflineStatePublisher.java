@@ -10,16 +10,16 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-class DownloadStatePublisher {
+class OfflineStatePublisher {
 
     private final EventBus eventBus;
 
     @Inject
-    public DownloadStatePublisher(EventBus eventBus) {
+    public OfflineStatePublisher(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
@@ -98,7 +98,7 @@ class DownloadStatePublisher {
 
     private void publishTrackUnavailable(DownloadState result) {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.unavailable(false, Arrays.asList(result.getTrack())));
+                CurrentDownloadEvent.unavailable(false, Collections.singletonList(result.getTrack())));
     }
 
     private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
@@ -121,7 +121,7 @@ class DownloadStatePublisher {
 
     private void publishTrackDownloadCanceled(DownloadState result) {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRemoved(Arrays.asList(result.getTrack())));
+                CurrentDownloadEvent.downloadRemoved(Collections.singletonList(result.getTrack())));
     }
 
     private void publishCollectionsDownloadedForCancelledTrack(DownloadQueue queue, DownloadState result) {

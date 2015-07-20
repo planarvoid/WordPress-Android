@@ -149,9 +149,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             offlineStateSubscription.add(eventBus
                     .queue(EventQueue.CURRENT_DOWNLOAD)
                     .filter(isPlaylist(playlistWithTracks))
-                    .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE)
+                    .map(CurrentDownloadEvent.TO_OFFLINE_STATE)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadStateSubscriber()));
+                    .subscribe(new OfflineStateSubscriber()));
         }
         offlineStateSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
@@ -331,7 +331,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<OfflineState> {
+    private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
             playlistEngagementsView.show(state);

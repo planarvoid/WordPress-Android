@@ -21,13 +21,13 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
 
     private DownloadQueue queue;
-    private DownloadStatePublisher publisher;
+    private OfflineStatePublisher publisher;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
         queue = new DownloadQueue();
-        publisher = new DownloadStatePublisher(eventBus);
+        publisher = new OfflineStatePublisher(eventBus);
     }
 
     @Test

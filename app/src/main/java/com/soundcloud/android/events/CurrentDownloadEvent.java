@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public final class CurrentDownloadEvent {
-    public static final Func1<CurrentDownloadEvent, OfflineState> TO_DOWNLOAD_STATE = new Func1<CurrentDownloadEvent, OfflineState>() {
+    public static final Func1<CurrentDownloadEvent, OfflineState> TO_OFFLINE_STATE = new Func1<CurrentDownloadEvent, OfflineState>() {
         @Override
         public OfflineState call(CurrentDownloadEvent event) {
             return event.kind;
