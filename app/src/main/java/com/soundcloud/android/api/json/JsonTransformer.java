@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface JsonTransformer {
 
-    <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws IOException, ApiMapperException;
+    <T> T fromJson(String json, TypeToken<T> classToTransformTo) throws IOException, ApiMapperException;
 
     String toJson(Object source) throws ApiMapperException;
 }
