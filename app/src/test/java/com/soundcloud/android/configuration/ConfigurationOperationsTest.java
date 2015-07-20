@@ -6,6 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.HttpHeaders;
@@ -147,6 +148,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
         logoutSubject.onNext(null);
         assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
+        verifyZeroInteractions(featureOperations);
     }
 
 }
