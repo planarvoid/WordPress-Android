@@ -4,31 +4,70 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import javax.inject.Inject;
 
-public class ActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
-    protected EventBus eventBus;
+public class ActionBarHelper extends DefaultLightCycleActivity<AppCompatActivity> {
+
+    private final CastConnectionHelper castConnectionHelper;
+    private final EventBus eventBus;
+    private final ApplicationProperties applicationProperties;
     private final BugReporter bugReporter;
     private final Navigator navigator;
+    private final DeviceHelper deviceHelper;
 
     @Inject
-    protected ActionBarController(EventBus eventBus, BugReporter bugReporter, Navigator navigator) {
+    public ActionBarHelper(CastConnectionHelper castConnectionHelper,
+                           EventBus eventBus,
+                           ApplicationProperties applicationProperties,
+                           BugReporter bugReporter,
+                           Navigator navigator,
+                           DeviceHelper deviceHelper) {
+        this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
+        this.applicationProperties = applicationProperties;
         this.bugReporter = bugReporter;
         this.navigator = navigator;
+        this.deviceHelper = deviceHelper;
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.main, menu);
+
+        if (menu.findItem(R.id.media_route_menu_item) != null) {
+            castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
+        }
+
+        final MenuItem feedbackItem = menu.findItem(R.id.action_feedback);
+        if (feedbackItem != null) {
+            feedbackItem.setVisible(applicationProperties.shouldAllowFeedback());
+        }
+
+        if (!deviceHelper.hasMicrophone()) {
+            final MenuItem recordItem = menu.findItem(R.id.action_record);
+            if (recordItem != null) {
+                recordItem.setVisible(false);
+            }
+        }
     }
 
     @Override
@@ -58,7 +97,7 @@ public class ActionBarController extends DefaultLightCycleActivity<AppCompatActi
         }
     }
 
-    private void startActivity(FragmentActivity activity, Class target) {
+    private void startActivity(Activity activity, Class target) {
         activity.startActivity(new Intent(activity, target));
     }
 }

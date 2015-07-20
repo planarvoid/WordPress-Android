@@ -1,7 +1,7 @@
 package com.soundcloud.android.comments;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
@@ -32,7 +32,7 @@ public class TrackCommentsActivity extends ScActivity {
 
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject FeatureFlags featureFlags;
     @Inject ImageOperations imageOperations;

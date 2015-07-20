@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +11,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.ArrayRes;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
@@ -35,15 +35,15 @@ public class BugReporter {
         this.resources = resources;
     }
 
-    public void showGeneralFeedbackDialog(final FragmentActivity activity) {
+    public void showGeneralFeedbackDialog(final Activity activity) {
         showFeedbackDialog(activity, R.array.feedback_general);
     }
 
-    public void showSignInFeedbackDialog(final FragmentActivity activity) {
+    public void showSignInFeedbackDialog(final Activity activity) {
         showFeedbackDialog(activity, R.array.feedback_sign_in);
     }
 
-    private void showFeedbackDialog(final FragmentActivity activity, @ArrayRes int options) {
+    private void showFeedbackDialog(final Activity activity, @ArrayRes int options) {
         final String[] feedbackOptions = resources.getStringArray(options);
         new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
@@ -53,7 +53,7 @@ public class BugReporter {
                         final String subject = resources.getString(R.string.feedback_email_subject, feedbackOption);
                         final String actionChooser = resources.getString(R.string.feedback_action_chooser);
                         final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
-                                applicationProperties.getPlaybackFeedbackEmail() : applicationProperties.getFeedbackEmail() ;
+                                applicationProperties.getPlaybackFeedbackEmail() : applicationProperties.getFeedbackEmail();
 
                         sendLogs(activity, feedbackEmail, subject, deviceHelper.getUserAgent(), actionChooser);
                     }
@@ -69,9 +69,9 @@ public class BugReporter {
 
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
-            i.putExtra(Intent.EXTRA_EMAIL  , new String[]{toEmail});
+            i.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
             i.putExtra(Intent.EXTRA_SUBJECT, subject);
-            i.putExtra(Intent.EXTRA_TEXT   , body);
+            i.putExtra(Intent.EXTRA_TEXT, body);
             i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
             context.startActivity(Intent.createChooser(i, chooserText));
 

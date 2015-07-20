@@ -2,7 +2,6 @@ package com.soundcloud.android.actionbar;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -19,9 +18,9 @@ import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
@@ -30,11 +29,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 
@@ -42,10 +43,11 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.reflect.Field;
 
-public class SearchActionBarController extends ActionBarController {
+public class SearchActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
     private static final String STATE_QUERY = "query";
     private final PublicApi publicApi;
     private final PlaybackOperations playbackOperations;
+    private final EventBus eventBus;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
         @Override
@@ -78,12 +80,10 @@ public class SearchActionBarController extends ActionBarController {
     SearchActionBarController(PublicApi publicCloudAPI,
                               PlaybackOperations playbackOperations,
                               EventBus eventBus,
-                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                              BugReporter bugReporter,
-                              Navigator navigator) {
-        super(eventBus, bugReporter, navigator);
+                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.publicApi = publicCloudAPI;
         this.playbackOperations = playbackOperations;
+        this.eventBus = eventBus;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
@@ -133,6 +133,43 @@ public class SearchActionBarController extends ActionBarController {
         if (isInitialised()) {
             searchView.clearFocus();
         }
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater, final AppCompatActivity activity) {
+        inflater.inflate(R.menu.search, menu);
+        initSearchView(activity, menu);
+
+        if (!activity.getSupportActionBar().isShowing()) {
+            clearFocus();
+        }
+
+        if (ScTextUtils.isNotBlank(query)) {
+            setQuery(query);
+        }
+    }
+
+    @NonNull
+    private SearchView.OnSuggestionListener getSuggestionListener(final AppCompatActivity activity) {
+        return new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                String query = searchView.getQuery().toString();
+                searchView.clearFocus();
+
+                if (suggestionsAdapter.isSearchItem(position)) {
+                    performSearch(query, true);
+                    searchView.setSuggestionsAdapter(null);
+                } else {
+                    launchSuggestion(activity, position);
+                }
+                return true;
+            }
+        };
     }
 
     private void launchSuggestion(AppCompatActivity activity, int position) {
@@ -191,38 +228,6 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    public void configureSearchState(final AppCompatActivity activity, Menu menu) {
-        initSearchView(activity, menu);
-        searchView.setOnQueryTextListener(queryTextListener);
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                String query = searchView.getQuery().toString();
-                searchView.clearFocus();
-
-                if (suggestionsAdapter.isSearchItem(position)) {
-                    performSearch(query, true);
-                    searchView.setSuggestionsAdapter(null);
-                } else {
-                    launchSuggestion(activity, position);
-                }
-                return true;
-            }
-        });
-        styleSearchView(searchView);
-        if (!activity.getSupportActionBar().isShowing()) {
-            clearFocus();
-        }
-        if (ScTextUtils.isNotBlank(query)) {
-            setQuery(query);
-        }
-    }
-
     private void initSearchView(AppCompatActivity activity, Menu menu) {
         SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
         final SearchableInfo searchableInfo = searchManager.getSearchableInfo(activity.getComponentName());
@@ -237,6 +242,10 @@ public class SearchActionBarController extends ActionBarController {
 
         suggestionsAdapter = new SuggestionsAdapter(activity, publicApi, activity.getContentResolver());
         searchView.setSuggestionsAdapter(suggestionsAdapter);
+
+        searchView.setOnQueryTextListener(queryTextListener);
+        searchView.setOnSuggestionListener(getSuggestionListener(activity));
+        styleSearchView(searchView);
     }
 
     private boolean isTagSearch(String trimmedQuery) {

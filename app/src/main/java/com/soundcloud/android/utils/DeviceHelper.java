@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 
 import javax.inject.Inject;
@@ -125,6 +126,13 @@ public class DeviceHelper {
         }
         return null;
     }
+
+    public boolean hasMicrophone() {
+        PackageManager pm = context.getPackageManager();
+        return pm != null && pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
+    }
+
+
 
     public int getCurrentOrientation() {
         return context.getResources().getConfiguration().orientation;

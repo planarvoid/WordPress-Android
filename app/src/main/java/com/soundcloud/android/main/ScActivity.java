@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackController;
 import com.soundcloud.android.accounts.UserRemovedController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.offline.PolicyUpdateController;
@@ -21,7 +22,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import javax.inject.Inject;
 
@@ -39,6 +39,7 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle ScreenStateProvider screenStateProvider;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
+    @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject ApplicationProperties applicationProperties;
     @Inject protected ScreenPresenter presenter;
     @Inject protected EventBus eventBus;
@@ -68,14 +69,7 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     }
 
     protected void configureMainOptionMenuItems(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        if (menu.findItem(R.id.media_route_menu_item) != null) {
-            castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
-        }
-        final MenuItem feedbackItem = menu.findItem(R.id.action_feedback);
-        if (feedbackItem != null) {
-            feedbackItem.setVisible(applicationProperties.shouldAllowFeedback());
-        }
+        actionMenuController.onCreateOptionsMenu(menu, getMenuInflater());
     }
 
     /**

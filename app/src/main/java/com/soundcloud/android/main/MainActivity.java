@@ -7,7 +7,7 @@ import static rx.android.app.AppObservable.bindActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
@@ -69,7 +69,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle InAppCampaignController inAppCampaignController;
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

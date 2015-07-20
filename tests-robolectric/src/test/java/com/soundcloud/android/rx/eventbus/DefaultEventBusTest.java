@@ -6,8 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.DefaultEventBus;
-import com.soundcloud.android.rx.eventbus.Queue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
