@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--The plurals on this file were extracted from the the strings.xml because of Transifex
+    not supporting plurals label on xml files.
+    Until this translation issue on Transifex is fixed, we will keep this file.
+    When it is fixed, we should move these plurals back to the strings.xml file.-->
+  <!--__NOTIFICATIONS-->
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <!--__ACCESSIBILITY-->
+  <!--__PLAYER-->
+  <!--__PLAYLIST CREATION-->
+  <!--__PROFILE-->
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
+  <!--__TIME-->
+  <!--__OFFLINE_SYNC-->
+</resources>
