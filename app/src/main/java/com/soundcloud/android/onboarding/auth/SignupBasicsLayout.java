@@ -198,7 +198,7 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
             AndroidUtils.showToast(getContext(), R.string.authentication_error_password_too_short);
         } else {
             final BirthdayInfo birthday = BirthdayInfo.buildFrom(getAge());
-            if (birthday.isValid()){
+            if (birthday.isValid()) {
                 final String email = getEmail();
                 final String password = getPassword();
                 final @Nullable String gender = (selectedGenderOption != null) ? selectedGenderOption.getApiValue(getCustomGender()) : null;
@@ -260,12 +260,12 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
     }
 
     private void updateGenderLabel() {
-        String label = (selectedGenderOption != null) ? getResources().getString(selectedGenderOption.getResId()) : null;
-        genderOptionTextView.setText(label);
-
-        if(selectedGenderOption != null) {
+        if (selectedGenderOption != null) {
+            String label = getResources().getString(selectedGenderOption.getResId());
+            genderOptionTextView.setText(label);
             genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
         } else {
+            genderOptionTextView.setText(null);
             genderOptionTextView.setHint(R.string.onboarding_indicate_gender);
         }
     }
