@@ -54,7 +54,7 @@ public class ApiStreamItemTest {
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackRepost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiTrackRepost.getCreatedAtTime());
     }
-    
+
     @Test
     public void getPlaylistWithPlaylistPostReturnsPlaylist() throws Exception {
         final ApiStreamPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiStreamPlaylistPost.class);
@@ -99,23 +99,45 @@ public class ApiStreamItemTest {
 
     @Test
     public void getCreatedAtWithPromotedTrackReturnsMaxVaue() throws Exception {
-        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithoutPromoter();
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getCreatedAtTime()).toEqual(Long.MAX_VALUE);
+    }
+
+    @Test
+    public void getCreatedAtWithPromotedPlaylistReturnsMaxVaue() throws Exception {
+        final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
         expect(streamItem.getCreatedAtTime()).toEqual(Long.MAX_VALUE);
     }
 
     @Test
     public void getPromoterWithPromotedTrackReturnsValidPromoter() throws Exception {
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithPromoter(apiUser);
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithPromoter(apiUser);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
         expect(streamItem.getPromoter().get()).toEqual(apiUser);
     }
 
     @Test
+    public void getPromoterWithPromotedPlaylistReturnsValidPromoter() throws Exception {
+        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithPromoter(apiUser);
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
+        expect(streamItem.getPromoter().get()).toEqual(apiUser);
+    }
+
+    @Test
     public void getPromoterWithPromotedTrackReturnsAbsentPromoter() throws Exception {
-        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithoutPromoter();
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromoterWithPromotedPlaylistReturnsAbsentPromoter() throws Exception {
+        final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
         expect(streamItem.getPromoter().isPresent()).toBeFalse();
     }
 
@@ -145,9 +167,16 @@ public class ApiStreamItemTest {
 
     @Test
     public void getUrnWithPromotedTrackReturnsUrn() throws Exception {
-        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedTrackItemWithoutPromoter();
         final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
-        expect(streamItem.getAdUrn().get()).toEqual("adswizz:ads:123");
+        expect(streamItem.getAdUrn().get()).toEqual("dfp:ads:123-4567");
+    }
+
+    @Test
+    public void getUrnWithPromotedPlaylistReturnsUrn() throws Exception {
+        final ApiPromotedPlaylist apiPromotedPlaylist = PromotedFixtures.promotedPlaylistItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedPlaylist);
+        expect(streamItem.getAdUrn().get()).toEqual("dfp:ads:678-7890");
     }
 
     @Test
@@ -173,6 +202,4 @@ public class ApiStreamItemTest {
         final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistRepost.class));
         expect(streamItem.getAdUrn().isPresent()).toBeFalse();
     }
-
-
 }

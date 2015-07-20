@@ -16,10 +16,21 @@ public final class ViewUtils {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
+    public static void setTouchClickable(View view, View.OnClickListener listener) {
+        view.setClickable(true);
+        view.setOnClickListener(listener);
+        extendTouchArea(view, 10);
+    }
+
+    public static void unsetTouchClickable(View view) {
+        clearTouchDelegate(view);
+        view.setClickable(false);
+    }
+
     public static void extendTouchArea(final View delegate, int extendDp) {
         final int extendPx = dpToPx(delegate.getContext(), extendDp);
         final View parent = (View) delegate.getParent();
-        parent.post( new Runnable() {
+        parent.post(new Runnable() {
             public void run() {
                 final Rect r = new Rect();
                 delegate.getHitRect(r);
@@ -107,5 +118,6 @@ public final class ViewUtils {
         };
     }
 
-    private ViewUtils() {}
+    private ViewUtils() {
+    }
 }

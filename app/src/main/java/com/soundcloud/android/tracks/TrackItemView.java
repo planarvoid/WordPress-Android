@@ -41,7 +41,7 @@ public class TrackItemView {
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (overflowListener != null){
+                if (overflowListener != null) {
                     overflowListener.onOverflow(v);
                 }
             }
@@ -70,9 +70,7 @@ public class TrackItemView {
     }
 
     public void setPromotedClickable(View.OnClickListener clickListener) {
-        promoted.setClickable(true);
-        promoted.setOnClickListener(clickListener);
-        ViewUtils.extendTouchArea(promoted, 10);
+        ViewUtils.setTouchClickable(promoted, clickListener);
     }
 
     public void showNowPlaying() {
@@ -89,8 +87,7 @@ public class TrackItemView {
         privateIndicator.setVisibility(View.GONE);
         upsell.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
-        promoted.setClickable(false);
-        ViewUtils.clearTouchDelegate(promoted);
+        ViewUtils.unsetTouchClickable(promoted);
         image.setAlpha(1F);
     }
 
@@ -127,7 +124,8 @@ public class TrackItemView {
 
     public static class Factory {
         @Inject
-        public Factory() {}
+        public Factory() {
+        }
 
         public View createItemView(ViewGroup parent) {
             final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);

@@ -14,7 +14,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -195,8 +196,8 @@ public class PromotedAnalyticsProviderTest {
 
     @Test
     public void tracksPromotedTrackUrls() {
-        PromotedTrackItem track = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent event = PromotedTrackEvent.forTrackClick(track, "stream");
+        PromotedListItem track = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackingEvent event = PromotedTrackingEvent.forItemClick(track, "stream");
 
         analyticsProvider.handleTrackingEvent(event);
 

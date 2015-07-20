@@ -8,16 +8,19 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PromotedItemProperty;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.rx.Pager.PagingFunction;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -46,8 +49,8 @@ class SoundStreamOperations {
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final EventBus eventBus;
-    private final RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand;
-    private final MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand;
+    private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
+    private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
 
     private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
@@ -73,26 +76,34 @@ class SoundStreamOperations {
         public void call(List<PropertySet> propertySets) {
             if (!propertySets.isEmpty()) {
                 PropertySet first = propertySets.get(0);
-                if (first.contains(PromotedTrackProperty.AD_URN)) {
-                    // seen the track once, don't see it again until we refresh the stream
-                    markPromotedTrackAsStaleCommand.call(first);
-                    eventBus.publish(EventQueue.TRACKING,
-                            PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
+                if (first.contains(PromotedItemProperty.AD_URN)) {
+                    // seen the item once, don't see it again until we refresh the stream
+                    markPromotedItemAsStaleCommand.call(first);
+                    Urn urn = first.get(EntityProperty.URN);
+                    if (urn.isTrack()) {
+                        publishTrackingEvent(PromotedTrackItem.from(first));
+                    } else if (urn.isPlaylist()) {
+                        publishTrackingEvent(PromotedPlaylistItem.from(first));
+                    }
                 }
             }
+        }
+
+        private void publishTrackingEvent(PromotedListItem item) {
+            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.SIDE_MENU_STREAM.get()));
         }
     };
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          ContentStats contentStats, RemoveStalePromotedTracksCommand removeStalePromotedTracksCommand,
-                          MarkPromotedTrackAsStaleCommand markPromotedTrackAsStaleCommand, EventBus eventBus,
+                          ContentStats contentStats, RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
+                          MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
-        this.removeStalePromotedTracksCommand = removeStalePromotedTracksCommand;
-        this.markPromotedTrackAsStaleCommand = markPromotedTrackAsStaleCommand;
+        this.removeStalePromotedItemsCommand = removeStalePromotedItemsCommand;
+        this.markPromotedItemAsStaleCommand = markPromotedItemAsStaleCommand;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
     }
@@ -112,7 +123,7 @@ class SoundStreamOperations {
 
     private Observable<List<PropertySet>> initialStreamItems(final boolean syncCompleted) {
         Log.d(TAG, "Preparing page; initial page");
-        return removeStalePromotedTracksCommand.toObservable(null)
+        return removeStalePromotedItemsCommand.toObservable(null)
                 .flatMap(loadFirstPageOfStream(syncCompleted))
                 .subscribeOn(scheduler);
     }
@@ -167,7 +178,7 @@ class SoundStreamOperations {
     }
 
     private boolean containsOnlyPromotedTrack(List<PropertySet> result) {
-        return result.size() == 1 && result.get(0).contains(PromotedTrackProperty.AD_URN);
+        return result.size() == 1 && result.get(0).contains(PromotedItemProperty.AD_URN);
     }
 
     private Observable<List<PropertySet>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
@@ -226,7 +237,7 @@ class SoundStreamOperations {
     @Nullable
     private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
         for (PropertySet propertySet : result) {
-            if (!propertySet.contains(PromotedTrackProperty.AD_URN)) {
+            if (!propertySet.contains(PromotedItemProperty.AD_URN)) {
                 return propertySet;
             }
         }

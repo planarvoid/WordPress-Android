@@ -16,6 +16,7 @@ public class ApiStreamItem {
     private static final long PROMOTED_CREATION_DATE = Long.MAX_VALUE;
 
     private ApiPromotedTrack apiPromotedTrack;
+    private ApiPromotedPlaylist apiPromotedPlaylist;
     private ApiStreamTrackPost apiTrackPost;
     private ApiStreamTrackRepost apiTrackRepost;
     private ApiStreamPlaylistPost apiPlaylistPost;
@@ -28,11 +29,13 @@ public class ApiStreamItem {
      */
     @JsonCreator
     public ApiStreamItem(@JsonProperty("promoted_track") ApiPromotedTrack apiPromotedTrack,
+                         @JsonProperty("promoted_playlist") ApiPromotedPlaylist ApiPromotedPlaylist,
                          @JsonProperty("track_post") ApiStreamTrackPost apiTrackPost,
                          @JsonProperty("track_repost") ApiStreamTrackRepost apiTrackRepost,
                          @JsonProperty("playlist_post") ApiStreamPlaylistPost apiPlaylistPost,
                          @JsonProperty("playlist_repost") ApiStreamPlaylistRepost apiPlaylistRepost) {
         this.apiPromotedTrack = apiPromotedTrack;
+        this.apiPromotedPlaylist = ApiPromotedPlaylist;
         this.apiTrackPost = apiTrackPost;
         this.apiTrackRepost = apiTrackRepost;
         this.apiPlaylistPost = apiPlaylistPost;
@@ -50,6 +53,11 @@ public class ApiStreamItem {
     }
 
     @VisibleForTesting
+    public ApiStreamItem(ApiPromotedPlaylist apiPromotedPlaylist) {
+        this.apiPromotedPlaylist = apiPromotedPlaylist;
+    }
+
+    @VisibleForTesting
     public ApiStreamItem(ApiStreamTrackRepost apiTrackRepost) {
         this.apiTrackRepost = apiTrackRepost;
     }
@@ -64,12 +72,12 @@ public class ApiStreamItem {
         this.apiPlaylistRepost = apiPlaylistRepost;
     }
 
-    public boolean isPromotedStreamItem(){
-        return apiPromotedTrack != null;
+    public boolean isPromotedStreamItem() {
+        return (apiPromotedTrack != null) || (apiPromotedPlaylist != null);
     }
 
     public Optional<ApiTrack> getTrack() {
-        if (apiTrackPost != null){
+        if (apiTrackPost != null) {
             return Optional.of(apiTrackPost.getApiTrack());
 
         } else if (apiTrackRepost != null) {
@@ -84,11 +92,14 @@ public class ApiStreamItem {
     }
 
     public Optional<ApiPlaylist> getPlaylist() {
-        if (apiPlaylistPost != null){
+        if (apiPlaylistPost != null) {
             return Optional.of(apiPlaylistPost.getApiPlaylist());
 
         } else if (apiPlaylistRepost != null) {
             return Optional.of(apiPlaylistRepost.getApiPlaylist());
+
+        } else if (apiPromotedPlaylist != null) {
+            return Optional.of(apiPromotedPlaylist.getApiPlaylist());
 
         } else {
             return Optional.absent();
@@ -96,7 +107,7 @@ public class ApiStreamItem {
     }
 
     public Optional<ApiUser> getReposter() {
-        if (apiTrackRepost != null){
+        if (apiTrackRepost != null) {
             return Optional.of(apiTrackRepost.getReposter());
 
         } else if (apiPlaylistRepost != null) {
@@ -110,13 +121,16 @@ public class ApiStreamItem {
     public Optional<ApiUser> getPromoter() {
         if (apiPromotedTrack != null) {
             return Optional.fromNullable(apiPromotedTrack.getPromoter());
+
+        } else if (apiPromotedPlaylist != null) {
+            return Optional.fromNullable(apiPromotedPlaylist.getPromoter());
+
         } else {
             return Optional.absent();
         }
     }
 
     public long getCreatedAtTime() {
-
         if (apiTrackPost != null) {
             return apiTrackPost.getCreatedAtTime();
 
@@ -129,7 +143,7 @@ public class ApiStreamItem {
         } else if (apiPlaylistRepost != null) {
             return apiPlaylistRepost.getCreatedAtTime();
 
-        } else if (apiPromotedTrack != null) {
+        } else if ((apiPromotedTrack != null) || (apiPromotedPlaylist != null)) {
             return PROMOTED_CREATION_DATE;
 
         } else {
@@ -140,28 +154,72 @@ public class ApiStreamItem {
     public Optional<String> getAdUrn() {
         if (apiPromotedTrack != null) {
             return Optional.of(apiPromotedTrack.getAdUrn());
+
+        } else if (apiPromotedPlaylist != null) {
+            return Optional.of(apiPromotedPlaylist.getAdUrn());
+
         } else {
             return Optional.absent();
         }
     }
 
     public List<String> getTrackingProfileClickedUrls() {
-        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingProfileClickedUrls();
+        if (apiPromotedTrack != null) {
+            return apiPromotedTrack.getTrackingProfileClickedUrls();
+
+        } else if (apiPromotedPlaylist != null) {
+            return apiPromotedPlaylist.getTrackingProfileClickedUrls();
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public List<String> getTrackingPromoterClickedUrls() {
-        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingPromoterClickedUrls();
+        if (apiPromotedTrack != null) {
+            return apiPromotedTrack.getTrackingPromoterClickedUrls();
+
+        } else if (apiPromotedPlaylist != null) {
+            return apiPromotedPlaylist.getTrackingPromoterClickedUrls();
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 
-    public List<String> getTrackingTrackClickedUrls() {
-        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackClickedUrls();
+    public List<String> getTrackingItemClickedUrls() {
+        if (apiPromotedTrack != null) {
+            return apiPromotedTrack.getTrackingTrackClickedUrls();
+
+        } else if (apiPromotedPlaylist != null) {
+            return apiPromotedPlaylist.getTrackingPlaylistClickedUrls();
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 
-    public List<String> getTrackingTrackImpressionUrls() {
-        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackImpressionUrls();
+    public List<String> getTrackingItemImpressionUrls() {
+        if (apiPromotedTrack != null) {
+            return apiPromotedTrack.getTrackingTrackImpressionUrls();
+
+        } else if (apiPromotedPlaylist != null) {
+            return apiPromotedPlaylist.getTrackingPlaylistImpressionUrls();
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public List<String> getTrackingTrackPlayedUrls() {
-        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackPlayedUrls();
+        if (apiPromotedTrack != null) {
+            return apiPromotedTrack.getTrackingTrackPlayedUrls();
+
+        } else if (apiPromotedPlaylist != null) {
+            return apiPromotedPlaylist.getTrackingTrackPlayedUrls();
+
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

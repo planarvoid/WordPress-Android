@@ -399,7 +399,6 @@
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">À propos</string>
     <string name="title_legal">Juridique</string>
-    <string name="pref_extras">Suppléments</string>
     <string name="title_notification_settings">Paramètres de notification</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -427,10 +426,6 @@
         <item>Toutes les 12 heures</item>
         <item>Toutes les 24 heures</item>
     </string-array>
-
-    <!-- __SKIPPY -->
-    <string name="pref_extras_skippy">Forcer l\'utilisation du lecteur expérimental</string>
-    <string name="pref_extras_skippy_desc">Lire toutes les pistes avec le lecteur expérimental. Cela prendra effet lors de la lecture de la piste suivante.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

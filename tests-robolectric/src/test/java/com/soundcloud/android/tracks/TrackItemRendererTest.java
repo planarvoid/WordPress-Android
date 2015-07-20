@@ -8,9 +8,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -155,14 +156,14 @@ public class TrackItemRendererTest {
     @Test
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
-        PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        renderer.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedTrackItem));
+        PromotedListItem promotedListItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        renderer.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedListItem));
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
         verify(navigator).openProfile(any(Context.class), eq(Urn.forUser(193L)));
-        verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackEvent.class));
+        verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 }

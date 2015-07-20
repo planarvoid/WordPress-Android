@@ -401,7 +401,6 @@
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">Sobre</string>
     <string name="title_legal">Legal</string>
-    <string name="pref_extras">Extras</string>
     <string name="title_offline_settings">Configurações de sincronização off-line</string>
     <string name="title_notification_settings">Configurações de notificações</string>
 
@@ -430,10 +429,6 @@
         <item>A cada 12 horas</item>
         <item>A cada 24 horas</item>
     </string-array>
-
-    <!-- __SKIPPY -->
-    <string name="pref_extras_skippy">Forçar Player Experimental</string>
-    <string name="pref_extras_skippy_desc">Tocar todas as faixas com o player experimental. Será aplicado ao tocar a próxima faixa.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d seg.</string>

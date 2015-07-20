@@ -8,7 +8,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -131,7 +130,7 @@ public class PlaySessionSourceTest {
         original.writeToParcel(parcel, 0);
 
         PlaySessionSource copy = new PlaySessionSource(parcel);
-        expect(copy.isFromPromotedTrack()).toBeFalse();
+        expect(copy.isFromPromotedItem()).toBeFalse();
         expect(copy.isFromQuery()).toBeFalse();
     }
 

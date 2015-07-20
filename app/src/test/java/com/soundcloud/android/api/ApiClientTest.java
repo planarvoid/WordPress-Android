@@ -1,7 +1,9 @@
 package com.soundcloud.android.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -64,6 +66,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(deviceHelper.getUserAgent()).thenReturn("");
         when(deviceHelper.hasUdid()).thenReturn(true);
         when(deviceHelper.getUdid()).thenReturn("my-udid");
+        when(deviceHelper.getAppVersionCode()).thenReturn(0);
         when(adIdHelper.getAdId()).thenReturn("my-adid");
         when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
@@ -358,7 +361,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
-        when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(new UnknownResource());
+        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(new UnknownResource());
         ApiRequest request = ApiRequest.get(URL)
                 .forPrivateApi(1)
                 .build();

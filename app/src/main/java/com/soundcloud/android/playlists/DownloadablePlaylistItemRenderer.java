@@ -1,10 +1,13 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 
 import android.content.res.Resources;
@@ -21,8 +24,12 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
     public DownloadablePlaylistItemRenderer(Resources resources,
                                             ImageOperations imageOperations,
                                             PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                            FeatureOperations featureOperations) {
-        super(resources, imageOperations, playlistItemMenuPresenter);
+                                            FeatureOperations featureOperations,
+                                            EventBus eventBus,
+                                            ScreenProvider screenProvider,
+                                            Navigator navigator) {
+
+        super(resources, imageOperations, playlistItemMenuPresenter, eventBus, screenProvider, navigator);
         this.featureOperations = featureOperations;
         allowOfflineOptions();
     }

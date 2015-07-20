@@ -37,7 +37,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject DownloadNotificationController notificationController;
     @Inject OfflineContentScheduler offlineContentScheduler;
-    @Inject DownloadStatePublisher publisher;
+    @Inject OfflineStatePublisher publisher;
 
     @Inject DownloadQueue queue;
     @Inject DownloadHandler.Builder builder;
@@ -85,7 +85,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                           DownloadNotificationController notificationController,
                           OfflineContentScheduler offlineContentScheduler,
                           DownloadHandler.Builder builder,
-                          DownloadStatePublisher publisher,
+                          OfflineStatePublisher publisher,
                           DownloadQueue queue) {
         this.downloadOperations = downloadOps;
         this.offlineContentOperations = offlineContentOperations;

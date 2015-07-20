@@ -31,7 +31,6 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
         setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
-        setRequiredDisabledFeatures(Flag.STATIONS);
 
         menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
@@ -61,7 +60,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
 
         assertThat(playerElement, is(not(visible())));
         assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_play_related_tracks)));
@@ -70,7 +69,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartRadio() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
 
         assertThat(player, is(visible()));
     }

@@ -5,19 +5,21 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -153,7 +155,22 @@ public class SoundStreamPresenterTest {
 
         presenter.onItemClicked(view, 0);
 
-        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackingEvent.class);
+    }
+
+    @Test
+    public void tracksPromotedPlaylistItemClick() {
+        final PromotedPlaylistItem clickedPlaylist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        final List<Urn> streamTrackUrns = Arrays.asList(clickedPlaylist.getEntityUrn(), Urn.forTrack(634L));
+        final Observable<List<Urn>> streamTracks = Observable.just(streamTrackUrns);
+
+        when(adapter.getItem(0)).thenReturn(clickedPlaylist);
+        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+
+        presenter.onItemClicked(view, 0);
+
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackingEvent.class);
+        verify(itemClickListener).onItemClick(streamTracks, view, 0, clickedPlaylist);
     }
 
     @Test
@@ -171,7 +188,7 @@ public class SoundStreamPresenterTest {
 
         verify(playbackOperations).playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), captor.capture());
         PlaySessionSource sessionSource = captor.getValue();
-        expect(sessionSource.isFromPromotedTrack()).toBeTrue();
+        expect(sessionSource.isFromPromotedItem()).toBeTrue();
     }
 
     @Test

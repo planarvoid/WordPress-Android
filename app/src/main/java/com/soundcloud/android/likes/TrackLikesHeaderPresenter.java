@@ -131,7 +131,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         foregroundSubscription = new CompositeSubscription(
                 likesDownloadState()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new DownloadStateSubscriber()),
+                        .subscribe(new OfflineStateSubscriber()),
                 offlineContentOperations
                         .getOfflineLikedTracksStatusChanges()
                         .observeOn(AndroidSchedulers.mainThread())
@@ -143,7 +143,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         final Observable<OfflineState> downloadStateFromCurrentDownload =
                 eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
                         .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
-                        .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE);
+                        .map(CurrentDownloadEvent.TO_OFFLINE_STATE);
         return offlineContentOperations
                 .getLikedTracksDownloadStateFromStorage()
                 .concatWith(downloadStateFromCurrentDownload);
@@ -182,7 +182,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<OfflineState> {
+    private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
             if (featureOperations.isOfflineContentEnabled()) {

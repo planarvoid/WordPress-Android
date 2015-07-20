@@ -13,6 +13,8 @@ import org.apache.http.HttpStatus;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,9 @@ class SimpleTrackingApi implements TrackingApi {
                 } finally {
                     response.body().close();
                 }
+            } catch (MalformedURLException e) {
+                ErrorUtils.handleSilentException(EventTracker.TAG, new Exception(event.toString(), e));
+                successes.add(event); // no point in trying this event again
             } catch (IOException e) {
                 Log.w(EventTracker.TAG, "Failed with IOException pushing event: " + event, e);
             }
@@ -67,9 +72,9 @@ class SimpleTrackingApi implements TrackingApi {
         return successes;
     }
 
-    private Request buildRequest(TrackingRecord event) throws IOException {
+    private Request buildRequest(TrackingRecord event) throws MalformedURLException {
         final Request.Builder request = new Request.Builder();
-        request.url(event.getData());
+        request.url(new URL(event.getData()));
         request.addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
 
         if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {

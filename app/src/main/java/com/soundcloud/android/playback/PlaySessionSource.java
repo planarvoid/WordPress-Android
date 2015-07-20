@@ -103,7 +103,7 @@ public class PlaySessionSource implements Parcelable {
         return searchQuerySourceInfo != null;
     }
 
-    public boolean isFromPromotedTrack() {
+    public boolean isFromPromotedItem() {
         return promotedSourceInfo != null;
     }
 

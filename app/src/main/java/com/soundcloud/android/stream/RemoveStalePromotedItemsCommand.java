@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, WriteResult, List<Long>> {
+public class RemoveStalePromotedItemsCommand extends WriteStorageCommand<Void, WriteResult, List<Long>> {
 
     @VisibleForTesting
     static final long STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(50);
@@ -27,7 +27,7 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
     private List<Long> removeItems = Collections.emptyList();
 
     @Inject
-    protected RemoveStalePromotedTracksCommand(PropellerDatabase propeller, DateProvider dateProvider) {
+    protected RemoveStalePromotedItemsCommand(PropellerDatabase propeller, DateProvider dateProvider) {
         super(propeller);
         this.dateProvider = dateProvider;
     }
@@ -36,14 +36,17 @@ public class RemoveStalePromotedTracksCommand extends WriteStorageCommand<Void, 
     protected WriteResult write(PropellerDatabase propeller, Void input) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
-            public void steps(PropellerDatabase propeller) {
+            public void steps(PropellerDatabase db) {
                 final long staleItemCutoff = dateProvider.getCurrentTime() - STALE_TIME_MILLIS;
                 final Where whereClause = filter().whereLt(TableColumns.PromotedTracks.CREATED_AT, staleItemCutoff);
-                removeItems = propeller.query(Query.from(Table.PromotedTracks.name()).select(TableColumns.PromotedTracks._ID).where(whereClause)).toList(RxResultMapper.scalar(Long.class));
+                removeItems = db.query(Query.from(Table.PromotedTracks.name())
+                        .select(TableColumns.PromotedTracks._ID)
+                        .where(whereClause))
+                        .toList(RxResultMapper.scalar(Long.class));
                 if (!removeItems.isEmpty()){
                     for (Long id : removeItems) {
-                        step(propeller.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id)));
-                        step(propeller.delete(Table.PromotedTracks, filter().whereEq(TableColumns.PromotedTracks._ID, id)));
+                        step(db.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id)));
+                        step(db.delete(Table.PromotedTracks, filter().whereEq(TableColumns.PromotedTracks._ID, id)));
                     }
                 }
             }

@@ -120,10 +120,15 @@ class PlaybackSessionAnalyticsController {
                 }
 
                 PlaySessionSource source = playQueueManager.getCurrentPlaySessionSource();
-                if (source.isFromPromotedTrack()) {
+                if (source.isFromPromotedItem()) {
                     PromotedSourceInfo promotedSourceInfo = source.getPromotedSourceInfo();
                     lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
-                    source.clearPromotedSourceInfo();
+                    if (!source.isFromPlaylist()) {
+                        // promoted tracks & ads are a one-time deal but we need to preserve promoted playlists
+                        // since they may contain more than one track and we need to report plays as promoted
+                        // for all tracks in these playlists
+                        source.clearPromotedSourceInfo();
+                    }
                 }
                 return lastSessionEventData;
             }

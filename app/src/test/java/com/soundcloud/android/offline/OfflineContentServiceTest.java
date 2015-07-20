@@ -33,7 +33,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
     @Mock private Notification notification;
-    @Mock private DownloadStatePublisher publisher;
+    @Mock private OfflineStatePublisher publisher;
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);

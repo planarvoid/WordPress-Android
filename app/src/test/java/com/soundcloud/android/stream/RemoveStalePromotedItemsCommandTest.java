@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest {
+public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest {
 
-    private RemoveStalePromotedTracksCommand command;
+    private RemoveStalePromotedItemsCommand command;
 
     @Mock private DateProvider dateProvider;
 
@@ -23,13 +23,13 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
 
     @Before
     public void setUp() throws Exception {
-        command = new RemoveStalePromotedTracksCommand(propeller(), dateProvider);
+        command = new RemoveStalePromotedItemsCommand(propeller(), dateProvider);
     }
 
     @Test
     public void removesStalePromotedTrackAndReportsChange() throws Exception {
         testFixtures().insertPromotedTrackMetadata(123, now);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS + 1);
+        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
 
         assertThat(command.call(null)).containsExactly(123L);
         expectPromotedTrackItemCountToBe(0);
@@ -38,7 +38,7 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
     @Test
     public void removesStalePromotedTrackFromStreamAndReportsChange() throws Exception {
         testFixtures().insertPromotedStreamTrack(testFixtures().insertTrack(), now, 123L);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS + 1);
+        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
 
         assertThat(command.call(null)).containsExactly(123L);
         expectStreamItemCountToBe(0);
@@ -47,7 +47,7 @@ public class RemoveStalePromotedTracksCommandTest extends StorageIntegrationTest
     @Test
     public void doesNotRemovesNotStalePromotedTrackAndReportsNoChange() throws Exception {
         testFixtures().insertPromotedTrackMetadata(123, now);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedTracksCommand.STALE_TIME_MILLIS);
+        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS);
 
         assertThat(command.call(null)).isEmpty();
         expectPromotedTrackItemCountToBe(1);

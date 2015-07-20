@@ -139,8 +139,9 @@ public class ConfigurationOperations {
                 Log.d(TAG, "Unauthorized device, logging out");
                 deviceManagementStorage.setDeviceConflict();
                 fireAndForget(accountOperations.logout().flatMap(clearOfflineContent));
+            } else {
+                saveConfiguration(configuration);
             }
-            saveConfiguration(configuration);
         }
     }
 

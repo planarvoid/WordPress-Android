@@ -399,7 +399,6 @@
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">حول</string>
     <string name="title_legal">قانوني</string>
-    <string name="pref_extras">إضافات</string>
     <string name="title_offline_settings">إعدادات المزامنة دون اتصال</string>
     <string name="title_notification_settings">إعدادات الإخطار</string>
 
@@ -428,10 +427,6 @@
         <item>كل 12 ساعة</item>
         <item>كل 24 ساعة</item>
     </string-array>
-
-    <!-- __SKIPPY -->
-    <string name="pref_extras_skippy">إجبار المشغل التجريبي</string>
-    <string name="pref_extras_skippy_desc">تشغيل كافة المسارات باستخدام المشغل التجريبي. سوف يتم تطبيق ذلك عند تشغيل المسار التالي.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d ثانية</string>

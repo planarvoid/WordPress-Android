@@ -150,7 +150,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         publishPlayingEvent();
 
-        assertThat(source.isFromPromotedTrack()).isFalse();
+        assertThat(source.isFromPromotedItem()).isFalse();
     }
 
     @Test

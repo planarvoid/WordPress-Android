@@ -12,7 +12,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PromotedTrackEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -74,8 +74,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleSearchEvent((SearchEvent) event);
         } else if (event instanceof ForegroundEvent) {
             handleForegroundEvent((ForegroundEvent) event);
-        } else if (event instanceof PromotedTrackEvent) {
-            handlePromotedEvent((PromotedTrackEvent) event);
+        } else if (event instanceof PromotedTrackingEvent) {
+            handlePromotedEvent((PromotedTrackingEvent) event);
         } else if (event instanceof MidTierTrackEvent) {
             handleMidTierTrackEvent((MidTierTrackEvent) event);
         }
@@ -104,7 +104,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    private void handlePromotedEvent(PromotedTrackEvent eventData) {
+    private void handlePromotedEvent(PromotedTrackingEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilder.build(eventData));
     }
 
