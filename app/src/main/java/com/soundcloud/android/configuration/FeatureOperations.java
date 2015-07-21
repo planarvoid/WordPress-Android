@@ -37,14 +37,21 @@ public class FeatureOperations {
 
     public boolean upsellOfflineContent() {
         return !isOfflineContentEnabled()
-                && featureStorage.getPlans(FeatureName.OFFLINE_SYNC).contains(Plan.MID_TIER)
-                && planStorage.getUpsells().contains(Plan.MID_TIER);
+                && isFeatureAvailableViaUpgrade(FeatureName.OFFLINE_SYNC);
     }
 
     public boolean upsellRemoveAudioAds() {
         return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)
-                && featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS).contains(Plan.MID_TIER)
+                && isFeatureAvailableViaUpgrade(FeatureName.REMOVE_AUDIO_ADS);
+    }
+
+    private boolean isFeatureAvailableViaUpgrade(String featureName) {
+        return isFeatureAvailableInPlan(featureName, Plan.MID_TIER)
                 && planStorage.getUpsells().contains(Plan.MID_TIER);
+    }
+
+    private boolean isFeatureAvailableInPlan(String featureName, String plan) {
+        return featureStorage.getPlans(featureName).contains(plan);
     }
 
     public boolean upsellMidTier() {
