@@ -30,7 +30,7 @@ class WhyAdsDialogPresenter {
     }
 
     private void configureButtons(final Activity activity, AlertDialog.Builder dialog) {
-        if (featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellRemoveAudioAds()) {
             dialog.setPositiveButton(R.string.upsell_remove_ads, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
