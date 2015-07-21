@@ -182,6 +182,11 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
+    public void precacheTrackArtwork(Urn track, ApiImageSize apiImageSize) {
+        String url = buildUrlIfNotPreviouslyMissing(track, apiImageSize);
+        imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
+    }
+
     private void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
         imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
@@ -321,10 +326,10 @@ public class ImageOperations {
     }
 
     @Nullable
-    public Bitmap decodeResource(Resources resources, int resId){
+    public Bitmap decodeResource(Resources resources, int resId) {
         try {
             return BitmapFactory.decodeResource(resources, resId);
-        } catch (OutOfMemoryError e){
+        } catch (OutOfMemoryError e) {
             e.printStackTrace();
             return null;
         }

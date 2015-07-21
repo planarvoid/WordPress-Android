@@ -42,6 +42,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
+    @Mock private OfflineArtworkLoader artworkLoader;
 
     private DownloadOperations operations;
 
@@ -53,7 +54,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate());
+                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), artworkLoader);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -71,9 +72,10 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, response);
+        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, artworkLoader, response);
         inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
         inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        inOrder.verify(artworkLoader).fetchTrackArtwork(downloadRequest.track);
         inOrder.verify(response).close();
     }
 
@@ -102,7 +104,8 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     public void returnsDownloadFailedWhenEncryptionFailed() throws IOException, EncryptionException {
         final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
-        doThrow(encryptionException).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        doThrow(encryptionException).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream),
+                any(Encryptor.EncryptionProgressListener.class));
 
         assertThat(operations.download(downloadRequest, listener).isSuccess()).isFalse();
     }
@@ -144,12 +147,23 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void cancelledDownloadReturnsDownloadCancelledResult() throws IOException, EncryptionException {
-        doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+    public void canceledDownloadReturnsDownloadCancelledResult() throws IOException, EncryptionException {
+        doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage)
+                .storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
 
         DownloadState result = operations.download(downloadRequest, listener);
 
         assertThat(result.isCancelled()).isTrue();
+    }
+
+    @Test
+    public void doesNotPrefetchArtworkWhenDownloadFailedOrWasCanceled() throws IOException, EncryptionException {
+        doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage)
+                .storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+
+        operations.download(downloadRequest, listener);
+
+        verifyZeroInteractions(artworkLoader);
     }
 
     @Test

@@ -36,6 +36,7 @@ class DownloadOperations {
     private final OfflineSettingsStorage offlineSettings;
     private final StreamUrlBuilder urlBuilder;
     private final Scheduler scheduler;
+    private final OfflineArtworkLoader artworkLoader;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -52,7 +53,8 @@ class DownloadOperations {
                        NetworkConnectionHelper connectionHelper,
                        OfflineSettingsStorage offlineSettings,
                        StreamUrlBuilder urlBuilder,
-                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                       OfflineArtworkLoader artworkLoader) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
@@ -61,6 +63,7 @@ class DownloadOperations {
         this.offlineSettings = offlineSettings;
         this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
+        this.artworkLoader = artworkLoader;
     }
 
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
@@ -93,11 +96,16 @@ class DownloadOperations {
         TrackFileResponse response = null;
         try {
             response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.track));
+
             if (response.isSuccess()) {
-                return saveFile(request, response, listener);
+                saveTrack(request, response, listener);
+                artworkLoader.fetchTrackArtwork(request.track);
+
+                return DownloadState.success(request);
             } else {
                 return mapFailureToDownloadResult(request, response);
             }
+
         } catch (EncryptionInterruptedException interrupted) {
             return DownloadState.canceled(request);
         } catch (EncryptionException encryptionException) {
@@ -126,7 +134,7 @@ class DownloadOperations {
         }
     }
 
-    private DownloadState saveFile(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
+    private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
         fileStorage.storeTrack(request.track, response.getInputStream(), new Encryptor.EncryptionProgressListener() {
@@ -135,8 +143,8 @@ class DownloadOperations {
                 listener.onProgress(totalProcessed);
             }
         });
+
         Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
-        return DownloadState.success(request);
     }
 
     public interface DownloadProgressListener {
