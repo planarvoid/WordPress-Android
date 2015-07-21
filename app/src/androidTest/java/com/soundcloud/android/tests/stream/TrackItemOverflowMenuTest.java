@@ -10,7 +10,6 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -32,16 +31,13 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
 
-        menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
         streamScreen = new StreamScreen(solo);
-
     }
 
     //FIXME: https://github.com/soundcloud/SoundCloud-Android/issues/2914
     public void ignore_testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-
         final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackOverflowButton().
                 clickAddToPlaylist().
                 clickCreateNewPlaylist();
@@ -51,7 +47,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testPlayRelatedTracks() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
 
         assertThat(player, is(visible()));
     }
@@ -67,23 +63,4 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
 
         networkManagerClient.switchWifiOn();
     }
-
-    public void testStartRadio() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
-
-        assertThat(player, is(visible()));
-    }
-
-    public void testStartRadioVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
-        toastObserver.observe();
-        networkManagerClient.switchWifiOff();
-
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
-
-        assertThat(playerElement, is(not(visible())));
-        assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_radio)));
-
-        networkManagerClient.switchWifiOn();
-    }
-
 }
