@@ -105,7 +105,8 @@ public class ApiRequest {
 
     public enum Param {
         PAGE_SIZE("limit"),
-        OAUTH_TOKEN("oauth_token");
+        OAUTH_TOKEN("oauth_token"),
+        LOCALE("locale");
 
         private final String parameter;
 
@@ -133,6 +134,7 @@ public class ApiRequest {
         private Object content;
         private List<FormPart> formParts;
         private ProgressListener progressListener;
+        private Locale locale;
 
         public Builder(String uri, String methodName) {
             this.parameters = UriUtils.getQueryParameters(uri);
@@ -176,6 +178,18 @@ public class ApiRequest {
 
         public Builder addQueryParam(Param param, Object... values) {
             return addQueryParam(param.parameter, values);
+        }
+
+        public Builder addLocaleQueryParam() {
+            this.locale = Locale.getDefault();
+
+            if (locale.getLanguage().isEmpty() || locale.getCountry().isEmpty()) {
+                return this;
+            } else if (locale.getVariant().isEmpty()) {
+                return addQueryParam(Param.LOCALE, locale.getLanguage() + "-" + locale.getCountry());
+            } else {
+                return addQueryParam(Param.LOCALE, locale.getLanguage() + "-" + locale.getCountry() + "-" + locale.getVariant());
+            }
         }
 
         public Builder withContent(Object content) {
