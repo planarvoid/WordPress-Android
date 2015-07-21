@@ -32,7 +32,11 @@ public class DownloadHandler extends Handler {
     }
 
     public Urn getCurrentTrack() {
-        return current != null ? current.track : Urn.NOT_SET;
+        return isDownloading() ? current.track : Urn.NOT_SET;
+    }
+
+    public DownloadRequest getCurrentRequest() {
+        return current;
     }
 
     interface Listener {

@@ -237,6 +237,17 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void republishDownloadingWhenRestartingService() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        setUpsDownloads(downloadRequest2);
+
+        startService();
+
+        verify(publisher).publishDownloading(downloadRequest1);
+    }
+
+    @Test
     public void updatesNotificationWhenTrackDownloaded() {
         service.onSuccess(downloadState1);
 

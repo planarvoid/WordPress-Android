@@ -249,6 +249,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private void startDownloadIfNecessary() {
         if (!downloadHandler.isDownloading()) {
             downloadNextOrFinish(null);
+        } else {
+            publisher.publishDownloading(downloadHandler.getCurrentRequest());
         }
     }
 
