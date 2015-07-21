@@ -61,6 +61,7 @@ public class AdsOperations {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest request = ApiRequest.get(endpoint)
                 .forPrivateApi(1)
+                .addLocaleQueryParam()
                 .build();
 
         return apiClientRx.mappedResponse(request, ApiAdsForTrack.class)

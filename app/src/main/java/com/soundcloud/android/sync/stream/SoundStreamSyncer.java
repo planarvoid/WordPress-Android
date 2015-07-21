@@ -87,6 +87,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(ApiEndpoints.STREAM.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
+                        .addLocaleQueryParam()
                         .forPrivateApi(1);
 
         ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
