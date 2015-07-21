@@ -40,13 +40,13 @@
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="@dimen/tour_buttons_height"
                       android:layout_marginTop="10dip">
-            <Button style="@style/Tour.Button"
+            <Button style="@style/Tour.CancelButton"
                     android:id="@+id/btn_cancel"
                     android:text="@string/cancel"
                     android:layout_height="@dimen/tour_buttons_height"
                     android:layout_marginRight="10dip"/>
 
-            <Button style="@style/Tour.Button"
+            <Button style="@style/Tour.NextButton"
                     android:id="@+id/btn_login"
                     android:text="@string/done"
                     android:layout_height="@dimen/tour_buttons_height"/>

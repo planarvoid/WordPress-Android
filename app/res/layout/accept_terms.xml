@@ -17,13 +17,15 @@
                       android:layout_marginTop="10dp"
                       android:orientation="horizontal">
             <Button android:id="@+id/btn_cancel"
-                    style="@style/Tour.TermsButton"
+                    style="@style/Tour.CancelButton"
                     android:layout_marginRight="20dp"
                     android:layout_width="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@android:string/cancel"/>
             <Button android:id="@+id/btn_accept_terms"
-                    style="@style/Tour.TermsButton"
+                    style="@style/Tour.NextButton"
                     android:layout_width="wrap_content"
+                    android:minWidth="100dp"
                     android:text="@string/btn_continue"/>
         </LinearLayout>
     </LinearLayout>
