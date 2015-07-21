@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx;
 
+import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.android.LegacyPager;
 

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.Pager;
+import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
