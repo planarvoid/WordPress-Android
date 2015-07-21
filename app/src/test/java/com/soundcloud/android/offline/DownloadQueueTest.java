@@ -50,7 +50,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getRequestedReturnsAnEmptyListWhenPlaylistsFrmTheResultAreNotInTheQueue() {
+    public void getRequestedReturnsAnEmptyListWhenPlaylistsFromTheResultAreNotInTheQueue() {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
