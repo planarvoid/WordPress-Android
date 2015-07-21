@@ -22,10 +22,6 @@ public class FeatureOperations {
         featureStorage.update(features);
     }
 
-    public void updateFeature(Feature feature) {
-        featureStorage.update(feature);
-    }
-
     public void updatePlan(String plan, List<String> upsells) {
         planStorage.updatePlan(plan);
         planStorage.updateUpsells(upsells);
@@ -42,6 +38,12 @@ public class FeatureOperations {
     public boolean upsellOfflineContent() {
         return !isOfflineContentEnabled()
                 && featureStorage.getPlans(FeatureName.OFFLINE_SYNC).contains(Plan.MID_TIER)
+                && planStorage.getUpsells().contains(Plan.MID_TIER);
+    }
+
+    public boolean upsellRemoveAudioAds() {
+        return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)
+                && featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS).contains(Plan.MID_TIER)
                 && planStorage.getUpsells().contains(Plan.MID_TIER);
     }
 

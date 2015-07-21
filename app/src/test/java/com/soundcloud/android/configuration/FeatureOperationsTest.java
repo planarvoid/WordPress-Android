@@ -86,6 +86,41 @@ public class FeatureOperationsTest {
     }
 
     @Test
+    public void upsellRemoveAdsIfAvailableForMidTierAndMidTierIsAvailable() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.MID_TIER));
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
+
+        assertThat(featureOperations.upsellRemoveAudioAds()).isTrue();
+    }
+
+    @Test
+    public void doNotUpsellRemoveAdsIfAvailableForMidTierButMidTierIsNotAvailable() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.MID_TIER));
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<String>());
+
+        assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
+    }
+
+    @Test
+    public void doNotUpsellRemoveAdsIfUnavailableForMidTier() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<String>());
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
+
+        assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
+    }
+
+    @Test
+    public void doNotUpsellRemoveAdsIfAlreadyEnabled() {
+        when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(true);
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.MID_TIER));
+
+        assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
+    }
+
+    @Test
     public void getPlanReturnsStoredPlan() {
         when(planStorage.getPlan()).thenReturn(Plan.MID_TIER);
 
