@@ -18,11 +18,11 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -141,24 +141,31 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         showPublicOptions(playlistWithTracks);
         showShuffleOption(playlistWithTracks);
-        updateOfflineAvailability();
 
-        offlineStateSubscription.unsubscribe();
-        offlineStateSubscription = new CompositeSubscription();
+        updateOfflineAvailability();
+        subscribeForOfflineContentUpdates();
+    }
+
+    private void subscribeForOfflineContentUpdates() {
         if (featureOperations.isOfflineContentEnabled()) {
-            offlineStateSubscription.add(eventBus
-                    .queue(EventQueue.CURRENT_DOWNLOAD)
-                    .filter(isPlaylist(playlistWithTracks))
-                    .map(CurrentDownloadEvent.TO_OFFLINE_STATE)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new OfflineStateSubscriber()));
+
+            offlineStateSubscription = new CompositeSubscription();
+            offlineStateSubscription.add(
+                    eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                            .filter(isPlaylist(playlistWithTracks))
+                            .map(CurrentDownloadEvent.TO_OFFLINE_STATE)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .startWith(playlistWithTracks.getDownloadState())
+                            .subscribe(new OfflineStateSubscriber()));
+
+            offlineStateSubscription.add(
+                    eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                            .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
+                            .map(EntityStateChangedEvent.TO_SINGULAR_CHANGE)
+                            .filter(isCurrentPlaylist(playlistWithTracks))
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new OfflineStatusSubscriber()));
         }
-        offlineStateSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
-                .map(EntityStateChangedEvent.TO_SINGULAR_CHANGE)
-                .filter(isCurrentPlaylist(playlistWithTracks))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OfflineStatusSubscriber()));
     }
 
     private void showShuffleOption(PlaylistWithTracks playlistWithTracks) {
@@ -203,7 +210,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private void updateOfflineAvailability() {
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
-            playlistEngagementsView.show(playlistWithTracks.getDownloadState());
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
