@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApiRequestTest extends AndroidUnitTest {
@@ -122,6 +123,50 @@ public class ApiRequestTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldAddValidLocaleParameter() {
+        setLocale("en", "CA", "");
+        ApiRequest request = validRequest(URI_PATH)
+                .addLocaleQueryParam()
+                .build();
+
+        final Multimap<String, String> queryParameters = request.getQueryParameters();
+        expect(queryParameters.get("locale")).toContainExactly("en-CA");
+    }
+
+    @Test
+    public void shouldAddValidLocaleParameterWithVariant() {
+        setLocale("sl", "IT", "nedis");
+        ApiRequest request = validRequest(URI_PATH)
+                .addLocaleQueryParam()
+                .build();
+
+        final Multimap<String, String> queryParameters = request.getQueryParameters();
+        expect(queryParameters.get("locale")).toContainExactly("sl-IT-nedis");
+    }
+
+    @Test
+    public void shouldNotAddLocaleParameterIfMissingCountry() {
+        setLocale("en", "", "");
+        ApiRequest request = validRequest(URI_PATH)
+                .addLocaleQueryParam()
+                .build();
+
+        final Multimap<String, String> queryParameters = request.getQueryParameters();
+        expect(queryParameters.get("locale")).toBeEmpty();
+    }
+
+    @Test
+    public void shouldNotAddLocaleParameterIfMissingLanguage() {
+        setLocale("", "US", "");
+        ApiRequest request = validRequest(URI_PATH)
+                .addLocaleQueryParam()
+                .build();
+
+        final Multimap<String, String> queryParameters = request.getQueryParameters();
+        expect(queryParameters.get("locale")).toBeEmpty();
+    }
+
+    @Test
     public void remembersAddedHeaders() {
         ApiRequest request = validRequest(URI_PATH)
                 .withHeader("sc-udid", "abc123")
@@ -171,5 +216,10 @@ public class ApiRequestTest extends AndroidUnitTest {
 
     private ApiRequest.Builder validRequest(String uri) {
         return ApiRequest.get(uri).forPrivateApi(1);
+    }
+
+    private void setLocale(String language, String country, String variant) {
+        Locale locale = new Locale(language, country, variant);
+        Locale.setDefault(locale);
     }
 }
