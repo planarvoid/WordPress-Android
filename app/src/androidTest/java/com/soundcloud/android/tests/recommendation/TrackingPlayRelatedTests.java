@@ -25,7 +25,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         super.setUp();
     }
 
-    public void testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
+    public void ignore_testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
         final VisualPlayerElement player = menuScreen
                 .open()
                 .clickPlaylists()
