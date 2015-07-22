@@ -194,7 +194,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {
-            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
+            PlaylistDetailActivity.start(context, playable.getUrn(), Screen.ACTIVITIES);
         }
     }
 
