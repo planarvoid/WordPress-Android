@@ -30,28 +30,28 @@ public class MenuScreen {
         return new SettingsScreen(testDriver);
     }
 
-    private ListElement menuContainer() {
-        return testDriver.findElement(With.id(R.id.nav_list)).toListView();
+    private ViewElement menuContainer() {
+        return testDriver.findElement(With.id(R.id.nav_list));
     }
 
     protected ViewElement userProfileMenuItem() {
-        return menuContainer().getItemAt(0);
+        return menuContainer().getChildAt(0);
     }
 
     private ViewElement streamMenuItem() {
-        return menuContainer().getItemAt(1);
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_stream)));
     }
 
     protected ViewElement exploreMenuItem() {
-        return menuContainer().getItemAt(2);
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_explore)));
     }
 
     protected ViewElement likesMenuItem() {
-        return menuContainer().getItemAt(3);
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_likes)));
     }
 
     protected ViewElement playlistsMenuItem() {
-        return menuContainer().getItemAt(4);
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_playlists)));
     }
 
     protected ViewElement usernameLabel() {
