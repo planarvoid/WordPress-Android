@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 44;
+    public static final int DATABASE_VERSION = 45;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -87,6 +87,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 44:
                             success = upgradeTo44(db, oldVersion);
                             break;
+                        case 45:
+                            success = upgradeTo45(db, oldVersion);
                         default:
                             break;
                     }
@@ -137,6 +139,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo37(SQLiteDatabase db, int oldVersion) {
         try {
             Table.PlaylistTracks.alterColumns(db);
+            return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 37);
         }
@@ -171,7 +174,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.PlaylistTracksView.recreate(db);
             Table.SoundStreamView.recreate(db);
             Table.ActivityView.recreate(db);
-            
+
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 39);
@@ -225,6 +228,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo43(SQLiteDatabase db, int oldVersion) {
         try {
             Table.PromotedTracks.alterColumns(db);
+            return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 43);
         }
@@ -242,6 +246,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 44);
+        }
+        return false;
+    }
+
+    /**
+     * Add waveforms table
+     */
+    private static boolean upgradeTo45(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.Waveforms.create(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 45);
         }
         return false;
     }

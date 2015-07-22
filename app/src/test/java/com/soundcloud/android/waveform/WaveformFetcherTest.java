@@ -1,6 +1,6 @@
 package com.soundcloud.android.waveform;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -9,15 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observer;
-import rx.schedulers.Schedulers;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -26,8 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-@RunWith(SoundCloudTestRunner.class)
-public class WaveformFetcherTest {
+public class WaveformFetcherTest extends AndroidUnitTest {
 
     private static final String WAVEFORM_URL = "https://w1.sndcdn.com/H9uGzKOYK5Ph_m.png";
     private static final String TRANSFORMED_WAVEFORM_URL = "http://wis.sndcdn.com/H9uGzKOYK5Ph_m.png";
@@ -45,7 +42,7 @@ public class WaveformFetcherTest {
 
     @Before
     public void setUp() throws Exception {
-        fetcher = new WaveformFetcher(Schedulers.immediate(), context, waveformConnectionFactory);
+        fetcher = new WaveformFetcher(context, waveformConnectionFactory);
         when(waveformConnectionFactory.create(TRANSFORMED_WAVEFORM_URL)).thenReturn(urlConnection);
         when(context.getAssets()).thenReturn(assets);
     }
@@ -73,7 +70,7 @@ public class WaveformFetcherTest {
         setupValidWaveformResponse();
 
         WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
-        expect(waveformData).not.toBeNull();
+        assertThat(waveformData).isNotNull();
     }
 
     @Test
@@ -81,7 +78,7 @@ public class WaveformFetcherTest {
         setupValidWaveformResponse();
 
         WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
-        expect(waveformData.maxAmplitude).toEqual(140);
+        assertThat(waveformData.maxAmplitude).isEqualTo(140);
     }
 
     @Test
@@ -115,7 +112,7 @@ public class WaveformFetcherTest {
         final byte[] waveformBytes = VALID_WAVEFORM_DATA.getBytes(Charsets.UTF_8.name());
         when(assets.open("default_waveform.json")).thenReturn(new ByteArrayInputStream(waveformBytes));
 
-        expect(fetcher.fetchDefault().toBlocking().lastOrDefault(null)).not.toBe(null);
+        assertThat(fetcher.fetchDefault().toBlocking().lastOrDefault(null)).isNotNull();
     }
 
     @Test

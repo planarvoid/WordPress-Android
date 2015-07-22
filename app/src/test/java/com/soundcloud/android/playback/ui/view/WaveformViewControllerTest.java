@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -18,30 +18,29 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformOperations;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class WaveformViewControllerTest {
+public class WaveformViewControllerTest extends AndroidUnitTest {
 
     private static final float WAVEFORM_WIDTH_RATIO = 2.0f;
     private final PlaybackProgress playbackProgress = new PlaybackProgress(10, 100);
+    private final WaveformData waveformData = new WaveformData(1, new int[]{123, 123, 22});
 
     private WaveformViewController waveformViewController;
 
@@ -57,7 +56,6 @@ public class WaveformViewControllerTest {
     @Mock private ProgressController leftAnimationController;
     @Mock private ProgressController rightAnimationController;
     @Mock private ProgressController dragAnimationController;
-    @Mock private WaveformData waveformData;
     @Mock private Bitmap bitmap;
     @Mock private WaveformOperations waveformOperations;
     @Mock private AdOverlayController adOverlayController;
@@ -79,7 +77,7 @@ public class WaveformViewControllerTest {
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
         waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
-               Schedulers.immediate()).create(waveformView);
+                Schedulers.immediate()).create(waveformView);
     }
 
     @Test
@@ -238,19 +236,19 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void onWaveformWidthSetsWaveformTranslationsToHalfWidthAndZero(){
+    public void onWaveformWidthSetsWaveformTranslationsToHalfWidthAndZero() {
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(waveformView).setWaveformTranslations(250, 0);
     }
 
     @Test
-    public void onWaveformWidthSetsLeftAnimationBoundsToMiddleAndMiddleMinusWidth(){
+    public void onWaveformWidthSetsLeftAnimationBoundsToMiddleAndMiddleMinusWidth() {
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(leftAnimationController).setHelper(eq(new TranslateXHelper(250, -750)));
     }
 
     @Test
-    public void onWaveformWidthSetsRightAnimationBoundsToZeroAndNegativeWidth(){
+    public void onWaveformWidthSetsRightAnimationBoundsToZeroAndNegativeWidth() {
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(rightAnimationController).setHelper(eq(new TranslateXHelper(0, -1000)));
     }
@@ -310,13 +308,13 @@ public class WaveformViewControllerTest {
 
     @Test
     public void resetRemovesReferenceToPreviousObservable() {
-        TestObservables.MockObservable<WaveformData> waveformDataObservable = TestObservables.emptyObservable();
+        PublishSubject<WaveformData> waveformDataObservable = PublishSubject.create();
         waveformViewController.setWaveform(waveformDataObservable, true);
 
         waveformViewController.reset();
         waveformViewController.onWaveformViewWidthChanged(500);
 
-        expect(waveformDataObservable.subscribedTo()).toBeFalse();
+        assertThat(waveformDataObservable.hasObservers()).isFalse();
     }
 
     @Test

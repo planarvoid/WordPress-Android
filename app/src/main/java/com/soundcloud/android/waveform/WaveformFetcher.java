@@ -1,13 +1,10 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.Context;
@@ -18,30 +15,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
-class WaveformFetcher extends ScheduledOperations {
+class WaveformFetcher {
 
     private static final String DEFAULT_WAVEFORM_ASSET_FILE = "default_waveform.json";
     private static final String WAVEFORM_URL_PREFIX = "http://wis.sndcdn.com/%s";
     private static final String WIDTH = "width";
     private static final String HEIGHT = "height";
     private static final String SAMPLES = "samples";
-    private final WaveformConnectionFactory waveformConnectionFactory;
+
     private final Context context;
+    private final WaveformConnectionFactory waveformConnectionFactory;
 
     @Inject
     WaveformFetcher(Context context, WaveformConnectionFactory waveformConnectionFactory) {
-        this(ScSchedulers.HIGH_PRIO_SCHEDULER, context, waveformConnectionFactory);
-    }
-
-    WaveformFetcher(Scheduler subscribeOn, Context context,
-                           WaveformConnectionFactory waveformConnectionFactory) {
-        super(subscribeOn);
         this.context = context;
         this.waveformConnectionFactory = waveformConnectionFactory;
     }
 
     Observable<WaveformData> fetch(final String waveformUrl) {
-        return schedule(Observable.create(new Observable.OnSubscribe<WaveformData>() {
+        return Observable.create(new Observable.OnSubscribe<WaveformData>() {
             @Override
             public void call(Subscriber<? super WaveformData> subscriber) {
                 try {
@@ -58,11 +50,11 @@ class WaveformFetcher extends ScheduledOperations {
                     subscriber.onError(e);
                 }
             }
-        }));
+        });
     }
 
     Observable<WaveformData> fetchDefault() {
-        return schedule(Observable.create(new Observable.OnSubscribe<WaveformData>() {
+        return Observable.create(new Observable.OnSubscribe<WaveformData>() {
             @Override
             public void call(Subscriber<? super WaveformData> subscriber) {
                 try {
@@ -72,10 +64,13 @@ class WaveformFetcher extends ScheduledOperations {
                     subscriber.onError(e);
                 }
             }
-        }));
+        });
     }
 
-    private static String transformWaveformUrl(String waveformUrl){
+    private static String transformWaveformUrl(String waveformUrl) {
+        if (waveformUrl == null) {
+            throw new IllegalStateException("Waveform URL is null");
+        }
         return String.format(WAVEFORM_URL_PREFIX, Uri.parse(waveformUrl).getLastPathSegment());
     }
 
