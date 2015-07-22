@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
 import android.app.Notification;

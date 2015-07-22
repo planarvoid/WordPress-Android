@@ -12,7 +12,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 

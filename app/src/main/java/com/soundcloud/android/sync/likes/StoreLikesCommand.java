@@ -5,8 +5,8 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;

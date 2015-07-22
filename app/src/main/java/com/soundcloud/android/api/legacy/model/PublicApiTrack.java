@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
@@ -21,7 +20,8 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;

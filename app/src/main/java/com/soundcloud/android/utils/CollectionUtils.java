@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;

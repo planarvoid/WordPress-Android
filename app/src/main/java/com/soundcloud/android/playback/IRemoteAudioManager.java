@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.graphics.Bitmap;

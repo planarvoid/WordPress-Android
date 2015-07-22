@@ -2,12 +2,11 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.api.legacy.InvalidTokenException;
-
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;

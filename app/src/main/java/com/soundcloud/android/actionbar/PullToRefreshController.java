@@ -12,7 +12,6 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

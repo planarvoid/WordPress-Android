@@ -2,7 +2,6 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
@@ -18,7 +17,8 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;
 

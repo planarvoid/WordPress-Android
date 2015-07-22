@@ -8,13 +8,11 @@ import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.RecyclerViewElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 
-import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.widget.ToggleButton;

@@ -10,7 +10,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.CollectionUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

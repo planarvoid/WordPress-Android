@@ -1,8 +1,8 @@
 package com.soundcloud.android.collections.tasks;
 
 
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.ScModel;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 
 class CollectionLoaderFactory {
 

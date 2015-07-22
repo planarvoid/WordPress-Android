@@ -6,15 +6,17 @@ import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.android.storage.TableColumns.SoundView.CREATED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -58,7 +60,7 @@ public class PlaylistPostStorage {
                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID))
-                .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC)
+                .order(CREATED_AT, DESC)
                 .limit(limit);
     }
 

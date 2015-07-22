@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

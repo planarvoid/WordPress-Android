@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Playa;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.view.View;
 import android.view.ViewGroup;

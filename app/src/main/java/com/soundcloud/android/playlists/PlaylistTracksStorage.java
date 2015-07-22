@@ -6,6 +6,7 @@ import static com.soundcloud.android.playlists.PlaylistMapper.readTrackCount;
 import static com.soundcloud.android.playlists.PlaylistStorage.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
@@ -16,6 +17,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -23,10 +25,10 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -100,7 +102,7 @@ class PlaylistTracksStorage {
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TrackPolicies.TRACK_ID))
                 .whereEq(Table.Sounds.field(Sounds._TYPE), Sounds.TYPE_TRACK)
                 .whereEq(PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
-                .order(Table.PlaylistTracks.field(PlaylistTracks.POSITION), Query.ORDER_ASC)
+                .order(Table.PlaylistTracks.field(POSITION), ASC)
                 .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
     }
 
@@ -123,7 +125,7 @@ class PlaylistTracksStorage {
                 .whereEq(Table.Posts.field(Posts.TYPE), Posts.TYPE_POST)
                 .whereEq(Table.SoundView.field(Sounds._TYPE), Sounds.TYPE_PLAYLIST)
                 .groupBy(Table.SoundView.field(SoundView._ID))
-                .order(Table.SoundView.field(SoundView.CREATED_AT), Query.ORDER_DESC);
+                .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.ASC);
     }
 
     private Query isTrackInPlaylist(Urn trackUrn) {

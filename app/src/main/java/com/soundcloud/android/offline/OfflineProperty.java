@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.propeller.Property;
+import com.soundcloud.java.collections.Property;
 
 public final class OfflineProperty {
     public static final Property<OfflineState> OFFLINE_STATE = Property.of(OfflineProperty.class, OfflineState.class);

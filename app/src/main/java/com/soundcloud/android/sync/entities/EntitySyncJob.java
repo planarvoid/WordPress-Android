@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GuavaFunctions;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

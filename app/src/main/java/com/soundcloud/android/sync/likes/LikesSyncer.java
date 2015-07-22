@@ -5,8 +5,8 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.PropertySetComparator;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerWriteException;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 
 import java.util.ArrayList;

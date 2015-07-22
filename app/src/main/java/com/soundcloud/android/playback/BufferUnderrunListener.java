@@ -10,6 +10,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+
 import android.text.TextUtils;
 
 import javax.inject.Inject;

@@ -1,12 +1,12 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 /**
  * The base interface for all presentation models that act as items in Android ListViews.
  * <p/>
- * ListItems should update their internal state from system events via {@link #update(com.soundcloud.propeller.PropertySet)}
+ * ListItems should update their internal state from system events via {@link #update(com.soundcloud.java.collections.PropertySet)}
  * and as such expose their public properties in terms of a backing property set.
  */
 public interface ListItem {

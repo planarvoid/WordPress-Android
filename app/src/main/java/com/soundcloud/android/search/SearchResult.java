@@ -1,12 +1,12 @@
 package com.soundcloud.android.search;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.Iterator;

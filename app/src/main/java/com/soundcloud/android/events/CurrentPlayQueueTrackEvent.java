@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 public final class CurrentPlayQueueTrackEvent {
     private static final int NEW_QUEUE = 0;

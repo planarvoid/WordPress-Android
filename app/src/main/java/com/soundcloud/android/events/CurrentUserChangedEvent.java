@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 public final class CurrentUserChangedEvent {

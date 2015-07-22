@@ -22,7 +22,7 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;

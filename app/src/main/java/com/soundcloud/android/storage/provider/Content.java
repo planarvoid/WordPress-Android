@@ -6,6 +6,8 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.Collecti
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
+import com.soundcloud.android.api.legacy.Endpoints;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
@@ -13,15 +15,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
-import com.soundcloud.android.api.legacy.Endpoints;
-import com.soundcloud.android.api.legacy.Request;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;

@@ -6,7 +6,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.content.res.Resources;
 import android.view.View;

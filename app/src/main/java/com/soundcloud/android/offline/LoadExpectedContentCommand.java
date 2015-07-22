@@ -6,8 +6,16 @@ import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
-import static com.soundcloud.android.storage.TableColumns.Sounds.*;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
+import static com.soundcloud.android.storage.TableColumns.Sounds.CREATED_AT;
+import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
+import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -82,7 +90,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                 .where(isDownloadable())
                 .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
-                .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC);
+                .order(Likes.field(TableColumns.Likes.CREATED_AT), DESC);
 
         return database.query(likesToDownload).toList(new LikedTrackMapper());
     }
@@ -107,7 +115,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         .whereEq(Sounds.field(_ID), OfflineContent.field(_ID))
                         .whereEq(Sounds.field(_TYPE), OfflineContent.field(_TYPE)))
                 .whereEq(Sounds.field(_TYPE), TYPE_PLAYLIST)
-                .order(Sounds.field(CREATED_AT), Query.ORDER_DESC);
+                .order(Sounds.field(CREATED_AT), DESC);
 
         final List<Long> playlistIds = database.query(orderedPlaylists).toList(RxResultMapper.scalar(Long.class));
 
@@ -124,8 +132,8 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .where(isDownloadable())
                 .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
-                .order(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), Query.ORDER_DESC)
-                .order(PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.ORDER_ASC);
+                .order(PlaylistTracks.field(PLAYLIST_ID), DESC)
+                .order(PlaylistTracks.field(POSITION), ASC);
 
         return database.query(playlistTracksToDownload).toList(new PlaylistTrackMapper());
     }

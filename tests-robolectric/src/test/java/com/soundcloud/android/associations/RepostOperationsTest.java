@@ -1,9 +1,9 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulChange;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulInsert;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -22,10 +22,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerWriteException;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;

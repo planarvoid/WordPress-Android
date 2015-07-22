@@ -8,15 +8,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.playback.PlayQueueItem;
-import com.soundcloud.android.playback.PlayQueueStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,10 +1,10 @@
 package com.soundcloud.android.commands;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;

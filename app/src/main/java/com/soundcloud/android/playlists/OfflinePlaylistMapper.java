@@ -1,9 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 
 public abstract class OfflinePlaylistMapper extends PlaylistMapper {
 

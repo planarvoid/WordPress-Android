@@ -1,6 +1,5 @@
 package com.soundcloud.android.explore;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
@@ -8,6 +7,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.LegacyPager;

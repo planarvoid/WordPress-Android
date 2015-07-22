@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 import android.provider.BaseColumns;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.utils;
 
-import com.soundcloud.propeller.Property;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.Property;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Comparator;
 

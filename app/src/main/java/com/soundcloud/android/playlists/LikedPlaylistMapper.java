@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 
 public class LikedPlaylistMapper extends OfflinePlaylistMapper {
 

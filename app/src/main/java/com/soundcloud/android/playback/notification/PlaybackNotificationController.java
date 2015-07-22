@@ -8,8 +8,8 @@ import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
-import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 

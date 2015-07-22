@@ -35,7 +35,7 @@ public class LoadPlaylistTrackUrnsCommand extends LegacyCommand<Urn, List<Urn>, 
                 .innerJoin(Table.Sounds.name(), whereTrackDataExists)
                 .select(field(TableColumns.PlaylistTracks.TRACK_ID).as(_ID))
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
-                .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC);
+                .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);
         return database.query(query).toList(new TrackUrnMapper());
     }
 

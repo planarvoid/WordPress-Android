@@ -3,12 +3,9 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 
-import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

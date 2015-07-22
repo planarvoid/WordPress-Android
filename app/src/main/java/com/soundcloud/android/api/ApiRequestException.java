@@ -15,8 +15,6 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_E
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpStatus;
 
-import android.support.annotation.Nullable;
-
 import java.io.IOException;
 
 public final class ApiRequestException extends Exception {

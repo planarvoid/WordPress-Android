@@ -1,8 +1,8 @@
 package com.soundcloud.android.commands;
 
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;

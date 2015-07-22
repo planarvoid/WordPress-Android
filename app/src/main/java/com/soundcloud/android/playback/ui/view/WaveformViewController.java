@@ -7,8 +7,8 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;

@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -12,6 +11,7 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;

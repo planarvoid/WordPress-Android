@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;

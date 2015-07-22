@@ -4,6 +4,7 @@ import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
+import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
@@ -12,7 +13,10 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOA
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
+import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
@@ -61,7 +65,7 @@ class TrackDownloadsStorage {
                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
-                .order(PlaylistTracks.field(POSITION), Query.ORDER_ASC);
+                .order(PlaylistTracks.field(POSITION), ASC);
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
@@ -76,7 +80,7 @@ class TrackDownloadsStorage {
                 .innerJoin(Likes.name(), TrackDownloads.field(_ID), Likes.field(_ID))
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
-                .order(Likes.field(CREATED_AT), Query.ORDER_DESC);
+                .order(Likes.field(CREATED_AT), DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
@@ -120,7 +124,7 @@ class TrackDownloadsStorage {
         return propellerRx.query(Query.from(Table.TrackPolicies.name())
                 .select(Table.TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED))
                 .innerJoin(Table.TrackDownloads.name(), Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID), Table.TrackDownloads.field(_ID))
-                .order(Table.TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), Query.ORDER_DESC))
+                .order(TrackPolicies.field(LAST_UPDATED), DESC))
                 .map(RxResultMapper.scalar(Long.class))
                 .take(1);
     }

@@ -1,5 +1,9 @@
 package com.soundcloud.android.analytics;
 
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -30,10 +34,6 @@ import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static android.util.Log.INFO;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 /**
  * The engine which drives sending analytics. It acts as an event broker which forwards system events relevant for

@@ -1,5 +1,12 @@
 package com.soundcloud.android.framework;
 
+import com.robotium.solo.By;
+import com.robotium.solo.Condition;
+import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.viewelements.DefaultViewElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -16,13 +23,6 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
-
-import com.robotium.solo.By;
-import com.robotium.solo.Condition;
-import com.robotium.solo.Solo;
-import com.soundcloud.android.framework.viewelements.DefaultViewElement;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.with.With;
 
 import java.util.ArrayList;
 import java.util.List;

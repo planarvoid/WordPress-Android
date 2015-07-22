@@ -2,10 +2,10 @@ package com.soundcloud.android.sync.stream;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

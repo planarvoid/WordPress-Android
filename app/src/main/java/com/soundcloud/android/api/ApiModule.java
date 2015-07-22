@@ -13,9 +13,8 @@ import dagger.Provides;
 
 import android.content.Context;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 @Module(complete = false, library = true)
 public class ApiModule {

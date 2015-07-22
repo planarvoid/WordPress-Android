@@ -1,27 +1,27 @@
 package com.soundcloud.android.sync.stream;
 
-import android.content.ContentValues;
+import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
+import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
+import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
+import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ScalarMapper;
 import com.soundcloud.propeller.query.Query;
 
-import java.util.List;
+import android.content.ContentValues;
 
-import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
-import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
-import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
-import static com.soundcloud.propeller.query.Filter.filter;
+import java.util.List;
 
 class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 

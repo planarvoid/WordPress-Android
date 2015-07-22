@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
@@ -11,7 +12,6 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
-import com.soundcloud.android.api.legacy.Request;
 
 import android.text.TextUtils;
 import android.util.Log;

@@ -1,5 +1,10 @@
 package com.soundcloud.android.tests.stations;
 
+import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
@@ -7,11 +12,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-
-import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class StartStationTest extends ActivityTest<LauncherActivity> {
     private StreamScreen streamScreen;

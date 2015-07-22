@@ -69,7 +69,7 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
                 .select(TableColumns.PlaylistTracks.TRACK_ID)
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
                 .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)
-                .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC);
+                .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);
     }
 
     @Override

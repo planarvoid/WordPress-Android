@@ -11,9 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.BufferingPlaya;
-import com.soundcloud.android.playback.Playa;
-import com.soundcloud.android.playback.StreamPlaya;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -21,7 +18,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

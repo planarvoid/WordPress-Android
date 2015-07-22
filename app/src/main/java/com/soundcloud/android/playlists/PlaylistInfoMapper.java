@@ -4,8 +4,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 
 public class PlaylistInfoMapper extends OfflinePlaylistMapper {
 

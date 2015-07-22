@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 import android.widget.Toast;

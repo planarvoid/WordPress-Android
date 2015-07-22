@@ -3,8 +3,8 @@ package com.soundcloud.android.sync.likes;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 class LikeMapper extends RxResultMapper<PropertySet> {

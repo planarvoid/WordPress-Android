@@ -2,11 +2,11 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

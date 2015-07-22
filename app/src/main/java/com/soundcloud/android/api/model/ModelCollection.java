@@ -1,8 +1,8 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 

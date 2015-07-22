@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
+import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
@@ -22,8 +23,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.api.legacy.Params;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Subscription;
 
 import android.content.Context;

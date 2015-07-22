@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -14,6 +13,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;

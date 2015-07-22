@@ -15,8 +15,8 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.propeller.PropertySet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

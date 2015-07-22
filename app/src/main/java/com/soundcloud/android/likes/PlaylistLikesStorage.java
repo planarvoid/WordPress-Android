@@ -3,10 +3,13 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST;
 import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
 import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
+import static com.soundcloud.android.storage.Table.Likes;
+import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LikedPlaylistMapper;
@@ -14,7 +17,7 @@ import com.soundcloud.android.playlists.PlaylistMapper;
 import com.soundcloud.android.playlists.PostedPlaylistMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -39,7 +42,7 @@ class PlaylistLikesStorage {
     Observable<List<PropertySet>> loadLikedPlaylists(int limit, long fromTimestamp) {
         final Query query = playlistLikeQuery()
                 .whereLt(Table.Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)
-                .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC)
+                .order(Likes.field(CREATED_AT), DESC)
                 .limit(limit);
 
         return propellerRx.query(query).map(PLAYLIST_MAPPER).toList();

@@ -8,6 +8,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -15,7 +16,6 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.api.legacy.Params;
 
 import android.os.Bundle;
 import android.support.v4.util.ArrayMap;

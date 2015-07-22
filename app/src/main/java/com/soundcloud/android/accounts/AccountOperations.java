@@ -23,7 +23,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
-
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;

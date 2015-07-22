@@ -11,7 +11,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;

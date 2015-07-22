@@ -1,9 +1,9 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.List;

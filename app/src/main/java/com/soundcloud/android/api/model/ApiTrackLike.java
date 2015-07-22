@@ -4,7 +4,7 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 

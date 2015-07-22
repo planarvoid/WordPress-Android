@@ -1,12 +1,12 @@
 package com.soundcloud.android.playlists;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
 import java.util.ArrayList;

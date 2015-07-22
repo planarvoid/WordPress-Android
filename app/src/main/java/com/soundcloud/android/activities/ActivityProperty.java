@@ -1,7 +1,7 @@
 package com.soundcloud.android.activities;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.Property;
+import com.soundcloud.java.collections.Property;
 
 import java.util.Date;
 

@@ -9,7 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.LegacyPager;

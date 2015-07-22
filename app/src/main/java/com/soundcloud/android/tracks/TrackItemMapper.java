@@ -5,11 +5,11 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 import java.util.Date;

@@ -7,7 +7,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

@@ -7,7 +7,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.content.Context;
 import android.view.View;
 
 public class PromoterClickViewListener implements View.OnClickListener {

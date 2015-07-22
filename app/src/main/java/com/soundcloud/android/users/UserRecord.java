@@ -1,7 +1,7 @@
 package com.soundcloud.android.users;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 public interface UserRecord {
 

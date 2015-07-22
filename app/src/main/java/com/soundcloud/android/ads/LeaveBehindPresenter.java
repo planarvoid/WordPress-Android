@@ -3,7 +3,7 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.view.View;
 

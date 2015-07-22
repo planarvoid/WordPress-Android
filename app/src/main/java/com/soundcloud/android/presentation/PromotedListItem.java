@@ -1,7 +1,7 @@
 package com.soundcloud.android.presentation;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 

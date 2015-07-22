@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.Property;
+import com.soundcloud.java.collections.Property;
 
 import android.net.Uri;
 

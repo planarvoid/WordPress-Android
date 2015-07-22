@@ -19,7 +19,7 @@ import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;

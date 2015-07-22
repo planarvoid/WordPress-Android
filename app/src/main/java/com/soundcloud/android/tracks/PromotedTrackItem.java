@@ -1,10 +1,10 @@
 package com.soundcloud.android.tracks;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.model.PromotedItemProperty;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 

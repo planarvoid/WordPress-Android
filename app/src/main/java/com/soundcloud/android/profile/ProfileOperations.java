@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
@@ -17,7 +16,8 @@ import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;

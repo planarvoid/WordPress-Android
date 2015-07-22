@@ -10,7 +10,7 @@ import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncRequest;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

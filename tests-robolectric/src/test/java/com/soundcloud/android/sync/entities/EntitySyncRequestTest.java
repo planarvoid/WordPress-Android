@@ -15,7 +15,7 @@ import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,8 +1,8 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

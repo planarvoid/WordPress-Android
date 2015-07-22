@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Intent;
 import android.util.SparseArray;

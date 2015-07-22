@@ -1,11 +1,11 @@
 package com.soundcloud.android.analytics;
 
-import android.content.res.Resources;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
+
+import android.content.res.Resources;
 
 import javax.inject.Inject;
 

@@ -1,12 +1,12 @@
 package com.soundcloud.android.tests.activity.resolve;
 
-import android.net.Uri;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import android.net.Uri;
 
 public class ResolvePrivateTrackTest extends ResolveBaseTest {
 

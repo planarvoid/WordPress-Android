@@ -9,7 +9,7 @@ import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.utils.CollectionUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.ArrayList;
 import java.util.Collection;

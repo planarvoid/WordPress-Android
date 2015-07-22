@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 
 public class PostedPlaylistMapper extends OfflinePlaylistMapper {
 

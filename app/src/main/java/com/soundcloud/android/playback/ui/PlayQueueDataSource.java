@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import javax.inject.Inject;
 import java.util.List;

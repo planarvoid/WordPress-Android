@@ -6,8 +6,8 @@ import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 
 import javax.inject.Inject;

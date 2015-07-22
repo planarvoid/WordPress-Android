@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.posts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 public class ApiPostItem implements PropertySetSource {
 

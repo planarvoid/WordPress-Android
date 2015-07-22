@@ -2,11 +2,11 @@ package com.soundcloud.android.api.model.stream;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

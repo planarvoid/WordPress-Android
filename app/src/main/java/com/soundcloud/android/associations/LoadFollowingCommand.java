@@ -1,13 +1,16 @@
 package com.soundcloud.android.associations;
 
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
+
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 
@@ -36,7 +39,7 @@ public class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn
                 .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
                 .whereIn(TableColumns.UserAssociations.TARGET_ID, getUserIds(input))
                 .whereNull(TableColumns.UserAssociations.REMOVED_AT)
-                .order(TableColumns.UserAssociations.POSITION, Query.ORDER_ASC);
+                .order(POSITION, ASC);
     }
 
     private List<Long> getUserIds(Iterable<PropertySet> propertySets) {

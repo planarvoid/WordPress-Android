@@ -2,8 +2,8 @@ package com.soundcloud.android.sync.posts;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.Property;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.Property;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Comparator;
 import java.util.Date;

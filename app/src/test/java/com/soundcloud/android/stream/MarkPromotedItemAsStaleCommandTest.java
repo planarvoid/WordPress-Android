@@ -2,11 +2,11 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
 
+import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.model.PromotedItemProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryMatchers;
 import org.hamcrest.MatcherAssert;

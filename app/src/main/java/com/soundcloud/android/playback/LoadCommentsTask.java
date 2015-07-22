@@ -5,11 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
+import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.Endpoints;
-import com.soundcloud.android.api.legacy.Request;
 
 import android.util.Log;
 

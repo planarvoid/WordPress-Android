@@ -1,8 +1,8 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 import java.util.Date;

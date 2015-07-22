@@ -1,13 +1,16 @@
 package com.soundcloud.android.sync.playlists;
 
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
+
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -30,7 +33,7 @@ class LoadPlaylistTracksWithChangesCommand extends LegacyCommand<Urn, List<Prope
                         TableColumns.PlaylistTracks.ADDED_AT,
                         TableColumns.PlaylistTracks.REMOVED_AT)
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
-                .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC))
+                .order(POSITION, ASC))
                 .toList(new PlaylistTrackUrnMapper());
     }
 

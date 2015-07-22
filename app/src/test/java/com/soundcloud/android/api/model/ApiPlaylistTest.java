@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 
 public class ApiPlaylistTest extends AndroidUnitTest {

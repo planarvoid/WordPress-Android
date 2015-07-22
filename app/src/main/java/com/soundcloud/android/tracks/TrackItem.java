@@ -1,13 +1,13 @@
 package com.soundcloud.android.tracks;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
 import java.util.ArrayList;

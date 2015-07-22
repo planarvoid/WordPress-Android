@@ -1,7 +1,7 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.propeller.Property;
+import com.soundcloud.java.collections.Property;
 
 public final class UserProperty extends EntityProperty{
 

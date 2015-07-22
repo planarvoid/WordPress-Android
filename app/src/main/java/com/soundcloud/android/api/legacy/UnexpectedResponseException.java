@@ -1,7 +1,6 @@
 package com.soundcloud.android.api.legacy;
 
 import com.google.common.base.Objects;
-
 import org.apache.http.StatusLine;
 
 import java.io.IOException;

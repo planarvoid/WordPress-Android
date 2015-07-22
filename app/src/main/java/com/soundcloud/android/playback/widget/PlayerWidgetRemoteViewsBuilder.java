@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.graphics.Bitmap;

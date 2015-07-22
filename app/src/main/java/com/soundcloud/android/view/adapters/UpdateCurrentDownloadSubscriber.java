@@ -6,7 +6,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<CurrentDownloadEvent> {
     private final ItemAdapter<? extends ListItem> adapter;

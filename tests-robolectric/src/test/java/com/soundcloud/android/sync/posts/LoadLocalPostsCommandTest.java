@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

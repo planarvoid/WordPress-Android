@@ -6,7 +6,7 @@ import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.database.Cursor;
 

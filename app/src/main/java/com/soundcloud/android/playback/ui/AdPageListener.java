@@ -7,11 +7,11 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.content.Context;

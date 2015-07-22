@@ -1,6 +1,8 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.TrackUrnMapper;
@@ -36,7 +38,7 @@ public class LoadLikedTrackUrnsCommand extends LegacyCommand<Object, List<Urn>, 
                 .select(ColumnFunctions.field("Likes._id").as(BaseColumns._ID))
                 .innerJoin(Table.Sounds.name(), whereTrackDataExists)
                 .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .order("Likes." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
+                .order("Likes." + CREATED_AT, DESC)
                 .whereNull(TableColumns.Likes.REMOVED_AT))
                 .toList(new TrackUrnMapper());
     }

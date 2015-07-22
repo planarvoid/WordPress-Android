@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;

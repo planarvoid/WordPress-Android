@@ -4,15 +4,15 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.api.legacy.InvalidTokenException;
-import com.soundcloud.android.api.legacy.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;

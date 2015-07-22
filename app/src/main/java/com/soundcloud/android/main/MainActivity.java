@@ -29,8 +29,8 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.propeller.PropertySet;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
