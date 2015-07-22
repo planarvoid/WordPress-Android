@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -10,6 +10,7 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,9 +22,8 @@ import javax.inject.Inject;
 
 public class PlaylistsFragment extends LightCycleSupportFragment {
 
-    // A ActionMenuController can be injected in the inner pager fragments
     // if we need more granularity for the menu actions control
-    @Inject DefaultActionMenuController defaultActionMenuController;
+    @Inject ActionBarHelper actionBarHelper;
     @Inject FeatureFlags featureFlags;
 
     public PlaylistsFragment() {
@@ -39,12 +39,12 @@ public class PlaylistsFragment extends LightCycleSupportFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        defaultActionMenuController.onCreateOptionsMenu(menu, inflater);
+        actionBarHelper.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return defaultActionMenuController.onOptionsItemSelected(this, item);
+        return actionBarHelper.onOptionsItemSelected(((AppCompatActivity) getActivity()), item);
     }
 
     @Override

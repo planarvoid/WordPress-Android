@@ -36,7 +36,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private static final String INTENT_URL_QUERY_PARAM = "q";
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
-
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
@@ -107,10 +106,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.search, menu);
-
-        searchActionBarController.configureSearchState(this, menu);
+        searchActionBarController.onCreateOptionsMenu(menu, getMenuInflater(), this);
         return true;
     }
 

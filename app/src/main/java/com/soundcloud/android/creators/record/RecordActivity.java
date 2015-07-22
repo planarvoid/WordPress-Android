@@ -3,7 +3,7 @@ package com.soundcloud.android.creators.record;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.creators.upload.UploadMonitorFragment;
@@ -36,7 +36,7 @@ public class RecordActivity extends ScActivity {
     private static final String METADATA_FRAGMENT_TAG = "metadata_fragment";
     private static final String UPLOAD_PROGRESS_FRAGMENT_TAG = "upload_progress_fragment";
 
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject EventBus eventBus;
     @Inject SoundRecorder recorder;
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -20,7 +20,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     private Category category;
     private SuggestedUsersCategoryFragment categoryFragment;
 
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject FollowingOperations followingOperations;
 
     @Override

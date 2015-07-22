@@ -2,7 +2,7 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class WhoToFollowActivity extends ScActivity {
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
