@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -42,12 +43,13 @@ public class NavigationDrawerFragmentTest {
     @Mock AccountOperations accountOperations;
     @Mock Resources resources;
     @Mock FeatureOperations featureOperations;
+    @Mock FeatureFlags featureFlags;
 
     TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationDrawerFragment(imageOperations, accountOperations, featureOperations, eventBus);
+        fragment = new NavigationDrawerFragment(imageOperations, accountOperations, featureOperations, eventBus, featureFlags);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
         Robolectric.shadowOf(fragment).setAttached(true);

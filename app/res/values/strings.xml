@@ -529,4 +529,7 @@
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
 
+    <!-- __STATIONS -->
+    <string name="side_menu_stations">Stations</string>
+
 </resources>

@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.stations.StationsFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.lightcycle.LightCycle;
@@ -49,7 +50,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private static final String LIKES_FRAGMENT_TAG = "likes_fragment";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
     private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
-    private static final int NO_SELECTION = -1;
+    private static final String STATIONS_FRAGMENT_TAG = "stations_fragment";
+    private static final NavItem NO_SELECTION = NavItem.NONE;
     private static final int DRAWER_SELECT_DELAY_MILLIS = 250;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
@@ -57,7 +59,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private NavigationFragment navigationFragment;
     private CharSequence lastTitle;
-    private int lastSelection = NO_SELECTION;
+    private NavItem lastSelection = NO_SELECTION;
     private boolean refreshStream;
 
     @Inject UserRepository userRepository;
@@ -170,8 +172,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void publishContentChangeEvent() {
-        final int position = navigationFragment.getCurrentSelectedPosition();
-        switch (NavItem.values()[position]) {
+        switch (navigationFragment.getCurrentSelectedItem()) {
             case STREAM:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_STREAM));
                 break;
@@ -192,8 +193,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void publishNavSelectedEvent() {
-        final int position = navigationFragment.getCurrentSelectedPosition();
-        switch (NavItem.values()[position]) {
+        switch (navigationFragment.getCurrentSelectedItem()) {
             case STREAM:
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromStreamNav());
                 break;
@@ -228,48 +228,46 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     @Override
-    public void onSmoothSelectItem(final int position) {
-        if (position == lastSelection) {
+    public void onSmoothSelectItem(final NavItem item) {
+        if (item == lastSelection) {
             return;
         }
 
-        displayContentDelayed(position);
+        displayContentDelayed(item);
     }
 
     @Override
-    public void onSelectItem(int position) {
-        displaySelectedItem(position);
+    public void onSelectItem(NavItem item) {
+        displaySelectedItem(item);
     }
 
-    private void displayContentDelayed(final int position) {
+    private void displayContentDelayed(final NavItem item) {
         drawerHandler.removeCallbacksAndMessages(null);
         drawerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!isProfile(position) && lastSelection != NO_SELECTION) {
+                if (item != NavItem.PROFILE && lastSelection != NO_SELECTION) {
                     Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
                     if (current != null) {
                         getSupportFragmentManager().beginTransaction().remove(current).commit();
                     }
                 }
 
-                displaySelectedItem(position);
+                displaySelectedItem(item);
             }
         }, DRAWER_SELECT_DELAY_MILLIS);
     }
 
-    private boolean isProfile(int position) {
-        return NavItem.values()[position] == NavItem.PROFILE;
-    }
-
-    protected void displaySelectedItem(int position) {
-        final NavItem navItem = NavItem.values()[position];
-        switch (navItem) {
+    protected void displaySelectedItem(NavItem item) {
+        switch (item) {
             case PROFILE:
                 displayProfile();
                 // This click is tracked separately since profile item is never selected
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromProfileNav());
                 return;
+            case STATIONS:
+                displayStations();
+                break;
             case STREAM:
                 displayStream();
                 break;
@@ -286,7 +284,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 displayUpsell();
                 break;
             default:
-                throw new IllegalArgumentException("Unknown navItem: " + navItem);
+                throw new IllegalArgumentException("Unknown navItem: " + item);
         }
 
         getSupportActionBar().setTitle(lastTitle);
@@ -297,8 +295,17 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             publishContentChangeEvent();
             publishNavSelectedEvent();
         }
-        if (NavItem.isSelectable(position)) {
-            lastSelection = position;
+        if (NavItem.isSelectable(item)) {
+            lastSelection = item;
+        }
+    }
+
+    private void displayStations() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(STATIONS_FRAGMENT_TAG);
+
+        if (fragment == null) {
+            fragment = new StationsFragment();
+            attachFragment(fragment, STATIONS_FRAGMENT_TAG, R.string.side_menu_stations);
         }
     }
 

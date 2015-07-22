@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -44,8 +45,8 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     @VisibleForTesting
     protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                       FeatureOperations featureOperations, EventBus eventBus) {
-        super(imageOperations, accountOperations, featureOperations);
+                                       FeatureOperations featureOperations, EventBus eventBus, FeatureFlags featureFlags) {
+        super(imageOperations, accountOperations, featureOperations, featureFlags);
         this.eventBus = eventBus;
     }
 
@@ -151,14 +152,8 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     @Override
-    protected void smoothSelectItem(int position) {
-        super.smoothSelectItem(position);
-        closeDrawer();
-    }
-
-    @Override
-    protected void selectItem(int position) {
-        super.selectItem(position);
+    protected void smoothSelectItem(int position, NavItem item) {
+        super.smoothSelectItem(position, item);
         closeDrawer();
     }
 
