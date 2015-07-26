@@ -1,4 +1,0 @@
-<!-- Test properties for release builds -->
-<resources>
-    <bool name="run_ads_tests">false</bool>
-</resources>

@@ -25,6 +25,9 @@ buildscript {
 }
 
 def buildSrcDir = 'buildsystem'
+apply from: "${buildSrcDir}/build_variants.gradle"
+apply from: "${buildSrcDir}/feature_flags.gradle"
+apply from: "${buildSrcDir}/app_properties.gradle"
 apply from: "${buildSrcDir}/versionizer.gradle"
 apply from: "${buildSrcDir}/static_analysis.gradle"
 apply from: "${buildSrcDir}/ci.gradle"
@@ -44,8 +47,6 @@ def globalConfiguration = rootProject.extensions.getByName('ext')
 android {
   compileSdkVersion globalConfiguration.getAt('androidCompileSdkVersion')
   buildToolsVersion globalConfiguration.getAt('androidBuildToolsVersion')
-
-  testBuildType buildType
 
   defaultConfig {
     applicationId globalConfiguration.getAt('applicationId')
@@ -71,87 +72,6 @@ android {
       res.srcDirs globalConfiguration.getAt('resSrcDirs')
       assets.srcDirs globalConfiguration.getAt('assetsSrcDirs')
       aidl.srcDirs globalConfiguration.getAt('javaSrcDirs')
-    }
-  }
-
-  signingConfigs {
-    debug {
-      storeFile file('../debug.keystore')
-      storePassword 'android'
-      keyAlias 'androiddebugkey'
-      keyPassword 'android'
-    }
-
-    release {
-      def propertiesFile = file('/home/mobile/installs/soundcloud_sign/release.properties')
-      if (propertiesFile.exists() && propertiesFile.canRead()) {
-        def releaseProperties = new Properties()
-        releaseProperties.load(new FileInputStream(propertiesFile))
-        storeFile file(releaseProperties.getProperty('storeFile'))
-        storePassword releaseProperties.getProperty('storePassword')
-        keyAlias releaseProperties.getProperty('keyAlias')
-        keyPassword releaseProperties.getProperty('keyPassword')
-      }
-    }
-  }
-
-  buildTypes {
-    releaseNoProguard {
-      versionNameSuffix '-releaseNoProguard'
-      debuggable false
-      minifyEnabled false
-      signingConfig signingConfigs.release
-      multiDexEnabled true
-    }
-
-    release.initWith(buildTypes.releaseNoProguard)
-    release {
-      versionNameSuffix '-release'
-      minifyEnabled true
-      shrinkResources false
-      zipAlignEnabled true
-      multiDexEnabled false
-      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
-    }
-
-    release_non_play_store.initWith(buildTypes.release)
-    release_non_play_store {
-      versionNameSuffix '-release'
-      signingConfig signingConfigs.release
-    }
-
-    beta.initWith(buildTypes.release)
-    beta {
-      versionNameSuffix '-beta'
-      proguardFiles = ['buildsystem/proguard.cfg']
-    }
-
-    alpha.initWith(buildTypes.release)
-    alpha {
-      versionNameSuffix '-alpha'
-      ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
-      ext.betaDistributionNotifications = false
-      proguardFiles = ['buildsystem/proguard.cfg']
-    }
-
-    debug {
-      versionNameSuffix '-debug'
-      debuggable true
-      signingConfig signingConfigs.debug
-      proguardFiles 'buildsystem/proguard.cfg'
-      minifyEnabled project.hasProperty('proguard')
-      multiDexEnabled true
-    }
-
-    end2end.initWith(buildTypes.debug)
-    end2end {
-      versionNameSuffix '-end2end'
-    }
-
-    repack.initWith(buildTypes.debug)
-    repack {
-      minifyEnabled true
-      proguardFiles 'buildsystem/repacker/proguard-repack.cfg'
     }
   }
 

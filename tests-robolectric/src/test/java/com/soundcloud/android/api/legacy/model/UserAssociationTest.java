@@ -2,13 +2,13 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Parcel;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class UserAssociationTest {
 
     public static final String TOKEN = "12345";

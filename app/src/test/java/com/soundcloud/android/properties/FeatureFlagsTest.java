@@ -13,14 +13,12 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FeatureFlagsTest {
 
-    private static final String FLAG_KEY = FeatureFlags.FEATURE_PREFIX + Flag.TEST_FEATURE.getId();
+    private static final String FLAG_KEY = FeatureFlags.FEATURE_PREFIX + Flag.TEST_FEATURE.getName();
 
-    @Mock private Resources resources;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
 
@@ -28,12 +26,11 @@ public class FeatureFlagsTest {
 
     @Before
     public void setUp() throws Exception {
-        featureFlags = new FeatureFlags(resources, sharedPreferences);
+        featureFlags = new FeatureFlags(sharedPreferences);
     }
 
     @Test
     public void isEnabledShouldUseResourceValueAsDefaultValue() {
-        when(resources.getBoolean(Flag.TEST_FEATURE.getId())).thenReturn(true);
         when(sharedPreferences.getBoolean(FLAG_KEY, true)).thenReturn(true);
 
         assertThat(featureFlags.isEnabled(Flag.TEST_FEATURE)).isTrue();
@@ -43,7 +40,6 @@ public class FeatureFlagsTest {
 
     @Test
     public void isDisabledShouldUseResourceValueAsDefaultValue() {
-        when(resources.getBoolean(Flag.TEST_FEATURE.getId())).thenReturn(true);
         when(sharedPreferences.getBoolean(FLAG_KEY, true)).thenReturn(true);
 
         assertThat(featureFlags.isDisabled(Flag.TEST_FEATURE)).isFalse();
@@ -53,7 +49,6 @@ public class FeatureFlagsTest {
 
     @Test
     public void resetShouldResetValueToResourceValueAndReturnDefaultValue() {
-        when(resources.getBoolean(Flag.TEST_FEATURE.getId())).thenReturn(true);
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putBoolean(FLAG_KEY, true)).thenReturn(sharedPreferencesEditor);
 
