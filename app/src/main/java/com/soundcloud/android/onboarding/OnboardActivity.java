@@ -472,7 +472,8 @@ public class OnboardActivity extends FragmentActivity
 
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
         if (names.length == 0) {
-            onError(getString(R.string.authentication_no_google_accounts));
+            final boolean allowUserFeedback = true;
+            onError(getString(R.string.authentication_no_google_accounts), allowUserFeedback);
         } else if (names.length == 1) {
             onGoogleAccountSelected(names[0]);
         } else {
@@ -890,11 +891,16 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    public void onError(String message) {
+    public void onError(String message, boolean allowUserFeedback) {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
                 .setPositiveButton(android.R.string.ok, null);
-        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
+
+        if (allowUserFeedback){
+            showDialogWithFeedbackAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
+        } else {
+            showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupExistingEmail());
+        }
     }
 
     @Override
@@ -975,9 +981,15 @@ public class OnboardActivity extends FragmentActivity
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());
     }
 
-    private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
+    private void showDialogWithFeedbackAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
             addFeedbackButton(dialogBuilder);
+            showDialogAndTrackEvent(dialogBuilder, event);
+        }
+    }
+
+    private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
+        if (!isFinishing()) {
             dialogBuilder
                     .create()
                     .show();

@@ -45,7 +45,8 @@ public class FacebookSessionCallback implements Session.StatusCallback {
         } else if (exception != null && !(exception instanceof FacebookOperationCanceledException)) {
             Log.w(TAG, "Facebook returned an exception", exception);
             ErrorUtils.handleSilentException(exception);
-            activity.onError(activity.getString(R.string.facebook_authentication_failed_message));
+            final boolean allowUserFeedback = true;
+            activity.onError(activity.getString(R.string.facebook_authentication_failed_message), allowUserFeedback);
         }
     }
 }
