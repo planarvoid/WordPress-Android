@@ -4,11 +4,11 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.DownloadableHeaderView;
+import com.soundcloud.android.offline.OfflineState;
 
+import android.content.res.Resources;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,17 +16,18 @@ import javax.inject.Inject;
 
 class TrackLikesHeaderView {
 
-    private View headerView;
+    @Nullable private View headerView;
+    private final Resources resources;
     private final DownloadableHeaderView downloadableHeaderView;
 
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
     @InjectView(R.id.overflow_button) View overflowMenuButton;
 
     private int trackCount;
-    @Nullable private FragmentManager fragmentManager;
 
     @Inject
-    TrackLikesHeaderView(DownloadableHeaderView downloadableHeaderView) {
+    TrackLikesHeaderView(Resources resources, DownloadableHeaderView downloadableHeaderView) {
+        this.resources = resources;
         this.downloadableHeaderView = downloadableHeaderView;
     }
 
@@ -35,8 +36,7 @@ class TrackLikesHeaderView {
         return headerView;
     }
 
-    void onViewCreated(View view, FragmentManager fragmentManager) {
-        this.fragmentManager = fragmentManager;
+    void onViewCreated(View view) {
         headerView = view.findViewById(R.id.track_likes_header);
         downloadableHeaderView.onViewCreated(headerView);
         ButterKnife.inject(this, headerView);
@@ -82,10 +82,9 @@ class TrackLikesHeaderView {
 
     private String getHeaderText(int likedTracks) {
         if (likedTracks == 0) {
-            return headerView.getContext().getString(R.string.number_of_liked_tracks_you_liked_zero);
+            return resources.getString(R.string.number_of_liked_tracks_you_liked_zero);
         } else {
-            return headerView.getContext().getResources()
-                    .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
+            return resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
         }
     }
 

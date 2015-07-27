@@ -94,7 +94,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        headerView.onViewCreated(view, fragment.getFragmentManager());
+        headerView.onViewCreated(view);
         headerView.setOnShuffleButtonClick(onShuffleButtonClick);
 
         entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)

@@ -26,8 +26,8 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackLikesHeaderView = new TrackLikesHeaderView(new DownloadableHeaderView(RuntimeEnvironment.application.getResources()));
-        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null), fragmentManager);
+        trackLikesHeaderView = new TrackLikesHeaderView(resources(), new DownloadableHeaderView(resources()));
+        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null));
     }
 
     @Test
