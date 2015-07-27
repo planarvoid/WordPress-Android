@@ -16,6 +16,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,6 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -37,7 +37,7 @@ import java.lang.ref.WeakReference;
 // remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
 public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Playa.PlayaListener {
-    public static final String TAG = "CloudPlaybackService";
+    public static final String TAG = "PlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     @Nullable static PlaybackService instance;
     private final Handler fadeHandler = new FadeHandler(this);
@@ -161,9 +161,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void focusGained() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "focusGained");
-        }
+        Log.d(TAG, "focusGained with state " + focusLossState);
         if (focusLossState == FocusLossState.TRANSIENT) {
             fadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
         } else {
@@ -175,9 +173,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void focusLost(boolean isTransient, boolean canDuck) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "focusLost(" + isTransient + ", canDuck=" + canDuck + ")");
-        }
+        Log.d(TAG, "focusLost(" + isTransient + ", canDuck=" + canDuck + ")");
         if (streamPlayer.isPlaying()) {
 
             if (isTransient) {
@@ -198,6 +194,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
+        Log.d(TAG, "Received new playState " + stateTransition);
+
         // TODO : Fix threading in Skippy so we can never receive delayed messages
         if (getCurrentTrackUrn().equals(stateTransition.getTrackUrn())) {
             if (!stateTransition.isPlaying()) {
@@ -219,10 +217,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public boolean requestAudioFocus() {
+        Log.d(TAG, "Requesting audio focus");
         return audioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
     }
 
     public void togglePlayback() {
+        Log.d(TAG, "Toggling playback");
         if (streamPlayer.isPlaying()) {
             pause();
         } else if (currentTrack != null) {
@@ -235,6 +235,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     public long seek(long pos, boolean performSeek) {
+        Log.d(TAG, "Seeking to " + pos);
         return streamPlayer.seek(pos, performSeek);
     }
 
@@ -247,14 +248,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void scheduleServiceShutdownCheck() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "scheduleServiceShutdownCheck()");
-        }
+        Log.d(TAG, "scheduleServiceShutdownCheck()");
         delayedStopHandler.removeCallbacksAndMessages(null);
         delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
     private void onIdleState() {
+        Log.d(TAG, "On Idle State (focusLossState=" + focusLossState + ")");
         scheduleServiceShutdownCheck();
         fadeHandler.removeMessages(FadeHandler.FADE_OUT);
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
@@ -295,6 +295,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
         if (!playUninterrupted && resumeInfo != null && resumeInfo.shouldResumeTrack(getCurrentTrackUrn())) {
+            Log.d(TAG, "Resuming track at " + resumeInfo.getTime());
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
             playCurrentTrackFromStart(playUninterrupted);
@@ -302,8 +303,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ void play() {
+        Log.d(TAG, "Playing");
         if (!streamPlayer.isPlaying() && currentTrack != null && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (!(playQueueManager.isCurrentTrack(getCurrentTrackUrn()) && streamPlayer.playbackHasPaused() && streamPlayer.resume())) {
+                Log.d(TAG, "Re-opening current track as it is not resumable");
                 openCurrent();
             }
             resetVolume();
@@ -311,16 +314,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void resetVolume() {
+        Log.d(TAG, "Resetting volume");
         fadeHandler.removeCallbacksAndMessages(null);
         streamPlayer.setVolume(1);
     }
 
     // Pauses playback (call play() to resume)
     /* package */ void pause() {
+        Log.d(TAG, "Pausing");
         streamPlayer.pause();
     }
 
     /* package */ void stop() {
+        Log.d(TAG, "Stopping");
         playbackNotificationController.unsubscribe();
         streamPlayer.stop();
         stopForeground(true);
@@ -367,9 +373,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (service != null && !service.streamPlayer.isPlaying()
                     && service.focusLossState == FocusLossState.NONE) {
 
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "DelayedStopHandler: stopping service");
-                }
+                Log.d(TAG, "DelayedStopHandler: stopping service");
                 service.stopSelf();
             }
         }
@@ -401,15 +405,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case FADE_IN:
                     removeMessages(FADE_OUT);
                     if (!service.streamPlayer.isPlaying()) {
+                        Log.d(TAG, "Skipping fade in as we are not playing");
                         currentVolume = 0f;
                         service.streamPlayer.setVolume(0f);
                         service.play();
                         sendEmptyMessageDelayed(FADE_IN, 10);
                     } else {
                         currentVolume += FADE_CHANGE;
+                        Log.d(TAG, "Fading volume in at : " + currentVolume);
                         if (currentVolume < 1.0f) {
                             sendEmptyMessageDelayed(FADE_IN, 10);
                         } else {
+                            Log.d(TAG, "Done fading volume in");
                             currentVolume = 1.0f;
                         }
                         service.streamPlayer.setVolume(currentVolume);
@@ -419,20 +426,22 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     removeMessages(FADE_IN);
                     if (service.streamPlayer.isPlaying()) {
                         currentVolume -= FADE_CHANGE;
+                        Log.d(TAG, "Fading out at " + currentVolume);
                         if (currentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
-                            if (service != null) {
-                                service.pause();
-                            }
+                            Log.d(TAG, "Done fading out, pausing ");
+                            service.pause();
                             currentVolume = 0f;
                         }
                         service.streamPlayer.setVolume(currentVolume);
                     } else {
+                        Log.d(TAG, "Fading out without playing, setting volume to 0");
                         service.streamPlayer.setVolume(0f);
                     }
                     break;
                 case DUCK:
+                    Log.d(TAG, "Ducking");
                     removeMessages(FADE_IN);
                     removeMessages(FADE_OUT);
                     service.streamPlayer.setVolume(DUCK_VOLUME);
@@ -452,6 +461,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         @Override
         public void onError(Throwable throwable) {
+            Log.d(TAG, "Unable to get track information " + throwable);
             onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
