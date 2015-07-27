@@ -70,3 +70,4 @@ app/src/androidTest/res/values/test_properties.xml
 crashlytics-build.properties
 .repository
 tests-integration/res/values/test_properties.xml
+reports
