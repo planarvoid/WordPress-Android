@@ -4,12 +4,10 @@ package com.soundcloud.android.api;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.objects.MoreObjects;
 import org.apache.http.auth.AUTH;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +16,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +37,7 @@ public class ApiRequest {
     private final String httpMethod;
     private final int endpointVersion;
     private final Boolean isPrivate;
-    private final Multimap<String, String> queryParams;
+    private final MultiMap<String, String> queryParams;
     private final Map<String, String> headers;
 
     public static Builder get(String uri) {
@@ -58,7 +57,7 @@ public class ApiRequest {
     }
 
     ApiRequest(Uri uri, String method, int endpointVersion,
-               Boolean isPrivate, Multimap<String, String> queryParams,
+               Boolean isPrivate, MultiMap<String, String> queryParams,
                Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
@@ -89,13 +88,13 @@ public class ApiRequest {
     }
 
     @NotNull
-    public Multimap<String, String> getQueryParameters() {
-        return ImmutableMultimap.copyOf(queryParams);
+    public MultiMap<String, String> getQueryParameters() {
+        return queryParams;
     }
 
     @NotNull
     public Map<String, String> getHeaders() {
-        return ImmutableMap.copyOf(headers);
+        return Collections.unmodifiableMap(headers);
     }
 
     public String getAcceptMediaType() {
@@ -129,7 +128,7 @@ public class ApiRequest {
         private final String httpMethod;
         private int endpointVersion;
         private Boolean isPrivate;
-        private final Multimap<String, String> parameters;
+        private final MultiMap<String, String> parameters;
         private final Map<String, String> headers;
         private Object content;
         private List<FormPart> formParts;

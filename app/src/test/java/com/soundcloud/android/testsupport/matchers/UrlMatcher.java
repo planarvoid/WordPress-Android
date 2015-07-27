@@ -1,7 +1,7 @@
 package com.soundcloud.android.testsupport.matchers;
 
-import com.google.common.collect.Multimap;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.collections.MultiMap;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -41,8 +41,8 @@ public class UrlMatcher extends TypeSafeMatcher<String> {
             return false;
         }
 
-        Multimap<String, String> expectedParams = UriUtils.getQueryParameters(expectedUri);
-        Multimap<String, String> actualParams = UriUtils.getQueryParameters(actual);
+        MultiMap<String, String> expectedParams = UriUtils.getQueryParameters(expectedUri);
+        MultiMap<String, String> actualParams = UriUtils.getQueryParameters(actual);
         if (expectedParams.size() != actualParams.size()) {
             this.failContext = "different number of query params";
             return false;

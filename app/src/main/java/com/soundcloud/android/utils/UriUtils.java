@@ -1,8 +1,8 @@
 package com.soundcloud.android.utils;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.java.collections.ListMultiMap;
+import com.soundcloud.java.collections.MultiMap;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -13,12 +13,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class UriUtils {
-    public static long getLastSegmentAsLong(Uri uri){
+    public static long getLastSegmentAsLong(Uri uri) {
         try {
             return Long.parseLong(uri.getLastPathSegment());
-        } catch (NumberFormatException e){
-            if (Log.isLoggable(SoundCloudApplication.TAG,Log.DEBUG)){
-                Log.d(SoundCloudApplication.TAG,"Could not parse last segment as long from URI " + uri.toString());
+        } catch (NumberFormatException e) {
+            if (Log.isLoggable(SoundCloudApplication.TAG, Log.DEBUG)) {
+                Log.d(SoundCloudApplication.TAG, "Could not parse last segment as long from URI " + uri.toString());
             }
         }
         return -1l;
@@ -32,13 +32,13 @@ public final class UriUtils {
         return TextUtils.isEmpty(contentUri.getQuery()) ? contentUri : contentUri.buildUpon().query(null).build();
     }
 
-    public static Multimap<String, String> getQueryParameters(String uriString){
-        return TextUtils.isEmpty(uriString) ? ArrayListMultimap.<String, String>create() : getQueryParameters(Uri.parse(uriString));
+    public static MultiMap<String, String> getQueryParameters(String uriString) {
+        return TextUtils.isEmpty(uriString) ? new ListMultiMap<String, String>() : getQueryParameters(Uri.parse(uriString));
     }
 
-    public static Multimap<String, String> getQueryParameters(Uri uri){
-        Multimap<String,String> params = ArrayListMultimap.create();
-        for (String key : getQueryParameterNames(uri)){
+    public static MultiMap<String, String> getQueryParameters(Uri uri) {
+        MultiMap<String, String> params = new ListMultiMap<>();
+        for (String key : getQueryParameterNames(uri)) {
             params.get(key).addAll(uri.getQueryParameters(key));
         }
         return params;
@@ -54,9 +54,8 @@ public final class UriUtils {
      *
      * http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.1.1_r1/android/net/Uri.java?av=f#1554
      *
-     * @throws UnsupportedOperationException if this isn't a hierarchical URI
-     *
      * @return a set of decoded names
+     * @throws UnsupportedOperationException if this isn't a hierarchical URI
      */
     private static Set<String> getQueryParameterNames(Uri uri) {
         if (uri.isOpaque()) {
@@ -89,5 +88,6 @@ public final class UriUtils {
         return Collections.unmodifiableSet(names);
     }
 
-    private UriUtils() {}
+    private UriUtils() {
+    }
 }

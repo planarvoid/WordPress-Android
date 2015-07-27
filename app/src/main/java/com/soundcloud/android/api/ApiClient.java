@@ -6,7 +6,6 @@ import static com.soundcloud.java.strings.Strings.joinOn;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -30,6 +29,7 @@ import android.os.Looper;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -217,7 +217,8 @@ public class ApiClient {
     }
 
     private Map<String, String> transformQueryParameters(ApiRequest apiRequest) {
-        final Multimap<String, String> queryParameters = apiRequest.getQueryParameters();
+        final Map<String, ? extends Collection<String>> queryParameters = apiRequest.getQueryParameters().toMap();
+
         return Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Override
             public String apply(String input) {

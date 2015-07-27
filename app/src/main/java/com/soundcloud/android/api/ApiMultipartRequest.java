@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import com.google.common.collect.Multimap;
+import com.soundcloud.java.collections.MultiMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -14,7 +14,7 @@ public class ApiMultipartRequest extends ApiRequest {
     private final ProgressListener progressListener;
 
     ApiMultipartRequest(Uri uri, String method, int endpointVersion, Boolean isPrivate,
-                        @NotNull Multimap<String, String> queryParams,
+                        @NotNull MultiMap<String, String> queryParams,
                         @NotNull Map<String, String> headers, List<FormPart> parts, ProgressListener progressListener) {
         super(uri, method, endpointVersion, isPrivate, queryParams, headers);
         this.parts = parts;
