@@ -1,12 +1,12 @@
 package com.soundcloud.android.sync.posts;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
 import java.util.NavigableSet;

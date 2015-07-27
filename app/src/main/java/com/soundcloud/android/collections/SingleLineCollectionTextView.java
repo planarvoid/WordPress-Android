@@ -1,10 +1,10 @@
 package com.soundcloud.android.collections;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -60,7 +60,8 @@ public class SingleLineCollectionTextView extends TextView {
         }
     }
 
-    @VisibleForTesting @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @VisibleForTesting
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void setTextFromCollection(float maxWidth) {
 
         final int numItems = displayItems.size();

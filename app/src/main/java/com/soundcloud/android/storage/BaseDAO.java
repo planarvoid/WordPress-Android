@@ -1,13 +1,13 @@
 package com.soundcloud.android.storage;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -220,7 +220,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         public QueryBuilder whereIn(final String column, final List<String> values) {
             selection.append(column).append(" IN (");
             List<String> wildcards = Collections.nCopies(values.size(), "?");
-            Joiner.on(",").appendTo(selection, wildcards);
+            Strings.joinOn(",").appendTo(selection, wildcards);
             selection.append(") ");
             selectionArgs.addAll(values);
             return this;

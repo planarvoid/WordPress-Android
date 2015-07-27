@@ -1,6 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import org.jetbrains.annotations.NotNull;
 

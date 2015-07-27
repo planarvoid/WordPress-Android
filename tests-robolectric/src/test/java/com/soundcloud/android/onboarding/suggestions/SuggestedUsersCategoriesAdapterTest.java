@@ -1,9 +1,9 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -161,7 +161,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldGetCorrectUserlistForSingleUser() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
-        bucket.setUsers(Lists.newArrayList(buildUser("Skrillex")));
+        bucket.setUsers(newArrayList(buildUser("Skrillex")));
         expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex");
     }
 
@@ -169,7 +169,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldGetCorrectUserlistForTwoUsers() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
-        bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
+        bucket.setUsers(newArrayList(buildUser("Skrillex"), buildUser("Forss")));
         expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex", "Forss");
     }
 
@@ -177,7 +177,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldGetCorrectUserlistForMultipleUsers() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
-        bucket.setUsers(Lists.newArrayList(
+        bucket.setUsers(newArrayList(
                 buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
         expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex", "Forss", "Rick Astley");
     }

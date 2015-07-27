@@ -41,8 +41,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.HashMap;
 
@@ -250,19 +250,19 @@ final class EventLoggerEventData {
 
         EventLoggerEventData that = (EventLoggerEventData) o;
 
-        return Objects.equal(event, that.event)
-                && Objects.equal(version, that.version)
-                && Objects.equal(payload, that.payload);
+        return MoreObjects.equal(event, that.event)
+                && MoreObjects.equal(version, that.version)
+                && MoreObjects.equal(payload, that.payload);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(event, version, payload);
+        return MoreObjects.hashCode(event, version, payload);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("event", event)
                 .add("version", version)
                 .add("payload", payload).toString();

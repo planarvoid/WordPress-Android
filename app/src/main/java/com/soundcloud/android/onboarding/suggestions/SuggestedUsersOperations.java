@@ -1,11 +1,11 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -63,12 +63,5 @@ public class SuggestedUsersOperations {
     }
 
     static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {
-        //Needed because of a reflection issue on 2.2 devices, Exception is raised when logging happens in RxHttpClient
-        //http://stackoverflow.com/questions/8041142/reflection-not-fully-implemented-in-android-2-2
-        //This will prevent it from calling toString in TypeToken
-        @Override
-        public String toString() {
-            return "List<CategoryGroup>";
-        }
     }
 }

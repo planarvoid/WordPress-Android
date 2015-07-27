@@ -1,14 +1,13 @@
 package com.soundcloud.android.api;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.soundcloud.java.checks.Preconditions.checkState;
+import static com.soundcloud.java.strings.Strings.joinOn;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -17,6 +16,7 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.reflect.TypeToken;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -221,7 +221,7 @@ public class ApiClient {
         return Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Override
             public String apply(String input) {
-                return Joiner.on(",").join(queryParameters.get(input));
+                return joinOn(",").join(queryParameters.get(input));
             }
         });
     }

@@ -1,16 +1,16 @@
 package com.soundcloud.android.search;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.SharedPreferences;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -109,6 +109,6 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     private String serialize(List<String> tags) {
-        return Joiner.on(",").join(tags);
+        return Strings.joinOn(",").join(tags);
     }
 }

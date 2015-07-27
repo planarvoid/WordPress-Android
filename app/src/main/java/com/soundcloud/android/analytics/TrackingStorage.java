@@ -3,10 +3,9 @@ package com.soundcloud.android.analytics;
 import static com.soundcloud.android.analytics.TrackingDbHelper.EVENTS_TABLE;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.InsertResult;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;

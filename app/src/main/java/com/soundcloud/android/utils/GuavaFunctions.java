@@ -1,9 +1,9 @@
 package com.soundcloud.android.utils;
 
-import com.google.common.base.Function;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 
 public class GuavaFunctions {
     private static final Function<PropertySetSource, PropertySet> PROP_SET_SOURCE_TO_PROP_SET = new Function<PropertySetSource, PropertySet>() {

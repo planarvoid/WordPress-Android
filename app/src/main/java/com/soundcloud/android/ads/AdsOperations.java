@@ -1,9 +1,8 @@
 package com.soundcloud.android.ads;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import com.google.common.base.Predicate;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -15,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;

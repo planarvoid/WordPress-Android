@@ -1,6 +1,6 @@
 package com.soundcloud.android.waveform;
 
-import com.google.common.annotations.VisibleForTesting;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;

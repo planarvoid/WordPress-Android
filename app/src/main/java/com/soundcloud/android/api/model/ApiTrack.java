@@ -1,7 +1,6 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
@@ -10,6 +9,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -264,7 +264,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord {
             return false;
         }
         ApiTrack apiTrack = (ApiTrack) o;
-        return Objects.equal(urn, apiTrack.urn);
+        return MoreObjects.equal(urn, apiTrack.urn);
     }
 
     @Override
@@ -278,7 +278,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("title", title)
                 .add("genre", genre)
                 .add("user", user)

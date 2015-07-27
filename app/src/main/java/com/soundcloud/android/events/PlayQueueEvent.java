@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 public class PlayQueueEvent {
 
@@ -55,7 +55,7 @@ public class PlayQueueEvent {
 
     @Override
     public String toString() {
-        final Objects.ToStringHelper stringHelper = Objects.toStringHelper(this);
+        final MoreObjects.ToStringHelper stringHelper = MoreObjects.toStringHelper(this);
         return stringHelper.add("kind", getKindName()).toString();
     }
 

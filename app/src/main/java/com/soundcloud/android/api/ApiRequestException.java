@@ -1,6 +1,5 @@
 package com.soundcloud.android.api;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.soundcloud.android.api.ApiRequestException.Reason.AUTH_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.BAD_REQUEST;
 import static com.soundcloud.android.api.ApiRequestException.Reason.MALFORMED_INPUT;
@@ -11,6 +10,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED
 import static com.soundcloud.android.api.ApiRequestException.Reason.SERVER_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpStatus;

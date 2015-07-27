@@ -2,7 +2,6 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.associations.FollowingOperations.FollowStatusChangedListener;
 
-import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -95,7 +94,7 @@ import java.util.WeakHashMap;
     }
 
     public Set<Long> getFollowedUserIds() {
-        return ImmutableSet.copyOf(followings);
+        return Collections.unmodifiableSet(followings);
     }
 
     public boolean isEmpty() {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage.provider;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -9,6 +8,7 @@ import com.soundcloud.android.storage.SQLiteErrors;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.collections.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;

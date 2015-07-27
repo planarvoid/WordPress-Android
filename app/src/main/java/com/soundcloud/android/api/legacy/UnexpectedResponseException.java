@@ -1,6 +1,6 @@
 package com.soundcloud.android.api.legacy;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 import org.apache.http.StatusLine;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class UnexpectedResponseException extends IOException {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass())
+        return MoreObjects.toStringHelper(getClass())
                 .add("response_status", statusLine).add("request", request).toString();
     }
 }

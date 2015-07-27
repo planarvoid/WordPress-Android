@@ -3,7 +3,6 @@ package com.soundcloud.android.search.suggestions;
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -39,6 +38,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Spannable;
 import android.text.SpannableString;

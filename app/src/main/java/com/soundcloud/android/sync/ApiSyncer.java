@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -37,6 +36,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;

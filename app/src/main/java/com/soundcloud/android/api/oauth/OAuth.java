@@ -1,11 +1,11 @@
 package com.soundcloud.android.api.oauth;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
 import org.apache.http.message.BasicHeader;
 
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 

@@ -2,14 +2,14 @@ package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 
@@ -105,7 +105,7 @@ class ApiAudioAd implements PropertySetSource {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass())
+        return MoreObjects.toStringHelper(getClass())
                 .add("urn", urn)
                 .add("apiTrack", apiTrack)
                 .add("visualAd", visualAd)

@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 final class StartCheckout {
 
@@ -19,12 +19,12 @@ final class StartCheckout {
         } else if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return Objects.equal(productId, ((StartCheckout) o).productId);
+        return MoreObjects.equal(productId, ((StartCheckout) o).productId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(productId);
+        return MoreObjects.hashCode(productId);
     }
 
 }

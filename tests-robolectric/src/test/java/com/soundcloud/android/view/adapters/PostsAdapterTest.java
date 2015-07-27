@@ -10,10 +10,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Maps;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -22,9 +21,9 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -265,7 +264,7 @@ public class PostsAdapterTest {
     }
 
     private HashMap<Urn, PublicApiResource> getResourceHashMap(PublicApiResource... resources) {
-        HashMap<Urn, PublicApiResource> updatedItems = Maps.newHashMap();
+        HashMap<Urn, PublicApiResource> updatedItems = new HashMap<>();
         for (PublicApiResource resource : resources) {
             updatedItems.put(resource.getUrn(), resource);
         }

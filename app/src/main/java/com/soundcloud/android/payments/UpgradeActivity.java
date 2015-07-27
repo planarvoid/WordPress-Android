@@ -1,12 +1,12 @@
 package com.soundcloud.android.payments;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 

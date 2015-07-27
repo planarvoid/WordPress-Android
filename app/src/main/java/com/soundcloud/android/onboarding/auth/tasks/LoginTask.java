@@ -4,7 +4,6 @@ import static android.util.Log.INFO;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -28,6 +27,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 
 public class LoginTask extends AuthTask {
 

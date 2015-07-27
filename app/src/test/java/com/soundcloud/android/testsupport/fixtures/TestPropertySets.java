@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
@@ -22,7 +22,6 @@ import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;
 
-import java.util.Arrays;
 import java.util.Date;
 
 public abstract class TestPropertySets {
@@ -39,11 +38,11 @@ public abstract class TestPropertySets {
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind("#222222"),
                 AdProperty.FOCUSED_TEXT_COLOR.bind("#333333"),
                 AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444"),
-                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(newArrayList("adswizzUrl", "advertiserUrl")),
-                AdProperty.AUDIO_AD_FINISH_URLS.bind(newArrayList("finish1", "finish2")),
-                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(newArrayList("click1", "click2")),
-                AdProperty.AUDIO_AD_SKIP_URLS.bind(newArrayList("skip1", "skip2")),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(newArrayList("visual1", "visual2"))
+                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(asList("adswizzUrl", "advertiserUrl")),
+                AdProperty.AUDIO_AD_FINISH_URLS.bind(asList("finish1", "finish2")),
+                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(asList("click1", "click2")),
+                AdProperty.AUDIO_AD_SKIP_URLS.bind(asList("skip1", "skip2")),
+                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(asList("visual1", "visual2"))
         );
     }
 
@@ -84,8 +83,8 @@ public abstract class TestPropertySets {
                 LeaveBehindProperty.LEAVE_BEHIND_URN.bind("adswizz:leavebehind:1105"),
                 LeaveBehindProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),
                 LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse("http://squarespace.com")),
-                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("leaveBehindTrackingImpressionUrl1", "leaveBehindTrackingImpressionUrl2")),
-                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(newArrayList("leaveBehindTrackingClickTroughUrl1", "leaveBehindTrackingClickTroughUrl2"))
+                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(asList("leaveBehindTrackingImpressionUrl1", "leaveBehindTrackingImpressionUrl2")),
+                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(asList("leaveBehindTrackingClickTroughUrl1", "leaveBehindTrackingClickTroughUrl2"))
         );
     }
 
@@ -94,8 +93,8 @@ public abstract class TestPropertySets {
                 InterstitialProperty.INTERSTITIAL_URN.bind("adswizz:ads:1105"),
                 InterstitialProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),
                 InterstitialProperty.CLICK_THROUGH_URL.bind(Uri.parse("http://squarespace.com")),
-                InterstitialProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A1105%3Bview_key%3A1410853892331806%3Bzone_id%3A56&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=67fa476869b956676b5bae2866c377a9&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=681405")),
-                InterstitialProperty.TRACKING_CLICK_URLS.bind(newArrayList("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30")),
+                InterstitialProperty.TRACKING_IMPRESSION_URLS.bind(asList("https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A1105%3Bview_key%3A1410853892331806%3Bzone_id%3A56&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=67fa476869b956676b5bae2866c377a9&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=681405")),
+                InterstitialProperty.TRACKING_CLICK_URLS.bind(asList("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30")),
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"));
@@ -145,10 +144,10 @@ public abstract class TestPropertySets {
         return expectedTrackForListItem(Urn.forTrack(12345L))
                 .put(PromotedItemProperty.AD_URN, "ad:urn:123")
                 .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
-                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
-                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
-                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
-                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+                .put(PromotedItemProperty.TRACK_CLICKED_URLS, asList("promoted1", "promoted2"))
+                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, asList("promoted3", "promoted4"))
+                .put(PromotedItemProperty.TRACK_PLAYED_URLS, asList("promoted5", "promoted6"))
+                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, asList("promoted7", "promoted8"));
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {
@@ -189,10 +188,10 @@ public abstract class TestPropertySets {
         return expectedPostedPlaylistsForPostedPlaylistsScreen()
                 .put(PromotedItemProperty.AD_URN, "ad:urn:123")
                 .put(PromotedItemProperty.CREATED_AT, new Date(Long.MAX_VALUE))
-                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
-                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
-                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
-                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
+                .put(PromotedItemProperty.TRACK_CLICKED_URLS, asList("promoted1", "promoted2"))
+                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, asList("promoted3", "promoted4"))
+                .put(PromotedItemProperty.TRACK_PLAYED_URLS, asList("promoted5", "promoted6"))
+                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, asList("promoted7", "promoted8"));
     }
 
     public static PropertySet expectedPromotedPlaylist() {

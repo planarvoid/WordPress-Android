@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration.experiments;
 
-import com.google.common.collect.Lists;
+import com.soundcloud.java.collections.Lists;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 

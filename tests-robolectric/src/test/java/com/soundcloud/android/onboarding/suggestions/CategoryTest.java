@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -28,7 +29,7 @@ public class CategoryTest {
         allSuggestedUsers = new SuggestedUser[]{new SuggestedUser("soundcloud:users:1"),
                 new SuggestedUser("soundcloud:users:2"),
                 new SuggestedUser("soundcloud:users:3")};
-        category.setUsers(Lists.newArrayList(allSuggestedUsers));
+        category.setUsers(newArrayList(allSuggestedUsers));
     }
 
     @Test

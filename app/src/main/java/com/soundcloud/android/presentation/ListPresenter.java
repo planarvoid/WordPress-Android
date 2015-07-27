@@ -1,6 +1,7 @@
 package com.soundcloud.android.presentation;
 
-import com.google.common.base.Preconditions;
+import static com.soundcloud.java.checks.Preconditions.checkState;
+
 import com.soundcloud.android.image.ImageOperations;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
-        Preconditions.checkState(collectionBinding.adapter() instanceof ListAdapter, "Adapter must be an " + ListAdapter.class);
+        checkState(collectionBinding.adapter() instanceof ListAdapter, "Adapter must be an " + ListAdapter.class);
 
         this.listView = (AbsListView) view.findViewById(android.R.id.list);
         if (this.listView == null) {

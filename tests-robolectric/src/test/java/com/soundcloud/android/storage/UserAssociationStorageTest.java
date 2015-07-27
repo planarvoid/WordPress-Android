@@ -1,6 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -8,11 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -24,6 +22,8 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -209,7 +209,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInSingleBatchIfCollectionIsSmallEnough() throws Exception {
-        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
+        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
 
         ContentResolver resolver = mock(ContentResolver.class);
         new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
@@ -219,7 +219,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInBatchesIfCollectionIsTooLarge() throws Exception {
-        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
+        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
 
         ContentResolver resolver = mock(ContentResolver.class);
         new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
@@ -229,7 +229,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingSingleBatch() {
-        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
+        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
@@ -247,7 +247,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingMultipleBatches() {
-        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE*2), DiscreteDomain.longs()));
+        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);
@@ -343,7 +343,7 @@ public class UserAssociationStorageTest {
         TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        List<UserAssociation> userAssociations = Lists.newArrayList(storage.getFollowings().toBlocking().getIterator());
+        List<UserAssociation> userAssociations = newArrayList(storage.getFollowings().toBlocking().getIterator());
 
         UserAssociation association = userAssociations.get(0);
         association.markForAddition();
@@ -435,7 +435,7 @@ public class UserAssociationStorageTest {
         UserAssociation association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
         expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
 
-        storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).toBlocking().last();
+        storage.setFollowingsAsSynced(newArrayList(association1, association2)).toBlocking().last();
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());

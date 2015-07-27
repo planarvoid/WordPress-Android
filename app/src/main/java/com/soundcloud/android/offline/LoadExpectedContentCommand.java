@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.offline.DownloadRequest.Builder;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
@@ -17,12 +18,12 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
@@ -41,9 +42,9 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private final PropellerDatabase database;
 
-    private final Function<DownloadRequest.Builder, DownloadRequest> toDownloadRequest = new Function<DownloadRequest.Builder, DownloadRequest>() {
+    private final Function<Builder, DownloadRequest> toDownloadRequest = new Function<Builder, DownloadRequest>() {
         @Override
-        public DownloadRequest apply(DownloadRequest.Builder builder) {
+        public DownloadRequest apply(Builder builder) {
             return builder.build();
         }
     };
@@ -62,7 +63,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
             requestsData.addAll(tracksFromLikes());
         }
 
-        return Collections2.transform(getAggregatedRequestData(requestsData), toDownloadRequest);
+        return MoreCollections.transform(getAggregatedRequestData(requestsData), toDownloadRequest);
     }
 
     private Collection<DownloadRequest.Builder> getAggregatedRequestData(List<OfflineRequestData> requestsData) {

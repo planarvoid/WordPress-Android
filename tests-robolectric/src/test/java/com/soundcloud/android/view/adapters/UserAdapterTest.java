@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Maps;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -118,7 +117,7 @@ public class UserAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(user, user2));
 
         PublicApiUser user2AfterUpdate = copyUser(user2);
-        final HashMap<Urn, PublicApiResource> updatedItems = Maps.newHashMap();
+        final HashMap<Urn, PublicApiResource> updatedItems = new HashMap<>();
         updatedItems.put(user2AfterUpdate.getUrn(), user2AfterUpdate);
         adapter.updateItems(updatedItems);
 

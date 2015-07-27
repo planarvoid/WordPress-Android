@@ -1,8 +1,7 @@
 package com.soundcloud.android.storage;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -21,8 +20,10 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +83,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     }
 
     public Observable<PublicApiTrack> getTrackAsync(final long id) {
-        Preconditions.checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
+        checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
         return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
             @Override
             public void call(Subscriber<? super PublicApiTrack> observer) {
@@ -102,7 +103,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     }
 
     public PublicApiTrack getTrack(long id) throws NotFoundException {
-        Preconditions.checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
+        checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
         final PublicApiTrack track = trackDAO.queryById(id);
         if (track == null) {
             throw new NotFoundException(id);
@@ -158,7 +159,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
                     return Collections.emptyList();
                 }
 
-                List<Urn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
+                List<Urn> newQueue = new ArrayList<>(cursor.getCount());
                 while (cursor.moveToNext()) {
                     newQueue.add(Urn.forTrack(cursor.getLong(cursor.getColumnIndex(idColumn))));
                 }

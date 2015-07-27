@@ -1,9 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -19,11 +17,14 @@ import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -80,7 +81,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     // Note: We filter out the users without a username, since these may not have been successfully synced;
     // this would later translate into an error on the UserItemPresenter, that requires the username property
     private List<PublicApiResource> filterInvalidUsers(List<PublicApiResource> newItems) {
-        return Lists.newArrayList(Iterables.filter(newItems, new Predicate<PublicApiResource>() {
+        return newArrayList(Iterables.filter(newItems, new Predicate<PublicApiResource>() {
             @Override
             public boolean apply(PublicApiResource input) {
                 PublicApiUser user = ((UserHolder) input).getUser();

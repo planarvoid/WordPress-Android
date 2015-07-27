@@ -1,10 +1,9 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 
 import java.util.List;

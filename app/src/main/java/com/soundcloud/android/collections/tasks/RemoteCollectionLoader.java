@@ -3,9 +3,6 @@ package com.soundcloud.android.collections.tasks;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
@@ -13,6 +10,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
      * Store all tracks as they are playback candidates and will be expected to be in the database
      */
     private void storeTracks(CollectionHolder<T> holder) {
-        final Collection<T> trackHolders = Collections2.filter(holder.getCollection(), new Predicate<T>() {
+        final Collection<T> trackHolders = MoreCollections.filter(holder.getCollection(), new Predicate<T>() {
             @Override
             public boolean apply(@Nullable T input) {
                 return input instanceof PlayableHolder && ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
@@ -72,7 +72,7 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
         });
 
         if (!trackHolders.isEmpty()) {
-            final Collection<PublicApiTrack> tracks = Collections2.transform(trackHolders, new Function<T, PublicApiTrack>() {
+            final Collection<PublicApiTrack> tracks = MoreCollections.transform(trackHolders, new Function<T, PublicApiTrack>() {
                 @Override
                 public PublicApiTrack apply(T input) {
                     return (PublicApiTrack) ((PlayableHolder) input).getPlayable();

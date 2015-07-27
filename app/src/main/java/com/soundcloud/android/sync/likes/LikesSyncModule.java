@@ -2,7 +2,6 @@ package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -12,6 +11,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;

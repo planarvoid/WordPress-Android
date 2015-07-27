@@ -1,16 +1,19 @@
 package com.soundcloud.android.playback;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.soundcloud.android.playback.PlayQueueItem.fromTrack;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+import static com.soundcloud.java.collections.PropertySet.create;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +90,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public int indexOf(Urn initialTrack) {
-        return Lists.transform(playQueueItems, toUrn).indexOf(initialTrack);
+        return transform(playQueueItems, toUrn).indexOf(initialTrack);
     }
 
     @Deprecated
@@ -112,7 +115,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
-        List<Urn> shuffled = Lists.newArrayList(tracks);
+        List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
         return fromTrackUrnList(shuffled, playSessionSource);
     }
@@ -147,7 +150,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     List<Long> getTrackIds() {
-        List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
+        List<Long> trackIds = transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
                 return input.getTrackUrn().getNumericId();
@@ -157,20 +160,14 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     List<Urn> getTrackUrns() {
-        List<Urn> trackUrns = Lists.transform(playQueueItems, new Function<PlayQueueItem, Urn>() {
-            @Override
-            public Urn apply(PlayQueueItem input) {
-                return input.getTrackUrn();
-            }
-        });
-        return trackUrns;
+        return transform(playQueueItems, toUrn);
     }
 
     private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Urn> trackIds, final PlaySessionSource playSessionSource) {
-        return Lists.newArrayList(Lists.transform(trackIds, new Function<Urn, PlayQueueItem>() {
+        return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {
-                return PlayQueueItem.fromTrack(track, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), PropertySet.create(), true);
+                return fromTrack(track, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), create(), true);
             }
         }));
     }
@@ -185,7 +182,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         }
 
         PlayQueue playQueue = (PlayQueue) o;
-        return Objects.equal(playQueueItems, playQueue.playQueueItems);
+        return MoreObjects.equal(playQueueItems, playQueue.playQueueItems);
     }
 
     @Override

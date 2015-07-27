@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -10,6 +9,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 

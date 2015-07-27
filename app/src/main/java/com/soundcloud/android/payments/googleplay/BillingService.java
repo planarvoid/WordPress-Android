@@ -11,13 +11,13 @@ import static com.soundcloud.android.payments.googleplay.BillingUtil.log;
 import static com.soundcloud.android.payments.googleplay.BillingUtil.logBillingResponse;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.collections.Lists;
 import org.json.JSONException;
 import rx.Observable;
 import rx.Subscriber;

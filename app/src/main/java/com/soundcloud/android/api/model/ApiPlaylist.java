@@ -1,7 +1,6 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
@@ -9,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -170,7 +170,7 @@ public class ApiPlaylist implements PropertySetSource, PlaylistRecord {
             return false;
         }
         ApiPlaylist that = (ApiPlaylist) o;
-        return Objects.equal(urn, that.urn);
+        return MoreObjects.equal(urn, that.urn);
     }
 
     @Override

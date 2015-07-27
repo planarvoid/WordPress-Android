@@ -1,12 +1,12 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.annotations.VisibleForTesting;
 import rx.Observer;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
+import android.support.annotation.VisibleForTesting;
 
 public class ResultReceiverAdapter extends ResultReceiver {
 

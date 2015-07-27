@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -20,6 +19,7 @@ import rx.observables.ConnectableObservable;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

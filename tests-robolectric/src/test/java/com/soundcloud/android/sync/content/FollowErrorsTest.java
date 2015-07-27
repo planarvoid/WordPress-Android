@@ -1,12 +1,12 @@
 package com.soundcloud.android.sync.content;
 
-import com.google.common.reflect.TypeToken;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
-
-import static com.soundcloud.android.Expect.expect;
 
 public class FollowErrorsTest {
 

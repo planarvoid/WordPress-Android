@@ -2,12 +2,12 @@ package com.soundcloud.android.likes;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.offline.OfflineState;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.io.File;
 
@@ -42,20 +42,20 @@ public final class FilePart extends FormPart {
             return false;
         }
         FilePart that = ((FilePart) o);
-        return Objects.equal(file, that.file)
-                && Objects.equal(partName, that.partName)
-                && Objects.equal(fileName, that.fileName)
-                && Objects.equal(contentType, that.contentType);
+        return MoreObjects.equal(file, that.file)
+                && MoreObjects.equal(partName, that.partName)
+                && MoreObjects.equal(fileName, that.fileName)
+                && MoreObjects.equal(contentType, that.contentType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(file, partName, fileName, contentType);
+        return MoreObjects.hashCode(file, partName, fileName, contentType);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("partName", partName)
                 .add("file", file)
                 .add("fileName", fileName)

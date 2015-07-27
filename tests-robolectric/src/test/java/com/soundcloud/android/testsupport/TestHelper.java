@@ -2,11 +2,11 @@ package com.soundcloud.android.testsupport;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
+import static com.soundcloud.android.model.Urn.forTrack;
+import static com.soundcloud.java.collections.Lists.transform;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
@@ -25,6 +25,7 @@ import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.functions.Function;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
@@ -336,10 +337,10 @@ public class TestHelper {
     }
 
     public static List<Urn> createTracksUrn(Long... ids) {
-        return Lists.transform(new ArrayList<>(Arrays.asList(ids)), new Function<Long, Urn>() {
+        return transform(new ArrayList<>(Arrays.asList(ids)), new Function<Long, Urn>() {
             @Override
             public Urn apply(Long id) {
-                return Urn.forTrack(id);
+                return forTrack(id);
             }
         });
     }

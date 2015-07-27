@@ -1,13 +1,12 @@
 package com.soundcloud.android.accounts;
 
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -37,6 +36,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -3,11 +3,10 @@ package com.soundcloud.android.api.legacy.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.Request;
+import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import android.text.TextUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -47,11 +47,11 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public CollectionHolder(List<T> collection){
-        this.collection = Lists.newArrayList(collection);
+        this.collection = new ArrayList<>(collection);
     }
 
     public CollectionHolder(List<T> collection, String nextHref){
-        this(Lists.newArrayList(collection));
+        this(collection);
         next_href = nextHref;
     }
 
@@ -102,7 +102,7 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public void removeUnknownResources(){
-        Collection<T> unknownResources = Collections2.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
+        Collection<T> unknownResources = MoreCollections.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
         collection.removeAll(unknownResources);
     }
 

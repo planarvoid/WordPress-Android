@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -39,6 +38,7 @@ import rx.subjects.PublishSubject;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class PlayQueueOperationsTest extends AndroidUnitTest {
@@ -106,7 +106,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
         PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
-        Observable<PlayQueueItem> itemObservable = Observable.from(Lists.newArrayList(playQueueItem1, playQueueItem2));
+        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
 
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
@@ -223,7 +223,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {
         final RecommendedTracksCollection collection = new RecommendedTracksCollection();
-        collection.setCollection(Lists.newArrayList(suggestions));
+        collection.setCollection(Arrays.asList(suggestions));
         return collection;
     }
 

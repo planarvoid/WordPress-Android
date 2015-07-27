@@ -2,17 +2,13 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -20,23 +16,16 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 class PlayQueueOperations {
 
     @VisibleForTesting static final String SHARED_PREFERENCES_KEY = "playlistPos";
-
-    private final Function<ApiTrack, Urn> fromApiTrackToUrn = new Function<ApiTrack, Urn>() {
-        @Override
-        public Urn apply(ApiTrack apiTrack) {
-            return apiTrack.getUrn();
-        }
-    };
 
     private static final Func1<RecommendedTracksCollection, PlayQueue> TO_PLAY_QUEUE = new Func1<RecommendedTracksCollection, PlayQueue>() {
         @Override
@@ -46,16 +35,6 @@ class PlayQueueOperations {
             }
 
             return PlayQueue.fromRecommendations(recommendedTracks);
-        }
-    };
-
-    private final Func1<RecommendedTracksCollection, Observable<Urn>> toUrns = new Func1<RecommendedTracksCollection, Observable<Urn>>() {
-        @Override
-        public Observable<Urn> call(RecommendedTracksCollection apiTracks) {
-            if (apiTracks.getCollection().isEmpty()) {
-                return Observable.error(new NoSuchElementException("No related tracks." + apiTracks));
-            }
-            return Observable.from(Lists.transform(apiTracks.getCollection(), fromApiTrackToUrn));
         }
     };
 

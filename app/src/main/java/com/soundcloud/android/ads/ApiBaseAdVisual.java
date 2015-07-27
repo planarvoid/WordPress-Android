@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ abstract class ApiBaseAdVisual {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this.getClass())
+        return MoreObjects.toStringHelper(this.getClass())
                 .add("urn", urn)
                 .add("imageUrl", imageUrl)
                 .add("clickthroughUrl", clickthroughUrl)

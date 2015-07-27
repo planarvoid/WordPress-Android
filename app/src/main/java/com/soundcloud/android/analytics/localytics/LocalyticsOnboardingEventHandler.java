@@ -2,10 +2,10 @@ package com.soundcloud.android.analytics.localytics;
 
 import static com.soundcloud.android.analytics.localytics.LocalyticsEvents.Onboarding;
 
-import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.Map;
 
@@ -59,7 +59,7 @@ public class LocalyticsOnboardingEventHandler {
 
     private void logAttributes(String tagName, Map<String, String> eventAttributes) {
         if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
-            final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(tagName + " with EventAttributes");
+            final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(tagName + " with EventAttributes");
             for (String key : eventAttributes.keySet()) {
                 toStringHelper.add(key, eventAttributes.get(key));
             }

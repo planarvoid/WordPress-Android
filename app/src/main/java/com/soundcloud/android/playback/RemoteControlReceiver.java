@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.external.PlaybackAction;
 
@@ -8,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.support.annotation.VisibleForTesting;
 import android.view.KeyEvent;
 
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(

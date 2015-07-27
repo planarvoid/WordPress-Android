@@ -1,7 +1,7 @@
 package com.soundcloud.android.api;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import android.net.Uri;
 

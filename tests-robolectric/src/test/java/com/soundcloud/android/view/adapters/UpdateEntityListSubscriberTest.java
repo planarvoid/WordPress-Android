@@ -1,11 +1,11 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -65,7 +65,7 @@ public class UpdateEntityListSubscriberTest {
 
         PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
-        when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
+        when(adapter.getItems()).thenReturn(newArrayList(track1, track2));
 
         final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(changeSet));
         updateEntityListSubscriber.onNext(event);

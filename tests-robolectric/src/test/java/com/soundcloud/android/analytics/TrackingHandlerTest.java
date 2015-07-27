@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
@@ -7,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -110,6 +110,6 @@ public class TrackingHandlerTest {
     private List<TrackingRecord> buildEvents() {
         final TrackingRecord event1 = new TrackingRecord(1L, 1000L, "backend", "url1");
         final TrackingRecord event2 = new TrackingRecord(2L, 2000L, "backend", "url2");
-        return Lists.newArrayList(event1, event2);
+        return newArrayList(event1, event2);
     }
 }

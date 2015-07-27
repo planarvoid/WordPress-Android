@@ -1,15 +1,15 @@
 package com.soundcloud.android.properties;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.res.Resources;
 import android.os.Build;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -127,7 +127,7 @@ public class ApplicationProperties {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDevice", IS_RUNNING_ON_DEVICE).
+        return MoreObjects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDevice", IS_RUNNING_ON_DEVICE).
                 add("isEmulator", IS_RUNNING_ON_EMULATOR).toString();
     }
 

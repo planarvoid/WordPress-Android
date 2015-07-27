@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestObserver;
-
-import java.util.Arrays;
 
 public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
@@ -63,7 +61,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Test
     public void playNewQueueOpensCurrentTrackThroughService() {
         final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-        defaultPlaybackStrategy.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
+        defaultPlaybackStrategy.playNewQueue(PlayQueue.fromTrackUrnList(asList(TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
 
         verify(serviceInitiator).playCurrent();
     }
@@ -72,9 +70,9 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playNewQueueRemovesDuplicates() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.playNewQueue(
-                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
+                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(observer);
 
-        PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2, TRACK3), playSessionSource);
+        PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2, TRACK3), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));
     }
 
@@ -82,9 +80,9 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playNewQueueShouldFallBackToPositionZeroIfInitialTrackNotFound() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.playNewQueue(
-                PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, false, playSessionSource).subscribe(observer);
+                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, false, playSessionSource).subscribe(observer);
 
-        PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK1, TRACK2), playSessionSource);
+        PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));
     }
 }

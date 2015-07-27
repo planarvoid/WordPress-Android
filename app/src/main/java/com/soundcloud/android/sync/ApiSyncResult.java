@@ -1,9 +1,8 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import android.content.SyncResult;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

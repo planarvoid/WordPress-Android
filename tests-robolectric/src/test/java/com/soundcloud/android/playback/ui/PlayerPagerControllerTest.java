@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -13,7 +14,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -68,8 +68,8 @@ public class PlayerPagerControllerTest {
     private PlayerPagerController controller;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
-    private final List<TrackPageData> adQueueData = Lists.newArrayList(new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
-    private final List<TrackPageData> fullQueueData = Lists.newArrayList(new TrackPageData(1, TRACK_URN, PropertySet.create()),
+    private final List<TrackPageData> adQueueData = newArrayList(new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
+    private final List<TrackPageData> fullQueueData = newArrayList(new TrackPageData(1, TRACK_URN, PropertySet.create()),
             new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
 
     @Before

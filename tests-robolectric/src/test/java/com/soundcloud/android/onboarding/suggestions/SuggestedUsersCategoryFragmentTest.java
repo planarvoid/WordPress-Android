@@ -1,12 +1,12 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -80,7 +80,7 @@ public class SuggestedUsersCategoryFragmentTest {
     @Test
     public void shouldFollowAllUsers() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(followingOperations.addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
+        when(followingOperations.addFollowingsBySuggestedUsers(newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
         fragment.toggleFollowings(true);
 
         verify(gridView, times(2)).setItemChecked(0, true);
@@ -93,7 +93,7 @@ public class SuggestedUsersCategoryFragmentTest {
     @Test
     public void shouldUnfollowAllUsers(){
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(followingOperations.removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
+        when(followingOperations.removeFollowingsBySuggestedUsers(newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
         fragment.toggleFollowings(false);
 
         verify(gridView).setItemChecked(0, false);

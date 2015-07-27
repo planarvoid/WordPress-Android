@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.Playa.PlayaListener;
@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 
@@ -167,7 +168,7 @@ class StreamPlaya implements PlayaListener {
             configureNextPlayaToUse(mediaPlayaDelegate);
             mediaPlayaDelegate.play(lastTrackPlayed, progress);
         } else {
-            Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");
+            checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;
             playaListener.onPlaystateChanged(stateTransition);
         }
@@ -184,7 +185,7 @@ class StreamPlaya implements PlayaListener {
 
     @Override
     public boolean requestAudioFocus() {
-        Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when requesting audio focus");
+        checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when requesting audio focus");
         return playaListener.requestAudioFocus();
     }
 

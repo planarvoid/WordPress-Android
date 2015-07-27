@@ -1,8 +1,8 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class CurrentPlayQueueTrackEvent {
     private static final int NEW_QUEUE = 0;
@@ -58,12 +58,12 @@ public final class CurrentPlayQueueTrackEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(kind, currentTrackUrn);
+        return MoreObjects.hashCode(kind, currentTrackUrn);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("kind", kind == NEW_QUEUE ? "NEW_QUEUE" : "POSITION_CHANGED").toString();
     }
 }

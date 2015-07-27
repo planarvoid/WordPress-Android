@@ -2,7 +2,6 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -28,6 +27,7 @@ import com.soundcloud.java.collections.PropertySet;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;

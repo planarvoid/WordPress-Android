@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.objects.MoreObjects;
 
 public class TrackSourceInfo {
 
@@ -85,7 +85,7 @@ public class TrackSourceInfo {
 
     @Override
     public String toString() {
-        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(TrackSourceInfo.class)
+        final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(TrackSourceInfo.class)
                 .add("originScreen", originScreen)
                 .add("userTriggered", userTriggered);
 

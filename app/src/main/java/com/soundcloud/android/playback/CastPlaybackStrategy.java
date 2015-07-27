@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 import rx.Observable;
 
 import java.util.List;

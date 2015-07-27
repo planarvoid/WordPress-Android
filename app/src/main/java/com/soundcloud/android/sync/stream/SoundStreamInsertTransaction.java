@@ -6,13 +6,14 @@ import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackConte
 import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.google.common.base.Joiner;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Joiner;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -114,7 +115,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
     }
 
     private ContentValues buildPromotedContentValues(ApiStreamItem streamItem) {
-        final Joiner urlJoiner = Joiner.on(" ");
+        final Joiner urlJoiner = Strings.joinOn(" ");
 
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
                 .put(TableColumns.PromotedTracks.AD_URN, streamItem.getAdUrn().get())

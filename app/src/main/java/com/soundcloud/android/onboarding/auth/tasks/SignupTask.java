@@ -1,6 +1,5 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
@@ -18,6 +17,7 @@ import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.storage.LegacyUserStorage;
 
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;

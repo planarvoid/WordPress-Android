@@ -1,13 +1,13 @@
 package com.soundcloud.android.configuration;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
+import com.soundcloud.java.collections.Lists;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Blueprint(Configuration.class)
@@ -15,7 +15,7 @@ public class ConfigurationBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new Configuration(createFeatures(), new UserPlan("free", Arrays.asList("mid_tier")), createLayers(), new DeviceManagement(false, "device_123"));
+            return new Configuration(createFeatures(), new UserPlan("free", Collections.singletonList("mid_tier")), createLayers(), new DeviceManagement(false, "device_123"));
         }
     };
 

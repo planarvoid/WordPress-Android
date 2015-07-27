@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,19 +63,19 @@ public final class DownloadRequest {
 
         DownloadRequest that = (DownloadRequest) o;
 
-        return Objects.equal(track, that.track)
-                && Objects.equal(inLikedTracks, that.inLikedTracks)
-                && Objects.equal(inPlaylists, that.inPlaylists);
+        return MoreObjects.equal(track, that.track)
+                && MoreObjects.equal(inLikedTracks, that.inLikedTracks)
+                && MoreObjects.equal(inPlaylists, that.inPlaylists);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(track, inLikedTracks, inPlaylists);
+        return MoreObjects.hashCode(track, inLikedTracks, inPlaylists);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("track", track)
                 .add("inLikedTracks", inLikedTracks)
                 .add("inPlaylists", inPlaylists)

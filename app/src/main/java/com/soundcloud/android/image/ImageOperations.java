@@ -1,7 +1,5 @@
 package com.soundcloud.android.image;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -40,6 +38,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
@@ -47,6 +46,7 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +63,7 @@ public class ImageOperations {
     private final ApiUrlBuilder urlBuilder;
     private final PlaceholderGenerator placeholderGenerator;
 
-    private final Set<String> notFoundUris = Sets.newHashSet();
+    private final Set<String> notFoundUris = new HashSet<>();
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
 

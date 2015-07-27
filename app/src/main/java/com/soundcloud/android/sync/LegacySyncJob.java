@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.api.legacy.PublicApi;
@@ -11,6 +10,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;

@@ -1,11 +1,11 @@
 package com.soundcloud.android.analytics;
 
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.R;
+import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.res.Resources;
 
@@ -32,6 +32,6 @@ public class AnalyticsProperties {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("analyticsEnabled", analyticsAvailable).toString();
+        return MoreObjects.toStringHelper(this).add("analyticsEnabled", analyticsAvailable).toString();
     }
 }

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Sets;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -19,6 +18,7 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.Set;
 
 public class FallbackImageListenerTest extends AndroidUnitTest {
@@ -33,7 +33,7 @@ public class FallbackImageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        notFoundsUri = Sets.newHashSet();
+        notFoundsUri = new HashSet<>();
         view = new ImageView(context());
         bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
     }

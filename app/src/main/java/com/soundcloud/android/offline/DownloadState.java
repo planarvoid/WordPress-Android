@@ -3,10 +3,10 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static com.soundcloud.android.offline.SecureFileStorage.calculateFileSizeInBytes;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class DownloadState {
 
@@ -113,7 +113,7 @@ public final class DownloadState {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("status", status)
                 .add("request", request)
                 .add("timestamp", timestamp)

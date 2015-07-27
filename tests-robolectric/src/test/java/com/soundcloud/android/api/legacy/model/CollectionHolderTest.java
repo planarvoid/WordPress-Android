@@ -1,11 +1,11 @@
 package com.soundcloud.android.api.legacy.model;
 
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,7 +22,7 @@ public class CollectionHolderTest {
     @Before
     public void setup(){
         initMocks(this);
-        List<PublicApiResource> resources = Lists.newArrayList(scResource, unknownResource);
+        List<PublicApiResource> resources = newArrayList(scResource, unknownResource);
         collectionHolder = new CollectionHolder<>(resources);
     }
 

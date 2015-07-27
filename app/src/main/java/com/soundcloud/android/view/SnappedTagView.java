@@ -1,9 +1,9 @@
 package com.soundcloud.android.view;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 
 public class SnappedTagView extends CustomFontTextView {

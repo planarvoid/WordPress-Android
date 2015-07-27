@@ -1,11 +1,13 @@
 package com.soundcloud.android.playback.ui;
 
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.java.collections.PropertySet;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 class PlayQueueDataSource {
@@ -25,11 +27,11 @@ class PlayQueueDataSource {
 
     public List<TrackPageData> getCurrentTrackAsQueue() {
         final TrackPageData adPageData = new TrackPageData(playQueueManager.getCurrentPosition(), playQueueManager.getCurrentTrackUrn(), playQueueManager.getCurrentMetaData());
-        return Lists.newArrayList(adPageData);
+        return newArrayList(adPageData);
     }
 
     private List<TrackPageData> createFullQueue() {
-        List<TrackPageData> trackPageDataCollection = Lists.newArrayListWithExpectedSize(playQueueManager.getQueueSize());
+        List<TrackPageData> trackPageDataCollection = new ArrayList<>(playQueueManager.getQueueSize());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++){
             final Urn trackUrn = playQueueManager.getUrnAtPosition(i);
             final PropertySet metaData = playQueueManager.getMetaDataAt(i);

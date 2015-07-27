@@ -1,11 +1,11 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import static com.google.common.collect.Collections2.filter;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ScModel;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.MoreCollections;
 import org.jetbrains.annotations.NotNull;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,9 +20,7 @@ public class CategoryGroup extends ScModel {
     public static final String KEY_MUSIC = "music";
     public static final String KEY_SPEECH_AND_SOUNDS = "speech_and_sounds";
 
-    @NotNull
     private String key;
-    @NotNull
     private List<Category> categories = Collections.emptyList();
 
     public CategoryGroup() {
@@ -48,7 +46,7 @@ public class CategoryGroup extends ScModel {
 
     @NotNull
     public Collection<Category> getNonEmptyCategories() {
-        return filter(categories, Category.HAS_USERS_PREDICATE);
+        return MoreCollections.filter(categories, Category.HAS_USERS_PREDICATE);
     }
 
     public void setCategories(@NotNull List<Category> categories) {
@@ -97,13 +95,13 @@ public class CategoryGroup extends ScModel {
 
     public static CategoryGroup createProgressGroup(String key) {
         CategoryGroup categoryGroup = new CategoryGroup(key);
-        categoryGroup.setCategories(Lists.<Category>newArrayList(Category.progress()));
+        categoryGroup.setCategories(Lists.newArrayList(Category.progress()));
         return categoryGroup;
     }
 
     public static CategoryGroup createErrorGroup(String key) {
         CategoryGroup categoryGroup = new CategoryGroup(key);
-        categoryGroup.setCategories(Lists.<Category>newArrayList(Category.error()));
+        categoryGroup.setCategories(Lists.newArrayList(Category.error()));
         return categoryGroup;
     }
 

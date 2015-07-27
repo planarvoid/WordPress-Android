@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
@@ -33,6 +32,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+
+import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SyncInitiatorTest {
@@ -210,7 +211,7 @@ public class SyncInitiatorTest {
     @Test
     public void requestTracksSyncShouldRequestTracksSync() throws Exception {
         final PropertySet propertySet = TestPropertySets.fromApiTrack();
-        initiator.requestTracksSync(Lists.<PropertySet>newArrayList(propertySet));
+        initiator.requestTracksSync(Collections.singletonList(propertySet));
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
@@ -221,7 +222,7 @@ public class SyncInitiatorTest {
     @Test
     public void requestPlaylistsSyncShouldRequestPlaylistsSync() throws Exception {
         final PropertySet propertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        initiator.requestPlaylistSync(Lists.<PropertySet>newArrayList(propertySet));
+        initiator.requestPlaylistSync(Collections.singletonList(propertySet));
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();

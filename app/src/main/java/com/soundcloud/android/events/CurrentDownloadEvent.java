@@ -1,9 +1,9 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.java.objects.MoreObjects;
 import rx.functions.Func1;
 
 import java.util.ArrayList;
@@ -97,19 +97,19 @@ public final class CurrentDownloadEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         CurrentDownloadEvent that = (CurrentDownloadEvent) o;
-        return Objects.equal(kind, that.kind)
-                && Objects.equal(isLikedTracks, that.isLikedTracks)
-                && Objects.equal(entities, that.entities);
+        return MoreObjects.equal(kind, that.kind)
+                && MoreObjects.equal(isLikedTracks, that.isLikedTracks)
+                && MoreObjects.equal(entities, that.entities);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(kind, entities, isLikedTracks);
+        return MoreObjects.hashCode(kind, entities, isLikedTracks);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("kind", kind)
+        return MoreObjects.toStringHelper(this).add("kind", kind)
                 .add("entities", entities)
                 .add("isLikedTracks", isLikedTracks).toString();
     }

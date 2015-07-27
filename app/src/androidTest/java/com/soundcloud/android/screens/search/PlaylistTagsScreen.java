@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.search;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -11,6 +9,8 @@ import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import android.widget.TextView;
 

@@ -1,11 +1,11 @@
 package com.soundcloud.android.sync.content;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addCannedResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addIdResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertFirstIdToBe;
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -23,9 +22,9 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.UserAssociationStorage;
@@ -114,7 +113,7 @@ public class UserAssociationSyncerTest {
         userAssociationSyncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
         userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
 
-        verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS, USER_ID, newArrayList(792584L, 1255758L, 308291L), 0, Integer.MAX_VALUE);
+        verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS, USER_ID, asList(792584L, 1255758L, 308291L), 0, Integer.MAX_VALUE);
     }
 
     @Test
@@ -255,7 +254,7 @@ public class UserAssociationSyncerTest {
         List<UserAssociation> userAssociations = getDirtyUserAssociations();
 
         UserAssociationSyncer.BulkFollowSubscriber bulkFollowObserver = new UserAssociationSyncer.BulkFollowSubscriber(userAssociations, userAssociationStorage, followingOperations);
-        final ArrayList<PublicApiUser> users = Lists.newArrayList(userAssociations.get(0).getUser(), userAssociations.get(1).getUser(), userAssociations.get(2).getUser());
+        final ArrayList<PublicApiUser> users = com.soundcloud.java.collections.Lists.newArrayList(userAssociations.get(0).getUser(), userAssociations.get(1).getUser(), userAssociations.get(2).getUser());
 
         bulkFollowObserver.onError(apiRequestException);
         verify(followingOperations).updateLocalStatus(false, ScModel.getIdList(users));
@@ -300,7 +299,7 @@ public class UserAssociationSyncerTest {
 
     @Test
     public void shouldBulkFollowAllAssociations() throws IOException {
-        final ArrayList<UserAssociation> userAssociations = newArrayList(userAssociation, userAssociation, userAssociation);
+        final List<UserAssociation> userAssociations = asList(userAssociation, userAssociation, userAssociation);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(userAssociations);
         when(followingOperations.bulkFollowAssociations(userAssociations)).thenReturn(
@@ -313,7 +312,7 @@ public class UserAssociationSyncerTest {
     public void shouldSetResultAsErrorIfBulkFollowFails() throws IOException {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
-        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
+        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(asList(userAssociation, userAssociation));
         when(followingOperations.bulkFollowAssociations(anyListOf(UserAssociation.class))).thenReturn(Observable.<Collection<UserAssociation>>error(new IOException()));
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeFalse();
     }
@@ -322,7 +321,7 @@ public class UserAssociationSyncerTest {
     public void shouldSetResultAsSuccessIfBulkFollowSucceeds() throws IOException {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
-        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
+        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(asList(userAssociation, userAssociation));
         when(followingOperations.bulkFollowAssociations(anyListOf(UserAssociation.class))).thenReturn(Observable.<Collection<UserAssociation>>empty());
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeTrue();
     }

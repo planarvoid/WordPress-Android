@@ -3,12 +3,12 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -89,7 +89,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void loadsPlaylistWithTracksFromStorage() {
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
@@ -101,7 +101,7 @@ public class PlaylistOperationsTest {
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
         operations.updatedPlaylistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
@@ -115,7 +115,7 @@ public class PlaylistOperationsTest {
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(playlist.toPropertySet()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
@@ -129,7 +129,7 @@ public class PlaylistOperationsTest {
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
         when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(PropertySet.create()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdOverlayProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
@@ -9,6 +8,8 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 

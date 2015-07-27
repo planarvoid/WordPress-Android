@@ -2,10 +2,10 @@ package com.soundcloud.android.api.json;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

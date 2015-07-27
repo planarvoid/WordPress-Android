@@ -1,19 +1,19 @@
 package com.soundcloud.android.stream;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.List;

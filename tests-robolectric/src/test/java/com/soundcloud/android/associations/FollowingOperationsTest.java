@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -9,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
@@ -17,9 +17,9 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -87,7 +87,7 @@ public class FollowingOperationsTest {
         suggestedUser = ModelFixtures.create(SuggestedUser.class);
         suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
 
-        userAssociations = Lists.newArrayList(userAssociationOne, userAssociationTwo);
+        userAssociations = newArrayList(userAssociationOne, userAssociationTwo);
     }
 
     @Test

@@ -1,10 +1,9 @@
 package com.soundcloud.android.view;
 
 import static android.widget.AbsListView.OnScrollListener;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
@@ -16,6 +15,7 @@ import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AbsListView;
@@ -84,7 +84,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        Preconditions.checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
+        checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
         emptyViewController.onViewCreated(fragment, view, savedInstanceState);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);

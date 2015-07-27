@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics.localytics;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -26,7 +24,9 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.objects.MoreObjects;
 
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
@@ -226,7 +226,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private void logAttributes(String tagName, Map<String, String> eventAttributes) {
         if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
-            final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(tagName + " with EventAttributes");
+            final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(tagName + " with EventAttributes");
             for (String key : eventAttributes.keySet()) {
                 toStringHelper.add(key, eventAttributes.get(key));
             }

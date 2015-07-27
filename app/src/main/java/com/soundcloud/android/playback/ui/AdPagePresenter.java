@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -11,7 +9,9 @@ import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

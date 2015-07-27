@@ -1,9 +1,8 @@
 package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.java.collections.Lists.transform;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.api.legacy.PublicApi;
@@ -20,6 +19,7 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.java.functions.Functions;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -189,7 +189,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
             List<Long> newIds = dao.buildQuery()
                     .select(BaseColumns._ID)
-                    .whereIn(BaseColumns._ID, Lists.transform(batch, Functions.toStringFunction()))
+                    .whereIn(BaseColumns._ID, transform(batch, Functions.toStringFunction()))
                     .where("AND " + TableColumns.ResourceTable.LAST_UPDATED + " > ?", "0")
                     .queryIds();
             storedIds.addAll(newIds);

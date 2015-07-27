@@ -1,10 +1,10 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -219,7 +219,7 @@ public class NetworkConnectionHelperTest {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
 
-        List<String> unrecognisedNetworkTypes = Lists.newArrayList();
+        List<String> unrecognisedNetworkTypes = newArrayList();
         for (Field field : fields) {
             if (networkTypeFieldPattern.matcher(field.getName()).matches()) {
 

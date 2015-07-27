@@ -4,7 +4,6 @@ import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissin
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
@@ -14,6 +13,8 @@ import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorFailedException;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.IOException;

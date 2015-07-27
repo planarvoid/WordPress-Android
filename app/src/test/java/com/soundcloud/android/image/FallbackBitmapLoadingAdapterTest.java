@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,14 +36,14 @@ public class FallbackBitmapLoadingAdapterTest {
         adapter.onLoadingFailed("uri", view, "failure reason");
 
         assertThat(subscriber.getOnErrorEvents()).isEmpty();
-        assertThat(subscriber.getOnNextEvents()).isEqualTo(Lists.newArrayList(fallbackImage));
+        assertThat(subscriber.getOnNextEvents()).containsExactly(fallbackImage);
     }
 
     @Test
     public void onLoadingCompleteEmitsBitmap() throws Exception {
         adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         adapter.onLoadingComplete("uri", view, bitmap);
-        subscriber.assertReceivedOnNext(Lists.newArrayList(bitmap));
+        subscriber.assertValue(bitmap);
     }
 
     @Test

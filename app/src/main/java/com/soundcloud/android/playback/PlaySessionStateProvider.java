@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.collect.Maps;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -13,6 +12,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +23,7 @@ import java.util.Map;
 @Singleton
 public class PlaySessionStateProvider {
 
-    private final Map<Urn, PlaybackProgress> progressMap = Maps.newHashMap();
+    private final Map<Urn, PlaybackProgress> progressMap = new HashMap<>();
     private final Func1<StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<StateTransition, Boolean>() {
         @Override
         public Boolean call(StateTransition stateTransition) {

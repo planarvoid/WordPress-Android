@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.payments.googleplay.Payload;
+import com.soundcloud.java.objects.MoreObjects;
 
 final class UpdateCheckout {
 
@@ -38,15 +38,15 @@ final class UpdateCheckout {
         }
 
         UpdateCheckout that = (UpdateCheckout) o;
-        return Objects.equal(state, that.state)
-                && Objects.equal(reason, that.reason)
-                && Objects.equal(payload, that.payload)
-                && Objects.equal(signature, that.signature);
+        return MoreObjects.equal(state, that.state)
+                && MoreObjects.equal(reason, that.reason)
+                && MoreObjects.equal(payload, that.payload)
+                && MoreObjects.equal(signature, that.signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(state, reason, payload, signature);
+        return MoreObjects.hashCode(state, reason, payload, signature);
     }
 
 }

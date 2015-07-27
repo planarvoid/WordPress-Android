@@ -1,7 +1,8 @@
 package com.soundcloud.android.ads;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.model.ModelCollection;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 

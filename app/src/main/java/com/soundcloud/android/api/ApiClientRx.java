@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import com.google.common.reflect.TypeToken;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Subscriber;
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -10,7 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -81,7 +81,7 @@ public class TrackPagerAdapterTest {
     private TrackPagerAdapter adapter;
     private PropertySet track;
 
-    private List<TrackPageData> trackPageData = Lists.newArrayList(
+    private List<TrackPageData> trackPageData = newArrayList(
             new TrackPageData(0, TRACK1_URN, PropertySet.create()),
             new TrackPageData(1, TRACK2_URN, PropertySet.create()),
             new TrackPageData(2, AD_URN, getAudioAd()),

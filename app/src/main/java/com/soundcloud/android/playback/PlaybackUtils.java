@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.collect.Sets;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class PlaybackUtils {
      */
     // TODO: This method should return de-duplicated list, instead of mutating the original one
     private static int getDeduplicatedList(PlayQueue trackUrns, int startPosition) {
-        final Set<PlayQueueItem> seenTracks = Sets.newHashSetWithExpectedSize(trackUrns.size());
+        final Set<PlayQueueItem> seenTracks = new HashSet<>(trackUrns.size());
         final Urn playedTrack = trackUrns.getUrn(startPosition);
 
         int i = 0;

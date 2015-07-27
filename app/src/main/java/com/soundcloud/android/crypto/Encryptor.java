@@ -1,11 +1,11 @@
 package com.soundcloud.android.crypto;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 
 import javax.crypto.Cipher;
 import javax.inject.Inject;

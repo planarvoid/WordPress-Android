@@ -1,8 +1,8 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class UploadEvent {
     private static final String IDLE = "idle";
@@ -193,20 +193,20 @@ public final class UploadEvent {
 
         UploadEvent that = (UploadEvent) o;
 
-        return Objects.equal(that.kind, this.kind)
-                && Objects.equal(that.recording, this.recording)
-                && Objects.equal(that.progress, this.progress)
-                && Objects.equal(that.track, this.track);
+        return MoreObjects.equal(that.kind, this.kind)
+                && MoreObjects.equal(that.recording, this.recording)
+                && MoreObjects.equal(that.progress, this.progress)
+                && MoreObjects.equal(that.track, this.track);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(kind, recording, progress, track);
+        return MoreObjects.hashCode(kind, recording, progress, track);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("kind", kind)
                 .add("progress", progress)
                 .add("track", track)

@@ -4,7 +4,6 @@ import static android.util.Log.INFO;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -28,6 +27,7 @@ import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.SharedPreferences;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

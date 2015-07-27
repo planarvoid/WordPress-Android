@@ -1,6 +1,5 @@
 package com.soundcloud.android.commands;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
@@ -8,6 +7,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 
 import java.io.IOException;

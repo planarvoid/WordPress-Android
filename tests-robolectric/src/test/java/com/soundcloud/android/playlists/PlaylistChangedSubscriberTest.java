@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
@@ -16,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistChangedSubscriberTest {
@@ -32,7 +32,7 @@ public class PlaylistChangedSubscriberTest {
 
         ActivitiesAdapter baseAdapter = new ActivitiesAdapter(Content.ME_SOUND_STREAM.uri);
         receiver = new PlaylistChangedSubscriber(baseAdapter);
-        baseAdapter.addItems(Lists.<Activity>newArrayList(playlistActivity));
+        baseAdapter.addItems(Arrays.<Activity>asList(playlistActivity));
 
         receiver.onNext(createPlaylistChangedEvent());
 

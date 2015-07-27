@@ -1,6 +1,6 @@
 package com.soundcloud.android.payments.googleplay;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class Payload {
 
@@ -21,12 +21,12 @@ public final class Payload {
         }
 
         Payload that = (Payload) o;
-        return Objects.equal(data, that.data) && Objects.equal(signature, that.signature);
+        return MoreObjects.equal(data, that.data) && MoreObjects.equal(signature, that.signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(data, signature);
+        return MoreObjects.hashCode(data, signature);
     }
 
 }

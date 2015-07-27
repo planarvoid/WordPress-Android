@@ -2,9 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.Playa.StateTransition;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -22,7 +19,10 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;

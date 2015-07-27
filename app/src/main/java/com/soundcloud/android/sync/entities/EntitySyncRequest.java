@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.entities;
 
-import com.google.common.base.Preconditions;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -18,7 +19,6 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +41,7 @@ class EntitySyncRequest implements SyncRequest {
 
     private void setUrnsFromIntent(Intent intent) {
         final List<Urn> urnsToSync = intent.getParcelableArrayListExtra(SyncExtras.URNS);
-        Preconditions.checkArgument(urnsToSync != null,
+        checkArgument(urnsToSync != null,
                 "Requested a resource sync without providing urns...");
         entitySyncJob.setUrns(urnsToSync);
     }
@@ -55,7 +55,7 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public Collection<? extends SyncJob> getPendingJobs() {
-        return isSatisfied() ? Collections.<SyncJob>emptyList() : Arrays.asList(entitySyncJob);
+        return isSatisfied() ? Collections.<SyncJob>emptyList() : Collections.singletonList(entitySyncJob);
     }
 
     @Override

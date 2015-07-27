@@ -1,12 +1,12 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -143,15 +143,15 @@ public class PlaySessionSource implements Parcelable {
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        return Objects.equal(playlistUrn, that.playlistUrn)
-                && Objects.equal(playlistOwnerUrn, that.playlistOwnerUrn)
-                && Objects.equal(exploreVersion, that.exploreVersion)
-                && Objects.equal(originScreen, that.originScreen);
+        return MoreObjects.equal(playlistUrn, that.playlistUrn)
+                && MoreObjects.equal(playlistOwnerUrn, that.playlistOwnerUrn)
+                && MoreObjects.equal(exploreVersion, that.exploreVersion)
+                && MoreObjects.equal(originScreen, that.originScreen);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
+        return MoreObjects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {

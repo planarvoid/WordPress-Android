@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -16,7 +14,9 @@ import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;

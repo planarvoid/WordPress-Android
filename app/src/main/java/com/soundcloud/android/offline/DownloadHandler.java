@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.WriteResult;
 
@@ -8,6 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;

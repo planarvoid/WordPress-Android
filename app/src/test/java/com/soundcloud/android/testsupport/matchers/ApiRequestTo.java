@@ -1,11 +1,11 @@
 package com.soundcloud.android.testsupport.matchers;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.ApiMultipartRequest;
 import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.FormPart;
 import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.java.objects.MoreObjects;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
@@ -96,7 +96,7 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             } else if (content instanceof Map && targetContent instanceof Map) {
                 return CollectionUtils.elementsEqual(((Map) content).entrySet(), ((Map) targetContent).entrySet());
             } else {
-                return Objects.equal(targetContent, content);
+                return MoreObjects.equal(targetContent, content);
             }
         } else {
             // must not expect a content to exist if target request not a content request

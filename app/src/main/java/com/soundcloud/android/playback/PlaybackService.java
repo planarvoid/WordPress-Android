@@ -1,8 +1,7 @@
 package com.soundcloud.android.playback;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
@@ -29,6 +28,7 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import javax.inject.Inject;

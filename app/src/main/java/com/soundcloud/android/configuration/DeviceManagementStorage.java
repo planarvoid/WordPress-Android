@@ -1,9 +1,9 @@
 package com.soundcloud.android.configuration;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.storage.StorageModule;
 
 import android.content.SharedPreferences;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;

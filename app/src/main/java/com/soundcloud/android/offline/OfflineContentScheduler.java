@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Log;
 
@@ -8,6 +7,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;

@@ -2,7 +2,6 @@ package com.soundcloud.android.onboarding.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -14,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;

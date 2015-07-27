@@ -1,10 +1,9 @@
 package com.soundcloud.android.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.nullToEmpty;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
-import com.google.common.base.Strings;
 import com.soundcloud.android.R;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
@@ -45,16 +44,19 @@ public class ScTextUtils {
     private ScTextUtils() {
     }
 
+    @Deprecated // use Strings.isBlank
     public static boolean isBlank(@Nullable String string) {
-        return Strings.isNullOrEmpty(nullToEmpty(string).trim());
+        return Strings.isBlank(string);
     }
 
+    @Deprecated // use Strings.isNotBlank
     public static boolean isNotBlank(@Nullable String string) {
-        return !isBlank(string);
+        return Strings.isNotBlank(string);
     }
 
+    @Deprecated // use Strings.safeToString
     public static String safeToString(@Nullable Object object) {
-        return object == null ? EMPTY_STRING : object.toString();
+        return Strings.safeToString(object);
     }
 
     /**

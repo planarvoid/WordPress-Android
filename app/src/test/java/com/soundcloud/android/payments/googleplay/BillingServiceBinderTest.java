@@ -1,5 +1,6 @@
 package com.soundcloud.android.payments.googleplay;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -7,7 +8,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class BillingServiceBinderTest extends AndroidUnitTest {
 
     @Test
     public void canBindIsTrueIfServiceIntentIsResolvable() {
-        List<ResolveInfo> resolveInfo = Lists.newArrayList(new ResolveInfo());
+        List<ResolveInfo> resolveInfo = asList(new ResolveInfo());
         when(packageManager.queryIntentServices(any(Intent.class), anyInt())).thenReturn(resolveInfo);
 
         assertThat(binder.canConnect()).isTrue();

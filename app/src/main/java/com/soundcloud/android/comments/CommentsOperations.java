@@ -1,9 +1,6 @@
 package com.soundcloud.android.comments;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -11,14 +8,18 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.LegacyPager;
 import rx.functions.Func1;
 
+import android.support.annotation.VisibleForTesting;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +105,7 @@ class CommentsOperations {
         final Map<String, String> comment;
 
         public CommentHolder(String body, long timestamp) {
-            comment = Maps.newHashMapWithExpectedSize(2);
+            comment = new HashMap<>(2);
             comment.put("body", body);
             comment.put("timestamp", String.valueOf(timestamp));
         }
@@ -114,7 +115,7 @@ class CommentsOperations {
             if (this == o) {
                 return true;
             }
-            return o instanceof CommentHolder && Objects.equal(comment, ((CommentHolder) o).comment);
+            return o instanceof CommentHolder && MoreObjects.equal(comment, ((CommentHolder) o).comment);
         }
 
         @Override

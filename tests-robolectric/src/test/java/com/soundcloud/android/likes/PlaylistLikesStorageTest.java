@@ -1,8 +1,8 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
@@ -49,7 +49,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
     public void loadAllLikedPlaylists() throws Exception {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
 
-        final List<PropertySet> propertySets = Lists.newArrayList(
+        final List<PropertySet> propertySets = newArrayList(
                 expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
                 expectedLikedPlaylistFor(playlist1PropertySet, LIKED_DATE_1));
 
@@ -84,7 +84,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
 
-        final List<PropertySet> propertySets = Lists.newArrayList(
+        final List<PropertySet> propertySets = newArrayList(
                 expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
                 expectedDownloadRequestedPlaylistFor(playlist1, LIKED_DATE_1));
 
@@ -99,7 +99,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
 
-        final List<PropertySet> propertySets = Lists.newArrayList(
+        final List<PropertySet> propertySets = newArrayList(
                 expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
                 expectedDownloadedPlaylistFor(playlist1, LIKED_DATE_1));
 

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -295,7 +294,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final PropertySet lastItem = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
                 PlayableProperty.CREATED_AT.bind(new Date(timestampOfLastItem)));
-        final ArrayList<PropertySet> propertySets = Lists.newArrayList(headList);
+        final ArrayList<PropertySet> propertySets = new ArrayList<>(headList);
         propertySets.add(lastItem);
         return propertySets;
     }

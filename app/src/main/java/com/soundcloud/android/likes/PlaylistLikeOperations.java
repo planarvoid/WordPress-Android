@@ -1,9 +1,8 @@
 package com.soundcloud.android.likes;
 
-import static com.google.common.collect.Iterables.getLast;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.java.collections.Iterables.getLast;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -19,6 +18,8 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
+
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;

@@ -1,12 +1,12 @@
 package com.soundcloud.android.explore;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.model.Link;
 
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 
 import java.io.Serializable;
 import java.util.Collections;

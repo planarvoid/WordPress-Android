@@ -1,13 +1,13 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 
@@ -95,15 +95,15 @@ public final class PromotedSourceInfo implements Parcelable {
 
         PromotedSourceInfo that = (PromotedSourceInfo) o;
 
-        return Objects.equal(that.adUrn, this.adUrn)
-                && Objects.equal(that.promotedItemUrn, this.promotedItemUrn)
-                && Objects.equal(that.promoterUrn, this.promoterUrn)
-                && Objects.equal(that.trackingUrls, this.trackingUrls);
+        return MoreObjects.equal(that.adUrn, this.adUrn)
+                && MoreObjects.equal(that.promotedItemUrn, this.promotedItemUrn)
+                && MoreObjects.equal(that.promoterUrn, this.promoterUrn)
+                && MoreObjects.equal(that.trackingUrls, this.trackingUrls);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(adUrn, promotedItemUrn, promoterUrn, trackingUrls);
+        return MoreObjects.hashCode(adUrn, promotedItemUrn, promoterUrn, trackingUrls);
     }
 
 }

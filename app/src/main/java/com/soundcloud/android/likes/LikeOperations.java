@@ -2,7 +2,6 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -16,6 +15,8 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
+
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;

@@ -7,6 +7,7 @@ import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_PU
 import static com.soundcloud.android.payments.googleplay.BillingUtil.RESPONSE_SIGNATURE_LIST;
 import static com.soundcloud.android.payments.googleplay.BillingUtil.RESULT_ERROR;
 import static com.soundcloud.android.payments.googleplay.BillingUtil.RESULT_OK;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -16,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -126,7 +126,7 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Test
     public void getDetailsReturnsProductDataFromBillingService() throws RemoteException, JSONException {
         Bundle bundle = okBundle();
-        bundle.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, Lists.newArrayList("data"));
+        bundle.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, newArrayList("data"));
         ProductDetails details = new ProductDetails("id", "title", "blah", "$100");
         when(service.getSkuDetails(eq(3), eq("com.package"), eq("subs"), any(Bundle.class))).thenReturn(bundle);
         when(responseProcessor.parseProduct(eq("data"))).thenReturn(details);
@@ -141,8 +141,8 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Test
     public void getStatusReturnsPayloadIfAlreadySubscribed() throws RemoteException {
         Bundle bundle = okBundle();
-        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, Lists.newArrayList("data"));
-        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, Lists.newArrayList("signature"));
+        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, newArrayList("data"));
+        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, newArrayList("signature"));
         when(service.getPurchases(3, "com.package", "subs", null)).thenReturn(bundle);
 
 

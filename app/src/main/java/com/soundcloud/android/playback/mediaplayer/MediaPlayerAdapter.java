@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.mediaplayer;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -26,6 +25,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import javax.inject.Inject;

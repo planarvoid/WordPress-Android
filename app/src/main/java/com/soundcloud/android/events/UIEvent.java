@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -8,6 +7,8 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.Collections;
 import java.util.HashMap;

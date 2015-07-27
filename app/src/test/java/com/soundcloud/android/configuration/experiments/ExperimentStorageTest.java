@@ -5,12 +5,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

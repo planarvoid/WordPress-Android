@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
+import com.soundcloud.java.objects.MoreObjects;
 
 public class TrackingRecord {
 
@@ -39,7 +39,7 @@ public class TrackingRecord {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(TrackingRecord.class)
+        return MoreObjects.toStringHelper(TrackingRecord.class)
                 .add("id", id)
                 .add("timestamp", timestamp)
                 .add("backend", backend)

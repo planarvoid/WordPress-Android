@@ -1,13 +1,13 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowPreferenceManager;
@@ -131,7 +131,7 @@ public class PlaylistTagStorageTest {
 
     @Test
     public void cachesPopularTagsList() {
-        List<String> popularTags = Lists.newArrayList("tag1", "tag2", "tag3");
+        List<String> popularTags = newArrayList("tag1", "tag2", "tag3");
         tagStorage.cachePopularTags(popularTags);
 
         expect(tagStorage.getPopularTags()).toContainExactly("tag1", "tag2", "tag3");
@@ -139,7 +139,7 @@ public class PlaylistTagStorageTest {
 
     @Test
     public void resetsPopularTagList() {
-        List<String> popularTags = Lists.newArrayList("tag1", "tag2", "tag3");
+        List<String> popularTags = newArrayList("tag1", "tag2", "tag3");
 
         tagStorage.cachePopularTags(popularTags);
         tagStorage.resetPopularTags();

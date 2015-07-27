@@ -3,14 +3,13 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -22,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -227,7 +227,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + requests);
             publisher.publishNotDownloadableStateChanges(queue, requests, downloadHandler.getCurrentTrack());
 
-            queue.set(Collections2.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
+            queue.set(MoreCollections.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
             publisher.publishDownloadsRequested(queue);
 
             updateNotification();

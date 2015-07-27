@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlists;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 
 final class AddTrackToPlaylistItem {
     public final Urn playlistUrn;
@@ -34,16 +34,16 @@ final class AddTrackToPlaylistItem {
 
         AddTrackToPlaylistItem that = (AddTrackToPlaylistItem) o;
 
-        return Objects.equal(playlistUrn, that.playlistUrn) &&
-                Objects.equal(title, that.title) &&
-                Objects.equal(trackCount, that.trackCount) &&
-                Objects.equal(isPrivate, that.isPrivate) &&
-                Objects.equal(isOffline, that.isOffline) &&
-                Objects.equal(isTrackAdded, that.isTrackAdded);
+        return MoreObjects.equal(playlistUrn, that.playlistUrn) &&
+                MoreObjects.equal(title, that.title) &&
+                MoreObjects.equal(trackCount, that.trackCount) &&
+                MoreObjects.equal(isPrivate, that.isPrivate) &&
+                MoreObjects.equal(isOffline, that.isOffline) &&
+                MoreObjects.equal(isTrackAdded, that.isTrackAdded);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(playlistUrn, title, trackCount, isPrivate, isOffline, isTrackAdded);
+        return MoreObjects.hashCode(playlistUrn, title, trackCount, isPrivate, isOffline, isTrackAdded);
     }
 }

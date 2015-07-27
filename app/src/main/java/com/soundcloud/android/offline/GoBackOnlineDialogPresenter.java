@@ -1,11 +1,11 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.ImageAlertDialog;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;

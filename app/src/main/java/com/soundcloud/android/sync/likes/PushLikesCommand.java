@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.likes;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -10,6 +9,7 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collection;

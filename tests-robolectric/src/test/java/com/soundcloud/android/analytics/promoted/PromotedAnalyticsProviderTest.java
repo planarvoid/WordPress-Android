@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.promoted;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -57,7 +57,7 @@ public class PromotedAnalyticsProviderTest {
         when(playbackEvent.isAd()).thenReturn(true);
         when(playbackEvent.isFirstPlay()).thenReturn(true);
         when(playbackEvent.getTimestamp()).thenReturn(12345L);
-        when(playbackEvent.getAudioAdImpressionUrls()).thenReturn(newArrayList("url1", "url2"));
+        when(playbackEvent.getAudioAdImpressionUrls()).thenReturn(asList("url1", "url2"));
 
         analyticsProvider.handleTrackingEvent(playbackEvent);
 
@@ -221,7 +221,7 @@ public class PromotedAnalyticsProviderTest {
         when(playbackEvent.isPromotedTrack()).thenReturn(true);
         when(playbackEvent.isFirstPlay()).thenReturn(true);
         when(playbackEvent.getTimestamp()).thenReturn(12345L);
-        when(playbackEvent.getPromotedPlayUrls()).thenReturn(newArrayList("promoPlay1", "promoPlay2"));
+        when(playbackEvent.getPromotedPlayUrls()).thenReturn(asList("promoPlay1", "promoPlay2"));
 
         analyticsProvider.handleTrackingEvent(playbackEvent);
 

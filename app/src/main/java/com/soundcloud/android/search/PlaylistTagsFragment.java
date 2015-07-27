@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;

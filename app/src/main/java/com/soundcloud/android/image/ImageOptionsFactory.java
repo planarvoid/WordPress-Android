@@ -1,6 +1,5 @@
 package com.soundcloud.android.image;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
@@ -13,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView;
 
 final class ImageOptionsFactory {

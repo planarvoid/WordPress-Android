@@ -1,14 +1,14 @@
 package com.soundcloud.android.startup.migrations;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -44,7 +44,7 @@ public class MigrationEngine {
         int previousVersionCode = sharedPreferences.getInt(VERSION_KEY, DEFAULT_APP_VERSION_CODE);
 
         if (previousVersionCode != DEFAULT_APP_VERSION_CODE && previousVersionCode < currentVersion) {
-            List<Migration> applicableMigrations = newArrayList(Collections2.filter(migrations,
+            List<Migration> applicableMigrations = newArrayList(MoreCollections.filter(migrations,
                     new ApplicableMigrationsPredicate(previousVersionCode, currentVersion)));
             Collections.sort(applicableMigrations, Migration.APPLICABLE_VERSION_COMPARATOR);
 
@@ -62,7 +62,7 @@ public class MigrationEngine {
        editor.apply();
     }
 
-    private static class ApplicableMigrationsPredicate implements Predicate<Migration>{
+    private static class ApplicableMigrationsPredicate implements Predicate<Migration> {
 
         private final int previousVersionCode;
         private final int currentVersion;

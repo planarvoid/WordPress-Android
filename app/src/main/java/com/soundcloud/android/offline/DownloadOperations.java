@@ -2,8 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.StrictSSLHttpClient.TrackFileResponse;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.EncryptionInterruptedException;
@@ -14,6 +12,8 @@ import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -68,7 +68,7 @@ class DownloadOperations {
 
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
         return deleteOfflineContent
-                .toObservable(Collections2.filter(requests, isNotCurrentTrackFilter))
+                .toObservable(MoreCollections.filter(requests, isNotCurrentTrackFilter))
                 .subscribeOn(scheduler);
     }
 

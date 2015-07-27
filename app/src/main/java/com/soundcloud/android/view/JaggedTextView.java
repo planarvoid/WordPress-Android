@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -9,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.VisibleForTesting;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;

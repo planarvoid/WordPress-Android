@@ -1,8 +1,8 @@
 package com.soundcloud.android.rx;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class OperatorSwitchOnEmptyListTest {
     public static final List<String> EMPTY_LIST = Collections.emptyList();
-    public static final List<String> NON_EMPTY_LIST = Lists.newArrayList("first", "second");
+    public static final List<String> NON_EMPTY_LIST = newArrayList("first", "second");
     private PublishSubject<List<String>> originalSource;
     private PublishSubject<List<String>> switchSource;
     private TestObserver<List<String>> observer;

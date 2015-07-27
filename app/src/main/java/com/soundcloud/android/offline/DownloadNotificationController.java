@@ -2,10 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
@@ -13,6 +9,10 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
@@ -121,7 +121,7 @@ class DownloadNotificationController {
     }
 
     private int getErrorCount() {
-        return Collections2.filter(previousDownloads, new Predicate<DownloadState>() {
+        return MoreCollections.filter(previousDownloads, new Predicate<DownloadState>() {
             @Override
             public boolean apply(DownloadState downloadState) {
                 return downloadState.isConnectionError()
@@ -253,14 +253,14 @@ class DownloadNotificationController {
                 return false;
             }
             ProgressNotificationData that = (ProgressNotificationData) o;
-            return Objects.equal(currentDownload, that.currentDownload) &&
-                    Objects.equal(totalDownloads, that.totalDownloads) &&
-                    Objects.equal(downloadProgress, that.downloadProgress);
+            return MoreObjects.equal(currentDownload, that.currentDownload) &&
+                    MoreObjects.equal(totalDownloads, that.totalDownloads) &&
+                    MoreObjects.equal(downloadProgress, that.downloadProgress);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(currentDownload, totalDownloads, downloadProgress);
+            return MoreObjects.hashCode(currentDownload, totalDownloads, downloadProgress);
         }
     }
 }

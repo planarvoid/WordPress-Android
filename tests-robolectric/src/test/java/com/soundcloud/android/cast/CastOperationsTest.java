@@ -1,6 +1,7 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
@@ -8,7 +9,6 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -41,7 +41,7 @@ public class CastOperationsTest {
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
     private static final Urn TRACK3 = Urn.forTrack(789L);
-    private static final List<Urn> PLAY_QUEUE = Lists.newArrayList(TRACK1, TRACK2);
+    private static final List<Urn> PLAY_QUEUE = newArrayList(TRACK1, TRACK2);
     private static final String IMAGE_URL = "http://image.url";
 
     private CastOperations castOperations;

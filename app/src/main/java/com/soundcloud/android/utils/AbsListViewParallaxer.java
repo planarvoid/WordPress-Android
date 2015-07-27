@@ -1,12 +1,12 @@
 package com.soundcloud.android.utils;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.soundcloud.android.view.ParallaxImageView;
-import org.jetbrains.annotations.Nullable;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;

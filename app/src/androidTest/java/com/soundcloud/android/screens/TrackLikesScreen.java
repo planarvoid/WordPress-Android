@@ -2,8 +2,6 @@ package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -16,6 +14,8 @@ import com.soundcloud.android.screens.elements.RecyclerViewElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import javax.annotation.Nullable;
 import java.util.List;

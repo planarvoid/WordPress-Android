@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class StringPart extends FormPart {
 
@@ -25,19 +25,19 @@ public final class StringPart extends FormPart {
             return false;
         }
         StringPart that = ((StringPart) o);
-        return Objects.equal(value, that.value)
-                && Objects.equal(partName, that.partName)
-                && Objects.equal(contentType, that.contentType);
+        return MoreObjects.equal(value, that.value)
+                && MoreObjects.equal(partName, that.partName)
+                && MoreObjects.equal(contentType, that.contentType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value, partName, contentType);
+        return MoreObjects.hashCode(value, partName, contentType);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("partName", partName)
                 .add("value", value)
                 .toString();

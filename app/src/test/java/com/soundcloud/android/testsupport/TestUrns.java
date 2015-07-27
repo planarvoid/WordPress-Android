@@ -1,8 +1,8 @@
 package com.soundcloud.android.testsupport;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,10 +1,10 @@
 package com.soundcloud.android.policies;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class PolicyOperationsTest {
                 createMonetizablePolicy(TRACK_URN),
                 createNotMonetizablePolicy(TRACK_URN2));
 
-        operations.filterMonetizableTracks(Lists.newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
+        operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0)).toContainExactly(TRACK_URN2);
@@ -74,7 +74,7 @@ public class PolicyOperationsTest {
         PolicyInfo[] policies = {createMonetizablePolicy(TRACK_URN), createNotMonetizablePolicy(TRACK_URN2)};
         willFetchPolicies(policies);
 
-        operations.filterMonetizableTracks(Lists.newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
+        operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
         expect(storePoliciesCommand.getInput()).toContainExactly(policies);
         verify(storePoliciesCommand).call();
@@ -90,6 +90,6 @@ public class PolicyOperationsTest {
 
     private void willFetchPolicies(PolicyInfo... policies) {
         when(fetchPoliciesCommand.toObservable())
-                .thenReturn(Observable.<Collection<PolicyInfo>>just(Lists.newArrayList(policies)));
+                .thenReturn(Observable.<Collection<PolicyInfo>>just(newArrayList(policies)));
     }
 }

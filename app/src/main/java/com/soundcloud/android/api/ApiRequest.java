@@ -1,15 +1,16 @@
 package com.soundcloud.android.api;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Objects;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.objects.MoreObjects;
 import org.apache.http.auth.AUTH;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,7 +145,7 @@ public class ApiRequest {
         public ApiRequest build() {
             checkNotNull(isPrivate, "Must specify api mode");
             if (isPrivate) {
-                checkArgument(endpointVersion > 0, "Not a valid api version: %s", endpointVersion);
+                checkArgument(endpointVersion > 0, "Not a valid api version: " + endpointVersion);
             }
             if (content != null) {
                 return new ApiObjectContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, content);
@@ -216,7 +217,7 @@ public class ApiRequest {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).omitNullValues()
+        return MoreObjects.toStringHelper(this).omitNullValues()
                 .add("uri", uri.toString())
                 .add("httpMethod", httpMethod)
                 .add("endPointVersion", endpointVersion)

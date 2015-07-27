@@ -1,9 +1,8 @@
 package com.soundcloud.android.collections;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -25,6 +24,9 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,16 +118,16 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     }
 
     protected List<Urn> toTrackUrn(List<? extends PlayableHolder> filter) {
-        return Lists.transform(filter, new Function<PlayableHolder, Urn>() {
+        return transform(filter, new Function<PlayableHolder, Urn>() {
             @Override
             public Urn apply(PlayableHolder input) {
-                return ((PublicApiTrack) input.getPlayable()).getUrn();
+                return input.getPlayable().getUrn();
             }
         });
     }
 
     protected List<? extends PlayableHolder> filterPlayables(List<? extends ScModel> data) {
-        return Lists.newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
+        return newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
     }
 
     protected boolean isPositionOfProgressElement(int position) {

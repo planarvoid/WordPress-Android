@@ -1,6 +1,7 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -20,16 +21,15 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -222,7 +222,7 @@ public class CastPlayerTest {
 
     @Test
     public void playCurrentLoadsPlayQueueRemotely() throws TransientNetworkDisconnectionException, NoConnectionException {
-        ArrayList<Urn> localPlayQueueTracks = Lists.newArrayList(TRACK_URN1, TRACK_URN2);
+        ArrayList<Urn> localPlayQueueTracks = newArrayList(TRACK_URN1, TRACK_URN2);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentQueueAsUrnList()).thenReturn(localPlayQueueTracks);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);

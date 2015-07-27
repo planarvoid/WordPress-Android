@@ -1,17 +1,17 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -90,8 +90,8 @@ public class ExploreGenresFragmentTest {
         createFragment();
         createFragmentView();
 
-        verify(adapter).onNext(Lists.newArrayList(electronicCategory));
-        verify(adapter).onNext(Lists.newArrayList(comedyCategory));
+        verify(adapter).onNext(newArrayList(electronicCategory));
+        verify(adapter).onNext(newArrayList(comedyCategory));
     }
 
     @Test
@@ -143,9 +143,9 @@ public class ExploreGenresFragmentTest {
 
     private ExploreGenresSections createSectionsFrom(ExploreGenre musicCat, ExploreGenre audioCat) {
         final ExploreGenresSections sections = new ExploreGenresSections();
-        final ArrayList<ExploreGenre> musicCategories = Lists.newArrayList(musicCat);
+        final ArrayList<ExploreGenre> musicCategories = newArrayList(musicCat);
         sections.setMusic(musicCategories);
-        final ArrayList<ExploreGenre> audioCategories = Lists.newArrayList(audioCat);
+        final ArrayList<ExploreGenre> audioCategories = newArrayList(audioCat);
         sections.setAudio(audioCategories);
         return sections;
     }

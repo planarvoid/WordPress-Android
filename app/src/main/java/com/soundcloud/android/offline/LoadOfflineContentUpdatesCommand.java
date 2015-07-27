@@ -1,21 +1,21 @@
 package com.soundcloud.android.offline;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.utils.CollectionUtils.add;
 import static com.soundcloud.android.utils.CollectionUtils.subtract;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -46,7 +46,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     @Override
     public OfflineContentRequests call(final Collection<DownloadRequest> expectedRequests) {
-        final Collection<Urn> expectedTracks = Collections2.transform(expectedRequests, toUrn);
+        final Collection<Urn> expectedTracks = MoreCollections.transform(expectedRequests, toUrn);
         final List<Urn> downloadRequests = getDownloadRequests();
         final List<Urn> downloadedContent = getDownloaded();
         final List<Urn> pendingRemovals = getPendingRemovals();
@@ -92,7 +92,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent, final List<Urn> pendingRemovals) {
-        return Collections2.filter(expectedContent, new Predicate<DownloadRequest>() {
+        return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
                 return pendingRemovals.contains(request.track);
@@ -101,7 +101,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private Collection<DownloadRequest> getNewPendingDownloads(Collection<DownloadRequest> expectedContent, final List<Urn> pendingDownloads, final List<Urn> downloadedTracks, final Collection<DownloadRequest> tracksToRestore) {
-        return Collections2.filter(expectedContent, new Predicate<DownloadRequest>() {
+        return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
                 return !pendingDownloads.contains(request.track) &&
@@ -112,7 +112,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private Collection<DownloadRequest> getAllDownloadRequests(Collection<DownloadRequest> expectedRequests, final List<Urn> downloadedTracks, final Collection<DownloadRequest> tracksToRestore, final List<Urn> downloadedContent) {
-        return Collections2.filter(expectedRequests, new Predicate<DownloadRequest>() {
+        return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
                 return !downloadedTracks.contains(request.track) &&

@@ -9,9 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
@@ -25,6 +23,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -62,7 +61,6 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         when(deviceHelper.getUserAgent()).thenReturn("");
         when(deviceHelper.hasUdid()).thenReturn(true);
         when(deviceHelper.getUdid()).thenReturn("my-udid");

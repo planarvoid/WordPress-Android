@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.mediaplayer;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.playback.PlaybackService;
 
 import android.media.MediaPlayer;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 @VisibleForTesting

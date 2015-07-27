@@ -1,8 +1,5 @@
 package com.soundcloud.android.search;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
@@ -13,7 +10,10 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.LegacyPager;
@@ -140,7 +140,7 @@ class PlaylistDiscoveryOperations {
     }
 
     private Collection<String> removeItemIgnoreCase(List<String> list, String itemToRemove) {
-        return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
+        return MoreCollections.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
     class PlaylistPager extends LegacyPager<ApiPlaylistCollection> {

@@ -1,7 +1,5 @@
 package com.soundcloud.android.policies;
 
-import com.google.common.collect.Collections2;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -9,6 +7,8 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.GuavaFunctions;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -26,7 +26,7 @@ class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<Pol
     public Collection<PolicyInfo> call() throws Exception {
         final ApiRequest request =
                 ApiRequest.post(ApiEndpoints.POLICIES.path())
-                .withContent(Collections2.transform(input, GuavaFunctions.urnToString()))
+                .withContent(MoreCollections.transform(input, GuavaFunctions.urnToString()))
                 .forPrivateApi(1)
                 .build();
         return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<PolicyInfo>>() {}).getCollection();

@@ -1,8 +1,5 @@
 package com.soundcloud.android.sync.stream;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -18,6 +15,9 @@ import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

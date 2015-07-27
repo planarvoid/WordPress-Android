@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -104,14 +104,14 @@ public final class SyncResult implements Parcelable, UrnEvent {
             return false;
         }
         SyncResult that = (SyncResult) o;
-        return Objects.equal(wasChanged, that.wasChanged)
-                && Objects.equal(action, that.action)
-                && Objects.equal(exception, that.exception)
-                && Objects.equal(entitiesSynced, that.entitiesSynced);
+        return MoreObjects.equal(wasChanged, that.wasChanged)
+                && MoreObjects.equal(action, that.action)
+                && MoreObjects.equal(exception, that.exception)
+                && MoreObjects.equal(entitiesSynced, that.entitiesSynced);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(wasChanged, action, exception, entitiesSynced);
+        return MoreObjects.hashCode(wasChanged, action, exception, entitiesSynced);
     }
 }

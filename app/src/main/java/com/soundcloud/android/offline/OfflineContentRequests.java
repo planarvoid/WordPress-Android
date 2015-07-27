@@ -2,8 +2,8 @@ package com.soundcloud.android.offline;
 
 import static java.util.Collections.unmodifiableList;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class OfflineContentRequests {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("allDownloads", allDownloadRequests)
                 .add("newDownloads", newDownloadRequests)
                 .add("newRestoredRequests", newRestoredRequests)

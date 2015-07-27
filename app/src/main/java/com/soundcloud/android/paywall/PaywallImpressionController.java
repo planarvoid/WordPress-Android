@@ -1,6 +1,7 @@
 package com.soundcloud.android.paywall;
 
-import com.google.common.base.Preconditions;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
@@ -50,7 +51,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     @SuppressWarnings({"ConstantConditions", "unchecked"})
     private void safeAssignLayoutManager(RecyclerView recyclerView) {
         final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        Preconditions.checkArgument(layoutManager != null && layoutManager instanceof LinearLayoutManager,
+        checkArgument(layoutManager != null && layoutManager instanceof LinearLayoutManager,
                 "PaywallImpressionCreator expects a LinearLayoutManager");
 
         linearLayoutManager = (LinearLayoutManager) layoutManager;
@@ -59,7 +60,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     @SuppressWarnings({"ConstantConditions", "unchecked"})
     private void safeAssignListAdapter(RecyclerView recyclerView) {
         final RecyclerView.Adapter adapter = recyclerView.getAdapter();
-        Preconditions.checkArgument(adapter != null && adapter instanceof ItemAdapter,
+        checkArgument(adapter != null && adapter instanceof ItemAdapter,
                 "PaywallImpressionCreator expects an ItemAdapter");
 
         listItemAdapter = (ItemAdapter) adapter;

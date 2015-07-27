@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.Intent;
+import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 
 import java.util.EnumSet;
@@ -150,10 +150,10 @@ public interface Playa {
                 return false;
             } else {
                 StateTransition that = (StateTransition) o;
-                return Objects.equal(newState, that.newState)
-                        && Objects.equal(reason, that.reason)
-                        && Objects.equal(progress, that.progress)
-                        && Objects.equal(trackUrn, that.trackUrn);
+                return MoreObjects.equal(newState, that.newState)
+                        && MoreObjects.equal(reason, that.reason)
+                        && MoreObjects.equal(progress, that.progress)
+                        && MoreObjects.equal(trackUrn, that.trackUrn);
             }
         }
 

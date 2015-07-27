@@ -3,9 +3,9 @@ package com.soundcloud.android.api.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Singleton;
 import java.io.IOException;

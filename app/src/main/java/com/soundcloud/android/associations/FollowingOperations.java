@@ -1,13 +1,9 @@
 package com.soundcloud.android.associations;
 
-import static com.google.common.collect.Collections2.filter;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -29,6 +25,8 @@ import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -38,6 +36,7 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -106,7 +105,7 @@ public class FollowingOperations {
     }
 
     public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, PublicApiUser>() {
+        return removeFollowings(transform(suggestedUsers, new Function<SuggestedUser, PublicApiUser>() {
             @Override
             public PublicApiUser apply(SuggestedUser input) {
                 return new PublicApiUser(input);
@@ -210,8 +209,8 @@ public class FollowingOperations {
 
     @Nullable
     private ApiRequest createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
-        final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
-        final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+        final Collection<UserAssociation> associationsWithTokens = MoreCollections.filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
+        final Collection<String> tokens = MoreCollections.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
         if (!tokens.isEmpty()) {
             return ApiRequest.post(ApiEndpoints.BULK_FOLLOW_USERS.path())
                     .forPublicApi()

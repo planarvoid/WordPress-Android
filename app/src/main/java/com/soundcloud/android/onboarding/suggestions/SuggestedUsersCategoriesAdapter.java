@@ -1,17 +1,17 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.SingleLineCollectionTextView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;

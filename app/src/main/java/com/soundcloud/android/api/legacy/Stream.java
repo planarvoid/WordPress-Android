@@ -1,9 +1,10 @@
 package com.soundcloud.android.api.legacy;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.cookie.DateUtils;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;

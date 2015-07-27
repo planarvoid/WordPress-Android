@@ -2,9 +2,6 @@ package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.model.Urn;
 
@@ -123,11 +120,10 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     public static <T extends ScModel> long[] getIdList(List<T> modelList) {
-        return Longs.toArray(Lists.transform(modelList, new Function<T, Long>() {
-            @Override
-            public Long apply(T input) {
-                return input.getId();
-            }
-        }));
+        long[] ids = new long[modelList.size()];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = modelList.get(i).getId();
+        }
+        return ids;
     }
 }

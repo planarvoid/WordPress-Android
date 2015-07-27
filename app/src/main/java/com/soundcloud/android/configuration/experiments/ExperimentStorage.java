@@ -1,12 +1,12 @@
 package com.soundcloud.android.configuration.experiments;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;

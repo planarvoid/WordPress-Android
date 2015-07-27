@@ -1,12 +1,13 @@
 package com.soundcloud.android.configuration;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.java.collections.Lists;
 
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class PlanStorage {
     }
 
     public List<String> getUpsells() {
-        return Lists.newArrayList(sharedPreferences.getStringSet(UPSELLS, new HashSet<String>()));
+        return Lists.newArrayList(sharedPreferences.getStringSet(UPSELLS, Collections.<String>emptySet()));
     }
 
     public void clear() {

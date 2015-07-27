@@ -1,13 +1,14 @@
 package com.soundcloud.android.utils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.transform;
+
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public final class CollectionUtils {
             value = "NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE",
             justification = "Since there is no way to recover from a null source, we want to fail fast")
     public static <T extends PropertySetSource> List<PropertySet> toPropertySets(List<T> collection) {
-        return Lists.transform(collection, new Function<T, PropertySet>() {
+        return transform(collection, new Function<T, PropertySet>() {
             @Override
             public PropertySet apply(T source) {
                 return source.toPropertySet();
@@ -80,7 +81,7 @@ public final class CollectionUtils {
         for (Urn urn : urns) {
             idStrings.add(String.valueOf(urn.getNumericId()));
         }
-        return Joiner.on(delimiter).join(idStrings);
+        return Strings.joinOn(delimiter).join(idStrings);
     }
 
     /**
@@ -103,7 +104,7 @@ public final class CollectionUtils {
             }
             Object o1 = iterator1.next();
             Object o2 = iterator2.next();
-            if (!Objects.equal(o1, o2)) {
+            if (!MoreObjects.equal(o1, o2)) {
                 return false;
             }
         }

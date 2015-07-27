@@ -1,7 +1,5 @@
 package com.soundcloud.android.sync.commands;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -11,6 +9,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.java.reflect.TypeToken;
+
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.List;

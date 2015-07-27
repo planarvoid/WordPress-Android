@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -9,7 +10,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -156,7 +156,7 @@ public class PaymentOperationsTest extends AndroidUnitTest {
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("product_id", "mid_tier")));
+        AvailableProducts products = new AvailableProducts(asList(new AvailableProducts.Product("product_id", "mid_tier")));
         return Observable.just(products);
     }
 

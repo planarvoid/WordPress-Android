@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
@@ -14,6 +12,8 @@ import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import java.util.List;
 

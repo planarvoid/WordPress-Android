@@ -1,6 +1,6 @@
 package com.soundcloud.android.search;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;

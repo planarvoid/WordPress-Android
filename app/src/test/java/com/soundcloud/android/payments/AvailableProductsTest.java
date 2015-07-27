@@ -1,9 +1,10 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.payments.AvailableProducts.Product;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,21 +23,21 @@ public class AvailableProductsTest {
 
     @Test
     public void mapsAvailableProductListToKnownProductId() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(knownProduct));
+        AvailableProducts products = new AvailableProducts(singletonList(knownProduct));
         Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
         assertThat(mappedProduct.id).isEqualTo("product_id");
     }
 
     @Test
     public void ignoresUnknownProducts() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(unknownProduct, knownProduct));
+        AvailableProducts products = new AvailableProducts(asList(unknownProduct, knownProduct));
         Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
         assertThat(mappedProduct.id).isEqualTo("product_id");
     }
 
     @Test
     public void mapsListOfUnknownProductsToEmptyProduct() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(unknownProduct));
+        AvailableProducts products = new AvailableProducts(singletonList(unknownProduct));
         Product mappedProduct = AvailableProducts.TO_PRODUCT.call(products);
         assertThat(mappedProduct.isEmpty()).isTrue();
     }

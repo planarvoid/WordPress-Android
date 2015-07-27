@@ -4,7 +4,6 @@ import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissin
 import static rx.android.app.AppObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -48,6 +47,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;

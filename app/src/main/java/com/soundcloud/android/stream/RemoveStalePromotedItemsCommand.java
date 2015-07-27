@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -12,6 +11,8 @@ import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.RxResultMapper;
+
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.Collections;

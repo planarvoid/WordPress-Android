@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
-import com.google.common.base.Preconditions;
+import static com.soundcloud.java.checks.Preconditions.checkState;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -142,7 +143,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 showAddToPlaylistDialog();
                 return true;
             case R.id.remove_from_playlist:
-                Preconditions.checkState(isOwnedPlaylist());
+                checkState(isOwnedPlaylist());
                 playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getEntityUrn())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<PropertySet>() {

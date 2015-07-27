@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import org.jetbrains.annotations.Nullable;
 

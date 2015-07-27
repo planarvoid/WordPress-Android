@@ -1,8 +1,8 @@
 package com.soundcloud.android.api.json;
 
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.java.reflect.TypeToken;
 
 import java.io.IOException;
 

@@ -1,9 +1,9 @@
 package com.soundcloud.android.startup.migrations;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.settings.SettingKey;
 
 import android.content.SharedPreferences;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 

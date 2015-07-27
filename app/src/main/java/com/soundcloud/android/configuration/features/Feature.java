@@ -2,7 +2,7 @@ package com.soundcloud.android.configuration.features;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,13 +32,13 @@ public class Feature {
         }
 
         Feature that = (Feature) o;
-        return Objects.equal(name, that.name)
-                && Objects.equal(enabled, that.enabled);
+        return MoreObjects.equal(name, that.name)
+                && MoreObjects.equal(enabled, that.enabled);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, enabled);
+        return MoreObjects.hashCode(name, enabled);
     }
 
 }

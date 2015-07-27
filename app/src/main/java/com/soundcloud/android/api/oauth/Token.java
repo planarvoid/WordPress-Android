@@ -1,10 +1,10 @@
 package com.soundcloud.android.api.oauth;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;

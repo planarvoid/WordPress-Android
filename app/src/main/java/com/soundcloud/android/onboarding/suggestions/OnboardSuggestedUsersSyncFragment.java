@@ -3,7 +3,6 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import static rx.android.app.AppObservable.bindFragment;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -16,6 +15,7 @@ import rx.Subscription;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;

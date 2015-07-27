@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -11,6 +10,7 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import javax.inject.Inject;

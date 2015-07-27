@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -24,6 +23,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.functions.Func1;

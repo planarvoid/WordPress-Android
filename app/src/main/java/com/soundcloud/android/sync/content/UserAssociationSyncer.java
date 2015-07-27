@@ -2,11 +2,6 @@ package com.soundcloud.android.sync.content;
 
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
@@ -32,6 +27,9 @@ import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -46,6 +44,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.NotificationCompat;
 
 import java.io.IOException;
@@ -344,13 +343,13 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
                  Tokens were expired. Delete the user associations and followings from memory.
                  TODO : retry logic somehow
                   */
-                final Collection<PublicApiUser> users = Collections2.transform(userAssociations, new Function<UserAssociation, PublicApiUser>() {
+                final Collection<PublicApiUser> users = MoreCollections.transform(userAssociations, new Function<UserAssociation, PublicApiUser>() {
                     @Override
                     public PublicApiUser apply(UserAssociation input) {
                         return input.getUser();
                     }
                 });
-                followingOperations.updateLocalStatus(false, ScModel.getIdList(Lists.newArrayList(users)));
+                followingOperations.updateLocalStatus(false, ScModel.getIdList(new ArrayList<ScModel>(users)));
                 userAssociationStorage.deleteFollowings(userAssociations);
             }
             super.onError(e);

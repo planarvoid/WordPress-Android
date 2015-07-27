@@ -1,15 +1,16 @@
 package com.soundcloud.android.api;
 
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.objects.MoreObjects;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.support.annotation.VisibleForTesting;
 
 public class ApiResponse {
 
@@ -116,7 +117,7 @@ public class ApiResponse {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("statusCode", statusCode)
                 .add("failure", failure).toString();
     }

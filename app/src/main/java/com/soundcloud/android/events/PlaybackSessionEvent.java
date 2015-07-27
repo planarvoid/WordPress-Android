@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
@@ -9,6 +8,8 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.Collections;
 import java.util.List;

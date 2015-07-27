@@ -1,8 +1,8 @@
 package com.soundcloud.android.configuration.features;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class FeatureStorage {
     }
 
     public List<String> getPlans(String name) {
-        return Lists.newArrayList(sharedPreferences.getStringSet(name + PLANS_POSTFIX, new HashSet<String>()));
+        return Lists.newArrayList(sharedPreferences.getStringSet(name + PLANS_POSTFIX, Collections.<String>emptySet()));
     }
 
     public void clear() {

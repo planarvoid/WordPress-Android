@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.java.collections.PropertySet;
@@ -32,7 +32,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldCreatePlayQueueWithItems() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2));
+        PlayQueue playQueue = new PlayQueue(asList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2));
         assertThat(playQueue.getUrn(0)).isEqualTo(PLAY_QUEUE_ITEM_1.getTrackUrn());
         assertThat(playQueue.getUrn(1)).isEqualTo(PLAY_QUEUE_ITEM_2.getTrackUrn());
     }

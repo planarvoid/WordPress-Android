@@ -1,11 +1,11 @@
 package com.soundcloud.android.search;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
@@ -61,13 +61,13 @@ class SearchResult implements Iterable<PropertySet> {
             return false;
         }
         SearchResult that = (SearchResult) o;
-        return Objects.equal(items, that.items) &&
-                Objects.equal(nextHref, that.nextHref) &&
-                Objects.equal(queryUrn, that.queryUrn);
+        return MoreObjects.equal(items, that.items) &&
+                MoreObjects.equal(nextHref, that.nextHref) &&
+                MoreObjects.equal(queryUrn, that.queryUrn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(items, nextHref, queryUrn);
+        return MoreObjects.hashCode(items, nextHref, queryUrn);
     }
 }

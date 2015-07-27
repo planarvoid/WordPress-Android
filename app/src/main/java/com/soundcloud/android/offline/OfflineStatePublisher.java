@@ -1,12 +1,12 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.functions.Predicate;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -75,7 +75,7 @@ class OfflineStatePublisher {
 
     private void publishDownloadedTracksRemoved(OfflineContentRequests requests, final Urn urn) {
         if (!requests.newRemovedTracks.isEmpty()) {
-            final Collection<Urn> removed = Collections2.filter(requests.newRemovedTracks, notCurrentDownload(urn));
+            final Collection<Urn> removed = MoreCollections.filter(requests.newRemovedTracks, notCurrentDownload(urn));
             if (!removed.isEmpty()) {
                 Log.d(TAG, "downloadRemoved");
                 eventBus.publish(EventQueue.CURRENT_DOWNLOAD,

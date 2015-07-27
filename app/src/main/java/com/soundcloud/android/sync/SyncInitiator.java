@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.collect.Lists;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
@@ -110,7 +111,7 @@ public class SyncInitiator {
                         .setAction(SyncActions.SYNC_USERS)
                         .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                        .putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(userUrn)));
+                        .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrn)));
             }
         });
     }

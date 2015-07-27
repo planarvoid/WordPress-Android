@@ -1,10 +1,10 @@
 package com.soundcloud.android.sync.entities;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
@@ -46,7 +46,7 @@ public class EntitySyncRequestTest {
     @Before
     public void setUp() throws Exception {
         intent = new Intent(SyncActions.SYNC_TRACKS);
-        intent.putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(URN));
+        intent.putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(URN));
         entitySyncRequest = new EntitySyncRequest(entitySyncJob, intent, eventBus, ACTION, resultReceiver);
     }
 
@@ -98,7 +98,7 @@ public class EntitySyncRequestTest {
     public void finishBroadcastsAnUpdatedTracksCollection() throws Exception {
         final PropertySet propertySet1 = TestPropertySets.fromApiTrack();
         final PropertySet propertySet2 = TestPropertySets.fromApiTrack();
-        when(entitySyncJob.getUpdatedEntities()).thenReturn(Lists.newArrayList(propertySet1, propertySet2));
+        when(entitySyncJob.getUpdatedEntities()).thenReturn(newArrayList(propertySet1, propertySet2));
 
         entitySyncRequest.finish();
 

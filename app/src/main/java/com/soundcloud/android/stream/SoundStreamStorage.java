@@ -4,10 +4,10 @@ import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.PlayableProperty;
@@ -231,7 +231,7 @@ class SoundStreamStorage {
         }
 
         private List<String> splitUrls(String urls) {
-            return Lists.newArrayList(urls.split(" "));
+            return newArrayList(urls.split(" "));
         }
     }
 

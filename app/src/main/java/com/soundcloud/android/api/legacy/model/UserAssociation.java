@@ -1,13 +1,13 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

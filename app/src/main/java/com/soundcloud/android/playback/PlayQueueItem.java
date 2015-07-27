@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 
 public final class PlayQueueItem {
 
@@ -60,13 +60,13 @@ public final class PlayQueueItem {
         }
 
         PlayQueueItem that = (PlayQueueItem) o;
-        return Objects.equal(trackUrn, that.trackUrn) && Objects.equal(source, that.source)
-                && Objects.equal(sourceVersion, that.sourceVersion);
+        return MoreObjects.equal(trackUrn, that.trackUrn) && MoreObjects.equal(source, that.source)
+                && MoreObjects.equal(sourceVersion, that.sourceVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(trackUrn, source, sourceVersion);
+        return MoreObjects.hashCode(trackUrn, source, sourceVersion);
     }
 
     public boolean shouldPersist() {

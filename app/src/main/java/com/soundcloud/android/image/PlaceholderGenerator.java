@@ -1,12 +1,12 @@
 package com.soundcloud.android.image;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 

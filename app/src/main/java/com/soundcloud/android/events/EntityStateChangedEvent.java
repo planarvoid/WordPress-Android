@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -8,6 +7,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import rx.functions.Func1;
 
 import android.support.v4.util.ArrayMap;
@@ -229,6 +229,6 @@ public final class EntityStateChangedEvent implements UrnEvent {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("kind", kind).add("changeMap", changeMap).toString();
+        return MoreObjects.toStringHelper(this).add("kind", kind).add("changeMap", changeMap).toString();
     }
 }

@@ -1,16 +1,16 @@
 package com.soundcloud.android.view.adapters;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -60,7 +60,7 @@ public class PlaylistGridRenderer implements CellRenderer<PlaylistItem> {
 
     private String formatTags(List<String> tags) {
         if (tags.size() >= 2) {
-            return Joiner.on(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {
+            return Strings.joinOn(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {
                 @Override
                 public String apply(String tag) {
                     return "#" + tag;

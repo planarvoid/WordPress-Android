@@ -1,13 +1,13 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class SearchQuerySourceInfo implements Parcelable {
 
     @Override
     public String toString() {
-        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(SearchQuerySourceInfo.class)
+        final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(SearchQuerySourceInfo.class)
                 .add("queryUrn", queryUrn)
                 .add("clickPosition", clickPosition)
                 .add("clickUrn", clickUrn);
@@ -101,15 +101,15 @@ public class SearchQuerySourceInfo implements Parcelable {
 
         SearchQuerySourceInfo that = (SearchQuerySourceInfo) o;
 
-        return Objects.equal(that.queryUrn, this.queryUrn)
-                && Objects.equal(that.clickPosition, this.clickPosition)
-                && Objects.equal(that.clickUrn, this.clickUrn)
-                && Objects.equal(that.queryResults, this.queryResults);
+        return MoreObjects.equal(that.queryUrn, this.queryUrn)
+                && MoreObjects.equal(that.clickPosition, this.clickPosition)
+                && MoreObjects.equal(that.clickUrn, this.clickUrn)
+                && MoreObjects.equal(that.queryResults, this.queryResults);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(queryUrn, clickPosition, clickUrn, queryResults);
+        return MoreObjects.hashCode(queryUrn, clickPosition, clickUrn, queryResults);
     }
 
     @Override
