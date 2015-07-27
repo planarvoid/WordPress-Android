@@ -84,7 +84,7 @@ ext {
           junit                           : "junit:junit:4.12",
           assertj                         : "org.assertj:assertj-core:1.7.1",
           assertjAndroid                  : "com.squareup.assertj:assertj-android:1.0.0",
-          robolectric                     : "org.robolectric:robolectric:3.0-rc3",
+          robolectric                     : "org.robolectric:robolectric:3.0",
           mockito                         : "org.mockito:mockito-core:1.9.5",
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
