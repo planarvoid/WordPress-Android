@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
+import java.util.EnumSet;
+
 public final class AuthTaskResult {
 
     private final Kind kind;
@@ -91,8 +93,18 @@ public final class AuthTaskResult {
         return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
     }
 
+    public boolean wasUnexpectedError() {
+        return kind.isUnexpectedError();
+    }
+
     private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR;
+
+        private static EnumSet<Kind> UNEXPECTED_ERRORS = EnumSet.of(FAILURE, FLAKY_SIGNUP_ERROR, SERVER_ERROR, VALIDATION_ERROR);
+
+        public boolean isUnexpectedError() {
+            return UNEXPECTED_ERRORS.contains(this);
+        }
     }
 
     private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {

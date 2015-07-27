@@ -47,7 +47,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
 
-        void onError(String message);
+        void onError(String message, boolean allowFeedback);
 
         void onEmailTaken();
 
@@ -200,11 +200,15 @@ public abstract class AuthTaskFragment extends DialogFragment {
             } else if (result.wasValidationError()) {
                 listener.onUsernameInvalid(result.getServerErrorMessage());
             } else {
-                listener.onError(getErrorFromResult((Activity) listener, result));
+                listener.onError(getErrorFromResult((Activity) listener, result), shouldAllowFeedback(result));
             }
         } else {
             log(INFO, ONBOARDING_TAG, "auth result listener is gone, when delivering result");
         }
         dismiss();
+    }
+
+    private boolean shouldAllowFeedback(AuthTaskResult result) {
+        return networkConnectionHelper.isNetworkConnected() && result.wasUnexpectedError();
     }
 }
