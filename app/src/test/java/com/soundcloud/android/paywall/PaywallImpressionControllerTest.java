@@ -141,6 +141,16 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
         verify(recyclerView).removeOnChildAttachStateChangeListener(childAttachCaptor.getValue());
     }
 
+    @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3562
+    public void onChildViewAttachedFromWindowDoesNotCrashWhenItemNotFound() {
+        when(itemAdapter.getItemCount()).thenReturn(1); // track was removed by unliking
+        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+
+        attachItemView(TrackItem.from(midTierTrack));
+
+        verify(itemAdapter, never()).getItemId(ITEM_POSITION);
+    }
+
     @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3413
     public void onChildViewDetachedFromWindowDoesNotCrashWhenItemNotFound() {
         when(itemAdapter.getItemCount()).thenReturn(1); // track was removed by unliking
