@@ -23,7 +23,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -69,6 +68,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     };
 
     private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
+    private Subscription downloadSubscription = RxUtils.invalidSubscription();
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Subscription collectionSubscription = RxUtils.invalidSubscription();
 
@@ -128,30 +128,32 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private void subscribeForOfflineContentUpdates() {
-        foregroundSubscription = new CompositeSubscription(
-                likesDownloadState()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new OfflineStateSubscriber()),
-                offlineContentOperations
-                        .getOfflineLikedTracksStatusChanges()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new OfflineLikesSettingSubscriber())
-        );
+        Observable<OfflineState> offlineLikesState =
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(EntityStateChangedEvent.IS_OFFLINE_LIKES_EVENT_FILTER)
+                        .map(OfflineContentOperations.OFFLINE_LIKES_EVENT_TO_OFFLINE_STATE);
+
+        foregroundSubscription = offlineLikesState
+                .startWith(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OfflineLikesSettingSubscriber());
+    }
+
+    private void subscribeToCurrentDownloadQueue() {
+        downloadSubscription.unsubscribe();
+        downloadSubscription = likesDownloadState().subscribe(new OfflineStateSubscriber());
     }
 
     private Observable<OfflineState> likesDownloadState() {
-        final Observable<OfflineState> downloadStateFromCurrentDownload =
-                eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
-                        .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
-                        .map(CurrentDownloadEvent.TO_OFFLINE_STATE);
-        return offlineContentOperations
-                .getLikedTracksDownloadStateFromStorage()
-                .concatWith(downloadStateFromCurrentDownload);
+        return eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
+                .map(CurrentDownloadEvent.TO_OFFLINE_STATE);
     }
 
     @Override
     public void onPause(Fragment fragment) {
         foregroundSubscription.unsubscribe();
+        downloadSubscription.unsubscribe();
     }
 
     @Override
@@ -191,12 +193,22 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     }
 
-    private class OfflineLikesSettingSubscriber extends DefaultSubscriber<Boolean> {
+    private class OfflineLikesSettingSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
-        public void onNext(Boolean isEnabled) {
-            if (!isEnabled) {
-                headerView.show(OfflineState.NO_OFFLINE);
+        public void onNext(OfflineState offlineState) {
+            if (OfflineState.NO_OFFLINE.equals(offlineState)) {
+                downloadSubscription.unsubscribe();
+            } else {
+                subscribeToCurrentDownloadQueue();
             }
+
+            updateHeaderViewWithOfflineState(offlineState);
+        }
+    }
+
+    private void updateHeaderViewWithOfflineState(OfflineState state){
+        if (featureOperations.isOfflineContentEnabled()) {
+            headerView.show(state);
         }
     }
 }

@@ -45,6 +45,17 @@ public class OfflineContentOperations {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, OfflineState> OFFLINE_LIKES_EVENT_TO_OFFLINE_STATE = new Func1<EntityStateChangedEvent, OfflineState>() {
+        @Override
+        public OfflineState call(EntityStateChangedEvent event) {
+            if (event.getNextChangeSet().getOrElse(OfflineProperty.Collection.OFFLINE_LIKES, false)) {
+                return OfflineState.REQUESTED;
+            } else {
+                return OfflineState.NO_OFFLINE;
+            }
+        }
+    };
+
     private static final Func1<EntityStateChangedEvent, Boolean> OFFLINE_LIKES_EVENT_TO_IS_MARKED_OFFLINE = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
@@ -208,7 +219,7 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<OfflineState> getLikedTracksDownloadStateFromStorage() {
+    public Observable<OfflineState> getLikedTracksOfflineStateFromStorage() {
         return offlineContentStorage.isOfflineLikesEnabled()
                 .flatMap(PENDING_LIKES_TO_OFFLINE_STATE)
                 .subscribeOn(scheduler);
