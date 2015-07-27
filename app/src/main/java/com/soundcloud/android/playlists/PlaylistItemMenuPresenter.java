@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
@@ -83,6 +84,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 return true;
             case R.id.upsell_offline_content:
                 navigator.openUpgrade(context);
+                eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forPlaylistItemClick());
                 return true;
             case R.id.make_offline_available:
                 fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
@@ -151,6 +153,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             showOfflineContentOption(menu, maybeMarkedForOffline.get());
         } else if (featureOperations.upsellOfflineContent() && allowOfflineOptions) {
             showUpsellOption(menu);
+            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forPlaylistItemImpression());
         } else {
             hideAllOfflineContentOptions(menu);
         }

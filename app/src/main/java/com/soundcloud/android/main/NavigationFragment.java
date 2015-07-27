@@ -6,10 +6,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -53,6 +56,7 @@ public class NavigationFragment extends Fragment {
     @Inject AccountOperations accountOperations;
     @Inject FeatureOperations featureOperations;
     @Inject FeatureFlags featureFlags;
+    @Inject EventBus eventBus;
 
     private NavigationCallbacks callbacks;
     private ListView listView;
@@ -68,11 +72,12 @@ public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                 FeatureOperations featureOperations, FeatureFlags featureFlags) {
+                                 FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
         this.featureFlags = featureFlags;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -164,6 +169,7 @@ public class NavigationFragment extends Fragment {
 
     private void updateUpsellVisibility() {
         if (featureOperations.upsellMidTier()) {
+            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forNavImpression());
             upsell.setVisibility(View.VISIBLE);
             upsell.setOnClickListener(new View.OnClickListener() {
                 @Override

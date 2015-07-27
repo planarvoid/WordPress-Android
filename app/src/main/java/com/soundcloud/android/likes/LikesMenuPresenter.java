@@ -5,8 +5,11 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +30,21 @@ class LikesMenuPresenter {
     private final OfflineContentOperations offlineOperations;
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final Navigator navigator;
+    private final EventBus eventBus;
 
     @Inject
     public LikesMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                               FeatureOperations featureOperations,
                               OfflineContentOperations offlineContentOperations,
                               Provider<OfflineLikesDialog> syncLikesDialogProvider,
-                              Navigator navigator) {
+                              Navigator navigator,
+                              EventBus eventBus) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineContentOperations;
         this.syncLikesDialogProvider = syncLikesDialogProvider;
         this.navigator = navigator;
+        this.eventBus = eventBus;
     }
 
     public void show(View button, final FragmentManager fragmentManager) {
@@ -46,6 +52,9 @@ class LikesMenuPresenter {
         menu.inflate(R.menu.likes_actions);
         menu.setOnMenuItemClickListener(getMenuWrapperListener(fragmentManager));
         configureMenu(menu);
+        if (featureOperations.upsellMidTier()) {
+            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forLikesImpression());
+        }
     }
 
     @NotNull
@@ -59,6 +68,7 @@ class LikesMenuPresenter {
                             syncLikesDialogProvider.get().show(fragmentManager);
                         } else {
                             navigator.openUpgrade(context);
+                            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forLikesClick());
                         }
                         return true;
                     case R.id.action_make_offline_unavailable:

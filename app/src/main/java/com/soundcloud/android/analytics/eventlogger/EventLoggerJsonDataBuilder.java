@@ -18,6 +18,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -326,6 +327,21 @@ public class EventLoggerJsonDataBuilder {
                 .url(event.getCdnHost())
                 .errorCode(event.getCategory())
                 .connectionType(event.getConnectionType().getValue());
+    }
+
+    public String build(UpsellTrackingEvent event) {
+        switch (event.getKind()) {
+            case UpsellTrackingEvent.KIND_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickName("clickthrough::consumer_sub_ad")
+                        .clickObject(event.get(UpsellTrackingEvent.KEY_TCODE)));
+            case UpsellTrackingEvent.KIND_IMPRESSION:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_ad")
+                        .impressionObject(event.get(UpsellTrackingEvent.KEY_TCODE)));
+            default:
+                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
+        }
     }
 
     private String transform(EventLoggerEventData data) {

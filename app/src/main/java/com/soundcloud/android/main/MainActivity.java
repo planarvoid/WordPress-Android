@@ -18,6 +18,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
@@ -205,6 +206,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 break;
             case PLAYLISTS:
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlaylistsNav());
+                break;
+            case UPSELL:
+                eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forNavClick());
                 break;
             default:
                 break;

@@ -25,8 +25,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 
-import javax.inject.Inject;
-
 // This guy needs a thorough refactor. We should pull out all the drawer presentation logic into a testable object,
 // since it needs to deal with awkward life cycle stuff where the drawer layout can be null in many cases
 @SuppressLint("ValidFragment")
@@ -37,7 +35,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    @Inject EventBus eventBus;
 
     public NavigationDrawerFragment() {
         // Android needs a default constructor.
@@ -45,9 +42,8 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     @VisibleForTesting
     protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                       FeatureOperations featureOperations, EventBus eventBus, FeatureFlags featureFlags) {
-        super(imageOperations, accountOperations, featureOperations, featureFlags);
-        this.eventBus = eventBus;
+                                       FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
+        super(imageOperations, accountOperations, featureOperations, featureFlags, eventBus);
     }
 
     // View initialization needs to be here since the fragment relies on views owned by the activity. We should just

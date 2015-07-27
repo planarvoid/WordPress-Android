@@ -17,7 +17,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
@@ -46,14 +49,16 @@ class GeneralSettings implements OnPreferenceClickListener {
     private final Context appContext;
     private final DeviceHelper deviceHelper;
     private final FeatureOperations featureOperations;
+    private final EventBus eventBus;
 
     private PreferenceFragment settings;
 
     @Inject
-    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations) {
+    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations, EventBus eventBus) {
         this.appContext = appContext;
         this.deviceHelper = deviceHelper;
         this.featureOperations = featureOperations;
+        this.eventBus = eventBus;
     }
 
     public void addTo(final PreferenceFragment settings) {
@@ -71,10 +76,17 @@ class GeneralSettings implements OnPreferenceClickListener {
          * The offline settings screen has a configuration for the case where offline content is not enabled
          * but there is offline content stored on the device which can be deleted.
          */
-        if (featureOperations.isOfflineContentEnabled() || featureOperations.upsellMidTier()) {
-            final PreferenceCategory category = (PreferenceCategory) settings.findPreference(GENERAL_SETTINGS);
-            category.addPreference(createOfflineSyncPref(settings));
+        if (featureOperations.isOfflineContentEnabled()) {
+            addOfflineSettings(settings);
+        } else if (featureOperations.upsellMidTier()) {
+            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forSettingsImpression());
+            addOfflineSettings(settings);
         }
+    }
+
+    private void addOfflineSettings(PreferenceFragment settings) {
+        final PreferenceCategory category = (PreferenceCategory) settings.findPreference(GENERAL_SETTINGS);
+        category.addPreference(createOfflineSyncPref(settings));
     }
 
     private Preference createOfflineSyncPref(final PreferenceFragment settings) {
@@ -88,8 +100,10 @@ class GeneralSettings implements OnPreferenceClickListener {
                 new OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(parent, OfflineSettingsActivity.class);
-                        parent.startActivity(intent);
+                        parent.startActivity(new Intent(parent, OfflineSettingsActivity.class));
+                        if (featureOperations.upsellMidTier()) {
+                            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forSettingsClick());
+                        }
                         return true;
                     }
                 }
