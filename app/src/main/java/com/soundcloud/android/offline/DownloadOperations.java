@@ -101,7 +101,7 @@ class DownloadOperations {
                 saveTrack(request, response, listener);
 
                 trackDataLoader.fetchTrackArtwork(request.track);
-                trackDataLoader.fetchTrackWaveform(request.track);
+                trackDataLoader.fetchTrackWaveform(request.track, request.waveformUrl);
 
                 return DownloadState.success(request);
             } else {

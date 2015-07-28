@@ -316,7 +316,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, 123456);
+        return new DownloadRequest(track, 123456, "http://wav");
     }
 
     private void setupNoDownloadRequest() {

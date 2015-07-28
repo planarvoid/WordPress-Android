@@ -34,10 +34,11 @@ class OfflineTrackDataLoader {
         imageOperations.precacheTrackArtwork(trackUrn, listItemSize);
     }
 
-    public void fetchTrackWaveform(Urn trackUrn) {
+    public void fetchTrackWaveform(Urn trackUrn, String waveformUrl) {
+        Log.d(OfflineContentService.TAG, "Prefetch waveform called for: " + trackUrn);
         if (!waveformStorage.hasWaveform(trackUrn)) {
             try {
-                waveformStorage.store(trackUrn, waveformFetchCommand.call("http"));
+                waveformStorage.store(trackUrn, waveformFetchCommand.call(waveformUrl));
             } catch (WaveformFetchCommand.WaveformFetchException ignored) {
                 // default waveform will be displayed
             }

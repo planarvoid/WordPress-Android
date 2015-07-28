@@ -21,6 +21,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
+    private static final DownloadRequest request = new DownloadRequest(TRACK_1, 12345L, "http://wav");
     @Mock private DateProvider dateProvider;
 
     private TrackDownloadsStorage storage;
@@ -128,7 +129,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void updatesDownloadTracksWithDownloadResults() throws PropellerWriteException {
-        final DownloadState downloadState = DownloadState.success(new DownloadRequest(TRACK_1, 12345L));
+        final DownloadState downloadState = DownloadState.success(request);
         testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
 
         storage.storeCompletedDownload(downloadState);
@@ -140,7 +141,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     public void resetUnavailableAtWhenDownloaded() {
         testFixtures().insertUnavailableTrackDownload(TRACK_1, 100L);
 
-        final DownloadState downloadState = DownloadState.success(new DownloadRequest(TRACK_1, 12345L));
+        final DownloadState downloadState = DownloadState.success(request);
         storage.storeCompletedDownload(downloadState);
 
         databaseAssertions().assertDownloadIsAvailable(TRACK_1);

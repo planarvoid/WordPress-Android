@@ -49,7 +49,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
     private final long trackDuration = 12345;
-    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration);
+    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration, "http://wav");
 
     @Before
     public void setUp() throws Exception {

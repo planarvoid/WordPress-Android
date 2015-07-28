@@ -10,19 +10,22 @@ import java.util.List;
 public final class DownloadRequest {
     public final Urn track;
     public final long duration;
+    public final String waveformUrl;
     public final List<Urn> inPlaylists;
     public final boolean inLikedTracks;
 
     public static class Builder {
         private final Urn track;
         private final long duration;
+        private final String waveformUrl;
 
         private List<Urn> playlists = new ArrayList<>();
         private boolean inLikes = false;
 
-        public Builder(Urn track, long duration) {
+        public Builder(Urn track, long duration, String waveformUrl) {
             this.track = track;
             this.duration = duration;
+            this.waveformUrl = waveformUrl;
         }
 
         public Builder addToLikes(boolean inLikes) {
@@ -40,19 +43,20 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, duration, inLikes, playlists);
+            return new DownloadRequest(track, duration, waveformUrl, inLikes, playlists);
         }
     }
 
-    public DownloadRequest(Urn track, long duration, boolean inLikedTracks, List<Urn> inPlaylists) {
+    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean inLikedTracks, List<Urn> inPlaylists) {
         this.track = track;
         this.duration = duration;
+        this.waveformUrl = waveformUrl;
         this.inPlaylists = inPlaylists;
         this.inLikedTracks = inLikedTracks;
     }
 
-    public DownloadRequest(Urn trackUrn, long duration) {
-        this(trackUrn, duration, false, Collections.<Urn>emptyList());
+    public DownloadRequest(Urn trackUrn, long duration, String waveformUrl) {
+        this(trackUrn, duration, waveformUrl, false, Collections.<Urn>emptyList());
     }
 
     @Override
