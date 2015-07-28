@@ -1,6 +1,5 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.android.waveform.WaveformStorage.WaveformDataHelper.serializedSamples;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
@@ -15,6 +14,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
+import com.soundcloud.android.waveform.WaveformSerializer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
@@ -396,10 +396,11 @@ public class DatabaseAssertions {
     }
 
     public void assertWaveformForTrack(Urn track, WaveformData waveformData) {
+        WaveformSerializer serializer = new WaveformSerializer();
         assertThat(select(from(Table.Waveforms.name())
                 .whereEq(TableColumns.Waveforms.TRACK_ID, track.getNumericId())
                 .whereEq(TableColumns.Waveforms.MAX_AMPLITUDE, waveformData.maxAmplitude)
-                .whereEq(TableColumns.Waveforms.SAMPLES, serializedSamples(waveformData.samples))), counts(1));
+                .whereEq(TableColumns.Waveforms.SAMPLES, serializer.serialize(waveformData.samples))), counts(1));
     }
 
 }

@@ -42,7 +42,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
-    @Mock private OfflineArtworkLoader artworkLoader;
+    @Mock private OfflineTrackDataLoader artworkLoader;
 
     private DownloadOperations operations;
 

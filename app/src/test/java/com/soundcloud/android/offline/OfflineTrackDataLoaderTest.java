@@ -7,20 +7,23 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.waveform.WaveformFetchCommand;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class OfflineArtworkLoaderTest extends AndroidUnitTest {
+public class OfflineTrackDataLoaderTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
+    @Mock WaveformFetchCommand waveformFetchCommand;
+    @Mock WaveformStorage waveformStorage;
 
-    private OfflineArtworkLoader loader;
+    private OfflineTrackDataLoader loader;
     private Urn track = Urn.forTrack(123L);
 
     @Before
     public void setUp() {
-        loader = new OfflineArtworkLoader(imageOperations, resources());
+        loader = new OfflineTrackDataLoader(imageOperations, resources(), waveformFetchCommand, waveformStorage);
     }
 
     @Test
