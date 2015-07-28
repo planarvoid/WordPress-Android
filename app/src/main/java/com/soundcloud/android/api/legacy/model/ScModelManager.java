@@ -1,9 +1,9 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.google.common.primitives.Ints;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.primitives.Ints;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
+import com.soundcloud.java.strings.Charsets;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Parcel;

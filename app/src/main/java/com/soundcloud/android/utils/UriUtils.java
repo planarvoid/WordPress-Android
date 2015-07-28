@@ -39,7 +39,7 @@ public final class UriUtils {
     public static MultiMap<String, String> getQueryParameters(Uri uri) {
         MultiMap<String, String> params = new ListMultiMap<>();
         for (String key : getQueryParameterNames(uri)) {
-            params.get(key).addAll(uri.getQueryParameters(key));
+            params.putAll(key, uri.getQueryParameters(key));
         }
         return params;
     }

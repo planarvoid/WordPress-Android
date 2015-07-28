@@ -2,8 +2,6 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import com.google.common.base.Charsets;
-import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -13,7 +11,9 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.java.strings.Charsets;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;

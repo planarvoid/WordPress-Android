@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
@@ -30,6 +29,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
+import com.soundcloud.java.net.HttpHeaders;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
