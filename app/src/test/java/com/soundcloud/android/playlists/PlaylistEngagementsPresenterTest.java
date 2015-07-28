@@ -1,19 +1,18 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.PlaylistEngagementsView.OnEngagementListener;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
@@ -37,21 +36,17 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Subscription;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
@@ -59,10 +54,9 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistEngagementsPresenterTest {
+public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
@@ -92,7 +86,8 @@ public class PlaylistEngagementsPresenterTest {
         controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
                 engagementsView, featureOperations, offlineContentOperations, offlinePlaybackOperations,
                 playbackToastHelper, navigator);
-        when(rootView.getContext()).thenReturn(Robolectric.application);
+        when(rootView.getContext()).thenReturn(context);
+        when(context.getResources()).thenReturn(resources());
 
         controller.bindView(rootView);
         controller.onResume(fragment);
@@ -116,8 +111,8 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onToggleLike(true);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toBe(UIEvent.KIND_LIKE);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_LIKE);
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -128,8 +123,8 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onToggleLike(false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toBe(UIEvent.KIND_UNLIKE);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNLIKE);
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -140,8 +135,8 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onToggleRepost(true, false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toBe(UIEvent.KIND_REPOST);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_REPOST);
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -152,8 +147,8 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onToggleRepost(false, false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toBe(UIEvent.KIND_UNREPOST);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNREPOST);
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -163,25 +158,36 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onShare();
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toBe(UIEvent.KIND_SHARE);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         onEngagementListener.onShare();
-        expect(eventBus.eventsOn(EventQueue.TRACKING)).toBeEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
     }
 
     @Test
     public void shouldSendShareIntentWhenSharingPlayable() {
+        String expectedTitle = "Title";
+        String expectedShareText = "ShareText";
+
+        when(context.getString(R.string.share_subject, playlistWithTracks.getTitle())).thenReturn(expectedTitle);
+        when(context.getString(R.string.share_track_by_artist_on_soundcloud,
+                playlistWithTracks.getTitle(), playlistWithTracks.getCreatorName(),
+                playlistWithTracks.getPermalinkUrl())).thenReturn(expectedShareText);
+
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         onEngagementListener.onShare();
 
-        Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual(playlistWithTracks.getTitle() + " - SoundCloud");
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to " + playlistWithTracks.getTitle() + " by " + playlistWithTracks.getCreatorName() + " #np on #SoundCloud\\n" + playlistWithTracks.getPermalinkUrl());
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+
+        Intent shareIntent = argumentCaptor.getValue();
+        assertThat(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).isEqualTo(expectedTitle);
+        assertThat(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).contains(expectedShareText);
     }
 
     @Test
@@ -191,8 +197,7 @@ public class PlaylistEngagementsPresenterTest {
 
         onEngagementListener.onShare();
 
-        Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(shareIntent).toBeNull();
+        verify(context, never()).startActivity(any(Intent.class));
     }
 
     @Test
@@ -219,15 +224,8 @@ public class PlaylistEngagementsPresenterTest {
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        final Subscription likeSubscription = mock(Subscription.class);
-        final Observable observable = TestObservables.fromSubscription(likeSubscription);
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(observable);
-
-        onEngagementListener.onToggleLike(true);
-
         controller.onPause(fragment);
 
-        verify(likeSubscription).unsubscribe();
         eventBus.verifyUnsubscribed();
     }
 
@@ -240,7 +238,7 @@ public class PlaylistEngagementsPresenterTest {
 
         onEngagementListener.onPlayShuffled();
 
-        expect(subject.hasObservers()).toBeTrue();
+        assertThat(subject.hasObservers()).isTrue();
     }
 
     @Test
@@ -323,7 +321,7 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onShare();
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.SEARCH_MAIN.get());
+        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.SEARCH_MAIN.get());
     }
 
     @Test
@@ -333,7 +331,7 @@ public class PlaylistEngagementsPresenterTest {
 
         onEngagementListener.onMakeOfflineAvailable(true);
 
-        expect(publishSubject.hasObservers()).toBeTrue();
+        assertThat(publishSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -343,7 +341,7 @@ public class PlaylistEngagementsPresenterTest {
 
         onEngagementListener.onMakeOfflineAvailable(false);
 
-        expect(publishSubject.hasObservers()).toBeTrue();
+        assertThat(publishSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -428,7 +426,8 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         reset(engagementsView);
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(Arrays.asList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloadRemoved(Collections.singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).show(OfflineState.NO_OFFLINE);
     }
@@ -438,7 +437,8 @@ public class PlaylistEngagementsPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(false, Arrays.asList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloadRequested(false, Collections.singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).show(OfflineState.REQUESTED);
     }
@@ -448,7 +448,9 @@ public class PlaylistEngagementsPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), 12345L).addToPlaylist(playlistWithTracks.getUrn()).build();
+        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), 12345L, "http://wav")
+                .addToPlaylist(playlistWithTracks.getUrn())
+                .build();
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
 
         verify(engagementsView).show(OfflineState.DOWNLOADING);
@@ -459,7 +461,8 @@ public class PlaylistEngagementsPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloaded(false, Collections.singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).show(OfflineState.DOWNLOADED);
     }
@@ -467,7 +470,8 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(Urn.forPlaylist(999999L))));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloaded(false, Collections.singletonList(Urn.forPlaylist(999999L))));
 
         verify(engagementsView, never()).show(OfflineState.DOWNLOADED);
     }

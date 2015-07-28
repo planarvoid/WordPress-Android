@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,19 +12,17 @@ import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.ItemAdapter;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UpdateCurrentDownloadSubscriberTest {
+public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
@@ -45,12 +43,12 @@ public class UpdateCurrentDownloadSubscriberTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L).build();
+        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L, "http://").build();
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
         subscriber.onNext(event);
 
-        expect(track1.get(OfflineProperty.OFFLINE_STATE)).toEqual(OfflineState.DOWNLOADING);
-        expect(track2.contains(OfflineProperty.OFFLINE_STATE)).toBeFalse();
+        assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADING);
+        assertThat(track2.contains(OfflineProperty.OFFLINE_STATE)).isFalse();
         verify(adapter).notifyDataSetChanged();
     }
 
@@ -61,11 +59,11 @@ public class UpdateCurrentDownloadSubscriberTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Arrays.asList(TRACK1));
+        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Collections.singletonList(TRACK1));
         subscriber.onNext(event);
 
-        expect(track1.get(OfflineProperty.OFFLINE_STATE)).toEqual(OfflineState.DOWNLOADED);
-        expect(track2.contains(OfflineProperty.OFFLINE_STATE)).toBeFalse();
+        assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADED);
+        assertThat(track2.contains(OfflineProperty.OFFLINE_STATE)).isFalse();
         verify(adapter).notifyDataSetChanged();
     }
 
@@ -75,7 +73,7 @@ public class UpdateCurrentDownloadSubscriberTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1)));
 
-        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Arrays.asList(TRACK2));
+        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Collections.singletonList(TRACK2));
         subscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();
