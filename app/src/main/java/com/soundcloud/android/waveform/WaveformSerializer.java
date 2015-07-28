@@ -9,8 +9,7 @@ public class WaveformSerializer {
         //no-op required by dagger
     }
 
-
-    public int[] deserialize(String serializedSamples) throws NumberFormatException {
+    public int[] deserialize(String serializedSamples) {
         final String[] array = serializedSamples.split(",");
         int[] samples = new int[array.length];
         for (int i = 0; i < array.length; i++) {
