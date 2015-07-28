@@ -33,18 +33,44 @@ public final class WaveformData {
      * @param requiredWidth the new width
      * @return the waveform data downsampled to the required width
      */
-    public WaveformData scale(int requiredWidth) {
-        if (requiredWidth <= 0) {
+    public WaveformData scale(double requiredWidth) {
+        if(requiredWidth <= 0) {
             throw new IllegalArgumentException("Invalid width: " + requiredWidth);
         }
+
+        double samplesPerWidth = samples.length / requiredWidth;
+        int totalSamples = (int) Math.ceil(requiredWidth);
+
         if (requiredWidth == samples.length) {
             return this;
         } else {
-            int[] newSamples = new int[requiredWidth];
-            int newMax = 0;
-            for (int i = 0; i < requiredWidth; i++) {
-                final int offset = (int) Math.floor(samples.length / (double) requiredWidth * i);
-                newSamples[i] = samples[Math.min(samples.length - 1, offset)];
+            int[] newSamples = new int[totalSamples];
+            int newMax = 0, j, integral;
+            double acc, pos, next, num, fraction;
+
+            for (int i = 0; i < totalSamples; i++) {
+                pos = samplesPerWidth * i;
+                next = samplesPerWidth * (i + 1);
+
+                integral = (int) pos;
+                fraction = (1 - (pos - integral));
+                num = fraction;
+                acc = samples[integral] * fraction;
+
+                for (j = integral+1; j < (int) next && j < samples.length; j++, num++) {
+                    acc += samples[j];
+                }
+
+                integral = (int) next;
+
+                if (integral < samples.length) {
+                    fraction = next - integral;
+                    acc += samples[integral] * fraction;
+                    num += fraction;
+                }
+
+                newSamples[i] = (int) (acc / num);
+
                 if (newSamples[i] > newMax) {
                     newMax = newSamples[i];
                 }
