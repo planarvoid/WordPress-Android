@@ -2,12 +2,13 @@ package com.soundcloud.android.api;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
-import java.util.Map;
 
 public class ApiUrlBuilder {
 
@@ -45,9 +46,9 @@ public class ApiUrlBuilder {
         return withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
     }
 
-    public ApiUrlBuilder withQueryParams(Map<String, ?> params) {
-        for (Map.Entry<String, ?> param : params.entrySet()) {
-            withQueryParam(param.getKey(), param.getValue());
+    public ApiUrlBuilder withQueryParams(MultiMap<String, String> params) {
+        for (String key : params.keySet()) {
+            withQueryParam(key, Strings.joinOn(',').join(params.get(key)));
         }
         return this;
     }
