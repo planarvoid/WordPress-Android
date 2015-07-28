@@ -18,7 +18,7 @@ import java.util.Arrays;
  *
  * @see <a href="https://github.com/soundcloud/waveform-image-samples">Waveform Image Samples</a>
  */
-public final class WaveformData {
+public class WaveformData {
     public final static WaveformData EMPTY = new WaveformData(-1, new int[0]);
 
     public final int maxAmplitude;

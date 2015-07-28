@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -416,5 +418,16 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.displayScrubPosition(.5f);
         verify(leftLine).setTranslationX(-250f);
         verify(rightLine).setTranslationX(-500f);
+    }
+
+    @Test
+    public void resetRemovesReferenceToPreviousObservable() {
+        PublishSubject<WaveformData> waveformDataObservable = PublishSubject.create();
+        waveformViewController.setWaveform(waveformDataObservable, true);
+
+        waveformViewController.reset();
+        waveformViewController.onWaveformViewWidthChanged(500);
+
+        assertThat(waveformDataObservable.hasObservers()).isFalse();
     }
 }
