@@ -25,12 +25,14 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String TRACKS_TYPE = "tracks";
     private static final String PLAYLISTS_TYPE = "playlists";
     private static final String USERS_TYPE = "users";
+    private static final String TRACK_STATION_TYPE = "track-stations";
 
     private static final String NUMERIC_ID_PATTERN = ":(-?\\d+)";
     private static final String TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE + NUMERIC_ID_PATTERN;
     private static final String LEGACY_TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + SOUNDS_TYPE + NUMERIC_ID_PATTERN;
     private static final String PLAYLIST_PATTERN = SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
+    private static final String TRACK_STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACK_STATION_TYPE + NUMERIC_ID_PATTERN;
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -51,7 +53,8 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         return urnString.matches(TRACK_PATTERN)
                 || urnString.matches(LEGACY_TRACK_PATTERN)
                 || urnString.matches(PLAYLIST_PATTERN)
-                || urnString.matches(USER_PATTERN);
+                || urnString.matches(USER_PATTERN)
+                || urnString.matches(TRACK_STATION_PATTERN);
     }
 
     @NotNull
@@ -68,6 +71,11 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     public static Urn forUser(long id) {
         final long normalizedId = Math.max(0, id); // to account for anonymous users
         return new Urn(SOUNDCLOUD_SCHEME + COLON + USERS_TYPE, normalizedId);
+    }
+
+    @NotNull
+    public static Urn forTrackStation(long trackID) {
+        return new Urn(SOUNDCLOUD_SCHEME + COLON + TRACK_STATION_TYPE, trackID);
     }
 
     public Urn(String content) {
