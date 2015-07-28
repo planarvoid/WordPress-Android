@@ -1,87 +1,151 @@
-<?xml version="1.0" encoding="utf-8"?><resources xmlns:tools="http://schemas.android.com/tools">
-
-    <!--
-
-    The plurals on this file were extracted from the the strings.xml because of Transifex
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--The plurals on this file were extracted from the the strings.xml because of Transifex
     not supporting plurals label on xml files.
     Until this translation issue on Transifex is fixed, we will keep this file.
-    When it is fixed, we should move these plurals back to the strings.xml file.
-
-    -->
-
-    <!-- __NOTIFICATIONS -->
-    <plurals name="dashboard_notifications_activity_ticker_activity">
-        <item quantity="one">1 nova atividade</item>
-        <item quantity="other">%d novas atividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_comment">
-        <item quantity="one">1 novo comentário</item>
-        <item quantity="other">%d novos comentários</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_like">
-        <item quantity="one">Nova curtida</item>
-        <item quantity="other">%d novas curtidas</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_activity">
-        <item quantity="one">1 nova atividade</item>
-        <item quantity="other">%d novas atividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_comment">
-        <item quantity="one">1 novo comentário</item>
-        <item quantity="other">%d novos comentários</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_like">
-        <item quantity="one">Uma nova curtida</item>
-        <item quantity="other">%d novas curtidas</item>
-    </plurals>
-
-    <!-- __TIME -->
-    <plurals name="elapsed_days">
-        <item quantity="one">1 dia</item>
-        <item quantity="other">%d dias</item>
-    </plurals>
-    <plurals name="elapsed_days_ago">
-        <item quantity="one">1 dia atrás</item>
-        <item quantity="other">%d dias atrás</item>
-    </plurals>
-    <plurals name="elapsed_hours">
-        <item quantity="one">1 hora</item>
-        <item quantity="other">%d horas</item>
-    </plurals>
-    <plurals name="elapsed_hours_ago">
-        <item quantity="one">1 hora atrás</item>
-        <item quantity="other">%d horas atrás</item>
-    </plurals>
-    <plurals name="elapsed_minutes">
-        <item quantity="one">1 minuto</item>
-        <item quantity="other">%d minutos</item>
-    </plurals>
-    <plurals name="elapsed_minutes_ago">
-        <item quantity="one">1 hora atrás</item>
-        <item quantity="other">%d minutos atrás</item>
-    </plurals>
-    <plurals name="elapsed_months">
-        <item quantity="one">1 mês</item>
-        <item quantity="other">%d meses</item>
-    </plurals>
-    <plurals name="elapsed_months_ago">
-        <item quantity="one">1 mês atrás</item>
-        <item quantity="other">%d meses atrás</item>
-    </plurals>
-    <plurals name="elapsed_seconds">
-        <item quantity="one">1 segundo</item>
-        <item quantity="other">%d segundos</item>
-    </plurals>
-    <plurals name="elapsed_seconds_ago">
-        <item quantity="one">1 segundo atrás</item>
-        <item quantity="other">%d segundos atrás</item>
-    </plurals>
-    <plurals name="elapsed_years">
-        <item quantity="one">1 ano</item>
-        <item quantity="other">%d anos</item>
-    </plurals>
-    <plurals name="elapsed_years_ago">
-        <item quantity="one">1 ano atrás</item>
-        <item quantity="other">%d anos atrás</item>
-    </plurals>
+    When it is fixed, we should move these plurals back to the strings.xml file.-->
+  <!--__NOTIFICATIONS-->
+  <plurals name="dashboard_notifications_activity_ticker_repost">
+    <item quantity="one">Nova republicação</item>
+    <item quantity="other">%d novas republicações</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_activity">
+    <item quantity="one">%d nova atividade</item>
+    <item quantity="other">%d novas atividades</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_comment">
+    <item quantity="one">%d novo comentário</item>
+    <item quantity="other">%d novos comentários</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_like">
+    <item quantity="one">Nova curtida</item>
+    <item quantity="other">%d novas curtidas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_activity">
+    <item quantity="one">%d nova atividade</item>
+    <item quantity="other">%d novas atividades</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_comment">
+    <item quantity="one">%d novo comentário</item>
+    <item quantity="other">%d novos comentários</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_like">
+    <item quantity="one">Uma nova curtida</item>
+    <item quantity="other">%d novas curtidas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_repost">
+    <item quantity="one">Uma nova republicação</item>
+    <item quantity="other">%d novas republicações</item>
+  </plurals>
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_ticker">
+    <item quantity="one">%s novo som</item>
+    <item quantity="other">%s novos sons</item>
+  </plurals>
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_title">
+    <item quantity="one">%s novo som</item>
+    <item quantity="other">%s novos sons</item>
+  </plurals>
+  <!--__ACCESSIBILITY-->
+  <plurals name="accessibility_stats_likes">
+    <item quantity="one">%d curtida</item>
+    <item quantity="other">%d curtidas</item>
+  </plurals>
+  <!--__PLAYER-->
+  <plurals name="trackinfo_comments">
+    <item quantity="one">%d comentário nessa faixa</item>
+    <item quantity="other">%d comentários nessa faixa</item>
+  </plurals>
+  <!--__PLAYLIST CREATION-->
+  <plurals name="number_of_sounds">
+    <item quantity="one">%d faixa</item>
+    <item quantity="other">%d faixas</item>
+  </plurals>
+  <!--__PROFILE-->
+  <plurals name="number_of_followers">
+    <item quantity="one">%d seguidor</item>
+    <item quantity="other">%d seguidores</item>
+  </plurals>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="followers_message">
+    <item quantity="one">Seguido por %s pessoa</item>
+    <item quantity="other">Seguido por %s pessoas</item>
+  </plurals>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="following_message">
+    <item quantity="one">Seguido por você e por %s outra pessoa</item>
+    <item quantity="other">Seguido por você e por %s outras pessoas</item>
+  </plurals>
+  <plurals name="number_of_liked_tracks_you_liked">
+    <item quantity="one">Você curtiu %d faixa</item>
+    <item quantity="other">Você curtiu %d faixas</item>
+  </plurals>
+  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
+  <plurals name="number_of_others">
+    <item quantity="one">e %d outro</item>
+    <item quantity="other">e %d outros</item>
+  </plurals>
+  <!--__TIME-->
+  <plurals name="elapsed_days">
+    <item quantity="one">%d dia</item>
+    <item quantity="other">%d dias</item>
+  </plurals>
+  <plurals name="elapsed_days_ago">
+    <item quantity="one">há %d dia</item>
+    <item quantity="other">há %d dias</item>
+  </plurals>
+  <plurals name="elapsed_hours">
+    <item quantity="one">%d hora</item>
+    <item quantity="other">%d horas</item>
+  </plurals>
+  <plurals name="elapsed_hours_ago">
+    <item quantity="one">há %d hora</item>
+    <item quantity="other">há %d horas</item>
+  </plurals>
+  <plurals name="elapsed_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minutos</item>
+  </plurals>
+  <plurals name="elapsed_minutes_ago">
+    <item quantity="one">há %d minuto</item>
+    <item quantity="other">há %d minutos</item>
+  </plurals>
+  <plurals name="elapsed_months">
+    <item quantity="one">%d mês</item>
+    <item quantity="other">%d meses</item>
+  </plurals>
+  <plurals name="elapsed_months_ago">
+    <item quantity="one">há %d mês</item>
+    <item quantity="other">há %d meses</item>
+  </plurals>
+  <plurals name="elapsed_seconds">
+    <item quantity="one">%d segundo</item>
+    <item quantity="other">%d segundos</item>
+  </plurals>
+  <plurals name="elapsed_seconds_ago">
+    <item quantity="one">há %d segundo</item>
+    <item quantity="other">há %d segundos</item>
+  </plurals>
+  <plurals name="elapsed_years">
+    <item quantity="one">%d ano</item>
+    <item quantity="other">%d anos</item>
+  </plurals>
+  <plurals name="elapsed_years_ago">
+    <item quantity="one">há %d ano</item>
+    <item quantity="other">há %d anos</item>
+  </plurals>
+  <!--__OFFLINE_SYNC-->
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d faixa</item>
+    <item quantity="other">%1$d de %2$d faixas</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">Você tem %d dia para ficar on-line novamente</item>
+    <item quantity="other">Você tem %d dias para ficar on-line novamente</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Seu dispositivo precisa estar on-line pelo menos uma vez a cada 30 dias para que a sua assinatura seja verificada. No momento, você tem %d dia para manter este dispositivo conectado à sua assinatura, ou o seu conteúdo off-line ficará inacessível.</item>
+    <item quantity="other">Seu dispositivo precisa estar on-line pelo menos uma vez a cada 30 dias para que a sua assinatura seja verificada. No momento, você tem %d dias para manter este dispositivo conectado à sua assinatura, ou o seu conteúdo off-line ficará inacessível.</item>
+  </plurals>
 </resources>
