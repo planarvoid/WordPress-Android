@@ -29,14 +29,14 @@ import java.lang.reflect.Method;
 /**
  * In order to use a file-based test database, annotate your test classes with
  * <code>
- *     \@DatabaseConfig.UsingDatabaseMap(SoundCloudTestRunner.FileDatabaseMap.class)
+ * \@DatabaseConfig.UsingDatabaseMap(SoundCloudTestRunner.FileDatabaseMap.class)
  * </code>.
  */
 public class SoundCloudTestRunner extends RobolectricTestRunner {
 
-    public static final File MANIFEST = new File("../app/AndroidManifest.xml");
-    public static final File RESOURCES = new File("../app/res");
-    public static final File ASSETS = new File("../app/assets");
+    public static final File MANIFEST = new File("../app/build/intermediates/manifests/full/debug/AndroidManifest.xml");
+    public static final File RESOURCES = new File("../app/build/intermediates/res/debug");
+    public static final File ASSETS = new File("../app/build/intermediates/assets/debug");
 
     public SoundCloudTestRunner(Class testClass) throws InitializationError {
         super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
@@ -86,7 +86,7 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
     public static class FileDatabaseMap extends SQLiteMap {
         @Override
         public String getConnectionString() {
-            return "jdbc:sqlite:tests-" + System.currentTimeMillis() +".sqlite";
+            return "jdbc:sqlite:tests-" + System.currentTimeMillis() + ".sqlite";
         }
     }
 }

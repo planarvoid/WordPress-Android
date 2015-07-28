@@ -24,19 +24,14 @@ import org.mockito.MockitoAnnotations;
 
 import android.content.ContentProvider;
 
-import java.io.File;
 import java.lang.reflect.Method;
 
 @Deprecated
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
-    private static final File MANIFEST = new File("../app/AndroidManifest.xml");
-    private static final File RESOURCES = new File("../app/res");
-    private static final File ASSETS = new File("../app/assets");
-
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
+        super(testClass, new RobolectricConfig(SoundCloudTestRunner.MANIFEST, SoundCloudTestRunner.RESOURCES, SoundCloudTestRunner.ASSETS));
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer");
