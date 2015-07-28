@@ -42,7 +42,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
-    @Mock private OfflineTrackDataLoader artworkLoader;
+    @Mock private OfflineTrackDataLoader trackDataLoader;
 
     private DownloadOperations operations;
 
@@ -54,7 +54,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), artworkLoader);
+                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), trackDataLoader);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -72,10 +72,11 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, artworkLoader, response);
+        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, trackDataLoader, response);
         inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
         inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
-        inOrder.verify(artworkLoader).fetchTrackArtwork(downloadRequest.track);
+        inOrder.verify(trackDataLoader).fetchTrackArtwork(downloadRequest.track);
+        inOrder.verify(trackDataLoader).fetchTrackWaveform(downloadRequest.track, downloadRequest.waveformUrl);
         inOrder.verify(response).close();
     }
 
@@ -163,7 +164,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        verifyZeroInteractions(artworkLoader);
+        verifyZeroInteractions(trackDataLoader);
     }
 
     @Test
