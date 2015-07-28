@@ -45,7 +45,6 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -86,7 +85,6 @@ public class SkippyAdapterTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
     @Mock private LockUtil lockUtil;
-    @Mock private DeviceHelper deviceHelper;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
@@ -104,7 +102,8 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
-                stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences, secureFileStorage, cryptoOperations);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences,
+                secureFileStorage, cryptoOperations);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -404,8 +403,6 @@ public class SkippyAdapterTest {
 
     @Test
     public void locksLockUtilWhenPlaying() {
-        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
-
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
@@ -414,8 +411,6 @@ public class SkippyAdapterTest {
 
     @Test
     public void locksLockUtilWhenBuffering() {
-        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
-
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
@@ -424,8 +419,6 @@ public class SkippyAdapterTest {
 
     @Test
     public void unlocksLockUtilWhenIdle() {
-        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
-
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
@@ -434,8 +427,6 @@ public class SkippyAdapterTest {
 
     @Test
     public void unlocksLockUtilOnError() {
-        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
-
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
 
@@ -444,8 +435,6 @@ public class SkippyAdapterTest {
 
     @Test
     public void unlocksLockUtilWhenComplete() {
-        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
-
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
