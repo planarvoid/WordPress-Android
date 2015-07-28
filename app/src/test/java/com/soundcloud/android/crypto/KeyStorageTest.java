@@ -3,8 +3,8 @@ package com.soundcloud.android.crypto;
 import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.strings.Charsets;
 import org.junit.Before;
 import org.junit.Test;
 

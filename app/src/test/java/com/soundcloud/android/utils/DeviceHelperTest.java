@@ -61,20 +61,6 @@ public class DeviceHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void inSplitTestGroupReturnsTrueBasedOnDeviceId() throws Exception {
-        when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
-        when(telephonyManager.getDeviceId()).thenReturn("MYID");
-        assertThat(deviceHelper.inSplitTestGroup()).isTrue();
-    }
-
-    @Test
-    public void inSplitTestGroupReturnsFalseBasedOnDeviceId() throws Exception {
-        when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
-        when(telephonyManager.getDeviceId()).thenReturn("0000000");
-        assertThat(deviceHelper.inSplitTestGroup()).isFalse();
-    }
-
-    @Test
     public void getDeviceNameReturnsManufacturerAndModelIfModelDoesNotContainsManufacturer(){
         when(buildHelper.getModel()).thenReturn("GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");

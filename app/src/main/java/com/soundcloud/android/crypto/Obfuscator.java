@@ -1,7 +1,7 @@
 package com.soundcloud.android.crypto;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.strings.Charsets;
 
 import android.util.Base64;
 

@@ -1,8 +1,8 @@
 package com.soundcloud.android.api;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -23,6 +23,8 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.collections.ListMultiMap;
+import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.MultipartBuilder;
@@ -109,7 +111,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
         apiClient.fetchResponse(request);
 
-        verify(apiUrlBuilder).withQueryParams(Collections.singletonMap("k1", "v1"));
+        verify(apiUrlBuilder).withQueryParams(new ListMultiMap<>(Collections.singletonMap("k1", asList("v1"))));
     }
 
     @Test
@@ -122,7 +124,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
         apiClient.fetchResponse(request);
 
-        verify(apiUrlBuilder).withQueryParams(Collections.singletonMap("k1", "v1,v2"));
+        verify(apiUrlBuilder).withQueryParams(new ListMultiMap<>(Collections.singletonMap("k1", asList("v1", "v2"))));
     }
 
     @Test
@@ -403,7 +405,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     private void mockRequestBuilderFor(ApiRequest request) {
         when(apiUrlBuilder.from(request)).thenReturn(apiUrlBuilder);
-        when(apiUrlBuilder.withQueryParams(anyMap())).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParams(any(MultiMap.class))).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(request.getUri().toString());
     }
 

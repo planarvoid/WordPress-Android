@@ -1,10 +1,10 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.base.Charsets;
-import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.net.HttpHeaders;
+import com.soundcloud.java.strings.Charsets;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;

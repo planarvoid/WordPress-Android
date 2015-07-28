@@ -1,6 +1,5 @@
 package com.soundcloud.android.utils;
 
-import com.google.common.hash.Hashing;
 import com.soundcloud.android.R;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
@@ -54,12 +53,6 @@ public class DeviceHelper {
         return udid;
     }
     
-    public boolean inSplitTestGroup(){
-        String id = getUniqueDeviceId();
-        final long idAsLong = Hashing.md5().hashString(id).asLong();
-        return !ScTextUtils.isBlank(id) && (int) (Math.abs(idAsLong) % 2) == 1;
-    }
-
     private String getUniqueDeviceId() {
         TelephonyManager tmgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String id = tmgr == null ? null : tmgr.getDeviceId();

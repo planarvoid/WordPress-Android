@@ -13,7 +13,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '22.2.1'
   playServicesVersion = '7.5.0'
-  androidKitVersion = '0.17'
+  androidKitVersion = '0.19'
   lightCycleVersion = '0.0.4'
   daggerVersion = '1.2.2'
   propellerVersion = '0.45'
@@ -47,7 +47,6 @@ ext {
           localytics                  : "com.localytics:android-localytics:2.71",
 
           // utility libraries
-          guavaRepack                 : "com.google.guava:guava-repack:14.11.14",
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
           okHttp                      : "com.squareup.okhttp:okhttp:2.3.0",
           httpClientAndroid           : "org.apache.httpcomponents:httpclient-android:4.3.5",

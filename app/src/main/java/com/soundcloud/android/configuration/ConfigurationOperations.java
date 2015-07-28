@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration;
 
-import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
@@ -18,6 +17,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;

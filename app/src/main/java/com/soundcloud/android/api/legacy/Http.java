@@ -1,6 +1,6 @@
 package com.soundcloud.android.api.legacy;
 
-import com.google.common.base.Charsets;
+import com.soundcloud.java.strings.Charsets;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;

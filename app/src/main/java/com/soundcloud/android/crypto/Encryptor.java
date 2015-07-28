@@ -1,8 +1,8 @@
 package com.soundcloud.android.crypto;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Charsets;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;

@@ -1,13 +1,7 @@
 package com.soundcloud.android.api;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
-import static com.soundcloud.java.strings.Strings.joinOn;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -16,7 +10,10 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.java.strings.Charsets;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -74,7 +71,7 @@ public class ApiClient {
         try {
             final com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder();
 
-            final Map<String, String> existingParams = transformQueryParameters(request);
+            final MultiMap<String, String> existingParams = request.getQueryParameters();
             builder.url(urlBuilder.from(request).withQueryParams(existingParams).build());
             setHttpHeaders(request, builder);
 
@@ -216,13 +213,4 @@ public class ApiClient {
         return resource;
     }
 
-    private Map<String, String> transformQueryParameters(ApiRequest apiRequest) {
-        final Multimap<String, String> queryParameters = apiRequest.getQueryParameters();
-        return Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
-            @Override
-            public String apply(String input) {
-                return joinOn(",").join(queryParameters.get(input));
-            }
-        });
-    }
 }

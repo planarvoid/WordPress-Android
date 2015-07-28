@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
@@ -12,8 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -21,15 +19,16 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
@@ -40,8 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistDiscoveryOperationsTest {
+public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
     private PlaylistDiscoveryOperations operations;
 
@@ -110,13 +108,13 @@ public class PlaylistDiscoveryOperationsTest {
     public void shouldMakeRequestPlaylistDiscoveryResultsWithCorrectParameters() {
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        Multimap<String, String> parameters = ArrayListMultimap.create();
+        MultiMap<String, String> parameters = new ListMultiMap<>();
         parameters.put("tag", "electronic");
         parameters.put("limit", String.valueOf(20));
 
         ArgumentCaptor<ApiRequest> resultCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(resultCaptor.capture(), eq(ApiPlaylistCollection.class));
-        expect(resultCaptor.getValue().getQueryParameters()).toEqual(parameters);
+        assertThat(resultCaptor.getValue().getQueryParameters()).isEqualTo(parameters);
     }
 
     @Test
@@ -152,7 +150,7 @@ public class PlaylistDiscoveryOperationsTest {
         operations.playlistsForTag("electronic").subscribe(observer);
 
         ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
-        expect(apiPlaylist.getTags()).toContainExactly("electronic", "tag1", "tag2", "tag3");
+        assertThat(apiPlaylist.getTags()).containsExactly("electronic", "tag1", "tag2", "tag3");
     }
 
     private ApiPlaylist captureFirstApiPlaylist() {
@@ -169,7 +167,7 @@ public class PlaylistDiscoveryOperationsTest {
         operations.playlistsForTag("tag2").subscribe(observer);
 
         ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
-        expect(apiPlaylist.getTags()).toContainExactly("tag2", "tag1", "tag3");
+        assertThat(apiPlaylist.getTags()).containsExactly("tag2", "tag1", "tag3");
     }
 
     @Test
@@ -179,7 +177,7 @@ public class PlaylistDiscoveryOperationsTest {
         operations.playlistsForTag("Tag2").subscribe(observer);
 
         ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
-        expect(apiPlaylist.getTags()).toContainExactly("Tag2", "tag1", "tag3");
+        assertThat(apiPlaylist.getTags()).containsExactly("Tag2", "tag1", "tag3");
     }
 
     @Test
@@ -189,7 +187,7 @@ public class PlaylistDiscoveryOperationsTest {
         operations.playlistsForTag("ag2").subscribe(observer);
 
         ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
-        expect(apiPlaylist.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
+        assertThat(apiPlaylist.getTags()).containsExactly("ag2", "tag1", "tag2", "tag3");
     }
 
     @Test

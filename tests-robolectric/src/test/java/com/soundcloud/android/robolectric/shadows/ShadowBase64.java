@@ -1,6 +1,6 @@
 package com.soundcloud.android.robolectric.shadows;
 
-import com.google.common.base.Charsets;
+import com.soundcloud.java.strings.Charsets;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import org.apache.commons.codec.binary.Base64;

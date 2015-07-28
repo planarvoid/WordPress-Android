@@ -2,7 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.common.base.Charsets;
+import com.soundcloud.java.strings.Charsets;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;

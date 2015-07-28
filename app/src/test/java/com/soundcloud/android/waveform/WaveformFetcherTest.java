@@ -8,8 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.strings.Charsets;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;

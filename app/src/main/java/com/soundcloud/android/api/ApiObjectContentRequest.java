@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import com.google.common.collect.Multimap;
+import com.soundcloud.java.collections.MultiMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -12,7 +12,7 @@ public class ApiObjectContentRequest extends ApiRequest {
     private final Object content;
 
     ApiObjectContentRequest(Uri uri, String method, int endpointVersion, Boolean isPrivate,
-                            @NotNull Multimap<String, String> queryParams,
+                            @NotNull MultiMap<String, String> queryParams,
                             @NotNull Map<String, String> headers, Object content) {
         super(uri, method, endpointVersion, isPrivate, queryParams, headers);
         this.content = content;

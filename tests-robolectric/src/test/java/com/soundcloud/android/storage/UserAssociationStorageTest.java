@@ -2,6 +2,7 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -9,9 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -33,12 +31,13 @@ import rx.schedulers.Schedulers;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationStorageTest {
     final private static long USER_ID = 1L;
-    final private static int BATCH_SIZE = 5;
+    final private static int BATCH_SIZE = 1;
     final private static int INITIAL_FOLLOWERS_COUNT = 3;
     public static final String TOKEN = "12345";
 
@@ -209,7 +208,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInSingleBatchIfCollectionIsSmallEnough() throws Exception {
-        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
+        List<Long> ids = Collections.singletonList(1L);
 
         ContentResolver resolver = mock(ContentResolver.class);
         new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
@@ -219,7 +218,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInBatchesIfCollectionIsTooLarge() throws Exception {
-        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
+        List<Long> ids = asList(1L, 2L);
 
         ContentResolver resolver = mock(ContentResolver.class);
         new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
@@ -229,7 +228,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingSingleBatch() {
-        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
+        List<Long> ids = Collections.singletonList(1L);
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
@@ -247,7 +246,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingMultipleBatches() {
-        List<Long> ids = newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
+        List<Long> ids = asList(1L, 2L);
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);

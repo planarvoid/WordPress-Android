@@ -1,44 +1,41 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.collections.MultiMap;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ApiRequestTest {
+public class ApiRequestTest extends AndroidUnitTest {
     private static final String URI_PATH = "/somepath";
     private static final String FULL_URI = "http://api.soundcloud.com/somepath?a=1&b=2";
 
     @Test
     public void shouldReturnRequestInstanceWithURISet() {
         ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.getEncodedPath()).toEqual(URI_PATH);
+        assertThat(request.getEncodedPath()).isEqualTo(URI_PATH);
     }
 
     @Test
     public void shouldReturnRequestWithCorrectUriPathFromFullUri() {
         ApiRequest request = validRequest(FULL_URI).build();
-        expect(request.getEncodedPath()).toEqual(URI_PATH);
+        assertThat(request.getEncodedPath()).isEqualTo(URI_PATH);
     }
 
     @Test
     public void shouldReturnRequestInstanceWithGetMethodSet() {
         ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.getMethod()).toEqual("GET");
+        assertThat(request.getMethod()).isEqualTo("GET");
     }
 
     @Test
     public void shouldReturnRequestInstanceWithPostMethodSet() {
         ApiRequest request = ApiRequest.post(URI_PATH).forPrivateApi(1).build();
-        expect(request.getMethod()).toEqual("POST");
+        assertThat(request.getMethod()).isEqualTo("POST");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -54,7 +51,7 @@ public class ApiRequestTest {
     @Test
     public void shouldReturnRequestInstanceWithVersionCodeSetForPrivateAPI() {
         ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.getVersion()).toBe(1);
+        assertThat(request.getVersion()).isEqualTo(1);
     }
 
     @Test
@@ -70,13 +67,13 @@ public class ApiRequestTest {
     @Test
     public void shouldReturnSpecifiedPrivateAPITarget() {
         ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.isPrivate()).toBeTrue();
+        assertThat(request.isPrivate()).isTrue();
     }
 
     @Test
     public void shouldReturnSpecifiedPublicAPITarget() {
         ApiRequest request = ApiRequest.get(URI_PATH).forPublicApi().build();
-        expect(request.isPrivate()).toBeFalse();
+        assertThat(request.isPrivate()).isFalse();
     }
 
     @Test
@@ -84,7 +81,7 @@ public class ApiRequestTest {
         ApiRequest request = validRequest(URI_PATH)
                 .addQueryParam("key", 1)
                 .build();
-        expect(request.getQueryParameters().get("key")).toContainExactly("1");
+        assertThat(request.getQueryParameters().get("key")).containsExactly("1");
     }
 
     @Test
@@ -93,7 +90,7 @@ public class ApiRequestTest {
                 .addQueryParam("key", 1)
                 .addQueryParam("key", 2)
                 .build();
-        expect(request.getQueryParameters().get("key")).toContainExactly("1", "2");
+        assertThat(request.getQueryParameters().get("key")).containsExactly("1", "2");
     }
 
     @Test
@@ -101,27 +98,27 @@ public class ApiRequestTest {
         ApiRequest request = validRequest(URI_PATH)
                 .addQueryParam("key", 1, 2)
                 .build();
-        expect(request.getQueryParameters().get("key")).toContainExactly("1", "2");
+        assertThat(request.getQueryParameters().get("key")).containsExactly("1", "2");
     }
 
     @Test
     public void shouldReturnEmptyQueryParameterMapIfNoParametersSpecified() {
         ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.getQueryParameters()).toEqual(ArrayListMultimap.<String, String>create());
+        assertThat(request.getQueryParameters().isEmpty()).isTrue();
     }
 
     @Test
     public void shouldSetParametersFromFullUri() {
         ApiRequest request = validRequest(FULL_URI).build();
-        final Multimap<String, String> queryParameters = request.getQueryParameters();
-        expect(queryParameters.get("a")).toContainExactly("1");
-        expect(queryParameters.get("b")).toContainExactly("2");
+        final MultiMap<String, String> queryParameters = request.getQueryParameters();
+        assertThat(queryParameters.get("a")).containsExactly("1");
+        assertThat(queryParameters.get("b")).containsExactly("2");
     }
 
     @Test
     public void shouldDropExistingParametersFromFullUriSoTheyWontEndUpAddedTwice() {
         ApiRequest request = validRequest(FULL_URI).build();
-        expect(request.getUri().getQuery()).toBeNull();
+        assertThat(request.getUri().getQuery()).isNull();
     }
 
     @Test
@@ -133,19 +130,19 @@ public class ApiRequestTest {
         final Map<String, String> headers = request.getHeaders();
         final String value = headers.get("sc-udid");
 
-        expect(value).toEqual("abc123");
+        assertThat(value).isEqualTo("abc123");
     }
 
     @Test
     public void shouldReturnJsonAcceptMediaTypeForMobileApiRequests() {
         final ApiRequest request = ApiRequest.get(URI_PATH).forPrivateApi(1).build();
-        expect(request.getAcceptMediaType()).toEqual("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(request.getAcceptMediaType()).isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
     }
 
     @Test
     public void shouldReturnJsonAcceptMediaTypeForPublicApiRequests() {
         final ApiRequest request = ApiRequest.get(URI_PATH).forPublicApi().build();
-        expect(request.getAcceptMediaType()).toEqual("application/json");
+        assertThat(request.getAcceptMediaType()).isEqualTo("application/json");
     }
 
     @Test
@@ -154,9 +151,9 @@ public class ApiRequestTest {
         ApiRequest request = validRequest(URI_PATH)
                 .withContent(requestContent)
                 .build();
-        expect(request).toBeInstanceOf(ApiObjectContentRequest.class);
+        assertThat(request).isInstanceOf(ApiObjectContentRequest.class);
         final ApiObjectContentRequest contentRequest = (ApiObjectContentRequest) request;
-        expect(contentRequest.getContent()).toEqual(requestContent);
+        assertThat(contentRequest.getContent()).isEqualTo(requestContent);
     }
 
     @Test
@@ -167,9 +164,9 @@ public class ApiRequestTest {
                 .withFormPart(part1)
                 .withFormPart(part2)
                 .build();
-        expect(request).toBeInstanceOf(ApiMultipartRequest.class);
+        assertThat(request).isInstanceOf(ApiMultipartRequest.class);
         final ApiMultipartRequest contentRequest = (ApiMultipartRequest) request;
-        expect(contentRequest.getParts()).toContainExactly(part1, part2);
+        assertThat(contentRequest.getParts()).containsExactly(part1, part2);
     }
 
     private ApiRequest.Builder validRequest(String uri) {

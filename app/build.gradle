@@ -213,7 +213,6 @@ dependencies {
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger
-  compile libraries.guavaRepack
   compile (libraries.crashlytics) {
     transitive = true
   }
