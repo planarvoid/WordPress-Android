@@ -76,6 +76,14 @@ final class DatabaseSchema {
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
+    static final String DATABASE_CREATE_WAVEFORMS =  "(" +
+            "track_id INTEGER, " +
+            "max_amplitude INTEGER, " +
+            "samples TEXT, " +
+            "created_at INTEGER," +
+            "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
+            ");";
+
     static final String DATABASE_CREATE_TRACK_POLICIES = "(" +
             "track_id INTEGER, " +
             "monetizable BOOLEAN DEFAULT 0," +

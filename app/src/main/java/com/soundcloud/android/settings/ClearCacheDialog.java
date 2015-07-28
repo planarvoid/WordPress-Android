@@ -8,6 +8,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.waveform.WaveformOperations;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -28,6 +29,7 @@ public class ClearCacheDialog extends DialogFragment {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject ImageOperations imageOperations;
+    @Inject WaveformOperations waveformOperations;
 
     public static void show(FragmentManager fragmentManager) {
         new ClearCacheDialog().show(fragmentManager, TAG);
@@ -57,6 +59,7 @@ public class ClearCacheDialog extends DialogFragment {
         return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
+                waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
                 IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
                 subscriber.onNext(null);

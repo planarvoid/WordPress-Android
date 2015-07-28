@@ -1,5 +1,8 @@
 package com.soundcloud.android.waveform;
 
+import com.soundcloud.java.objects.MoreObjects;
+
+import java.util.Arrays;
 
 /**
  * Waveform sample data.
@@ -15,12 +18,14 @@ package com.soundcloud.android.waveform;
  *
  * @see <a href="https://github.com/soundcloud/waveform-image-samples">Waveform Image Samples</a>
  */
-public class WaveformData {
+public final class WaveformData {
+    public final static WaveformData EMPTY = new WaveformData(-1, new int[0]);
+
     public final int maxAmplitude;
     public final int[] samples;
 
     public WaveformData(int height, int[] samples) {
-        maxAmplitude = height;
+        this.maxAmplitude = height;
         this.samples = samples;
     }
 
@@ -47,4 +52,21 @@ public class WaveformData {
             return new WaveformData(newMax, newSamples);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WaveformData that = (WaveformData) o;
+
+        return MoreObjects.equal(maxAmplitude, that.maxAmplitude)
+                && Arrays.equals(samples, that.samples);
+    }
+
+    @Override
+    public int hashCode() {
+        return MoreObjects.hashCode(maxAmplitude) + Arrays.hashCode(samples);
+    }
+
 }

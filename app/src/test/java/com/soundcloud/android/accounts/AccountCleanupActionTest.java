@@ -12,7 +12,6 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.Table;
@@ -20,17 +19,16 @@ import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.sync.stream.StreamSyncStorage;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AccountCleanupActionTest {
+public class AccountCleanupActionTest extends AndroidUnitTest {
 
     private AccountCleanupAction action;
 
@@ -147,6 +145,12 @@ public class AccountCleanupActionTest {
     public void shouldClearPosts() throws PropellerWriteException {
         action.call();
         verify(clearTableCommand).call(Table.Posts);
+    }
+
+    @Test
+    public void shouldClearWaveforms() {
+        action.call();
+        verify(clearTableCommand).call(Table.Waveforms);
     }
 
     @Test

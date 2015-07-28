@@ -50,6 +50,7 @@ public enum Table implements com.soundcloud.propeller.Table {
 
     TrackDownloads(false, DatabaseSchema.DATABASE_CREATE_TRACK_DOWNLOADS), // download state
     OfflineContent(false, DatabaseSchema.DATABASE_CREATE_OFFLINE_CONTENT), // marked for offline sync (user intent)
+    Waveforms(PrimaryKey.of(TableColumns.Waveforms.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_WAVEFORMS),
 
     Likes(PrimaryKey.of(TableColumns.Likes._ID, TableColumns.Likes._TYPE), false, DatabaseSchema.DATABASE_CREATE_LIKES),
     Posts(PrimaryKey.of(TableColumns.Posts.TYPE, TableColumns.Posts.TARGET_TYPE, TableColumns.Posts.TARGET_ID), false, DatabaseSchema.DATABASE_CREATE_POSTS),
