@@ -4,11 +4,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.checks.Preconditions;
 
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +23,20 @@ import java.util.List;
 
 public class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
+    private static final String IMAGE_SPAN_SPACER = "    ";
+
+    interface OnRecommendationClickListener {
+        void onRecommendationReasonClicked(RecommendationItem recommendationItem);
+
+        void onRecommendationArtworkClicked(RecommendationItem recommendationItem);
+
+        void onRecommendationViewAllClicked(RecommendationItem recommendationItem);
+    }
+
     private final Resources resources;
     private final ImageOperations imageOperations;
+
+    private OnRecommendationClickListener onRecommendationClickListener;
 
     @Inject
     public RecommendationItemRenderer(Resources resources, ImageOperations imageOperations) {
@@ -36,28 +51,75 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
 
     @Override
     public void bindItemView(int position, View itemView, List<RecommendationItem> recommendations) {
-        RecommendationItem recommendationItem = recommendations.get(position);
+        final RecommendationItem recommendationItem = recommendations.get(position);
         getTextView(itemView, R.id.reason).setText(getReasonText(recommendationItem));
         getTextView(itemView, R.id.username).setText(recommendationItem.getRecommendationUserName());
         getTextView(itemView, R.id.title).setText(recommendationItem.getRecommendationTitle());
         getTextView(itemView, R.id.view_all).setText(getViewAllText(recommendationItem));
         loadArtwork(itemView, recommendationItem);
+        setClickListeners(itemView, recommendationItem);
     }
 
-    private String getViewAllText(RecommendationItem recommendationItem) {
-        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
+    private void setClickListeners(View itemView, final RecommendationItem recommendationItem) {
+        itemView.findViewById(R.id.reason).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
+                if (clickListener != null) {
+                    clickListener.onRecommendationReasonClicked(recommendationItem);
+                }
+            }
+        });
+
+        itemView.findViewById(R.id.image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
+                if (clickListener != null) {
+                    clickListener.onRecommendationArtworkClicked(recommendationItem);
+                }
+            }
+        });
+
+        itemView.findViewById(R.id.view_all).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
+                if (clickListener != null) {
+                    clickListener.onRecommendationViewAllClicked(recommendationItem);
+                }
+            }
+        });
+    }
+
+    void setOnRecommendationClickListener(OnRecommendationClickListener listener) {
+        Preconditions.checkArgument(listener != null, "Click listener must not be null");
+        this.onRecommendationClickListener = listener;
+    }
+
+    private SpannableString getViewAllText(RecommendationItem recommendationItem) {
+        String viewAllText = resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
+        // we use toUpperCase because we can't use the built in function with ImageSpans in Api 21+ (framework bug)
+        String viewAllTextWithChevron = viewAllText.toUpperCase() + IMAGE_SPAN_SPACER;
+
+        Drawable drawable = resources.getDrawable(R.drawable.chevron_333);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+
+        SpannableString spannableString = new SpannableString(viewAllTextWithChevron);
+        spannableString.setSpan(imageSpan, viewAllTextWithChevron.length() - 1, viewAllTextWithChevron.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return spannableString;
     }
 
     private Spannable getReasonText(RecommendationItem recommendationItem) {
         String reason = getReason(recommendationItem.getRecommendationReason());
-        String string = resources.getString(R.string.recommendation_reason_because_you, reason,
+        String reasonText = resources.getString(R.string.recommendation_reason_because_you, reason,
                 recommendationItem.getSeedTrackTitle());
 
-        Spannable spannable = new SpannableString(string);
-
-        int endOfReasonIndex = string.indexOf(reason) + reason.length();
+        Spannable spannable = new SpannableString(reasonText);
+        int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
         spannable.setSpan(new ForegroundColorSpan(resources.getColor(R.color.recommendation_reason_text)), 0, endOfReasonIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(new ForegroundColorSpan(resources.getColor(R.color.seed_track_text)), endOfReasonIndex, string.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(resources.getColor(R.color.seed_track_text)), endOfReasonIndex, reasonText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         return spannable;
     }

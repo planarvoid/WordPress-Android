@@ -8,6 +8,7 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 
 class SeedSoundMapper extends RxResultMapper<PropertySet> {
 
+    public static final String SEED_LOCAL_ID = "seed_local_id";
     public static final String SEED_TITLE = "seed_title";
 
     public static final String RECOMMENDATION_TITLE = "recommendation_title";
@@ -18,6 +19,7 @@ class SeedSoundMapper extends RxResultMapper<PropertySet> {
     @Override
     public PropertySet map(CursorReader cursorReader) {
         final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
+        propertySet.put(SeedSoundProperty.LOCAL_ID, cursorReader.getLong(SEED_LOCAL_ID));
         propertySet.put(SeedSoundProperty.URN, Urn.forTrack(cursorReader.getLong(TableColumns.RecommendationSeeds.SEED_SOUND_ID)));
         propertySet.put(SeedSoundProperty.TITLE, cursorReader.getString(SEED_TITLE));
         propertySet.put(SeedSoundProperty.RECOMMENDATION_COUNT, cursorReader.getInt(RECOMMENDATION_COUNT));

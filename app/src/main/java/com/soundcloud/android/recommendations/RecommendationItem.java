@@ -56,6 +56,10 @@ public class RecommendationItem {
         return source.get(SeedSoundProperty.REASON);
     }
 
+    public long getSeedTrackLocalId() {
+        return source.get(SeedSoundProperty.LOCAL_ID);
+    }
+
     private static RecommendationItem from(PropertySet source) {
         return new RecommendationItem(source);
     }

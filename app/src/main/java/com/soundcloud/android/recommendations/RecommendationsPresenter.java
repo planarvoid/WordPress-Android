@@ -11,6 +11,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,10 +19,9 @@ import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Collections;
 import java.util.List;
 
-public class RecommendationsPresenter extends RecyclerViewPresenter<RecommendationItem> {
+public class RecommendationsPresenter extends RecyclerViewPresenter<RecommendationItem> implements RecommendationItemRenderer.OnRecommendationClickListener {
 
     final @LightCycle RecommendationsView recommendationsView;
 
@@ -45,7 +45,6 @@ public class RecommendationsPresenter extends RecyclerViewPresenter<Recommendati
         this.playbackOperations = playbackOperations;
     }
 
-
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
@@ -60,17 +59,34 @@ public class RecommendationsPresenter extends RecyclerViewPresenter<Recommendati
 
     @Override
     protected CollectionBinding<RecommendationItem> onBuildBinding(Bundle bundle) {
+        adapter.setOnRecommendationClickListener(this);
         return CollectionBinding.from(recommendationsOperations.recommendations(), RecommendationItem.fromPropertySets())
                 .withAdapter(adapter)
                 .build();
     }
 
-    private void playTracks(List<Urn> playableUrns, PlaySessionSource playSessionSource) {
-        playbackOperations.playTracks(playableUrns, 0, playSessionSource).subscribe(expandPlayerSubscriberProvider.get());
-    }
-
     @Override
     protected EmptyView.Status handleError(Throwable throwable) {
         return null;
+    }
+
+    @Override
+    public void onRecommendationReasonClicked(RecommendationItem recommendationItem) {
+        playRecommendations(recommendationItem.getSeedTrackUrn(), recommendationsOperations.recommendationsWithSeedTrack(recommendationItem.getSeedTrackLocalId(), recommendationItem.getSeedTrackUrn()));
+    }
+
+    @Override
+    public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
+        playRecommendations(recommendationItem.getRecommendationUrn(), recommendationsOperations.recommendationsForSeedTrack(recommendationItem.getSeedTrackLocalId()));
+
+    }
+
+    private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
+        playbackOperations.playTracks(playQueue, firstTrackUrn, 0,
+                new PlaySessionSource(Screen.RECOMMENDATIONS_SEED)).subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    @Override
+    public void onRecommendationViewAllClicked(RecommendationItem recommendationItem) {
     }
 }

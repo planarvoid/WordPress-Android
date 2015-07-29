@@ -59,8 +59,7 @@
                 android:id="@+id/view_all"
                 style="@style/Recommendation.ViewAllText"
                 android:gravity="center"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/recommendations_cell_view_all_height" />
 
         </LinearLayout>

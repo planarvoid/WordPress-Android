@@ -1,15 +1,19 @@
 package com.soundcloud.android.recommendations;
 
+import static android.provider.BaseColumns._ID;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -41,7 +45,8 @@ public class RecommendationsStorage {
         //TODO: Add Min functionality to propeller: PR: https://github.com/soundcloud/propeller/pull/58
         //TODO: Add Join aliasing to propeller
         Query query = Query.from(Table.RecommendationSeeds.name())
-                .select(TableColumns.RecommendationSeeds.SEED_SOUND_ID,
+                .select(field(Table.RecommendationSeeds.field(TableColumns.RecommendationSeeds._ID)).as(SeedSoundMapper.SEED_LOCAL_ID),
+                        TableColumns.RecommendationSeeds.SEED_SOUND_ID,
                         TableColumns.RecommendationSeeds.RECOMMENDATION_REASON,
                         field(Table.SoundView.field(TableColumns.SoundView.TITLE)).as(SeedSoundMapper.SEED_TITLE),
                         "MIN(" + Table.Recommendations.field(TableColumns.Recommendations._ID) + ")",
@@ -57,5 +62,21 @@ public class RecommendationsStorage {
                 .order(Table.Recommendations.field(TableColumns.Recommendations._ID), Query.Order.ASC);
 
         return propellerRx.query(query).map(new SeedSoundMapper()).toList();
+    }
+
+    Observable<List<Urn>> recommendations(long seedId) {
+
+        Query query = Query.from(Table.Recommendations.name())
+                .select(TableColumns.Recommendations.RECOMMENDED_SOUND_ID)
+                .whereEq(TableColumns.Recommendations.SEED_ID, seedId);
+
+        return propellerRx.query(query).map(new RecommendationTrackUrnMapper()).toList();
+    }
+
+    public final class RecommendationTrackUrnMapper extends RxResultMapper<Urn> {
+        @Override
+        public Urn map(CursorReader cursorReader) {
+            return Urn.forTrack(cursorReader.getLong(TableColumns.Recommendations.RECOMMENDED_SOUND_ID));
+        }
     }
 }
