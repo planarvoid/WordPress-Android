@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ConfigurationHelper {
 
@@ -24,8 +25,17 @@ public class ConfigurationHelper {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
     }
 
-    public static void enableUpsell(Context context) {
+    public static void enableUpsell(final Context context) {
         getPlanStorage(context).updateUpsells(Arrays.asList(Plan.MID_TIER));
+
+        getPlanStorage(context).getUpsellUpdates()
+                .doOnNext(new Action1<List<String>>() {
+                    @Override
+                    public void call(List<String> strings) {
+                        getPlanStorage(context).updateUpsells(Arrays.asList(Plan.MID_TIER));
+
+                    }
+                }).subscribe();
     }
     
     public static void disableOfflineContent(Context context) {

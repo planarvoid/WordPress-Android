@@ -207,9 +207,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             case PLAYLISTS:
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlaylistsNav());
                 break;
-            case UPSELL:
-                eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forNavClick());
-                break;
             default:
                 break;
         }
@@ -314,6 +311,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void displayUpsell() {
+        eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forNavClick());
         navigator.openUpgrade(this);
     }
 

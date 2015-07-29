@@ -3,13 +3,13 @@ package com.soundcloud.android.tests.activity.resolve;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;
 import android.net.Uri;
 
-public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
+public abstract class ResolveBaseTest extends TrackingActivityTest<ResolveActivity> {
 
     public ResolveBaseTest() {
         super(ResolveActivity.class);
