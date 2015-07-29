@@ -33,24 +33,29 @@
         <item name="android:paddingBottom">6dp</item>
 
         <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/tour_text_color</item>
         <item name="android:gravity">center</item>
 
-        <item name="android:background">@drawable/next_button_white</item>
+        <item name="android:background">@drawable/signup_next_button</item>
+    </style>
 
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    <style name="Tour.NextButton" parent="Tour.Button">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:background">@drawable/signup_next_button</item>
+    </style>
+
+    <style name="Tour.CancelButton" parent="Tour.Button">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:background">@drawable/signup_cancel_button</item>
     </style>
 
     <style name="Tour.BottomButton" parent="Tour.Button">
         <item name="android:minWidth">100dp</item>
     </style>
 
-    <style name="Tour.TermsButton" parent="Tour.Button">
-        <item name="android:minWidth">100dp</item>
-    </style>
-
     <style name="Tour.SignupButton" parent="Tour.BottomButton">
         <item name="android:layout_marginRight">16dp</item>
-        <item name="android:background">@drawable/next_button_orange</item>
+        <item name="android:background">@drawable/signup_create_account_button</item>
         <item name="android:textColor">#FFFFFFFF</item>
     </style>
 
