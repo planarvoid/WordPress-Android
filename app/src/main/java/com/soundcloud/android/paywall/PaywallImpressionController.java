@@ -72,7 +72,8 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     @Override
     public void onChildViewAttachedToWindow(View view) {
         final int itemPosition = linearLayoutManager.getPosition(view);
-        if (itemPosition < listItemAdapter.getItemCount()){
+        // do not check getItemCount(), as it counts the progress row as an item
+        if (itemPosition < listItemAdapter.getItems().size()) {
             final ListItem item = listItemAdapter.getItem(itemPosition);
             if (isMidTierTrack(item) && isNotDuplicate(item)) {
                 eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forImpression(item.getEntityUrn(),
@@ -84,7 +85,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     @Override
     public void onChildViewDetachedFromWindow(View view) {
         final int itemPosition = linearLayoutManager.getPosition(view);
-        if (itemPosition < listItemAdapter.getItemCount()) {
+        if (itemPosition < listItemAdapter.getItems().size()) {
             final ListItem item = listItemAdapter.getItem(itemPosition);
             if (isMidTierTrack(item)) {
                 addToDeduplicateHandler(item);
