@@ -61,6 +61,8 @@ android {
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, TRUE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
