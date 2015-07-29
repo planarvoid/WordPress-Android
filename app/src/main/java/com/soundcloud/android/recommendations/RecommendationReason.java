@@ -1,4 +1,5 @@
 package com.soundcloud.android.recommendations;
 
-public class SeedTrack {
+enum RecommendationReason {
+    LIKED, LISTENED_TO
 }

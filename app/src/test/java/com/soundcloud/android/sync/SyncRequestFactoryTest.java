@@ -10,6 +10,7 @@ import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +28,14 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private ResultReceiverAdapter resultReceiverAdapter;
+    @Mock private RecommendationsSyncer recommendationsSyncer;
 
     @Before
     public void setUp() throws Exception {
         syncRequestFactory = new SyncRequestFactory(syncIntentFactory,
                 lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob),
-                entitySyncRequestFactory, singlePlaylistSyncerFactory, new TestEventBus());
+                entitySyncRequestFactory, singlePlaylistSyncerFactory,
+                lazyOf(recommendationsSyncer), new TestEventBus());
     }
 
     @Test

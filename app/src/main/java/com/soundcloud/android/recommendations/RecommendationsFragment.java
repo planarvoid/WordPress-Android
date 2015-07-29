@@ -15,13 +15,11 @@ import javax.inject.Inject;
 
 public class RecommendationsFragment extends LightCycleSupportFragment {
 
-    @Inject RecommendationsView recommendationsView;
     @Inject @LightCycle RecommendationsPresenter recommendationsPresenter;
 
     public RecommendationsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-        recommendationsPresenter.setView(recommendationsView);
     }
 
     @Override

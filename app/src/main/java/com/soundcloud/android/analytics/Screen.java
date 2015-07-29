@@ -60,6 +60,9 @@ public enum Screen {
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
 
+    // recommendations
+    RECOMMENDATIONS_SEED("recommendations:seed"),
+
     // creators
     RECORD_MAIN("record:main"),
     RECORD_EDIT("record:edit"),

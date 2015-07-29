@@ -9,6 +9,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
+import com.soundcloud.android.users.UserRecord;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -178,7 +179,7 @@ public class DatabaseFixtures {
         return user;
     }
 
-    public void insertUser(ApiUser user) {
+    public void insertUser(UserRecord user) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
@@ -484,10 +485,11 @@ public class DatabaseFixtures {
         insertInto(Table.OfflineContent, cv);
     }
 
-    public void insertInto(Table table, ContentValues cv) {
+    public long insertInto(Table table, ContentValues cv) {
         final long rowId = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         if (rowId == -1) {
             throw new AssertionError("Failed inserting record into table " + table.name());
         }
+        return rowId;
     }
 }

@@ -178,7 +178,7 @@ public class PlaySessionController {
         loadRecommendedSubscription = playQueueOperations
                 .relatedTracksPlayQueue(playQueueManager.getLastTrackUrn(), fromContinuousPlay())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RecommendedTracksSubscriber());
+                .subscribe(new RecommendationTracksSubscriber());
     }
 
     // Hacky, but the similar sounds service needs to know if it is allowed to not fulfill this request. This should
@@ -267,7 +267,7 @@ public class PlaySessionController {
         return new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 
-    private class RecommendedTracksSubscriber extends DefaultSubscriber<PlayQueue> {
+    private class RecommendationTracksSubscriber extends DefaultSubscriber<PlayQueue> {
         @Override
         public void onNext(PlayQueue playQueue) {
             playQueueManager.appendUniquePlayQueueItems(playQueue);

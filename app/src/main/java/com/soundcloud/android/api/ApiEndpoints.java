@@ -30,6 +30,9 @@ public enum ApiEndpoints {
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
 
+    // personalized recommendations
+    RECOMMENDATIONS("/you/personalized-tracks"),
+
     // ads + monetization
     ADS("/tracks/%s/ads"),
     AUDIO_AD("/tracks/%s/ads/audio"),

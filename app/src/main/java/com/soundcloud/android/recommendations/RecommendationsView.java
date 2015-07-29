@@ -1,43 +1,33 @@
 package com.soundcloud.android.recommendations;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 
-import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.Fragment;
+import android.os.Bundle;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class RecommendationsView {
-
-    @InjectView(R.id.ak_recycler_view) RecyclerView recyclerView;
-    @InjectView(android.R.id.empty) EmptyView emptyView;
-
-    private LinearLayoutManager linearLayoutManager;
+public class RecommendationsView extends DefaultSupportFragmentLightCycle<Fragment> {
 
     @Inject
     public RecommendationsView() {
     }
 
-    public void bindViews(Context context, View viewRoot) {
-        ButterKnife.inject(this, viewRoot);
-        setupRecyclerView(context);
+    @Override
+    public void onViewCreated(final Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
+        ButterKnife.inject(this, view);
+
+        // this is for behind the cards. should figure out another way to set this
+        view.setBackgroundColor(fragment.getResources().getColor(R.color.card_list_background));
     }
 
-    public void unbindViews() {
+    @Override
+    public void onDestroyView(Fragment fragment) {
         ButterKnife.reset(this);
-    }
-
-    private void setupRecyclerView(Context context) {
-        if(this.recyclerView == null) {
-            throw new IllegalStateException("Expected to find RecyclerView with ID R.id.recycler_view");
-        } else {
-            this.linearLayoutManager = new LinearLayoutManager(context);
-            this.recyclerView.setLayoutManager(this.linearLayoutManager);
-        }
+        super.onDestroyView(fragment);
     }
 }

@@ -8,6 +8,7 @@ import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistJobRequest;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import dagger.Lazy;
 
 import android.content.Intent;
@@ -22,20 +23,23 @@ class SyncRequestFactory {
     private final Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob;
     private final EntitySyncRequestFactory entitySyncRequestFactory;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
+    private final Lazy<RecommendationsSyncer> lazyRecommendationSyncer;
     private final EventBus eventBus;
 
     @Inject
     SyncRequestFactory(LegacySyncRequest.Factory syncIntentFactory,
-                              Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
-                              Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
-                              EntitySyncRequestFactory entitySyncRequestFactory,
-                              SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
-                              EventBus eventBus) {
+                       Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
+                       Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
+                       EntitySyncRequestFactory entitySyncRequestFactory,
+                       SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                       Lazy<RecommendationsSyncer> lazyRecommendationSyncer,
+                       EventBus eventBus) {
         this.syncIntentFactory = syncIntentFactory;
         this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
         this.lazySyncPlaylistLikesJob = lazySyncPlaylistLikesJob;
         this.entitySyncRequestFactory = entitySyncRequestFactory;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
+        this.lazyRecommendationSyncer = lazyRecommendationSyncer;
         this.eventBus = eventBus;
     }
 
@@ -58,8 +62,16 @@ class SyncRequestFactory {
             final Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
             return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
                     intent.getAction(), true, getReceiverFromIntent(intent), eventBus, playlistUrn);
-        }
 
+        } else if (SyncActions.SYNC_RECOMMENDATIONS.equals(intent.getAction())) {
+            return new SingleJobRequest(
+                    new DefaultSyncJob(lazyRecommendationSyncer.get()),
+                    SyncActions.SYNC_RECOMMENDATIONS,
+                    true,
+                    getReceiverFromIntent(intent),
+                    eventBus
+            );
+        }
         return syncIntentFactory.create(intent);
     }
 

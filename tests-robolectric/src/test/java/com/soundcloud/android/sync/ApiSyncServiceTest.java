@@ -16,6 +16,7 @@ import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -51,8 +52,10 @@ public class ApiSyncServiceTest {
     @Mock private LikesSyncer<ApiPlaylist> playlistLikesSyncer;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
+    @Mock private RecommendationsSyncer recommendationsSyncer;
 
-    @Before public void before() {
+    @Before
+    public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         collectionSyncRequestFactory = new LegacySyncJob.Factory(Robolectric.application, apiSyncerFactory, syncStateManager);
@@ -62,10 +65,14 @@ public class ApiSyncServiceTest {
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 lazyOf(new SyncTrackLikesJob(InjectionSupport.lazyOf(trackLikesSyncer))),
                 lazyOf(new SyncPlaylistLikesJob(InjectionSupport.lazyOf(playlistLikesSyncer))),
-                entitySyncRequestFactory, singlePlaylistSyncerFactory, new TestEventBus());
+                entitySyncRequestFactory,
+                singlePlaylistSyncerFactory,
+                lazyOf(recommendationsSyncer),
+                new TestEventBus());
     }
 
-    @After public void after() {
+    @After
+    public void after() {
         expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse();
     }
 
@@ -149,10 +156,11 @@ public class ApiSyncServiceTest {
 
         SyncRequestFactory syncRequestFactory = new SyncRequestFactory(
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
-                null, null, entitySyncRequestFactory, singlePlaylistSyncerFactory, new TestEventBus()
+                null, null, entitySyncRequestFactory, singlePlaylistSyncerFactory,
+                lazyOf(recommendationsSyncer), new TestEventBus()
         );
         SyncRequest request1 = syncRequestFactory.create(intent);
-        SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true));
         SyncRequest request3 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
@@ -167,7 +175,7 @@ public class ApiSyncServiceTest {
         // make sure favorites is queued on front
         expect(((LegacySyncJob) svc.pendingJobs.peek()).getContentUri()).toBe(Content.ME_LIKES.uri);
 
-        SyncRequest request4 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncRequest request4 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true));
         svc.enqueueRequest(request4);
         expect(((LegacySyncJob) svc.pendingJobs.peek()).getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
 
@@ -215,7 +223,7 @@ public class ApiSyncServiceTest {
 
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
 
-        for (int i=0; i<3; i++)
+        for (int i = 0; i < 3; i++)
             append(svc, Content.ME_ACTIVITIES, "own_append.json");
 
         expect(Content.ME_ACTIVITIES).toHaveCount(18);
@@ -233,7 +241,7 @@ public class ApiSyncServiceTest {
         serviceAction(svc, Intent.ACTION_SYNC, content, fixtures);
     }
 
-    private  void append(ApiSyncService svc, Content content, String... fixtures) throws IOException {
+    private void append(ApiSyncService svc, Content content, String... fixtures) throws IOException {
         serviceAction(svc, ApiSyncService.ACTION_APPEND, content, fixtures);
     }
 

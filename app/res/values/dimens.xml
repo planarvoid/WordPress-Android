@@ -112,6 +112,13 @@
     <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
+    <!-- Recommendations -->
+    <dimen name="recommendations_cell_padding">4dp</dimen>
+    <dimen name="recommendations_cell_margin">4dp</dimen>
+    <dimen name="recommendations_cell_elevation">3dp</dimen>
+    <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
+    <dimen name="recommendations_cell_view_all_height">48dp</dimen>
+
     <!-- Record -->
     <dimen name="rec_upload_button_dimension">60dp</dimen>
     <dimen name="rec_record_button_dimension">60dp</dimen>

@@ -183,6 +183,16 @@ public class SyncInitiatorTest {
     }
 
     @Test
+    public void syncRecommendationsShouldRequestRecommendationsSync() throws Exception {
+        initiator.syncRecommendations().subscribe(syncSubscriber);
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_RECOMMENDATIONS);
+        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+    }
+
+    @Test
     public void shouldResetMyLikesSyncMissesOnChangedTrackLikesSync() {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;

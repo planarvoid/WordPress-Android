@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/recommendations_cell_padding">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        auto:cardElevation="@dimen/recommendations_cell_elevation"
+        auto:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/reason"
+                    style="@style/Recommendation.ReasonText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/default_list_item_padding" />
+
+                <com.soundcloud.android.view.CardFullImageView
+                    android:id="@+id/image"
+                    style="@style/GridItemImageView"
+                    android:layout_below="@id/reason"
+                    android:layout_marginBottom="@dimen/recommendations_cell_artwork_padding"
+                    android:layout_marginLeft="@dimen/recommendations_cell_artwork_padding"
+                    android:layout_marginRight="@dimen/recommendations_cell_artwork_padding"/>
+
+                <com.soundcloud.android.view.JaggedTextView
+                    android:id="@+id/username"
+                    style="@style/BlackOverlayText.RegularSubtext"
+                    android:layout_above="@+id/title"
+                    android:layout_marginStart="@dimen/grid_item_padding"
+                    android:layout_marginLeft="@dimen/grid_item_padding" />
+
+                <com.soundcloud.android.view.JaggedTextView
+                    android:id="@+id/title"
+                    style="@style/BlackOverlayText.Regular"
+                    android:layout_marginLeft="@dimen/grid_item_padding"
+                    android:layout_marginRight="@dimen/grid_item_padding"
+                    android:layout_marginBottom="@dimen/grid_item_padding"
+                    android:layout_marginTop="@dimen/recommendations_cell_margin"
+                    android:layout_alignBottom="@id/image" />
+
+            </RelativeLayout>
+
+            <View style="@style/Divider.Horizontal" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/view_all"
+                style="@style/Recommendation.ViewAllText"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/recommendations_cell_view_all_height" />
+
+        </LinearLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

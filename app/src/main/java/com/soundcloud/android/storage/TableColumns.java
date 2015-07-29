@@ -14,6 +14,21 @@ public final class TableColumns {
         public static final String PERMALINK = "permalink";
     }
 
+    public static class RecommendationSeeds implements BaseColumns {
+        public static final String SEED_SOUND_ID = "seed_sound_id";
+        public static final String SEED_SOUND_TYPE = "seed_sound_type";
+        public static final String RECOMMENDATION_REASON = "recommendation_reason";
+
+        public static final int REASON_LIKED = 0;
+        public static final int REASON_LISTENED_TO = 1;
+    }
+
+    public static class Recommendations implements BaseColumns {
+        public static final String SEED_ID = "seed_id";
+        public static final String RECOMMENDED_SOUND_ID = "recommended_sound_id";
+        public static final String RECOMMENDED_SOUND_TYPE = "recommended_sound_type";
+    }
+
     public static class SoundStream implements BaseColumns {
         public static final String SOUND_ID = "sound_id";
         public static final String SOUND_TYPE = "sound_type";

@@ -7,6 +7,23 @@ import com.soundcloud.android.api.legacy.model.Playable;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 final class DatabaseSchema {
 
+    static final String DATABASE_CREATE_RECOMMENDATION_SEEDS = "(" +
+            "_id INTEGER PRIMARY KEY," +
+            "seed_sound_id INTEGER, " +
+            "seed_sound_type INTEGER, " +
+            "recommendation_reason INTEGER, " +
+            "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
+            ");";
+
+    static final String DATABASE_CREATE_RECOMMENDATIONS = "(" +
+            "_id INTEGER PRIMARY KEY," +
+            "seed_id INTEGER, " +
+            "recommended_sound_id INTEGER," +
+            "recommended_sound_type INTEGER," +
+            "FOREIGN KEY(seed_id) REFERENCES RecommendationSeeds(_id) " +
+            "FOREIGN KEY(recommended_sound_id, recommended_sound_type) REFERENCES Sounds(_id, _type)" +
+            ");";
+
     static final String DATABASE_CREATE_SOUNDSTREAM = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "sound_id INTEGER, " +
@@ -18,17 +35,17 @@ final class DatabaseSchema {
             ");";
 
     static final String DATABASE_CREATE_PROMOTED_TRACKS = "(" +
-        "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "created_at INTEGER," +
-        "ad_urn TEXT, " +
-        "promoter_id INTEGER," +
-        "promoter_name TEXT," +
-        "tracking_track_clicked_urls TEXT," +
-        "tracking_profile_clicked_urls TEXT," +
-        "tracking_promoter_clicked_urls TEXT," +
-        "tracking_track_played_urls TEXT," +
-        "tracking_track_impression_urls TEXT" +
-        ");";
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "created_at INTEGER," +
+            "ad_urn TEXT, " +
+            "promoter_id INTEGER," +
+            "promoter_name TEXT," +
+            "tracking_track_clicked_urls TEXT," +
+            "tracking_profile_clicked_urls TEXT," +
+            "tracking_promoter_clicked_urls TEXT," +
+            "tracking_track_played_urls TEXT," +
+            "tracking_track_impression_urls TEXT" +
+            ");";
 
     static final String DATABASE_CREATE_OFFLINE_CONTENT = "(" +
             "_id INTEGER," +
@@ -420,42 +437,41 @@ final class DatabaseSchema {
             "  PlaylistTracks." + TableColumns.PlaylistTracks.TRACK_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
             " AND SoundView." + TableColumns.SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK + ")";
 
-        /**
-         * A view which combines SoundStream data + tracks/users/comments
-         */
-        static final String DATABASE_CREATE_SOUNDSTREAM_VIEW = "AS SELECT " +
-                "SoundStream." + TableColumns.SoundStream._ID + " as " + TableColumns.SoundStreamView._ID +
-                ",SoundStream." + TableColumns.SoundStream.CREATED_AT + " as " + TableColumns.SoundStreamView.CREATED_AT +
-                ",SoundStream." + TableColumns.SoundStream.SOUND_ID + " as " + TableColumns.SoundStreamView.SOUND_ID +
-                ",SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " as " + TableColumns.SoundStreamView.SOUND_TYPE +
-                ",SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " as " + TableColumns.SoundStreamView.REPOSTER_ID +
-                ",SoundStream." + TableColumns.SoundStream.PROMOTED_ID + " as " + TableColumns.SoundStreamView.PROMOTED_ID +
+    /**
+     * A view which combines SoundStream data + tracks/users/comments
+     */
+    static final String DATABASE_CREATE_SOUNDSTREAM_VIEW = "AS SELECT " +
+            "SoundStream." + TableColumns.SoundStream._ID + " as " + TableColumns.SoundStreamView._ID +
+            ",SoundStream." + TableColumns.SoundStream.CREATED_AT + " as " + TableColumns.SoundStreamView.CREATED_AT +
+            ",SoundStream." + TableColumns.SoundStream.SOUND_ID + " as " + TableColumns.SoundStreamView.SOUND_ID +
+            ",SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " as " + TableColumns.SoundStreamView.SOUND_TYPE +
+            ",SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " as " + TableColumns.SoundStreamView.REPOSTER_ID +
+            ",SoundStream." + TableColumns.SoundStream.PROMOTED_ID + " as " + TableColumns.SoundStreamView.PROMOTED_ID +
 
-                // activity user (who commented, favorited etc. on contained following)
-                ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +
-                ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
-                ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
+            // activity user (who commented, favorited etc. on contained following)
+            ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +
+            ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
+            ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
 
-                // track+user data
-                ",SoundView.*" +
+            // track+user data
+            ",SoundView.*" +
 
-                " FROM SoundStream" +
+            " FROM SoundStream" +
 
-                // filter out duplicates
-                " INNER JOIN (" +
-                " SELECT _id, MAX(created_at) FROM SoundStream GROUP BY sound_id, sound_type, promoted_id " +
-                ") dupes ON SoundStream._id = dupes._id " +
-
-
-                " LEFT JOIN Users ON(" +
-                "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
-                " LEFT JOIN SoundView ON(" +
-                "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
-                "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
+            // filter out duplicates
+            " INNER JOIN (" +
+            " SELECT _id, MAX(created_at) FROM SoundStream GROUP BY sound_id, sound_type, promoted_id " +
+            ") dupes ON SoundStream._id = dupes._id " +
 
 
+            " LEFT JOIN Users ON(" +
+            "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            " LEFT JOIN SoundView ON(" +
+            "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
+            "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
 
-                " ORDER BY SoundStream." + TableColumns.SoundStreamView.CREATED_AT + " DESC";
+
+            " ORDER BY SoundStream." + TableColumns.SoundStreamView.CREATED_AT + " DESC";
 
     /**
      * A view which combines activity data + tracks/users/comments

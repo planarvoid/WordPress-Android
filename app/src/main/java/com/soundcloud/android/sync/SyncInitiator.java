@@ -102,6 +102,10 @@ public class SyncInitiator {
         }).doOnNext(resetSyncMissesLegacy(uri));
     }
 
+    public Observable<SyncResult> syncRecommendations() {
+        return requestSyncObservable(SyncActions.SYNC_RECOMMENDATIONS);
+    }
+
     public Observable<SyncResult> syncUser(final Urn userUrn) {
         return Observable.create(new Observable.OnSubscribe<SyncResult>() {
             @Override

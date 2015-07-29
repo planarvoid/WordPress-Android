@@ -412,6 +412,12 @@
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
     <string name="search_for_query">Search for \'%s\'</string>
 
+    <!-- __RECOMMENDATIONS -->
+    <string name="recommendation_view_all">View all %1$d</string>
+    <string name="recommendation_reason_because_you">Because you %1$s %2$s</string>
+    <string name="recommendation_reason_liked">liked</string>
+    <string name="recommendation_reason_listened_to">listened to</string>
+
     <!-- __SETTINGS -->
     <string name="pref_app_details">App Details</string>
     <string name="pref_basic_settings">Basic settings</string>
