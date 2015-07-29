@@ -4,7 +4,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -15,7 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     static final int OFFLINE_DAYS_WARNING_THRESHOLD = 27;
     static final int OFFLINE_DAYS_ERROR_THRESHOLD = 30;

@@ -2,7 +2,7 @@ package com.soundcloud.android.campaigns;
 
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.R;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 /**
  * http://support.localytics.com/Android
  */
-public class InAppCampaignController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class InAppCampaignController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final LocalyticsAmpSession localyticsAmpSession;
 

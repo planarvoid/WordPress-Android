@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -16,7 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class NetworkConnectivityController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class NetworkConnectivityController extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final int CONNECTIVITY_MSG = 0;
     private final Context context;
     private final Handler connHandler;

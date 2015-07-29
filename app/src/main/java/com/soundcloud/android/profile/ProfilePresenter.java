@@ -10,7 +10,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.SlidingTabLayout;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -21,7 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
+class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final ProfileOperations profileOperations;

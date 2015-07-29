@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class ActivityLifeCyclePublisher extends DefaultLightCycleActivity<AppCompatActivity> {
+public class ActivityLifeCyclePublisher extends DefaultActivityLightCycle<AppCompatActivity> {
     private final EventBus eventBus;
 
     @Inject

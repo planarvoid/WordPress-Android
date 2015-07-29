@@ -10,7 +10,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -20,7 +20,7 @@ import android.widget.EditText;
 
 import javax.inject.Inject;
 
-public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> {
+public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
 
     @InjectView(R.id.verify_age_input) EditText yearInput;
     @InjectView(R.id.verify_button) Button submitButton;

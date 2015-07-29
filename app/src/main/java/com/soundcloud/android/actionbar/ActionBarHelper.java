@@ -13,7 +13,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,7 +24,7 @@ import android.view.MenuItem;
 
 import javax.inject.Inject;
 
-public class ActionBarHelper extends DefaultLightCycleActivity<AppCompatActivity> {
+public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;

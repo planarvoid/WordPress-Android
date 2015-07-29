@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ScreenStateProvider extends DefaultLightCycleActivity<AppCompatActivity> {
+class ScreenStateProvider extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
     private boolean onCreateCalled;

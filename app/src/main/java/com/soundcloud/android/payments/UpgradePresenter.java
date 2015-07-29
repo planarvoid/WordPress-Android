@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.subscriptions.CompositeSubscription;
@@ -15,7 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> implements UpgradeView.Listener {
+class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> implements UpgradeView.Listener {
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;

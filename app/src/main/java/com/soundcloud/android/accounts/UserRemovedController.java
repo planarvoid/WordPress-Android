@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
@@ -15,7 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class UserRemovedController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class UserRemovedController extends DefaultActivityLightCycle<AppCompatActivity> {
     private final EventBus eventBus;
     private Subscription userEventSubscription = RxUtils.invalidSubscription();
 

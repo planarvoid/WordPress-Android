@@ -12,7 +12,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
@@ -25,7 +25,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController extends DefaultLightCycleActivity<AppCompatActivity> implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompatActivity> implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
 

@@ -19,7 +19,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
@@ -43,7 +43,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.reflect.Field;
 
-public class SearchActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class SearchActionBarController extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final String STATE_QUERY = "query";
     private final PublicApi publicApi;
     private final PlaybackOperations playbackOperations;

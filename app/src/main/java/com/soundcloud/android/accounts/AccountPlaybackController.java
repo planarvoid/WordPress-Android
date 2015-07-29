@@ -1,13 +1,13 @@
 package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class AccountPlaybackController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class AccountPlaybackController extends DefaultActivityLightCycle<AppCompatActivity> {
     private final AccountOperations accountOperations;
     private final PlaybackOperations playbackOperations;
 

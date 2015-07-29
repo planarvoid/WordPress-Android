@@ -4,7 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -47,7 +47,7 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         }
     }
 
-    public static class LightCycle extends DefaultLightCycleActivity<AppCompatActivity> {
+    public static class LightCycle extends DefaultActivityLightCycle<AppCompatActivity> {
         private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
 
         @Inject

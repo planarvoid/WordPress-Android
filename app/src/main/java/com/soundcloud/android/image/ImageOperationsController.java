@@ -1,12 +1,12 @@
 package com.soundcloud.android.image;
 
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class ImageOperationsController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class ImageOperationsController extends DefaultActivityLightCycle<AppCompatActivity> {
     private final ImageOperations imageOperations;
 
     @Inject

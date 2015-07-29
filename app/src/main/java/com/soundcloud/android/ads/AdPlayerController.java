@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AdPlayerController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 

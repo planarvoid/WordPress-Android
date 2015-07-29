@@ -9,7 +9,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class PlaybackNotificationController extends DefaultLightCycleActivity<AppCompatActivity> {
+public class PlaybackNotificationController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     interface Strategy {
         void setTrack(PropertySet track);
