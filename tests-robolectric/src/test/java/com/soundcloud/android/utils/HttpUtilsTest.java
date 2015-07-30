@@ -2,12 +2,13 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.api.legacy.Request;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class HttpUtilsTest {
 
     @Test

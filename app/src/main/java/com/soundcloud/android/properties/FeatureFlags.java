@@ -1,7 +1,6 @@
 package com.soundcloud.android.properties;
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -10,32 +9,28 @@ import javax.inject.Singleton;
 public class FeatureFlags {
 
     public static final String FEATURE_PREFIX = "feature_";
-    private final Resources resources;
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public FeatureFlags(Resources resources, SharedPreferences sharedPreferences) {
-        this.resources = resources;
+    public FeatureFlags(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
     public boolean isEnabled(Flag flag) {
-        return sharedPreferences.getBoolean(getPreferenceKey(flag),
-                resources.getBoolean(flag.getId()));
+        return sharedPreferences.getBoolean(getPreferenceKey(flag), flag.getValue());
     }
 
     public boolean isDisabled(Flag flag) {
-        return !sharedPreferences.getBoolean(getPreferenceKey(flag),
-                resources.getBoolean(flag.getId()));
+        return !sharedPreferences.getBoolean(getPreferenceKey(flag), flag.getValue());
     }
 
     public boolean resetAndGet(Flag flag) {
-        final boolean defaultValue = resources.getBoolean(flag.getId());
+        final boolean defaultValue = flag.getValue();
         sharedPreferences.edit().putBoolean(getPreferenceKey(flag), defaultValue).apply();
         return defaultValue;
     }
 
     public String getPreferenceKey(Flag flag) {
-        return FEATURE_PREFIX + flag.getId();
+        return FEATURE_PREFIX + flag.getName();
     }
 }

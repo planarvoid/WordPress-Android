@@ -1,0 +1,126 @@
+apply plugin: 'com.android.application'
+
+def BOOLEAN = "boolean"
+def TRUE = "true"
+def FALSE = "false"
+
+//Feature flags
+def FEATURE_PAYMENTS_TEST = "FEATURE_PAYMENTS_TEST"
+def FEATURE_GOOGLE_CAST = "FEATURE_GOOGLE_CAST"
+def FEATURE_OFFLINE_SYNC = "FEATURE_OFFLINE_SYNC"
+def FEATURE_PROMOTED_IN_STREAM = "FEATURE_PROMOTED_IN_STREAM"
+def FEATURE_NEW_PROFILE = "FEATURE_NEW_PROFILE"
+def FEATURE_FOLLOW_USER_SEARCH = "FEATURE_FOLLOW_USER_SEARCH"
+def FEATURE_NEW_PROFILE_FRAGMENTS = "FEATURE_NEW_PROFILE_FRAGMENTS"
+def FEATURE_PLAY_RELATED_TRACKS = "FEATURE_PLAY_RELATED_TRACKS"
+def FEATURE_NEVER_ENDING_PLAY_QUEUE = "FEATURE_NEVER_ENDING_PLAY_QUEUE"
+def FEATURE_STATIONS = "FEATURE_STATIONS"
+def FEATURE_RECOMMENDATIONS = "FEATURE_RECOMMENDATIONS"
+
+android {
+  buildTypes {
+    alpha {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
+    beta {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
+    debug {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, TRUE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
+    end2end {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
+    release {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, FALSE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
+    release_non_play_store {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, FALSE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+  }
+}

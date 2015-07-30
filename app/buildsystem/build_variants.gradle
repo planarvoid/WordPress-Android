@@ -1,0 +1,95 @@
+apply plugin: 'com.android.application'
+
+android {
+  testBuildType buildType
+
+  signingConfigs {
+    debug {
+      storeFile file('../debug.keystore')
+      storePassword 'android'
+      keyAlias 'androiddebugkey'
+      keyPassword 'android'
+    }
+
+    release {
+      def propertiesFile = file('/home/mobile/installs/soundcloud_sign/release.properties')
+      if (propertiesFile.exists() && propertiesFile.canRead()) {
+        def releaseProperties = new Properties()
+        releaseProperties.load(new FileInputStream(propertiesFile))
+        storeFile file(releaseProperties.getProperty('storeFile'))
+        storePassword releaseProperties.getProperty('storePassword')
+        keyAlias releaseProperties.getProperty('keyAlias')
+        keyPassword releaseProperties.getProperty('keyPassword')
+      }
+    }
+  }
+
+  buildTypes {
+    releaseNoProguard {
+      versionNameSuffix '-releaseNoProguard'
+      debuggable false
+      minifyEnabled false
+      signingConfig signingConfigs.release
+      multiDexEnabled true
+      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    }
+
+    release.initWith(buildTypes.releaseNoProguard)
+    release {
+      versionNameSuffix '-release'
+      minifyEnabled true
+      shrinkResources false
+      zipAlignEnabled true
+      multiDexEnabled false
+      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
+      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    }
+
+    release_non_play_store.initWith(buildTypes.release)
+    release_non_play_store {
+      versionNameSuffix '-release'
+      signingConfig signingConfigs.release
+      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    }
+
+    beta.initWith(buildTypes.release)
+    beta {
+      versionNameSuffix '-beta'
+      proguardFiles = ['buildsystem/proguard.cfg']
+      buildConfigField "boolean", "RUN_ADS_TEST", "true"
+    }
+
+    alpha.initWith(buildTypes.release)
+    alpha {
+      versionNameSuffix '-alpha'
+      ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
+      ext.betaDistributionNotifications = false
+      proguardFiles = ['buildsystem/proguard.cfg']
+      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    }
+
+    debug {
+      versionNameSuffix '-debug'
+      debuggable true
+      signingConfig signingConfigs.debug
+      proguardFiles 'buildsystem/proguard.cfg'
+      minifyEnabled project.hasProperty('proguard')
+      multiDexEnabled true
+      buildConfigField "boolean", "RUN_ADS_TEST", "true"
+    }
+
+    end2end.initWith(buildTypes.debug)
+    end2end {
+      versionNameSuffix '-end2end'
+      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    }
+
+    repack.initWith(buildTypes.debug)
+    repack {
+      minifyEnabled true
+      proguardFiles 'buildsystem/repacker/proguard-repack.cfg'
+    }
+  }
+}
+
+

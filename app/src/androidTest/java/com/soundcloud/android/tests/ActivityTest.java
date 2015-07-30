@@ -127,8 +127,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         this.requiredDisabledFeatures = requiredDisabledFeatures;
     }
 
-    protected void setRunBasedOnTestResource(int id) {
-        runBasedOnTestResource = getInstrumentation().getContext().getResources().getBoolean(id);
+    protected void setRunBasedOnTestResource(boolean runBasedOnTestResource) {
+        this.runBasedOnTestResource = runBasedOnTestResource;
     }
 
     protected boolean shouldRunTest() {
@@ -138,7 +138,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     private boolean requiredEnabledFeaturesAreEnabled() {
         if (requiredEnabledFeatures != null) {
             for (Flag dependency : requiredEnabledFeatures) {
-                if (getFeatureFlags().isDisabled(dependency)){
+                if (getFeatureFlags().isDisabled(dependency)) {
                     return false;
                 }
             }
@@ -150,7 +150,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     private boolean requiredDisabledFeaturesAreDisabled() {
         if (requiredDisabledFeatures != null) {
             for (Flag disabledDependency : requiredDisabledFeatures) {
-                if (getFeatureFlags().isEnabled(disabledDependency)){
+                if (getFeatureFlags().isEnabled(disabledDependency)) {
                     return false;
                 }
             }
@@ -160,8 +160,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     private FeatureFlags getFeatureFlags() {
-        Resources res = getActivity().getResources();
-        return new FeatureFlags(res, PreferenceManager.getDefaultSharedPreferences(getActivity()));
+        return new FeatureFlags(PreferenceManager.getDefaultSharedPreferences(getActivity()));
     }
 
     public MenuScreen getMenuScreen() {
