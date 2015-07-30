@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- This is an alias in drawable/ so Robolectric finds this resource -->
-<!-- since it was only references in manifest meta-data -->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ic_notification_cloud" />

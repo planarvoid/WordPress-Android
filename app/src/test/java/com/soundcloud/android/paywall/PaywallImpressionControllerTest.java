@@ -32,6 +32,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     private static final int ITEM_POSITION = 1;
@@ -49,6 +52,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        when(((ItemAdapter)itemAdapter).getItems()).thenReturn(Arrays.asList(1, 2));
         when(screenProvider.getLastScreenTag()).thenReturn(PAGE_NAME);
         impressionCreator = new PaywallImpressionController(eventBus, handler, screenProvider);
         when(recyclerView.getLayoutManager()).thenReturn(linearLayoutManager);
@@ -141,9 +145,19 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
         verify(recyclerView).removeOnChildAttachStateChangeListener(childAttachCaptor.getValue());
     }
 
+    @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3562
+    public void onChildViewAttachedFromWindowDoesNotCrashWhenItemNotFound() {
+        when(((ItemAdapter)itemAdapter).getItems()).thenReturn(Collections.singletonList(1)); // track was removed by unliking
+        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+
+        attachItemView(TrackItem.from(midTierTrack));
+
+        verify(itemAdapter, never()).getItemId(ITEM_POSITION);
+    }
+
     @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3413
     public void onChildViewDetachedFromWindowDoesNotCrashWhenItemNotFound() {
-        when(itemAdapter.getItemCount()).thenReturn(1); // track was removed by unliking
+        when(((ItemAdapter)itemAdapter).getItems()).thenReturn(Collections.singletonList(1)); // track was removed by unliking
         final PropertySet midTierTrack = TestPropertySets.midTierTrack();
 
         detachItemView(TrackItem.from(midTierTrack));

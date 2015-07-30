@@ -47,3 +47,6 @@ DEPENDENCIES
   rest-client (= 1.6.7)
   rubotium (= 0.0.30)
   version (= 1.0.0)
+
+BUNDLED WITH
+   1.10.3
