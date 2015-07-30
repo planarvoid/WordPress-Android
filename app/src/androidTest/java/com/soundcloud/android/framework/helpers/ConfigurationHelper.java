@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ConfigurationHelper {
@@ -26,14 +27,18 @@ public class ConfigurationHelper {
     }
 
     public static void enableUpsell(final Context context) {
-        getPlanStorage(context).updateUpsells(Arrays.asList(Plan.MID_TIER));
+        final PlanStorage planStorage = getPlanStorage(context);
+        planStorage.updateUpsells(Arrays.asList(Plan.MID_TIER));
+        disableFeature(context, FeatureName.OFFLINE_SYNC);
+        disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
-        getPlanStorage(context).getUpsellUpdates()
+        planStorage.getUpsellUpdates()
                 .doOnNext(new Action1<List<String>>() {
                     @Override
                     public void call(List<String> strings) {
-                        getPlanStorage(context).updateUpsells(Arrays.asList(Plan.MID_TIER));
-
+                        if (!planStorage.getUpsells().contains(Plan.MID_TIER)) {
+                            planStorage.updateUpsells(Arrays.asList(Plan.MID_TIER));
+                        }
                     }
                 }).subscribe();
     }
@@ -48,7 +53,7 @@ public class ConfigurationHelper {
     }
 
     private static void enableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, true, Arrays.asList(Plan.MID_TIER));
+        final Feature feature = new Feature(name, true, Collections.<String>emptyList());
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);
@@ -58,6 +63,24 @@ public class ConfigurationHelper {
                     @Override
                     public void call(Boolean enabled) {
                         if (!enabled) {
+                            featureStorage.update(feature);
+                        }
+                    }
+                })
+                .subscribe();
+    }
+
+    private static void disableFeature(Context context, final String name) {
+        final Feature feature = new Feature(name, false, Arrays.asList(Plan.MID_TIER));
+        final FeatureStorage featureStorage = getFeatureStorage(context);
+
+        featureStorage.update(feature);
+
+        featureStorage.getUpdates(name)
+                .doOnNext(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean enabled) {
+                        if (enabled) {
                             featureStorage.update(feature);
                         }
                     }

@@ -55,7 +55,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     }
 
     protected void recordScenario(String scenarioName) {
-        // to record a scenario override beforeStartActivity and call this method before super.
+        // To record a scenario: override beforeStartActivity and call this method before super
         this.recordMode = true;
         this.scenarioName = scenarioName;
     }

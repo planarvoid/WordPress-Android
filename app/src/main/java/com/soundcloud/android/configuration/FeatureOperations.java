@@ -47,7 +47,7 @@ public class FeatureOperations {
 
     private boolean isFeatureAvailableViaUpgrade(String featureName) {
         return isFeatureAvailableInPlan(featureName, Plan.MID_TIER)
-                && planStorage.getUpsells().contains(Plan.MID_TIER);
+                && upsellMidTier();
     }
 
     private boolean isFeatureAvailableInPlan(String featureName, String plan) {
