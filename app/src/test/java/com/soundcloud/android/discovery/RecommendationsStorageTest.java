@@ -1,10 +1,6 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.discovery.RecommendationProperty;
-import com.soundcloud.android.discovery.RecommendationReason;
-import com.soundcloud.android.discovery.RecommendationsStorage;
-import com.soundcloud.android.discovery.SeedSoundProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;

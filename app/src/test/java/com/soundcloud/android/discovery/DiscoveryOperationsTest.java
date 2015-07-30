@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import static org.mockito.Mockito.when;
 
