@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
@@ -21,25 +21,25 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class RecommendationsPresenter extends RecyclerViewPresenter<RecommendationItem> implements RecommendationItemRenderer.OnRecommendationClickListener {
+public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem> implements RecommendationItemRenderer.OnRecommendationClickListener {
 
-    final @LightCycle RecommendationsView recommendationsView;
+    final @LightCycle DiscoveryView discoveryView;
 
-    private final RecommendationsOperations recommendationsOperations;
-    private final RecommendationsAdapter adapter;
+    private final DiscoveryOperations discoveryOperations;
+    private final DiscoveryAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackOperations playbackOperations;
 
     @Inject
-    RecommendationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                             RecommendationsOperations recommendationsOperations,
-                             RecommendationsView recommendationsView,
-                             RecommendationsAdapter adapter,
-                             Provider<ExpandPlayerSubscriber> subscriberProvider,
-                             PlaybackOperations playbackOperations) {
+    DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                       DiscoveryOperations discoveryOperations,
+                       DiscoveryView discoveryView,
+                       DiscoveryAdapter adapter,
+                       Provider<ExpandPlayerSubscriber> subscriberProvider,
+                       PlaybackOperations playbackOperations) {
         super(swipeRefreshAttacher, Options.cards());
-        this.recommendationsOperations = recommendationsOperations;
-        this.recommendationsView = recommendationsView;
+        this.discoveryOperations = discoveryOperations;
+        this.discoveryView = discoveryView;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackOperations = playbackOperations;
@@ -60,7 +60,7 @@ public class RecommendationsPresenter extends RecyclerViewPresenter<Recommendati
     @Override
     protected CollectionBinding<RecommendationItem> onBuildBinding(Bundle bundle) {
         adapter.setOnRecommendationClickListener(this);
-        return CollectionBinding.from(recommendationsOperations.recommendations(), RecommendationItem.fromPropertySets())
+        return CollectionBinding.from(discoveryOperations.recommendations(), RecommendationItem.fromPropertySets())
                 .withAdapter(adapter)
                 .build();
     }
@@ -72,12 +72,12 @@ public class RecommendationsPresenter extends RecyclerViewPresenter<Recommendati
 
     @Override
     public void onRecommendationReasonClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getSeedTrackUrn(), recommendationsOperations.recommendationsWithSeedTrack(recommendationItem.getSeedTrackLocalId(), recommendationItem.getSeedTrackUrn()));
+        playRecommendations(recommendationItem.getSeedTrackUrn(), discoveryOperations.recommendationsWithSeedTrack(recommendationItem.getSeedTrackLocalId(), recommendationItem.getSeedTrackUrn()));
     }
 
     @Override
     public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getRecommendationUrn(), recommendationsOperations.recommendationsForSeedTrack(recommendationItem.getSeedTrackLocalId()));
+        playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendationsForSeedTrack(recommendationItem.getSeedTrackLocalId()));
 
     }
 

@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
@@ -9,12 +9,12 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class RecommendationsAdapter extends RecyclerItemAdapter<RecommendationItem, RecommendationsAdapter.RecommendationViewHolder> {
+public class DiscoveryAdapter extends RecyclerItemAdapter<RecommendationItem, DiscoveryAdapter.DiscoveryViewHolder> {
 
     private final RecommendationItemRenderer itemRenderer;
 
     @Inject
-    public RecommendationsAdapter(RecommendationItemRenderer itemRenderer) {
+    public DiscoveryAdapter(RecommendationItemRenderer itemRenderer) {
         super(itemRenderer);
         this.itemRenderer = itemRenderer;
     }
@@ -25,12 +25,12 @@ public class RecommendationsAdapter extends RecyclerItemAdapter<RecommendationIt
     }
 
     @Override
-    protected RecommendationViewHolder createViewHolder(View itemView) {
-        return new RecommendationViewHolder(itemView);
+    protected DiscoveryViewHolder createViewHolder(View itemView) {
+        return new DiscoveryViewHolder(itemView);
     }
 
-    public static class RecommendationViewHolder extends RecyclerView.ViewHolder {
-        public RecommendationViewHolder(View itemView) {
+    public static class DiscoveryViewHolder extends RecyclerView.ViewHolder {
+        public DiscoveryViewHolder(View itemView) {
             super(itemView);
         }
     }

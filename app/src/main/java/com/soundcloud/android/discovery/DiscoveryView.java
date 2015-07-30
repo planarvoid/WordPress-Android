@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
@@ -10,10 +10,10 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class RecommendationsView extends DefaultSupportFragmentLightCycle<Fragment> {
+public class DiscoveryView extends DefaultSupportFragmentLightCycle<Fragment> {
 
     @Inject
-    public RecommendationsView() {
+    public DiscoveryView() {
     }
 
     @Override

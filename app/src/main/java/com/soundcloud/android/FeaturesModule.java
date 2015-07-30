@@ -5,6 +5,7 @@ import com.soundcloud.android.activities.ActivitiesModule;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.RecordModule;
 import com.soundcloud.android.creators.upload.UploadModule;
+import com.soundcloud.android.discovery.DiscoveryModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.likes.LikesModule;
 import com.soundcloud.android.main.MainModule;
@@ -13,7 +14,6 @@ import com.soundcloud.android.payments.PaymentModule;
 import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
-import com.soundcloud.android.recommendations.RecommendationsModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.settings.SettingsModule;
 import com.soundcloud.android.stream.SoundStreamModule;
@@ -38,6 +38,6 @@ import dagger.Module;
         UploadModule.class,
         LikesModule.class,
         SettingsModule.class,
-        RecommendationsModule.class
+        DiscoveryModule.class
 })
 public class FeaturesModule {}

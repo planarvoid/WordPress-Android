@@ -13,7 +13,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.recommendations.RecommendationsFragment;
+import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.lightcycle.LightCycle;
@@ -113,7 +113,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private void addContentFragment() {
         Fragment fragment;
         if (featureFlags.isEnabled(Flag.SEARCH_AND_RECOMMENDATIONS)) {
-            fragment = new RecommendationsFragment();
+            fragment = new DiscoveryFragment();
         } else {
             fragment = new PlaylistTagsFragment();
         }

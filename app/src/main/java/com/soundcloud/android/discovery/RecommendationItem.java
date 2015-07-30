@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;

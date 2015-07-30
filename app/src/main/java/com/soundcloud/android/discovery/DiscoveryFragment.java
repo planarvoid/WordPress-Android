@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,11 +13,11 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecommendationsFragment extends LightCycleSupportFragment {
+public class DiscoveryFragment extends LightCycleSupportFragment {
 
-    @Inject @LightCycle RecommendationsPresenter recommendationsPresenter;
+    @Inject @LightCycle DiscoveryPresenter discoveryPresenter;
 
-    public RecommendationsFragment() {
+    public DiscoveryFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

@@ -1,4 +1,4 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-public class RecommendationsOperations {
+public class DiscoveryOperations {
 
     private final Func1<SyncResult, Observable<List<PropertySet>>> toSeedTracks = new Func1<SyncResult, Observable<List<PropertySet>>>() {
         @Override
@@ -28,9 +28,9 @@ public class RecommendationsOperations {
     private final Scheduler scheduler;
 
     @Inject
-    RecommendationsOperations(SyncInitiator syncInitiator,
-                              RecommendationsStorage recommendationsStorage,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    DiscoveryOperations(SyncInitiator syncInitiator,
+                        RecommendationsStorage recommendationsStorage,
+                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.syncInitiator = syncInitiator;
         this.recommendationsStorage = recommendationsStorage;
         this.scheduler = scheduler;

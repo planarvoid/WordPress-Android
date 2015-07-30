@@ -1,6 +1,5 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
-import static android.provider.BaseColumns._ID;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;

@@ -1,11 +1,11 @@
-package com.soundcloud.android.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                RecommendationsFragment.class
+                DiscoveryFragment.class
         })
-public class RecommendationsModule {
+public class DiscoveryModule {
 }

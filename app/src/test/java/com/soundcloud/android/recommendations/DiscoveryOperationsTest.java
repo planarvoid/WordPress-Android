@@ -2,6 +2,8 @@ package com.soundcloud.android.recommendations;
 
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.discovery.RecommendationsStorage;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -9,9 +11,7 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Scheduler;
@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RecommendationsOperationsTest {
+public class DiscoveryOperationsTest {
 
-    private RecommendationsOperations operations;
+    private DiscoveryOperations operations;
 
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private SyncInitiator syncInitiator;
@@ -36,7 +36,7 @@ public class RecommendationsOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new RecommendationsOperations(syncInitiator, recommendationsStorage, scheduler);
+        operations = new DiscoveryOperations(syncInitiator, recommendationsStorage, scheduler);
         when(syncInitiator.syncRecommendations()).thenReturn(
                 Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDATIONS, true)));
     }
