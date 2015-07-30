@@ -6,11 +6,11 @@ import org.junit.Test;
 
 public class WaveformDataTest {
     private int[] samples = {20, 30, 5, 10, 50, 90, 100, 500};
-    private int[] upSampledOneAndAHalf = {20, 24, 30, 5, 7, 10, 50, 69, 90, 100, 299, 500};
+    private int[] upSampledOneAndAHalf = {20, 25, 30, 5, 7, 10, 50, 70, 90, 100, 300, 500};
     private int[] upSampledDouble = {20, 20, 30, 30, 5, 5, 10, 10, 50, 50, 90, 90, 100, 100, 500, 500};
     private int[] downSampledDecimal = {17, 69, 483};
-    private int[] downSampledHalf = {25, 7, 70, 300};
-    private int[] downSampledThreeQuarters = {22, 17, 8, 59, 94, 399};
+    private int[] downSampledHalf = {25, 8, 70, 300};
+    private int[] downSampledThreeQuarters = {23, 18, 9, 60, 95, 400};
     private int[] otherSamples = {1, 2, 3, 4, 5, 6, 7, 500};
 
     @Test
@@ -26,7 +26,7 @@ public class WaveformDataTest {
         WaveformData data = new WaveformData(500, samples).scale(6);
 
         assertThat(data.samples).isEqualTo(downSampledThreeQuarters);
-        assertThat(data.maxAmplitude).isEqualTo(399);
+        assertThat(data.maxAmplitude).isEqualTo(400);
     }
 
     @Test
