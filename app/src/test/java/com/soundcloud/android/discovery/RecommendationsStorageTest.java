@@ -46,6 +46,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
             insertRecommendationTrack(track, seedId);
         }
         return PropertySet.from(
+                SeedSoundProperty.LOCAL_ID.bind(seedId),
                 SeedSoundProperty.URN.bind(seedTrack.getUrn()),
                 SeedSoundProperty.TITLE.bind(seedTrack.getTitle()),
                 SeedSoundProperty.RECOMMENDATION_COUNT.bind(recommendedTracks.size()),
