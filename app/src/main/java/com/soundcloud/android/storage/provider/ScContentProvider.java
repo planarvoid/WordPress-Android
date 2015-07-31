@@ -26,6 +26,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class ScContentProvider extends ContentProvider {
             case USERS:
             case SOUNDS:
             case PLAYLISTS:
-                content.table.upsert(db, values);
+                upsert(content.table, db, values);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
@@ -533,7 +534,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_LIKES:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
-                id = content.table.insertOrReplace(db, values);
+                id = db.insertWithOnConflict(content.table.name(), null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
                     id = values.getAsLong(BaseColumns._ID);
                 }
@@ -547,7 +548,7 @@ public class ScContentProvider extends ContentProvider {
             case TRACKS:
             case PLAYLISTS:
             case USERS:
-                id = content.table.upsert(db, new ContentValues[]{values});
+                id = upsert(content.table, db, new ContentValues[]{values});
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
                     id = values.getAsLong(BaseColumns._ID);
                 }
@@ -579,7 +580,7 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
             case USER:
             case PLAYLIST:
-                if (content.table.upsert(db, new ContentValues[]{values}) != -1) {
+                if (upsert(content.table, db, new ContentValues[]{values}) != -1) {
                     getContext().getContentResolver().notifyChange(uri, null, false);
                 } else {
                     log("Error inserting to uri " + uri.toString());
@@ -590,7 +591,7 @@ public class ScContentProvider extends ContentProvider {
                 if (!values.containsKey(TableColumns.TrackMetadata.USER_ID)) {
                     values.put(TableColumns.TrackMetadata.USER_ID, userId);
                 }
-                content.table.upsert(db, new ContentValues[]{values});
+                upsert(content.table, db, new ContentValues[]{values});
                 return uri.buildUpon().appendPath(
                         values.getAsString(TableColumns.TrackMetadata._ID)).build();
 
@@ -800,6 +801,53 @@ public class ScContentProvider extends ContentProvider {
             ErrorUtils.handleSilentException(msg, e);
             return def;
         }
+    }
+
+    /**
+     * @see <a href="http://stackoverflow.com/questions/418898/sqlite-upsert-not-create-or-replace/">
+     * SQLite - UPSERT *not* INSERT or REPLACE
+     * </a>
+     */
+    private static int upsert(Table table, SQLiteDatabase db, ContentValues[] values) {
+        if (table.fields == null || table.fields.length == 0) {
+            throw new IllegalStateException("no fields defined");
+        }
+        db.beginTransaction();
+        int updated = 0;
+        for (ContentValues v : values) {
+            if (v == null) {
+                continue;
+            }
+            long id = v.getAsLong(BaseColumns._ID);
+            List<Object> bindArgs = new ArrayList<>();
+            StringBuilder sb = new StringBuilder(5000);
+            sb.append("INSERT OR REPLACE INTO ").append(table.name()).append('(')
+                    .append(TextUtils.join(",", table.fields))
+                    .append(") VALUES (");
+            for (int i = 0; i < table.fields.length; i++) {
+                String f = table.fields[i];
+                if (v.containsKey(f)) {
+                    sb.append('?');
+                    bindArgs.add(v.get(f));
+                } else {
+                    sb.append("(SELECT ").append(f).append(" FROM ").append(table.name()).append(" WHERE _id=?)");
+                    bindArgs.add(id);
+                }
+                if (i < table.fields.length - 1) {
+                    sb.append(',');
+                }
+            }
+            sb.append(");");
+            final String sql = sb.toString();
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "sql:" + sql);
+            }
+            db.execSQL(sql, bindArgs.toArray());
+            updated++;
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        return updated;
     }
 
     static String makeCollectionSort(Uri uri, @Nullable String sortCol) {
