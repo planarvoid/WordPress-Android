@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui.progress;
 
 import android.animation.ObjectAnimator;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 public class ScrollXAnimator extends ProgressAnimator {
 
@@ -13,7 +13,7 @@ public class ScrollXAnimator extends ProgressAnimator {
     @Override
     protected ObjectAnimator createAnimator(float startX, float endX) {
         final ObjectAnimator scrollX = ObjectAnimator.ofInt(progressView, "scrollX", (int) startX, (int) endX);
-        scrollX.setInterpolator(new LinearInterpolator());
+        scrollX.setInterpolator(new DecelerateInterpolator());
         return scrollX;
     }
 

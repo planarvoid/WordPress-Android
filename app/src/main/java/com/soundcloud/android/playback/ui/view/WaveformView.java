@@ -267,5 +267,7 @@ public class WaveformView extends FrameLayout {
 
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
+
+        dragViewHolder.setAreaWidth(adjustedWidth);
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Consts;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -10,6 +11,8 @@ public class ListenableHorizontalScrollView extends HorizontalScrollView {
 
     @Nullable
     private OnScrollListener listener;
+
+    private int areaWidth = Consts.NOT_SET;
 
     public interface OnScrollListener {
         void onScroll(int left, int oldLeft);
@@ -31,11 +34,24 @@ public class ListenableHorizontalScrollView extends HorizontalScrollView {
         this.listener = listener;
     }
 
+    public void setAreaWidth(int areaWidth) {
+        this.areaWidth = areaWidth;
+    }
+
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
         if (listener != null) {
             listener.onScroll(l, oldl);
         }
+    }
+
+    @Override
+    public void fling(int velocityX) {
+        int newVelocityX = areaWidth == Consts.NOT_SET
+                ? velocityX
+                : (int) (velocityX / ((float) areaWidth / getWidth()));
+
+        super.fling(newVelocityX);
     }
 }
