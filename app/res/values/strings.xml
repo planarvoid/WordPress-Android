@@ -94,7 +94,7 @@
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
     <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
-    <string name="authentication_sign_up">Create a SoundCloud account</string>
+    <string name="authentication_sign_up">Create account</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
