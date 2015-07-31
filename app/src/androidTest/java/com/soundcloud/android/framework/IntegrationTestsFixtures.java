@@ -34,7 +34,7 @@ public class IntegrationTestsFixtures {
 
     public void clearLikes(Context context) {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        SchemaMigrationHelper.recreate(db);
+        SchemaMigrationHelper.recreate(Table.Likes, db);
     }
 
     public void clearOfflineContent(Context context) {
