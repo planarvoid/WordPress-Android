@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.DatabaseManager;
+import com.soundcloud.android.storage.SchemaMigrationHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -33,7 +34,7 @@ public class IntegrationTestsFixtures {
 
     public void clearLikes(Context context) {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        Table.Likes.recreate(db);
+        SchemaMigrationHelper.recreate(Table.Likes, db);
     }
 
     public void clearOfflineContent(Context context) {
