@@ -503,6 +503,22 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsPromotedPlaylistImpressionJson() throws Exception {
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedPlaylist());
+        PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
+
+        jsonDataBuilder.build(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(impression.getTimestamp()))
+                .pageName("stream")
+                .monetizationType("promoted")
+                .adUrn(item.getAdUrn())
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .impressionName("promoted_playlist")
+                .impressionObject(item.getEntityUrn().toString()));
+    }
+
+    @Test
     public void createsMidTierTrackClickJson() throws Exception {
         final Urn trackUrn = Urn.forTrack(123L);
         MidTierTrackEvent click = MidTierTrackEvent.forClick(trackUrn, SCREEN_TAG);
