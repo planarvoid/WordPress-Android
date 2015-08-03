@@ -33,7 +33,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void testLikesUpsellImpressionAndClick() {
+    public void ignore_testLikesUpsellImpressionAndClick() {
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickLikes()
                 .clickHeaderOverflowButton()
@@ -44,7 +44,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         verifier.assertScenario(LIKES_UPSELL_TEST_SCENARIO);
     }
 
-    public void testPlaylistItemUpsellImpressionAndClick() {
+    public void ignore_testPlaylistItemUpsellImpressionAndClick() {
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .getPlaylistAtPosition(0)
@@ -56,7 +56,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         verifier.assertScenario(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
     }
 
-    public void testPlaylistPageImpressionAndClick() {
+    public void ignore_testPlaylistPageImpressionAndClick() {
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .clickPlaylistAt(0)

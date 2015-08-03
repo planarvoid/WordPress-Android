@@ -37,7 +37,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
-    public void testWhyAdsUpsellImpressionAndClick() {
+    public void ignore_testWhyAdsUpsellImpressionAndClick() {
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
         assertThat(dialog, is(visible()));

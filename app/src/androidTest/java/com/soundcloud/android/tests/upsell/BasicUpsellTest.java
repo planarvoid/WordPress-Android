@@ -33,7 +33,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void testNavDrawerUpsellImpressionAndClick() {
+    public void ignore_testNavDrawerUpsellImpressionAndClick() {
         UpgradeScreen upgradeScreen = menuScreen
                 .open()
                 .clickUpsell();
@@ -43,7 +43,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         verifier.assertScenario(NAV_UPSELL_TEST_SCENARIO);
     }
 
-    public void testSettingsUpsellImpressionAndClick() {
+    public void ignore_testSettingsUpsellImpressionAndClick() {
         HomeScreen homeScreen = new HomeScreen(solo);
 
         UpgradeScreen upgradeScreen = homeScreen.actionBar()
