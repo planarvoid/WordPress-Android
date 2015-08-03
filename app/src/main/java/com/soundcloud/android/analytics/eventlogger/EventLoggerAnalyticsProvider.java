@@ -17,6 +17,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.settings.SettingKey;
@@ -78,6 +79,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handlePromotedEvent((PromotedTrackingEvent) event);
         } else if (event instanceof MidTierTrackEvent) {
             handleMidTierTrackEvent((MidTierTrackEvent) event);
+        } else if (event instanceof UpsellTrackingEvent) {
+            handleUpsellEvent((UpsellTrackingEvent) event);
         }
     }
 
@@ -106,6 +109,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void handlePromotedEvent(PromotedTrackingEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilder.build(eventData));
+    }
+
+    private void handleUpsellEvent(UpsellTrackingEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilder.build(event));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {

@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistOverflowMenu extends PopupMenuElement {
     public PlaylistOverflowMenu(Han testDriver) {
@@ -19,6 +20,11 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
     public PlaylistDetailsScreen clickMakeAvailableOffline() {
         getMakeAvailableOfflineItem().click();
         return new PlaylistDetailsScreen(testDriver);
+    }
+
+    public UpgradeScreen clickUpsell() {
+        getMakeAvailableOfflineItem().click();
+        return new UpgradeScreen(testDriver);
     }
 
     public ViewElement getMakeAvailableOfflineItem() {

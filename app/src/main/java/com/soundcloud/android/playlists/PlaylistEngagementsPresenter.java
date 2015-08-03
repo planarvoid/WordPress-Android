@@ -15,6 +15,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -212,6 +213,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
+            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forPlaylistPageImpression());
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
@@ -232,6 +234,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forPlaylistPageClick());
     }
 
     @Override

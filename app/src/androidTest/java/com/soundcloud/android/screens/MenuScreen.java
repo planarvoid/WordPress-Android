@@ -6,7 +6,6 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 
@@ -52,6 +51,10 @@ public class MenuScreen {
 
     protected ViewElement playlistsMenuItem() {
         return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_playlists)));
+    }
+
+    protected ViewElement upsellMenuItem() {
+        return testDriver.findElement(With.text(testDriver.getString(R.string.upsell_nav_body)));
     }
 
     protected ViewElement usernameLabel() {
@@ -109,4 +112,11 @@ public class MenuScreen {
         waiter.waitForDrawerToClose();
         return new PlaylistsScreen(testDriver);
     }
+
+    public UpgradeScreen clickUpsell() {
+        upsellMenuItem().click();
+        waiter.waitForDrawerToClose();
+        return new UpgradeScreen(testDriver);
+    }
+
 }

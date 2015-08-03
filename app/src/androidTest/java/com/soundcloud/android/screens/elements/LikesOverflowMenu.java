@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.SyncYourLikesScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 
 public class LikesOverflowMenu extends PopupMenuElement {
 
@@ -15,6 +16,11 @@ public class LikesOverflowMenu extends PopupMenuElement {
     public SyncYourLikesScreen clickMakeAvailableOffline() {
         getMakeAvailableOfflineItem().click();
         return new SyncYourLikesScreen(testDriver);
+    }
+
+    public UpgradeScreen clickUpsell() {
+        getMakeAvailableOfflineItem().click();
+        return new UpgradeScreen(testDriver);
     }
 
     public ViewElement getMakeAvailableOfflineItem() {

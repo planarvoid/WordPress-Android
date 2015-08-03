@@ -14,12 +14,12 @@ import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
-public class UpsellTest extends TrackingActivityTest<MainActivity> {
+public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     private static final String MIDTIER_TEST_SCENARIO = "midtier-tracking-test";
 
     private StreamScreen streamScreen;
 
-    public UpsellTest() {
+    public PaywallUpsellTest() {
         super(MainActivity.class);
     }
 

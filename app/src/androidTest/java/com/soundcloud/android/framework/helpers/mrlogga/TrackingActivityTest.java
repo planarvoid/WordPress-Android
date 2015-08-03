@@ -16,15 +16,19 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
     protected MrLoggaVerifier verifier;
     protected MrLoggaRecorder recorder;
+
     private Context context;
+
+    private String scenarioName;
+    private boolean recordMode;
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);
     }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void beforeStartActivity() {
+        super.beforeStartActivity();
 
         context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
@@ -33,13 +37,27 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         recorder = new MrLoggaRecorder(client);
 
         enableEventLoggerInstantFlush(context);
-        verifier.start();
+        if (recordMode) {
+            recorder.startRecording(scenarioName);
+        } else {
+            verifier.start();
+        }
     }
 
     @Override
     protected void tearDown() throws Exception {
-        verifier.stop();
+        if (recordMode) {
+            recorder.stopRecording();
+        } else {
+            verifier.stop();
+        }
         super.tearDown();
+    }
+
+    protected void recordScenario(String scenarioName) {
+        // To record a scenario: override beforeStartActivity and call this method before super
+        this.recordMode = true;
+        this.scenarioName = scenarioName;
     }
 
     protected void enableEventLoggerInstantFlush(Context context) {

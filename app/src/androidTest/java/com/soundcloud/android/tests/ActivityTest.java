@@ -63,12 +63,14 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
 
+        beforeStartActivity();
         logIn();
-
         getActivity();
 
         super.setUp(); // do not move, this has to run after the above
     }
+
+    protected void beforeStartActivity() {}
 
     @Override
     protected void tearDown() throws Exception {

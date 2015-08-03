@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
@@ -17,6 +18,11 @@ public class WhyAdsScreen extends Screen {
         testDriver.findElement(text(testDriver.getString(android.R.string.ok))).click();
         waiter.waitForDialogToClose();
         return new VisualPlayerElement(testDriver);
+    }
+
+    public UpgradeScreen clickUpgrade() {
+        testDriver.findElement(text(testDriver.getString(R.string.upsell_remove_ads))).click();
+        return new UpgradeScreen(testDriver);
     }
 
     @Override

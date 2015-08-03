@@ -25,6 +25,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpsellTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -534,14 +535,36 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsMidTierTrackImpressionJson() throws Exception {
         final Urn trackUrn = Urn.forTrack(123L);
-        MidTierTrackEvent click = MidTierTrackEvent.forImpression(trackUrn, SCREEN_TAG);
+        MidTierTrackEvent impression = MidTierTrackEvent.forImpression(trackUrn, SCREEN_TAG);
 
-        jsonDataBuilder.build(click);
+        jsonDataBuilder.build(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(click.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(impression.getTimestamp()))
                 .pageName(SCREEN_TAG)
                 .impressionObject(String.valueOf(trackUrn))
                 .impressionName("consumer_sub_track"));
+    }
+
+    @Test
+    public void createsUpsellImpressionJson() throws Exception {
+        UpsellTrackingEvent impression = UpsellTrackingEvent.forLikesImpression();
+
+        jsonDataBuilder.build(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(impression.getTimestamp()))
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1009"));
+    }
+
+    @Test
+    public void createsUpsellClickJson() throws Exception {
+        UpsellTrackingEvent click = UpsellTrackingEvent.forPlaylistItemClick();
+
+        jsonDataBuilder.build(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(click.getTimestamp()))
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1011"));
     }
 
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {
