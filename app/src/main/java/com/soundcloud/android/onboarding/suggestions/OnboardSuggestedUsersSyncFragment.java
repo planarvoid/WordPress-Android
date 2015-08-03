@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -46,7 +46,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        subscription = bindFragment(this, followingOperations.waitForActivities(getActivity()))
+        subscription = bindSupportFragment(this, followingOperations.waitForActivities(getActivity()))
                 .subscribe(new FollowingsSyncSubscriber());
     }
 

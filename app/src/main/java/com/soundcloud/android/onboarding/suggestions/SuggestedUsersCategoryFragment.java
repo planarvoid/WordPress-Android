@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -88,7 +88,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        subscription.add(bindFragment(this, followingOperations.toggleFollowingBySuggestedUser(adapter.getItem(position)))
+        subscription.add(bindSupportFragment(this, followingOperations.toggleFollowingBySuggestedUser(adapter.getItem(position)))
                 .subscribe(new ToggleFollowingObserver(this)));
     }
 
@@ -104,7 +104,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         } else {
             toggleFollowings = followingOperations.removeFollowingsBySuggestedUsers(category.getFollowedUsers(followedUserIds));
         }
-        subscription.add(bindFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
+        subscription.add(bindSupportFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
     }
 
     private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {

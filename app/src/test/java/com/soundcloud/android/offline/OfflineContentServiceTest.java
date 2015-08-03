@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Message;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,6 +105,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         final List<Urn> tracksToBeRemoved = Arrays.asList(TRACK_1, TRACK_2);
         deletePendingRemoval = Observable.just(tracksToBeRemoved);
 
+        when(downloadOperations.removeOfflineTracks(tracksToBeRemoved)).thenReturn(Observable.<Collection<Urn>>empty());
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         startService();
 
