@@ -13,6 +13,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
@@ -59,12 +60,14 @@ public class AdsOperations {
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-        final ApiRequest request = ApiRequest.get(endpoint)
-                .forPrivateApi(1)
-                .addLocaleQueryParam()
-                .build();
+        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi(1);
 
-        return apiClientRx.mappedResponse(request, ApiAdsForTrack.class)
+        final String locale = LocaleProvider.getFormattedLocale();
+        if (!locale.isEmpty()) {
+            request.addQueryParam(ApiRequest.Param.LOCALE, locale);
+        }
+
+        return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                 .subscribeOn(scheduler)
                 .doOnError(logFailedAds(sourceUrn))
                 .doOnNext(logAds(sourceUrn))

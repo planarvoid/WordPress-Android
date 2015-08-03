@@ -14,6 +14,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
@@ -87,8 +88,12 @@ public class SoundStreamSyncer implements SyncStrategy {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(ApiEndpoints.STREAM.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
-                        .addLocaleQueryParam()
                         .forPrivateApi(1);
+
+        final String locale = LocaleProvider.getFormattedLocale();
+        if (!locale.isEmpty()) {
+            requestBuilder.addQueryParam(ApiRequest.Param.LOCALE, locale);
+        }
 
         ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
         replaceSoundStreamCommand.call(getFilteredCollection(streamItems));
