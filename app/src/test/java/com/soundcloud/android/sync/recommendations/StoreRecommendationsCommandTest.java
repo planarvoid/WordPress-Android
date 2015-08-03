@@ -5,10 +5,10 @@ import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.RecommendationSeeds;
+import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
         final List<ApiRecommendation> apiRecommendations = RecommendationsFixtures.createApiRecommendationsWithLikedReason(2);
         command.call(apiRecommendations);
 
-        assertThat(select(Query.from(Table.RecommendationSeeds.name())), counts(2));
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(2));
         assertSeedInserted(apiRecommendations.get(0));
         assertSeedInserted(apiRecommendations.get(1));
     }
@@ -45,8 +45,8 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
         apiRecommendations = Collections.emptyList();
         command.call(apiRecommendations);
 
-        assertThat(select(from(Table.Recommendations.name())), counts(0));
-        assertThat(select(from(Table.RecommendationSeeds.name())), counts(0));
+        assertThat(select(from(Recommendations.TABLE)), counts(0));
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(0));
     }
 
     @Test
@@ -56,8 +56,8 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
 
         ApiRecommendation recommendation = apiRecommendations.get(0);
 
-        assertThat(select(Query.from(Table.RecommendationSeeds.name())), counts(1));
-        assertThat(select(Query.from(Table.Recommendations.name())), counts(2));
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(1));
+        assertThat(select(from(Recommendations.TABLE)), counts(2));
         assertSeedInserted(recommendation);
         assertRecommendedTracksForSeedInserted(recommendation);
     }
@@ -71,18 +71,17 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
 
         command.call(apiRecommendations);
 
-        assertThat(select(Query.from(Table.RecommendationSeeds.name())), counts(2));
-        assertThat(select(Query.from(Table.Recommendations.name())), counts(4));
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(2));
+        assertThat(select(from(Recommendations.TABLE)), counts(4));
         assertSeedInserted(apiRecommendations.get(0));
         assertSeedInserted(apiRecommendations.get(1));
     }
 
     private void assertSeedInserted(ApiRecommendation recommendation) {
-        assertThat(select(Query.from(Table.RecommendationSeeds.name())
-                .whereEq(TableColumns.RecommendationSeeds.SEED_SOUND_ID, recommendation.getSeedTrack().getUrn().getNumericId())
-                .whereEq(TableColumns.RecommendationSeeds.SEED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereEq(TableColumns.RecommendationSeeds.RECOMMENDATION_REASON, getReason(recommendation)))
-                , counts(1));
+        assertThat(select(from(RecommendationSeeds.TABLE)
+                .whereEq(RecommendationSeeds.SEED_SOUND_ID, recommendation.getSeedTrack().getUrn().getNumericId())
+                .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(RecommendationSeeds.RECOMMENDATION_REASON, getReason(recommendation))), counts(1));
 
         databaseAssertions().assertTrackInserted(recommendation.getSeedTrack());
         databaseAssertions().assertUserInserted(recommendation.getSeedTrack().getUser());
@@ -91,16 +90,16 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     private int getReason(ApiRecommendation apiRecommendation) {
         switch (apiRecommendation.getRecommendationReason()){
             case LIKED:
-                return TableColumns.RecommendationSeeds.REASON_LIKED;
+                return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:
-                return TableColumns.RecommendationSeeds.REASON_LISTENED_TO;
+                return RecommendationSeeds.REASON_LISTENED_TO;
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + apiRecommendation.getRecommendationReason());
         }
     }
 
     private void assertRecommendedTracksForSeedInserted(ApiRecommendation recommendation) {
-        assertThat(select(Query.from(Table.Recommendations.name())), counts(2));
+        assertThat(select(from(Recommendations.TABLE)), counts(2));
         for (ApiTrack track : recommendation.getRecommendations()) {
             databaseAssertions().assertTrackInserted(track);
             databaseAssertions().assertUserInserted(track.getUser());

@@ -485,7 +485,7 @@ public class DatabaseFixtures {
         insertInto(Table.OfflineContent, cv);
     }
 
-    public long insertInto(Table table, ContentValues cv) {
+    public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {
         final long rowId = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         if (rowId == -1) {
             throw new AssertionError("Failed inserting record into table " + table.name());

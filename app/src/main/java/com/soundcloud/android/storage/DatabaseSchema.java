@@ -5,24 +5,8 @@ import com.soundcloud.android.api.legacy.model.Playable;
 // I have an idea for how to generate these things going forward, so let's not spend
 // time on improving the string building mess here.
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@Deprecated // use the new `Tables` structure
 final class DatabaseSchema {
-
-    static final String DATABASE_CREATE_RECOMMENDATION_SEEDS = "(" +
-            "_id INTEGER PRIMARY KEY," +
-            "seed_sound_id INTEGER, " +
-            "seed_sound_type INTEGER, " +
-            "recommendation_reason INTEGER, " +
-            "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
-            ");";
-
-    static final String DATABASE_CREATE_RECOMMENDATIONS = "(" +
-            "_id INTEGER PRIMARY KEY," +
-            "seed_id INTEGER, " +
-            "recommended_sound_id INTEGER," +
-            "recommended_sound_type INTEGER," +
-            "FOREIGN KEY(seed_id) REFERENCES RecommendationSeeds(_id) " +
-            "FOREIGN KEY(recommended_sound_id, recommended_sound_type) REFERENCES Sounds(_id, _type)" +
-            ");";
 
     static final String DATABASE_CREATE_SOUNDSTREAM = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -93,7 +77,7 @@ final class DatabaseSchema {
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
-    static final String DATABASE_CREATE_WAVEFORMS =  "(" +
+    static final String DATABASE_CREATE_WAVEFORMS = "(" +
             "track_id INTEGER, " +
             "max_amplitude INTEGER, " +
             "samples TEXT, " +

@@ -2,7 +2,8 @@ package com.soundcloud.android.storage;
 
 import android.provider.BaseColumns;
 
-public enum Table implements com.soundcloud.propeller.Table {
+@Deprecated // use the new `Tables` structure
+public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
     PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
     Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
@@ -12,8 +13,6 @@ public enum Table implements com.soundcloud.propeller.Table {
     Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
     Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
     Recordings(false, DatabaseSchema.DATABASE_CREATE_RECORDINGS, TableColumns.Recordings.ALL_FIELDS),
-    RecommendationSeeds(false, DatabaseSchema.DATABASE_CREATE_RECOMMENDATION_SEEDS),
-    Recommendations(false, DatabaseSchema.DATABASE_CREATE_RECOMMENDATIONS),
     Searches(false, DatabaseSchema.DATABASE_CREATE_SEARCHES),
     PlaylistTracks(PrimaryKey.of(
             TableColumns.PlaylistTracks._ID,

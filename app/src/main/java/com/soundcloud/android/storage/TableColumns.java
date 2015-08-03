@@ -5,6 +5,7 @@ import com.soundcloud.android.storage.provider.ScContentProvider;
 import android.app.SearchManager;
 import android.provider.BaseColumns;
 
+@Deprecated // use the new `Tables` structure
 public final class TableColumns {
 
     public static class ResourceTable implements BaseColumns {
@@ -12,21 +13,6 @@ public final class TableColumns {
         public static final String CREATED_AT = "created_at";
         public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK = "permalink";
-    }
-
-    public static class RecommendationSeeds implements BaseColumns {
-        public static final String SEED_SOUND_ID = "seed_sound_id";
-        public static final String SEED_SOUND_TYPE = "seed_sound_type";
-        public static final String RECOMMENDATION_REASON = "recommendation_reason";
-
-        public static final int REASON_LIKED = 0;
-        public static final int REASON_LISTENED_TO = 1;
-    }
-
-    public static class Recommendations implements BaseColumns {
-        public static final String SEED_ID = "seed_id";
-        public static final String RECOMMENDED_SOUND_ID = "recommended_sound_id";
-        public static final String RECOMMENDED_SOUND_TYPE = "recommended_sound_type";
     }
 
     public static class SoundStream implements BaseColumns {
@@ -185,7 +171,6 @@ public final class TableColumns {
         public static final String TOKEN = "token"; // when was this removed locally (pre-api sync)
 
         public static final int TYPE_FOLLOWING = ScContentProvider.CollectionItemTypes.FOLLOWING;
-        public static final int TYPE_FOLLOWER = ScContentProvider.CollectionItemTypes.FOLLOWER;
 
         public static final int TYPE_RESOURCE_USER = 0;
     }

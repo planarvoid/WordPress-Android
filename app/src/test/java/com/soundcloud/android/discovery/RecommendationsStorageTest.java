@@ -1,8 +1,10 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.storage.Tables.Recommendations;
+
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -62,18 +64,18 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrack(seedTrack);
 
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.RecommendationSeeds.SEED_SOUND_ID, seedTrack.getUrn().getNumericId());
-        cv.put(TableColumns.RecommendationSeeds.SEED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.RecommendationSeeds.RECOMMENDATION_REASON, getDbReason(reason));
-        return testFixtures().insertInto(Table.RecommendationSeeds, cv);
+        cv.put(RecommendationSeeds.SEED_SOUND_ID.name(), seedTrack.getUrn().getNumericId());
+        cv.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        cv.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getDbReason(reason));
+        return testFixtures().insertInto(RecommendationSeeds.TABLE, cv);
     }
 
     private int getDbReason(RecommendationReason reason) {
         switch (reason) {
             case LIKED:
-                return TableColumns.RecommendationSeeds.REASON_LIKED;
+                return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:
-                return TableColumns.RecommendationSeeds.REASON_LISTENED_TO;
+                return RecommendationSeeds.REASON_LISTENED_TO;
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + reason);
         }
@@ -84,9 +86,9 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrack(apiTrack);
 
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Recommendations.RECOMMENDED_SOUND_ID, apiTrack.getUrn().getNumericId());
-        cv.put(TableColumns.Recommendations.RECOMMENDED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Recommendations.SEED_ID, seedId);
-        return testFixtures().insertInto(Table.Recommendations, cv);
+        cv.put(Recommendations.RECOMMENDED_SOUND_ID.name(), apiTrack.getUrn().getNumericId());
+        cv.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        cv.put(Recommendations.SEED_ID.name(), seedId);
+        return testFixtures().insertInto(Recommendations.TABLE, cv);
     }
 }

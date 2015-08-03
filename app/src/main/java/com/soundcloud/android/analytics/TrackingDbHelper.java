@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics;
 
-import com.soundcloud.propeller.Table;
+import com.soundcloud.propeller.schema.Table;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

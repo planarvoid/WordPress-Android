@@ -40,9 +40,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate(" + db + ")");
 
         try {
+            // legacy tables
             for (Table t : Table.values()) {
                 SchemaMigrationHelper.create(t, db);
             }
+            // new tables
+            db.execSQL(Tables.Recommendations.SQL);
+            db.execSQL(Tables.RecommendationSeeds.SQL);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -270,8 +275,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo46(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.create(Table.Recommendations, db);
-            SchemaMigrationHelper.create(Table.RecommendationSeeds, db);
+            db.execSQL(Tables.Recommendations.SQL);
+            db.execSQL(Tables.RecommendationSeeds.SQL);
             return true;
 
         } catch (SQLException exception) {

@@ -6,6 +6,8 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.RecommendationSeeds;
+import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -35,21 +37,21 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
                         writeTrack(propeller, apiRecommendation.getSeedTrack());
 
                         //Store seed track in recommendations
-                        final InsertResult seedInsert = propeller.insert(Table.RecommendationSeeds, buildSeedContentValues(apiRecommendation));
+                        final InsertResult seedInsert = propeller.insert(RecommendationSeeds.TABLE, buildSeedContentValues(apiRecommendation));
                         step(seedInsert);
 
                         //Store recommended tracks
                         for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
                             writeTrack(propeller, trackRecommendation);
-                            step(propeller.upsert(Table.Recommendations, buildRecommendationContentValues(trackRecommendation, seedInsert.getRowId())));
+                            step(propeller.upsert(Recommendations.TABLE, buildRecommendationContentValues(trackRecommendation, seedInsert.getRowId())));
                         }
                     }
                 }
             }
 
             private void clearTables(PropellerDatabase propeller) {
-                step(propeller.delete(Table.Recommendations));
-                step(propeller.delete(Table.RecommendationSeeds));
+                step(propeller.delete(Recommendations.TABLE));
+                step(propeller.delete(RecommendationSeeds.TABLE));
             }
 
             //TODO: Create a way of sharing the track writing logic, with a base class (e.g. WriteTrackTransaction)
@@ -67,17 +69,17 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
 
     private ContentValues buildRecommendationContentValues(ApiTrack trackRecommendation, long seedId) {
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(TableColumns.Recommendations.SEED_ID, seedId);
-        contentValues.put(TableColumns.Recommendations.RECOMMENDED_SOUND_ID, trackRecommendation.getUrn().getNumericId());
-        contentValues.put(TableColumns.Recommendations.RECOMMENDED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        contentValues.put(Recommendations.SEED_ID.name(), seedId);
+        contentValues.put(Recommendations.RECOMMENDED_SOUND_ID.name(), trackRecommendation.getUrn().getNumericId());
+        contentValues.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
         return contentValues;
     }
 
     private ContentValues buildSeedContentValues(ApiRecommendation apiRecommendation) {
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(TableColumns.RecommendationSeeds.SEED_SOUND_ID, apiRecommendation.getSeedTrack().getUrn().getNumericId());
-        contentValues.put(TableColumns.RecommendationSeeds.SEED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        contentValues.put(TableColumns.RecommendationSeeds.RECOMMENDATION_REASON, getReason(apiRecommendation));
+        contentValues.put(RecommendationSeeds.SEED_SOUND_ID.name(), apiRecommendation.getSeedTrack().getUrn().getNumericId());
+        contentValues.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
+        contentValues.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getReason(apiRecommendation));
         return contentValues;
     }
 
@@ -86,9 +88,9 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
         ApiRecommendation.Reason reason = apiRecommendation.getRecommendationReason();
         switch (reason) {
             case LIKED:
-                return TableColumns.RecommendationSeeds.REASON_LIKED;
+                return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:
-                return TableColumns.RecommendationSeeds.REASON_LISTENED_TO;
+                return RecommendationSeeds.REASON_LISTENED_TO;
             default:
                 throw new IllegalArgumentException("Unhandled reason " + reason);
         }
