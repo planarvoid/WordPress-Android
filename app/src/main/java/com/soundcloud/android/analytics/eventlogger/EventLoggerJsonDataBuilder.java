@@ -193,15 +193,15 @@ public class EventLoggerJsonDataBuilder {
     public String build(PromotedTrackingEvent event) {
         switch (event.getKind()) {
             case PromotedTrackingEvent.KIND_CLICK:
-                return transform(getPromotedTrackClickEvent(event));
+                return transform(getPromotedClickEvent(event));
             case PromotedTrackingEvent.KIND_IMPRESSION:
-                return transform(getPromotedTrackImpressionEvent(event));
+                return transform(getPromotedImpressionEvent(event));
             default:
-                throw new IllegalStateException("Unexpected PromotedTrackEvent type: " + event);
+                throw new IllegalStateException("Unexpected PromotedTrackingEvent type: " + event);
         }
     }
 
-    private EventLoggerEventData getPromotedTrackClickEvent(PromotedTrackingEvent event) {
+    private EventLoggerEventData getPromotedClickEvent(PromotedTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
@@ -212,14 +212,16 @@ public class EventLoggerJsonDataBuilder {
                 .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_TARGET_URN));
     }
 
-    private EventLoggerEventData getPromotedTrackImpressionEvent(PromotedTrackingEvent event) {
+    private EventLoggerEventData getPromotedImpressionEvent(PromotedTrackingEvent event) {
+        String impressionObject = event.get(AdTrackingKeys.KEY_AD_TRACK_URN);
+        String impressionName = new Urn(impressionObject).isPlaylist() ? "promoted_playlist" : "promoted_track";
         return buildBaseEvent(IMPRESSION_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
-                .impressionName("promoted_track")
-                .impressionObject(event.get(AdTrackingKeys.KEY_AD_TRACK_URN));
+                .impressionName(impressionName)
+                .impressionObject(impressionObject);
     }
 
     public String buildForAudioEvent(PlaybackSessionEvent event) {
