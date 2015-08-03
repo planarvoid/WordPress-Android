@@ -2,7 +2,10 @@ package com.soundcloud.android.utils;
 
 import java.util.Locale;
 
-public class LocaleProvider {
+public final class LocaleProvider {
+
+    private LocaleProvider() {}
+
     // BCP 47 Format using only language & country: {language}["-"{country}]
     public static String getFormattedLocale() {
         final Locale locale = Locale.getDefault();

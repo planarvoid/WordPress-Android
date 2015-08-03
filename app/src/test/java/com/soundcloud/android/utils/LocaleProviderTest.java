@@ -1,48 +1,44 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
+import org.junit.Test;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LocaleProviderTest {
 
     @Test
     public void shouldReturnValidLocaleParameterWithLangAndCountry() {
         setLocale("en", "CA", "");
-        expect(LocaleProvider.getFormattedLocale()).toEqual("en-CA");
+        assertTrue(LocaleProvider.getFormattedLocale().equals("en-CA"));
     }
 
     @Test
     public void shouldReturnOnlyLanguageIfCountryMissing() {
         setLocale("en", "", "");
 
-        expect(LocaleProvider.getFormattedLocale()).toEqual("en");
+        assertTrue(LocaleProvider.getFormattedLocale().equals("en"));
     }
 
     @Test
     public void shouldNotReturnVariantInValidLocale() {
         setLocale("sl", "IT", "nedis");
 
-        expect(LocaleProvider.getFormattedLocale()).toEqual("sl-IT");
+        assertTrue(LocaleProvider.getFormattedLocale().equals("sl-IT"));
     }
 
     @Test
     public void shouldNotReturnLocaleParameterIfMissingLanguage() {
         setLocale("", "US", "");
 
-        expect(LocaleProvider.getFormattedLocale()).toEqual("");
+        assertTrue(LocaleProvider.getFormattedLocale().isEmpty());
     }
 
     @Test
     public void shouldNotReturnLocaleParameterIfAllComponentsMissing() {
         setLocale("", "", "");
 
-        expect(LocaleProvider.getFormattedLocale()).toEqual("");
+        assertTrue(LocaleProvider.getFormattedLocale().isEmpty());
     }
 
     private void setLocale(String language, String country, String variant) {
