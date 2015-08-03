@@ -88,7 +88,6 @@ public class TrackItemView {
         upsell.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
-        image.setAlpha(1F);
     }
 
     public void showPlaycount(String text) {
@@ -98,7 +97,6 @@ public class TrackItemView {
 
     public void showUpsell() {
         upsell.setVisibility(View.VISIBLE);
-        image.setAlpha(.5F);
     }
 
     public void hideReposter() {
@@ -124,8 +122,7 @@ public class TrackItemView {
 
     public static class Factory {
         @Inject
-        public Factory() {
-        }
+        public Factory() {}
 
         public View createItemView(ViewGroup parent) {
             final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);

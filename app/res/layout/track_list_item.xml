@@ -42,6 +42,7 @@
                 android:textColor="@color/ak_sc_orange"
                 android:text="@string/upsell_track_item"
                 android:drawableLeft="@drawable/tier_content"
+                android:drawablePadding="4dp"
                 android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView
