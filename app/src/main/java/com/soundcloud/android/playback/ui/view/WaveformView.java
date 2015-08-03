@@ -12,15 +12,12 @@ import com.soundcloud.android.waveform.WaveformData;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,8 +47,8 @@ public class WaveformView extends FrameLayout {
     private final int unplayedColor;
     private final float waveformWidthRatio;
 
-    private final ImageView leftWaveform;
-    private final ImageView rightWaveform;
+    private final WaveformCanvas leftWaveform;
+    private final WaveformCanvas rightWaveform;
     private final ImageView leftLine;
     private final ImageView rightLine;
 
@@ -76,7 +73,7 @@ public class WaveformView extends FrameLayout {
         }
     };
 
-    public interface OnWidthChangedListener{
+    public interface OnWidthChangedListener {
         void onWaveformViewWidthChanged(int newWidth);
     }
 
@@ -116,8 +113,8 @@ public class WaveformView extends FrameLayout {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.player_progress_layout, this);
 
-        leftWaveform = (ImageView) findViewById(R.id.waveform_left);
-        rightWaveform = (ImageView) findViewById(R.id.waveform_right);
+        leftWaveform = (WaveformCanvas) findViewById(R.id.waveform_left);
+        rightWaveform = (WaveformCanvas) findViewById(R.id.waveform_right);
 
         dragView = (FixedWidthView) findViewById(R.id.drag_view);
         dragViewHolder = (ListenableHorizontalScrollView) findViewById(R.id.drag_view_holder);
@@ -149,11 +146,11 @@ public class WaveformView extends FrameLayout {
         return waveformWidthRatio;
     }
 
-    ImageView getLeftWaveform() {
+    WaveformCanvas getLeftWaveform() {
         return leftWaveform;
     }
 
-    ImageView getRightWaveform() {
+    WaveformCanvas getRightWaveform() {
         return rightWaveform;
     }
 
@@ -182,7 +179,6 @@ public class WaveformView extends FrameLayout {
                 float value = (float) spring.getCurrentValue();
                 rightWaveform.setScaleY(value);
                 leftWaveform.setScaleY(value);
-                invalidate(); // can we do anything cheaper than this?
             }
         });
         springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
@@ -218,12 +214,8 @@ public class WaveformView extends FrameLayout {
         rightLine.setVisibility(View.VISIBLE);
     }
 
-    void clearWaveform() {
-        showLoading();
-    }
-
     private void clearScaleAnimations() {
-        if (springY != null){
+        if (springY != null) {
             springY.removeAllListeners();
             springY.destroy();
         }
@@ -256,72 +248,26 @@ public class WaveformView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (onWidthChangedListener != null){
+        if (onWidthChangedListener != null) {
             onWidthChangedListener.onWaveformViewWidthChanged(w);
         }
-    }
-
-    void showLoading() {
-        leftWaveform.setImageDrawable(createLoadingDrawable(progressColor));
-        rightWaveform.setImageDrawable(createLoadingDrawable(unplayedColor));
     }
 
     private Drawable createLoadingDrawable(int color) {
         return new ProgressLineDrawable(color, baseline, spaceWidth);
     }
 
-    void setWaveformBitmaps(Pair<Bitmap, Bitmap> bitmaps) {
-        leftWaveform.setImageBitmap(bitmaps.first);
-        rightWaveform.setImageBitmap(bitmaps.second);
 
-        // scale down as they will be scaled up when playback active
+    public void setWaveformData(WaveformData waveformData, int adjustedWidth) {
+        double totalSamples = adjustedWidth / (barWidth + spaceWidth);
+        WaveformData scaled = waveformData.scale(totalSamples);
+
+        leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint, barWidth, spaceWidth, baseline);
+        rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint, barWidth, spaceWidth, baseline);
+
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
-    }
 
-    Pair<Bitmap, Bitmap> createWaveforms(WaveformData waveformData, int width) {
-        return new Pair<>(
-                createWaveform(waveformData, width, progressAbovePaint, progressBelowPaint),
-                createWaveform(waveformData, width, unplayedAbovePaint, unplayedBelowPaint)
-        );
-    }
-
-    private Bitmap createWaveform(WaveformData waveformData, int width, Paint abovePaint, Paint belowPaint) {
-        final int height = getHeight();
-        Bitmap wave = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
-        Canvas canvas = new Canvas(wave);
-        WaveformData scaled = waveformData.scale(width);
-
-        int acc = 0;
-        int groupIndex = 0;
-        int dumpIndex = -1;
-        for (int i = 0; i < scaled.samples.length; i++) {
-            if (dumpIndex >= 0) {
-                dumpIndex++;
-                if (dumpIndex == spaceWidth) {
-                    dumpIndex = -1;
-                }
-            } else {
-                acc += scaled.samples[i];
-                groupIndex++;
-                if (groupIndex == barWidth || i == scaled.samples.length - 1) {
-                    final int sample = acc / groupIndex;
-                    for (int j = i - groupIndex + 1; j <= i; j++) {
-                        drawBarAbove(canvas, j, sample * baseline / waveformData.maxAmplitude, abovePaint);
-                        drawBarBelow(canvas, j, sample * (height - baseline) / waveformData.maxAmplitude, belowPaint);
-                    }
-                    acc = groupIndex = dumpIndex = 0;
-                }
-            }
-        }
-        return wave;
-    }
-
-    private void drawBarAbove(Canvas canvas, int x, int height, Paint abovePaint) {
-        canvas.drawLine(x, baseline - height, x, baseline, abovePaint);
-    }
-
-    private void drawBarBelow(Canvas canvas, int x, int height, Paint belowPaint) {
-        canvas.drawLine(x, baseline + spaceWidth, x, baseline + height - spaceWidth, belowPaint);
+        dragViewHolder.setAreaWidth(adjustedWidth);
     }
 }

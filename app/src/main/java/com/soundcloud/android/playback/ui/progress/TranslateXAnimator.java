@@ -10,24 +10,6 @@ public class TranslateXAnimator extends ProgressAnimator {
 
     public TranslateXAnimator(final View progressView, float startX, float endX) {
         super(progressView, startX, endX);
-
-        addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                disableHardwareLayer(progressView);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                disableHardwareLayer(progressView);
-            }
-        });
-    }
-
-    @Override
-    public void start() {
-        enableHardwareLayer(progressView);
-        super.start();
     }
 
     @Override
@@ -40,13 +22,5 @@ public class TranslateXAnimator extends ProgressAnimator {
     @Override
     public float getDifferenceFromCurrentValue(float targetValue) {
         return (Float) wrappedAnimator.getAnimatedValue() - targetValue;
-    }
-
-    private void enableHardwareLayer(View progressView) {
-        progressView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-    }
-
-    private void disableHardwareLayer(View progressView) {
-        progressView.setLayerType(View.LAYER_TYPE_NONE, null);
     }
 }

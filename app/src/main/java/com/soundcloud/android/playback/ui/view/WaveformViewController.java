@@ -21,10 +21,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
-import android.graphics.Bitmap;
-import android.util.Pair;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -70,7 +67,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler){
+                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler) {
         this.waveformView = waveform;
         this.graphicsScheduler = graphicsScheduler;
         this.waveformWidthRatio = waveform.getWidthRatio();
@@ -84,8 +81,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         leftProgressController = animationControllerFactory.create(waveformView.getLeftWaveform());
         rightProgressController = animationControllerFactory.create(waveformView.getRightWaveform());
         dragProgressController = animationControllerFactory.create(waveformView.getDragViewHolder());
-
-        waveformView.showLoading();
     }
 
     @Override
@@ -103,7 +98,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void displayScrubPosition(float scrubPosition) {
         leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
         rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), scrubPosition);
-        if (currentState == IDLE){
+        if (currentState == IDLE) {
             leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
             rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
         }
@@ -147,11 +142,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void setWaveform(Observable<WaveformData> waveformObservable, boolean isForeground) {
-        waveformView.showLoading();
         this.waveformObservable = waveformObservable;
         createState.set(IS_CREATION_PENDING);
         createWaveforms(HAS_WAVEFORM_DATA);
-        if (isForeground){
+        if (isForeground) {
             onForeground();
         } else {
             onBackground();
@@ -161,7 +155,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void reset() {
         waveformSubscription.unsubscribe(); // Matthias, help test this
         waveformObservable = null;
-        waveformView.showLoading();
         leftProgressController.reset();
         rightProgressController.reset();
         dragProgressController.reset();
@@ -190,7 +183,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         cancelProgressAnimations();
     }
 
-    public void onPlayerSlide(float value){
+    public void onPlayerSlide(float value) {
         isCollapsed = false;
         if (canShow) {
             waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
@@ -213,7 +206,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void show() {
         canShow = true;
-        if (!isCollapsed){
+        if (!isCollapsed) {
             waveformView.setVisibility(View.VISIBLE);
         }
     }
@@ -229,11 +222,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void onBackground() {
         createState.clear(IS_FOREGROUND);
-        clearWaveform();
-    }
-
-    private void clearWaveform() {
-        waveformView.clearWaveform();
         createState.set(IS_CREATION_PENDING);
     }
 
@@ -253,7 +241,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         dragProgressController.cancelProgressAnimation();
     }
 
-    public void addScrubListener(ScrubController.OnScrubListener listener){
+    public void addScrubListener(ScrubController.OnScrubListener listener) {
         scrubController.addScrubListener(listener);
     }
 
@@ -262,28 +250,17 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (createState.equals(SHOULD_CREATE_WAVEFORM)) {
             waveformSubscription.unsubscribe();
             waveformSubscription = waveformObservable
-                    .observeOn(graphicsScheduler)
-                    .map(createWaveformsFunc())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new WaveformSubscriber());
             createState.clear(IS_CREATION_PENDING);
         }
     }
 
-    private Func1<WaveformData, Pair<Bitmap, Bitmap>> createWaveformsFunc() {
-        return new Func1<WaveformData, Pair<Bitmap, Bitmap>>() {
-            @Override
-            public Pair<Bitmap, Bitmap> call(WaveformData waveformData) {
-                return waveformView.createWaveforms(waveformData, adjustedWidth);
-            }
-        };
-    }
-
-    private class WaveformSubscriber extends DefaultSubscriber<Pair<Bitmap, Bitmap>> {
+    private class WaveformSubscriber extends DefaultSubscriber<WaveformData> {
         @Override
-        public void onNext(Pair<Bitmap, Bitmap> bitmaps) {
-            waveformView.setWaveformBitmaps(bitmaps);
-            if (currentState != IDLE){
+        public void onNext(WaveformData waveformData) {
+            waveformView.setWaveformData(waveformData, adjustedWidth);
+            if (currentState != IDLE) {
                 waveformView.showExpandedWaveform();
             }
         }
@@ -302,8 +279,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             this.animationControllerFactory = animationControllerFactory;
             this.scheduler = scheduler;
         }
-        public WaveformViewController create(WaveformView waveformView){
-            return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory,
+
+        public WaveformViewController create(WaveformView waveformView) {
+            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory,
                     scheduler);
         }
     }

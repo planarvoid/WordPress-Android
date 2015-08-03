@@ -18,7 +18,7 @@ import java.util.Arrays;
  *
  * @see <a href="https://github.com/soundcloud/waveform-image-samples">Waveform Image Samples</a>
  */
-public final class WaveformData {
+public class WaveformData {
     public final static WaveformData EMPTY = new WaveformData(-1, new int[0]);
 
     public final int maxAmplitude;
@@ -33,18 +33,49 @@ public final class WaveformData {
      * @param requiredWidth the new width
      * @return the waveform data downsampled to the required width
      */
-    public WaveformData scale(int requiredWidth) {
+    public WaveformData scale(double requiredWidth) {
         if (requiredWidth <= 0) {
             throw new IllegalArgumentException("Invalid width: " + requiredWidth);
         }
+
+        double samplesPerWidth = samples.length / requiredWidth;
+        int totalSamples = (int) Math.ceil(requiredWidth);
+
         if (requiredWidth == samples.length) {
             return this;
         } else {
-            int[] newSamples = new int[requiredWidth];
-            int newMax = 0;
-            for (int i = 0; i < requiredWidth; i++) {
-                final int offset = (int) Math.floor(samples.length / (double) requiredWidth * i);
-                newSamples[i] = samples[Math.min(samples.length - 1, offset)];
+            int[] newSamples = new int[totalSamples];
+            int newMax = 0, j, sampleIndex;
+            double acc, first, last, numberOfSamples, samplePercentage;
+
+            for (int i = 0; i < totalSamples; i++) {
+                first = samplesPerWidth * i;
+                last = samplesPerWidth * (i + 1);
+
+                sampleIndex = (int) first;
+                samplePercentage = (1 - (first - sampleIndex));
+                numberOfSamples = samplePercentage;
+
+                // Add partial start
+                acc = samples[sampleIndex] * samplePercentage;
+
+                // Add full values
+                for (j = sampleIndex + 1; j < (int) last && j < samples.length; j++) {
+                    acc += samples[j];
+                    numberOfSamples++;
+                }
+
+                // add partial end
+                if (last < samples.length) {
+                    sampleIndex = (int) last;
+                    samplePercentage = last - sampleIndex;
+                    acc += samples[sampleIndex] * samplePercentage;
+                    numberOfSamples += samplePercentage;
+                }
+
+                // set average value
+                newSamples[i] = (int) Math.round(acc / numberOfSamples);
+
                 if (newSamples[i] > newMax) {
                     newMax = newSamples[i];
                 }
