@@ -2,13 +2,10 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.StationProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 
-public final class ApiStationInfo implements PropertySetSource {
+public final class ApiStationInfo {
 
     private final Urn urn;
     private final String title;
@@ -51,18 +48,6 @@ public final class ApiStationInfo implements PropertySetSource {
 
     public ApiTrack getSeedTrack() {
         return seedTrack;
-    }
-
-    @Override
-    public PropertySet toPropertySet() {
-        return PropertySet.from(
-                StationProperty.URN.bind(urn),
-                StationProperty.TITLE.bind(title),
-                StationProperty.TYPE.bind(type),
-                StationProperty.SEED_TRACK_ID.bind(seedTrack.getId()),
-                // TODO : update this when implementing play queue logic
-                StationProperty.LAST_PLAYED_TRACK_POSITION.bind(0)
-        );
     }
 
     @Override

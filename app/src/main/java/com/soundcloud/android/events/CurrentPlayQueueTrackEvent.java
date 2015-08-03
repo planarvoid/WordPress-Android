@@ -29,7 +29,7 @@ public final class CurrentPlayQueueTrackEvent {
     public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn, Urn collectionUrn, PropertySet metaData, int position) {
         return new CurrentPlayQueueTrackEvent(NEW_QUEUE, trackUrn, collectionUrn, metaData, position);
     }
-
+    
     public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn, Urn collectionUrn, int position) {
             return fromPositionChanged(trackUrn, collectionUrn, PropertySet.create(), position);
     }
@@ -47,6 +47,10 @@ public final class CurrentPlayQueueTrackEvent {
     }
 
     public Urn getCollectionUrn() { return collectionUrn; }
+
+    public int getPosition() {
+        return position;
+    }
 
     public PropertySet getCurrentMetaData() {
         return currentMetaData;

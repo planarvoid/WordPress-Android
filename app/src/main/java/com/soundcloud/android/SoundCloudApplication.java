@@ -34,6 +34,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
+import com.soundcloud.android.stations.StationsController;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -98,6 +99,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
     @Inject CastSessionController castSessionController;
+    @Inject StationsController stationsController;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -167,6 +169,10 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
             castSessionController.startListening();
+        }
+
+        if (featureFlags.isEnabled(Flag.STATIONS)) {
+            stationsController.subscribe();
         }
 
         configurationFeatureController.subscribe();

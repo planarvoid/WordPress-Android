@@ -33,7 +33,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String LEGACY_TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + SOUNDS_TYPE + NUMERIC_ID_PATTERN;
     private static final String PLAYLIST_PATTERN = SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String TRACK_STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACK_STATION_TYPE + NUMERIC_ID_PATTERN;
+    private static final String STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + "[\\w-]+-stations:.*";
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -55,7 +55,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
                 || urnString.matches(LEGACY_TRACK_PATTERN)
                 || urnString.matches(PLAYLIST_PATTERN)
                 || urnString.matches(USER_PATTERN)
-                || urnString.matches(TRACK_STATION_PATTERN);
+                || urnString.matches(STATION_PATTERN);
     }
 
     @NotNull
@@ -104,6 +104,10 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     public boolean isUser() {
         return content.matches(USER_PATTERN);
+    }
+
+    public boolean isStation() {
+        return content.matches(STATION_PATTERN);
     }
 
     public long getNumericId() {

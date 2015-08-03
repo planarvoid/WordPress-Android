@@ -12,7 +12,6 @@ import java.util.Collections;
 
 public class StoreStationCommandTest extends StorageIntegrationTest {
     private StationRecord station;
-
     private StoreStationCommand command;
 
     @Before
@@ -37,5 +36,4 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
 
         databaseAssertions().assertStationInserted(station);
     }
-
 }

@@ -42,7 +42,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
         storage.station(apiStation.getInfo().getUrn()).subscribe(subscriber);
 
-        final Station station = new Station(apiStation.getInfo().toPropertySet(), transform(apiStation.getTracks().getCollection(), toUrn));
+        final Station station = new Station(apiStation.getInfo().getUrn(), apiStation.getInfo().getTitle(), transform(apiStation.getTracks().getCollection(), toUrn), 0);
         subscriber.assertReceivedOnNext(Collections.singletonList(station));
     }
 
