@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.upsell;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -37,7 +38,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
                 .open()
                 .clickUpsell();
 
-        assertThat(upgradeScreen.isVisible(), is(true));
+        assertThat(upgradeScreen, is(visible()));
 
         verifier.assertScenario(NAV_UPSELL_TEST_SCENARIO);
     }
@@ -50,7 +51,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
                 .clickOfflineSettings()
                 .clickSubscribe();
 
-        assertThat(upgradeScreen.isVisible(), is(true));
+        assertThat(upgradeScreen, is(visible()));
 
         verifier.assertScenario(SETTINGS_UPSELL_TEST_SCENARIO);
     }

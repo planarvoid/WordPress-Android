@@ -26,7 +26,6 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         super.setUp();
     }
 
-
     @Override
     protected void logInHelper() {
         TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
