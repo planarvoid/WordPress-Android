@@ -202,7 +202,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
 
         final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
+        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.NO_OFFLINE);
     }
@@ -212,7 +212,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
         final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
+        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.REQUESTED);
     }
@@ -222,7 +222,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
+        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.DOWNLOADED);
     }
