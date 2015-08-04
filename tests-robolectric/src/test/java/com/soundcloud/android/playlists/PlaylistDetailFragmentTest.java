@@ -319,7 +319,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() {
-        when(playQueueManager.getCollectionUrn()).thenReturn(playlistWithTracks.getUrn());
+        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         View layout = createFragmentView();
 
         View usernameView = layout.findViewById(R.id.username);
@@ -471,7 +471,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackMetaChanges() {
-        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.forPlaylist(123));
+        when(playQueueManager.isCurrentCollection(Urn.forPlaylist(123))).thenReturn(true);
         View layout = createFragmentView();
         fragment.onStart();
 
