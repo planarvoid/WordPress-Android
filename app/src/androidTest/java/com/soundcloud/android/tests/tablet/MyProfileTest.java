@@ -6,7 +6,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.TabletTest;
+import com.soundcloud.android.framework.annotation.TabletTest;
 
 @TabletTest
 public class MyProfileTest extends ActivityTest<MainActivity> {

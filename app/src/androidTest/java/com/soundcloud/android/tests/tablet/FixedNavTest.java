@@ -9,7 +9,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.TabletTest;
+import com.soundcloud.android.framework.annotation.TabletTest;
 
 @TabletTest
 public class FixedNavTest extends ActivityTest<MainActivity> {

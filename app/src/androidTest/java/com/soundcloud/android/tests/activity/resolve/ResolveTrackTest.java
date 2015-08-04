@@ -9,10 +9,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.HomeScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.AvailabilityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;

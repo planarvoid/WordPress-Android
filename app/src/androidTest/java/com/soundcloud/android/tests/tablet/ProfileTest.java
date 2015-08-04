@@ -10,7 +10,7 @@ import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.MyProfileScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.TabletTest;
+import com.soundcloud.android.framework.annotation.TabletTest;
 
 import android.support.v4.view.ViewPager;
 import android.widget.ListView;

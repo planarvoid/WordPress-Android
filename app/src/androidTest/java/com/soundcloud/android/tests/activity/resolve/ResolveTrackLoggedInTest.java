@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.AvailabilityTest;
+import com.soundcloud.android.framework.annotation.AvailabilityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;

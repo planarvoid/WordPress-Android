@@ -12,8 +12,8 @@ import com.soundcloud.android.creators.record.jni.VorbisEncoder;
 import com.soundcloud.android.creators.record.jni.VorbisInfo;
 import com.soundcloud.android.creators.upload.UserCanceledException;
 import com.soundcloud.android.tests.AudioTest;
-import com.soundcloud.android.tests.NonUiTest;
-import com.soundcloud.android.tests.SlowTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
+import com.soundcloud.android.framework.annotation.SlowTest;
 import com.soundcloud.android.utils.IOUtils;
 import junit.framework.AssertionFailedError;
 

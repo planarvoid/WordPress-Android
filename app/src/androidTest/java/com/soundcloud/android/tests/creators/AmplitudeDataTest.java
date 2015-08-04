@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests.creators;
 
 import com.soundcloud.android.creators.record.AmplitudeData;
-import com.soundcloud.android.tests.NonUiTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTest;
 
 import java.io.File;

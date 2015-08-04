@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.framework.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
