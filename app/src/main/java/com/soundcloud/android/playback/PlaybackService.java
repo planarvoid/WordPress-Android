@@ -15,7 +15,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +29,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
