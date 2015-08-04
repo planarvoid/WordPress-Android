@@ -196,7 +196,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class OfflineLikesSettingSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState offlineState) {
-            if (OfflineState.NO_OFFLINE.equals(offlineState)) {
+            if (OfflineState.NO_OFFLINE == offlineState) {
                 downloadSubscription.unsubscribe();
             } else {
                 subscribeToCurrentDownloadQueue();
@@ -206,7 +206,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     }
 
-    private void updateHeaderViewWithOfflineState(OfflineState state){
+    private void updateHeaderViewWithOfflineState(OfflineState state) {
         if (featureOperations.isOfflineContentEnabled()) {
             headerView.show(state);
         }
