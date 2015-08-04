@@ -23,7 +23,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -242,7 +242,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUpsellEvent() {
-        UpsellTrackingEvent event = UpsellTrackingEvent.forNavClick();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forNavClick();
         when(dataBuilder.build(event)).thenReturn("ForUpsellEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

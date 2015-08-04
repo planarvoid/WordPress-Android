@@ -18,7 +18,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -331,16 +331,19 @@ public class EventLoggerJsonDataBuilder {
                 .connectionType(event.getConnectionType().getValue());
     }
 
-    public String build(UpsellTrackingEvent event) {
+    public String build(UpgradeTrackingEvent event) {
         switch (event.getKind()) {
-            case UpsellTrackingEvent.KIND_CLICK:
+            case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
                         .clickName("clickthrough::consumer_sub_ad")
-                        .clickObject(event.get(UpsellTrackingEvent.KEY_TCODE)));
-            case UpsellTrackingEvent.KIND_IMPRESSION:
+                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
+            case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_ad")
-                        .impressionObject(event.get(UpsellTrackingEvent.KEY_TCODE)));
+                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
+            case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_upgrade_success"));
             default:
                 throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
         }
