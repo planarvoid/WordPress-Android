@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,12 +10,11 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import rx.exceptions.OnErrorFailedException;
 
 import android.content.SyncResult;
@@ -23,8 +22,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ErrorUtilsTest {
+public class ErrorUtilsTest extends AndroidUnitTest {
 
     @Test
     public void handleThrowableShouldNotRethrowCheckedExceptions() {
@@ -33,7 +31,7 @@ public class ErrorUtilsTest {
         } catch (Throwable t) {
             fail("Checked exception was raised, but shouldn't be");
         }
-        // pass
+        // Pass
     }
 
     @Test
@@ -52,7 +50,7 @@ public class ErrorUtilsTest {
     public void shouldBeCausedByOOMWhenThrowableIsAnOOM() {
         Throwable e = new OutOfMemoryError();
 
-        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeTrue();
+        assertThat(ErrorUtils.isCausedByOutOfMemory(e)).isTrue();
     }
 
     @Test
@@ -62,7 +60,7 @@ public class ErrorUtilsTest {
         e.initCause(e1);
         e1.initCause(new OutOfMemoryError());
 
-        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeTrue();
+        assertThat(ErrorUtils.isCausedByOutOfMemory(e)).isTrue();
     }
 
     @Test
@@ -72,14 +70,14 @@ public class ErrorUtilsTest {
         oom.initCause(new RuntimeException("wrapping an OOM"));
         e.initCause(oom);
 
-        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeTrue();
+        assertThat(ErrorUtils.isCausedByOutOfMemory(e)).isTrue();
     }
 
     @Test
     public void shouldNotBeCausedByOOMIfThrowableIsNotAnOOM() {
         Exception e = new Exception();
 
-        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeFalse();
+        assertThat(ErrorUtils.isCausedByOutOfMemory(e)).isFalse();
     }
 
     @Test
@@ -87,15 +85,15 @@ public class ErrorUtilsTest {
         Exception e = new Exception();
         e.initCause(new Exception());
 
-        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeFalse();
+        assertThat(ErrorUtils.isCausedByOutOfMemory(e)).isFalse();
     }
 
     @Test
     public void shouldExtractRootCauseFromCausalChain() {
         Exception rootCause = new Exception();
-        expect(ErrorUtils.findRootCause(null)).toBeNull();
-        expect(ErrorUtils.findRootCause(rootCause)).toBe(rootCause);
-        expect(ErrorUtils.findRootCause(new Exception(new Exception(rootCause)))).toBe(rootCause);
+        assertThat(ErrorUtils.findRootCause(null)).isNull();
+        assertThat(ErrorUtils.findRootCause(rootCause)).isSameAs(rootCause);
+        assertThat(ErrorUtils.findRootCause(new Exception(new Exception(rootCause)))).isSameAs(rootCause);
     }
 
     @Test
@@ -106,7 +104,7 @@ public class ErrorUtilsTest {
         ErrorUtils.setupUncaughtExceptionHandler(mock(MemoryReporter.class));
 
         Thread.UncaughtExceptionHandler decoratedHandler = Thread.getDefaultUncaughtExceptionHandler();
-        expect(proxiedHandler).not.toBe(decoratedHandler);
+        assertThat(proxiedHandler).isNotSameAs(decoratedHandler);
 
         // this is the causal chain we see when a worker thread crashes with an exception
         final Exception rootCause = new Exception("root cause");
@@ -119,14 +117,14 @@ public class ErrorUtilsTest {
     public void shouldExcludeApiNetworkErrors() {
         final ApiRequestException apiRequestException = ApiRequestException.networkError(null, new IOException());
 
-        expect(ErrorUtils.includeInReports(apiRequestException)).toBeFalse();
+        assertThat(ErrorUtils.includeInReports(apiRequestException)).isFalse();
     }
 
     @Test
     public void shouldIncludeMappingErrors() {
         final ApiRequestException apiRequestException = ApiRequestException.malformedInput(null, new ApiMapperException("foo"));
 
-        expect(ErrorUtils.includeInReports(apiRequestException)).toBeTrue();
+        assertThat(ErrorUtils.includeInReports(apiRequestException)).isTrue();
     }
 
     @Test
@@ -134,58 +132,58 @@ public class ErrorUtilsTest {
         final Bundle syncResultBundle = new Bundle();
         syncResultBundle.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, new SyncResult());
 
-        expect(ErrorUtils.includeInReports(new SyncFailedException(syncResultBundle))).toBeFalse();
+        assertThat(ErrorUtils.includeInReports(new SyncFailedException(syncResultBundle))).isFalse();
     }
 
     @Test
     public void shouldExcludeIOExceptions() {
-        expect(ErrorUtils.includeInReports(new IOException())).toBeFalse();
+        assertThat(ErrorUtils.includeInReports(new IOException())).isFalse();
     }
 
     @Test
     public void shouldIncludeJsonProcessingExceptions() {
-        expect(ErrorUtils.includeInReports(new JsonParseException(null, null))).toBeTrue();
+        assertThat(ErrorUtils.includeInReports(new JsonParseException(null, null))).isTrue();
     }
 
     @Test
     public void shouldIncludeOtherExceptions() {
-        expect(ErrorUtils.includeInReports(new IllegalStateException("foo"))).toBeTrue();
+        assertThat(ErrorUtils.includeInReports(new IllegalStateException("foo"))).isTrue();
     }
 
     @Test
     public void emptyViewStatusFromApiNetworkError() {
         ApiRequestException exception = ApiRequestException.networkError(mock(ApiRequest.class), new IOException());
-        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.CONNECTION_ERROR);
+        assertThat(ErrorUtils.emptyViewStatusFromError(exception)).isEqualTo(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test
     public void emptyViewStatusFromApiServerError() {
         ApiRequestException exception = ApiRequestException.serverError(mock(ApiRequest.class), null);
-        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.SERVER_ERROR);
+        assertThat(ErrorUtils.emptyViewStatusFromError(exception)).isEqualTo(EmptyView.Status.SERVER_ERROR);
     }
 
     @Test
     public void emptyViewStatusFromSyncError() {
         SyncFailedException exception = new SyncFailedException(new Bundle());
-        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.CONNECTION_ERROR);
+        assertThat(ErrorUtils.emptyViewStatusFromError(exception)).isEqualTo(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test
     public void emptyViewStatusFromGenericError() {
         Exception exception = new Exception();
-        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.ERROR);
+        assertThat(ErrorUtils.emptyViewStatusFromError(exception)).isEqualTo(EmptyView.Status.ERROR);
     }
 
     @Test
     public void removeTokenRetrievalExceptionIfAny() {
         final Exception exception = new Exception();
-        expect(ErrorUtils.removeTokenRetrievalException(new TokenRetrievalException(exception))).toBe(exception);
+        assertThat(ErrorUtils.removeTokenRetrievalException(new TokenRetrievalException(exception))).isSameAs(exception);
     }
 
     @Test
     public void removeTokenRetrievalExceptionIsNoOpWhenWrappedWithATokenRetrievalException() {
         final Exception exception = new Exception();
-        expect(ErrorUtils.removeTokenRetrievalException(exception)).toBe(exception);
+        assertThat(ErrorUtils.removeTokenRetrievalException(exception)).isSameAs(exception);
     }
 
 }
