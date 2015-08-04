@@ -10,7 +10,7 @@ import android.content.res.Resources;
 
 import javax.inject.Inject;
 
-class OfflineTrackDataLoader {
+class OfflineTrackAssetDownloader {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -18,7 +18,7 @@ class OfflineTrackDataLoader {
     private final WaveformStorage waveformStorage;
 
     @Inject
-    public OfflineTrackDataLoader(ImageOperations imageOperations, Resources resources, WaveformFetchCommand waveformFetchCommand, WaveformStorage waveformStorage) {
+    public OfflineTrackAssetDownloader(ImageOperations imageOperations, Resources resources, WaveformFetchCommand waveformFetchCommand, WaveformStorage waveformStorage) {
         this.waveformFetchCommand = waveformFetchCommand;
         this.waveformStorage = waveformStorage;
         this.imageOperations = imageOperations;

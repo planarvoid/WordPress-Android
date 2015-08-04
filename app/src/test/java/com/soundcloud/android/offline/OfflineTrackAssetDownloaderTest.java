@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class OfflineTrackDataLoaderTest extends AndroidUnitTest {
+public class OfflineTrackAssetDownloaderTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
     @Mock WaveformFetchCommand waveformFetchCommand;
@@ -26,11 +26,11 @@ public class OfflineTrackDataLoaderTest extends AndroidUnitTest {
     private final Urn track = Urn.forTrack(123L);
     private final String waveformUrl = "http://wav";
 
-    private OfflineTrackDataLoader loader;
+    private OfflineTrackAssetDownloader loader;
 
     @Before
     public void setUp() {
-        loader = new OfflineTrackDataLoader(imageOperations, resources(), waveformFetchCommand, waveformStorage);
+        loader = new OfflineTrackAssetDownloader(imageOperations, resources(), waveformFetchCommand, waveformStorage);
     }
 
     @Test
