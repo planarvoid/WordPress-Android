@@ -1,17 +1,7 @@
 --- !ruby/object:MrLoggerLogger::ResultSpec
 whitelisted_events:
 - audio
-- pageview
 expected_events:
-- !ruby/object:MrLoggerLogger::Event
-  name: pageview
-  params:
-    client_id: '3152'
-    anonymous_id: (\w|-)+
-    ts: '[0-9]+'
-    page_name: drawer
-    user: soundcloud:users:107904111
-  version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:

@@ -9,7 +9,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
-import com.soundcloud.android.tests.AdsTest;
+import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.player.ads.AdBaseTest;
 
@@ -38,6 +38,8 @@ public class WhyAdsUpsellTest extends AdBaseTest {
     }
 
     public void ignore_testWhyAdsUpsellImpressionAndClick() {
+        startEventTracking(WHY_ADS_UPSELL_TEST_SCENARIO);
+
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
         assertThat(dialog, is(visible()));
@@ -45,7 +47,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         UpgradeScreen upgradeScreen = dialog.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(WHY_ADS_UPSELL_TEST_SCENARIO);
+        finishEventTracking();
     }
 
 }

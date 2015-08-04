@@ -7,10 +7,13 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+@EventTrackingTest
 public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     private static final String TEST_SCENARIO = "player-test";
 
@@ -23,12 +26,15 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void diabled_testPlayAndPauseTrackFromStream() {
+    public void testPlayAndPauseTrackFromStream() {
+        final StreamScreen streamScreen = menuScreen
+                .open()
+                .clickStream();
+
+        startEventTracking(TEST_SCENARIO);
+
         final VisualPlayerElement playerElement =
-                menuScreen
-                        .open()
-                        .clickStream()
-                        .clickTrack(1);
+                streamScreen.clickFirstNotPromotedTrack();
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
@@ -37,7 +43,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(playerElement, is(not(playing())));
 
-        verifier.assertScenario(TEST_SCENARIO);
+        finishEventTracking();
     }
 
 }

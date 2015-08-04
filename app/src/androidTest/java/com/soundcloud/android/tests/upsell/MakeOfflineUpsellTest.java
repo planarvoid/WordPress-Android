@@ -5,12 +5,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 
+@EventTrackingTest
 public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
     private static final String LIKES_UPSELL_TEST_SCENARIO = "likes-upsell-tracking-test";
@@ -34,6 +36,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testLikesUpsellImpressionAndClick() {
+        startEventTracking(LIKES_UPSELL_TEST_SCENARIO);
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickLikes()
                 .clickHeaderOverflowButton()
@@ -41,10 +44,11 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(LIKES_UPSELL_TEST_SCENARIO);
+        finishEventTracking();
     }
 
     public void ignore_testPlaylistItemUpsellImpressionAndClick() {
+        startEventTracking(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .getPlaylistAtPosition(0)
@@ -53,10 +57,11 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
+        finishEventTracking();
     }
 
     public void ignore_testPlaylistPageImpressionAndClick() {
+        startEventTracking(PLAYLIST_PAGE_UPSELL_TEST_SCENARIO);
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .clickPlaylistAt(0)
@@ -65,6 +70,6 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(PLAYLIST_PAGE_UPSELL_TEST_SCENARIO);
+        finishEventTracking();
     }
 }

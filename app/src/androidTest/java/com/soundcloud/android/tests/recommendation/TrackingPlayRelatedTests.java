@@ -1,11 +1,13 @@
 package com.soundcloud.android.tests.recommendation;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+@EventTrackingTest
 public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity> {
 
     public static final String PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL = "play_related_from_playlist";
@@ -25,7 +27,9 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         super.setUp();
     }
 
-    public void ignore_testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
+    public void ingore_testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
+        startEventTracking(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
+
         final VisualPlayerElement player = menuScreen
                 .open()
                 .clickPlaylists()
@@ -37,7 +41,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         player.swipePrevious();
         player.waitForTheExpandedPlayerToPlayNextTrack();
 
-        verifier.assertScenario(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
+        finishEventTracking();
     }
 
 }
