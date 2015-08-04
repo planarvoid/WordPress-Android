@@ -266,7 +266,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPauseState() {
-        when(playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         View layout = createFragmentView();
 
         getToggleButton(layout).performClick();
@@ -288,7 +288,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() {
-        when(playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -300,7 +300,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() {
-        when(playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())).thenReturn(false);
+        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -319,7 +319,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() {
-        when(playQueueManager.getPlaylistUrn()).thenReturn(playlistWithTracks.getUrn());
+        when(playQueueManager.getCollectionUrn()).thenReturn(playlistWithTracks.getUrn());
         View layout = createFragmentView();
 
         View usernameView = layout.findViewById(R.id.username);
@@ -457,7 +457,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() {
-        when(playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -471,7 +471,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackMetaChanges() {
-        when(playQueueManager.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123));
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.forPlaylist(123));
         View layout = createFragmentView();
         fragment.onStart();
 

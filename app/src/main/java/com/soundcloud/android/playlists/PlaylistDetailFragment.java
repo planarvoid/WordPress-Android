@@ -111,7 +111,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 playToggle.setChecked(false);
             }
 
-            if (playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())) {
+            if (playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())) {
                 playbackOperations.togglePlayback();
             } else {
                 playFromBeginning();
@@ -129,7 +129,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final DefaultSubscriber<Playa.StateTransition> playstateTransitionSubscriber = new DefaultSubscriber<Playa.StateTransition>() {
         @Override
         public void onNext(Playa.StateTransition event) {
-            playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn())
+            playToggle.setChecked(playQueueManager.isCurrentCollection(getPlaylistUrn())
                     && event.playSessionIsActive());
         }
     };

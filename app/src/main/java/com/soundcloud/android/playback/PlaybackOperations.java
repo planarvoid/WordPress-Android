@@ -282,15 +282,8 @@ public class PlaybackOperations {
     }
 
     private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
-        return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) || isPlaylist() && !isCurrentPlaylist(playSessionSource);
-    }
-
-    private boolean isCurrentPlaylist(PlaySessionSource playSessionSource) {
-        return playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistUrn());
-    }
-
-    private boolean isPlaylist() {
-        return playQueueManager.isPlaylist();
+        return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) ||
+                !playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn());
     }
 
     private boolean isCurrentScreenSource(PlaySessionSource playSessionSource) {

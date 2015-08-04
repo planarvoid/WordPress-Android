@@ -828,12 +828,12 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clearAllClearsPlaylistId() {
+    public void clearAllClearsCollectionUrn() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playSessionSource), playSessionSource);
-        assertThat(playQueueManager.getPlaylistUrn()).isNotEqualTo(Urn.NOT_SET);
+        assertThat(playQueueManager.isCurrentCollection(Urn.NOT_SET)).isFalse();
         playQueueManager.clearAll();
-        assertThat(playQueueManager.getPlaylistUrn()).isEqualTo(Urn.NOT_SET);
+        assertThat(playQueueManager.isCurrentCollection(Urn.NOT_SET)).isTrue();
     }
 
     @Test
@@ -848,16 +848,17 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isTrue();
+        assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
     }
 
     @Test
     public void isCurrentPlaylistReturnsFalseIfPlaylistUrnMatchesAndCurrentTrackHasAlternateSource() {
+        when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.getTrackSource(0)).thenReturn("recommender");
         playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isFalse();
+        assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isFalse();
     }
 
     @Test
@@ -865,7 +866,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        assertThat(playQueueManager.isCurrentPlaylist(PLAYLIST_URN)).isTrue();
+        assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
     }
 
     @Test
@@ -873,7 +874,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playSessionSource.setPlaylist(PLAYLIST_URN, USER_URN);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        assertThat(playQueueManager.isPlaylist()).isTrue();
+        assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
     }
 
     @Test

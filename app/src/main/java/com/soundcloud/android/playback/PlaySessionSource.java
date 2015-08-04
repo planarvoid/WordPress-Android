@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -27,11 +26,15 @@ public class PlaySessionSource implements Parcelable {
             return new PlaySessionSource[size];
         }
     };
-    static final String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
-    static final String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
+    static final String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; // legacy name
+
+    static final String PREF_KEY_COLLECTION_URN = "collection_urn";
+    static final String PREF_KEY_COLLECTION_OWNER_URN = "collection_owner_urn";
+
     private final String originScreen;
-    private Urn playlistUrn = Urn.NOT_SET;
-    private Urn playlistOwnerUrn = Urn.NOT_SET;
+    private Urn collectionUrn = Urn.NOT_SET;
+    private Urn collectionOwnerUrn = Urn.NOT_SET;
+
     private String exploreVersion;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
@@ -39,15 +42,25 @@ public class PlaySessionSource implements Parcelable {
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();
-        playlistUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
-        playlistOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        collectionUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        collectionOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         searchQuerySourceInfo = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
         promotedSourceInfo = in.readParcelable(PromotedSourceInfo.class.getClassLoader());
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
         originScreen = sharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
-        playlistUrn = Urn.forPlaylist(sharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, Consts.NOT_SET));
+        collectionUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_URN);
+        collectionOwnerUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_OWNER_URN);
+    }
+
+    private Urn readUrn(SharedPreferences sharedPreferences, String key) {
+        final String value = sharedPreferences.getString(key, ScTextUtils.EMPTY_STRING);
+        if (value.isEmpty()) {
+            return Urn.NOT_SET;
+        } else {
+            return new Urn(value);
+        }
     }
 
     private PlaySessionSource() {
@@ -66,17 +79,17 @@ public class PlaySessionSource implements Parcelable {
         return originScreen;
     }
 
-    public Urn getPlaylistUrn() {
-        return playlistUrn;
+    public Urn getCollectionUrn() {
+        return collectionUrn;
     }
 
-    public Urn getPlaylistOwnerUrn() {
-        return playlistOwnerUrn;
+    public Urn getCollectionOwnerUrn() {
+        return collectionOwnerUrn;
     }
 
     public void setPlaylist(Urn playlist, Urn playlistOwner) {
-        this.playlistUrn = playlist;
-        this.playlistOwnerUrn = playlistOwner;
+        this.collectionUrn = playlist;
+        this.collectionOwnerUrn = playlistOwner;
     }
 
     public void setExploreVersion(String exploreVersion) {
@@ -93,10 +106,6 @@ public class PlaySessionSource implements Parcelable {
 
     public String getInitialSourceVersion() {
         return ScTextUtils.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
-    }
-
-    public boolean isFromPlaylist() {
-        return playlistUrn != Urn.NOT_SET;
     }
 
     public boolean isFromQuery() {
@@ -116,20 +125,22 @@ public class PlaySessionSource implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(originScreen);
         dest.writeString(exploreVersion);
-        dest.writeParcelable(playlistUrn, 0);
-        dest.writeParcelable(playlistOwnerUrn, 0);
+        dest.writeParcelable(collectionUrn, 0);
+        dest.writeParcelable(collectionOwnerUrn, 0);
         dest.writeParcelable(searchQuerySourceInfo, 0);
         dest.writeParcelable(promotedSourceInfo, 0);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
         editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, originScreen);
-        editor.putLong(PREF_KEY_PLAYLIST_ID, playlistUrn.getNumericId());
+        editor.putString(PREF_KEY_COLLECTION_URN, collectionUrn.toString());
+        editor.putString(PREF_KEY_COLLECTION_OWNER_URN, collectionOwnerUrn.toString());
     }
 
     public static void clearPreferenceKeys(SharedPreferences.Editor editor) {
         editor.remove(PREF_KEY_ORIGIN_SCREEN_TAG);
-        editor.remove(PREF_KEY_PLAYLIST_ID);
+        editor.remove(PREF_KEY_COLLECTION_URN);
+        editor.remove(PREF_KEY_COLLECTION_OWNER_URN);
     }
 
     @Override
@@ -143,15 +154,15 @@ public class PlaySessionSource implements Parcelable {
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        return MoreObjects.equal(playlistUrn, that.playlistUrn)
-                && MoreObjects.equal(playlistOwnerUrn, that.playlistOwnerUrn)
+        return MoreObjects.equal(collectionUrn, that.collectionUrn)
+                && MoreObjects.equal(collectionOwnerUrn, that.collectionOwnerUrn)
                 && MoreObjects.equal(exploreVersion, that.exploreVersion)
                 && MoreObjects.equal(originScreen, that.originScreen);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
+        return MoreObjects.hashCode(collectionUrn, collectionOwnerUrn, exploreVersion, originScreen);
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {

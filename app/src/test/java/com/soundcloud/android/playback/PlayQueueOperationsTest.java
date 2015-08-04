@@ -70,7 +70,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
-        when(sharedPreferences.getLong(eq(PlaySessionSource.PREF_KEY_PLAYLIST_ID), anyLong())).thenReturn(123L);
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN), anyString())).thenReturn(Urn.forPlaylist(123L).toString());
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(Urn.forUser(123L).toString());
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
@@ -82,7 +83,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void shouldReturnLastPlaySessionSourceFromPreferences() throws Exception {
         PlaySessionSource playSessionSource = playQueueOperations.getLastStoredPlaySessionSource();
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
-        assertThat(playSessionSource.getPlaylistUrn()).isEqualTo(Urn.forPlaylist(PLAYLIST_ID));
+        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.forPlaylist(PLAYLIST_ID));
 
     }
 
@@ -128,7 +129,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 456L);
         verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 8);
         verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG, ORIGIN_PAGE);
-        verify(sharedPreferencesEditor).putLong(PlaySessionSource.PREF_KEY_PLAYLIST_ID, playlist.getId());
+        verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_COLLECTION_URN, playlist.getUrn().toString());
     }
 
     @Test
@@ -147,7 +148,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SEEK_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.TRACK_ID.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
-        verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_PLAYLIST_ID);
+        verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG);
         verify(playQueueStorage).clearAsync();
     }

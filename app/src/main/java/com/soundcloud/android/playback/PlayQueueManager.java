@@ -15,10 +15,10 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -293,8 +293,9 @@ public class PlayQueueManager implements OriginProvider {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
         }
 
-        if (playSessionSource.isFromPlaylist()) {
-            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistUrn(), getCurrentPosition(), playSessionSource.getPlaylistOwnerUrn());
+        final Urn collectionUrn = playSessionSource.getCollectionUrn();
+        if (collectionUrn.isPlaylist()) {
+            trackSourceInfo.setOriginPlaylist(collectionUrn, getCurrentPosition(), playSessionSource.getCollectionOwnerUrn());
         }
         return trackSourceInfo;
     }
@@ -311,16 +312,12 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getSourceVersion(currentPosition);
     }
 
-    public Urn getPlaylistUrn() {
-        return playSessionSource.getPlaylistUrn();
+    private Urn getCollectionUrn() {
+        return playSessionSource.getCollectionUrn();
     }
 
-    public boolean isPlaylist() {
-        return getPlaylistUrn() != Urn.NOT_SET;
-    }
-
-    public boolean isCurrentPlaylist(Urn playlistUrn) {
-        return getPlaylistUrn().equals(playlistUrn) && ScTextUtils.isBlank(getCurrentTrackSource());
+    public boolean isCurrentCollection(Urn collection) {
+        return getCollectionUrn().equals(collection) && (playQueue.isEmpty() || Strings.isBlank(getCurrentTrackSource()));
     }
 
     @Override

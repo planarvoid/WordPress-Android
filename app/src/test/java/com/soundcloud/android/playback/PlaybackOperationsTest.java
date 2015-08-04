@@ -208,8 +208,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
-        when(playQueueManager.isPlaylist()).thenReturn(true);
-        when(playQueueManager.getPlaylistUrn()).thenReturn(Urn.forPlaylist(1234)); // different Playlist Id
+        when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
         when(playbackStrategy.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_MUSIC.get());
@@ -225,12 +224,12 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSource()  {
+    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndSameCollectionUrn()  {
         final String screen = "origin_screen";
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         when(playQueueManager.getScreenTag()).thenReturn(screen);
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        when(playQueueManager.isPlaylist()).thenReturn(false);
+        when(playQueueManager.isCurrentCollection(Urn.NOT_SET)).thenReturn(true);
 
         playbackOperations
                 .playTracks(Observable.just(TRACK1).toList(), TRACK1, 1, playSessionSource)
@@ -241,17 +240,16 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndCurrentPlaylist()  {
+    public void playTracksNoOpsWhenItIsPQMCurrentTraokAndCurrentScreenSourceAndCurrentPlaylist()  {
         final Urn playlistUrn = Urn.forPlaylist(456L);
         final Urn playlistOwnerUrn = Urn.forUser(789L);
         final String screen = "origin_screen";
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setPlaylist(playlistUrn, playlistOwnerUrn);
         when(playQueueManager.getScreenTag()).thenReturn(screen);
-        when(playQueueManager.getPlaylistUrn()).thenReturn(playlistUrn);
-        when(playQueueManager.isPlaylist()).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(playlistUrn)).thenReturn(true);
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        when(playQueueManager.isCurrentPlaylist(playlistUrn)).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(playlistUrn)).thenReturn(true);
 
         playbackOperations
                 .playTracks(Observable.just(TRACK1).toList(), TRACK1, 1, playSessionSource)

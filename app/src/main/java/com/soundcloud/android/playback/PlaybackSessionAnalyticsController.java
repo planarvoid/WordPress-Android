@@ -123,7 +123,7 @@ class PlaybackSessionAnalyticsController {
                 if (source.isFromPromotedItem()) {
                     PromotedSourceInfo promotedSourceInfo = source.getPromotedSourceInfo();
                     lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
-                    if (!source.isFromPlaylist()) {
+                    if (!source.getCollectionUrn().isPlaylist()) {
                         // promoted tracks & ads are a one-time deal but we need to preserve promoted playlists
                         // since they may contain more than one track and we need to report plays as promoted
                         // for all tracks in these playlists
