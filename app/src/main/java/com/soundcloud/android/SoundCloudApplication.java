@@ -41,6 +41,7 @@ import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
@@ -189,6 +190,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
             Fabric.with(this, new Crashlytics());
+            ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
         }
     }
 
