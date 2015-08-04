@@ -105,7 +105,8 @@ public class ApiRequest {
 
     public enum Param {
         PAGE_SIZE("limit"),
-        OAUTH_TOKEN("oauth_token");
+        OAUTH_TOKEN("oauth_token"),
+        LOCALE("locale");
 
         private final String parameter;
 

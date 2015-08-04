@@ -172,4 +172,5 @@ public class ApiRequestTest extends AndroidUnitTest {
     private ApiRequest.Builder validRequest(String uri) {
         return ApiRequest.get(uri).forPrivateApi(1);
     }
+
 }
