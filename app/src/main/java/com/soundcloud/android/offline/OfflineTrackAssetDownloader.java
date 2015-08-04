@@ -40,6 +40,7 @@ class OfflineTrackAssetDownloader {
             try {
                 waveformStorage.store(trackUrn, waveformFetchCommand.call(waveformUrl));
             } catch (WaveformFetchCommand.WaveformFetchException ignored) {
+                Log.e(OfflineContentService.TAG, "Failed to fetch waveform!", ignored);
                 // default waveform will be displayed
             }
         }
