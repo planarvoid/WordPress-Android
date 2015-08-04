@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 import android.support.v4.util.ArrayMap;
+import android.util.Log;
 import android.util.Pair;
 
 import javax.inject.Inject;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MyPlaylistsSyncer implements SyncStrategy {
+
+    private static final String TAG = "MyPlaylistsSyncer";
 
     private final PostsSyncer postsSyncer;
     private final LoadLocalPlaylistsCommand loadLocalPlaylists;
@@ -53,7 +56,9 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     }
 
     private void pushLocalPlaylists() throws Exception {
-        for (PropertySet localPlaylist : loadLocalPlaylists.call()) {
+        final List<PropertySet> localPlaylists = loadLocalPlaylists.call();
+        Log.d(TAG, "Local Playlist count : " + localPlaylists.size());
+        for (PropertySet localPlaylist : localPlaylists) {
             final Urn playlistUrn = localPlaylist.get(PlaylistProperty.URN);
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
@@ -63,6 +68,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
                     .build();
 
             final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
+            Log.i("asdf","Synced local playlist " + newPlaylist);
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
         }
     }

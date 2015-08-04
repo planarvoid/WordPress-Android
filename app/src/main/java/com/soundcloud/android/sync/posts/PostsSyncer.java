@@ -6,6 +6,9 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableSet;
@@ -14,6 +17,8 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 public class PostsSyncer<ApiModel> implements Callable<Boolean> {
+
+    private static final String TAG = "PostsSyncer";
 
     private final LoadLocalPostsCommand loadLocalPosts;
     private final FetchPostsCommand fetchRemotePosts;
@@ -38,22 +43,26 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        final Set<PropertySet> localPlaylists = new TreeSet<>(PostProperty.COMPARATOR);
-        localPlaylists.addAll(loadLocalPosts.call());
+        final Set<PropertySet> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
+        localPosts.addAll(loadLocalPosts.call());
 
-        final NavigableSet<PropertySet> remotePlaylists = fetchRemotePosts.call();
+        final NavigableSet<PropertySet> remotePosts = fetchRemotePosts.call();
 
-        final Set<PropertySet> additions = getSetDifference(remotePlaylists, localPlaylists);
-        final Set<PropertySet> removals = getSetDifference(localPlaylists, remotePlaylists);
+        Log.d(TAG, "Syncing Posts : Local Count = " + localPosts.size() + " , Remote Count = " + remotePosts.size());
+
+        final Set<PropertySet> additions = getSetDifference(remotePosts, localPosts);
+        final Set<PropertySet> removals = getSetDifference(localPosts, remotePosts);
 
         if (additions.isEmpty() && removals.isEmpty()){
+            Log.d(TAG, "Returning with no change");
             return false;
         } else {
-
             if (!removals.isEmpty()){
+                Log.d(TAG, "Removing items " + TextUtils.join(",", removals));
                 removePostsCommand.with(removals).call();
             }
             if (!additions.isEmpty()){
+                Log.d(TAG, "Adding items " + TextUtils.join(",", additions));
                 fetchResourcesForAdditions(additions);
                 storePostsCommand.with(additions).call();
             }
