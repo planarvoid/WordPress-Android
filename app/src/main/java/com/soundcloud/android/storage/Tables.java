@@ -56,4 +56,26 @@ public interface Tables {
             super("RecommendationSeeds", PrimaryKey.of(BaseColumns._ID));
         }
     }
+
+    class PlayQueue extends BaseTable {
+
+        public static final PlayQueue TABLE = new PlayQueue();
+
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column REPOSTER_ID = Column.create(TABLE, "reposter_id");
+        public static final Column SOURCE = Column.create(TABLE, "source");
+        public static final Column SOURCE_VERSION = Column.create(TABLE, "source_version");
+
+        static final String SQL =  "CREATE TABLE IF NOT EXISTS PlayQueue (" +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "track_id INTEGER," +
+                "reposter_id INTEGER," +
+                "source VARCHAR(255)," +
+                "source_version VARCHAR(255)" +
+                ");";
+
+        protected PlayQueue() {
+            super("PlayQueue", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
 }

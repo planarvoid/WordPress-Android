@@ -21,8 +21,6 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
             false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
     UserAssociations(false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
 
-    PlayQueue(false, DatabaseSchema.DATABASE_CREATE_PLAY_QUEUE),
-
     CollectionItems(PrimaryKey.of(
             TableColumns.CollectionItems.USER_ID,
             TableColumns.CollectionItems.ITEM_ID,

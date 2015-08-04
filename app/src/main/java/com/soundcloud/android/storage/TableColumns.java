@@ -301,15 +301,6 @@ public final class TableColumns {
     }
 
     /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_PLAY_QUEUE}
-     */
-    public final static class PlayQueue implements BaseColumns {
-        public static final String TRACK_ID = "track_id";
-        public static final String SOURCE = "source";
-        public static final String SOURCE_VERSION = "source_version";
-    }
-
-    /**
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_TRACK_DOWNLOADS}
      */
     public final static class TrackDownloads implements BaseColumns {
