@@ -23,6 +23,8 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     private static final Urn TRACK_URN_3 = Urn.forTrack(789L);
     private static final long TRACK_DURATION = 12345L;
 
+    private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, TRACK_DURATION, "http://wav");
+
     @Mock private DateProvider dateProvider;
 
     private LoadOfflineContentUpdatesCommand command;
@@ -41,10 +43,10 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualPendingRemovals(TRACK_URN_1, now.getTime());
         actualPendingRemovals(TRACK_URN_2, now.getTime());
 
-        final List<DownloadRequest> expectedRequests = Collections.singletonList(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
+        final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
-        assertThat(offlineContentRequests.newRestoredRequests).containsExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
+        assertThat(offlineContentRequests.newRestoredRequests).containsExactly(downloadRequest);
         assertThat(offlineContentRequests.allDownloadRequests).isEmpty();
         assertThat(offlineContentRequests.newDownloadRequests).isEmpty();
         assertThat(offlineContentRequests.newRemovedTracks).isEmpty();
@@ -54,12 +56,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     public void doesNotReturnPendingRemovalsRemovedAfter3Minutes() {
         actualPendingRemovals(TRACK_URN_1, now.getTime() - TimeUnit.MINUTES.toMillis(4));
 
-        final List<DownloadRequest> expectedRequests = Collections.singletonList(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
+        final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
         assertThat(offlineContentRequests.newRestoredRequests).isEmpty();
-        assertThat(offlineContentRequests.allDownloadRequests).containsExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
-        assertThat(offlineContentRequests.newDownloadRequests).containsExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
+        assertThat(offlineContentRequests.allDownloadRequests).containsExactly(downloadRequest);
+        assertThat(offlineContentRequests.newDownloadRequests).containsExactly(downloadRequest);
         assertThat(offlineContentRequests.newRemovedTracks).isEmpty();
     }
 
@@ -68,7 +70,6 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, TRACK_DURATION);
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
@@ -83,9 +84,9 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, TRACK_DURATION);
-        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, TRACK_DURATION);
-        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, TRACK_DURATION);
+        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, TRACK_DURATION, "http://wav");
+        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, TRACK_DURATION, "http://wav");
+        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, TRACK_DURATION, "http://wav");
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest1, downloadRequest2, downloadRequest3);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 

@@ -150,9 +150,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishDownloadSuccessfulEmitsDownloadRequestEventForRelatedPlaylist() {
         final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-        final DownloadRequest toBeDownloaded = new DownloadRequest(Urn.forTrack(123L), 0, false, relatedPlaylists);
+        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
         final List<DownloadRequest> queueState = Collections.singletonList(
-                new DownloadRequest(Urn.forTrack(124L), 0, false, relatedPlaylists));
+                createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
 
         queue.set(queueState);
         publisher.publishDownloadSuccessfulEvents(queue, DownloadState.success(toBeDownloaded));
@@ -178,9 +178,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishDownloadErrorEventsEmitsDownloadRequestEventForRelatedPlaylist() {
         final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-        final DownloadRequest toBeDownloaded = new DownloadRequest(Urn.forTrack(123L), 0, false, relatedPlaylists);
+        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
         final List<DownloadRequest> queueState = Collections.singletonList(
-                new DownloadRequest(Urn.forTrack(124L), 0, false, relatedPlaylists));
+                createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
 
         queue.set(queueState);
         publisher.publishDownloadErrorEvents(queue, DownloadState.error(toBeDownloaded));
@@ -205,9 +205,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishDownloadCancelEventsEmitsDownloadedForPlaylistWithNoPendingTracks() {
         final List<Urn> toBeDownloadedPlaylist = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(222L));
-        final DownloadRequest toBeDownloaded = new DownloadRequest(Urn.forTrack(123L), 0, false, toBeDownloadedPlaylist);
+        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, toBeDownloadedPlaylist);
         final List<DownloadRequest> queueState = Collections.singletonList(
-                new DownloadRequest(Urn.forTrack(124L), 0, false, Collections.singletonList(Urn.forPlaylist(222L))));
+                createDownloadRequest(Urn.forTrack(124L), false, Collections.singletonList(Urn.forPlaylist(222L))));
 
         queue.set(queueState);
         publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(toBeDownloaded));
@@ -219,6 +219,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, 123456);
+        return new DownloadRequest(track, 123456, "http://wav");
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track, boolean inLikes, List<Urn> inPlaylists) {
+        return new DownloadRequest(track, 123456, "http://wav", inLikes, inPlaylists);
     }
 }

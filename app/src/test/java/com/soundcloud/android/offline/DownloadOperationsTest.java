@@ -42,19 +42,19 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
-    @Mock private OfflineArtworkLoader artworkLoader;
+    @Mock private OfflineTrackAssetDownloader assetDownloader;
 
     private DownloadOperations operations;
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
     private final long trackDuration = 12345;
-    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration);
+    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration, "http://wav");
 
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), artworkLoader);
+                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), assetDownloader);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -72,10 +72,11 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, artworkLoader, response);
+        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, assetDownloader, response);
         inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
         inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
-        inOrder.verify(artworkLoader).fetchTrackArtwork(downloadRequest.track);
+        inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest.track);
+        inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.track, downloadRequest.waveformUrl);
         inOrder.verify(response).close();
     }
 
@@ -163,7 +164,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        verifyZeroInteractions(artworkLoader);
+        verifyZeroInteractions(assetDownloader);
     }
 
     @Test

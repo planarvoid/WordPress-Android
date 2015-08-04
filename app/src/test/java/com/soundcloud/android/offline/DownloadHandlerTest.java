@@ -47,7 +47,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        downloadRequest = new DownloadRequest(Urn.forTrack(123), 12345);
+        downloadRequest = new DownloadRequest(Urn.forTrack(123), 12345, "http://wav");
         successResult = DownloadState.success(downloadRequest);
         failedResult = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
         unavailableResult = DownloadState.unavailable(downloadRequest);

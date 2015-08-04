@@ -14,6 +14,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     @Mock private Thread backgroundThread;
 
     private static final Urn TRACK = Urn.forTrack(123L);
+    private static final DownloadRequest request = new DownloadRequest(TRACK, 12345L, "http://wav");
     private static final long NOW = System.currentTimeMillis();
 
     private StoreDownloadUpdatesCommand command;
@@ -43,7 +44,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storesNewDownloadRequestsAsPendingDownload() {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(new DownloadRequest(TRACK, 12345L)),
+                Collections.singletonList(request),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
@@ -59,7 +60,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(new DownloadRequest(TRACK, 12345L)),
+                Collections.singletonList(request),
                 Collections.<Urn>emptyList()
         );
 

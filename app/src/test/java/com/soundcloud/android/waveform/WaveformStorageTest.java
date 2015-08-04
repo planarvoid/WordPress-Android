@@ -23,7 +23,7 @@ public class WaveformStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         testObserver = new TestObserver<>();
-        storage = new WaveformStorage(propellerRx(), dateProvider);
+        storage = new WaveformStorage(propellerRx(), dateProvider, new WaveformSerializer());
     }
 
     @Test

@@ -13,6 +13,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
@@ -70,8 +71,10 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         final LinkedHashMap<Urn, DownloadRequest.Builder> trackToRequestsDataMap = new LinkedHashMap<>();
         for (OfflineRequestData data : requestsData) {
             if (!trackToRequestsDataMap.containsKey(data.track)) {
-                trackToRequestsDataMap.put(data.track, new DownloadRequest.Builder(data.track, data.duration));
+                trackToRequestsDataMap.put(data.track,
+                        new DownloadRequest.Builder(data.track, data.duration, data.waveformUrl));
             }
+
             trackToRequestsDataMap.get(data.track)
                     .addToPlaylist(data.playlist)
                     .addToLikes(data.isInLikes);
@@ -83,7 +86,8 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(
                         Sounds.field(_ID),
-                        Sounds.field(DURATION))
+                        Sounds.field(DURATION),
+                        Sounds.field(WAVEFORM_URL))
                 .innerJoin(TrackPolicies.name(),
                         Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
                 .innerJoin(Table.Likes.name(),
@@ -124,6 +128,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                 .select(
                         Sounds.field(_ID),
                         Sounds.field(DURATION),
+                        Sounds.field(WAVEFORM_URL),
                         PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .innerJoin(Sounds.name(), filter()
                         .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
@@ -142,18 +147,21 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     private static class OfflineRequestData {
         private final Urn track;
         private final long duration;
+        private final String waveformUrl;
         private final Urn playlist;
         private final boolean isInLikes;
 
-        public OfflineRequestData(long trackId, long duration, long playlistId) {
+        public OfflineRequestData(long trackId, long duration, String waveformUrl, long playlistId) {
             this.duration = duration;
+            this.waveformUrl = waveformUrl;
             this.track = Urn.forTrack(trackId);
             this.playlist = Urn.forPlaylist(playlistId);
             this.isInLikes = false;
         }
 
-        public OfflineRequestData(long trackId, long duration, boolean isInLikes) {
+        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean isInLikes) {
             this.duration = duration;
+            this.waveformUrl = waveformUrl;
             this.track = Urn.forTrack(trackId);
             this.playlist = Urn.NOT_SET;
             this.isInLikes = isInLikes;
@@ -166,6 +174,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
             return new OfflineRequestData(
                     reader.getLong(_ID),
                     reader.getLong(DURATION),
+                    reader.getString(WAVEFORM_URL),
                     reader.getLong(TableColumns.PlaylistTracks.PLAYLIST_ID));
         }
     }
@@ -176,6 +185,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
             return new OfflineRequestData(
                     reader.getLong(_ID),
                     reader.getLong(DURATION),
+                    reader.getString(WAVEFORM_URL),
                     true);
         }
     }

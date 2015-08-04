@@ -10,10 +10,10 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
@@ -37,8 +37,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
+        assertThat(toBeOffline).containsExactly(downloadRequest(apiTrack, true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -51,7 +50,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Collections.singletonList(playlist.getUrn())));
+                downloadRequest(track1, false, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
@@ -102,9 +101,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getDuration(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getDuration(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getDuration(), true, Collections.<Urn>emptyList())
+                downloadRequest(apiTrack3, true, Collections.<Urn>emptyList()),
+                downloadRequest(apiTrack2, true, Collections.<Urn>emptyList()),
+                downloadRequest(apiTrack1, true, Collections.<Urn>emptyList())
         );
     }
 
@@ -123,8 +122,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getDuration(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(playlist.getUrn()))
+                downloadRequest(playlistTrack0, false, Collections.singletonList(playlist.getUrn())),
+                downloadRequest(playlistTrack1, false, Collections.singletonList(playlist.getUrn()))
         );
     }
 
@@ -147,8 +146,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(apiPlaylist1.getUrn())),
-                new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getDuration(), false, Arrays.asList(apiPlaylist2.getUrn()))
+                downloadRequest(playlistTrack1, false, Collections.singletonList(apiPlaylist1.getUrn())),
+                downloadRequest(playlistTrack2, false, Collections.singletonList(apiPlaylist2.getUrn()))
         );
     }
 
@@ -167,8 +166,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getDuration(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList())
+                downloadRequest(playlistTrack, false, Collections.singletonList(playlist.getUrn())),
+                downloadRequest(apiTrack, true, Collections.<Urn>emptyList())
         );
     }
 
@@ -185,8 +184,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                new DownloadRequest(
-                        apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.singletonList(playlist.getUrn())));
+                downloadRequest(apiTrack, true, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
@@ -254,5 +252,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     private void enableOfflineLikes() {
         testFixtures().insertLikesMarkedForOfflineSync();
+    }
+
+    private DownloadRequest downloadRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylists) {
+        return new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), inLikes, inPlaylists);
     }
 }

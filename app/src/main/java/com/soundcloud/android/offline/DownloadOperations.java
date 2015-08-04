@@ -36,7 +36,7 @@ class DownloadOperations {
     private final OfflineSettingsStorage offlineSettings;
     private final StreamUrlBuilder urlBuilder;
     private final Scheduler scheduler;
-    private final OfflineArtworkLoader artworkLoader;
+    private final OfflineTrackAssetDownloader assetDownloader;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -54,7 +54,7 @@ class DownloadOperations {
                        OfflineSettingsStorage offlineSettings,
                        StreamUrlBuilder urlBuilder,
                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                       OfflineArtworkLoader artworkLoader) {
+                       OfflineTrackAssetDownloader assetDownloader) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
@@ -63,7 +63,7 @@ class DownloadOperations {
         this.offlineSettings = offlineSettings;
         this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
-        this.artworkLoader = artworkLoader;
+        this.assetDownloader = assetDownloader;
     }
 
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
@@ -99,7 +99,9 @@ class DownloadOperations {
 
             if (response.isSuccess()) {
                 saveTrack(request, response, listener);
-                artworkLoader.fetchTrackArtwork(request.track);
+
+                assetDownloader.fetchTrackArtwork(request.track);
+                assetDownloader.fetchTrackWaveform(request.track, request.waveformUrl);
 
                 return DownloadState.success(request);
             } else {

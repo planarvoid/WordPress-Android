@@ -159,26 +159,26 @@ public class DownloadQueueTest extends AndroidUnitTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION)
+        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav")
                 .addToLikes(isLikedTrack)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION)
+        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav")
                 .addToPlaylist(playlist)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track, Urn playlist1, Urn playlist2) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION)
+        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav")
                 .addToPlaylist(playlist1)
                 .addToPlaylist(playlist2)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION).build();
+        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav").build();
     }
 
 }
