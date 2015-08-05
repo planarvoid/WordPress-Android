@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -22,6 +23,11 @@ public class EmptyViewBuilder {
 
     public EmptyView build(Context context) {
         EmptyView view = new EmptyView(context);
+        return configure(view);
+    }
+
+    @NotNull
+    public EmptyView configure(EmptyView view) {
         if (messageText != null) {
             view.setMessageText(messageText);
         }
@@ -113,6 +119,11 @@ public class EmptyViewBuilder {
     }
 
     public EmptyViewBuilder withMessageText(@Nullable String messageText) {
+        this.messageText = messageText;
+        return this;
+    }
+
+    public EmptyViewBuilder withMessageText(@Nullable int messageId) {
         this.messageText = messageText;
         return this;
     }

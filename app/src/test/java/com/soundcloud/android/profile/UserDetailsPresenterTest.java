@@ -9,14 +9,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -29,8 +28,8 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UserDetailsPresenterTest {
+public class UserDetailsPresenterTest extends AndroidUnitTest {
+
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final int EXPANDED_HEIGHT = 15;
     private static final String DESCRIPTION = "desciption";
@@ -41,7 +40,7 @@ public class UserDetailsPresenterTest {
 
     private UserDetailsPresenter presenter;
 
-    @Mock private ProfileOperations profileOperations;
+    @Mock private UserProfileOperations profileOperations;
     @Mock private UserDetailsView userDetailsView;
     @Mock private ProfileActivity activity;
     @Mock private UserDetailsFragment fragment;

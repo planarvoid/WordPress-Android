@@ -24,7 +24,7 @@ import javax.inject.Inject;
 class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
-    private final ProfileOperations profileOperations;
+    private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
 
     private ViewPager pager;
@@ -42,7 +42,7 @@ class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     @Inject
     public ProfilePresenter(ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
-                            ProfileOperations profileOperations, EventBus eventBus) {
+                            UserProfileOperations profileOperations, EventBus eventBus) {
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
