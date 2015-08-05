@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -10,24 +10,23 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestObserver;
 import rx.subjects.Subject;
 
 import android.app.Activity;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdOverlayImpressionOperationsTest {
+public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
-    private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown();
+    private static final PropertySet AD_META_DATA = TestPropertySets.leaveBehindForPlayer();
+    private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown(Urn.forTrack(123L), AD_META_DATA, new TrackSourceInfo("origin_screen", true));
     private final AdOverlayEvent LEAVE_BEHIND_HIDDEN = AdOverlayEvent.hidden();
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED = PlayerUIEvent.fromPlayerCollapsed();
@@ -35,7 +34,6 @@ public class AdOverlayImpressionOperationsTest {
     private final ActivityLifeCycleEvent ACTIVITY_PAUSED = ActivityLifeCycleEvent.forOnPause(Activity.class);
 
     @Mock private Activity activity;
-    @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
     private TestEventBus eventBus;
 
@@ -48,12 +46,9 @@ public class AdOverlayImpressionOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
-        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         eventBus = new TestEventBus();
-        controller = new AdOverlayImpressionOperations(eventBus, playQueueManager, accountOperations);
+        controller = new AdOverlayImpressionOperations(eventBus, accountOperations);
 
         leaveBehindEventQueue = eventBus.queue(EventQueue.AD_OVERLAY);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
@@ -70,7 +65,7 @@ public class AdOverlayImpressionOperationsTest {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -82,7 +77,7 @@ public class AdOverlayImpressionOperationsTest {
         activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSED);
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
 
-        expect(observer.getOnNextEvents().size()).toEqual(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -94,7 +89,7 @@ public class AdOverlayImpressionOperationsTest {
         playerUiQueue.onNext(PLAYER_COLLAPSED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
-        expect(observer.getOnNextEvents().size()).toEqual(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -106,7 +101,7 @@ public class AdOverlayImpressionOperationsTest {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_HIDDEN);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
-        expect(observer.getOnNextEvents().size()).toEqual(2);
+        assertThat(observer.getOnNextEvents()).hasSize(2);
     }
 
     @Test
@@ -117,7 +112,7 @@ public class AdOverlayImpressionOperationsTest {
 
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
-        expect(observer.getOnNextEvents().size()).toEqual(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -126,7 +121,7 @@ public class AdOverlayImpressionOperationsTest {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).isEmpty();
     }
 
     @Test
@@ -135,7 +130,7 @@ public class AdOverlayImpressionOperationsTest {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).isEmpty();
     }
 
     @Test
@@ -144,7 +139,7 @@ public class AdOverlayImpressionOperationsTest {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).isEmpty();
     }
 
 }

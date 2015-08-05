@@ -4,6 +4,8 @@ import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.java.collections.PropertySet;
 
@@ -43,14 +45,14 @@ public abstract class AdOverlayPresenter {
 
     public abstract boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground);
 
-    public void setVisible() {
+    public void onAdVisible(Urn playingUrn, PropertySet data, TrackSourceInfo trackSourceInfo) {
         overlay.setClickable(true);
         adImage.setVisibility(View.VISIBLE);
         leaveBehindHeader.setVisibility(View.VISIBLE);
-        eventBus.publish(EventQueue.AD_OVERLAY, AdOverlayEvent.shown());
+        eventBus.publish(EventQueue.AD_OVERLAY, AdOverlayEvent.shown(playingUrn, data, trackSourceInfo));
     }
 
-    public void setInvisible() {
+    public void onAdNotVisible() {
         overlay.setClickable(false);
         adImage.setVisibility(View.GONE);
         leaveBehindHeader.setVisibility(View.GONE);
@@ -63,7 +65,7 @@ public abstract class AdOverlayPresenter {
 
     public void clear() {
         adImage.setImageDrawable(null);
-        setInvisible();
+        onAdNotVisible();
     }
 
     public abstract boolean isFullScreen();
