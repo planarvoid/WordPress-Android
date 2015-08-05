@@ -34,14 +34,16 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
                 .open()
                 .clickStream();
 
-        assertThat(streamScreen.isFirstTrackPromoted(), is(true));
-        final boolean hasPromoter = streamScreen.isPromotedTrackWithPromoter();
+        // do not run when promoted item is a promoted playlist
+        if (streamScreen.isFirstTrackPromoted()) {
+            final boolean hasPromoter = streamScreen.isPromotedTrackWithPromoter();
 
-        VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
-        assertThat(playerElement, is(visible()));
-        assertThat(playerElement, is(playing()));
+            VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
+            assertThat(playerElement, is(visible()));
+            assertThat(playerElement, is(playing()));
 
-        finishEventTracking(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
+            finishEventTracking(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
+        }
     }
 
 }
