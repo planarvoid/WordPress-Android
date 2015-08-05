@@ -93,10 +93,10 @@ android {
       buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
