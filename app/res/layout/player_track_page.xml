@@ -10,30 +10,33 @@
         android:layout_height="match_parent" />
 
     <include layout="@layout/player_gradient" />
+
     <include layout="@layout/player_expanded_close_control" />
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="0dp"
-                  android:layout_above="@+id/player_bottom_close"
-                  android:layout_alignParentTop="true"
-                  android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/player_bottom_close"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
 
-        <View android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="@integer/waveform_ratio_top" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="@integer/waveform_ratio_top" />
 
         <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="@integer/waveform_ratio_bottom"
-                android:paddingTop="@dimen/timestamp_height">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="@integer/waveform_ratio_bottom"
+            android:paddingTop="@dimen/timestamp_height">
 
             <com.soundcloud.android.playback.ui.view.WaveformView
-                    android:id="@+id/track_page_waveform"
-                    style="@style/Waveform"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/player_waveform_height"
-                    android:visibility="gone"/>
+                android:id="@+id/track_page_waveform"
+                style="@style/Waveform"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_waveform_height"
+                android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
 
@@ -41,19 +44,29 @@
         android:id="@+id/timestamp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/player_bottom_close"/>
+        android:layout_above="@+id/player_bottom_close"
+        android:layout_alignParentTop="true" />
 
     <LinearLayout
         android:id="@id/player_bottom_close"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_engagement"
         android:layout_alignParentBottom="true"
-        android:gravity="right|center_vertical">
+        android:gravity="right|center_vertical"
+        android:paddingLeft="8dp">
 
         <android.support.v7.app.MediaRouteButton
-                android:id="@+id/media_route_button"
-                style="@style/PlayerMediaRouteButton"/>
+            android:id="@+id/media_route_button"
+            style="@style/PlayerMediaRouteButton" />
+
+        <TextView
+            android:id="@+id/cast_device_name"
+            style="@style/PlayerCastDeviceName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1" />
 
         <ToggleButton
             android:id="@+id/track_page_like"
@@ -67,67 +80,54 @@
     <include layout="@layout/player_play_controls" />
 
     <RelativeLayout
-            android:id="@+id/profile_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="@dimen/player_title_top">
+        android:id="@+id/profile_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="@dimen/player_title_top"
+        android:paddingLeft="16dp">
 
         <com.soundcloud.android.view.JaggedTextView
-                android:id="@+id/track_page_user"
-                style="@style/PlayerUser" />
+            android:id="@+id/track_page_user"
+            style="@style/PlayerUser" />
 
         <com.soundcloud.android.view.JaggedTextView
-                android:id="@+id/track_page_title"
-                style="@style/PlayerTitle"
-                android:layout_marginTop="4dp"
-                android:layout_below="@id/track_page_user" />
-
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/casting_to"
-            style="@style/PlayerCastingTo"
-            android:layout_marginTop="4dp"
-            android:layout_below="@id/track_page_title" />
-
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/cast_device_name"
-            style="@style/PlayerCastDeviceName"
-            android:layout_marginTop="4dp"
-            android:layout_alignBaseline="@id/casting_to"
-            android:layout_toEndOf="@id/casting_to"
-            android:layout_toRightOf="@id/casting_to" />
+            android:id="@+id/track_page_title"
+            style="@style/PlayerTitle"
+            android:layout_below="@id/track_page_user"
+            android:layout_marginTop="4dp" />
 
     </RelativeLayout>
 
     <include layout="@layout/player_footer_controls" />
 
     <ViewStub
-            android:id="@+id/leave_behind_stub"
-            android:inflatedId="@+id/leave_behind"
-            android:layout_below="@id/player_close"
-            android:layout_above="@id/player_bottom_close"
-            android:layout="@layout/ad_leave_behind"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        android:id="@+id/leave_behind_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/player_bottom_close"
+        android:layout_below="@id/player_close"
+        android:inflatedId="@+id/leave_behind"
+        android:layout="@layout/ad_leave_behind" />
 
     <FrameLayout
-            android:id="@+id/interstitial_holder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        android:id="@+id/interstitial_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <ViewStub
-                android:id="@+id/interstitial_stub"
-                android:inflatedId="@+id/interstitial"
-                android:layout="@layout/ad_interstitial"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            android:id="@+id/interstitial_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/interstitial"
+            android:layout="@layout/ad_interstitial" />
     </FrameLayout>
 
     <ViewStub
-            android:id="@+id/track_page_error_stub"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inflatedId="@+id/track_page_error"
-            android:layout="@layout/track_page_error" />
+        android:id="@+id/track_page_error_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/track_page_error"
+        android:layout="@layout/track_page_error" />
 
 </RelativeLayout>
