@@ -105,6 +105,23 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
     }
 
+    releaseNoProguard {
+      //Feature flags enabled
+      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
+      buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
+
+      //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
+      buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
+      buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, FALSE
+      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
+      buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
+    }
+
     release_non_play_store {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE

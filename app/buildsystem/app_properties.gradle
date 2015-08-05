@@ -73,7 +73,7 @@ android {
       resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
     }
 
-    release_no_proguard {
+    releaseNoProguard {
       resValue "string", "build_type", "release"
       resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
       resValue "string", "adjust_environment", "production"
