@@ -44,6 +44,10 @@ public final class SchemaMigrationHelper {
         return alterColumns(db, table.name(), table.createString, new String[0], new String[0]);
     }
 
+    public static List<String> alterColumns(String tableName, String createString, SQLiteDatabase db) {
+        return alterColumns(db, tableName, createString, new String[0], new String[0]);
+    }
+
     @Deprecated // should be a private method
     static List<String> alterColumns(SQLiteDatabase db,
                                      final String table,
