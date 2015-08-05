@@ -150,11 +150,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     @Override
     public void setCastDeviceName(View view, String deviceName) {
-        if (ScTextUtils.isBlank(deviceName)) {
-            getViewHolder(view).castingTo.setText(ScTextUtils.EMPTY_STRING);
-        } else {
-            getViewHolder(view).castingTo.setText(R.string.casting_to);
-        }
         getViewHolder(view).castDeviceName.setText(deviceName);
     }
 
@@ -325,8 +320,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private void setTextBackgrounds(TrackPageHolder holder, boolean visible) {
         holder.title.showBackground(visible);
         holder.user.showBackground(visible);
-        holder.castingTo.showBackground(visible);
-        holder.castDeviceName.showBackground(visible);
         holder.timestamp.showBackground(visible);
     }
 
@@ -451,8 +444,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.castingTo = (JaggedTextView) trackView.findViewById(R.id.casting_to);
-        holder.castDeviceName = (JaggedTextView) trackView.findViewById(R.id.cast_device_name);
+        holder.castDeviceName = (TextView) trackView.findViewById(R.id.cast_device_name);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
@@ -540,8 +532,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         // Expanded player
         JaggedTextView title;
         JaggedTextView user;
-        JaggedTextView castingTo;
-        JaggedTextView castDeviceName;
+        TextView castDeviceName;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         ToggleButton likeToggle;
@@ -588,18 +579,18 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, castingTo, castDeviceName, closeIndicator, nextButton, previousButton, playButton, bottomClose);
+            List<View> hideOnScrub = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, profileLink);
 
-            fullScreenViews = Arrays.asList(title, user, castingTo, castDeviceName, close, timestamp, interstitialHolder);
+            fullScreenViews = Arrays.asList(title, user, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);
-            fullScreenErrorViews = Arrays.asList(title, user, castingTo, castDeviceName, close, interstitialHolder);
+            fullScreenErrorViews = Arrays.asList(title, user, close, interstitialHolder);
 
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, castingTo, castDeviceName, timestamp);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 

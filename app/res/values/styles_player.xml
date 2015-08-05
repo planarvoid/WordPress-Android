@@ -74,16 +74,13 @@
         <item name="android:maxLines">2</item>
     </style>
 
-    <style name="PlayerCastingTo" parent="PlayerUser">
-        <item name="android:paddingRight">3dp</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/player_casting_to</item>
-    </style>
-
-    <style name="PlayerCastDeviceName" parent="PlayerCastingTo">
+    <style name="PlayerCastDeviceName">
         <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingLeft">0dp</item>
         <item name="android:textColor">@color/player_cast_device_name</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center_vertical|left</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="PlayerLikeBase" parent="CustomToggle">
@@ -98,7 +95,6 @@
     <style name="PlayerLike" parent="PlayerLikeBase"/>
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
-        <item name="android:layout_marginRight">10dp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:visibility">gone</item>
