@@ -28,7 +28,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
     }
 
     public void ingore_testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
-        startEventTracking(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
+        startEventTracking();
 
         final VisualPlayerElement player = menuScreen
                 .open()
@@ -41,7 +41,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         player.swipePrevious();
         player.waitForTheExpandedPlayerToPlayNextTrack();
 
-        finishEventTracking();
+        finishEventTracking(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
     }
 
 }

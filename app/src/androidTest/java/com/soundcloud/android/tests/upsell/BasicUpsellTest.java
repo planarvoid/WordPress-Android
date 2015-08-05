@@ -34,7 +34,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testNavDrawerUpsellImpressionAndClick() {
-        startEventTracking(NAV_UPSELL_TEST_SCENARIO);
+        startEventTracking();
 
         UpgradeScreen upgradeScreen = menuScreen
                 .open()
@@ -42,11 +42,11 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(NAV_UPSELL_TEST_SCENARIO);
     }
 
     public void ignore_testSettingsUpsellImpressionAndClick() {
-        startEventTracking(SETTINGS_UPSELL_TEST_SCENARIO);
+        startEventTracking();
 
         HomeScreen homeScreen = new HomeScreen(solo);
 
@@ -57,7 +57,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(SETTINGS_UPSELL_TEST_SCENARIO);
     }
 
 }

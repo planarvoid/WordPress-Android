@@ -38,7 +38,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
     }
 
     public void ignore_testWhyAdsUpsellImpressionAndClick() {
-        startEventTracking(WHY_ADS_UPSELL_TEST_SCENARIO);
+        startEventTracking();
 
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
@@ -47,7 +47,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         UpgradeScreen upgradeScreen = dialog.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(WHY_ADS_UPSELL_TEST_SCENARIO);
     }
 
 }

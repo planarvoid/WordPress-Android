@@ -54,11 +54,11 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
 
     @EventTrackingTest
     public void ignore_testClickingOnMidTierTrackFiresTrackingEvents() {
-        startEventTracking(MIDTIER_TEST_SCENARIO);
+        startEventTracking();
         final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
         likesScreen.clickMidTierTrackForUpgrade(0);
 
-        finishEventTracking();
+        finishEventTracking(MIDTIER_TEST_SCENARIO);
     }
 
     public void ignore_testClickingOnMidTierTrackInPlaylistOpensUpsell() {

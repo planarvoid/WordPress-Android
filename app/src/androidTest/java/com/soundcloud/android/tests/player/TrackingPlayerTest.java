@@ -31,7 +31,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
                 .open()
                 .clickStream();
 
-        startEventTracking(TEST_SCENARIO);
+        startEventTracking();
 
         final VisualPlayerElement playerElement =
                 streamScreen.clickFirstNotPromotedTrack();
@@ -43,7 +43,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(playerElement, is(not(playing())));
 
-        finishEventTracking();
+        finishEventTracking(TEST_SCENARIO);
     }
 
 }

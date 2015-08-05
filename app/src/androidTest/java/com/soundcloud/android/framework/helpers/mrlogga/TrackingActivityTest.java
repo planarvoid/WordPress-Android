@@ -15,7 +15,6 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
     private MrLoggaVerifier verifier;
     private MrLoggaRecorder recorder;
-    private String scenarioName;
     private boolean recordMode;
 
     public TrackingActivityTest(Class<T> activityClass) {
@@ -36,27 +35,17 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         enableEventLoggerInstantFlush(context);
     }
 
-    protected void startEventTracking(String scenario) {
-        startEventTracking(scenario, false);
+    protected void startEventTracking(){
+        verifier.start();
     }
 
-    protected void startEventTracking(String scenario, boolean recordMode) {
-        updateProperties(scenario, recordMode);
-
-        if (recordMode) {
-            recorder.startRecording(scenarioName);
-        } else {
-            verifier.start();
-        }
+    protected void startEventRecording(String scenario){
+        recordMode = true;
+        recorder.startRecording(scenario);
     }
 
-    private void updateProperties(String scenario, boolean recordMode) {
-        this.scenarioName = scenario;
-        this.recordMode = recordMode;
-    }
-
-    protected void finishEventTracking() {
-        verifier.assertScenario(scenarioName);
+    protected void finishEventTracking(String scenario){
+        verifier.assertScenario(scenario);
     }
 
     @Override

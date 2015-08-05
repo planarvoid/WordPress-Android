@@ -36,7 +36,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testLikesUpsellImpressionAndClick() {
-        startEventTracking(LIKES_UPSELL_TEST_SCENARIO);
+        startEventTracking();
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickLikes()
                 .clickHeaderOverflowButton()
@@ -44,11 +44,11 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(LIKES_UPSELL_TEST_SCENARIO);
     }
 
     public void ignore_testPlaylistItemUpsellImpressionAndClick() {
-        startEventTracking(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
+        startEventTracking();
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .getPlaylistAtPosition(0)
@@ -57,11 +57,11 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
     }
 
     public void ignore_testPlaylistPageImpressionAndClick() {
-        startEventTracking(PLAYLIST_PAGE_UPSELL_TEST_SCENARIO);
+        startEventTracking();
         UpgradeScreen upgradeScreen = menuScreen.open()
                 .clickPlaylists()
                 .clickPlaylistAt(0)
@@ -70,6 +70,6 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking();
+        finishEventTracking(PLAYLIST_PAGE_UPSELL_TEST_SCENARIO);
     }
 }

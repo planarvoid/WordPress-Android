@@ -16,6 +16,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivity> {
 
     private static final String PROMOTED_PLAY = "promoted-play";
+    private static final String PROMOTED_BY_PLAY = "promoted-by-play";
 
     public PromotedStreamTrackingTest() {
         super(MainActivity.class);
@@ -27,19 +28,20 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
     }
 
     // TODO: https://github.com/soundcloud/SoundCloud-Android/issues/3202
-    public void ignoreTestPlayPromotedTrackFromStream() {
-        startEventTracking(PROMOTED_PLAY);
+    public void testPlayPromotedTrackFromStream() {
+        startEventTracking();
         StreamScreen streamScreen = menuScreen
                 .open()
                 .clickStream();
 
         assertThat(streamScreen.isFirstTrackPromoted(), is(true));
+        final boolean hasPromoter = streamScreen.isPromotedTrackWithPromoter();
 
         VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
 
-        finishEventTracking();
+        finishEventTracking(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
     }
 
 }

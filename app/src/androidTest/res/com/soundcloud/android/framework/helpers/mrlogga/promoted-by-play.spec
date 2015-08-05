@@ -12,6 +12,7 @@ expected_events:
     ad_urn: dfp:ads:[0-9,-]+
     ts: '[0-9]+'
     impression_object: soundcloud:tracks:[0-9]+
+    promoted_by: soundcloud:users:[0-9]+
     client_id: '3152'
     anonymous_id: (\w|-)+
     page_name: stream:main
@@ -24,6 +25,7 @@ expected_events:
     ad_urn: dfp:ads:[0-9,-]+
     click_object: soundcloud:tracks:[0-9]+
     ts: '[0-9]+'
+    promoted_by: soundcloud:users:[0-9]+
     click_name: item_navigation
     client_id: '3152'
     anonymous_id: (\w|-)+
@@ -37,6 +39,7 @@ expected_events:
     trigger: manual
     protocol: hls
     ts: '[0-9]+'
+    promoted_by: soundcloud:users:[0-9]+
     anonymous_id: (\w|-)+
     connection_type: wifi
     monetization_type: promoted
