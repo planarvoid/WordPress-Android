@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -23,16 +25,15 @@ public class PlayCountAnalyticsProviderTest extends AndroidUnitTest {
 
     private PlayCountAnalyticsProvider provider;
 
-    @Mock
-    EventTracker eventTracker;
-    @Mock
-    PlayCountUrlBuilder urlBuilder;
-    @Captor
-    ArgumentCaptor<TrackingRecord> trackingEventCaptor;
+    @Mock EventTracker eventTracker;
+    @Mock PlayCountUrlBuilder urlBuilder;
+    @Mock FeatureFlags featureFlags;
+    @Captor ArgumentCaptor<TrackingRecord> trackingEventCaptor;
 
     @Before
     public void setup() {
-        provider = new PlayCountAnalyticsProvider(eventTracker, urlBuilder);
+        provider = new PlayCountAnalyticsProvider(eventTracker, urlBuilder, featureFlags);
+        when(featureFlags.isDisabled(Flag.EVENTLOGGER_AUDIO_V1)).thenReturn(true);
     }
 
     @Test
