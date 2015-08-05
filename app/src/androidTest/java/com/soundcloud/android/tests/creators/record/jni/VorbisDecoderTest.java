@@ -4,7 +4,7 @@ import com.soundcloud.android.creators.record.WavHeader;
 import com.soundcloud.android.creators.record.jni.VorbisDecoder;
 import com.soundcloud.android.creators.record.jni.VorbisInfo;
 import com.soundcloud.android.tests.AudioTest;
-import com.soundcloud.android.tests.NonUiTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
 
 import android.test.suitebuilder.annotation.Suppress;
 

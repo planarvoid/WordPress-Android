@@ -64,6 +64,14 @@ public class StreamScreen extends Screen {
         return clickTrack(0);
     }
 
+    public VisualPlayerElement clickFirstNotPromotedTrack() {
+        if (isFirstTrackPromoted()) {
+            return clickTrack(1);
+        } else {
+            return clickFirstTrack();
+        }
+    }
+
     public VisualPlayerElement clickTrack(int index) {
         getTrack(index).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);

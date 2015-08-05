@@ -11,6 +11,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 
 public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
@@ -34,26 +35,30 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testNavDrawerUpsellImpressionAndClick() {
+        startEventTracking();
+
         UpgradeScreen upgradeScreen = menuScreen
                 .open()
                 .clickUpsell();
 
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(NAV_UPSELL_TEST_SCENARIO);
+        finishEventTracking(NAV_UPSELL_TEST_SCENARIO);
     }
 
-    public void ignore_testSettingsUpsellImpressionAndClick() {
-        HomeScreen homeScreen = new HomeScreen(solo);
+    public void testSettingsUpsellImpressionAndClick() {
+        ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 
-        UpgradeScreen upgradeScreen = homeScreen.actionBar()
+        startEventTracking();
+
+        UpgradeScreen upgradeScreen = toolBarElement
                 .clickSettingsOverflowButton()
                 .clickOfflineSettings()
                 .clickSubscribe();
 
         assertThat(upgradeScreen, is(visible()));
 
-        verifier.assertScenario(SETTINGS_UPSELL_TEST_SCENARIO);
+        finishEventTracking(SETTINGS_UPSELL_TEST_SCENARIO);
     }
 
 }

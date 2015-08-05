@@ -3,7 +3,7 @@ package com.soundcloud.android.tests.creators.record.jni;
 import com.soundcloud.android.creators.record.AudioConfig;
 import com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer;
 import com.soundcloud.android.tests.AudioTest;
-import com.soundcloud.android.tests.NonUiTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
 import com.soundcloud.android.utils.BufferUtils;
 
 import java.nio.ByteBuffer;

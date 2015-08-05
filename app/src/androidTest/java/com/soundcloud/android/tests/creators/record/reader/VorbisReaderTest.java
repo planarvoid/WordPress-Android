@@ -3,7 +3,7 @@ package com.soundcloud.android.tests.creators.record.reader;
 import static com.soundcloud.android.tests.AudioTest.MED_TEST_OGG;
 
 import com.soundcloud.android.creators.record.reader.VorbisReader;
-import com.soundcloud.android.tests.NonUiTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTest;
 
 import java.io.File;

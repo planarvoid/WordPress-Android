@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -51,11 +52,13 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
         assertUpgradeScreenVisible(upgradeScreen);
     }
 
+    @EventTrackingTest
     public void ignore_testClickingOnMidTierTrackFiresTrackingEvents() {
+        startEventTracking();
         final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
         likesScreen.clickMidTierTrackForUpgrade(0);
 
-        verifier.assertScenario(MIDTIER_TEST_SCENARIO);
+        finishEventTracking(MIDTIER_TEST_SCENARIO);
     }
 
     public void ignore_testClickingOnMidTierTrackInPlaylistOpensUpsell() {

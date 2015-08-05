@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.utils;
 
-import com.soundcloud.android.tests.NonUiTest;
+import com.soundcloud.android.framework.annotation.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTest;
 import com.soundcloud.android.utils.images.ImageUtils;
 
