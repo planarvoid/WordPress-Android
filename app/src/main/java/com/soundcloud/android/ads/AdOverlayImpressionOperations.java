@@ -7,8 +7,10 @@ import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -21,17 +23,16 @@ class AdOverlayImpressionOperations {
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
     private final Subject<AdOverlayEvent, AdOverlayEvent> adOverlayEventQueue;
-    private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
 
-    private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
+    private final Func1<VisualImpressionState, TrackingEvent> toTrackingEvent = new Func1<VisualImpressionState, TrackingEvent>() {
         @Override
-        public AdOverlayTrackingEvent call(State state) {
+        public AdOverlayTrackingEvent call(VisualImpressionState visualImpressionState) {
             return AdOverlayTrackingEvent.forImpression(
-                    playQueueManager.getCurrentMetaData(),
-                    playQueueManager.getCurrentTrackUrn(),
+                    visualImpressionState.adMetaData,
+                    visualImpressionState.currentPlayingUrn,
                     accountOperations.getLoggedInUserUrn(),
-                    playQueueManager.getCurrentTrackSourceInfo());
+                    visualImpressionState.trackSourceInfo);
         }
     };
 
@@ -51,31 +52,33 @@ class AdOverlayImpressionOperations {
         }
     };
 
-    private final Func1<State, Boolean> isAdOverlayVisible = new Func1<State, Boolean>() {
+    private final Func1<VisualImpressionState, Boolean> isAdOverlayVisible = new Func1<VisualImpressionState, Boolean>() {
         @Override
-        public Boolean call(State state) {
-            return !impressionEventEmitted && state.adOverlayIsVisible && state.playerIsExpanding && state.isAppInForeground;
+        public Boolean call(VisualImpressionState visualImpressionState) {
+            return !impressionEventEmitted && visualImpressionState.adOverlayIsVisible && visualImpressionState.playerIsExpanding && visualImpressionState.isAppInForeground;
         }
     };
 
-    private final Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, State> combineFunction =
-            new Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, State>() {
+    private final Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, VisualImpressionState> combineFunction =
+            new Func3<AdOverlayEvent, ActivityLifeCycleEvent, PlayerUIEvent, VisualImpressionState>() {
                 @Override
-                public State call(AdOverlayEvent leaveBehindEvent,
+                public VisualImpressionState call(AdOverlayEvent adOverlayEvent,
                                   ActivityLifeCycleEvent event,
                                   PlayerUIEvent playerUIEvent) {
-                    return new State(
-                            leaveBehindEvent.getKind() == AdOverlayEvent.SHOWN,
+
+                    return new VisualImpressionState(
+                            adOverlayEvent.getKind() == AdOverlayEvent.SHOWN,
                             event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                            playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
+                            playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED,
+                            adOverlayEvent.getCurrentPlayingUrn(),
+                            adOverlayEvent.getAdMetaData(), adOverlayEvent.getTrackSourceInfo());
                 }
             };
 
     private boolean impressionEventEmitted = false;
 
     @Inject
-    AdOverlayImpressionOperations(EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
-        this.playQueueManager = playQueueManager;
+    AdOverlayImpressionOperations(EventBus eventBus, AccountOperations accountOperations) {
         this.accountOperations = accountOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
@@ -94,15 +97,22 @@ class AdOverlayImpressionOperations {
                 .doOnNext(lockCurrentImpression);
     }
 
-    private static final class State {
+    private static final class VisualImpressionState {
         private final boolean adOverlayIsVisible;
         private final boolean isAppInForeground;
         private final boolean playerIsExpanding;
+        private final Urn currentPlayingUrn;
+        private final PropertySet adMetaData;
+        private final TrackSourceInfo trackSourceInfo;
 
-        public State(boolean adOverlayIsVisible, boolean isAppInForeground, boolean playerIsExpanding) {
+        public VisualImpressionState(boolean adOverlayIsVisible, boolean isAppInForeground, boolean playerIsExpanding,
+                                     Urn currentPlayingUrn, PropertySet adMetaData, TrackSourceInfo trackSourceInfo) {
             this.isAppInForeground = isAppInForeground;
             this.adOverlayIsVisible = adOverlayIsVisible;
             this.playerIsExpanding = playerIsExpanding;
+            this.currentPlayingUrn = currentPlayingUrn;
+            this.adMetaData = adMetaData;
+            this.trackSourceInfo = trackSourceInfo;
         }
     }
 }

@@ -61,7 +61,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     @Override
     public void onAdImageLoaded() {
-        setVisible();
+        onAdVisible();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     public void initialize(PropertySet data) {
         this.data = data;
         presenter = AdOverlayPresenter.create(data, trackView, this, eventBus, context.getResources(), imageOperations);
-        setInvisible();
+        setAdNotVisible();
     }
 
     public void show() {
@@ -126,16 +126,16 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         return presenter.shouldDisplayOverlay(data, isExpanded, isPortrait, isForeground);
     }
 
-    private void setVisible() {
+    private void onAdVisible() {
         if (presenter != null) {
-            presenter.setVisible();
+            presenter.onAdVisible(playQueueManager.getCurrentTrackUrn(), data, playQueueManager.getCurrentTrackSourceInfo());
             listener.onAdOverlayShown(presenter.isFullScreen());
         }
     }
 
-    private void setInvisible() {
+    private void setAdNotVisible() {
         if (presenter != null) {
-            presenter.setInvisible();
+            presenter.onAdNotVisible();
         }
     }
 

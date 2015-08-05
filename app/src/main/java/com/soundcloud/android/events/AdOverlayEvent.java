@@ -1,22 +1,35 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.java.collections.PropertySet;
+
+import android.support.annotation.Nullable;
+
 public class AdOverlayEvent {
 
     public static final int SHOWN = 0;
     public static final int HIDDEN = 1;
 
-    private final int kind;
+    private static final AdOverlayEvent HIDDEN_EVENT = new AdOverlayEvent(HIDDEN, Urn.NOT_SET, null, null);
 
-    public static AdOverlayEvent shown() {
-        return new AdOverlayEvent(SHOWN);
+    private final int kind;
+    private final Urn currentPlayingUrn;
+    private final PropertySet adMetaData;
+    private final TrackSourceInfo trackSourceInfo;
+
+    public static AdOverlayEvent shown(Urn playingUrn, PropertySet adMetaData, TrackSourceInfo trackSourceInfo) {
+        return new AdOverlayEvent(SHOWN, playingUrn, adMetaData, trackSourceInfo);
     }
     public static AdOverlayEvent hidden() {
-        return new AdOverlayEvent(HIDDEN);
+        return HIDDEN_EVENT;
     }
 
-
-    public AdOverlayEvent(int kind) {
+    public AdOverlayEvent(int kind, Urn playingUrn, PropertySet adMetaData, TrackSourceInfo trackSourceInfo) {
         this.kind = kind;
+        this.currentPlayingUrn = playingUrn;
+        this.adMetaData = adMetaData;
+        this.trackSourceInfo = trackSourceInfo;
     }
 
     public int getKind() {
@@ -28,4 +41,18 @@ public class AdOverlayEvent {
         return "AdOverlayEvent: " + kind;
     }
 
+    @Nullable
+    public PropertySet getAdMetaData() {
+        return adMetaData;
+    }
+
+    @Nullable
+    public TrackSourceInfo getTrackSourceInfo() {
+        return trackSourceInfo;
+    }
+
+    @Nullable
+    public Urn getCurrentPlayingUrn() {
+        return currentPlayingUrn;
+    }
 }

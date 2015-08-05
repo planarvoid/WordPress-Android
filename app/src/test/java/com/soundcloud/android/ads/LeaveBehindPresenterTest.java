@@ -1,30 +1,29 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindPresenterTest {
+public class LeaveBehindPresenterTest extends AndroidUnitTest{
 
     private PropertySet properties;
     private LeaveBehindPresenter presenter;
@@ -54,56 +53,61 @@ public class LeaveBehindPresenterTest {
 
     @Test
     public void createsLeaveBehindPresenterFromLeaveBehindPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus, Robolectric.application.getResources(), imageOperations);
-        expect(adOverlayPresenter).toBeInstanceOf(LeaveBehindPresenter.class);
+        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus, resources(), imageOperations);
+        assertThat(adOverlayPresenter).isInstanceOf(LeaveBehindPresenter.class);
     }
 
     @Test
     public void shouldNotShowLeaveBehindWhenAdWasClicked() {
         properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_CLICKED, true);
 
-        expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeFalse();
+        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
     }
 
     @Test
     public void shouldNotShowLeaveBehindWhenAdWasNotCompleted() {
         properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_COMPLETED, false);
 
-        expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeFalse();
+        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
     }
 
     @Test
     public void shouldNotShowTheLeaveBehindIfAlreadyShown() {
         properties = leaveBehindForPlayerWithDisplayMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, false);
 
-        expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeFalse();
+        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
     }
 
     @Test
     public void showsLeaveBehindWhenAdWasCompletedAndNotClicked() {
         properties = leaveBehindForPlayerWithDisplayMetaData();
 
-        expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeTrue();
+        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isTrue();
     }
 
     @Test
     public void sendAnEventWhenVisible() {
-        presenter.setVisible();
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("screen", false);
+        final PropertySet adMetaData = TestPropertySets.leaveBehindForPlayer();
+        presenter.onAdVisible(Urn.forTrack(123L), adMetaData, trackSourceInfo);
 
-        expect(eventBus.eventsOn(EventQueue.AD_OVERLAY)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.AD_OVERLAY).getKind()).toEqual(AdOverlayEvent.SHOWN);
+        assertThat(eventBus.eventsOn(EventQueue.AD_OVERLAY)).hasSize(1);
+        final AdOverlayEvent adOverlayEvent = eventBus.lastEventOn(EventQueue.AD_OVERLAY);
+        assertThat(adOverlayEvent.getKind()).isEqualTo(AdOverlayEvent.SHOWN);
+        assertThat(adOverlayEvent.getAdMetaData()).isEqualTo(adMetaData);
+        assertThat(adOverlayEvent.getTrackSourceInfo()).isEqualTo(trackSourceInfo);
     }
 
     @Test
     public void sendAnEventWhenInVisible() {
-        presenter.setInvisible();
+        presenter.onAdNotVisible();
 
-        expect(eventBus.eventsOn(EventQueue.AD_OVERLAY)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.AD_OVERLAY).getKind()).toEqual(AdOverlayEvent.HIDDEN);
+        assertThat(eventBus.eventsOn(EventQueue.AD_OVERLAY)).hasSize(1);
+        assertThat(eventBus.lastEventOn(EventQueue.AD_OVERLAY).getKind()).isEqualTo(AdOverlayEvent.HIDDEN);
     }
 
     @Test
     public void isNotFullScreen() throws Exception {
-        expect(presenter.isFullScreen()).toBeFalse();
+        assertThat(presenter.isFullScreen()).isFalse();
     }
 }
