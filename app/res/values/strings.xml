@@ -529,7 +529,6 @@
 
     <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
-    <string name="casting_to">Casting to</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>

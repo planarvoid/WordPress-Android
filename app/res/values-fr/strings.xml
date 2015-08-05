@@ -468,7 +468,6 @@
 
     <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>
-    <string name="casting_to">Distribution à</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promu</string>

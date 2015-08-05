@@ -21,7 +21,6 @@
     <!-- Player -->
     <color name="player_gradient_start">#4C000000</color>
     <color name="player_user_text">#c5c5c5</color>
-    <color name="player_casting_to">#c5c5c5</color>
     <color name="player_cast_device_name">#ffffff</color>
 
     <color name="wave_above">#fafafa</color>

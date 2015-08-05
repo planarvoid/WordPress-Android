@@ -294,7 +294,6 @@
     <string name="pause">Jeda</string>
     <string name="previous">Sebelumnya</string>
     <string name="next">Selanjutnya</string>
-    <string name="casting_to">Memasukkan ke</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s di %2$s</string>

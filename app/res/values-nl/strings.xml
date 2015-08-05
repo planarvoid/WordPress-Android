@@ -294,7 +294,6 @@
     <string name="pause">Pauze</string>
     <string name="previous">Vorig</string>
     <string name="next">Volgend</string>
-    <string name="casting_to">Uitbrengen naar</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s op %2$s</string>
