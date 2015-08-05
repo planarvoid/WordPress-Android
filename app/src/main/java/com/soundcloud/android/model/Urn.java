@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Charsets;
 import org.jetbrains.annotations.NotNull;
 
@@ -152,5 +153,9 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(content);
+    }
+
+    public PropertySet toPropertySet(){
+        return PropertySet.from(EntityProperty.URN.bind(this));
     }
 }

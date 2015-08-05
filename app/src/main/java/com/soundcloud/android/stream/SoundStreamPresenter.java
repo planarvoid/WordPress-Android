@@ -176,7 +176,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     private void handleListItemClick(View view, int position, ListItem item) {
-        itemClickListener.onItemClick(streamOperations.trackUrnsForPlayback(), view, position, item);
+        itemClickListener.onPostClick(streamOperations.trackUrnsForPlayback(), view, position, item);
     }
 
     private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack) {
@@ -192,7 +192,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     private void playTracks(int position, Urn playableUrn, PlaySessionSource playSessionSource) {
         playbackOperations
-                .playTracks(streamOperations.trackUrnsForPlayback(), playableUrn, position, playSessionSource)
+                .playPosts(streamOperations.trackUrnsForPlayback(), playableUrn, position, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 

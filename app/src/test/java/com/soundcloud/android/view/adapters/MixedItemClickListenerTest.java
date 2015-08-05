@@ -18,19 +18,21 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -38,8 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class MixedItemClickListenerTest {
+public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     private MixedItemClickListener listener;
 
@@ -221,5 +222,66 @@ public class MixedItemClickListenerTest {
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
         verify(navigator).openProfile(context, userItem.getEntityUrn(), screen, searchQuerySourceInfo);
+    }
+
+    @Test
+    public void postItemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
+        final TrackItem track1 = ModelFixtures.create(TrackItem.class);
+        final Observable<List<PropertySet>> tracklist = Observable.empty();
+        final PlaybackResult playbackResult = PlaybackResult.success();
+        when(playbackOperations.playPosts(tracklist, track1.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+
+        listener.onPostClick(tracklist, view, 1, track1);
+
+        verify(expandPlayerSubscriber).onNext(playbackResult);
+        verify(expandPlayerSubscriber).onCompleted();
+    }
+
+    @Test
+    public void postItemClickOnLocalMidTierTrackWhenUserCanUpgradeShowsUpgrade() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+
+        listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, new TrackItem(TestPropertySets.midTierTrack()));
+
+        verify(navigator).openUpgrade(context);
+    }
+
+    @Test
+    public void postItemClickOnLocalMidTierTrackDoesNotShowUpgradeIfUserCannotUpgrade() {
+        final TrackItem midTierTrack = new TrackItem(TestPropertySets.midTierTrack());
+        final Observable<List<PropertySet>> tracklist = Observable.empty();
+        final PlaybackResult playbackResult = PlaybackResult.success();
+        when(playbackOperations.playPosts(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+
+        listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, midTierTrack);
+
+        verify(navigator, never()).openUpgrade(any(Context.class));
+    }
+
+    @Test
+    public void postItemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
+        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        List<PropertySet> items = Arrays.asList(createTrackPropertySet(Urn.forTrack(123L)), createTrackPropertySet(playlistItem.getEntityUrn()));
+
+        listener.onPostClick(Observable.just(items), view, 1, playlistItem);
+
+        verify(navigator).openPlaylist(context, playlistItem.getEntityUrn(), screen, searchQuerySourceInfo, null);
+    }
+
+    @Test
+    public void postItemClickOnLocalUserGoesToUserProfile() {
+        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        List<PropertySet> items = Arrays.asList(createTrackPropertySet(Urn.forTrack(123L)),
+                createTrackPropertySet(Urn.forPlaylist(123L)),
+                createTrackPropertySet(userItem.getEntityUrn()));
+
+        listener.onPostClick(Observable.just(items), view, 2, userItem);
+
+        verify(navigator).openProfile(context, userItem.getEntityUrn(), screen, searchQuerySourceInfo);
+    }
+
+    @NonNull
+    private PropertySet createTrackPropertySet(Urn urn) {
+        return PropertySet.from(TrackProperty.URN.bind(urn));
     }
 }

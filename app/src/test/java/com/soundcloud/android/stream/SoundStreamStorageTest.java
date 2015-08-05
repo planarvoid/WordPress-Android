@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -12,7 +12,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -21,7 +20,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.observers.TestObserver;
@@ -30,7 +28,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     private static final long TIMESTAMP = 1000L;
@@ -190,8 +187,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(Long.MAX_VALUE, 1).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(firstTrack.getUrn());
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isEqualTo(firstTrack.getUrn());
     }
 
     @Test
@@ -203,8 +200,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(TIMESTAMP, 50).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isEqualTo(oldestTrack.getUrn());
     }
 
     @Test
@@ -214,8 +211,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
 
         final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP, 50);
-        expect(actual.size()).toBe(1);
-        expect(actual.get(0).get(PlayableProperty.URN)).toEqual(newest.getUrn());
+        assertThat(actual).hasSize(1);
+        assertThat(actual.get(0).get(PlayableProperty.URN)).isEqualTo(newest.getUrn());
     }
 
     @Test
@@ -227,7 +224,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.initialStreamItems(50).subscribe(observer);
 
         final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP - 1, 50);
-        expect(actual.size()).toBe(1);
+        assertThat(actual).hasSize(1);
     }
 
     @Test
@@ -254,21 +251,24 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).not.toEqual(deletedTrack.getUrn());
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).isNotEqualTo(deletedTrack.getUrn());
     }
 
     @Test
-    public void trackUrnsLoadsUrnsOfAllTrackItemsInSoundStream() {
+    public void tracksForPlaybackLoadsUrnsOfAllTrackItemsInSoundStream() {
         final ApiTrack trackOne = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
-        testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, testFixtures().insertUser().getId());
+        final ApiUser reposter = testFixtures().insertUser();
+        testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
         testFixtures().insertStreamPlaylistPost(testFixtures().insertPlaylist().getId(), TIMESTAMP - 2);
 
-        TestObserver<Urn> observer = new TestObserver<>();
-        storage.trackUrns().subscribe(observer);
-        expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
+        TestObserver<PropertySet> observer = new TestObserver<>();
+        storage.tracksForPlayback().subscribe(observer);
+        assertThat(observer.getOnNextEvents()).containsExactly(
+                trackOne.getUrn().toPropertySet(),
+                trackTwo.getUrn().toPropertySet().put(TrackProperty.REPOSTER_URN, reposter.getUrn()));
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track){
