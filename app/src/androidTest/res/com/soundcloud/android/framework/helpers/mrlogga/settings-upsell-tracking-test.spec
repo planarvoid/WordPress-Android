@@ -23,3 +23,13 @@ expected_events:
     ts: '[0-9]+'
     user: soundcloud:users:147986827
   version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: impression
+  params:
+    impression_name: consumer_sub_ad
+    client_id: '3152'
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    impression_object: soundcloud:tcode:3002
+    user: soundcloud:users:147986827
+  version: 0
