@@ -119,7 +119,7 @@ public class ExploreTracksFragmentTest {
     @Test
     public void shouldPassAlongTrackingTagWhenPlayingTrack() throws CreateModelException {
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
-        collection.setTrackingTag("tag");
+        collection.setTrackingTag("1.0");
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
                 .thenReturn(just(collection));
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
@@ -128,8 +128,7 @@ public class ExploreTracksFragmentTest {
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
-        final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
-        playSessionSource.setExploreVersion("tag");
+        final PlaySessionSource playSessionSource = PlaySessionSource.forExplore("screen", "1.0");
         verify(playbackOperations).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
     }
 

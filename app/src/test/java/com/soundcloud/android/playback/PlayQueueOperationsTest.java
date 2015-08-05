@@ -74,9 +74,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(Urn.forUser(123L).toString());
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
-        playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
     }
 
     @Test

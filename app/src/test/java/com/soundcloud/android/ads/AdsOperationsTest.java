@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -18,7 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -26,7 +26,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -35,8 +34,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdsOperationsTest {
+public class AdsOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
@@ -52,8 +50,7 @@ public class AdsOperationsTest {
     public void setUp() throws Exception {
         adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate());
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
-        playSessionSource = new PlaySessionSource("origin");
-        playSessionSource.setExploreVersion("1.0");
+        playSessionSource = PlaySessionSource.forExplore("origin", "1.0");
     }
 
     @Test
@@ -62,7 +59,7 @@ public class AdsOperationsTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        expect(adsOperations.ads(TRACK_URN).toBlocking().first()).toBe(fullAdsForTrack);
+        assertThat(adsOperations.ads(TRACK_URN).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test
@@ -80,13 +77,13 @@ public class AdsOperationsTest {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getMetaDataAt(0)).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
 
-        expect(adsOperations.isAudioAdAtPosition(0)).toBeTrue();
+        assertThat(adsOperations.isAudioAdAtPosition(0)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
         when(playQueueManager.getMetaDataAt(1)).thenReturn(PropertySet.create());
-        expect(adsOperations.isAudioAdAtPosition(1)).toBeFalse();
+        assertThat(adsOperations.isAudioAdAtPosition(1)).isFalse();
     }
 
     @Test
@@ -101,11 +98,11 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
+        assertThat(playQueue.getUrn(0)).isEqualTo(TRACK_URN);
         final PropertySet expectedProperties = adsWithOnlyInterstitial.interstitialAd().toPropertySet();
         expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
         expectedProperties.put(TrackProperty.URN, TRACK_URN);
-        expect(playQueue.getMetaData(0)).toEqual(expectedProperties);
+        assertThat(playQueue.getMetaData(0)).isEqualTo(expectedProperties);
     }
 
     @Test
@@ -120,11 +117,11 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
+        assertThat(playQueue.getUrn(0)).isEqualTo(TRACK_URN);
         final PropertySet expectedProperties = ads.interstitialAd().toPropertySet();
         expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
         expectedProperties.put(TrackProperty.URN, TRACK_URN);
-        expect(playQueue.getMetaData(0)).toEqual(expectedProperties);
+        assertThat(playQueue.getMetaData(0)).isEqualTo(expectedProperties);
     }
 
     @Test
@@ -142,9 +139,9 @@ public class AdsOperationsTest {
         value1.execute(playQueue);
         value2.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn());
-        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getLeaveBehind()
+        assertThat(playQueue.getUrn(0)).isEqualTo(adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn());
+        assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
+        assertThat(playQueue.getMetaData(1)).isEqualTo(adsWithOnlyAudioAd.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn()));
@@ -163,9 +160,9 @@ public class AdsOperationsTest {
         captor1.getValue().execute(playQueue);
         captor2.getValue().execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(fullAdsForTrack.audioAd().getApiTrack().getUrn());
-        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getLeaveBehind()
+        assertThat(playQueue.getUrn(0)).isEqualTo(fullAdsForTrack.audioAd().getApiTrack().getUrn());
+        assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
+        assertThat(playQueue.getMetaData(1)).isEqualTo(fullAdsForTrack.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, fullAdsForTrack.audioAd().getApiTrack().getUrn()));
@@ -179,7 +176,7 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
 
         verify(playQueueManager, never()).performPlayQueueUpdateOperations(any(PlayQueueManager.QueueUpdateOperation.class));
-        expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
+        assertThat(playQueue.getUrn(0)).isEqualTo(TRACK_URN);
     }
 
     @Test
@@ -199,8 +196,8 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
-        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+        assertThat(playQueue.getUrn(0)).isEqualTo(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
+        assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
     }
 
     @Test
@@ -218,9 +215,9 @@ public class AdsOperationsTest {
         value1.execute(playQueue);
         value2.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
-        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getLeaveBehind()
+        assertThat(playQueue.getUrn(0)).isEqualTo(noInterstitial.audioAd().getApiTrack().getUrn());
+        assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
+        assertThat(playQueue.getMetaData(1)).isEqualTo(noInterstitial.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, noInterstitial.audioAd().getApiTrack().getUrn()));
@@ -243,8 +240,8 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(apiTrack.getUrn());
-        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toBeEmpty();
+        assertThat(playQueue.getUrn(0)).isEqualTo(apiTrack.getUrn());
+        assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
+        assertThat(playQueue.getMetaData(1)).isEmpty();
     }
 }
