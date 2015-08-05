@@ -27,7 +27,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         super.setUp();
     }
 
-    public void ingore_testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
+    public void testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
         startEventTracking();
 
         final VisualPlayerElement player = menuScreen

@@ -10,7 +10,10 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.elements.PlaylistItemElement;
 
 @EventTrackingTest
 public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
@@ -35,10 +38,12 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void ignore_testLikesUpsellImpressionAndClick() {
+    public void testLikesUpsellImpressionAndClick() {
+        TrackLikesScreen trackLikesScreen = menuScreen.open().clickLikes();
+
         startEventTracking();
-        UpgradeScreen upgradeScreen = menuScreen.open()
-                .clickLikes()
+
+        UpgradeScreen upgradeScreen = trackLikesScreen
                 .clickHeaderOverflowButton()
                 .clickUpsell();
 
@@ -47,11 +52,14 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         finishEventTracking(LIKES_UPSELL_TEST_SCENARIO);
     }
 
-    public void ignore_testPlaylistItemUpsellImpressionAndClick() {
-        startEventTracking();
-        UpgradeScreen upgradeScreen = menuScreen.open()
+    public void testPlaylistItemUpsellImpressionAndClick() {
+        PlaylistItemElement playlistAtPosition = menuScreen.open()
                 .clickPlaylists()
-                .getPlaylistAtPosition(0)
+                .getPlaylistAtPosition(0);
+
+        startEventTracking();
+
+        UpgradeScreen upgradeScreen = playlistAtPosition
                 .clickOverflow()
                 .clickUpsell();
 
@@ -60,10 +68,13 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         finishEventTracking(PLAYLIST_ITEM_UPSELL_TEST_SCENARIO);
     }
 
-    public void ignore_testPlaylistPageImpressionAndClick() {
+    public void testPlaylistPageImpressionAndClick() {
+        PlaylistsScreen playlistsScreen = menuScreen.open()
+                .clickPlaylists();
+
         startEventTracking();
-        UpgradeScreen upgradeScreen = menuScreen.open()
-                .clickPlaylists()
+
+        UpgradeScreen upgradeScreen = playlistsScreen
                 .clickPlaylistAt(0)
                 .clickPlaylistOverflowButton()
                 .clickUpsell();

@@ -11,6 +11,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 
 public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
@@ -45,12 +46,12 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         finishEventTracking(NAV_UPSELL_TEST_SCENARIO);
     }
 
-    public void ignore_testSettingsUpsellImpressionAndClick() {
+    public void testSettingsUpsellImpressionAndClick() {
+        ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
+
         startEventTracking();
 
-        HomeScreen homeScreen = new HomeScreen(solo);
-
-        UpgradeScreen upgradeScreen = homeScreen.actionBar()
+        UpgradeScreen upgradeScreen = toolBarElement
                 .clickSettingsOverflowButton()
                 .clickOfflineSettings()
                 .clickSubscribe();
