@@ -7,7 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -174,7 +174,7 @@ public class NavigationFragment extends Fragment {
 
     private void updateUpsellVisibility() {
         if (featureOperations.upsellMidTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forNavImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forNavImpression());
             upsell.setVisibility(View.VISIBLE);
             upsell.setOnClickListener(new View.OnClickListener() {
                 @Override

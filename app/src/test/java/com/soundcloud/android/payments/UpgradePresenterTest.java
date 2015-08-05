@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -45,11 +46,13 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     private UpgradePresenter controller;
 
     private TestObserver testObserver;
+    private TestEventBus eventBus;
 
     @Before
     public void setUp() {
         testObserver = new TestObserver();
-        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView);
+        eventBus = new TestEventBus();
+        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView, eventBus);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 

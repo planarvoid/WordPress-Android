@@ -25,7 +25,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -603,7 +603,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsUpsellImpressionJson() throws Exception {
-        UpsellTrackingEvent impression = UpsellTrackingEvent.forLikesImpression();
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
 
         jsonDataBuilder.build(impression);
 
@@ -614,13 +614,23 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsUpsellClickJson() throws Exception {
-        UpsellTrackingEvent click = UpsellTrackingEvent.forPlaylistItemClick();
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick();
 
         jsonDataBuilder.build(click);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(click.getTimestamp()))
                 .clickName("clickthrough::consumer_sub_ad")
                 .clickObject("soundcloud:tcode:1011"));
+    }
+
+    @Test
+    public void createsUpgradeSuccessImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
+
+        jsonDataBuilder.build(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(impression.getTimestamp()))
+                .impressionName("consumer_sub_upgrade_success"));
     }
 
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {

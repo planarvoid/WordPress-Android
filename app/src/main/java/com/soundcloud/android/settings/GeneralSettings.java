@@ -18,7 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -79,7 +79,7 @@ class GeneralSettings implements OnPreferenceClickListener {
         if (featureOperations.isOfflineContentEnabled()) {
             addOfflineSettings(settings);
         } else if (featureOperations.upsellMidTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forSettingsImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
             addOfflineSettings(settings);
         }
     }
@@ -102,7 +102,7 @@ class GeneralSettings implements OnPreferenceClickListener {
                     public boolean onPreferenceClick(Preference preference) {
                         parent.startActivity(new Intent(parent, OfflineSettingsActivity.class));
                         if (featureOperations.upsellMidTier()) {
-                            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forSettingsClick());
+                            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
                         }
                         return true;
                     }

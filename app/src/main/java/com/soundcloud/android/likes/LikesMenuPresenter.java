@@ -6,7 +6,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpsellTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -53,7 +53,7 @@ class LikesMenuPresenter {
         menu.setOnMenuItemClickListener(getMenuWrapperListener(fragmentManager));
         configureMenu(menu);
         if (featureOperations.upsellMidTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forLikesImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
         }
     }
 
@@ -68,7 +68,7 @@ class LikesMenuPresenter {
                             syncLikesDialogProvider.get().show(fragmentManager);
                         } else {
                             navigator.openUpgrade(context);
-                            eventBus.publish(EventQueue.TRACKING, UpsellTrackingEvent.forLikesClick());
+                            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
                         }
                         return true;
                     case R.id.action_make_offline_unavailable:

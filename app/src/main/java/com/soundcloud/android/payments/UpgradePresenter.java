@@ -3,7 +3,10 @@ package com.soundcloud.android.payments;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.payments.googleplay.BillingResult;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +24,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     private final PaymentErrorPresenter paymentErrorPresenter;
     private final ConfigurationOperations configurationOperations;
     private final UpgradeView upgradeView;
+    private final EventBus eventBus;
 
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
@@ -32,11 +36,12 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     @Inject
     UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                     ConfigurationOperations configurationOperations, UpgradeView upgradeView) {
+                     ConfigurationOperations configurationOperations, UpgradeView upgradeView, EventBus eventBus) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationOperations = configurationOperations;
         this.upgradeView = upgradeView;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -65,6 +70,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     public void startPurchase() {
         subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
         upgradeView.disableBuyButton();
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonClick());
     }
 
     public void handleBillingResult(BillingResult result) {
@@ -130,6 +136,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
             if (result.isSuccess()) {
                 details = result.getDetails();
                 upgradeView.showBuyButton(details.getPrice());
+                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonImpression());
             } else {
                 paymentErrorPresenter.showConnectionError();
             }
@@ -155,8 +162,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         public void onNext(PurchaseStatus result) {
             switch (result) {
                 case SUCCESS:
-                    configurationOperations.update();
-                    upgradeView.showSuccess();
+                    upgradeSuccess();
                     break;
                 case VERIFY_FAIL:
                     paymentErrorPresenter.showVerifyFail();
@@ -176,6 +182,12 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         public void onError(Throwable e) {
             paymentErrorPresenter.onError(e);
         }
+    }
+
+    private void upgradeSuccess() {
+        configurationOperations.update();
+        upgradeView.showSuccess();
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
     }
 
     private void loadPurchaseOptions() {

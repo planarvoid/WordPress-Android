@@ -9,4 +9,6 @@ public class TrackingCode {
     public static final int UPSELL_PLAYLIST_ITEM = 1011;
     public static final int UPSELL_PLAYLIST_PAGE = 1012;
 
+    public static final int UPGRADE_BUTTON = 3002;
+
 }
