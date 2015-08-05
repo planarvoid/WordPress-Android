@@ -315,11 +315,13 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     public void onLowMemory() {
         onTrimMemory(TRIM_MEMORY_COMPLETE);
+        super.onLowMemory();
     }
 
     @Override
     public void onTrimMemory(int level) {
         memoryReporter.reportMemoryTrim(level);
+        super.onTrimMemory(level);
     }
 
     private boolean isReportingCrashes() {
