@@ -163,8 +163,13 @@ public class NavigationFragment extends Fragment {
         // Update the checked state of the nav items to the last known position. It's important to do this in onResume
         // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
         // not update it to the last selected content fragment
-        listView.setItemChecked(adapter.getPosition(currentSelectedItem), true);
+        listView.setItemChecked(toItemPositionInListView(currentSelectedItem), true);
         updateUpsellVisibility();
+    }
+
+    private int toItemPositionInListView(NavItem currentSelectedItem) {
+        // The header occupies the first position in the list view but is absent from the adapter.
+        return adapter.getPosition(currentSelectedItem) + 1;
     }
 
     private void updateUpsellVisibility() {
