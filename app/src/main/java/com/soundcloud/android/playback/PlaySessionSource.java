@@ -39,6 +39,27 @@ public class PlaySessionSource implements Parcelable {
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
 
+    public static PlaySessionSource forPlaylist(Screen screen, Urn playlist, Urn playlistOwner) {
+        return forPlaylist(screen.get(), playlist, playlistOwner);
+    }
+
+    public static PlaySessionSource forPlaylist(String screen, Urn playlist, Urn playlistOwner) {
+        final PlaySessionSource source = new PlaySessionSource(screen);
+        source.collectionUrn = playlist;
+        source.collectionOwnerUrn = playlistOwner;
+        return source;
+    }
+
+    public static PlaySessionSource forExplore(Screen screen, String version) {
+        return forExplore(screen.get(), version);
+    }
+
+    public static PlaySessionSource forExplore(String screen, String version) {
+        final PlaySessionSource source = new PlaySessionSource(screen);
+        source.exploreVersion = version;
+        return source;
+    }
+
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();
@@ -85,15 +106,6 @@ public class PlaySessionSource implements Parcelable {
 
     public Urn getCollectionOwnerUrn() {
         return collectionOwnerUrn;
-    }
-
-    public void setPlaylist(Urn playlist, Urn playlistOwner) {
-        this.collectionUrn = playlist;
-        this.collectionOwnerUrn = playlistOwner;
-    }
-
-    public void setExploreVersion(String exploreVersion) {
-        this.exploreVersion = exploreVersion;
     }
 
     public boolean originatedInExplore() {

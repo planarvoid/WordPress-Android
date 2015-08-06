@@ -369,9 +369,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private PlaySessionSource getPlaySessionSource() {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-        playSessionSource.setPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
-        return playSessionSource;
+        final String originScreen = Screen.fromBundle(getArguments()).get();
+        return PlaySessionSource.forPlaylist(originScreen, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
     }
 
     @Override

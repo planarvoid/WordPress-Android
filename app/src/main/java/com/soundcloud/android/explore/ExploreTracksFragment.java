@@ -141,8 +141,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final TrackItem track = adapter.getItem(position);
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screenTagExtra);
-        playSessionSource.setExploreVersion(trackingTag);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forExplore(screenTagExtra, trackingTag);
         playbackOperations
                 .playTrackWithRecommendationsLegacy(track.getEntityUrn(), playSessionSource)
                 .subscribe(subscriberProvider.get());

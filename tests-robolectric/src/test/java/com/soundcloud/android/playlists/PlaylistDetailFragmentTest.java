@@ -26,11 +26,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -230,8 +230,7 @@ public class PlaylistDetailFragmentTest {
         TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
 
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        playSessionSource.setPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
 
         when(controller.hasTracks()).thenReturn(true);
 
@@ -256,8 +255,7 @@ public class PlaylistDetailFragmentTest {
         when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        playSessionSource.setPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
 
         getToggleButton(layout).performClick();
 
@@ -545,9 +543,7 @@ public class PlaylistDetailFragmentTest {
     }
 
     private PlaySessionSource getPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        playSessionSource.setPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());;
-        return playSessionSource;
+        return PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
     }
 
 }

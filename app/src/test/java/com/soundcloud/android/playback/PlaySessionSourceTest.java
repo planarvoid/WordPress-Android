@@ -14,6 +14,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,7 +26,7 @@ import java.util.Arrays;
 
 public class PlaySessionSourceTest extends AndroidUnitTest {
     private static final String ORIGIN_PAGE = "origin:page";
-    private static final String EXPLORE_TAG = "explore:123";
+    public static final String EXPLORE_VERSION = "1.0";
     private PublicApiPlaylist playlist;
 
     @Mock SharedPreferences sharedPreferences;
@@ -58,8 +59,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(playlist.getUrn());
@@ -70,26 +70,23 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageAndExploreTag() throws Exception {
-        PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setExploreVersion(EXPLORE_TAG);
+        PlaySessionSource playSessionSource = PlaySessionSource.forExplore(ORIGIN_PAGE, EXPLORE_VERSION);
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(EXPLORE_TAG);
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
     }
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageTrackSourceInfoAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setExploreVersion(EXPLORE_TAG);
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(playlist.getUrn());
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(EXPLORE_TAG);
+        assertThat(playSessionSource.getInitialSource()).isEmpty();
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -103,12 +100,10 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBeParcelable() {
+    public void playlistSessionSourceShouldBeParcelable() {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
-        PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
-        original.setExploreVersion(EXPLORE_TAG);
-        original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
         original.setSearchQuerySourceInfo(searchQuerySourceInfo);
         original.setPromotedSourceInfo(promotedSourceInfo);
 
@@ -120,17 +115,33 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(copy.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(copy.getCollectionUrn()).isEqualTo(playlist.getUrn());
         assertThat(copy.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
-        assertThat(copy.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
-        assertThat(copy.getInitialSourceVersion()).isEqualTo(EXPLORE_TAG);
+        assertThat(copy.getInitialSource()).isEmpty();
+        assertThat(copy.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
         assertThat(copy.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
         assertThat(copy.getPromotedSourceInfo()).isEqualTo(promotedSourceInfo);
     }
 
     @Test
+    public void explorePlaySessionSourceShouldBeParcelable() {
+        final PlaySessionSource source = PlaySessionSource.forExplore(Screen.EXPLORE_AUDIO_GENRE, EXPLORE_VERSION);
+
+        Parcel parcel = Parcel.obtain();
+        source.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+
+        PlaySessionSource copy = new PlaySessionSource(parcel);
+        assertThat(copy.getOriginScreen()).isEqualTo(Screen.EXPLORE_AUDIO_GENRE.get());
+        assertThat(copy.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
+        assertThat(copy.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
+        assertThat(copy.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
+        assertThat(copy.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
+        assertThat(copy.getSearchQuerySourceInfo()).isNull();
+        assertThat(copy.getPromotedSourceInfo()).isNull();
+    }
+
+    @Test
     public void shouldParcelAbsentMetadata() {
-        PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
-        original.setExploreVersion(EXPLORE_TAG);
-        original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);

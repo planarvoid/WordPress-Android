@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.java.collections.PropertySet;
@@ -17,7 +18,6 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayQueueTest {
 
-    private static final String ORIGIN_PAGE = "explore:music:techno";
     private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
 
@@ -25,9 +25,7 @@ public class PlayQueueTest {
 
     @Before
     public void setUp() throws Exception {
-        playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(Urn.forPlaylist(123), Urn.forUser(456));
-        playSessionSource.setExploreVersion("1.0");
+        playSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, Urn.forPlaylist(123), Urn.forUser(456));
     }
 
     @Test
