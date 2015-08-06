@@ -218,7 +218,7 @@ class StreamPlaya implements PlayaListener {
     }
 
     private Playa getNextPlaya() {
-        if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
+        if (skippyFailedToInitialize) {
             return mediaPlayaDelegate;
         }
         return skippyPlayaDelegate;
