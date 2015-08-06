@@ -169,7 +169,7 @@ public class SoundAdapterTest {
     public void playQueueTrackEventForPositionChangedShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
@@ -177,7 +177,7 @@ public class SoundAdapterTest {
     public void playQueueTrackEventForNewQueueShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 

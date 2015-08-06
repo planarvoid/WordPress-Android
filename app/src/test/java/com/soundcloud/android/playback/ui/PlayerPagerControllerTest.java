@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -27,18 +27,17 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.Robolectric;
 import rx.subjects.PublishSubject;
 
 import android.support.v4.view.ViewPager;
@@ -47,8 +46,7 @@ import android.view.View;
 import javax.inject.Provider;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayerPagerControllerTest {
+public class PlayerPagerControllerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(456L);
     private static final PropertySet AUDIO_AD = TestPropertySets.audioAdProperties(TRACK_URN);
@@ -85,7 +83,7 @@ public class PlayerPagerControllerTest {
                 playQueueManager, playbackOperations, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
-        when(viewPager.getContext()).thenReturn(Robolectric.application);
+        when(viewPager.getContext()).thenReturn(context());
         when(playerPagerScrollListener.getPageChangedObservable()).thenReturn(scrollStateObservable);
         when(playQueueDataSource.getCurrentTrackAsQueue()).thenReturn(adQueueData);
         when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
@@ -119,7 +117,7 @@ public class PlayerPagerControllerTest {
         skipListenerArgumentCaptor.getValue().onNext();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
@@ -130,7 +128,7 @@ public class PlayerPagerControllerTest {
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
@@ -147,7 +145,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventForTrackChangeUpdatesPagerAndAdapter() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET, Urn.NOT_SET, 0));
 
         verify(viewPager).setCurrentItem(eq(3), anyBoolean());
     }
@@ -156,7 +154,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventForNewQueueUpdatesPagerAndAdapter() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L), Urn.NOT_SET, 0));
 
         verify(viewPager).setCurrentItem(eq(3), anyBoolean());
     }
@@ -165,7 +163,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueEventShouldNotNotifyDataSetChangeOnTrackChange() {
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L), Urn.NOT_SET, 0));
 
         verify(adapter, never()).notifyDataSetChanged();
     }
@@ -175,7 +173,7 @@ public class PlayerPagerControllerTest {
         when(viewPager.getCurrentItem()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(3);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET, Urn.NOT_SET, 0));
 
         verify(viewPager).setCurrentItem(3, true);
     }
@@ -185,7 +183,7 @@ public class PlayerPagerControllerTest {
         when(viewPager.getCurrentItem()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(4);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET, Urn.NOT_SET, 0));
 
         verify(viewPager).setCurrentItem(4, false);
     }
@@ -215,7 +213,7 @@ public class PlayerPagerControllerTest {
     public void onPlayQueueChangedDoesNotExpandPlayerWhenPlayQueueIsEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1l)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1l), Urn.NOT_SET, 0));
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
     }
@@ -235,7 +233,7 @@ public class PlayerPagerControllerTest {
         controller.onResume();
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
-        Robolectric.runUiThreadTasksIncludingDelayedTasks();
+        Robolectric.flushForegroundThreadScheduler();
         verify(playbackOperations).setPlayQueuePosition(2);
     }
 
@@ -271,9 +269,9 @@ public class PlayerPagerControllerTest {
     @Test
     public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() throws Exception {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET, Urn.NOT_SET, 0));
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.NOT_SET, Urn.NOT_SET, 0));
         Mockito.reset(viewPager);
 
         final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
@@ -287,7 +285,7 @@ public class PlayerPagerControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(2, 2, 2);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN, Urn.NOT_SET, 0));
 
         verify(adapter).setCurrentData(eq(adQueueData));
     }
@@ -297,7 +295,7 @@ public class PlayerPagerControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(1, 1, 2);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN, Urn.NOT_SET, 0));
 
         verify(adapter).setCurrentData(eq(adQueueData));
         verify(viewPager).setCurrentItem(2, true);
@@ -309,7 +307,7 @@ public class PlayerPagerControllerTest {
         setupPositionsForAd(1, 1, 2);
         controller.onResume();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN, Urn.NOT_SET, 0));
 
         verify(adapter, never()).setCurrentData(eq(adQueueData));
         verify(viewPager).setCurrentItem(2, true);
@@ -319,7 +317,7 @@ public class PlayerPagerControllerTest {
     public void pageChangedAfterTrackChangeToAdSetsAdPlayQueue() {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(1, 1, 2);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN, Urn.NOT_SET, 0));
         setupPositionsForAd(2, 2, 2);
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);

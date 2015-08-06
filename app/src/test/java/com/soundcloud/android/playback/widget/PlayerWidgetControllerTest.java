@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -24,17 +24,15 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -43,8 +41,7 @@ import rx.Observable;
 
 import android.content.Context;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayerWidgetControllerTest {
+public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     private PlayerWidgetController controller;
     private final TestEventBus eventBus = new TestEventBus();
@@ -73,7 +70,7 @@ public class PlayerWidgetControllerTest {
                 trackRepository,
                 eventBus,
                 likeOperations);
-        when(context.getResources()).thenReturn(Robolectric.application.getResources());
+        when(context.getResources()).thenReturn(resources());
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
@@ -102,7 +99,7 @@ public class PlayerWidgetControllerTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -115,7 +112,7 @@ public class PlayerWidgetControllerTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, audioAdProperties));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, Urn.NOT_SET, audioAdProperties, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack.merge(audioAdProperties)));
     }
@@ -125,7 +122,7 @@ public class PlayerWidgetControllerTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(WIDGET_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(WIDGET_TRACK_URN, Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -143,8 +140,8 @@ public class PlayerWidgetControllerTest {
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        expect(captor.getValue().get(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).toBeFalse();
+        assertThat(captor.getValue().get(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).isFalse();
     }
 
     @Test
@@ -159,8 +156,8 @@ public class PlayerWidgetControllerTest {
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        expect(captor.getValue().get(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).toBeTrue();
+        assertThat(captor.getValue().get(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).isTrue();
     }
 
     @Test
@@ -268,7 +265,7 @@ public class PlayerWidgetControllerTest {
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", WIDGET_TRACK_URN);
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 }

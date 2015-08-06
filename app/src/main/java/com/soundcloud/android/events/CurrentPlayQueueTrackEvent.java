@@ -10,29 +10,32 @@ public final class CurrentPlayQueueTrackEvent {
 
     private final int kind;
     private final Urn currentTrackUrn;
-
+    private final Urn collectionUrn;
     private final PropertySet currentMetaData;
+    private final int position;
 
-    private CurrentPlayQueueTrackEvent(int kind, Urn currentTrackUrn, PropertySet currentMetaData) {
+    private CurrentPlayQueueTrackEvent(int kind, Urn currentTrackUrn, Urn collectionUrn, PropertySet currentMetaData, int position) {
         this.kind = kind;
         this.currentTrackUrn = currentTrackUrn;
+        this.collectionUrn = collectionUrn;
         this.currentMetaData = currentMetaData;
+        this.position = position;
     }
 
-    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn) {
-        return fromNewQueue(trackUrn, PropertySet.create());
+    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn, Urn collectionUrn, int position) {
+        return fromNewQueue(trackUrn, collectionUrn, PropertySet.create(), position);
     }
 
-    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn, PropertySet metaData) {
-        return new CurrentPlayQueueTrackEvent(NEW_QUEUE, trackUrn, metaData);
+    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn, Urn collectionUrn, PropertySet metaData, int position) {
+        return new CurrentPlayQueueTrackEvent(NEW_QUEUE, trackUrn, collectionUrn, metaData, position);
     }
 
-    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn) {
-            return fromPositionChanged(trackUrn, PropertySet.create());
+    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn, Urn collectionUrn, int position) {
+            return fromPositionChanged(trackUrn, collectionUrn, PropertySet.create(), position);
     }
 
-    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn, PropertySet metaData) {
-        return new CurrentPlayQueueTrackEvent(POSITION_CHANGED, trackUrn, metaData);
+    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn, Urn collectionUrn, PropertySet metaData, int position) {
+        return new CurrentPlayQueueTrackEvent(POSITION_CHANGED, trackUrn, collectionUrn, metaData, position);
     }
 
     public int getKind() {
@@ -43,22 +46,32 @@ public final class CurrentPlayQueueTrackEvent {
         return currentTrackUrn;
     }
 
+    public Urn getCollectionUrn() { return collectionUrn; }
+
     public PropertySet getCurrentMetaData() {
         return currentMetaData;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof CurrentPlayQueueTrackEvent) {
-            CurrentPlayQueueTrackEvent event = (CurrentPlayQueueTrackEvent) o;
-            return event.getKind() == kind && event.getCurrentTrackUrn().equals(currentTrackUrn);
+        if (this == o) {
+            return true;
         }
-        return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CurrentPlayQueueTrackEvent that = (CurrentPlayQueueTrackEvent) o;
+
+        return MoreObjects.equal(kind, that.getKind())
+                && MoreObjects.equal(currentTrackUrn, that.getCurrentTrackUrn())
+                && MoreObjects.equal(collectionUrn, that.getCollectionUrn())
+                && MoreObjects.equal(currentMetaData, that.getCurrentMetaData());
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(kind, currentTrackUrn);
+        return MoreObjects.hashCode(kind, currentTrackUrn, collectionUrn, currentMetaData);
     }
 
     @Override

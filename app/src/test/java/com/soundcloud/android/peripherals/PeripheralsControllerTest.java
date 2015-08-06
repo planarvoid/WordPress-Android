@@ -1,6 +1,6 @@
 package com.soundcloud.android.peripherals;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,8 +11,8 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -20,7 +20,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -29,8 +28,7 @@ import rx.Observable;
 import android.content.Context;
 import android.content.Intent;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PeripheralsControllerTest {
+public class PeripheralsControllerTest extends AndroidUnitTest {
 
     private PeripheralsController controller;
 
@@ -55,7 +53,7 @@ public class PeripheralsControllerTest {
     public void shouldSendBroadcastWithNotPlayingExtraOnSubscribingToPlaybackStateChangedQueue() {
         verify(context).sendBroadcast(captor.capture());
         Intent firstBroadcast = captor.getAllValues().get(0);
-        expect(firstBroadcast.getExtras().get("playing")).toEqual(false);
+        assertThat(firstBroadcast.getExtras().get("playing")).isEqualTo(false);
     }
 
     @Test
@@ -63,7 +61,7 @@ public class PeripheralsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getExtras().get("playing")).toEqual(true);
+        assertThat(secondBroadcast.getExtras().get("playing")).isEqualTo(true);
     }
 
     @Test
@@ -71,7 +69,7 @@ public class PeripheralsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getExtras().get("playing")).toEqual(false);
+        assertThat(secondBroadcast.getExtras().get("playing")).isEqualTo(false);
     }
 
     @Test
@@ -79,7 +77,7 @@ public class PeripheralsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getAction()).toEqual("com.android.music.playstatechanged");
+        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.playstatechanged");
     }
 
     @Test
@@ -88,14 +86,14 @@ public class PeripheralsControllerTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getAction()).toEqual("com.android.music.metachanged");
-        expect(secondBroadcast.getExtras().get("id")).toEqual(track.get(TrackProperty.URN).getNumericId());
-        expect(secondBroadcast.getExtras().get("artist")).toEqual(track.get(PlayableProperty.CREATOR_NAME));
-        expect(secondBroadcast.getExtras().get("track")).toEqual(track.get(PlayableProperty.TITLE));
-        expect(secondBroadcast.getExtras().get("duration")).toEqual(track.get(PlayableProperty.DURATION));
+        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
+        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.get(TrackProperty.URN).getNumericId());
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.get(PlayableProperty.CREATOR_NAME));
+        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.get(PlayableProperty.TITLE));
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(PlayableProperty.DURATION));
     }
 
     @Test
@@ -103,11 +101,11 @@ public class PeripheralsControllerTest {
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getAction()).toEqual("com.android.music.metachanged");
-        expect(secondBroadcast.getExtras().get("id")).toEqual("");
-        expect(secondBroadcast.getExtras().get("artist")).toEqual("");
-        expect(secondBroadcast.getExtras().get("track")).toEqual("");
-        expect(secondBroadcast.getExtras().get("duration")).toEqual(0);
+        assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
+        assertThat(secondBroadcast.getExtras().get("id")).isEqualTo("");
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");
+        assertThat(secondBroadcast.getExtras().get("track")).isEqualTo("");
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(0);
     }
 
     @Test
@@ -117,10 +115,10 @@ public class PeripheralsControllerTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
-        expect(secondBroadcast.getExtras().get("artist")).toEqual("");
+        assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");
     }
 
     private Intent verifyTwoBroadcastsSentAndCaptureTheSecond() {

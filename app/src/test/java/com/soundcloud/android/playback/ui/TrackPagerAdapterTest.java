@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -26,15 +26,14 @@ import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.Playa.PlayaState;
 import com.soundcloud.android.playback.Playa.Reason;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -48,8 +47,7 @@ import android.view.ViewGroup;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackPagerAdapterTest {
+public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     private static final Urn TRACK1_URN = Urn.forTrack(123L);
     private static final Urn TRACK2_URN = Urn.forTrack(234L);
@@ -119,7 +117,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void getCountReturnsCurrentPlayQueueSize() {
         when(playQueueManager.getQueueSize()).thenReturn(4);
-        expect(adapter.getCount()).toBe(4);
+        assertThat(adapter.getCount()).isEqualTo(4);
     }
 
     @Test
@@ -279,7 +277,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldCreateTrackViewForTracks() {
-        expect(getPageView()).toBe(view6);
+        assertThat(getPageView()).isSameAs(view6);
     }
 
     @Test
@@ -307,17 +305,17 @@ public class TrackPagerAdapterTest {
 
         verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true), eq(true), same(viewVisibilityProvider));
 
-        expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
-        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);
-        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_TITLE)).toEqual("title");
-        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_CREATOR)).toEqual("artist");
+        assertThat(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).isTrue();
+        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_TITLE)).isEqualTo("title");
+        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_CREATOR)).isEqualTo("artist");
 
-        expect(captorPropertySet.getValue().contains(AdProperty.DEFAULT_TEXT_COLOR)).toBeTrue();
-        expect(captorPropertySet.getValue().contains(AdProperty.DEFAULT_BACKGROUND_COLOR)).toBeTrue();
-        expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_TEXT_COLOR)).toBeTrue();
-        expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
-        expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
-        expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).toBeTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.DEFAULT_TEXT_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.DEFAULT_BACKGROUND_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.FOCUSED_TEXT_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).isTrue();
     }
 
     @Test
@@ -356,7 +354,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void getItemPositionReturnsNoneForCustomRecycling() {
-        expect(adapter.getItemPosition(getPageView())).toBe(POSITION_NONE);
+        assertThat(adapter.getItemPosition(getPageView())).isSameAs(POSITION_NONE);
     }
 
     @Test
@@ -464,7 +462,7 @@ public class TrackPagerAdapterTest {
         final View viewForOtherTrack = getPageView(3, MONETIZABLE_TRACK_URN);
         setCurrentTrackState(3, MONETIZABLE_TRACK_URN, true);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(MONETIZABLE_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(MONETIZABLE_TRACK_URN, Urn.NOT_SET, 0));
 
         verify(trackPagePresenter, times(2)).clearAdOverlay(viewForCurrentTrack);
         verify(trackPagePresenter, never()).clearAdOverlay(viewForOtherTrack);

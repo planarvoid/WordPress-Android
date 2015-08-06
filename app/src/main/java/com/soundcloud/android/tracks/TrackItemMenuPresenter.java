@@ -47,7 +47,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final Func1<Station, Observable<PlaybackResult>> toPlaybackResult = new Func1<Station, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(Station station) {
-            return playbackOperations.playTracks(station.getTracks(), station.getStartPosition(), new PlaySessionSource(screenProvider.getLastScreenTag()));
+            return playbackOperations.playTracks(station.getTracks(), station.getStartPosition(), PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn()));
         }
     };
 
