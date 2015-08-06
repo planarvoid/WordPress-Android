@@ -146,9 +146,9 @@ class SoundStreamOperations {
                 .doOnNext(promotedImpressionAction);
     }
 
-    public Observable<List<Urn>> trackUrnsForPlayback() {
+    public Observable<List<PropertySet>> trackUrnsForPlayback() {
         return soundStreamStorage
-                .trackUrns()
+                .tracksForPlayback()
                 .subscribeOn(scheduler)
                 .toList();
     }

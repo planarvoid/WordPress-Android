@@ -9,7 +9,6 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
 import com.soundcloud.android.api.legacy.model.Sharing;
-import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
@@ -27,8 +26,6 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
-
-import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -61,6 +58,11 @@ class SoundStreamStorage {
             PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
             PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
             PromotedTracks.TRACKING_PROFILE_CLICKED_URLS
+    };
+
+    private static final Object[] TRACKS_FOR_PLAYBACK_SELECTION = new Object[] {
+            SoundStreamView.SOUND_ID,
+            SoundStreamView.REPOSTER_ID
     };
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
@@ -115,11 +117,11 @@ class SoundStreamStorage {
         return database.query(query).toList(new StreamItemMapper());
     }
 
-    public Observable<Urn> trackUrns() {
+    public Observable<PropertySet> tracksForPlayback() {
         Query query = Query.from(Table.SoundStreamView.name())
-                .select(field(SoundStreamView.SOUND_ID).as(BaseColumns._ID))
+                .select(TRACKS_FOR_PLAYBACK_SELECTION)
                 .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
-        return propellerRx.query(query).map(new TrackUrnMapper());
+        return propellerRx.query(query).map(new TrackForPlaybackMapper());
     }
 
     private static class StreamItemMapper extends RxResultMapper<PropertySet> {
@@ -197,6 +199,19 @@ class SoundStreamStorage {
 
         private static int getSoundType(CursorReader cursorReader) {
             return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
+        }
+    }
+
+    private static final class TrackForPlaybackMapper extends RxResultMapper<PropertySet> {
+        @Override
+        public PropertySet map(CursorReader cursorReader) {
+            final PropertySet propertySet = PropertySet.from(
+                    TrackProperty.URN.bind(Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID)))
+            );
+            if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)){
+                propertySet.put(TrackProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+            }
+            return propertySet;
         }
     }
 

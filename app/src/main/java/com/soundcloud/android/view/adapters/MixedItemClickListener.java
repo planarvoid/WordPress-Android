@@ -12,6 +12,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
 import android.content.Context;
@@ -55,6 +56,23 @@ public class MixedItemClickListener {
                 playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
                 playbackOperations
                         .playTracks(playables, item.getEntityUrn(), position, playSessionSource)
+                        .subscribe(subscriberProvider.get());
+            }
+        } else {
+            handleNonTrackItemClick(view, clickedItem);
+        }
+    }
+
+    public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
+        if (clickedItem.getEntityUrn().isTrack()) {
+            final TrackItem item = (TrackItem) clickedItem;
+            if (shouldShowUpsell(item)) {
+                navigator.openUpgrade(view.getContext());
+            } else {
+                final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+                playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+                playbackOperations
+                        .playPosts(playables, item.getEntityUrn(), position, playSessionSource)
                         .subscribe(subscriberProvider.get());
             }
         } else {
