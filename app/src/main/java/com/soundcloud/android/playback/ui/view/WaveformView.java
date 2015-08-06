@@ -260,14 +260,10 @@ public class WaveformView extends FrameLayout {
 
     public void setWaveformData(WaveformData waveformData, int adjustedWidth) {
         double totalSamples = adjustedWidth / (barWidth + spaceWidth);
-        WaveformData scaled = waveformData.scale(totalSamples);
 
+        WaveformData scaled = waveformData.scale(totalSamples);
         leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint, barWidth, spaceWidth, baseline);
         rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint, barWidth, spaceWidth, baseline);
-
-        leftWaveform.setScaleY(0);
-        rightWaveform.setScaleY(0);
-
         dragViewHolder.setAreaWidth(adjustedWidth);
     }
 }
