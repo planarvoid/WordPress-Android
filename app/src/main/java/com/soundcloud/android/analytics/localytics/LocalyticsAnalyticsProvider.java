@@ -21,7 +21,6 @@ import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.objects.MoreObjects;
@@ -168,7 +167,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             Map<String, String> eventAttributes = new HashMap<>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
-            eventAttributes.put("track_id", String.valueOf(new Urn(eventData.get(PlaybackSessionEvent.KEY_TRACK_URN)).getNumericId()));
+            eventAttributes.put("track_id", String.valueOf(eventData.getTrackUrn().getNumericId()));
 
             final long duration = eventData.getDuration();
             eventAttributes.put("track_length_ms", String.valueOf(duration));

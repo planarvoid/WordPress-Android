@@ -210,16 +210,17 @@ public abstract class TestPropertySets {
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, String policy, long duration) {
+    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
+                TrackProperty.CREATOR_URN.bind(creatorUrn),
                 TrackProperty.POLICY.bind(policy),
                 PlayableProperty.DURATION.bind(duration)
         );
     }
 
-    public static PropertySet expectedTrackForAnalytics(Urn trackUrn) {
-        return expectedTrackForAnalytics(trackUrn, "allow", 1000);
+    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn) {
+        return expectedTrackForAnalytics(trackUrn, creatorUrn, "allow", 1000);
     }
 
     public static PropertySet fromApiTrack() {

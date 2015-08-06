@@ -5,7 +5,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.model.Urn;
 
 import android.net.Uri;
 
@@ -25,7 +24,7 @@ class PlayCountUrlBuilder {
     }
 
     String buildUrl(PlaybackSessionEvent event) {
-        final long trackId = new Urn(event.get(PlaybackSessionEvent.KEY_TRACK_URN)).getNumericId();
+        final long trackId = event.getTrackUrn().getNumericId();
         final Uri.Builder builder = Uri.parse(PUBLIC_API_BASE_URI + ApiEndpoints.LOG_PLAY.unencodedPath(trackId))
                 .buildUpon()
                 .appendQueryParameter("client_id", oauth.getClientId());

@@ -144,6 +144,9 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         playQueueItems.add(playQueueItem);
     }
 
+    Urn getReposter(int position) {
+        return playQueueItems.get(position).getReposter();
+    }
 
     String getTrackSource(int position) {
         return playQueueItems.get(position).getSource();

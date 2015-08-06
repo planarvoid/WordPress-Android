@@ -9,6 +9,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIC
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_TARGET;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIENT_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DURATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
@@ -18,6 +19,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPR
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
@@ -34,11 +36,14 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUER
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TIMESTAMP;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK_LENGTH;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK_OWNER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRIGGER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
@@ -123,7 +128,7 @@ final class EventLoggerEventData {
     }
 
     public EventLoggerEventData trackLength(long length) {
-        addToPayload(EventLoggerParam.TRACK_LENGTH, String.valueOf(length));
+        addToPayload(TRACK_LENGTH, String.valueOf(length));
         return this;
     }
 
@@ -164,6 +169,26 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData track(Urn trackUrn) {
         addToPayload(TRACK, String.valueOf(trackUrn));
+        return this;
+    }
+
+    public EventLoggerEventData trackOwner(Urn trackOwner) {
+        addToPayload(TRACK_OWNER, String.valueOf(trackOwner));
+        return this;
+    }
+
+    public EventLoggerEventData reposter(Urn reposter) {
+        addToPayload(REPOSTER, String.valueOf(reposter));
+        return this;
+    }
+
+    public EventLoggerEventData localStoragePlayback(boolean isLocalStoragePlayback) {
+        addToPayload(LOCAL_STORAGE_PLAYBACK, String.valueOf(isLocalStoragePlayback));
+        return this;
+    }
+
+    public EventLoggerEventData consumerSubsPlan(String plan) {
+        addToPayload(CONSUMER_SUBS_PLAN, plan);
         return this;
     }
 

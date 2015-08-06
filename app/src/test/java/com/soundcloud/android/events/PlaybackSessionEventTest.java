@@ -22,10 +22,12 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
-    private static final Urn USER_URN = Urn.forUser(1L);
+    private static final Urn LOGGED_IN_USER_URN = Urn.forUser(1L);
+    private static final Urn CREATOR_URN = Urn.forUser(2L);
     private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = PropertySet.from(
             TrackProperty.URN.bind(TRACK_URN),
+            TrackProperty.CREATOR_URN.bind(CREATOR_URN),
             TrackProperty.POLICY.bind("allow"),
             PlayableProperty.DURATION.bind(DURATION)
     );
@@ -38,59 +40,59 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
-        );
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING,
+                false);
         assertThat(stopEvent.getListenTime()).isEqualTo(stopEvent.getTimestamp() - playEvent.getTimestamp());
     }
 
     @Test
     public void stopEventSetsStopReason() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
-        );
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING,
+                false);
         assertThat(stopEvent.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_BUFFERING);
     }
 
     @Test
     public void playEventWithNegativeProgressIsNotAFirstPlay() throws Exception {
         long progress = -1L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
         assertThat(playEvent.isFirstPlay()).isFalse();
     }
 
     @Test
     public void playEventWithProgressZeroIsAFirstPlay() throws Exception {
         long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
         assertThat(playEvent.isFirstPlay()).isTrue();
     }
 
     @Test
     public void playEventWithProgress500msIsAFirstPlay() {
         long progress = 500L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
         assertThat(playEvent.isFirstPlay()).isTrue();
     }
 
     @Test
     public void playEventWithProgressGreaterThan500msIsNotAFirstPlay() {
         long progress = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
         assertThat(playEvent.isFirstPlay()).isFalse();
     }
 
     @Test
     public void stopEventWithProgressZeroIsNotAFirstPlay() {
         long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, false);
         assertThat(stopEvent.isFirstPlay()).isFalse();
     }
 
     @Test
     public void noMonetizationTypeIndicatesNoAudioAdOrPromotedTrack() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
         assertThat(playEvent.isAd()).isFalse();
         assertThat(playEvent.isPromotedTrack()).isFalse();
     }
@@ -99,10 +101,10 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     public void eventWithAudioAdMonetizationTypeIndicatesAnAudioAd() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 AUDIO_AD_TRACK_DATA,
-                USER_URN,
+                LOGGED_IN_USER_URN,
                 trackSourceInfo, 0L, "hls",
                 PLAYER_TYPE,
-                CONNECTION_TYPE).withAudioAd(AUDIO_AD_DATA);
+                CONNECTION_TYPE, false).withAudioAd(AUDIO_AD_DATA);
 
         assertThat(playEvent.isAd()).isTrue();
     }
@@ -113,10 +115,10 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 AUDIO_AD_TRACK_DATA,
-                USER_URN,
+                LOGGED_IN_USER_URN,
                 trackSourceInfo, 0L, "hls",
                 PLAYER_TYPE,
-                CONNECTION_TYPE).withPromotedTrack(promotedInfo);
+                CONNECTION_TYPE, false).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.isPromotedTrack()).isTrue();
     }
@@ -126,8 +128,8 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
 
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
-                USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAd);
+                TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN),
+                LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false).withAudioAd(audioAd);
 
         assertThat(event.isAd()).isTrue();
         assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("ad:audio:123");

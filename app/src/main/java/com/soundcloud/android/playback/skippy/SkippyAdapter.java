@@ -296,6 +296,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
+            transition.addExtraAttribute(StateTransition.EXTRA_URI, uri);
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;

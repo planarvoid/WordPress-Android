@@ -5,6 +5,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -20,20 +21,21 @@ import javax.inject.Inject;
 public class EventLoggerV1JsonDataBuilder {
 
     private static final String AUDIO_EVENT = "audio";
-    private static final String BOOGALOO_VERSION = "v0.0.0";
+    private static final String BOOGALOO_VERSION = "v1.0.0";
 
     protected final String appId;
     protected final DeviceHelper deviceHelper;
     protected final ExperimentOperations experimentOperations;
     protected final AccountOperations accountOperations;
-
+    private final FeatureOperations featureOperations;
     private final JsonTransformer jsonTransformer;
 
     @Inject
     public EventLoggerV1JsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
                                         DeviceHelper deviceHelper, AccountOperations accountOperations,
-                                        JsonTransformer jsonTransformer) {
+                                        JsonTransformer jsonTransformer, FeatureOperations featureOperations) {
         this.accountOperations = accountOperations;
+        this.featureOperations = featureOperations;
         this.appId = resources.getString(R.string.app_id);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
@@ -51,6 +53,9 @@ public class EventLoggerV1JsonDataBuilder {
                 .playheadPosition(event.getProgress())
                 .trackLength(event.getDuration())
                 .track(urn)
+                .trackOwner(event.getCreatorUrn())
+                .localStoragePlayback(event.isOfflineTrack())
+                .consumerSubsPlan(featureOperations.getPlan())
                 .trigger(getTrigger(event.getTrackSourceInfo()))
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
@@ -76,6 +81,10 @@ public class EventLoggerV1JsonDataBuilder {
         if (trackSourceInfo.isFromPlaylist()) {
             data.inPlaylist(trackSourceInfo.getPlaylistUrn());
             data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
+        }
+
+        if (trackSourceInfo.hasReposter()){
+            data.reposter(trackSourceInfo.getReposter());
         }
 
         if (trackSourceInfo.isFromSearchQuery()) {
