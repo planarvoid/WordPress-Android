@@ -15,7 +15,7 @@ import java.util.Iterator;
 /**
  * Custom assertion class for testing Android services.
  */
-public class ServiceAssert extends AbstractAssert<ServiceAssert, Service> {
+public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> {
 
     public ServiceAssert(Service actual) {
         super(actual, ServiceAssert.class);
