@@ -20,7 +20,10 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
+import dagger.Lazy;
 
 import android.content.SharedPreferences;
 
@@ -32,14 +35,21 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
     private final EventTracker eventTracker;
-    private final EventLoggerJsonDataBuilder dataBuilder;
+    private final Lazy<EventLoggerJsonDataBuilder> dataBuilderV0;
+    private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerJsonDataBuilder dataBuilder, SharedPreferences sharedPreferences) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker,
+                                        Lazy<EventLoggerJsonDataBuilder> dataBuilderV0,
+                                        Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
+                                        SharedPreferences sharedPreferences, FeatureFlags featureFlags) {
         this.sharedPreferences = sharedPreferences;
-        this.dataBuilder = dataBuilder;
+        this.dataBuilderV0 = dataBuilderV0;
+        this.dataBuilderV1 = dataBuilderV1;
         this.eventTracker = eventTracker;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -85,11 +95,11 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleForegroundEvent(ForegroundEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     private void handleScreenEvent(ScreenEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     @Override
@@ -97,22 +107,22 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {
-        final String url = dataBuilder.build(event);
+        final String url = dataBuilderV0.get().build(event);
         trackEvent(event.getTimestamp(), url);
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
         if (AdOverlayTrackingEvent.KIND_CLICK.equals(event.getKind()) || AdOverlayTrackingEvent.KIND_IMPRESSION.equals(event.getKind())) {
-            trackEvent(event.getTimestamp(), dataBuilder.build(event));
+            trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
         }
     }
 
     private void handlePromotedEvent(PromotedTrackingEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilder.build(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
     private void handleUpsellEvent(UpgradeTrackingEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
@@ -123,16 +133,16 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
                 trackAudioAdFinished(event);
             }
         }
-        trackAudioPlayEvent(event);
+        trackAudioSessionEvent(event);
     }
 
     private void handleMidTierTrackEvent(MidTierTrackEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     private void handleUIEvent(UIEvent event) {
         if (UIEvent.KIND_AUDIO_AD_CLICK.equals(event.getKind()) || UIEvent.KIND_SKIP_AUDIO_AD_CLICK.equals(event.getKind())) {
-            trackEvent(event.getTimestamp(), dataBuilder.build(event));
+            trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
         }
     }
 
@@ -141,7 +151,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case SearchEvent.KIND_RESULTS:
             case SearchEvent.KIND_SUBMIT:
             case SearchEvent.KIND_SUGGESTION:
-                trackEvent(event.getTimestamp(), dataBuilder.build(event));
+                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
                 break;
             default:
                 // no-op, ignoring certain types
@@ -151,24 +161,29 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilder.build(eventData));
+        trackEvent(eventData.getTimeStamp(), dataBuilderV0.get().build(eventData));
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilder.build(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
     private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAudioAdImpression(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioAdImpression(eventData));
     }
 
     private void trackAudioAdFinished(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAdFinished(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAdFinished(eventData));
     }
 
-    private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAudioEvent(eventData));
+    private void trackAudioSessionEvent(PlaybackSessionEvent eventData) {
+        if (featureFlags.isEnabled(Flag.EVENTLOGGER_AUDIO_V1)){
+            trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAudioEvent(eventData));
+        } else {
+            trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioEvent(eventData));
+        }
+
     }
 
     private void trackEvent(long timeStamp, String data) {

@@ -273,7 +273,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")
-                .playlistPosition("2")
+                .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g"));
@@ -288,7 +288,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
                 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE , CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
@@ -301,7 +301,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")
-                .playlistPosition("2")
+                .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
                 .reason("playback_error")
@@ -328,7 +328,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")
-                .playlistPosition("2")
+                .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
@@ -360,7 +360,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")
-                .playlistPosition("2")
+                .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
@@ -391,7 +391,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")
-                .playlistPosition("2")
+                .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")

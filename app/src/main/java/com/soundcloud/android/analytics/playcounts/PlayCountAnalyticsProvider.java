@@ -11,6 +11,8 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UserSessionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import javax.inject.Inject;
 
@@ -21,11 +23,13 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
 
     private final EventTracker eventTracker;
     private final PlayCountUrlBuilder urlBuilder;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public PlayCountAnalyticsProvider(EventTracker eventTracker, PlayCountUrlBuilder urlBuilder) {
+    public PlayCountAnalyticsProvider(EventTracker eventTracker, PlayCountUrlBuilder urlBuilder, FeatureFlags featureFlags) {
         this.eventTracker = eventTracker;
         this.urlBuilder = urlBuilder;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        if (event instanceof PlaybackSessionEvent) {
+        if (event instanceof PlaybackSessionEvent && featureFlags.isDisabled(Flag.EVENTLOGGER_AUDIO_V1)) {
             handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         }
     }

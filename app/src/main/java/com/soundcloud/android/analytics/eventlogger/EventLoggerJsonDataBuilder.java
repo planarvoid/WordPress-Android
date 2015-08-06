@@ -259,7 +259,7 @@ public class EventLoggerJsonDataBuilder {
         }
         if (trackSourceInfo.isFromPlaylist()) {
             data.playlistId(String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
-            data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
+            data.playlistPositionV0(String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
         if (trackSourceInfo.isFromSearchQuery()) {

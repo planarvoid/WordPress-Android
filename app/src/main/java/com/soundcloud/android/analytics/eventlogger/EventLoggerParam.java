@@ -7,14 +7,16 @@ class EventLoggerParam {
     static final String USER = "user";
     // audio event params
     static final String ACTION = "action";
-    static final String DURATION = "duration";
-    static final String SOUND = "sound";
+    static final String TRACK = "track";
+    static final String TRACK_LENGTH = "track_length";
     static final String PAGE_NAME = "page_name";
     static final String TRIGGER = "trigger";
     static final String SOURCE = "source";
     static final String SOURCE_VERSION = "source_version";
-    static final String PLAYLIST_ID = "set_id";
-    static final String PLAYLIST_POSITION = "set_position";
+    static final String IN_PLAYLIST = "in_playlist";
+    static final String PLAYLIST_POSITION = "playlist_position";
+    static final String PLAYHEAD_POSITION = "playhead_position";
+
     // ad specific params
     static final String AD_URN = "ad_urn";
     static final String EXTERNAL_MEDIA = "external_media";
@@ -46,4 +48,14 @@ class EventLoggerParam {
     // foreground
     static final String PAGE_URN = "page_urn";
     static final String REFERRER = "referrer";
+
+    //audio v0
+    @Deprecated
+    static final String PLAYLIST_ID = "set_id";
+    @Deprecated
+    static final String PLAYLIST_POSITION_v0 = "set_position";
+    @Deprecated
+    static final String DURATION = "duration";
+    @Deprecated
+    static final String SOUND = "sound";
 }

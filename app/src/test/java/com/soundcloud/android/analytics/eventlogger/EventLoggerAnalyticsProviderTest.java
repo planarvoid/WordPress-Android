@@ -28,8 +28,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -48,8 +50,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
     @Mock private EventTracker eventTracker;
-    @Mock private EventLoggerJsonDataBuilder dataBuilder;
+    @Mock private EventLoggerJsonDataBuilder dataBuilderv0;
+    @Mock private EventLoggerV1JsonDataBuilder dataBuilderv1;
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private FeatureFlags featureFlags;
 
     private Urn userUrn = Urn.forUser(123L);
     private TrackSourceInfo trackSourceInfo;
@@ -57,7 +61,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilder, sharedPreferences);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, InjectionSupport.lazyOf(dataBuilderv0),
+                InjectionSupport.lazyOf(dataBuilderv1), sharedPreferences, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }
@@ -68,8 +73,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         when(event.isAd()).thenReturn(true);
         when(event.isFirstPlay()).thenReturn(true);
         when(event.getTimestamp()).thenReturn(12345L);
-        when(dataBuilder.buildForAudioAdImpression(event)).thenReturn("adUrl");
-        when(dataBuilder.buildForAudioEvent(event)).thenReturn("url");
+        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("adUrl");
+        when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -89,8 +94,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
-        when(dataBuilder.buildForAdFinished(event)).thenReturn("clickUrl");
-        when(dataBuilder.buildForAudioEvent(event)).thenReturn("audioEventUrl");
+        when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
+        when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("audioEventUrl");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -109,7 +114,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
         PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
-        when(dataBuilder.buildForAudioEvent(event)).thenReturn("url");
+        when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -124,7 +129,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri", userUrn);
-        when(dataBuilder.build(event)).thenReturn("url");
+        when(dataBuilderv0.build(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
@@ -138,7 +143,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format", ConnectionType.FOUR_G);
-        when(dataBuilder.build(event)).thenReturn("url");
+        when(dataBuilderv0.build(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 
@@ -153,8 +158,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackAudioAdRelatedUIEvents() {
         UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo);
         UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
-        when(dataBuilder.build(event1)).thenReturn("url1");
-        when(dataBuilder.build(event2)).thenReturn("url2");
+        when(dataBuilderv0.build(event1)).thenReturn("url1");
+        when(dataBuilderv0.build(event2)).thenReturn("url2");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event1);
         eventLoggerAnalyticsProvider.handleTrackingEvent(event2);
@@ -174,7 +179,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLeaveBehindImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
-        when(dataBuilder.build(event)).thenReturn("ForAudioAdImpression");
+        when(dataBuilderv0.build(event)).thenReturn("ForAudioAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
@@ -186,7 +191,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLeaveBehindClickTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
-        when(dataBuilder.build(event)).thenReturn("ForAudioAdClick");
+        when(dataBuilderv0.build(event)).thenReturn("ForAudioAdClick");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
@@ -198,7 +203,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackPromotedTrackEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
-        when(dataBuilder.build(event)).thenReturn("ForPromotedEvent");
+        when(dataBuilderv0.build(event)).thenReturn("ForPromotedEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -210,7 +215,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackMidTierTrackEvent() {
         MidTierTrackEvent event = MidTierTrackEvent.forImpression(Urn.forTrack(123), "screen_tag");
-        when(dataBuilder.build(event)).thenReturn("ForMidTierTrackEvent");
+        when(dataBuilderv0.build(event)).thenReturn("ForMidTierTrackEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -231,7 +236,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackScreenEvent() {
         ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
-        when(dataBuilder.build(event)).thenReturn("ForScreenEvent");
+        when(dataBuilderv0.build(event)).thenReturn("ForScreenEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -243,7 +248,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackUpsellEvent() {
         UpgradeTrackingEvent event = UpgradeTrackingEvent.forNavClick();
-        when(dataBuilder.build(event)).thenReturn("ForUpsellEvent");
+        when(dataBuilderv0.build(event)).thenReturn("ForUpsellEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -283,7 +288,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {
-        when(dataBuilder.build(event)).thenReturn(name);
+        when(dataBuilderv0.build(event)).thenReturn(name);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 

@@ -16,6 +16,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORM
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
@@ -23,8 +24,10 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION_v0;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
@@ -35,12 +38,14 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUN
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TIMESTAMP;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRIGGER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
 
@@ -117,13 +122,8 @@ final class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData duration(long duration) {
-        addToPayload(DURATION, String.valueOf(duration));
-        return this;
-    }
-
-    public EventLoggerEventData sound(String legacySoundUrn) {
-        addToPayload(SOUND, legacySoundUrn);
+    public EventLoggerEventData trackLength(long length) {
+        addToPayload(EventLoggerParam.TRACK_LENGTH, String.valueOf(length));
         return this;
     }
 
@@ -157,8 +157,13 @@ final class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData playlistId(String playlistId) {
-        addToPayload(PLAYLIST_ID, playlistId);
+    public EventLoggerEventData inPlaylist(Urn playlistUrn) {
+        addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
+        return this;
+    }
+
+    public EventLoggerEventData track(Urn trackUrn) {
+        addToPayload(TRACK, String.valueOf(trackUrn));
         return this;
     }
 
@@ -234,6 +239,36 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData promotedBy(String promoterUrn) {
         addToPayload(PROMOTED_BY, promoterUrn);
+        return this;
+    }
+
+    public EventLoggerEventData playheadPosition(long position) {
+        addToPayload(PLAYHEAD_POSITION, String.valueOf(position));
+        return this;
+    }
+
+    // EventLogger v0
+    @Deprecated
+    public EventLoggerEventData duration(long duration) {
+        addToPayload(DURATION, String.valueOf(duration));
+        return this;
+    }
+
+    @Deprecated
+    public EventLoggerEventData sound(String legacySoundUrn) {
+        addToPayload(SOUND, legacySoundUrn);
+        return this;
+    }
+
+    @Deprecated
+    public EventLoggerEventData playlistId(String playlistId) {
+        addToPayload(PLAYLIST_ID, playlistId);
+        return this;
+    }
+
+    @Deprecated
+    public EventLoggerEventData playlistPositionV0(String position) {
+        addToPayload(PLAYLIST_POSITION_v0, String.valueOf(position));
         return this;
     }
 
