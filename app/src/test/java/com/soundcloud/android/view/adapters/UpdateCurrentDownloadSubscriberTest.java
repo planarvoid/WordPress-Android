@@ -43,7 +43,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L, "http://").build();
+        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L, "http://", true).build();
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
         subscriber.onNext(event);
 

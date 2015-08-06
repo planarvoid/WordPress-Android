@@ -448,7 +448,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), 12345L, "http://wav")
+        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), 12345L, "http://wav", true)
                 .addToPlaylist(playlistWithTracks.getUrn())
                 .build();
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));

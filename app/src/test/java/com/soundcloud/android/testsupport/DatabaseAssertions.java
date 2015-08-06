@@ -5,6 +5,7 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -252,6 +253,16 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount())
                 .whereEq(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
                 .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
+    }
+
+    public void assertPlaylistInserted(long playlistId, String title, boolean isPrivate) {
+        assertThat(select(from(Table.Sounds.name())
+                .whereEq(TableColumns.Sounds._ID, playlistId)
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Sounds.USER_ID, 321L)
+                .whereNotNull(TableColumns.Sounds.CREATED_AT)
+                .whereEq(TableColumns.Sounds.SHARING, Sharing.from(!isPrivate).value())
+                .whereEq(TableColumns.Sounds.TITLE, title)), counts(1));
     }
 
     public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist) {

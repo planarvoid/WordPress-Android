@@ -65,6 +65,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(downloadRequest1),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -80,6 +81,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishNotDownloadableStateChangesEmitsDownloadRemovedWhenTrackIsRemoved() {
         final List<Urn> removedDownloads = Collections.singletonList(downloadRequest1.track);
         final OfflineContentUpdates updates = new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -100,6 +102,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
                 Arrays.asList(downloadRequest1.track)
         );
 
@@ -111,6 +114,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
         final OfflineContentUpdates noOfflineRequest = new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -223,6 +227,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track, boolean inLikes, List<Urn> inPlaylists) {
-        return new DownloadRequest(track, 123456, "http://wav", inLikes, inPlaylists);
+        return new DownloadRequest(track, 123456, "http://wav", true, inLikes, inPlaylists);
     }
 }

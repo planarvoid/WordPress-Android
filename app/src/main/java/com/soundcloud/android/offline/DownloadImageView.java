@@ -13,6 +13,7 @@ import android.widget.ImageView;
 public class DownloadImageView extends ImageView {
     private final Drawable downloading;
     private final Drawable downloaded;
+    private final Drawable unavailable;
 
     private OfflineState offlineState;
 
@@ -22,6 +23,7 @@ public class DownloadImageView extends ImageView {
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DownloadImageView);
         downloaded = a.getDrawable(R.styleable.DownloadImageView_downloaded);
         downloading = a.getDrawable(R.styleable.DownloadImageView_downloading);
+        unavailable = a.getDrawable(R.styleable.DownloadImageView_unavailable);
         a.recycle();
     }
 
@@ -65,6 +67,8 @@ public class DownloadImageView extends ImageView {
                 setNoOfflineState();
                 break;
             case UNAVAILABLE:
+                setDownloadStateResource(unavailable);
+                break;
             case REQUESTED:
                 setDownloadStateResource(downloading);
                 break;

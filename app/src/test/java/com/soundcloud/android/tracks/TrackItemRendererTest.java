@@ -7,20 +7,19 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,14 +31,14 @@ import android.widget.ImageView;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackItemRendererTest {
+public class TrackItemRendererTest extends AndroidUnitTest {
 
     @InjectMocks
     private TrackItemRenderer renderer;
 
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
+    @Mock private FeatureOperations featureOperations;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
     @Mock private Navigator navigator;
@@ -62,9 +61,9 @@ public class TrackItemRendererTest {
         trackItem = TrackItem.from(propertySet);
 
         when(trackItemView.getImage()).thenReturn(imageView);
-        when(trackItemView.getContext()).thenReturn(Robolectric.application);
-        when(imageView.getContext()).thenReturn(Robolectric.application);
-        when(itemView.getContext()).thenReturn(Robolectric.application);
+        when(trackItemView.getContext()).thenReturn(context());
+        when(imageView.getContext()).thenReturn(context());
+        when(itemView.getContext()).thenReturn(context());
         when(itemView.getTag()).thenReturn(trackItemView);
     }
 

@@ -55,6 +55,7 @@
     <string name="offline_update_paused">Offline syncing paused</string>
     <string name="no_network_connection">no network connection</string>
     <string name="no_wifi_connection">no Wi-Fi connection</string>
+    <string name="offline_not_available_offline">Not available offline</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>

@@ -24,6 +24,7 @@ public class TrackItemView {
     private final View privateIndicator;
     private final View upsell;
     private final TextView promoted;
+    private final TextView notAvailableOffline;
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {
@@ -37,6 +38,7 @@ public class TrackItemView {
         privateIndicator = view.findViewById(R.id.private_indicator);
         upsell = view.findViewById(R.id.upsell);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
+        notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
 
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +89,7 @@ public class TrackItemView {
         privateIndicator.setVisibility(View.GONE);
         upsell.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
+        notAvailableOffline.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
     }
 
@@ -114,6 +117,10 @@ public class TrackItemView {
 
     public Context getContext() {
         return title.getContext();
+    }
+
+    public void showNotAvailableOffline() {
+        notAvailableOffline.setVisibility(View.VISIBLE);
     }
 
     public interface OverflowListener {

@@ -1,25 +1,25 @@
 package com.soundcloud.android.policies;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PolicyOperationsTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -30,14 +30,17 @@ public class PolicyOperationsTest {
     @Mock private FetchPoliciesCommand fetchPoliciesCommand;
     @Mock private StorePoliciesCommand storePoliciesCommand;
 
-    private final List<Urn> tracks = Arrays.asList(TRACK_URN);
+    private final List<Urn> tracks = Collections.singletonList(TRACK_URN);
     private final PolicyInfo policyInfo = new PolicyInfo(TRACK_URN, true, "No", true);
     private TestSubscriber<List<Urn>> observer;
 
     @Before
     public void setUp() throws Exception {
         operations = new PolicyOperations(fetchPoliciesCommand, storePoliciesCommand, Schedulers.immediate());
-        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.<Collection<PolicyInfo>>just(Arrays.asList(policyInfo)));
+
+        when(fetchPoliciesCommand.toObservable())
+                .thenReturn(Observable.<Collection<PolicyInfo>>just(Collections.singletonList(policyInfo)));
+
         observer = new TestSubscriber<>();
     }
 
@@ -46,14 +49,14 @@ public class PolicyOperationsTest {
         operations.updatePolicies(tracks).subscribe();
 
         verify(fetchPoliciesCommand).toObservable();
-        expect(fetchPoliciesCommand.getInput()).toContainExactly(TRACK_URN);
+        assertThat(fetchPoliciesCommand.getInput()).containsExactly(TRACK_URN);
     }
 
     @Test
     public void updatePoliciesStoresPolicies() {
         operations.updatePolicies(tracks).subscribe();
 
-        expect(storePoliciesCommand.getInput()).toContainExactly(policyInfo);
+        assertThat(storePoliciesCommand.getInput()).containsExactly(policyInfo);
         verify(storePoliciesCommand).call();
     }
 
@@ -65,8 +68,8 @@ public class PolicyOperationsTest {
 
         operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(TRACK_URN2);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).containsExactly(TRACK_URN2);
     }
 
     @Test
@@ -76,9 +79,10 @@ public class PolicyOperationsTest {
 
         operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
-        expect(storePoliciesCommand.getInput()).toContainExactly(policies);
+        assertThat(storePoliciesCommand.getInput()).containsExactly(policies);
         verify(storePoliciesCommand).call();
     }
+
 
     private PolicyInfo createMonetizablePolicy(Urn trackUrn) {
         return new PolicyInfo(trackUrn, true, PolicyInfo.MONETIZE, false);

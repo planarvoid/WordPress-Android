@@ -75,6 +75,10 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
     }
 
+    public boolean isCreatorOptOut() {
+        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE) == OfflineState.UNAVAILABLE;
+    }
+
     int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
     }

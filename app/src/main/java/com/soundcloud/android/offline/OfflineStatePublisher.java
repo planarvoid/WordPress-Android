@@ -43,10 +43,18 @@ class OfflineStatePublisher {
     void publishNotDownloadableStateChanges(DownloadQueue queue, OfflineContentUpdates requests, Urn currentDownload) {
         publishDownloadedTracksRemoved(requests, currentDownload);
         publishTracksAlreadyDownloaded(requests);
+        publishCreatorOptOut(requests);
 
         if (!queue.getRequests().isEmpty()) {
             Log.d(TAG, "downloadRequestRemoved");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(queue.getRequests()));
+        }
+    }
+
+    private void publishCreatorOptOut(OfflineContentUpdates requests) {
+        if (!requests.creatorOptOutRequests.isEmpty()) {
+            Log.d(TAG, "creatorOptOut");
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(requests.creatorOptOutRequests));
         }
     }
 
