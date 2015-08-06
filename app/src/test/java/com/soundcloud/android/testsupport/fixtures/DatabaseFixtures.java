@@ -1,20 +1,28 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiStation;
+import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.Stations;
+import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.Date;
+import java.util.List;
 
 public class DatabaseFixtures {
 
@@ -26,7 +34,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser((ApiUser) track.getUser());
+        insertUser(track.getUser());
         insertTrack(track);
         return track;
     }
@@ -214,6 +222,44 @@ public class DatabaseFixtures {
         insertInto(Table.Likes, cv);
     }
 
+    public ApiStation insertStation(int lastPlayedPosition) {
+        final ApiStation station = StationFixtures.getApiStationFixture();
+        final ApiStationInfo stationInfo = station.getInfo();
+
+        insertInto(Stations.TABLE, getStationContentValues(stationInfo, lastPlayedPosition));
+
+        final List<? extends TrackRecord> playQueue = station.getTracks().getCollection();
+
+        for (int i = 0; i < playQueue.size(); i++) {
+            final TrackRecord track = playQueue.get(i);
+            insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, stationInfo, track));
+        }
+
+        return station;
+    }
+
+    private ContentValues getStationContentValues(ApiStationInfo stationInfo, int lastPlayedPosition) {
+        final ContentValuesBuilder stationContentValues = ContentValuesBuilder.values();
+
+        stationContentValues.put(Stations.URN, stationInfo.getUrn().toString());
+        stationContentValues.put(Stations.TITLE, stationInfo.getTitle());
+        stationContentValues.put(Stations.TYPE, stationInfo.getType());
+        stationContentValues.put(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getId());
+        stationContentValues.put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition);
+
+        return stationContentValues.get();
+    }
+
+    private ContentValues getTrackContentValues(int position, ApiStationInfo stationInfo, TrackRecord track) {
+        final ContentValuesBuilder trackContentValues = ContentValuesBuilder.values();
+        
+        trackContentValues.put(StationsPlayQueues.POSITION, position);
+        trackContentValues.put(StationsPlayQueues.STATION_URN, stationInfo.getUrn().toString());
+        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getUrn().toString());
+
+        return trackContentValues.get();
+    }
+
     public void insertLike(ApiLike like) {
         insertLike(
                 like.getTargetUrn().getNumericId(),
@@ -229,7 +275,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrack(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser((ApiUser) track.getUser());
+        insertUser(track.getUser());
         insertTrack(track);
         insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         return track;

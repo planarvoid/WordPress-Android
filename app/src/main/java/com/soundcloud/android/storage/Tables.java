@@ -78,4 +78,47 @@ public interface Tables {
             super("PlayQueue", PrimaryKey.of(BaseColumns._ID));
         }
     }
+
+    class Stations extends BaseTable {
+        public static final Stations TABLE = new Stations();
+
+        public static final Column URN = Column.create(TABLE, "station_urn");
+        public static final Column TYPE = Column.create(TABLE, "type");
+        public static final Column TITLE = Column.create(TABLE, "title");
+        public static final Column SEED_TRACK_ID = Column.create(TABLE, "seed_track_id");
+        public static final Column LAST_PLAYED_TRACK_POSITION = Column.create(TABLE, "last_played_track_position");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS Stations (" +
+                "_id INTEGER PRIMARY KEY," +
+                "station_urn TEXT," +
+                "type TEXT," +
+                "title TEXT," +
+                "seed_track_id INTEGER," +
+                "last_played_track_position INTEGER DEFAULT 0" +
+                ");";
+
+        protected Stations() {
+            super("Stations", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
+
+    class StationsPlayQueues extends BaseTable {
+        public static final StationsPlayQueues TABLE = new StationsPlayQueues();
+
+        public static final Column STATION_URN = Column.create(TABLE, "station_urn");
+        public static final Column TRACK_URN = Column.create(TABLE, "track_urn");
+        public static final Column POSITION = Column.create(TABLE, "position");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS StationsPlayQueues (" +
+                "_id INTEGER PRIMARY KEY," +
+                "station_urn TEXT," +
+                "track_urn TEXT," +
+                "position INTEGER DEFAULT 0," +
+                "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
+                ");";
+
+        protected StationsPlayQueues() {
+            super("StationsPlayQueues", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
 }

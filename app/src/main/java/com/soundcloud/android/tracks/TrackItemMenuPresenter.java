@@ -22,12 +22,16 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.stations.Station;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -39,6 +43,14 @@ import android.view.View;
 import javax.inject.Inject;
 
 public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
+
+    private final Func1<Station, Observable<PlaybackResult>> toPlaybackResult = new Func1<Station, Observable<PlaybackResult>>() {
+        @Override
+        public Observable<PlaybackResult> call(Station station) {
+            return playbackOperations.playTracks(station.getTracks(), station.getStartPosition(), new PlaySessionSource(screenProvider.getLastScreenTag()));
+        }
+    };
+
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final TrackRepository trackRepository;
     private final Context context;
@@ -49,6 +61,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final PlaybackOperations playbackOperations;
     private final PlaybackToastHelper playbackToastHelper;
     private final FeatureFlags featureFlags;
+    private final StationsOperations stationsOperations;
     private final DelayedLoadingDialogPresenter.Builder delayedLoadingDialogPresenterBuilder;
 
     private FragmentActivity activity;
@@ -56,6 +69,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
     private Subscription relatedTracksPlaybackSubscription = RxUtils.invalidSubscription();
+    private Subscription startStationPlaybackSubscription = RxUtils.invalidSubscription();
 
     @Nullable private RemoveTrackListener removeTrackListener;
 
@@ -74,6 +88,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                            PlaybackOperations playbackOperations,
                            PlaybackToastHelper playbackToastHelper,
                            FeatureFlags featureFlags,
+                           StationsOperations stationsOperations,
                            DelayedLoadingDialogPresenter.Builder delayedLoadingDialogPresenterBuilder) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
@@ -85,6 +100,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.playbackOperations = playbackOperations;
         this.playbackToastHelper = playbackToastHelper;
         this.featureFlags = featureFlags;
+        this.stationsOperations = stationsOperations;
         this.delayedLoadingDialogPresenterBuilder = delayedLoadingDialogPresenterBuilder;
     }
 
@@ -162,11 +178,10 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 );
                 return true;
             case R.id.start_radio:
-                playRelatedTracksWithDelayedLoadingDialog(
+                startRadioWithDelayedLoadingDialog(
                         context,
                         context.getString(R.string.starting_radio),
-                        context.getString(R.string.unable_to_start_radio),
-                        0
+                        context.getString(R.string.unable_to_start_radio)
                 );
                 return true;
             default:
@@ -190,6 +205,25 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         relatedTracksPlaybackSubscription = playbackOperations
                 .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(screenProvider.getLastScreenTag()), startPosition)
                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));
+    }
+
+    private void startRadioWithDelayedLoadingDialog(Context context, String loadingMessage, String onErrorToastText) {
+        DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = delayedLoadingDialogPresenterBuilder
+                .setLoadingMessage(loadingMessage)
+                .setOnErrorToastText(onErrorToastText)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        startStationPlaybackSubscription.unsubscribe();
+                    }
+                })
+                .create()
+                .show(context);
+
+        startStationPlaybackSubscription = stationsOperations
+                .station(Urn.forTrackStation(track.getEntityUrn().getNumericId()))
+                .flatMap(toPlaybackResult)
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));
     }
 
@@ -258,8 +292,9 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
         @Override
         public void onError(Throwable e) {
-            super.onError(e);
             delayedLoadingDialogPresenter.onError(context);
+            // Call on error after dismissing the dialog in order to report errors to Fabric.
+            super.onError(e);
         }
 
         @Override

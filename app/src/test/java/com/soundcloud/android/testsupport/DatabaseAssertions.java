@@ -1,20 +1,27 @@
 package com.soundcloud.android.testsupport;
 
+import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.Stations;
+import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
@@ -27,6 +34,12 @@ import java.util.List;
 
 public class DatabaseAssertions {
 
+    private final Function<TrackRecord, String> toUrn = new Function<TrackRecord, String>() {
+        @Override
+        public String apply(TrackRecord track) {
+            return track.getUrn().toString();
+        }
+    };
     private SQLiteDatabase database;
 
     public DatabaseAssertions(SQLiteDatabase database) {
@@ -106,6 +119,43 @@ public class DatabaseAssertions {
         assertThat(select(from(Table.Users.name())
                 .whereEq(TableColumns.Users._ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.Users.FOLLOWERS_COUNT, numberOfFollowers)), counts(1));
+    }
+
+    public void assertStationInserted(StationRecord station) {
+        assertStationInfoInserted(station.getInfo());
+        assertStationPlayQueueInserted(station);
+    }
+
+    public void assertStationInfoInserted(ApiStationInfo stationInfo) {
+        assertThat(
+                select(
+                        from(Stations.TABLE)
+                                .whereEq(Stations.URN, stationInfo.getUrn())
+                                .whereEq(Stations.TITLE, stationInfo.getTitle())
+                                .whereEq(Stations.TYPE, stationInfo.getType())
+                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, 0)
+                                .whereEq(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getId())
+                ),
+                counts(1)
+        );
+    }
+
+    public void assertStationPlayQueueInserted(StationRecord station) {
+        assertThat(
+                select(from(StationsPlayQueues.TABLE)
+                                .whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())
+                                .whereIn(StationsPlayQueues.TRACK_URN, transform(station.getTracks().getCollection(), toUrn))
+                ),
+                counts(station.getTracks().getCollection().size())
+        );
+    }
+
+    public void assertStationsPlayQueueIsEmpty(StationRecord station) {
+        assertThat(
+                select(from(StationsPlayQueues.TABLE)
+                        .whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())),
+                counts(0)
+        );
     }
 
     private void assertTrackPolicyInserted(ApiTrack track) {

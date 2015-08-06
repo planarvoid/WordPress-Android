@@ -65,6 +65,10 @@ public enum ApiEndpoints {
     PLAYLIST_ADD_TRACK("/playlists/%s/tracks"),
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
 
+    // stations
+    STATION("/stations/%s"),
+    STATION_INFO("/stations/%s/info"),
+
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
