@@ -549,7 +549,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 mediaPlayer.stop();
             }
 
-            mediaPlayerManager.stopAndRelease(mediaPlayer);
+            mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
 
             setInternalState(PlaybackState.STOPPED, progress, duration);
