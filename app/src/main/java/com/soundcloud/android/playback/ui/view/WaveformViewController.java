@@ -138,6 +138,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         dragProgressController.setHelper(dragProgressHelper);
         scrubController.setProgressHelper(dragProgressHelper);
 
+        setProgress(latestProgress);
         createWaveforms(HAS_WIDTH);
     }
 
