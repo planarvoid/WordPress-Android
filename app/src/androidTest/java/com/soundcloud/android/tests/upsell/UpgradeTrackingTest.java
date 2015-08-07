@@ -11,16 +11,16 @@ import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 
 @EventTrackingTest
-public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
+public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String NAV_UPSELL_TEST_SCENARIO = "nav-upsell-tracking-test";
-    private static final String SETTINGS_UPSELL_TEST_SCENARIO = "settings-upsell-tracking-test";
+    private static final String UPGRADE_TEST_SCENARIO = "upgrade-tracking-test";
 
-    public BasicUpsellTest() {
+    public UpgradeTrackingTest() {
         super(MainActivity.class);
     }
 
@@ -36,32 +36,21 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    // Ignored because unexpected promoted track impressions on stream fail validation
-    public void ignore_testNavDrawerUpsellImpressionAndClick() {
-        startEventTracking();
-
-        UpgradeScreen upgradeScreen = menuScreen
-                .open()
-                .clickUpsell();
-
-        assertThat(upgradeScreen, is(visible()));
-
-        finishEventTracking(NAV_UPSELL_TEST_SCENARIO);
-    }
-
-    public void testSettingsUpsellImpressionAndClick() {
+    public void testUpgradePageEvents() {
         ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 
+        OfflineSettingsScreen offlineSettingsScreen = toolBarElement
+                .clickSettingsOverflowButton()
+                .clickOfflineSettings();
+
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = toolBarElement
-                .clickSettingsOverflowButton()
-                .clickOfflineSettings()
-                .clickSubscribe();
-
+        UpgradeScreen upgradeScreen = offlineSettingsScreen.clickSubscribe();
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking(SETTINGS_UPSELL_TEST_SCENARIO);
+        upgradeScreen.clickBuyForFailure();
+
+        finishEventTracking(UPGRADE_TEST_SCENARIO);
     }
 
 }
