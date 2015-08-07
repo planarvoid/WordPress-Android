@@ -18,6 +18,7 @@ import android.os.Build;
 public class MediaStyleNotificationBuilder implements NotificationBuilder {
 
     private static final int PENDING_INTENT_REQUEST_CODE = MediaStyleNotificationBuilder.class.hashCode();
+    private static final int PREVIOUS_ACTION_INDEX = 0;
     private static final int TOGGLE_PLAY_ACTION_INDEX = 1;
     private static final int NEXT_ACTION_INDEX = 2;
 
@@ -30,7 +31,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         builder = new Notification.Builder(context);
 
         Notification.MediaStyle style = new Notification.MediaStyle();
-        style.setShowActionsInCompactView(TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
+        style.setShowActionsInCompactView(PREVIOUS_ACTION_INDEX, TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
         builder.setStyle(style);
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setUsesChronometer(false);
