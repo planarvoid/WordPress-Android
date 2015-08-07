@@ -36,7 +36,8 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void testUpgradePageEvents() {
+    // Ignored until we fix: https://github.com/soundcloud/SoundCloud-Android/issues/3202
+    public void ignore_testUpgradePageEvents() {
         ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 
         OfflineSettingsScreen offlineSettingsScreen = toolBarElement
