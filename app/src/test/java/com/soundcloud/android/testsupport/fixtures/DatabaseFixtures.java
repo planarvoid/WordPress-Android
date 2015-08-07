@@ -181,6 +181,14 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiTrack insertTrackWithCreationDate(ApiUser user, Date createdAtDate) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setCreatedAt(createdAtDate);
+        track.setUser(user);
+        insertTrack(track);
+        return track;
+    }
+
     public ApiUser insertUser() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
         insertUser(user);
