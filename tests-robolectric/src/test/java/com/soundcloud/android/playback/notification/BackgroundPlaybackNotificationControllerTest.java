@@ -36,7 +36,6 @@ import rx.Subscription;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -53,7 +52,6 @@ public class BackgroundPlaybackNotificationControllerTest {
     @Mock private PlaybackNotificationPresenter playbackNotificationPresenter;
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationBuilder notificationBuilder;
-    @Mock private Resources resources;
     @Mock private Bitmap bitmap;
     @Mock private Bitmap loadingBitmap;
     @Mock private Uri uri;
@@ -67,10 +65,8 @@ public class BackgroundPlaybackNotificationControllerTest {
     public void setUp() throws Exception {
         trackProperties = expectedTrackForPlayer();
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
-        when(imageOperations.decodeResource(resources, R.drawable.notification_loading)).thenReturn(loadingBitmap);
 
         controller = new BackgroundPlaybackNotificationController(
-                resources,
                 trackRepository,
                 playbackNotificationPresenter,
                 notificationManager,
@@ -107,13 +103,13 @@ public class BackgroundPlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventSetsDefaultBitmapWhenArtworkCapableAndNoCachedBitmap() {
+    public void playQueueEventSetsBitmapWhenArtworkCapableAndNoCachedBitmap() {
         when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
         when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
 
         controller.setTrack(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
-        verify(notificationBuilder).setIcon(loadingBitmap);
+        verify(notificationBuilder).setIcon(bitmap);
     }
 
     @Test

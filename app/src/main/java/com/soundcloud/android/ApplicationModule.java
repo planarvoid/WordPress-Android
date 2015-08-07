@@ -159,6 +159,7 @@ public class ApplicationModule {
     }
 
     @Provides
+    @Singleton
     public NotificationBuilder providesNotificationBuilderWrapper(Context context,
                                                                   ApplicationProperties applicationProperties,
                                                                   NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
