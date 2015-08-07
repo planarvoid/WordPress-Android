@@ -10,6 +10,7 @@ import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -162,13 +163,14 @@ public class ApplicationModule {
     @Singleton
     public NotificationBuilder providesNotificationBuilderWrapper(Context context,
                                                                   ApplicationProperties applicationProperties,
-                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
+                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory,
+                                                                  ImageOperations imageOperations) {
         if (applicationProperties.shouldUseMediaStyleNotifications()) {
-            return new MediaStyleNotificationBuilder(context);
+            return new MediaStyleNotificationBuilder(context, imageOperations);
         } else if (applicationProperties.shouldUseBigNotifications()) {
-            return new BigNotificationBuilder(context, remoteViewsFactory);
+            return new BigNotificationBuilder(context, remoteViewsFactory, imageOperations);
         } else {
-            return new RichNotificationBuilder(context, remoteViewsFactory);
+            return new RichNotificationBuilder(context, remoteViewsFactory, imageOperations);
         }
     }
 
@@ -201,11 +203,11 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context, FeatureFlags featureFlags, ApplicationProperties applicationProperties){
+    public CastConnectionHelper provideCastConnectionHelper(Context context, FeatureFlags featureFlags, ApplicationProperties applicationProperties) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
-        if (featureFlags.isEnabled(Flag.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
+        if (featureFlags.isEnabled(Flag.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))) {
             return new DefaultCastConnectionHelper(provideVideoCastManager(context, applicationProperties));
         } else {
             return new NoOpCastConnectionHelper();
@@ -214,7 +216,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties){
+    public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
         final VideoCastManager manager = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), MainActivity.class, "urn:x-cast:com.soundcloud.cast.sender");
         manager.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING |
                 VideoCastManager.FEATURE_NOTIFICATION | VideoCastManager.FEATURE_WIFI_RECONNECT);
@@ -226,7 +228,7 @@ public class ApplicationModule {
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer) {
-        if (castConnectionHelper.isCasting()){
+        if (castConnectionHelper.isCasting()) {
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
             return new DefaultPlaybackStrategy(playQueueManager, serviceInitiator);

@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.notification;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.external.PlaybackAction;
 
 import android.annotation.TargetApi;
@@ -25,7 +26,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     private final Notification.Action togglePlayAction;
     private final Resources resources;
 
-    public MediaStyleNotificationBuilder(Context context) {
+    public MediaStyleNotificationBuilder(Context context, ImageOperations imageOperations) {
         resources = context.getResources();
         builder = new Notification.Builder(context);
 
@@ -35,6 +36,8 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setUsesChronometer(false);
         builder.setShowWhen(false);
+        builder.setSmallIcon(R.drawable.notification_loading);
+        builder.setLargeIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
 
         builder.addAction(createAction(context, PlaybackAction.PREVIOUS));
         togglePlayAction = createAction(context, PlaybackAction.TOGGLE_PLAYBACK);

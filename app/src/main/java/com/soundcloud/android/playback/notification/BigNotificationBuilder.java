@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 
 import android.annotation.TargetApi;
@@ -25,11 +26,13 @@ public class BigNotificationBuilder implements NotificationBuilder {
     private final Resources resources;
 
     @Inject
-    public BigNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
+    public BigNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory, ImageOperations imageOperations) {
         resources = context.getResources();
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        builder.setSmallIcon(R.drawable.notification_loading);
+        builder.setLargeIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
         smallRemoteViews = remoteViewsFactory.create(context.getPackageName());
         smallRemoteViews.linkButtonsNotification(context);
         bigRemoteViews = remoteViewsFactory.create(context.getPackageName(), R.layout.playback_status_large);
