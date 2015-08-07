@@ -42,6 +42,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         OfflineSettingsScreen offlineSettingsScreen = toolBarElement
                 .clickSettingsOverflowButton()
                 .clickOfflineSettings();
+        assertThat(offlineSettingsScreen, is(visible()));
 
         startEventTracking();
 
