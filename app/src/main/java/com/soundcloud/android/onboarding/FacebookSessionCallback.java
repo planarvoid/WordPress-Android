@@ -1,6 +1,5 @@
 package com.soundcloud.android.onboarding;
 
-import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookCallback;
@@ -10,12 +9,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
     static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends", "user_likes");
@@ -30,23 +30,23 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
 
     @Override
     public void onSuccess(LoginResult loginResult) {
-        Log.e(TAG, "Facebook authorization succeeded");
+        Log.i(ONBOARDING_TAG, "Facebook authorization succeeded");
         OnboardActivity activity = activityRef.get();
         if (activity != null) {
             activity.login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, AccessToken.getCurrentAccessToken().getToken()));
         } else {
-            Log.e(TAG, "Activity weak reference is gone!");
+            Log.w(ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
         }
     }
 
     @Override
     public void onCancel() {
-        Log.e(TAG, "Facebook authorization cancelled");
+        Log.i(ONBOARDING_TAG, "Facebook authorization cancelled");
     }
 
     @Override
     public void onError(FacebookException e) {
-        Log.w(TAG, "Facebook authorization returned an exception", e);
+        Log.w(ONBOARDING_TAG, "Facebook authorization returned an exception", e);
         ErrorUtils.handleSilentException(e);
 
         OnboardActivity activity = activityRef.get();
@@ -54,7 +54,8 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
             final boolean allowUserFeedback = true;
             activity.onError(activity.getString(R.string.facebook_authentication_failed_message), allowUserFeedback);
         } else {
-            Log.e(TAG, "Activity weak reference is gone!");
+            Log.w(ONBOARDING_TAG, "Activity weak reference is gone!");
         }
     }
+
 }
