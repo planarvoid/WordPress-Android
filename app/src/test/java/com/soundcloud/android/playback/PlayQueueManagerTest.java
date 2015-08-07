@@ -111,8 +111,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(queue2, source2, 2);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue());
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).containsExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L)),
-                CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(3L)));
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).containsExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L), Urn.NOT_SET, 0),
+                CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(3L), Urn.NOT_SET, 0));
     }
 
     @Test
@@ -770,6 +770,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        when(playQueueOperations.getLastStoredPlaySessionSource()).thenReturn(playlistSessionSource);
         playQueueManager.loadPlayQueueAsync(true);
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
@@ -841,7 +842,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void clearAllShouldClearNowPlayingTrack() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.clearAll();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isEqualTo(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE_TRACK)).isEqualTo(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET, Urn.NOT_SET, 0));
     }
 
     @Test

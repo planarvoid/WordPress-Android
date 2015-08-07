@@ -7,23 +7,20 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.presentation.ListItemAdapter;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
 import android.widget.ListView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SplitScreenControllerTest {
+public class SplitScreenControllerTest extends AndroidUnitTest {
 
     private SplitScreenController controller;
 
@@ -42,20 +39,20 @@ public class SplitScreenControllerTest {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(layout.findViewById(R.id.container)).thenReturn(container);
-        when(layout.getContext()).thenReturn(Robolectric.application);
+        when(layout.getContext()).thenReturn(context());
         controller.onViewCreated(layout, null);
     }
 
     @Test
     public void shouldListenForPositionChangeEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L), Urn.NOT_SET, 0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test
     public void shouldListenForNewQueueEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L), Urn.NOT_SET, 0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }

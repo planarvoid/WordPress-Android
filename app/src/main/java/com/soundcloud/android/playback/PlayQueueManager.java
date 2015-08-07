@@ -75,7 +75,7 @@ public class PlayQueueManager implements OriginProvider {
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             this.currentPosition = startPosition;
-            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn(), getCurrentMetaData()));
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn(), getCollectionUrn(), getCurrentMetaData(), getCurrentPosition()));
         } else {
             currentPosition = startPosition;
             setNewPlayQueueInternal(playQueue, playSessionSource);
@@ -277,7 +277,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void publishPositionUpdate() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn(), getCurrentMetaData()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn(), getCollectionUrn(), getCurrentMetaData(), getCurrentPosition()));
     }
 
     @Nullable
@@ -339,7 +339,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void clearCurrentPlayingTrack() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.NOT_SET, Urn.NOT_SET, 0));
     }
 
     public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations) {
@@ -402,7 +402,7 @@ public class PlayQueueManager implements OriginProvider {
         final Urn currentTrackUrn = getCurrentTrackUrn();
         if (!Urn.NOT_SET.equals(currentTrackUrn)) {
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
-            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCurrentMetaData()));
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCollectionUrn(), getCurrentMetaData(), getCurrentPosition()));
         }
     }
 

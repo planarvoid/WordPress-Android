@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -10,17 +10,15 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdPlayerControllerTest {
+public class AdPlayerControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private AppCompatActivity activity;
@@ -40,7 +38,7 @@ public class AdPlayerControllerTest {
 
         resumeFromBackground();
 
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).toBeEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).isEmpty();
     }
 
     @Test
@@ -50,7 +48,7 @@ public class AdPlayerControllerTest {
 
         resumeFromBackground();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
     }
 
     @Test
@@ -62,7 +60,7 @@ public class AdPlayerControllerTest {
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY);
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
@@ -73,7 +71,7 @@ public class AdPlayerControllerTest {
         resumeFromBackground();
         resumeFromBackground();
 
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).toNumber(0);
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).isEmpty();
     }
 
     @Test
@@ -98,12 +96,12 @@ public class AdPlayerControllerTest {
         controller.onPause(activity);
         controller.onResume(activity);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI)).toBe(playerCollapsed);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_UI)).isSameAs(playerCollapsed);
     }
 
     private void setAudioAdIsPlaying(boolean isPlaying) {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(isPlaying);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L), Urn.NOT_SET, 0));
     }
 
     private void resumeFromBackground() {

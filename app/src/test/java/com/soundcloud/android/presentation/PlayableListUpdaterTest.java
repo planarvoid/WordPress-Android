@@ -1,6 +1,6 @@
 package com.soundcloud.android.presentation;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,23 +11,21 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v4.app.Fragment;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayableListUpdaterTest {
+public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     private static final String UPDATED_CREATOR = "Jamie Macdonald";
 
@@ -48,7 +46,7 @@ public class PlayableListUpdaterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         updater.onCreate(fragment, null);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
 
         verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
@@ -59,7 +57,7 @@ public class PlayableListUpdaterTest {
         updater.onCreate(fragment, null);
         updater.onDestroy(fragment);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
 
         verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }
@@ -69,7 +67,7 @@ public class PlayableListUpdaterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         updater.onCreate(fragment, null);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
         verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
@@ -80,7 +78,7 @@ public class PlayableListUpdaterTest {
         updater.onCreate(fragment, null);
         updater.onDestroy(fragment);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
         verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }
@@ -94,7 +92,7 @@ public class PlayableListUpdaterTest {
         updater.onCreate(fragment, null);
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
-        expect(track1.getCreatorName()).toEqual(UPDATED_CREATOR);
+        assertThat(track1.getCreatorName()).isEqualTo(UPDATED_CREATOR);
         verify(adapter).notifyDataSetChanged();
     }
 
@@ -109,7 +107,7 @@ public class PlayableListUpdaterTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, entityStateChangedEvent);
 
-        expect(track1.getCreatorName()).not.toEqual(UPDATED_CREATOR);
+        assertThat(track1.getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
         verify(adapter, never()).notifyDataSetChanged();
     }
 

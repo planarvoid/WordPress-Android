@@ -50,6 +50,13 @@ public class PlaySessionSource implements Parcelable {
         return source;
     }
 
+
+    public static PlaySessionSource forStation(String screen, Urn station) {
+        final PlaySessionSource source = new PlaySessionSource(screen);
+        source.collectionUrn = station;
+        return source;
+    }
+
     public static PlaySessionSource forExplore(Screen screen, String version) {
         return forExplore(screen.get(), version);
     }

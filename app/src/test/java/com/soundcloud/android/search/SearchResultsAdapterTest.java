@@ -1,9 +1,9 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_PLAYLIST;
 import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_TRACK;
 import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_USER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -18,8 +18,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -27,10 +27,8 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -41,8 +39,7 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SearchResultsAdapterTest {
+public class SearchResultsAdapterTest extends AndroidUnitTest {
 
     @Mock private FollowableUserItemRenderer userRenderer;
     @Mock private TrackItemRenderer trackRenderer;
@@ -66,9 +63,9 @@ public class SearchResultsAdapterTest {
         adapter.addItem(dummyTrackItem());
         adapter.addItem(dummyPlaylistItem());
 
-        expect(adapter.getItemViewType(0)).toEqual(TYPE_USER);
-        expect(adapter.getItemViewType(1)).toEqual(TYPE_TRACK);
-        expect(adapter.getItemViewType(2)).toEqual(TYPE_PLAYLIST);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER);
+        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK);
+        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST);
     }
 
     @Test
@@ -77,9 +74,9 @@ public class SearchResultsAdapterTest {
         adapter.addItem(dummyTrackItem());
         adapter.addItem(dummyPlaylistItem());
 
-        expect(adapter.getItemViewType(0)).toEqual(TYPE_USER);
-        expect(adapter.getItemViewType(1)).toEqual(TYPE_TRACK);
-        expect(adapter.getItemViewType(2)).toEqual(TYPE_PLAYLIST);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER);
+        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK);
+        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST);
     }
 
     @Test
@@ -87,7 +84,7 @@ public class SearchResultsAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated(fragment, null, null);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
@@ -97,7 +94,7 @@ public class SearchResultsAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated(fragment, null, null);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
@@ -114,10 +111,10 @@ public class SearchResultsAdapterTest {
                 EntityStateChangedEvent.fromLike(unlikedPlaylist.get(PlayableProperty.URN), true, 1));
 
         final int playlistPosition = 2;
-        adapter.getView(playlistPosition, itemView, new FrameLayout(Robolectric.application));
+        adapter.getView(playlistPosition, itemView, new FrameLayout(context()));
 
         verify(playlistRenderer).bindItemView(eq(playlistPosition), refEq(itemView), playlistItemCaptor.capture());
-        expect(playlistItemCaptor.getValue().get(playlistPosition).isLiked()).toBeTrue();
+        assertThat(playlistItemCaptor.getValue().get(playlistPosition).isLiked()).isTrue();
     }
 
     @Test

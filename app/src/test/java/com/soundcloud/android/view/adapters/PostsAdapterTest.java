@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -26,26 +26,24 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.net.Uri;
 import android.view.ViewGroup;
 
@@ -53,8 +51,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PostsAdapterTest {
+public class PostsAdapterTest extends AndroidUnitTest {
 
     private static final String RELATED_USERNAME = "related username";
 
@@ -109,11 +106,11 @@ public class PostsAdapterTest {
 
         verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         TrackItem trackItem = (TrackItem) itemCaptor.getValue().get(0);
-        expect(trackItem.getEntityUrn()).toEqual(track.getUrn());
-        expect(trackItem.getTitle()).toEqual(track.getTitle());
-        expect(trackItem.getDuration()).toEqual((long) track.duration);
-        expect(trackItem.getCreatorName()).toEqual(track.getUser().getUsername());
-        expect(trackItem.isPrivate()).toEqual(track.isPrivate());
+        assertThat(trackItem.getEntityUrn()).isEqualTo(track.getUrn());
+        assertThat(trackItem.getTitle()).isEqualTo(track.getTitle());
+        assertThat(trackItem.getDuration()).isEqualTo((long) track.duration);
+        assertThat(trackItem.getCreatorName()).isEqualTo(track.getUser().getUsername());
+        assertThat(trackItem.isPrivate()).isEqualTo(track.isPrivate());
     }
 
     @Test
@@ -129,7 +126,7 @@ public class PostsAdapterTest {
 
         verify(trackRenderer, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem convertedTrack = itemCaptor.getAllValues().get(1).get(0);
-        expect(convertedTrack.getEntityUrn()).toEqual(track2.getUrn());
+        assertThat(convertedTrack.getEntityUrn()).isEqualTo(track2.getUrn());
     }
 
     @Test
@@ -137,7 +134,7 @@ public class PostsAdapterTest {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.asList(new SoundAssociation(track)));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
+        adapter.handleListItemClick(context(), 0, 1L, Screen.YOUR_LIKES, null);
 
         List<Urn> trackUrns = Arrays.asList(track.getUrn());
         Urn initialTrack = trackUrns.get(0);
@@ -153,21 +150,21 @@ public class PostsAdapterTest {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.asList(new SoundAssociation(playlist)));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, searchQuerySourceInfo);
+        adapter.handleListItemClick(context(), 0, 1L, Screen.YOUR_LIKES, searchQuerySourceInfo);
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent startedActivity = application.getNextStartedActivity();
-        expect(startedActivity).not.toBeNull();
-        expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist.getUrn());
-        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO)).toEqual(searchQuerySourceInfo);
+        Assertions
+                .assertThat(new Activity())
+                .nextStartedIntent()
+                .containsAction(Actions.PLAYLIST)
+                .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getUrn())
+                .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
     @Test
     public void playQueueTrackEventForPositionChangedShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
@@ -175,7 +172,7 @@ public class PostsAdapterTest {
     public void playQueueTrackEventForNewQueueShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
@@ -191,7 +188,7 @@ public class PostsAdapterTest {
         adapter.bindRow(0, itemView);
 
         verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
-        expect(itemCaptor.getValue().get(0).isLiked()).toBeTrue();
+        assertThat(itemCaptor.getValue().get(0).isLiked()).isTrue();
     }
 
     @Test
@@ -203,7 +200,7 @@ public class PostsAdapterTest {
 
         verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
-        expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
+        assertThat(respostedTrackPropertySet.getReposter().get()).isEqualTo(RELATED_USERNAME);
     }
 
     @Test
@@ -216,7 +213,7 @@ public class PostsAdapterTest {
 
         verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
-        expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
+        assertThat(respostedTrackPropertySet.getReposter().get()).isEqualTo(RELATED_USERNAME);
     }
 
     @Test
@@ -229,7 +226,7 @@ public class PostsAdapterTest {
 
         verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
-        expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
+        assertThat(respostedTrackPropertySet.getReposter().get()).isEqualTo(RELATED_USERNAME);
     }
 
     @Test
@@ -241,7 +238,7 @@ public class PostsAdapterTest {
 
         verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
-        expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
+        assertThat(respostedTrackPropertySet.getReposter().get()).isEqualTo(RELATED_USERNAME);
     }
 
     @Test
