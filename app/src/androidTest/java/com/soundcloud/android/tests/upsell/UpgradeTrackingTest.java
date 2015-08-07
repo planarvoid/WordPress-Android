@@ -44,6 +44,8 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
                 .clickOfflineSettings();
         assertThat(offlineSettingsScreen, is(visible()));
 
+        waiter.waitTwoSeconds();
+
         startEventTracking();
 
         UpgradeScreen upgradeScreen = offlineSettingsScreen.clickSubscribe();
