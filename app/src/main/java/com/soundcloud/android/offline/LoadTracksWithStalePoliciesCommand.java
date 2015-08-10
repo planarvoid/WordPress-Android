@@ -52,7 +52,7 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
     }
 
     private Where stalePolicyCondition() {
-        final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILISECONDS;
+        final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILLISECONDS;
 
         return filter()
                 .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)

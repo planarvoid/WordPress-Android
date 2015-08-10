@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PolicyOperations {
 
-    public static final long POLICY_STALE_AGE_MILISECONDS = TimeUnit.HOURS.toMillis(24);
+    public static final long POLICY_STALE_AGE_MILLISECONDS = TimeUnit.HOURS.toMillis(24);
 
     public static final Func1<PolicyInfo, Urn> TO_TRACK_URN = new Func1<PolicyInfo, Urn>() {
         @Override
