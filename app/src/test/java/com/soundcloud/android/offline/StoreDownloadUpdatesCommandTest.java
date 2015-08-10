@@ -28,28 +28,28 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storeRemovedTracksAsPendingRemoval() {
         testFixtures().insertCompletedTrackDownload(TRACK, 0, NOW);
 
-        final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
+        final OfflineContentUpdates offlineContentUpdates = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(TRACK)
         );
 
-        command.call(offlineContentRequests);
+        command.call(offlineContentUpdates);
 
         databaseAssertions().assertDownloadPendingRemoval(TRACK);
     }
 
     @Test
     public void storesNewDownloadRequestsAsPendingDownload() {
-        final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
+        final OfflineContentUpdates offlineContentUpdates = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(request),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
-        command.call(offlineContentRequests);
+        command.call(offlineContentUpdates);
 
         databaseAssertions().assertDownloadRequestsInserted(Collections.singletonList(TRACK));
     }
@@ -57,22 +57,22 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     @Test
     public void storesRestoredRequestsAsDownloaded() {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK, 1L, 2L);
-        final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
+        final OfflineContentUpdates offlineContentUpdates = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(request),
                 Collections.<Urn>emptyList()
         );
 
-        command.call(offlineContentRequests);
+        command.call(offlineContentUpdates);
 
         databaseAssertions().assertDownloadedAndNotMarkedForRemoval(TRACK);
     }
 
-    private OfflineContentRequests getOfflineContentRequests(List<DownloadRequest> allDownloadRequests,
+    private OfflineContentUpdates getOfflineContentRequests(List<DownloadRequest> allDownloadRequests,
                                                              List<DownloadRequest> newDownloadRequests,
                                                              List<DownloadRequest> newRestoredRequests,
                                                              List<Urn> toRemove) {
-        return new OfflineContentRequests(allDownloadRequests, newDownloadRequests, newRestoredRequests, toRemove);
+        return new OfflineContentUpdates(allDownloadRequests, newDownloadRequests, newRestoredRequests, toRemove);
     }
 }

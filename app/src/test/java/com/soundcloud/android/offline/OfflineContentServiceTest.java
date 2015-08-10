@@ -61,7 +61,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 .thenReturn(downloadMessage);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(offlineContentOperations.loadOfflineContentUpdates())
-                .thenReturn(Observable.<OfflineContentRequests>never());
+                .thenReturn(Observable.<OfflineContentUpdates>never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
@@ -72,7 +72,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void resetsDownloadQueueWhenStartingAService() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Arrays.asList(downloadRequest1),
                 Collections.<DownloadRequest>emptyList(),
@@ -87,7 +87,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void publishesNotDownloadableStateChangesWhenStartingAService() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Arrays.asList(downloadRequest1),
@@ -131,7 +131,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void publishesDownloadRequestedWhenCreatingRequestsQueue() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -274,7 +274,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void startServiceWithCancelDownloadActionStopRequestProcessing() {
-        final PublishSubject<OfflineContentRequests> observable = PublishSubject.create();
+        final PublishSubject<OfflineContentUpdates> observable = PublishSubject.create();
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(observable);
 
         startService();
@@ -320,7 +320,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setupNoDownloadRequest() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -330,17 +330,17 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setUpSingleDownload() {
-        final OfflineContentRequests updates = createSingleDownloadRequestUpdate(downloadRequest1);
+        final OfflineContentUpdates updates = createSingleDownloadRequestUpdate(downloadRequest1);
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
     private void setUpsDownloads(DownloadRequest... requests) {
-        final OfflineContentRequests updates = createSingleDownloadRequestUpdate(requests);
+        final OfflineContentUpdates updates = createSingleDownloadRequestUpdate(requests);
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
-    private OfflineContentRequests createSingleDownloadRequestUpdate(DownloadRequest... requests) {
-        return new OfflineContentRequests(
+    private OfflineContentUpdates createSingleDownloadRequestUpdate(DownloadRequest... requests) {
+        return new OfflineContentUpdates(
                 Arrays.asList(requests),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),

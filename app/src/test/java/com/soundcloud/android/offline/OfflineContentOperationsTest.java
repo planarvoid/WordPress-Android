@@ -97,32 +97,32 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void loadOfflineContentStoresContentUpdates() throws Exception {
         final Collection<DownloadRequest> downloadRequests = Collections.emptyList();
-        final OfflineContentRequests offlineContentRequests = mock(OfflineContentRequests.class);
+        final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentRequests));
+        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
-        operations.loadOfflineContentUpdates().subscribe(new TestObserver<OfflineContentRequests>());
+        operations.loadOfflineContentUpdates().subscribe(new TestObserver<OfflineContentUpdates>());
 
-        verify(storeDownloadUpdatesCommand).call(offlineContentRequests);
+        verify(storeDownloadUpdatesCommand).call(offlineContentUpdates);
     }
 
     @Test
     public void loadOfflineContentReturnsContentUpdates() throws Exception {
         final Collection<DownloadRequest> downloadRequests = Collections.emptyList();
-        final OfflineContentRequests offlineContentRequests = mock(OfflineContentRequests.class);
+        final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentRequests));
+        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
-        final TestObserver<OfflineContentRequests> observer = new TestObserver<>();
+        final TestObserver<OfflineContentUpdates> observer = new TestObserver<>();
         operations.loadOfflineContentUpdates().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(offlineContentRequests);
+        assertThat(observer.getOnNextEvents()).containsExactly(offlineContentUpdates);
     }
 
 
@@ -267,7 +267,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
-        final TestObserver<OfflineContentRequests> observer = new TestObserver<>();
+        final TestObserver<OfflineContentUpdates> observer = new TestObserver<>();
 
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
         operations.loadOfflineContentUpdates().subscribe(observer);

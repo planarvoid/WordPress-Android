@@ -17,7 +17,7 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineContentRequests, WriteResult> {
+class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineContentUpdates, WriteResult> {
 
     @Inject
     protected StoreDownloadUpdatesCommand(PropellerDatabase propeller) {
@@ -25,7 +25,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final OfflineContentRequests requests) {
+    protected WriteResult write(PropellerDatabase propeller, final OfflineContentUpdates requests) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {

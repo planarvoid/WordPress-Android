@@ -221,9 +221,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         stopSelf();
     }
 
-    private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentRequests> {
+    private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentUpdates> {
         @Override
-        public void onNext(OfflineContentRequests requests) {
+        public void onNext(OfflineContentUpdates requests) {
             Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + requests);
             publisher.publishNotDownloadableStateChanges(queue, requests, downloadHandler.getCurrentTrack());
 
@@ -242,7 +242,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private boolean isRemovedTrackCurrentlyBeingDownloaded(OfflineContentRequests requests) {
+    private boolean isRemovedTrackCurrentlyBeingDownloaded(OfflineContentUpdates requests) {
         return requests.newRemovedTracks.contains(downloadHandler.getCurrentTrack());
     }
 

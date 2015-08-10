@@ -40,7 +40,7 @@ class OfflineStatePublisher {
         publishCollectionsDownloadedForCancelledTrack(queue, result);
     }
 
-    void publishNotDownloadableStateChanges(DownloadQueue queue, OfflineContentRequests requests, Urn currentDownload) {
+    void publishNotDownloadableStateChanges(DownloadQueue queue, OfflineContentUpdates requests, Urn currentDownload) {
         publishDownloadedTracksRemoved(requests, currentDownload);
         publishTracksAlreadyDownloaded(requests);
 
@@ -66,14 +66,14 @@ class OfflineStatePublisher {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.idle());
     }
 
-    private void publishTracksAlreadyDownloaded(OfflineContentRequests requests) {
+    private void publishTracksAlreadyDownloaded(OfflineContentUpdates requests) {
         if (!requests.newRestoredRequests.isEmpty()) {
             Log.d(TAG, "downloaded");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(requests.newRestoredRequests));
         }
     }
 
-    private void publishDownloadedTracksRemoved(OfflineContentRequests requests, final Urn urn) {
+    private void publishDownloadedTracksRemoved(OfflineContentUpdates requests, final Urn urn) {
         if (!requests.newRemovedTracks.isEmpty()) {
             final Collection<Urn> removed = MoreCollections.filter(requests.newRemovedTracks, notCurrentDownload(urn));
             if (!removed.isEmpty()) {

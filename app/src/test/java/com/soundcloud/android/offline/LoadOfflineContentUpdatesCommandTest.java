@@ -44,12 +44,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualPendingRemovals(TRACK_URN_2, now.getTime());
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
-        final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
+        final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 
-        assertThat(offlineContentRequests.newRestoredRequests).containsExactly(downloadRequest);
-        assertThat(offlineContentRequests.allDownloadRequests).isEmpty();
-        assertThat(offlineContentRequests.newDownloadRequests).isEmpty();
-        assertThat(offlineContentRequests.newRemovedTracks).isEmpty();
+        assertThat(offlineContentUpdates.newRestoredRequests).containsExactly(downloadRequest);
+        assertThat(offlineContentUpdates.allDownloadRequests).isEmpty();
+        assertThat(offlineContentUpdates.newDownloadRequests).isEmpty();
+        assertThat(offlineContentUpdates.newRemovedTracks).isEmpty();
     }
 
     @Test
@@ -57,12 +57,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualPendingRemovals(TRACK_URN_1, now.getTime() - TimeUnit.MINUTES.toMillis(4));
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
-        final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
+        final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 
-        assertThat(offlineContentRequests.newRestoredRequests).isEmpty();
-        assertThat(offlineContentRequests.allDownloadRequests).containsExactly(downloadRequest);
-        assertThat(offlineContentRequests.newDownloadRequests).containsExactly(downloadRequest);
-        assertThat(offlineContentRequests.newRemovedTracks).isEmpty();
+        assertThat(offlineContentUpdates.newRestoredRequests).isEmpty();
+        assertThat(offlineContentUpdates.allDownloadRequests).containsExactly(downloadRequest);
+        assertThat(offlineContentUpdates.newDownloadRequests).containsExactly(downloadRequest);
+        assertThat(offlineContentUpdates.newRemovedTracks).isEmpty();
     }
 
     @Test
@@ -71,12 +71,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadRequests(TRACK_URN_2);
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
-        final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
+        final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 
-        assertThat(offlineContentRequests.newRemovedTracks).containsExactly(TRACK_URN_1);
-        assertThat(offlineContentRequests.allDownloadRequests).containsExactly(downloadRequest);
-        assertThat(offlineContentRequests.newDownloadRequests).isEmpty();
-        assertThat(offlineContentRequests.newRestoredRequests).isEmpty();
+        assertThat(offlineContentUpdates.newRemovedTracks).containsExactly(TRACK_URN_1);
+        assertThat(offlineContentUpdates.allDownloadRequests).containsExactly(downloadRequest);
+        assertThat(offlineContentUpdates.newDownloadRequests).isEmpty();
+        assertThat(offlineContentUpdates.newRestoredRequests).isEmpty();
     }
 
     @Test
@@ -88,12 +88,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, TRACK_DURATION, "http://wav");
         final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, TRACK_DURATION, "http://wav");
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest1, downloadRequest2, downloadRequest3);
-        final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
+        final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 
-        assertThat(offlineContentRequests.newRemovedTracks).isEmpty();
-        assertThat(offlineContentRequests.allDownloadRequests).containsExactly(downloadRequest2, downloadRequest3);
-        assertThat(offlineContentRequests.newDownloadRequests).containsExactly(downloadRequest3);
-        assertThat(offlineContentRequests.newRestoredRequests).isEmpty();
+        assertThat(offlineContentUpdates.newRemovedTracks).isEmpty();
+        assertThat(offlineContentUpdates.allDownloadRequests).containsExactly(downloadRequest2, downloadRequest3);
+        assertThat(offlineContentUpdates.newDownloadRequests).containsExactly(downloadRequest3);
+        assertThat(offlineContentUpdates.newRestoredRequests).isEmpty();
     }
 
     private void actualPendingRemovals(Urn track, long remoteAt) {

@@ -61,7 +61,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishNotDownloadableStateChangesEmitsNewTrackDownloadedWhenTrackIsRestored() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(downloadRequest1),
@@ -79,7 +79,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishNotDownloadableStateChangesEmitsDownloadRemovedWhenTrackIsRemoved() {
         final List<Urn> removedDownloads = Collections.singletonList(downloadRequest1.track);
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -96,7 +96,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishNotDownloadableStateChangesDoesNotSendDownloadRemovedWhenCurrentlyDownloading() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -110,7 +110,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
-        final OfflineContentRequests noOfflineRequest = new OfflineContentRequests(
+        final OfflineContentUpdates noOfflineRequest = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),

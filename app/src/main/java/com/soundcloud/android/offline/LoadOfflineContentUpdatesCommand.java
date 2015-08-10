@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadRequest>, OfflineContentRequests> {
+class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadRequest>, OfflineContentUpdates> {
 
     private static final long PENDING_REMOVAL_DELAY = TimeUnit.MINUTES.toMillis(3);
 
@@ -45,7 +45,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     @Override
-    public OfflineContentRequests call(final Collection<DownloadRequest> expectedRequests) {
+    public OfflineContentUpdates call(final Collection<DownloadRequest> expectedRequests) {
         final Collection<Urn> expectedTracks = MoreCollections.transform(expectedRequests, toUrn);
         final List<Urn> downloadRequests = getDownloadRequests();
         final List<Urn> downloadedContent = getDownloaded();
@@ -57,7 +57,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(expectedRequests, pendingRemovals, tracksToRestore, downloadedContent);
         final List<Urn> newPendingRemovals = getNewPendingRemovals(expectedTracks, downloadedContent, downloadRequests);
 
-        return new OfflineContentRequests(
+        return new OfflineContentUpdates(
                 newArrayList(allDownloadRequests),
                 newArrayList(newPendingDownloads),
                 newArrayList(tracksToRestore),

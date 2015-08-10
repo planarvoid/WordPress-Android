@@ -199,7 +199,7 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<OfflineContentRequests> loadOfflineContentUpdates() {
+    Observable<OfflineContentUpdates> loadOfflineContentUpdates() {
         return updateOfflineContentStalePolicies()
                 .onErrorResumeNext(Observable.<Void>just(null))
                 .flatMap(loadExpectedContentCommand.toContinuation())
