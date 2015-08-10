@@ -34,9 +34,9 @@ import java.lang.reflect.Method;
  */
 public class SoundCloudTestRunner extends RobolectricTestRunner {
 
-    public static final File MANIFEST = new File("../app/build/intermediates/manifests/full/debug/AndroidManifest.xml");
-    public static final File RESOURCES = new File("../app/build/intermediates/res/debug");
-    public static final File ASSETS = new File("../app/build/intermediates/assets/debug");
+    public static final File MANIFEST = new File("../app/build/intermediates/manifests/full/dev/debug/AndroidManifest.xml");
+    public static final File RESOURCES = new File("../app/build/intermediates/res/dev/debug");
+    public static final File ASSETS = new File("../app/build/intermediates/assets/dev/debug");
 
     public SoundCloudTestRunner(Class testClass) throws InitializationError {
         super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));

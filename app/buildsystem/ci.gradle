@@ -18,16 +18,16 @@ task renameApk << {
   }
 }
 
-task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lint${project.buildType.capitalize()}"]) {
+task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}")
+staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
 
 // *********************************************************************************************************************
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['clean', 'assembleDebug', 'staticAnalysis']) {
+task buildDebugCI(dependsOn: ['clean', 'assembleProdDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 buildDebugCI.mustRunAfter('updateVersion')
@@ -46,12 +46,12 @@ task updateAlphaVersion(dependsOn: ['incrementVersionName', 'setAlphaVersionCode
   description = 'Updates local AndroidManifest versions for Alpha deploy.'
 }
 
-task buildAlpha(dependsOn: ['clean', 'assembleAlpha']) {
+task buildAlpha(dependsOn: ['clean', 'assembleProdAlpha']) {
   description = 'Assembles Alpha package.'
 }
 buildAlpha.mustRunAfter('updateAlphaVersion')
 
-task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
+task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
   description = 'Deploys Alpha via Crashlytics Beta.'
 }
 
@@ -124,7 +124,7 @@ task headsup(type: Exec) {
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ["assemble${project.buildType.capitalize()}AndroidTest"]) {
+task assembleAcceptanceTest(dependsOn: ["assembleProd${project.buildType.capitalize()}AndroidTest"]) {
   description = 'Assembles all the Test applications.'
 }
 
@@ -149,7 +149,7 @@ task runLegacyUnitTests(dependsOn: ':tests-robolectric:test') {
   description = 'Run legacy unit test suite based on Robolectric 1'
 }
 
-task runAppUnitTests(dependsOn: [':app:cleanTestDebug', ':app:testDebug']) {
+task runAppUnitTests(dependsOn: [':app:cleanTestDevDebug', ':app:testDevDebug']) {
   description = 'Run new unit test suite based on Robolectric 3'
 }
 

@@ -16,7 +16,7 @@ test.dependsOn project(androidProject).configurations.testSupport
 
 dependencies {
   def androidModule = project(androidProject)
-  def debugVariant = androidModule.android.applicationVariants.find({it.name == 'debug'})
+  def debugVariant = androidModule.android.applicationVariants.find({it.name == 'devDebug'})
   def testingLibraries = rootProject.ext.unitTestLibraries
 
   compile testingLibraries.daggerCompiler

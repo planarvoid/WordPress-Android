@@ -13,7 +13,7 @@ task downloadNetworkManagerApkCI(type:Exec) {
   commandLine "/usr/bin/wget", "-P", destDir, srcFile
 }
 
-task downloadNetworkManagerApk(type:Exec, dependsOn: ["assemble${project.buildType.capitalize()}AndroidTest"]) {
+task downloadNetworkManagerApk(type:Exec, dependsOn: ["assembleProd${project.buildType.capitalize()}AndroidTest"]) {
   description 'Downloads the Android Network Manager APK from the Maven repo.'
   commandLine "/usr/local/bin/wget", "-P", destDir, srcFile
 }

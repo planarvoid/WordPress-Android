@@ -42,18 +42,15 @@ apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
 
-def globalConfiguration = rootProject.extensions.getByName('ext')
-
 android {
-  compileSdkVersion globalConfiguration.getAt('androidCompileSdkVersion')
-  buildToolsVersion globalConfiguration.getAt('androidBuildToolsVersion')
+  compileSdkVersion rootProject.ext.androidCompileSdkVersion
+  buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
   defaultConfig {
-    applicationId globalConfiguration.getAt('applicationId')
-    minSdkVersion globalConfiguration.getAt('androidMinSdkVersion')
-    targetSdkVersion globalConfiguration.getAt('androidTargetSdkVersion')
-    testApplicationId globalConfiguration.getAt('testApplicationId')
-    testInstrumentationRunner globalConfiguration.getAt('testInstrumentationRunner')
+    applicationId rootProject.ext.applicationId
+    targetSdkVersion rootProject.ext.androidTargetSdkVersion
+    testApplicationId rootProject.ext.testApplicationId
+    testInstrumentationRunner rootProject.ext.testInstrumentationRunner
   }
 
   compileOptions {
@@ -67,11 +64,11 @@ android {
 
   sourceSets {
     main {
-      manifest.srcFile globalConfiguration.getAt('manifestSrcFile')
-      java.srcDirs globalConfiguration.getAt('javaSrcDirs')
-      res.srcDirs globalConfiguration.getAt('resSrcDirs')
-      assets.srcDirs globalConfiguration.getAt('assetsSrcDirs')
-      aidl.srcDirs globalConfiguration.getAt('javaSrcDirs')
+      manifest.srcFile rootProject.ext.manifestSrcFile
+      java.srcDirs rootProject.ext.javaSrcDirs
+      res.srcDirs rootProject.ext.resSrcDirs
+      assets.srcDirs rootProject.ext.assetsSrcDirs
+      aidl.srcDirs rootProject.ext.javaSrcDirs
     }
   }
 
@@ -88,9 +85,7 @@ android {
   }
 
   dexOptions {
-    incremental true
     jumboMode true
-    preDexLibraries false
     javaMaxHeapSize "4g"
   }
 }
@@ -99,8 +94,8 @@ configurations {
   testSupport // for exporting our test helpers
 }
 
-task testSupportJar(type: Jar, dependsOn: ':app:compileDebugUnitTestSources') {
-  from "$project.buildDir/intermediates/classes/test/debug"
+task testSupportJar(type: Jar, dependsOn: ':app:compileDevDebugUnitTestSources') {
+  from "$project.buildDir/intermediates/classes/test/dev/debug"
   exclude "**/*Test.class"
   exclude "**/*Test\$*.class"
   includeEmptyDirs = false
