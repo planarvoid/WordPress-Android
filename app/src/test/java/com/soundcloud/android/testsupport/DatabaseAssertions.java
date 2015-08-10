@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -128,7 +129,7 @@ public class DatabaseAssertions {
         assertStationPlayQueueInserted(station);
     }
 
-    public void assertStationUnique(Urn station) {
+    public void assertStationIsUnique(Urn station) {
         assertThat(
                 select(from(Stations.TABLE).whereEq(Stations.STATION_URN, station)),
                 counts(1)
@@ -149,6 +150,17 @@ public class DatabaseAssertions {
         );
     }
 
+    public void assertStationPosition(Urn station, int position) {
+        assertThat(
+                select(
+                        from(Stations.TABLE)
+                                .whereEq(Stations.STATION_URN, station.toString())
+                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, position)
+                ),
+                counts(1)
+        );
+    }
+
     public void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(
                 select(from(StationsPlayQueues.TABLE)
@@ -164,6 +176,15 @@ public class DatabaseAssertions {
                 select(from(StationsPlayQueues.TABLE)
                         .whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())),
                 counts(0)
+        );
+    }
+
+    public void assertRecentStationContains(Urn stationUrn, long currentTime, int expectedCount) {
+        assertThat(
+                select(from(RecentStations.TABLE)
+                        .whereEq(RecentStations.STATION_URN, stationUrn.toString())
+                        .whereEq(RecentStations.STARTED_AT, currentTime)),
+                counts(expectedCount)
         );
     }
 

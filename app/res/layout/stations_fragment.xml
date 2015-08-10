@@ -5,7 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/side_menu_stations" />
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ak_recycler_view" />
 
+    <com.soundcloud.android.view.EmptyView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </FrameLayout>

@@ -1,10 +1,10 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.functions.Func1;
@@ -22,10 +22,24 @@ public class StationsController {
         }
     };
 
-    private final Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>> toChangeResult = new Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>>() {
+    private static final Func1<PlayQueueEvent, Boolean> isNewPlayQueueAStation = new Func1<PlayQueueEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayQueueEvent playQueueEvent) {
+            return playQueueEvent.isNewQueue() && playQueueEvent.getCollectionUrn().isStation();
+        }
+    };
+
+    private final Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>> saveLastTrackPosition = new Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>>() {
         @Override
         public Observable<ChangeResult> call(CurrentPlayQueueTrackEvent event) {
             return operations.saveLastPlayedTrackPosition(event.getCollectionUrn(), event.getPosition());
+        }
+    };
+
+    private final Func1<PlayQueueEvent, Observable<ChangeResult>> saveRecentlyPlayedStation = new Func1<PlayQueueEvent, Observable<ChangeResult>>() {
+        @Override
+        public Observable<ChangeResult> call(PlayQueueEvent event) {
+            return operations.saveRecentlyPlayedStation(event.getCollectionUrn());
         }
     };
 
@@ -36,10 +50,23 @@ public class StationsController {
     }
 
     public void subscribe() {
-        fireAndForget(eventBus
+        saveCurrentTrackPositionInStation();
+        saveRecentlyPlayedStations();
+    }
+
+    private void saveCurrentTrackPositionInStation() {
+        eventBus
                 .queue(EventQueue.PLAY_QUEUE_TRACK)
                 .filter(isStation)
-                .flatMap(toChangeResult)
-        );
+                .flatMap(saveLastTrackPosition)
+                .subscribe(new DefaultSubscriber<ChangeResult>());
+    }
+
+    private void saveRecentlyPlayedStations() {
+        eventBus
+                .queue(EventQueue.PLAY_QUEUE)
+                .filter(isNewPlayQueueAStation)
+                .flatMap(saveRecentlyPlayedStation)
+                .subscribe(new DefaultSubscriber<ChangeResult>());
     }
 }

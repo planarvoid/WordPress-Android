@@ -53,6 +53,10 @@ public class MenuScreen {
         return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_playlists)));
     }
 
+    private ViewElement stationsMenuItem() {
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_stations)));
+    }
+
     protected ViewElement upsellMenuItem() {
         return testDriver.findElement(With.text(testDriver.getString(R.string.upsell_nav_body)));
     }
@@ -119,4 +123,9 @@ public class MenuScreen {
         return new UpgradeScreen(testDriver);
     }
 
+    public StationsScreen clickStations() {
+        stationsMenuItem().click();
+        waiter.waitForDrawerToClose();
+        return new StationsScreen(testDriver);
+    }
 }

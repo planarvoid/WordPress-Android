@@ -197,14 +197,14 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
 
     @Test
     public void onPlayQueueChangedSetsNewCurrentDataInAdapter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         verify(adapter, times(2)).setCurrentData(anyListOf(TrackPageData.class)); //once in setPager
     }
 
     @Test
     public void onPlayQueueChangedSetsTrackPagerAdapterIfNotSet() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         verify(viewPager).setAdapter(adapter);
     }
@@ -220,7 +220,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
 
     @Test
     public void onPlayQueueUpdateSetsTrackPagerAdapterIfNotSet() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
 
         verify(viewPager).setAdapter(adapter);
     }
@@ -340,7 +340,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
@@ -354,7 +354,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
         controller.onResume();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
@@ -368,7 +368,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
 
         controller.onResume();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         verify(adapter).setCurrentData(fullQueueData); // verify first fullQueue, but it should only happen once
         verify(viewPager).setCurrentItem(2, true);
@@ -378,7 +378,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
     public void refreshesPlayQueueAfterNewPlayQueueEvent() {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
 
         verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
@@ -390,7 +390,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 

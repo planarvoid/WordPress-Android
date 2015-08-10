@@ -111,7 +111,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(queue1, source1);
         playQueueManager.setNewPlayQueue(queue2, source2, 2);
 
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue());
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).containsExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L), Urn.NOT_SET, 0),
                 CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(3L), Urn.NOT_SET, 0));
     }
@@ -647,7 +647,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
             public boolean apply(@Nullable PropertySet input) {
                 return true;
             }
-        }, PlayQueueEvent.fromAudioAdRemoved());
+        }, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.AUDIO_AD_REMOVED);
     }

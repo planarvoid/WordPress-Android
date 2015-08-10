@@ -378,7 +378,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
@@ -393,7 +393,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         assertThat(recommendedSubject.hasObservers()).isTrue();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         assertThat(recommendedSubject.hasObservers()).isFalse();
     }

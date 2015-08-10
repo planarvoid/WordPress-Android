@@ -313,7 +313,7 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getSourceVersion(currentPosition);
     }
 
-    private Urn getCollectionUrn() {
+    public Urn getCollectionUrn() {
         return playSessionSource.getCollectionUrn();
     }
 
@@ -353,7 +353,7 @@ public class PlayQueueManager implements OriginProvider {
 
     @VisibleForTesting
     public void removeTracksWithMetaData(Predicate<PropertySet> predicate) {
-        removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate());
+        removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
 
     public void removeTracksWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent) {
@@ -394,7 +394,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void publishQueueUpdate() {
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
 
     private void broadcastNewPlayQueue() {
@@ -402,7 +402,7 @@ public class PlayQueueManager implements OriginProvider {
 
         final Urn currentTrackUrn = getCurrentTrackUrn();
         if (!Urn.NOT_SET.equals(currentTrackUrn)) {
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
             eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCollectionUrn(), getCurrentMetaData(), getCurrentPosition()));
         }
     }

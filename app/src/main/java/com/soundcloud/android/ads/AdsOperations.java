@@ -170,7 +170,7 @@ public class AdsOperations {
     }
 
     public void clearAllAds() {
-        playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved());
+        playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 
     public List<Urn> getAdUrnsInQueue() {

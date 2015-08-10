@@ -48,7 +48,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
         item.click();
     }
 
-    public VisualPlayerElement clickStartRadio() {
+    public VisualPlayerElement clickStartStation() {
         clickItemWithText(testDriver.getString(R.string.start_radio));
         return new VisualPlayerElement(testDriver);
     }
