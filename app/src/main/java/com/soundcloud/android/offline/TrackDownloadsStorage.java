@@ -3,16 +3,12 @@ package com.soundcloud.android.offline;
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
-import static com.soundcloud.android.storage.Table.TrackDownloads;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
@@ -59,12 +55,12 @@ class TrackDownloadsStorage {
      * @return playlist's offline tracks playlist ordered by position in a playlist
      */
     Observable<List<Urn>> playlistTrackUrns(Urn playlistUrn) {
-        final Query query = Query.from(TrackDownloads.name())
-                .select(TrackDownloads.field(_ID))
-                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads.field(_ID))
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID)
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.name())
                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
-                .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
-                .whereNull(TrackDownloads.field(REMOVED_AT))
+                .whereNotNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.REMOVED_AT)
                 .order(PlaylistTracks.field(POSITION), ASC);
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
@@ -75,47 +71,48 @@ class TrackDownloadsStorage {
      * @return offline likes ordered by creation date of the like
      */
     Observable<List<Urn>> likesUrns() {
-        final Query query = Query.from(TrackDownloads.name())
-                .select(TrackDownloads.field(_ID))
-                .innerJoin(Likes.name(), TrackDownloads.field(_ID), Likes.field(_ID))
-                .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
-                .whereNull(TrackDownloads.field(REMOVED_AT))
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.qualifiedName())
+                .innerJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
+                .whereNotNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.REMOVED_AT)
                 .order(Likes.field(CREATED_AT), DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingLikedTracksUrns() {
-        final Query query = Query.from(TrackDownloads.name())
-                .select(TrackDownloads.field(_ID))
-                .innerJoin(Likes.name(), TrackDownloads.field(_ID), Likes.field(_ID))
-                .whereNull(TrackDownloads.field(REMOVED_AT))
-                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
-                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
-                .whereNotNull(TrackDownloads.field(REQUESTED_AT))
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.qualifiedName())
+                .leftJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
+                .whereNull(TrackDownloads.REMOVED_AT)
+                .whereNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.UNAVAILABLE_AT)
+                .whereNotNull(TrackDownloads.REQUESTED_AT)
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingPlaylistTracksUrns(Urn playlist) {
-        final Query query = Query.from(TrackDownloads.name())
-                .select(TrackDownloads.field(_ID))
-                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads.field(_ID))
+        final Query query = Query
+                .from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.qualifiedName())
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.name())
                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlist.getNumericId())
-                .whereNull(TrackDownloads.field(REMOVED_AT))
-                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
-                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
-                .whereNotNull(TrackDownloads.field(REQUESTED_AT));
+                .whereNull(TrackDownloads.REMOVED_AT)
+                .whereNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.UNAVAILABLE_AT)
+                .whereNotNull(TrackDownloads.REQUESTED_AT);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> getTracksToRemove() {
         final long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
-        return propellerRx.query(Query.from(Table.TrackDownloads.name())
+        return propellerRx.query(Query.from(TrackDownloads.TABLE)
                 .select(_ID)
-                .whereLe(REMOVED_AT, removalDelayedTimestamp))
+                .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
                 .map(new TrackUrnMapper())
                 .toList();
     }
@@ -123,7 +120,7 @@ class TrackDownloadsStorage {
     Observable<Long> getLastPolicyUpdate() {
         return propellerRx.query(Query.from(Table.TrackPolicies.name())
                 .select(Table.TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED))
-                .innerJoin(Table.TrackDownloads.name(), Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID), Table.TrackDownloads.field(_ID))
+                .innerJoin(TrackDownloads.TABLE.name(), Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID), TrackDownloads._ID.name())
                 .order(TrackPolicies.field(LAST_UPDATED), DESC))
                 .map(RxResultMapper.scalar(Long.class))
                 .take(1);
@@ -132,18 +129,18 @@ class TrackDownloadsStorage {
     WriteResult storeCompletedDownload(DownloadState downloadState) {
         final ContentValues contentValues = ContentValuesBuilder.values(3)
                 .put(_ID, downloadState.getTrack().getNumericId())
-                .put(UNAVAILABLE_AT, null)
-                .put(DOWNLOADED_AT, downloadState.timestamp)
+                .put(TrackDownloads.UNAVAILABLE_AT, null)
+                .put(TrackDownloads.DOWNLOADED_AT, downloadState.timestamp)
                 .get();
 
-        return propeller.upsert(TrackDownloads, contentValues);
+        return propeller.upsert(TrackDownloads.TABLE, contentValues);
     }
 
     public WriteResult markTrackAsUnavailable(Urn track) {
         final ContentValues contentValues = ContentValuesBuilder.values(1)
-                .put(UNAVAILABLE_AT, dateProvider.getCurrentDate().getTime()).get();
+                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentDate().getTime()).get();
 
-        return propeller.update(TrackDownloads, contentValues,
+        return propeller.update(TrackDownloads.TABLE, contentValues,
                 filter().whereEq(_ID, track.getNumericId()));
     }
 

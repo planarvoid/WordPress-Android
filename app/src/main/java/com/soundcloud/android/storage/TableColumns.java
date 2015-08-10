@@ -300,16 +300,6 @@ public final class TableColumns {
         public static final String PAGE_INDEX = "page_index";
     }
 
-    /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_TRACK_DOWNLOADS}
-     */
-    public final static class TrackDownloads implements BaseColumns {
-        public static final String REQUESTED_AT = "requested_at";
-        public static final String DOWNLOADED_AT = "downloaded_at";
-        public static final String REMOVED_AT = "removed_at";
-        public static final String UNAVAILABLE_AT = "unavailable_at";
-    }
-
     public final static class OfflineContent implements BaseColumns {
         public static final String _TYPE = "_type";
 

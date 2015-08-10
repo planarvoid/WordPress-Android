@@ -2,8 +2,6 @@ package com.soundcloud.android.framework;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.TableColumns.OfflineContent._TYPE;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
@@ -11,6 +9,7 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SchemaMigrationHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -19,17 +18,17 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class IntegrationTestsFixtures {
     public void insertLocalPlaylistWithTrack(Context context, Urn playlist, Urn track) {
-        insert(context, Table.PlaylistTracks, buildPlaylistTrackValues(playlist, track, System.currentTimeMillis()));
+        insert(context, Table.PlaylistTracks.name(), buildPlaylistTrackValues(playlist, track, System.currentTimeMillis()));
     }
 
     public void insertOfflinePlaylist(Context context, Urn parcelableExtra) {
-        insert(context, Table.OfflineContent, buildOfflineContentValues(parcelableExtra));
+        insert(context, Table.OfflineContent.name(), buildOfflineContentValues(parcelableExtra));
     }
 
     public void insertOfflineTrack(Context context, Urn track) {
 
-        insert(context, Table.TrackDownloads, buildTrackDownloadValues(track, System.currentTimeMillis()));
-        insert(context, Table.TrackPolicies, buildTrackPoliciesValues(track, System.currentTimeMillis()));
+        insert(context, Tables.TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
+        insert(context, Table.TrackPolicies.name(), buildTrackPoliciesValues(track, System.currentTimeMillis()));
     }
 
     public void clearLikes(Context context) {
@@ -39,7 +38,7 @@ public class IntegrationTestsFixtures {
 
     public void clearOfflineContent(Context context) {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        db.delete(Table.TrackDownloads.name(), null, null);
+        db.delete(Tables.TrackDownloads.TABLE.name(), null, null);
         db.delete(Table.OfflineContent.name(), null, null);
     }
 
@@ -57,9 +56,9 @@ public class IntegrationTestsFixtures {
         update(context, buildTrackPoliciesValues(time));
     }
 
-    private void insert(Context context, Table table, ContentValues contentValues) {
+    private void insert(Context context, String table, ContentValues contentValues) {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        db.insert(table.name(), null, contentValues);
+        db.insert(table, null, contentValues);
     }
 
     private void update(Context context, ContentValues contentValues) {
@@ -86,8 +85,8 @@ public class IntegrationTestsFixtures {
     private static ContentValues buildTrackDownloadValues(Urn track, long date) {
         return ContentValuesBuilder.values(2)
                 .put(_ID, track.getNumericId())
-                .put(REQUESTED_AT, date)
-                .put(DOWNLOADED_AT, date)
+                .put(Tables.TrackDownloads.REQUESTED_AT, date)
+                .put(Tables.TrackDownloads.DOWNLOADED_AT, date)
                 .get();
     }
 

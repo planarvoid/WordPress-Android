@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -60,13 +61,13 @@ public class LikedTrackStorage {
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,
                         TableColumns.Sounds.SHARING,
-                        TableColumns.TrackDownloads.REQUESTED_AT,
-                        TableColumns.TrackDownloads.DOWNLOADED_AT,
-                        TableColumns.TrackDownloads.UNAVAILABLE_AT,
+                        TrackDownloads.REQUESTED_AT,
+                        TrackDownloads.DOWNLOADED_AT,
+                        TrackDownloads.UNAVAILABLE_AT,
+                        TrackDownloads.REMOVED_AT.qualifiedName(),
                         TableColumns.TrackPolicies.SUB_MID_TIER,
-                        field(Table.TrackDownloads.field(TableColumns.TrackDownloads.REMOVED_AT)).as(TableColumns.TrackDownloads.REMOVED_AT),
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT))
-                .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads.field(TableColumns.TrackDownloads._ID))
+                .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
                 .joinOn(Table.Sounds.field(TableColumns.Sounds.USER_ID), Table.Users.field(TableColumns.Users._ID))

@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.TrackDownloads;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +39,7 @@ class DeleteOfflineTrackCommand extends Command<Collection<Urn>, Collection<Urn>
 
     private ChangeResult deleteFromDatabase(Urn track) {
         final Where whereClause = Filter.filter().whereEq(_ID, track.getNumericId());
-        return database.delete(TrackDownloads, whereClause);
+        return database.delete(TrackDownloads.TABLE, whereClause);
     }
 
 }

@@ -10,7 +10,7 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITIO
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies;
 import static com.soundcloud.android.storage.TableColumns.Users;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
@@ -95,10 +95,10 @@ class PlaylistTracksStorage {
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT,
                         TrackPolicies.SUB_MID_TIER,
-                        field(Table.TrackDownloads.field(TrackDownloads.REMOVED_AT)).as(TrackDownloads.REMOVED_AT))
+                        TrackDownloads.REMOVED_AT.qualifiedName())
                 .innerJoin(Table.Sounds.name(), Table.PlaylistTracks.field(PlaylistTracks.TRACK_ID), fullSoundIdColumn)
                 .innerJoin(Table.Users.name(), Table.Sounds.field(Sounds.USER_ID), Table.Users.field(Users._ID))
-                .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads.field(TrackDownloads._ID))
+                .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TrackPolicies.TRACK_ID))
                 .whereEq(Table.Sounds.field(Sounds._TYPE), Sounds.TYPE_TRACK)
                 .whereEq(PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())

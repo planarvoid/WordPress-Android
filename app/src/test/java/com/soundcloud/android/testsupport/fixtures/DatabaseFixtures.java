@@ -12,6 +12,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -482,25 +483,25 @@ public class DatabaseFixtures {
 
     public void insertTrackPendingDownload(Urn trackUrn, long requestedAt) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAt);
-        insertInto(Table.TrackDownloads, cv);
+        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAt);
+        insertInto(TrackDownloads.TABLE, cv);
     }
 
     public void insertCompletedTrackDownload(Urn trackUrn, long requestedAtTimestamp, long completedTimestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
-        cv.put(TableColumns.TrackDownloads.DOWNLOADED_AT, completedTimestamp);
-        insertInto(Table.TrackDownloads, cv);
+        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAtTimestamp);
+        cv.put(TrackDownloads.DOWNLOADED_AT.name(), completedTimestamp);
+        insertInto(TrackDownloads.TABLE, cv);
     }
 
     public void insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, 33333333L);
-        cv.put(TableColumns.TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
-        insertInto(Table.TrackDownloads, cv);
+        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT.name(), 33333333L);
+        cv.put(TrackDownloads.UNAVAILABLE_AT.name(), unavailableTimestamp);
+        insertInto(TrackDownloads.TABLE, cv);
     }
 
     public void insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
@@ -509,11 +510,11 @@ public class DatabaseFixtures {
 
     public void insertTrackDownloadPendingRemoval(Urn trackUrn, long requestedAtTimestamp, long removedAtTimestamp) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
-        cv.put(TableColumns.TrackDownloads.DOWNLOADED_AT, requestedAtTimestamp);
-        cv.put(TableColumns.TrackDownloads.REMOVED_AT, removedAtTimestamp);
-        insertInto(Table.TrackDownloads, cv);
+        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAtTimestamp);
+        cv.put(TrackDownloads.DOWNLOADED_AT.name(), requestedAtTimestamp);
+        cv.put(TrackDownloads.REMOVED_AT.name(), removedAtTimestamp);
+        insertInto(TrackDownloads.TABLE, cv);
     }
 
     public ApiPlaylist insertPlaylistMarkedForOfflineSync() {
