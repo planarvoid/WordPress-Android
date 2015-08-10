@@ -23,7 +23,7 @@ public class DownloadStateMapper extends RxResultMapper<PropertySet> {
         final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
         final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
-        final boolean isCollectionOffline = getBooleanOr(cursorReader, IS_MARKED_FOR_OFFLINE);
+        final boolean isCollectionOffline = cursorReader.isNotNull(IS_MARKED_FOR_OFFLINE);
 
         final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
@@ -36,10 +36,6 @@ public class DownloadStateMapper extends RxResultMapper<PropertySet> {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
         }
         return propertySet;
-    }
-
-    private boolean getBooleanOr(CursorReader cursorReader, String columnName) {
-        return cursorReader.isNotNull(columnName);
     }
 
     private Date getDateOr(CursorReader cursorReader, Column columnName, Date defaultDate) {

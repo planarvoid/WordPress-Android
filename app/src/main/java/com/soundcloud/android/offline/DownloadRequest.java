@@ -13,7 +13,7 @@ public final class DownloadRequest {
     public final String waveformUrl;
     public final List<Urn> inPlaylists;
     public final boolean inLikedTracks;
-    public final boolean syncable;
+    public final boolean downloadable;
 
     public static class Builder {
         private final Urn track;
@@ -50,12 +50,12 @@ public final class DownloadRequest {
         }
     }
 
-    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean syncable,
+    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean downloadable,
                            boolean inLikedTracks, List<Urn> inPlaylists) {
         this.track = track;
         this.duration = duration;
         this.waveformUrl = waveformUrl;
-        this.syncable = syncable;
+        this.downloadable = downloadable;
         this.inPlaylists = inPlaylists;
         this.inLikedTracks = inLikedTracks;
     }

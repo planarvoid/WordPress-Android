@@ -7,19 +7,21 @@ import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.*;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies.*;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
+import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
@@ -32,7 +34,6 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.RxResultMapper;
 
 import android.support.annotation.NonNull;
 
@@ -126,7 +127,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
 
-        final List<Long> playlistIds = database.query(orderedPlaylistQuery()).toList(RxResultMapper.scalar(Long.class));
+        final List<Long> playlistIds = database.query(orderedPlaylistQuery()).toList(scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
                 .select(

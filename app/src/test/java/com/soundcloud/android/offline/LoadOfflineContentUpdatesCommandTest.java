@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -21,9 +22,11 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     private static final Urn TRACK_URN_1 = Urn.forTrack(123L);
     private static final Urn TRACK_URN_2 = Urn.forTrack(456L);
     private static final Urn TRACK_URN_3 = Urn.forTrack(789L);
-    private static final long TRACK_DURATION = 12345L;
 
-    private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, TRACK_DURATION, "http://wav");
+    private static final long DURATION = 12345L;
+    private static final String WAVEFORM = "http://wav";
+
+    private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
 
     @Mock private DateProvider dateProvider;
 
@@ -34,6 +37,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     public void setUp() {
         now = new Date();
         when(dateProvider.getCurrentDate()).thenReturn(now);
+        when(dateProvider.getCurrentTime()).thenReturn(now.getTime());
         command = new LoadOfflineContentUpdatesCommand(propeller(), dateProvider);
     }
 
@@ -80,13 +84,38 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     @Test
+    public void marksAsUnavailableOfflineCreatorOptOutTracks() {
+        final List<DownloadRequest> expectedRequests = new ArrayList<>(2);
+        expectedRequests.add(new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build());
+
+        command.call(expectedRequests);
+
+        databaseAssertions().assertTrackIsUnavailable(TRACK_URN_1, now.getTime());
+    }
+
+    @Test
+    public void returnsFilteredOutCreatorOptOuts() {
+        final List<DownloadRequest> expectedRequests = new ArrayList<>(2);
+        DownloadRequest creatorOptOut = new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build();
+        DownloadRequest downloadRequest = new DownloadRequest.Builder(TRACK_URN_2, DURATION, WAVEFORM, true).build();
+
+        expectedRequests.add(creatorOptOut);
+        expectedRequests.add(downloadRequest);
+
+        OfflineContentUpdates updates = command.call(expectedRequests);
+
+        assertThat(updates.allDownloadRequests).contains(downloadRequest);
+        assertThat(updates.creatorOptOutRequests).contains(creatorOptOut);
+    }
+
+    @Test
     public void returnsNewAndExistingDownloadsWithNoRemovals() {
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, TRACK_DURATION, "http://wav");
-        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, TRACK_DURATION, "http://wav");
-        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, TRACK_DURATION, "http://wav");
+        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, DURATION, WAVEFORM);
+        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
+        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, DURATION, WAVEFORM);
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest1, downloadRequest2, downloadRequest3);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 

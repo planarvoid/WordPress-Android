@@ -74,11 +74,11 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private List<DownloadRequest> getExpectedRequest(Collection<DownloadRequest> userExpectedContent) {
-        return newArrayList(MoreCollections.filter(userExpectedContent, syncablePredicate(true)));
+        return newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
     }
 
     private Collection<DownloadRequest> updateCreatorOptOut(Collection<DownloadRequest> userExpectedContent) {
-        Collection<DownloadRequest> outOuts = MoreCollections.filter(userExpectedContent, syncablePredicate(false));
+        Collection<DownloadRequest> outOuts = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
 
         if (!outOuts.isEmpty()) {
             propellerDatabase.bulkUpsert(TrackDownloads.TABLE, creatorOptOutContentValues(outOuts));
@@ -88,21 +88,21 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     private List<ContentValues> creatorOptOutContentValues(Collection<DownloadRequest> creatorOptOut) {
         List<ContentValues> contentValues = new ArrayList<>();
-        for (DownloadRequest outOut : creatorOptOut) {
+        for (DownloadRequest optOuts : creatorOptOut) {
             contentValues.add(ContentValuesBuilder.values()
                     .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
                     .put(TrackDownloads.REQUESTED_AT, null)
-                    .put(TrackDownloads._ID, outOut.track.getNumericId())
+                    .put(TrackDownloads._ID, optOuts.track.getNumericId())
                     .get());
         }
         return contentValues;
     }
 
-    private Predicate<DownloadRequest> syncablePredicate(final boolean isSyncable) {
+    private static Predicate<DownloadRequest> downloadablePredicate(final boolean isDownloadable) {
         return new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest input) {
-                return input.syncable == isSyncable;
+                return input.downloadable == isDownloadable;
             }
         };
     }
