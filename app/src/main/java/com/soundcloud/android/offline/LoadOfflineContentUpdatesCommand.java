@@ -1,9 +1,9 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.storage.Table.TrackDownloads;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.utils.CollectionUtils.add;
 import static com.soundcloud.android.utils.CollectionUtils.subtract;
 import static com.soundcloud.java.collections.Lists.newArrayList;
@@ -71,27 +71,34 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
                 .whereNull(DOWNLOADED_AT)
                 .whereNotNull(REQUESTED_AT);
 
-        return propellerDatabase.query(Query.from(TrackDownloads.name())
+        return propellerDatabase.query(Query.from(TrackDownloads.TABLE)
                 .where(isPendingDownloads))
                 .toList(new TrackUrnMapper());
     }
 
     private List<Urn> getDownloaded() {
-        final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT).whereNull(REMOVED_AT);
+        final Query query = Query.from(TrackDownloads.TABLE).whereNotNull(DOWNLOADED_AT).whereNull(REMOVED_AT);
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
     private List<Urn> getPendingRemovals() {
         final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
-        final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT).whereGt(REMOVED_AT, pendingRemovalThreshold);
+
+        final Query query = Query
+                .from(TrackDownloads.TABLE)
+                .whereNotNull(DOWNLOADED_AT)
+                .whereGt(REMOVED_AT, pendingRemovalThreshold);
+
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloadedTracks, Collection<Urn> downloadRequests) {
+    private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloadedTracks,
+                                            Collection<Urn> downloadRequests) {
         return newArrayList(subtract(add(downloadedTracks, downloadRequests), expectedContent));
     }
 
-    private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent, final List<Urn> pendingRemovals) {
+    private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent,
+                                                           final List<Urn> pendingRemovals) {
         return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
@@ -100,7 +107,10 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         });
     }
 
-    private Collection<DownloadRequest> getNewPendingDownloads(Collection<DownloadRequest> expectedContent, final List<Urn> pendingDownloads, final List<Urn> downloadedTracks, final Collection<DownloadRequest> tracksToRestore) {
+    private Collection<DownloadRequest> getNewPendingDownloads(Collection<DownloadRequest> expectedContent,
+                                                               final List<Urn> pendingDownloads,
+                                                               final List<Urn> downloadedTracks,
+                                                               final Collection<DownloadRequest> tracksToRestore) {
         return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
@@ -111,7 +121,10 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         });
     }
 
-    private Collection<DownloadRequest> getAllDownloadRequests(Collection<DownloadRequest> expectedRequests, final List<Urn> downloadedTracks, final Collection<DownloadRequest> tracksToRestore, final List<Urn> downloadedContent) {
+    private Collection<DownloadRequest> getAllDownloadRequests(Collection<DownloadRequest> expectedRequests,
+                                                               final List<Urn> downloadedTracks,
+                                                               final Collection<DownloadRequest> tracksToRestore,
+                                                               final List<Urn> downloadedContent) {
         return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {

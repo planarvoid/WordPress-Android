@@ -1,14 +1,8 @@
 package com.soundcloud.android.playlists;
 
-import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.SoundView;
-import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
@@ -19,6 +13,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -119,15 +114,16 @@ public class PlaylistStorage {
         final Where joinConditions = filter()
                 .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
-        return Query.from(TrackDownloads.name())
-                .select(TrackDownloads.field(_ID))
-                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads.field(_ID))
+        return Query
+                .from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.qualifiedName())
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
                 .innerJoin(SoundView.name(), joinConditions)
-                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
-                .whereNull(TrackDownloads.field(REMOVED_AT))
-                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
-                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
-                .whereNotNull(TrackDownloads.field(REQUESTED_AT));
+                .whereEq(SoundView.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
+                .whereNull(TrackDownloads.REMOVED_AT)
+                .whereNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.UNAVAILABLE_AT)
+                .whereNotNull(TrackDownloads.REQUESTED_AT);
     }
 
     private Query likeQuery(Urn playlistUrn) {

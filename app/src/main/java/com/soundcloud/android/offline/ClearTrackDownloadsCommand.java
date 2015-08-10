@@ -9,6 +9,7 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Filter;
@@ -39,7 +40,7 @@ class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(Table.OfflineContent, offlineLikesFilter()));
-                step(propeller.delete(Table.TrackDownloads));
+                step(propeller.delete(Tables.TrackDownloads.TABLE));
                 step(propeller.delete(Table.OfflineContent));
             }
         });
@@ -61,7 +62,7 @@ class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     }
 
     private List<Urn> queryOfflineTracksUrns(PropellerDatabase propeller) {
-        return propeller.query(Query.from(Table.TrackDownloads.name())).toList(new TrackUrnMapper());
+        return propeller.query(Query.from(Tables.TrackDownloads.TABLE)).toList(new TrackUrnMapper());
     }
 
     private List<Urn> queryOfflinePlaylistsUrns(PropellerDatabase propeller) {

@@ -1,24 +1,25 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.Column;
 
 import java.util.Date;
 
 public class DownloadStateMapper extends RxResultMapper<PropertySet> {
     @Override
-    public PropertySet  map(CursorReader reader) {
+    public PropertySet map(CursorReader reader) {
         return addOptionalOfflineSyncDates(reader);
     }
 
     private PropertySet addOptionalOfflineSyncDates(CursorReader cursorReader) {
         final Date defaultDate = new Date(0);
-        final Date requestedAt = getDateOr(cursorReader, TableColumns.TrackDownloads.REQUESTED_AT, defaultDate);
-        final Date removedAt = getDateOr(cursorReader, TableColumns.TrackDownloads.REMOVED_AT, defaultDate);
-        final Date downloadedAt = getDateOr(cursorReader, TableColumns.TrackDownloads.DOWNLOADED_AT, defaultDate);
-        final Date unavailableAt = getDateOr(cursorReader, TableColumns.TrackDownloads.UNAVAILABLE_AT, defaultDate);
+        final Date requestedAt = getDateOr(cursorReader, TrackDownloads.REQUESTED_AT, defaultDate);
+        final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);
+        final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
+        final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
 
         final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
@@ -33,7 +34,7 @@ public class DownloadStateMapper extends RxResultMapper<PropertySet> {
         return propertySet;
     }
 
-    private Date getDateOr(CursorReader cursorReader, String columnName, Date defaultDate) {
+    private Date getDateOr(CursorReader cursorReader, Column columnName, Date defaultDate) {
         if (cursorReader.isNotNull(columnName)) {
             return cursorReader.getDateFromTimestamp(columnName);
         }

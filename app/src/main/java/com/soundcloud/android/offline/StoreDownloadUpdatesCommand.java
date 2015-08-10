@@ -1,14 +1,14 @@
 package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.TrackDownloads;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
-import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -30,15 +30,15 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (Urn urn : requests.newRemovedTracks) {
-                    step(propeller.upsert(TrackDownloads, buildContentValuesForRemoval(urn)));
+                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForRemoval(urn)));
                 }
 
                 for (DownloadRequest downloadRequest : requests.newRestoredRequests) {
-                    step(propeller.upsert(TrackDownloads, buildContentValuesForDownloaded(downloadRequest.track)));
+                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForDownloaded(downloadRequest.track)));
                 }
 
                 for (DownloadRequest downloadRequest : requests.newDownloadRequests) {
-                    step(propeller.upsert(TrackDownloads, buildContentValuesForPendingDownload(downloadRequest.track)));
+                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForPendingDownload(downloadRequest.track)));
                 }
             }
         });
@@ -48,7 +48,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return ContentValuesBuilder
                 .values()
                 .put(_ID, urn.getNumericId())
-                .put(TableColumns.TrackDownloads.REMOVED_AT, System.currentTimeMillis())
+                .put(TrackDownloads.REMOVED_AT, System.currentTimeMillis())
                 .get();
     }
 
@@ -66,9 +66,9 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return ContentValuesBuilder
                 .values()
                 .put(_ID, urn.getNumericId())
-                .put(TableColumns.TrackDownloads.REQUESTED_AT, System.currentTimeMillis())
+                .put(REQUESTED_AT, System.currentTimeMillis())
                 .put(REMOVED_AT, null)
-                .put(TableColumns.TrackDownloads.DOWNLOADED_AT, null)
+                .put(DOWNLOADED_AT, null)
                 .get();
     }
 }

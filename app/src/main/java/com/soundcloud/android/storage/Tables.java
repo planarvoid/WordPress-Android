@@ -121,4 +121,28 @@ public interface Tables {
             super("StationsPlayQueues", PrimaryKey.of(BaseColumns._ID));
         }
     }
+
+    class TrackDownloads extends BaseTable {
+
+        public static final TrackDownloads TABLE = new TrackDownloads();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column REMOVED_AT = Column.create(TABLE, "removed_at");
+        public static final Column REQUESTED_AT = Column.create(TABLE, "requested_at");
+        public static final Column DOWNLOADED_AT = Column.create(TABLE, "downloaded_at");
+        public static final Column UNAVAILABLE_AT = Column.create(TABLE, "unavailable_at");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS TrackDownloads (" +
+                "_id INTEGER PRIMARY KEY," +
+                "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
+                "downloaded_at INTEGER DEFAULT NULL," +
+                "removed_at INTEGER DEFAULT NULL," + // track marked for deletion
+                "unavailable_at INTEGER DEFAULT NULL" +
+                ");";
+
+
+        protected TrackDownloads() {
+            super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
 }

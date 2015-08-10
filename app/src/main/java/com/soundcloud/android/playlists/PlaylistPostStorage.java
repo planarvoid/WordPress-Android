@@ -7,6 +7,7 @@ import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.SoundView.CREATED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
@@ -55,7 +56,7 @@ public class PlaylistPostStorage {
                 .innerJoin(Table.Posts.name(),
                         on(Table.Posts.field(TableColumns.Posts.TARGET_ID), SoundView.field(TableColumns.SoundView._ID))
                                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), SoundView.field(TableColumns.SoundView._TYPE)))
-                .leftJoin(Table.TrackDownloads.name(), PlaylistTracks.field(TRACK_ID), Table.TrackDownloads.field(TableColumns.TrackDownloads._ID))
+                .leftJoin(TrackDownloads.TABLE.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)

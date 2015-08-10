@@ -17,6 +17,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
@@ -79,15 +80,15 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackIsUnavailable(Urn trackUrn, long time) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
-                .whereEq(TableColumns.TrackDownloads.UNAVAILABLE_AT, time)), counts(1));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                .whereEq(TrackDownloads.UNAVAILABLE_AT, time)), counts(1));
     }
 
     public void assertDownloadIsAvailable(Urn track) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, track.getNumericId())
-                .whereNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)), counts(1));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereEq(TrackDownloads._ID, track.getNumericId())
+                .whereNull(TrackDownloads.UNAVAILABLE_AT)), counts(1));
     }
 
     public void assertPlaylistTrackForRemoval(long playlistId, Urn urn) {
@@ -386,35 +387,35 @@ public class DatabaseAssertions {
 
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
         for (Urn urn : tracksToDownload) {
-            assertThat(select(from(Table.TrackDownloads.name())
-                    .whereEq(TableColumns.TrackDownloads._ID, urn.getNumericId())), counts(1));
+            assertThat(select(from(TrackDownloads.TABLE)
+                    .whereEq(TrackDownloads._ID, urn.getNumericId())), counts(1));
         }
     }
 
     public void assertDownloadPendingRemoval(Urn trackUrn) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
-                .whereNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)
-                .whereNotNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                .whereNotNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNotNull(TrackDownloads.REMOVED_AT)), counts(1));
     }
 
     public void assertDownloadResultsInserted(DownloadState result) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)
-                .whereEq(TableColumns.TrackDownloads._ID, result.getTrack().getNumericId())
-                .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereNull(TrackDownloads.UNAVAILABLE_AT)
+                .whereEq(TrackDownloads._ID, result.getTrack().getNumericId())
+                .whereEq(TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
     public void assertNotDownloaded(Urn trackUrn) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())), counts(0));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())), counts(0));
     }
 
     public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
-                .whereNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)
-                .whereNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
+        assertThat(select(from(TrackDownloads.TABLE)
+                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                .whereNotNull(TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TrackDownloads.REMOVED_AT)), counts(1));
     }
 
     protected QueryBinding select(Query query) {
