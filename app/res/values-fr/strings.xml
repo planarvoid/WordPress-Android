@@ -139,7 +139,7 @@
   <string name="list_empty_you_playlists_message">Créez des playlists pour mixer vos sons préférés</string>
   <string name="list_empty_liked_playlists_message">Mettez l\'option « j\'aime » sur vos playlists préférées pour les écouter à nouveau</string>
   <string name="empty_user_likes_text">%1$s n\'a encore\nchoisi aucun like.</string>
-  <string name="empty_user_followers_text">%1$s n\\'est encore suivi par personne.</string>
+  <string name="empty_user_followers_text">%1$s n\'est encore suivi par personne.</string>
   <string name="empty_user_followings_text">%1$s ne suit personne pour le moment.</string>
   <string name="empty_user_tracks_text">%1$s n\'a mis en ligne\naucun son public pour l\'instant.</string>
   <!--new profile-->
@@ -402,7 +402,7 @@
   <string name="pref_analytics">Analytiques</string>
   <string name="pref_analytics_desc">L\'activation d\'Analytics nous permet de recueillir des données concernant votre utilisation de cette application qui nous aident à l\'améliorer. Consultez notre Politique de confidentialité pour plus de détails.</string>
   <string name="pref_crashlogs">Journal des pannes</string>
-  <string name="pref_crashlogs_desc">L\\'activation de CrashLogs nous aide à améliorer l\\'application de manière significative. Nous ne recueillons pas de données personnelles. Consultez notre Politique de confidentialité pour plus de détails.</string>
+  <string name="pref_crashlogs_desc">L\'activation de CrashLogs nous aide à améliorer l\'application de manière significative. Nous ne recueillons pas de données personnelles. Consultez notre Politique de confidentialité pour plus de détails.</string>
   <string name="playback_error_logging">Erreurs de lecture : %s</string>
   <string name="enabled">Activé</string>
   <string name="disabled">Désactivé</string>
