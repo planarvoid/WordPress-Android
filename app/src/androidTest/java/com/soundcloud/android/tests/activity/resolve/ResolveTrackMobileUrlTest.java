@@ -18,6 +18,9 @@ public class ResolveTrackMobileUrlTest extends ResolveBaseTest {
 
         final VisualPlayerElement playerElement = getPlayerElement();
         assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(expectedTitle)));
+
+        waiter.waitFiveSeconds(); // wait for similar sounds to be loaded
+
         playerElement.swipeNext();
         assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(expectedTitle))));
     }
