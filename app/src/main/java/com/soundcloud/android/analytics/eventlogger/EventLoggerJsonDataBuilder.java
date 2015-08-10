@@ -154,7 +154,7 @@ public class EventLoggerJsonDataBuilder {
         return buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .clickObject(event.get(PlaybackSessionEvent.KEY_TRACK_URN))
+                .clickObject(event.getTrackUrn().toString())
                 .clickName("ad::finish")
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);

@@ -29,7 +29,8 @@ import java.util.List;
 public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(1L);
-    private static final Urn USER_URN = Urn.forUser(2L);
+    private static final Urn LOGGED_IN_USER_URN = Urn.forUser(2L);
+    private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
     private static final long DURATION = 2001L;
 
@@ -44,12 +45,12 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", DURATION);
+        PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
                 eventBus, trackRepository, accountOperations, playQueueManager, adsOperations);
@@ -71,6 +72,22 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEventForLocalStoragePlayback() throws Exception {
+        final Playa.StateTransition startEvent = new Playa.StateTransition(
+                Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_URI, "file://some/local/uri");
+
+        analyticsController.onStateTransition(startEvent);
+
+        Playa.StateTransition playEvent = startEvent;
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
+        assertThat(playbackSessionEvent.isOfflineTrack()).isTrue();
+    }
+
+    @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() throws Exception {
         Playa.StateTransition playEvent = publishPlayingEvent();
         Playa.StateTransition nextEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
@@ -82,8 +99,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     private void expectCommonAudioEventData(Playa.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).isEqualTo(USER_URN.toString());
+        assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
@@ -199,7 +217,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void shouldPublishStopEventWhenUserSkipsBetweenTracksManually() {
         final Urn nextTrack = Urn.forTrack(456L);
-        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
+        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack, CREATOR_URN)));
 
         publishPlayingEventForTrack(TRACK_URN);
         publishPlayingEventForTrack(nextTrack);
@@ -208,14 +226,14 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events).hasSize(3);
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
-        assertThat(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
     }
 
     @Test
     public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
         PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         final Urn nextTrack = Urn.forTrack(456L);
-        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
+        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack, CREATOR_URN)));
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
@@ -229,7 +247,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events).hasSize(3);
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
-        assertThat(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
     }
 
@@ -257,8 +275,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     protected void verifyStopEvent(int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).isEqualTo(TRACK_URN.toString());
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).isEqualTo(USER_URN.toString());
+        assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.isStopEvent()).isTrue();
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);

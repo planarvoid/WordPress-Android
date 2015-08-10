@@ -26,6 +26,7 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -267,6 +268,25 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         assertThat(trackSourceInfo.getPlaylistUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(trackSourceInfo.getPlaylistPosition()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithoutReposterSetIfNotSet() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackList(Arrays.asList(Urn.forTrack(1L).toPropertySet()), playlistSessionSource), playlistSessionSource, 0);
+
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        assertThat(trackSourceInfo.hasReposter()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithReposterSetIfSet() {
+        final PropertySet track = Urn.forTrack(1L).toPropertySet();
+        track.put(TrackProperty.REPOSTER_URN, Urn.forUser(2L));
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackList(Arrays.asList(track), playlistSessionSource), playlistSessionSource, 0);
+
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        assertThat(trackSourceInfo.hasReposter()).isTrue();
+        assertThat(trackSourceInfo.getReposter()).isEqualTo(Urn.forUser(2L));
     }
 
     @Test

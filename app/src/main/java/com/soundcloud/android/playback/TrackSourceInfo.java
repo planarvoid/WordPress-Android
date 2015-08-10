@@ -13,6 +13,7 @@ public class TrackSourceInfo {
     private String source;
     private String sourceVersion;
 
+    private Urn reposter = Urn.NOT_SET;
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
     private int playlistPosition;
@@ -37,6 +38,10 @@ public class TrackSourceInfo {
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
+    }
+
+    public void setReposter(Urn reposter) {
+        this.reposter = reposter;
     }
 
     public SearchQuerySourceInfo getSearchQuerySourceInfo() {
@@ -81,6 +86,14 @@ public class TrackSourceInfo {
 
     public boolean isFromSearchQuery() {
         return searchQuerySourceInfo != null;
+    }
+
+    public boolean hasReposter() {
+        return reposter != Urn.NOT_SET;
+    }
+
+    public Urn getReposter() {
+        return reposter;
     }
 
     @Override

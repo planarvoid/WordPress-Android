@@ -13,6 +13,8 @@ import com.soundcloud.java.collections.PropertySet;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
+import android.webkit.URLUtil;
+
 import javax.inject.Inject;
 
 class PlaybackSessionAnalyticsController {
@@ -103,7 +105,10 @@ class PlaybackSessionAnalyticsController {
                 final String protocol = getProtocol(stateTransition);
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);
-                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo, progress, protocol, playerType, connectionType);
+                final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
+
+                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo,
+                        progress, protocol, playerType, connectionType, localStoragePlayback);
 
                 if (adsOperations.isCurrentTrackAudioAd()) {
 
@@ -162,7 +167,10 @@ class PlaybackSessionAnalyticsController {
                 final String protocol = getProtocol(stateTransition);
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);
-                PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), currentTrackSourceInfo, lastPlayEventData, progress, protocol, playerType, connectionType, stopReason);
+                final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
+                PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(),
+                        currentTrackSourceInfo, lastPlayEventData, progress, protocol, playerType,
+                        connectionType, stopReason, localStoragePlayback);
 
                 if (lastPlayAudioAd != null) {
                     stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);
@@ -182,5 +190,9 @@ class PlaybackSessionAnalyticsController {
 
     private String getProtocol(Playa.StateTransition stateTransition) {
         return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
+    }
+
+    private boolean isLocalStoragePlayback(Playa.StateTransition stateTransition) {
+        return URLUtil.isFileUrl(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_URI));
     }
 }

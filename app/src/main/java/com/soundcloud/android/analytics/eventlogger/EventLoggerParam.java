@@ -8,6 +8,8 @@ class EventLoggerParam {
     // audio event params
     static final String ACTION = "action";
     static final String TRACK = "track";
+    static final String TRACK_OWNER = "track_owner";
+    static final String REPOSTER = "reposted_by";
     static final String TRACK_LENGTH = "track_length";
     static final String PAGE_NAME = "page_name";
     static final String TRIGGER = "trigger";
@@ -16,6 +18,10 @@ class EventLoggerParam {
     static final String IN_PLAYLIST = "in_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
+
+    // subs
+    static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
+    static final String CONSUMER_SUBS_PLAN = "consumer_subs_plan";
 
     // ad specific params
     static final String AD_URN = "ad_urn";

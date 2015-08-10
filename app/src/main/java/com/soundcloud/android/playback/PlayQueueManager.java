@@ -288,6 +288,7 @@ public class PlayQueueManager implements OriginProvider {
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
+        trackSourceInfo.setReposter(playQueue.getReposter(currentPosition));
 
         if (playSessionSource.isFromQuery()) {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());

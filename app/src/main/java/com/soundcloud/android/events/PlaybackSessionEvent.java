@@ -25,8 +25,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final int STOP_REASON_NEW_QUEUE = 5;
     public static final int STOP_REASON_ERROR = 6;
 
-    public static final String KEY_TRACK_URN = "track_urn";
-    public static final String KEY_USER_URN = "user_urn";
+    public static final String KEY_LOGGED_IN_USER_URN = "logged_in_user_urn";
     public static final String KEY_PROTOCOL = "protocol";
     public static final String KEY_POLICY = "policy";
     public static final String PLAYER_TYPE = "player_type";
@@ -41,8 +40,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final long FIRST_PLAY_MAX_PROGRESS = 1000L;
 
     private final Urn trackUrn;
+    private final Urn creatorUrn;
     private final long duration;
     private final long progress;
+    private final boolean isOfflineTrack;
 
     private int stopReason;
     private long listenTime;
@@ -54,28 +55,28 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private List<String> promotedPlayUrls = Collections.emptyList();
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress,
-                                               String protocol, String playerType, String connectionType) {
-        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis(), protocol, playerType, connectionType);
+                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack) {
+        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis(), protocol, playerType, connectionType, isOfflineTrack);
     }
 
     @VisibleForTesting
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
-                                               String protocol, String playerType, String connectionType) {
-        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType);
+                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack);
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress,
-                                               String protocol, String playerType, String connectionType, int stopReason) {
-        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, progress, System.currentTimeMillis(), protocol, playerType, connectionType, stopReason);
+                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack) {
+        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, progress, System.currentTimeMillis(), protocol, playerType, connectionType, stopReason, isOfflineTrack);
     }
 
     @VisibleForTesting
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress, long timestamp,
-                                               String protocol, String playerType, String connectionType, int stopReason) {
+                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack) {
         final PlaybackSessionEvent playbackSessionEvent =
-                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType);
+                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
@@ -83,11 +84,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Regular track
     private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
-                                 String protocol, String playerType, String connectionType) {
+                                 String protocol, String playerType, String connectionType, boolean isOfflineTrack) {
         super(eventKind, timestamp);
+        this.isOfflineTrack = isOfflineTrack;
         this.trackUrn = track.get(TrackProperty.URN);
-        put(KEY_TRACK_URN, trackUrn.toString());
-        put(KEY_USER_URN, userUrn.toString());
+        this.creatorUrn = track.get(TrackProperty.CREATOR_URN);
+        put(KEY_LOGGED_IN_USER_URN, userUrn.toString());
         put(KEY_PROTOCOL, protocol);
         put(KEY_POLICY, track.getOrElseNull(TrackProperty.POLICY));
         put(PLAYER_TYPE, playerType);
@@ -99,14 +101,14 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Audio ad
     public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
-        put(AdTrackingKeys.KEY_USER_URN, get(KEY_USER_URN));
+        put(AdTrackingKeys.KEY_USER_URN, get(KEY_LOGGED_IN_USER_URN));
         put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AUDIO_AD_URN));
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
-        put(AdTrackingKeys.KEY_AD_TRACK_URN, get(KEY_TRACK_URN));
+        put(AdTrackingKeys.KEY_AD_TRACK_URN, trackUrn.toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
-        put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, get(KEY_TRACK_URN));
+        put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, trackUrn.toString());
         this.adImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS);
         this.adCompanionImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
         this.adFinishedUrls = audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS);
@@ -141,7 +143,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public boolean isPlayingOwnPlaylist() {
-        return trackSourceInfo.getPlaylistOwnerUrn().toString().equals(get(KEY_USER_URN));
+        return trackSourceInfo.getPlaylistOwnerUrn().toString().equals(get(KEY_LOGGED_IN_USER_URN));
     }
 
     public long getProgress() {
@@ -170,6 +172,14 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public Urn getTrackUrn() {
         return trackUrn;
+    }
+
+    public boolean isOfflineTrack() {
+        return isOfflineTrack;
+    }
+
+    public Urn getCreatorUrn() {
+        return creatorUrn;
     }
 
     private void setListenTime(long listenTime) {
