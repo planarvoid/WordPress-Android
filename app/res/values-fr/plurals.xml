@@ -5,15 +5,147 @@
     Until this translation issue on Transifex is fixed, we will keep this file.
     When it is fixed, we should move these plurals back to the strings.xml file.-->
   <!--__NOTIFICATIONS-->
+  <plurals name="dashboard_notifications_activity_ticker_repost">
+    <item quantity="one">Nouveau repost</item>
+    <item quantity="other">%d nouveaux reposts</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_activity">
+    <item quantity="one">%d nouvelle activité</item>
+    <item quantity="other">%d nouvelles activités</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_comment">
+    <item quantity="one">%d nouveau commentaire</item>
+    <item quantity="other">%d nouveaux commentaires</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_like">
+    <item quantity="one">Nouvelle mention J\'aime</item>
+    <item quantity="other">%d nouvelles mentions J\'aime</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_activity">
+    <item quantity="one">%d nouvelle activité</item>
+    <item quantity="other">%d nouvelles activités</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_comment">
+    <item quantity="one">%d nouveau commentaire</item>
+    <item quantity="other">%d nouveau commentaire</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_like">
+    <item quantity="one">Une nouvelle mention J\'aime</item>
+    <item quantity="other">%d nouvelles mentions J\'aime</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_repost">
+    <item quantity="one">Un nouveau repost</item>
+    <item quantity="other">%d nouveaux reposts</item>
+  </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_ticker">
+    <item quantity="one">%s nouveau titre</item>
+    <item quantity="other">%s nouveaux titres</item>
+  </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_title">
+    <item quantity="one">%s nouveau titre</item>
+    <item quantity="other">%s nouveaux titres</item>
+  </plurals>
   <!--__ACCESSIBILITY-->
+  <plurals name="accessibility_stats_likes">
+    <item quantity="one">%d mention J\'aime</item>
+    <item quantity="other">%d mentions J\'aime</item>
+  </plurals>
   <!--__PLAYER-->
+  <plurals name="trackinfo_comments">
+    <item quantity="one">%d commentaire sur ce titre</item>
+    <item quantity="other">%d commentaires sur ce titre</item>
+  </plurals>
   <!--__PLAYLIST CREATION-->
+  <plurals name="number_of_sounds">
+    <item quantity="one">%d titre</item>
+    <item quantity="other">%d titres</item>
+  </plurals>
   <!--__PROFILE-->
+  <plurals name="number_of_followers">
+    <item quantity="one">%d abonné</item>
+    <item quantity="other">%d abonnés</item>
+  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="followers_message">
+    <item quantity="one">Suivi(e) par %s personne</item>
+    <item quantity="other">Suivi(e) par %s personnes</item>
+  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="following_message">
+    <item quantity="one">Suivi(e) par vous et %s autre personne</item>
+    <item quantity="other">Suivi(e) par vous et %s autres personnes</item>
+  </plurals>
+  <plurals name="number_of_liked_tracks_you_liked">
+    <item quantity="one">Vous avez aimé %d titre</item>
+    <item quantity="other">Vous avez aimé %d titres</item>
+  </plurals>
   <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
+  <plurals name="number_of_others">
+    <item quantity="one">et %d autre</item>
+    <item quantity="other">et %d autres</item>
+  </plurals>
   <!--__TIME-->
+  <plurals name="elapsed_days">
+    <item quantity="one">%d jour</item>
+    <item quantity="other">%d jours</item>
+  </plurals>
+  <plurals name="elapsed_days_ago">
+    <item quantity="one">Il y a %d jour</item>
+    <item quantity="other">Il y a %d jours</item>
+  </plurals>
+  <plurals name="elapsed_hours">
+    <item quantity="one">%d heure</item>
+    <item quantity="other">%d heures</item>
+  </plurals>
+  <plurals name="elapsed_hours_ago">
+    <item quantity="one">Il y a %d heure</item>
+    <item quantity="other">Il y a %d heures</item>
+  </plurals>
+  <plurals name="elapsed_minutes">
+    <item quantity="one">%d minute</item>
+    <item quantity="other">%d minutes</item>
+  </plurals>
+  <plurals name="elapsed_minutes_ago">
+    <item quantity="one">Il y a %d minute</item>
+    <item quantity="other">Il y a %d minutes</item>
+  </plurals>
+  <plurals name="elapsed_months">
+    <item quantity="one">%d mois</item>
+    <item quantity="other">%d mois</item>
+  </plurals>
+  <plurals name="elapsed_months_ago">
+    <item quantity="one">Il y a %d mois</item>
+    <item quantity="other">Il y a %d mois</item>
+  </plurals>
+  <plurals name="elapsed_seconds">
+    <item quantity="one">%d seconde</item>
+    <item quantity="other">%d secondes</item>
+  </plurals>
+  <plurals name="elapsed_seconds_ago">
+    <item quantity="one">Il y a %d seconde</item>
+    <item quantity="other">Il y a %d secondes</item>
+  </plurals>
+  <plurals name="elapsed_years">
+    <item quantity="one">%d an</item>
+    <item quantity="other">%d ans</item>
+  </plurals>
+  <plurals name="elapsed_years_ago">
+    <item quantity="one">Il y a %d an</item>
+    <item quantity="other">Il y a %d ans</item>
+  </plurals>
   <!--__OFFLINE_SYNC-->
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d titre</item>
+    <item quantity="other">%1$d titre sur %2$d</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">Vous avez %d jour pour vous reconnecter</item>
+    <item quantity="other">Vous avez %d jours pour vous reconnecter</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Votre appareil doit se connecter au moins une fois tous les 30 jours afin de vérifier votre abonnement. Il vous reste actuellement %d jour pour maintenir la connexion de cet appareil à votre abonnement. Passé ce délai, votre contenu hors ligne sera rendu inaccessible.</item>
+    <item quantity="other">Votre appareil doit se connecter au moins une fois tous les 30 jours afin de vérifier votre abonnement. Il vous reste actuellement %d jours pour maintenir la connexion de cet appareil à votre abonnement. Passé ce délai, votre contenu hors ligne sera rendu inaccessible.</item>
+  </plurals>
 </resources>

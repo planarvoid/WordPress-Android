@@ -1,106 +1,151 @@
-<?xml version="1.0" encoding="utf-8"?><resources xmlns:tools="http://schemas.android.com/tools">
-
-    <!--
-
-    The plurals on this file were extracted from the the strings.xml because of Transifex
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--The plurals on this file were extracted from the the strings.xml because of Transifex
     not supporting plurals label on xml files.
     Until this translation issue on Transifex is fixed, we will keep this file.
-    When it is fixed, we should move these plurals back to the strings.xml file.
-
-    -->
-
-    <!-- __NOTIFICATIONS -->
-    <plurals name="dashboard_notifications_activity_ticker_activity">
-        <item quantity="one">Una nueva actividad</item>
-        <item quantity="other">%d nuevas actividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_comment">
-        <item quantity="one">Un nuevo comentario</item>
-        <item quantity="other">%d nuevos comentarios</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_like">
-        <item quantity="one">Nuevo me gusta</item>
-        <item quantity="other">%d nuevos gustos</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_activity">
-        <item quantity="one">Una nueva actividad</item>
-        <item quantity="other">%d nuevas actividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_comment">
-        <item quantity="one">Un nuevo comentario</item>
-        <item quantity="other">%d nuevos comentarios</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_like">
-        <item quantity="one">Nuevo me gusta</item>
-        <item quantity="other">%d nuevos gustos</item>
-    </plurals>
-
-    <!-- __TIME -->
-    <plurals name="elapsed_days">
-        <item quantity="one">Un día</item>
-        <item quantity="other">%d días</item>
-    </plurals>
-    <plurals name="elapsed_days_ago">
-        <item quantity="one">Hace un día</item>
-        <item quantity="other">Hace %d días</item>
-    </plurals>
-    <plurals name="elapsed_hours">
-        <item quantity="one">Una hora</item>
-        <item quantity="other">%d horas</item>
-    </plurals>
-    <plurals name="elapsed_hours_ago">
-        <item quantity="one">Hace una hora</item>
-        <item quantity="other">Hace %d horas</item>
-    </plurals>
-    <plurals name="elapsed_minutes">
-        <item quantity="one">Un minuto</item>
-        <item quantity="other">%d minutos</item>
-    </plurals>
-    <plurals name="elapsed_minutes_ago">
-        <item quantity="one">Hace un minuto</item>
-        <item quantity="other">Hace %d minutos</item>
-    </plurals>
-    <plurals name="elapsed_months">
-        <item quantity="one">Un mes</item>
-        <item quantity="other">%d meses</item>
-    </plurals>
-    <plurals name="elapsed_months_ago">
-        <item quantity="one">Hace un mes</item>
-        <item quantity="other">Hace %d meses</item>
-    </plurals>
-    <plurals name="elapsed_seconds">
-        <item quantity="one">Un segundo</item>
-        <item quantity="other">%d segundos</item>
-    </plurals>
-    <plurals name="elapsed_seconds_ago">
-        <item quantity="one">Hace un segundo</item>
-        <item quantity="other">Hace %d segundos</item>
-    </plurals>
-    <plurals name="elapsed_years">
-        <item quantity="one">Un año</item>
-        <item quantity="other">%d años</item>
-    </plurals>
-    <plurals name="elapsed_years_ago">
-        <item quantity="one">Hace un año</item>
-        <item quantity="other">Hace %d años</item>
-    </plurals>
-
-    <!-- __ACCESSIBILITY -->
-    <plurals name="accessibility_stats_likes">
-        <item quantity="one">1 me gusta</item>
-        <item quantity="other">%d me gusta</item>
-    </plurals>
-
-    <!-- __PLAYER -->
-    <plurals name="trackinfo_comments">
-        <item quantity="one">1 comentario sobre esta pista</item>
-        <item quantity="other">%d comentarios sobre esta pista</item>
-    </plurals>
-
-    <!-- __PLAYLIST CREATION -->
-    <plurals name="number_of_sounds">
-        <item quantity="one">un sonido</item>
-        <item quantity="other">%d sonidos</item>
-    </plurals>
-
+    When it is fixed, we should move these plurals back to the strings.xml file.-->
+  <!--__NOTIFICATIONS-->
+  <plurals name="dashboard_notifications_activity_ticker_repost">
+    <item quantity="one">Republicación nueva</item>
+    <item quantity="other">%d republicaciones nuevas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_activity">
+    <item quantity="one">%d actividad nueva</item>
+    <item quantity="other">%d actividades nuevas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_comment">
+    <item quantity="one">%d comentario nuevo</item>
+    <item quantity="other">%d comentarios nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_like">
+    <item quantity="one">Me gusta nuevo</item>
+    <item quantity="other">%d me gusta nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_activity">
+    <item quantity="one">%d actividad nueva</item>
+    <item quantity="other">%d actividades nuevas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_comment">
+    <item quantity="one">%d comentario nuevo</item>
+    <item quantity="other">%d comentarios nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_like">
+    <item quantity="one">Un me gusta nuevo</item>
+    <item quantity="other">%d me gusta nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_repost">
+    <item quantity="one">Una republicación nueva</item>
+    <item quantity="other">%d republicaciones nuevas</item>
+  </plurals>
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_ticker">
+    <item quantity="one">%s pista nueva</item>
+    <item quantity="other">%s pistas nuevas</item>
+  </plurals>
+  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_title">
+    <item quantity="one">%s pista nueva</item>
+    <item quantity="other">%s pistas nuevas</item>
+  </plurals>
+  <!--__ACCESSIBILITY-->
+  <plurals name="accessibility_stats_likes">
+    <item quantity="one">%d me gusta</item>
+    <item quantity="other">%d me gusta</item>
+  </plurals>
+  <!--__PLAYER-->
+  <plurals name="trackinfo_comments">
+    <item quantity="one">%d comentario sobre esta pista</item>
+    <item quantity="other">%d comentarios sobre esta pista</item>
+  </plurals>
+  <!--__PLAYLIST CREATION-->
+  <plurals name="number_of_sounds">
+    <item quantity="one">%d pista</item>
+    <item quantity="other">%d pistas</item>
+  </plurals>
+  <!--__PROFILE-->
+  <plurals name="number_of_followers">
+    <item quantity="one">%d seguidor</item>
+    <item quantity="other">%d seguidores</item>
+  </plurals>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="followers_message">
+    <item quantity="one">Le sigue %s persona</item>
+    <item quantity="other">Le siguen %s personas</item>
+  </plurals>
+  <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="following_message">
+    <item quantity="one">Le sigues tú y %s otra persona</item>
+    <item quantity="other">Le sigues tú y %s otras personas</item>
+  </plurals>
+  <plurals name="number_of_liked_tracks_you_liked">
+    <item quantity="one">Te gusta %d pista</item>
+    <item quantity="other">Te gustan %d pistas</item>
+  </plurals>
+  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
+  <plurals name="number_of_others">
+    <item quantity="one">y %d más</item>
+    <item quantity="other">y %d más</item>
+  </plurals>
+  <!--__TIME-->
+  <plurals name="elapsed_days">
+    <item quantity="one">%d día</item>
+    <item quantity="other">%d días</item>
+  </plurals>
+  <plurals name="elapsed_days_ago">
+    <item quantity="one">hace %d día</item>
+    <item quantity="other">hace %d días</item>
+  </plurals>
+  <plurals name="elapsed_hours">
+    <item quantity="one">%d hora</item>
+    <item quantity="other">%d horas</item>
+  </plurals>
+  <plurals name="elapsed_hours_ago">
+    <item quantity="one">hace %d hora</item>
+    <item quantity="other">hace %d horas</item>
+  </plurals>
+  <plurals name="elapsed_minutes">
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minutos</item>
+  </plurals>
+  <plurals name="elapsed_minutes_ago">
+    <item quantity="one">hace %d minuto</item>
+    <item quantity="other">hace %d minutos</item>
+  </plurals>
+  <plurals name="elapsed_months">
+    <item quantity="one">%d mes</item>
+    <item quantity="other">%d meses</item>
+  </plurals>
+  <plurals name="elapsed_months_ago">
+    <item quantity="one">hace %d mes</item>
+    <item quantity="other">hace %d meses</item>
+  </plurals>
+  <plurals name="elapsed_seconds">
+    <item quantity="one">%d segundo</item>
+    <item quantity="other">%d segundos</item>
+  </plurals>
+  <plurals name="elapsed_seconds_ago">
+    <item quantity="one">hace %d segundo</item>
+    <item quantity="other">hace %d segundos</item>
+  </plurals>
+  <plurals name="elapsed_years">
+    <item quantity="one">%d año</item>
+    <item quantity="other">%d años</item>
+  </plurals>
+  <plurals name="elapsed_years_ago">
+    <item quantity="one">hace %d año</item>
+    <item quantity="other">hace %d años</item>
+  </plurals>
+  <!--__OFFLINE_SYNC-->
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d pista</item>
+    <item quantity="other">%1$d de %2$d pistas</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">You have %d day to go back online</item>
+    <item quantity="other">Te faltan %d días para volver a estar en línea</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Actualmente, falta %d día para que tu dispositivo deje de estar conectado a tu suscripción, tras lo cual tu contenido sin conexión será inaccesible.</item>
+    <item quantity="other">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Actualmente, faltan %d días para que tu dispositivo deje de estar conectado a tu suscripción, tras lo cual tu contenido sin conexión será inaccesible.</item>
+  </plurals>
 </resources>
