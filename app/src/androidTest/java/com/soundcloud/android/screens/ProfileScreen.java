@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -11,6 +12,7 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+import android.support.v7.widget.RecyclerView;
 import android.widget.ListView;
 
 public class ProfileScreen extends Screen {
@@ -46,13 +48,27 @@ public class ProfileScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
+    public void scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems() {
+        currentRecyclerView().scrollToBottomOfPage();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
     public int getCurrentListItemCount() {
         waiter.waitForItemCountToIncrease(currentList().getAdapter(), 0);
         return currentList().getAdapter().getCount();
     }
 
+    public int getCurrentRecyclerViewItemCount() {
+        waiter.waitForItemCountToIncrease(currentRecyclerView().getAdapter(), 0);
+        return currentRecyclerView().getItemCount();
+    }
+
     private ListView currentList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
+    }
+
+    private RecyclerViewElement currentRecyclerView() {
+        return new RecyclerViewElement(testDriver.findElement(With.className(RecyclerView.class)), testDriver);
     }
 
     private ViewPagerElement getViewPager() {

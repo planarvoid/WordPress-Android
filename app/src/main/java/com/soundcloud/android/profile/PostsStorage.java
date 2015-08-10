@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -31,20 +32,41 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PostsStorage {
 
     private final PropellerRx propellerRx;
+    private final AccountOperations accountOperations;
 
     private final static String LIKED_ID = "liked_id";
 
     @Inject
-    public PostsStorage(PropellerRx propellerRx) {
+    public PostsStorage(PropellerRx propellerRx, AccountOperations accountOperations) {
         this.propellerRx = propellerRx;
+        this.accountOperations = accountOperations;
     }
 
-    Observable<java.util.List<PropertySet>> loadPosts(int limit, long fromTimestamp){
+    Observable<List<PropertySet>> loadPostsForPlayback() {
+        return propellerRx.query(buildQueryForPlayback()).map(new PostsForPlaybackMapper()).toList();
+    }
+
+    Observable<List<PropertySet>> loadPosts(int limit, long fromTimestamp){
         return propellerRx.query(buildQuery(limit, fromTimestamp)).map(new PostsMapper()).toList();
+    }
+
+    private Query buildQueryForPlayback() {
+        return Query.from(Posts.name())
+                .select(
+                        field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
+                        field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
+                        field(Posts.field(TableColumns.Posts.TYPE)).as(TableColumns.Posts.TYPE))
+                .innerJoin(SoundView.name(),
+                        on(SoundView.field(TableColumns.SoundView._ID), Posts.field(TableColumns.Posts.TARGET_ID))
+                                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Posts.field(TableColumns.Posts.TARGET_TYPE)))
+                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
+                .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC);
     }
 
     private Query buildQuery(int limit, long fromTimestamp) {
@@ -71,7 +93,7 @@ public class PostsStorage {
                         .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
                 .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
-                .order(TableColumns.Posts.CREATED_AT, DESC)
+                .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC)
                 .limit(limit);
     }
 
@@ -133,6 +155,23 @@ public class PostsStorage {
             propertySet.put(TrackProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.isNotNull(LIKED_ID));
             propertySet.put(PlayableProperty.IS_REPOSTED, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
+            return propertySet;
+        }
+    }
+
+    private class PostsForPlaybackMapper extends RxResultMapper<PropertySet> {
+
+        @Override
+        public PropertySet map(CursorReader cursorReader) {
+            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
+            if (cursorReader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK){
+                propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
+            } else {
+                propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
+            }
+            if (TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE))){
+                propertySet.put(TrackProperty.REPOSTER_URN, accountOperations.getLoggedInUserUrn());
+            }
             return propertySet;
         }
     }

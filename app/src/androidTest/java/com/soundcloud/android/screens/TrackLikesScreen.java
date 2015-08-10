@@ -4,13 +4,13 @@ import static com.soundcloud.android.framework.with.With.text;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.LikesOverflowMenu;
-import com.soundcloud.android.screens.elements.RecyclerViewElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;

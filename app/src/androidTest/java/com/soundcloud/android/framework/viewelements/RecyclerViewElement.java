@@ -1,4 +1,4 @@
-package com.soundcloud.android.screens.elements;
+package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
 
@@ -10,9 +10,17 @@ public class RecyclerViewElement {
     protected final Han testDriver;
     private final RecyclerView recyclerView;
 
-    public RecyclerViewElement(View element, Han testDriver) {
+    public RecyclerViewElement(ViewElement element, Han testDriver) {
+        this(element.getView(), testDriver);
+    }
+
+    public RecyclerViewElement(View view, Han testDriver) {
+        if (!(view instanceof RecyclerView)){
+            throw new IllegalArgumentException("Argument must be a valid recycler view");
+        }
+
         this.testDriver = testDriver;
-        recyclerView = (RecyclerView) element;
+        recyclerView = (RecyclerView) view;
     }
 
     public int getItemCount() {
@@ -36,7 +44,7 @@ public class RecyclerViewElement {
         return this;
     }
 
-    private RecyclerView.Adapter getAdapter() {
+    public RecyclerView.Adapter getAdapter() {
         return recyclerView.getAdapter();
     }
 

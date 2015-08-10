@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.app.Activity;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Adapter;
@@ -144,6 +145,15 @@ public class Waiter {
             @Override
             public boolean isSatisfied() {
                 return adapter.getCount() > currentSize;
+            }
+        }, TIMEOUT);
+    }
+
+    public boolean waitForItemCountToIncrease(final RecyclerView.Adapter adapter, final int currentSize) {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return adapter.getItemCount() > currentSize;
             }
         }, TIMEOUT);
     }

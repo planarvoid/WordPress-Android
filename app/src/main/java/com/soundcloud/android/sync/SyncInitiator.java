@@ -128,6 +128,18 @@ public class SyncInitiator {
                 .setData(Content.ME_SOUND_STREAM.uri));
     }
 
+    public Observable<Boolean> refreshPosts() {
+        final Uri uri = SyncContent.MySounds.content.uri;
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestPostsSync(
+                        ApiSyncService.ACTION_HARD_REFRESH,
+                        new LegacyResultReceiverAdapter(subscriber, uri));
+            }
+        }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
     public Observable<Boolean> refreshPostedPlaylists() {
         final Uri uri = SyncContent.MyPlaylists.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -138,6 +150,14 @@ public class SyncInitiator {
                         new LegacyResultReceiverAdapter(subscriber, uri));
             }
         }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
+    private void requestPostsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_SOUNDS.uri));
     }
 
     private void requestPostedPlaylistsSync(String action, LegacyResultReceiverAdapter resultReceiver) {

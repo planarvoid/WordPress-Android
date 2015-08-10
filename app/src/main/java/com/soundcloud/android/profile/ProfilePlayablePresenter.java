@@ -35,7 +35,7 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> ext
     final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private MixedItemClickListener clickListener;
+    protected MixedItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
 
     protected final Func1<DataT, List<PlayableItem>> pageTransformer = new Func1<DataT, List<PlayableItem>>() {

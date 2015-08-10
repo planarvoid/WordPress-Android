@@ -11,6 +11,7 @@ import dagger.Provides;
                 LegacyProfileActivity.class,
                 ProfileActivity.class,
                 MeActivity.class,
+                MyPostsFragment.class,
                 UserPostsFragment.class,
                 UserPlaylistsFragment.class,
                 UserLikesFragment.class,

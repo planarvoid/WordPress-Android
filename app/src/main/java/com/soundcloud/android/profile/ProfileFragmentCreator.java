@@ -32,6 +32,8 @@ class ProfileFragmentCreator {
     Fragment create(Context context, Content content, Urn userUrn, String userName, Uri contentUri, Screen screen, SearchQuerySourceInfo searchQuerySource) {
         if (featureFlags.isEnabled(Flag.NEW_PROFILE_FRAGMENTS)) {
             switch (content) {
+                case ME_SOUNDS:
+                    return MyPostsFragment.create(screen, searchQuerySource);
                 case USER_SOUNDS:
                     return UserPostsFragment.create(userUrn, screen, searchQuerySource);
                 case USER_PLAYLISTS:

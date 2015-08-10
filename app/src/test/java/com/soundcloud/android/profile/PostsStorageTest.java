@@ -45,9 +45,25 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void setUp() throws Exception {
         user = testFixtures().insertUser();
 
-        storage = new PostsStorage(propellerRx());
+        storage = new PostsStorage(propellerRx(), accountOperations);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(user.getUrn());
+    }
+
+    @Test
+    public void shouldLoadAllTrackPostsForPlayback() throws Exception {
+        post1 = createPlaylistPostAt(POSTED_DATE_1);
+        post2 = createTrackPostAt(POSTED_DATE_2);
+        post3 = createTrackRepostAt(POSTED_DATE_3);
+        post4 = createPlaylistRepostAt(POSTED_DATE_4);
+
+        storage.loadPostsForPlayback().subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).containsExactly(
+                Arrays.asList(
+                        post3.slice(TrackProperty.URN).put(TrackProperty.REPOSTER_URN, user.getUrn()),
+                        post2.slice(TrackProperty.URN))
+        );
     }
 
     @Test

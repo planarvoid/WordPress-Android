@@ -184,6 +184,21 @@ public abstract class TestPropertySets {
                 PlaylistProperty.IS_PRIVATE.bind(false));
     }
 
+    public static PropertySet expectedPostedPlaylistForPostsScreen() {
+        return expectedPostedPlaylistsForPostedPlaylistsScreen();
+    }
+
+    public static PropertySet expectedPostedTrackForPostsScreen() {
+        return PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.TITLE.bind("squirlex galore part 2"),
+                PlaylistProperty.CREATOR_NAME.bind("avieciie"),
+                PlaylistProperty.DURATION.bind(123456L),
+                PlaylistProperty.LIKES_COUNT.bind(2),
+                PlaylistProperty.CREATED_AT.bind(new Date()),
+                PlaylistProperty.IS_PRIVATE.bind(false));
+    }
+
     private static PropertySet basePromotedPlaylist() {
         return expectedPostedPlaylistsForPostedPlaylistsScreen()
                 .put(PromotedItemProperty.AD_URN, "ad:urn:123")
