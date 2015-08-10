@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
+import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -253,4 +254,7 @@ public class ApplicationModule {
     public Scheduler provideLowPriorityScheduler() {
         return ScSchedulers.LOW_PRIO_SCHEDULER;
     }
+
+    @Provides
+    public FacebookSdk provideFacebookSdk() { return new FacebookSdk(); }
 }

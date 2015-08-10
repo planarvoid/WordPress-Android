@@ -148,7 +148,6 @@ public class OnboardActivity extends FragmentActivity
     private Bundle resultBundle;
 
     private OAuth oauth;
-    private CallbackManager facebookCallbackManager;
 
     private final Animation.AnimationListener hideScrollViewListener = new AnimUtils.SimpleAnimationListener() {
         @Override
@@ -200,6 +199,9 @@ public class OnboardActivity extends FragmentActivity
     };
     private TourPhotoPagerAdapter photosAdapter;
 
+    @Inject FacebookSdk facebookSdk;
+    @Inject CallbackManager facebookCallbackManager;
+    @Inject LoginManager facebookLoginManager;
     @Inject ConfigurationOperations configurationOperations;
     @Inject ApplicationProperties applicationProperties;
     @Inject BugReporter bugReporter;
@@ -251,9 +253,7 @@ public class OnboardActivity extends FragmentActivity
             configurationOperations.clearDeviceConflict();
         }
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        facebookCallbackManager = CallbackManager.Factory.create();
-        LoginManager.getInstance().registerCallback(facebookCallbackManager,new FacebookSessionCallback(this, tokenUtils));
+        facebookLoginManager.registerCallback(facebookCallbackManager, new FacebookSessionCallback(this, tokenUtils));
     }
 
     private void showPhotos(boolean isConfigChange) {
@@ -544,7 +544,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void createNewUserFromFacebook() {
-        LoginManager.getInstance().logInWithReadPermissions(this, DEFAULT_FACEBOOK_READ_PERMISSIONS);
+        facebookLoginManager.logInWithReadPermissions(this, DEFAULT_FACEBOOK_READ_PERMISSIONS);
     }
 
     @Override
@@ -664,7 +664,7 @@ public class OnboardActivity extends FragmentActivity
         final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
-        if (FacebookSdk.isFacebookRequestCode(requestCode)){
+        if (facebookSdk.isFacebookRequestCode(requestCode)){
             facebookCallbackManager.onActivityResult(requestCode, resultCode, intent);
         }
 
