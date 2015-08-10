@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 47;
+    public static final int DATABASE_VERSION = 48;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -99,6 +99,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 47:
                             success = upgradeTo47(db, oldVersion);
+                            break;
+                        case 48:
+                            success = upgradeTo48(db, oldVersion);
                             break;
                         default:
                             break;
@@ -299,6 +302,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 47);
+        }
+        return false;
+    }
+
+    /**
+     * Recreate PlayQueue table to try to fix an unknown crash (that we think is migration related)
+     */
+    private static boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropTable(Tables.PlayQueue.TABLE.name(), db);
+            db.execSQL(Tables.PlayQueue.SQL);
+            return true;
+
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 48);
         }
         return false;
     }
