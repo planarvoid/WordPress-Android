@@ -1,27 +1,30 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
 public class Station {
-    private final PropertySet info;
     // TODO : should it be a play queue ?
     private final List<Urn> tracks;
+    private final int startPosition;
+    private final Urn urn;
+    private final String title;
 
-    public Station(PropertySet info, List<Urn> tracks) {
-        this.info = info;
+    public Station(Urn urn, String title, List<Urn> tracks, Integer startPosition) {
         this.tracks = tracks;
+        this.urn = urn;
+        this.startPosition = startPosition;
+        this.title = title;
     }
 
     public String getTitle() {
-        return info.get(StationProperty.TITLE);
+        return title;
     }
 
     public Urn getUrn() {
-        return info.get(StationProperty.URN);
+        return urn;
     }
 
     public List<Urn> getTracks() {
@@ -29,7 +32,7 @@ public class Station {
     }
 
     public int getStartPosition() {
-        return info.get(StationProperty.LAST_PLAYED_TRACK_POSITION);
+        return startPosition;
     }
 
     @Override
@@ -44,12 +47,14 @@ public class Station {
 
         Station that = (Station) o;
 
-        return MoreObjects.equal(info, that.info) &&
+        return MoreObjects.equal(urn, that.urn) &&
+                MoreObjects.equal(title, that.title) &&
+                MoreObjects.equal(startPosition, that.startPosition) &&
                 MoreObjects.equal(tracks, that.tracks);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(info, tracks);
+        return MoreObjects.hashCode(urn, title, startPosition, tracks);
     }
 }

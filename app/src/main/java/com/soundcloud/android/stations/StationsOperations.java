@@ -8,6 +8,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -41,7 +42,7 @@ public class StationsOperations {
 
         @Override
         public Station call(ApiStation station) {
-            return new Station(station.getInfo().toPropertySet(), transform(station.getTracks().getCollection(), toUrns));
+            return new Station(station.getInfo().getUrn(), station.getInfo().getTitle(), transform(station.getTracks().getCollection(), toUrns), 0);
         }
     };
 
@@ -74,5 +75,11 @@ public class StationsOperations {
                 .doOnNext(storeTracks)
                 .doOnNext(storeStationCommand.toAction())
                 .map(toStation);
+    }
+
+    Observable<ChangeResult> saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
+        return stationsStorage
+                .saveLastPlayedTrackPosition(collectionUrn, position)
+                .subscribeOn(scheduler);
     }
 }

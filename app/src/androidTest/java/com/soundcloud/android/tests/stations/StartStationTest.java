@@ -53,4 +53,23 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         networkManagerClient.switchWifiOn();
     }
 
+    public void testStartRadioShouldResume() {
+        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+
+        // We swipe next twice in order to ensure the database is correctly
+        // persisting the last played track position
+        player.swipeNext();
+        player.swipeNext();
+
+        final String expectedTitle = player.getTrackTitle();
+        player.swipePrevious();
+        player.pressBackToCollapse();
+
+        // Start a new play queue
+        streamScreen.clickFirstTrack();
+        player.pressBackToCollapse();
+
+        final String resumedTrackTitle = streamScreen.clickFirstTrackOverflowButton().clickStartRadio().getTrackTitle();
+        assertEquals(expectedTitle, resumedTrackTitle);
+    }
 }
