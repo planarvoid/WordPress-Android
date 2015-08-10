@@ -34,7 +34,7 @@ public class StationsApiTest extends AndroidUnitTest {
                 apiClientRx
         );
 
-        apiStation = StationFixtures.getApiStationFixture();
+        apiStation = StationFixtures.getApiStation();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiStation.class))).thenReturn(Observable.just(apiStation));
     }
 

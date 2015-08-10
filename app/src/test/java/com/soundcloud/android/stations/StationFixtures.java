@@ -7,16 +7,18 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
-import java.util.Arrays;
-
 public class StationFixtures {
-    public static ApiStation getApiStationFixture() {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(Arrays.asList(ModelFixtures.create(ApiTrack.class)));
-        return new ApiStation(getApiStationInfoFixture(), tracks);
+    public static ApiStation getApiStation() {
+        return getApiStation(Urn.forTrackStation(123L));
     }
 
-    public static ApiStationInfo getApiStationInfoFixture() {
+    public static ApiStation getApiStation(Urn station) {
+        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, 1));
+        return new ApiStation(getApiStationInfo(station), tracks);
+    }
+
+    private static ApiStationInfo getApiStationInfo(Urn station) {
         final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
-        return new ApiStationInfo(Urn.forTrackStation(seedTrack.getId()), "station " + System.currentTimeMillis(), "fixture-stations", seedTrack);
+        return new ApiStationInfo(station, "station " + System.currentTimeMillis(), "fixture-stations", seedTrack);
     }
 }

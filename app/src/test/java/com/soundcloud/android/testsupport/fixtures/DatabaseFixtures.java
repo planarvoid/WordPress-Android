@@ -232,7 +232,7 @@ public class DatabaseFixtures {
     }
 
     public ApiStation insertStation(int lastPlayedPosition) {
-        final ApiStation station = StationFixtures.getApiStationFixture();
+        final ApiStation station = StationFixtures.getApiStation();
         final ApiStationInfo stationInfo = station.getInfo();
 
         insertInto(Stations.TABLE, getStationContentValues(stationInfo, lastPlayedPosition));

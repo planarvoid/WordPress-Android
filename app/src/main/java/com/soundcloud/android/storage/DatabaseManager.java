@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 49;
+    public static final int DATABASE_VERSION = 50;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -46,6 +46,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.PlayQueue.SQL);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
+            db.execSQL(Tables.RecentStations.SQL);
             db.execSQL(Tables.TrackDownloads.SQL);
 
             // legacy tables
@@ -108,6 +109,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 49:
                             success = upgradeTo49(db, oldVersion);
+                            break;
+                        case 50:
+                            success = upgradeTo50(db, oldVersion);
                             break;
                         default:
                             break;
@@ -337,6 +341,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 49);
+        }
+        return false;
+    }
+
+    /**
+     * Migrate Stations table to use the station_urn as the primary key & created Recently Played Stations table
+     */
+    private static boolean upgradeTo50(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropTable(Tables.Stations.TABLE.name(), db);
+            SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            db.execSQL(Tables.Stations.SQL);
+            db.execSQL(Tables.StationsPlayQueues.SQL);
+            db.execSQL(Tables.RecentStations.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 50);
         }
         return false;
     }

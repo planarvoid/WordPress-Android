@@ -41,7 +41,7 @@ public class StationsOperationsTest {
                 Schedulers.immediate()
         );
 
-        apiStation = StationFixtures.getApiStationFixture();
+        apiStation = StationFixtures.getApiStation();
         when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));
         when(stationsApi.fetchStation(station)).thenReturn(Observable.just(apiStation));
     }

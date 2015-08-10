@@ -127,6 +127,13 @@ public class DatabaseAssertions {
         assertStationPlayQueueInserted(station);
     }
 
+    public void assertStationUnique(Urn station) {
+        assertThat(
+                select(from(Stations.TABLE).whereEq(Stations.URN, station)),
+                counts(1)
+        );
+    }
+
     public void assertStationInfoInserted(ApiStationInfo stationInfo) {
         assertThat(
                 select(
