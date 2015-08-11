@@ -38,7 +38,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         TestObserver<TxnResult> observer = new TestObserver<>();
-        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(123L), Urn.forUser(123L), "source1", "version1");
+        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source1", "version1");
         PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(456L), Urn.forUser(456L), "source2", "version2");
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
 
@@ -52,10 +52,11 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(2));
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)
                 .whereEq(Tables.PlayQueue.TRACK_ID, 123L)
-                .whereEq(Tables.PlayQueue.REPOSTER_ID, 123L)
+                .whereNull(Tables.PlayQueue.REPOSTER_ID)
                 .whereEq(Tables.PlayQueue.SOURCE, "source1")
                 .whereEq(Tables.PlayQueue.SOURCE, "source1")
                 .whereEq(Tables.PlayQueue.SOURCE_VERSION, "version1")), counts(1));
+
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)
                 .whereEq(Tables.PlayQueue.TRACK_ID, 456L)
                 .whereEq(Tables.PlayQueue.REPOSTER_ID, 456L)
@@ -101,12 +102,30 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         assertThat(item).isEqualTo(expectedItem);
     }
 
+    @Test
+    public void shouldLoadAllPlayQueueItemsWithoutReposter() {
+        TestObserver<PlayQueueItem> observer = new TestObserver<>();
+        final PlayQueueItem expectedItem = PlayQueueItem.fromTrack(Urn.forTrack(123L), "source", "source_version");
+        insertPlayQueueItem(expectedItem);
+        Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
+
+        storage.loadAsync().subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        PlayQueueItem item = observer.getOnNextEvents().get(0);
+        assertThat(item).isEqualTo(expectedItem);
+    }
+
     private void insertPlayQueueItem(PlayQueueItem playQueueItem) {
         ContentValues cv = new ContentValues();
         cv.put(Tables.PlayQueue.TRACK_ID.name(), playQueueItem.getTrackUrn().getNumericId());
-        cv.put(Tables.PlayQueue.REPOSTER_ID.name(), playQueueItem.getReposter().getNumericId());
         cv.put(Tables.PlayQueue.SOURCE.name(), playQueueItem.getSource());
         cv.put(Tables.PlayQueue.SOURCE_VERSION.name(), playQueueItem.getSourceVersion());
+
+        if (playQueueItem.getReposter().isUser()){
+            cv.put(Tables.PlayQueue.REPOSTER_ID.name(), playQueueItem.getReposter().getNumericId());
+        }
+
         testFixtures().insertInto(Tables.PlayQueue.TABLE, cv);
     }
 }

@@ -21,7 +21,19 @@ public final class SchemaMigrationHelper {
         if (Log.isLoggable(Table.TAG, Log.DEBUG)) {
             Log.d(Table.TAG, "dropping " + table.name());
         }
-        db.execSQL("DROP " + (table.view ? "VIEW" : "TABLE") + " IF EXISTS " + table.name());
+        if (table.view){
+            db.execSQL("DROP VIEW IF EXISTS " + table.name());
+        } else {
+            dropTable(table.name(), db);
+        }
+
+    }
+
+    public static void dropTable(String tableName, SQLiteDatabase db) {
+        if (Log.isLoggable(Table.TAG, Log.DEBUG)) {
+            Log.d(Table.TAG, "dropping " + tableName);
+        }
+        db.execSQL("DROP TABLE IF EXISTS " + tableName);
     }
 
     public static void create(Table table, SQLiteDatabase db) {

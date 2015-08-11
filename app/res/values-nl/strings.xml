@@ -1,477 +1,486 @@
-<?xml version="1.0" encoding="UTF-8"?><resources xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- __MISC / LOST&FOUND / UNSORTED -->
-    <string name="app_name">SoundCloud</string>
-    <string name="yes">Ja</string>
-    <string name="no">Nee</string>
-    <string name="post">Plaatsen</string>
-    <string name="view">Bekijken</string>
-    <string name="btn_apply">Toepassen</string>
-    <string name="cancel">Annuleren</string>
-    <string name="shuffle">Shuffelen</string>
-    <string name="done">Klaar</string>
-    <string name="email">E-mail</string>
-    <string name="password">Wachtwoord</string>
-    <string name="btn_continue">Doorgaan</string>
-    <string name="imprint">Stempel</string>
-    <string name="privacy">Privacy</string>
-    <string name="legal">Legaal</string>
-    <string name="legal_summary">Juridische informatie</string>
-    <string name="terms_of_use">Gebruikersvoorwaarden</string>
-    <string name="privacy_policy">Privacybeleid</string>
-    <string name="version">Versie</string>
-    <string name="unavailable">Niet beschikbaar</string>
-    <string name="copyright_information">Copyright informatie</string>
-    <string name="started_following_you">is u gaan volgen</string>
-    <string name="account_one_active">U kunt slechts één actief account hebben</string>
-    <string name="btn_follow">Volg</string>
-    <string name="btn_following">Personen die u volgt</string>
-    <string name="btn_save">Opslaan</string>
-    <string name="btn_skip">Overslaan</string>
-    <string name="delete">Verwijderen</string>
-    <string name="comments">Reacties</string>
-    <string name="sounds_from">Geluiden van %s</string>
-    <string name="this_user">Deze gebruiker</string>
-    <string name="track">geluid</string>
-    <string name="display_name">Schermnaam</string>
-    <string name="website">Website</string>
-    <string name="like">Vind ik leuk</string>
-    <string name="unlike">Vind ik niet leuk</string>
-
-    <!-- __ACCESSIBILITY -->
-    <string name="accessibility_search">Zoek SoundCloud</string>
-    <string name="accessibility_stats_user_liked">Door u geliked</string>
-    <string name="accessibility_like_action">Like</string>
-
-    <!-- __ACTIVITIES -->
-    <string name="liked">vond %s leuk</string>
-    <string name="reposted">gedeeld %s</string>
-    <string name="commented_on">reageerde op %s</string>
-    <string name="mentioned_you_on">vermelde u op %s</string>
-
-    <!-- __ADS -->
-    <string name="advertisement">Advertentie</string>
-    <string name="learn_more">MEER INFORMATIE</string>
-    <string name="why_ads">Waarom advertenties?</string>
-    <string name="why_ads_dialog_message">Iedere keer dat u een advertentie ziet of hoort, krijgen artiesten betaald. Occasionele advertenties stellen ons in staat om artiesten te ondersteunen en SoundCloud gratis te houden voor de luisteraars.</string>
-    <string name="skip_ad">Sla Advertentie Over</string>
-    <string name="next_up">Hierna: %1$s (%2$s)</string>
-    <string name="ad_in_progress">Lopende advertentie</string>
-    <string name="ad_resume_playing_to_continue">Hervat het spelen van de advertentie om door te gaan</string>
-    <string name="ad_skip">Overslaan in: %s</string>
-    <string name="now_playing">Nu aan het afspelen:</string>
-    <string name="now_playing_with_args">Nu aan het afspelen: %1$s(%2$s)</string>
-
-    <!-- __AUTHENTICATION -->
-    <string name="authentication_I_forgot_my_password">Ik ben mijn wachtwoord vergeten</string>
-    <string name="authentication_add_info_add_image_msg">Lach! Deze afbeelding zal op uw profiel verschijnen.</string>
-    <string name="authentication_add_info_msg">Bijna klaar. Kies nu een gebruikersnaam en voeg een foto aan uw profiel toe om het te personaliseren.</string>
-    <string name="authentication_add_info_username_hint">Uw gebruikersnaam</string>
-    <string name="onboarding_agreement_statement">Door een profiel aan te maken ga ik akkoord met de gebruiksvoorwaarden en het privacybeleid van SoundCloud.</string>
-    <string name="authentication_choose_a_password">Minstens 6 tekens</string>
-    <string name="authentication_error_incomplete_fields">Vul a.u.b. alle velden in.</string>
-    <string name="authentication_error_invalid_email">Voer a.u.b. een geldig e-mailadres in.</string>
-    <string name="authentication_error_generic">Oeps! Er is een onverwachte fout opgetreden. Probeer het opnieuw a.u.b.</string>
-    <string name="authentication_error_no_connection_message">Er is een probleem met uw dataverbinding. Controleer uw netwerkinstellingen a.u.b.</string>
-    <string name="authentication_error_password_too_short">Uw wachtwoord moet 6 of meer tekens bevatten.</string>
-    <string name="authentication_error_age_not_valid">U moet ten minste 13 jaar oud zijn.</string>
-    <string name="authentication_error_title">Fout</string>
-    <string name="authentication_log_in">Inloggen</string>
-    <string name="authentication_log_in_with_facebook">Log in met Facebook</string>
-    <string name="authentication_login_error_password_message">We konden u niet inloggen. Weet u zeker dat dit het juiste e-mailadres en wachtwoord is?</string>
-    <string name="authentication_login_progress_message">U aan het inloggen</string>
-    <string name="authentication_recover_password_failure">We kunnen op het moment uw wachtwoord niet herstellen. Probeer het snel nog eens.</string>
-    <string name="authentication_recover_password_failure_reason">Herstellen van het wachtwoord is mislukt: %s</string>
-    <string name="authentication_recover_password_success">Check uw mail! U zult snel een e-mail met instructies ontvangen over hoe u uw wachtwoord kunt resetten.</string>
-    <string name="authentication_recover_progress_message">Wachtwoord reset aanvragen</string>
-    <string name="authentication_sign_up">Meld u aan voor SoundCloud</string>
-    <string name="authentication_signup_error_message">Er lijkt een probleem te zijn. Probeer a.u.b. bij SoundCloud.com aan te melden.</string>
-    <string name="authentication_terms_of_use">Gebruiksvoorwaarden</string>
-    <string name="authentication_your_email_address">Uw e-mailadres</string>
-    <string name="authentication_your_password">Uw wachtwoord</string>
-    <string name="authentication_clear_image">Houd vast om afbeelding te wissen</string>
-    <string name="dialog_select_google_account">Selecteer een Google-account om mee aan te melden</string>
-    <string name="authentication_login_error_message">Het is niet gelukt om u in te loggen. Probeer het nog eens.</string>
-    <string name="authentication_no_google_accounts">Maak eerst een Google-account aan.</string>
-    <string name="authentication_log_in_with_google">Meld u aan met Google</string>
-    <string name="error_google_sign_in_failed">Het is niet gelukt om u met Google+ aan te melden. Bezoek plus.google.com om uw Google+ account te activeren en probeer het nog eens</string>
-    <string name="auth_disclaimer_title">Nog één stap</string>
-    <string name="auth_disclaimer_message">Door op \'\'Doorgaan\'\' te tikken, gaat u akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Probeer het snel nog eens of meld u aan met uw SoundCloud gebruikersnaam en wachtwoord.</string>
-    <string name="authentication_recover_password_msg">Vul uw e-mailadres in en dan sturen wij u een link die u uw wachtwoord laat veranderen. Problemen? Neem contact op met de helpdesk.</string>
-    <string name="authentication_blocked_title">Het is ons niet gelukt u aan te melden</string>
-    <string name="authentication_blocked_message">Onze robots vinden deze aanmelding te veel op spam lijken. Als dit volgens u een fout is, neem dan <a href="http://help.soundcloud.com/customer/portal/emails/new">contact op met onze helpdesk</a>
-  </string>
-    <string name="authentication_captcha_message">We hebben wat problemen met uw aanmelding. Meldt u zich alstublieft via onze mobiele website aan, voordat u zich weer aanmeldt.</string>
-    <string name="authentication_email_taken_message">Dit e-mailadres staat al geregistreerd met een account. Voer een ander e-mailadres in of probeer nogmaals aan te melden</string>
-    <string name="authentication_email_invalid_message">Het domein dat u heeft ingevoerd lijkt niet geschikt te zijn voor het ontvangen van e-mails. Heeft u het correct gespeld?</string>
-    <string name="authentication_email_other_error_message">Helaas kunnen we u niet aanmelden met de details die u heeft verstrekt</string>
-
-    <!-- __DEEPLINKS -->
-    <string name="error_toast_user_not_logged_in">Log in om deze link te openen</string>
-
-    <!-- __EMAIL OPT-IN -->
-    <string name="optin_title">SoundCloud Nieuwsbrief</string>
-    <string name="optin_question">Wilt u e-mailupdates ontvangen over SoundCloud?</string>
-    <string name="optin_info">Dit bevat Nieuwsbrieven, Product updates, Speciale aanbiedingen en Enquêtes. U kunt uw toestemming te allen tijde intrekken. Om dit te doen, opent u SoundCloud.com en gaat u naar instellingen.</string>
-    <string name="optin_yes">Ja, graag</string>
-    <string name="optin_no">Nee, dank u</string>
-
-    <!-- __EMPTY STATES -->
-    <string name="info_empty_other_message">Deze persoon heeft nog geen profielbeschrijving toegevoegd.</string>
-    <string name="info_empty_you_message">Uw profiel is leeg</string>
-    <string name="info_empty_you_secondary">Meld u a.u.b. aan op SoundCloud op uw desktop om uw profiel te kunnen bijwerken</string>
-    <string name="list_empty_activity_message">U heeft nog geen activiteiten</string>
-    <string name="list_empty_activity_secondary">Lees meer over het delen van geluiden met onze 101s</string>
-    <string name="list_empty_stream_action">Vind mensen om te volgen</string>
-    <string name="list_empty_stream_message">Volg uw favoriete artiesten, bands en podcasts om hun nieuwste nummers te horen</string>
-    <string name="list_empty_user_followers_message">U heeft nog geen volgers.</string>
-    <string name="list_empty_user_followers_secondary">Deel uw favoriete nummers en afspeellijsten om zo uw gemeenschap op te bouwen.</string>
-    <string name="list_empty_user_following_action">Vind mensen om te volgen</string>
-    <string name="list_empty_user_following_message">Volg uw favorieten artiesten, bands en curatoren om hun nieuwste nummers te horen</string>
-    <string name="list_empty_user_likes_message">Like uw favoriete geluiden om ze nog eens te horen</string>
-    <string name="list_empty_user_sounds_message">Deel geluiden met uw volgers</string>
-    <string name="empty_playlist_title">Lege Afspeellijst</string>
-    <string name="empty_playlist_description">Deze afspeellijst heeft nog geen nummers</string>
-    <string name="list_empty_user_playlists_message">%1$s heeft momenteel geen afspeellijst.</string>
-    <string name="list_empty_you_playlists_message">Creëer Afspeellijsten om mixes van je favoriete geluiden te maken</string>
-    <string name="list_empty_liked_playlists_message">Like uw favoriete afspeellijsten om ze opnieuw te beluisteren</string>
-    <string name="empty_user_likes_text">%1$s heeft nog\ngeen likes gekozen.</string>
-    <string name="empty_user_followers_text">%1$s wordt nog\ndoor niemand gevolgd.</string>
-    <string name="empty_user_followings_text">%1$s is nog\nniemand aan het volgen.</string>
-    <string name="empty_user_tracks_text">%1$s heeft nog\ngeen publieke geluiden geüpload.</string>
-
-    <!-- __ERRORS -->
-    <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
-    <string name="error_unauthorized_title">Accountfout</string>
-    <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van deze url</string>
-    <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van uw afbeelding.</string>
-    <string name="error_server_problems_message">Er is een probleem opgetreden tijdens het verwerken van uw verzoek. Probeer het later nog eens.</string>
-    <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het binnenkort nog eens.</string>
-    <!-- signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Oeps! Het is niet gelukt u aan te melden.\nProbeer de app te updaten of meld u aan op SoundCloud.com</string>
-
-    <string name="follow_blocked_title">Volg geblokkeerde accounts</string>
-    <string name="follow_blocked_content">%s heeft u geblokkeerd.</string>
-    <string name="follow_blocked_content_long">%s heeft ons gevraagd om uw account te blokkeren zodat u hem/haar niet meer kunt volgen.</string>
-    <string name="follow_age_restricted_title">Volg geblokkeerde accounts</string>
-    <string name="follow_age_restricted_content">Gebruikers %1$s + kan %2$s volgen.</string>
-    <string name="follow_age_restricted_content_long">Sorry, alleen gebruikers van %1$s jaar en ouder mogen %2$s volgen.</string>
-    <string name="follow_age_unknown_title">Geef uw leeftijd aan a.u.b.</string>
-    <string name="follow_age_unknown_content">Voer uw leeftijd in om %s te volgen.</string>
-    <string name="follow_age_unknown_content_long">bevestig dat u de vereiste leeftijd hebt om %s te volgen.</string>
-
-    <!-- __EXPLORE -->
-    <string name="explore_genres">Genres</string>
-    <string name="explore_genre_header_music">Muziek</string>
-    <string name="explore_genre_header_audio">Audio</string>
-    <string name="explore_category_trending_music">Muziek</string>
-    <string name="explore_category_trending_audio">Audio</string>
-
-    <!-- __IMAGES -->
-    <string name="add_image">Voeg\nAfbeelding\nToe</string>
-    <string name="image_load_error">Er is een probleem opgetreden tijdens het laden van de afbeelding</string>
-    <string name="image_where">Hoe wilt u een afbeelding toevoegen?</string>
-    <string name="take_new_picture">Nieuwe afbeelding</string>
-    <string name="take_new_picture_error">Het is niet gelukt om een foto te maken</string>
-    <string name="use_existing_image">Bestaande afbeelding</string>
-    <string name="use_existing_image_error">Het is niet gelukt om de bestaande afbeelding te gebruiken</string>
-
-    <!-- __NAVIGATION -->
-    <string name="navigation_drawer_open">Navigatielade openen</string>
-    <string name="navigation_drawer_close">Navigatielade sluiten</string>
-    <string name="side_menu_activity">Activiteit</string>
-    <string name="side_menu_record">Opnemen</string>
-    <string name="side_menu_stream">Stream</string>
-    <string name="side_menu_you">U</string>
-    <string name="side_menu_settings">Instellingen</string>
-    <string name="side_menu_likes">Likes</string>
-    <string name="side_menu_who_to_follow">Wie te volgen</string>
-    <string name="side_menu_profile">Profiel</string>
-    <string name="side_menu_playlists">Afspeellijsten</string>
-    <string name="side_menu_explore">Ontdekken</string>
-    <string name="title_search">Zoeken</string>
-    <string name="title_settings">Instellingen</string>
-    <string name="title_feedback">Stuur bugrapport</string>
-
-    <!-- __NOTIFICATIONS -->
-    <string name="dashboard_notifications_activity_message_likes">%1$s vindt %2$s leuk</string>
-    <string name="dashboard_notifications_message_incoming">van %s</string>
-    <string name="dashboard_notifications_message_incoming_2">van %1$s en %2$s</string>
-    <string name="dashboard_notifications_message_incoming_others">van %1$s, %2$s en anderen</string>
-    <string name="dashboard_notifications_activity_message_repost">%1$s deelde %2$s</string>
-
-    <!-- __ONBOARDING -->
-    <string name="suggested_users_genres_large_title">Kies uw favoriete categorieën</string>
-    <string name="suggested_users_genres_sub_title">Volg mensen die trending zijn in de SoundCloud gemeenschap.</string>
-    <string name="suggested_users_section_facebook">Facebook</string>
-    <string name="suggested_users_section_music">Muziek</string>
-    <string name="suggested_users_section_audio">Audio</string>
-    <string name="suggested_users_section_empty">Geen resultaten gevonden.</string>
-    <string name="suggested_users_section_error">Geen resultaten gevonden, tik om het nog eens te proberen</string>
-    <string name="suggested_users_btn_select_all">Alles Selecteren</string>
-    <string name="suggested_users_btn_deselect_all">Deselecteer Alles</string>
-    <string name="problem_connecting_to_SoundCloud">Er is een probleem opgetreden bij het verbinden met\nSoundCloud.</string>
-    <string name="and_conjunction">%1$s en %2$s</string>
-    <string name="try_again">Probeer het nog eens</string>
-    <string name="finish">Voltooien</string>
-    <string name="error_onboarding_fail">We zijn nog steeds bezig met het vullen van uw stream. We zullen blijven proberen totdat het werkt! In de tussentijd kunt u andere soorten muziek en audio opzoeken en ontdekken.</string>
-    <string name="age">Leeftijd</string>
-    <string name="enter_age_hint">Voer uw leeftijd in</string>
-    <string name="gender">Geslacht</string>
-    <string name="onboarding_create_account">Een account aanmaken</string>
-    <string name="onboarding_indicate_gender">Geef uw geslacht aan</string>
-    <string name="onboarding_custom_gender_hint">Geef geslacht aan</string>
-    <string name="onboarding_gender_option_female">Vrouwelijk</string>
-    <string name="onboarding_gender_option_male">Mannelijk</string>
-    <string name="onboarding_gender_option_custom">Standaard</string>
-    <string name="onboarding_gender_option_nopref">Zeg ik liever niet</string>
-
-    <!-- __ONBOARDING CATEGORIES -->
-    <string name="category_facebook_friends" tools:ignore="UnusedResources">Facebookvrienden</string>
-    <string name="category_facebook_likes" tools:ignore="UnusedResources">Facebook Likes</string>
-    <string name="category_rock" tools:ignore="UnusedResources">Rock</string>
-    <string name="category_indie" tools:ignore="UnusedResources">Indie</string>
-    <string name="category_dubstep" tools:ignore="UnusedResources">Dubstep</string>
-    <string name="category_pop" tools:ignore="UnusedResources">Pop</string>
-    <string name="category_punk" tools:ignore="UnusedResources">Punk</string>
-    <string name="category_country" tools:ignore="UnusedResources">Country</string>
-    <string name="category_alternative" tools:ignore="UnusedResources">Alternatief</string>
-    <string name="category_electronic" tools:ignore="UnusedResources">Elektronisch</string>
-    <string name="category_house" tools:ignore="UnusedResources">House</string>
-    <string name="category_rnb_and_soul" tools:ignore="UnusedResources">R&amp;B en Soul</string>
-    <string name="category_hiphop_and_rap" tools:ignore="UnusedResources">HipHop en Rap</string>
-    <string name="category_reggae" tools:ignore="UnusedResources">Reggae</string>
-    <string name="category_singer_songwriter" tools:ignore="UnusedResources">Singer-songwriter</string>
-    <string name="category_jazz_and_blues" tools:ignore="UnusedResources">Jazz en Blues</string>
-    <string name="category_metal" tools:ignore="UnusedResources">Metal</string>
-    <string name="category_classical" tools:ignore="UnusedResources">Klassiek</string>
-    <string name="category_folk_and_world" tools:ignore="UnusedResources">Folk en Wereldmuziek</string>
-    <string name="category_ideas" tools:ignore="UnusedResources">Ideeën</string>
-    <string name="category_business" tools:ignore="UnusedResources">Zakelijk</string>
-    <string name="category_religion_and_spirituality" tools:ignore="UnusedResources">Religie en Spiritualiteit</string>
-    <string name="category_audiobooks" tools:ignore="UnusedResources">Audioboeken</string>
-    <string name="category_arts_and_entertainment" tools:ignore="UnusedResources">Kunst en Amusement</string>
-    <string name="category_sports" tools:ignore="UnusedResources">Sport</string>
-    <string name="category_science_and_technology" tools:ignore="UnusedResources">Wetenschap en Technologie</string>
-    <string name="category_comedy" tools:ignore="UnusedResources">Komedie</string>
-    <string name="category_news" tools:ignore="UnusedResources">Nieuws</string>
-    <string name="category_storytelling" tools:ignore="UnusedResources">Verhalen vertellen</string>
-    <string name="category_learning" tools:ignore="UnusedResources">Leren</string>
-
-    <!-- __PLAYABLE -->
-    <string name="private_indicator">Privé</string>
-    <string name="recording_pending_upload">In afwachting van upload</string>
-    <string name="recording_uploading">Bezig met uploaden...</string>
-    <string name="recording_upload_failed">Upload Mislukt</string>
-    <string name="title_now_playing">Nu aan het afspelen</string>
-    <string name="like_toast_overflow_action">Opgeslagen bij uw vind-ik-leuks</string>
-    <string name="unlike_toast_overflow_action">Verwijderd uit uw vind-ik-leuks</string>
-    <string name="like_error_toast_overflow_action">Vind-ik-leuk-status is niet veranderd</string>
-    <string name="reposted_to_followers">Delen met uw volgers</string>
-    <string name="unposted_to_followers">Bericht verwijderd</string>
-    <string name="repost_error_toast_overflow_action">Repost-status kon niet veranderd worden</string>
-
-    <!-- __PLAYER -->
-    <string name="share">Delen</string>
-    <string name="repost">Delen</string>
-    <string name="unpost">Bericht verwijderen</string>
-    <string name="comment_at">Reageren op %s</string>
-    <string name="comment_on">Reageren op %s</string>
-    <string name="your_comment_has_been_posted">Je reactie is geplaatst</string>
-    <string name="comment_could_not_be_created_at_this_time">Je reactie kan momenteel niet worden geplaatst</string>
-    <string name="share_track_by_artist_on_soundcloud">Luister naar %1$s van %2$s #np op #SoundCloud %3$s</string>
-    <string name="share_track_on_soundcloud">Luister naar %1$s #np op #SoundCloud %2$s</string>
-    <string name="share_subject"> %s - SoundCoud</string>
-    <string name="info">Informatie</string>
-    <string name="uploaded_at">%s geüpload</string>
-    <string name="track_info_no_description">Geen beschrijving beschikbaar</string>
-    <string name="playback_error">Niet afspeelbaar</string>
-    <string name="playback_error_connection">Controleer uw verbinding. Klik om het opnieuw te proberen.</string>
-    <string name="playback_error_unable_to_play">Nummer kan niet worden gestreamd</string>
-    <string name="playback_missing_playable_tracks">Af te spelen nummers ontbrekenSpeelbare tracks</string>
-    <string name="play">Afspelen</string>
-    <string name="pause">Pauze</string>
-    <string name="previous">Vorig</string>
-    <string name="next">Volgend</string>
-
-    <!-- __COMMENTS -->
-    <string name="user_commented_at">%1$s op %2$s</string>
-
-    <!-- __PLAYLISTS -->
-    <string name="tab_title_user_playlists">Afspeellijsten</string>
-    <string name="activity_title_playlist">Afspeellijst</string>
-    <string name="your_playlists_tab">Uw afspeellijsten</string>
-    <string name="liked_playlists_tab">Gelikte afspeellijsten</string>
-    <string name="playlist_removed">Deze afspeellijst kon niet op SoundCloud worden gevonden</string>
-    <string name="playlist_load_error">Kon deze afspeellijst niet laden</string>
-    <string name="playlist_new_info_header_text">%1$s, %2$s</string>
-    <string name="shuffle_playlist">Afspeellijst shufflen</string>
-    <string name="add_to_playlist">Voeg toe aan afspeellijst</string>
-    <string name="remove_from_playlist">Verwijderen uit playlist</string>
-
-    <!-- __PLAYLIST CREATION -->
-    <string name="add_track_to_playlist">Toevoegen aan afspeellijst...</string>
-    <string name="added_to_playlist">Aan afspeellijst toegevoegd</string>
-    <string name="create_new_playlist">Maak nieuwe speellijst aan</string>
-    <string name="create_new_playlist_hint">Voer titel voor afspeellijst in</string>
-    <string name="error_new_playlist_blank_title">Vul een geldige titel in</string>
-    <string name="add_playlist_private">Privé</string>
-    <string name="add_playlist_offline">Offline Beschikbaar</string>
-
-    <!-- __PROFILE -->
-    <string name="tab_title_user_info">Informatie</string>
-    <string name="tab_title_user_posts">Berichten</string>
-    <string name="tab_title_user_likes">Likes</string>
-    <string name="tab_title_user_followers">Volgers</string>
-    <string name="tab_title_user_followings">Volgen</string>
-    <string name="discogs">Discogs</string>
-    <string name="myspace">MySpace</string>
-
-    <!-- __RECORD -->
-    <string name="rec_title_idle_rec">Opnemen</string>
-    <string name="rec_title_recording">Opnemen</string>
-    <string name="rec_title_idle_play">Gepauzeerd</string>
-    <string name="rec_title_playing">Spelen</string>
-    <string name="rec_title_editing">Bewerken</string>
-    <string name="record_insert_sd_card">Steek er a.u.b. een SD-kaart in om op te nemen.</string>
-    <string name="record_instructions">Deel uw Geluiden</string>
-    <string name="record_storage_is_full">Opslag is vol</string>
-    <string name="recorded_afternoon">%s \'s middags</string>
-    <string name="recorded_evening">%s \'s avonds</string>
-    <string name="recorded_morning">%s \'s ochtends</string>
-    <string name="recorded_night">%s \'s nachts</string>
-    <string name="dialog_confirm_delete_recording_message">Weet u zeker dat u deze opname wilt verwijderen?</string>
-    <string name="btn_revert_to_original">Keer terug naar het origineel</string>
-    <string name="fade_toggle_on">Fade in/out</string>
-    <string name="dialog_revert_recording_message">U zult al uw bewerkingen verliezen. Doorgaan?</string>
-    <string name="cloud_recorder_event_message">Aan het opnemen voor %s</string>
-    <string name="cloud_recorder_event_title">Opname aan de gang</string>
-    <string name="cloud_recorder_playback_event_title">Terugspelen aan de gang</string>
-
-    <!-- __SEARCH -->
-    <string name="search_hint">Zoek in SoundCloud</string>
-    <string name="search_settings_description">Zoek geluiden</string>
-    <string name="search_type_all">Allemaal</string>
-    <string name="search_type_tracks">Nummers</string>
-    <string name="search_type_playlists">Afspeellijsten</string>
-    <string name="search_type_people">Mensen</string>
-    <string name="search_recent_tags">RECENTELIJK</string>
-    <string name="search_popular_tags">POPULAIRE TAGS</string>
-    <string name="search_tags_title">Kies uw favoriete tag</string>
-    <string name="search_tags_subtitle">Ontdek populaire afspeellijsten op SoundCloud</string>
-    <string name="search_empty">Geen resultaten gevonden</string>
-    <string name="search_empty_subtext">Controleer de spelling of probeer een andere zoekopdracht</string>
-    <string name="search_for_query">Zoek naar \'%s\'</string>
-
-    <!-- __SETTINGS -->
-    <string name="pref_app_details">Details van de App</string>
-    <string name="pref_basic_settings">Basisinstellingen</string>
-    <string name="pref_clear_cache">Verwijder applicatie cache</string>
-    <string name="pref_clear_cache_desc">Wis de applicatie cache om geheugen vrij te maken op uw apparaat</string>
-    <string name="pref_connection_and_data">Verbinding en data</string>
-    <string name="pref_help">Help</string>
-    <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
-    <string name="pref_revoke_access">Afmelden</string>
-    <string name="pref_revoke_desc">Huidige gebruiker afmelden</string>
-    <string name="pref_sync_wifi_only">Alleen gegevens via Wi-Fi bijwerken</string>
-    <string name="pref_sync_wifi_only_description">Alleen nieuwe Vind Ik Leuk etc. via Wi-Fi bijwerken</string>
-    <string name="pref_analytics">Analytics</string>
-    <string name="pref_analytics_desc">Door Analytics in te stellen, kunnen we gegevens over uw gebruik van deze app verzamelen, die ons helpt bij het verbeteren van de app. Zie ons Privacybeleid voor meer details.</string>
-    <string name="pref_crashlogs">Crashlogs</string>
-    <string name="pref_crashlogs_desc">Door het instellen van Crashlogs helpt u ons aanzienlijk met het verbeteren van de app. We verzamelen geen persoonlijke gegevens. Zie ons Privacybeleid voor meer details.</string>
-    <string name="playback_error_logging">Speel foutenregistratie terug: %s</string>
-    <string name="enabled">Ingeschakeld</string>
-    <string name="disabled">Uitgeschakeld</string>
-    <string name="wifi_settings">Draadloos &amp; netwerkinstellingen</string>
-    <string name="wifi_settings_summary">Bewerk uw instellingen. Gebruik WiFi voor de beste prestaties.</string>
-    <string name="cache_clearing">Cache ontruimen</string>
-    <string name="cache_clearing_message">In Cache opgeslagen bestanden verwijderen ...</string>
-    <string-array name="pref_dev_record_type_entries">
-    <item>Gecomprimeerd</item>
-    <item>Onbewerkt</item>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--__MISC / LOST&FOUND / UNSORTED-->
+  <string name="app_name">SoundCloud</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nee</string>
+  <string name="post">Post</string>
+  <string name="view">Bekijk</string>
+  <string name="btn_apply">Toepassen</string>
+  <string name="cancel">Annuleer</string>
+  <string name="upload">Upload</string>
+  <string name="shuffle">Shuffle</string>
+  <string name="done">Klaar</string>
+  <string name="email">E-mail</string>
+  <string name="password">Wachtwoord</string>
+  <string name="btn_continue">Ga verder</string>
+  <string name="imprint">Afdruk</string>
+  <string name="privacy">Privacy</string>
+  <string name="legal">Wettelijk</string>
+  <string name="legal_summary">Juridische informatie</string>
+  <string name="terms_of_use">Gebruiksvoorwaarden</string>
+  <string name="privacy_policy">Privacybeleid</string>
+  <string name="contact_support">Neem contact op met de klantenservice</string>
+  <string name="version">Versie</string>
+  <string name="unavailable">Niet beschikbaar</string>
+  <string name="copyright_information">Auteursrecht informatie</string>
+  <string name="started_following_you">zijn begonnen je te volgen</string>
+  <string name="account_one_active">Je kan maar één actief account hebben</string>
+  <string name="btn_follow">Volg</string>
+  <string name="btn_following">Volgende</string>
+  <string name="btn_save">Bewaar</string>
+  <string name="btn_skip">Overslaan</string>
+  <string name="delete">Verwijder</string>
+  <string name="comments">Opmerkingen</string>
+  <string name="sounds_from">Geluiden van %s</string>
+  <string name="this_user">Deze gebruiker</string>
+  <string name="track">geluid</string>
+  <string name="display_name">Geef naam weer</string>
+  <string name="website">Website</string>
+  <string name="like">Like</string>
+  <string name="unlike">Unlike</string>
+  <string name="unlimited">unlimited</string>
+  <string name="play_related_tracks">Speel gerelateerde tracks af</string>
+  <string name="unable_to_play_related_tracks">We konden geen gerelateerde tracks afspelen</string>
+  <string name="loading_related_tracks">Gerelateerde tracks laden...</string>
+  <string name="following_zero">Gevolgd door jou</string>
+  <string name="number_of_liked_tracks_you_liked_zero">Je hebt geen gelikede tracks</string>
+  <!--__ACCESSIBILITY-->
+  <string name="accessibility_search">Zoek op SoundCloud</string>
+  <string name="accessibility_stats_user_liked">Geliked door jou</string>
+  <string name="accessibility_like_action">Like</string>
+  <!--__ACTIVITIES-->
+  <string name="liked">liked %s</string>
+  <string name="reposted">Gerepost %s</string>
+  <string name="commented_on">heeft gereageerd op %s</string>
+  <string name="mentioned_you_on">Noemde je op %s</string>
+  <!--__ADS-->
+  <string name="advertisement">Advertentie</string>
+  <string name="learn_more">LEER MEER</string>
+  <string name="why_ads">Waarom advertenties?</string>
+  <string name="why_ads_dialog_message">Elke keer dat je een advertenties ziet of hoort, wordt de artiest betaald. Incidentele advertenties zorgen ervoor dat wij artiesten kunnen blijven steunen en SoundCloud gratis houden voor luisteraars.</string>
+  <string name="skip_ad">Sla advertentie over</string>
+  <string name="next_up">Volgende: %1$s (%2$s)</string>
+  <string name="ad_in_progress">Advertentie speelt af</string>
+  <string name="ad_resume_playing_to_continue">Hervat afspelen advertentie om verder te gaan</string>
+  <string name="ad_skip">Sla over in: %s</string>
+  <string name="now_playing">Nu aan het spelen</string>
+  <string name="now_playing_with_args">Nu aan het spelen: %1$s (%2$s)</string>
+  <!--__AUTHENTICATION-->
+  <string name="authentication_I_forgot_my_password">Wachtwoord vergeten?</string>
+  <string name="authentication_add_info_add_image_msg">Lach! Deze foto zal op je profiel verschijnen.</string>
+  <string name="authentication_add_info_msg">Bijna klaar. Kies nu een gebruikersnaam en voeg een foto toe om jou profiel te personaliseren.</string>
+  <string name="authentication_add_info_username_hint">Je gebruikersnaam</string>
+  <string name="onboarding_agreement_statement">Door aan te melden ga ik akkoord met de gebruiksvoorwaarden en het privacybeleid van SoundCloud. </string>
+  <string name="authentication_choose_a_password">Minimaal 6 tekens</string>
+  <string name="authentication_error_incomplete_fields">Vul alsjeblieft alle velden in.</string>
+  <string name="authentication_error_invalid_email">Vul een geldig e-mailadres in</string>
+  <string name="authentication_error_generic">Oeps! Een onverwachte fout is opgetreden. Probeer het nogmaals.</string>
+  <string name="authentication_error_no_connection_message">Er is een probleem met jouw dataverbinding. Controleer je netwerkinstellingen.</string>
+  <string name="authentication_error_password_too_short">Je wachtwoord moet 6 of meer karakters bevatten.</string>
+  <string name="authentication_error_age_not_valid">Je moet tenminste 13 jaar oud zijn.</string>
+  <string name="authentication_error_title">Fout</string>
+  <string name="authentication_log_in">Inloggen</string>
+  <string name="authentication_log_in_with_facebook">Log in met Facebook</string>
+  <string name="authentication_login_error_password_message">We konden je niet inloggen. Weet je zeker dat je met een geldig e-mailadres en wachtwoord bent ingelogd?</string>
+  <string name="authentication_login_progress_message">We loggen je in</string>
+  <string name="authentication_recover_password_failure">We kunnen je wachtwoord niet herstellen. Probeer het snel opnieuw</string>
+  <string name="authentication_recover_password_failure_reason">Wachtwoord herstellen is mislukt: %s</string>
+  <string name="authentication_recover_password_success">Check je mail! We hebben je instructies gestuurd om je wachtwoord te veranderen.</string>
+  <string name="authentication_recover_progress_message">We nemen je aanvraag in behandeling om je wachtwoord te herstellen</string>
+  <string name="authentication_sign_up">Account aanmaken</string>
+  <string name="authentication_signup_error_message">Er lijkt een probleem te zijn. Probeer je aan te melden op SoundCloud.com</string>
+  <string name="authentication_terms_of_use">Gebruiksvoorwaarden</string>
+  <string name="authentication_your_email_address">Je e-mailadres</string>
+  <string name="authentication_your_password">Je wachtwoord</string>
+  <string name="authentication_clear_image">Houd vast om afbeelding te wissen</string>
+  <string name="dialog_select_google_account">Selecteer een Google account om je mee in te loggen</string>
+  <string name="authentication_login_error_message">We konden je niet inloggen. Probeer het nogmaals.</string>
+  <string name="authentication_no_google_accounts">Maak eerst een google account aan. </string>
+  <string name="authentication_log_in_with_google">Meld je aan met Google</string>
+  <string name="error_google_sign_in_failed">We konden je niet aanmelden met Google+. Bezoek plus.google.com om je Google+ account te activeren en probeer het nogmaals</string>
+  <string name="auth_disclaimer_title">Nog één stap</string>
+  <string name="auth_disclaimer_message">Door te klikken op \"Doorgaan\", ga je akkoord met de gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
+  <string name="facebook_authentication_failed_message">Probeer het nog eens of meld je aan met je gebruikersnaam en wachtwoord.</string>
+  <string name="authentication_recover_password_msg">Vul je e-mailadres in zodat we je een link kunnen sturen om je wachtwoord te veranderen. Als je stil hulp nodig hebt, bezoek ons Helpcenter</string>
+  <string name="authentication_recover_password_visit_our_Help_Center">bezoek ons Helpcenter</string>
+  <string name="authentication_recover_password_send">Versturen</string>
+  <string name="authentication_blocked_title">We konden je niet aanmelden</string>
+  <string name="authentication_blocked_message">Onze robots denken dat deze aanmelding teveel op spam lijkt. Als je denkt dat dat een vergissing is, contacteer onze supportafdeling.</string>
+  <string name="authentication_captcha_message">Wij hebben wat problemen om je aan te melden. Meld je aan via onze mobiele website voordat je opnieuw probeert aan te melden.</string>
+  <string name="authentication_email_taken_message">Dit e-mailadres is al verbonden aan een account. Probeer het met een ander e-mailadres of probeer in te loggen.</string>
+  <string name="authentication_email_invalid_message">Het e-mailadres dat je hebt ingevoerd lijkt niet geschikt voor het ontvangen van e-mails. Heb je het correct gespeld?</string>
+  <string name="authentication_email_other_error_message">Sorry, we konden je niet aanmelden met de details die je hebt ingevoerd.</string>
+  <!--__DEEPLINKS-->
+  <string name="error_toast_user_not_logged_in">Login om deze link te openen</string>
+  <!--__EMAIL OPT-IN-->
+  <string name="optin_title">SoundCloud nieuwsbrief</string>
+  <string name="optin_question">Wil je e-mail updates ontvangen over SoundCloud?</string>
+  <string name="optin_info">Dit bestaat uit nieuwsbrieven, product updates, speciale aanbiedingen en enquêtes. Je kan jouw toestemming te allen tijde intrekken. Om dit te doen, open Soundcloud.com en ga naar instellingen.</string>
+  <string name="optin_yes">Ja, graag</string>
+  <string name="optin_no">Nee, bedankt</string>
+  <!--__EMPTY STATES-->
+  <string name="info_empty_other_message">Deze persoon heeft nog geen profiel beschrijving toegevoegd.</string>
+  <string name="info_empty_you_message">Jouw profiel is leeg</string>
+  <string name="info_empty_you_secondary">Log in op SoundCloud op je desktop om je profiel te bewerken</string>
+  <string name="list_empty_activity_message">Je hebt nog geen activiteiten</string>
+  <string name="list_empty_activity_secondary">Ontdek meer over het delen van sound met onze 101s</string>
+  <string name="list_empty_stream_action">Vind mensen om te volgen</string>
+  <string name="list_empty_stream_message">Volg jouw favoriete artiest, bands en podcasts om hun laatste nummers te horen</string>
+  <string name="list_empty_user_followers_message">Je hebt nog geen volgers.</string>
+  <string name="list_empty_user_followers_secondary">Deel je favoriete nummers en speellijsten om je eigen fanbase op te bouwen</string>
+  <string name="list_empty_user_following_action">Vind mensen om te volgen</string>
+  <string name="list_empty_user_following_message">Volg jouw favoriete artiesten, bands en curatoren om hun laatste nummers te horen</string>
+  <string name="list_empty_user_likes_message">Like je favoriete sounds om ze opnieuw te beluisteren </string>
+  <string name="list_empty_user_sounds_message">Repost sounds om te delen met je volgers</string>
+  <string name="empty_playlist_title">Lege playlist</string>
+  <string name="empty_playlist_description">Deze playlist heeft nog geen tracks</string>
+  <string name="list_empty_user_playlists_message">%1$s heeft nog geen playlist. </string>
+  <string name="list_empty_you_playlists_message">Creeër playlists om mixes te maken van je favoriete sounds</string>
+  <string name="list_empty_liked_playlists_message">Like jouw favoriete playlists om ze opnieuw te horen</string>
+  <string name="empty_user_likes_text">%1$s heeft nog geen likes gekozen.</string>
+  <string name="empty_user_followers_text">%1$s wordt nog door niemand gevolgd.</string>
+  <string name="empty_user_followings_text">%1$s volgt nog niemand.</string>
+  <string name="empty_user_tracks_text">%1$s heeft nog geen publieke sounds geüpload.</string>
+  <!--new profile-->
+  <string name="new_empty_user_posts_message">Deze gebruiker heeft\nnog geen publieke sounds.</string>
+  <string name="new_empty_user_playlists_message">Deze gebruiker heeft nog geen playlists.</string>
+  <string name="new_empty_user_likes_text">Deze gebruiker heeft nog geen likes.</string>
+  <string name="new_empty_user_followers_text">Deze gebruiker heeft nog geen volgers.</string>
+  <string name="new_empty_user_followings_text">Deze gebruiker volgt nog niemand.</string>
+  <!--__ERRORS-->
+  <string name="error_unauthorized_message">We zijn tegen een probleem met jouw account aangelopen en je moet opnieuw op SoundCloud inloggen voordat je de app kan gebruiken.</string>
+  <string name="error_unauthorized_title">Fout in account</string>
+  <string name="error_loading_url">Er was een probleem met het laden van de url</string>
+  <string name="crop_image_error">Er is een fout ontstaan bij het bijsnijden van jouw afbeelding.</string>
+  <string name="error_server_problems_message">Er was een probleem met het verwerken van je verzoek. Probeer het later opnieuw.</string>
+  <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het zo nog eens.</string>
+  <!--signup scope was revoked on server side-->
+  <string name="signup_scope_revoked">Oeps! We konden je niet aanmelden. Probeer de app te updaten of meld je aan op SoundCloud.com.</string>
+  <string name="follow_blocked_title">Volger geblokkeerd</string>
+  <string name="follow_blocked_content">%s heeft je geblokkeerd.</string>
+  <string name="follow_blocked_content_long">%s heeft jouw geblokkeerd als volger</string>
+  <string name="follow_age_restricted_title">Volgen geblokkeerd</string>
+  <string name="follow_age_restricted_content">Gebruikers van %1$s jaar of ouder, kunnen %2$s volgen.</string>
+  <string name="follow_age_restricted_content_long">Helaas, alleen gebruikers van %1$s jaar en ouder mogen %2$s volgen.</string>
+  <string name="follow_age_unknown_title">Bevestig je leeftijd</string>
+  <string name="follow_age_unknown_content">Voer leeftijd in om %s te volgen.</string>
+  <string name="follow_age_unknown_content_long">Om %s te volgen, bevestig dat je de vereiste leeftijd hebt.</string>
+  <!--__EXPLORE-->
+  <string name="explore_genres">Genres</string>
+  <string name="explore_genre_header_music">Muziek</string>
+  <string name="explore_genre_header_audio">Audio</string>
+  <string name="explore_category_trending_music">Muziek</string>
+  <string name="explore_category_trending_audio">Geluid</string>
+  <!--__IMAGES-->
+  <string name="add_image">Voeg afbeelding toe</string>
+  <string name="image_load_error">Er was een probleem met het laden van de afbeelding</string>
+  <string name="image_where">Hoe zou je een afbeelding toe willen voegen?</string>
+  <string name="take_new_picture">Nieuwe foto</string>
+  <string name="take_new_picture_error">Er kon geen foto worden gemaakt</string>
+  <string name="use_existing_image">Bestaande afbeelding</string>
+  <string name="use_existing_image_error">Kan bestaande afbeelding niet gebruiken</string>
+  <!--__NAVIGATION-->
+  <string name="navigation_drawer_open">Open navigatie lade</string>
+  <string name="navigation_drawer_close">Sluit navigatie lade</string>
+  <string name="side_menu_activity">Activiteit</string>
+  <string name="side_menu_record">Opnemen</string>
+  <string name="side_menu_stream">Stream</string>
+  <string name="side_menu_you">Jij</string>
+  <string name="side_menu_settings">Instellingen</string>
+  <string name="side_menu_likes">Likes</string>
+  <string name="side_menu_who_to_follow">Wie te volgen</string>
+  <string name="side_menu_profile">Profiel</string>
+  <string name="side_menu_playlists">Playlists</string>
+  <string name="side_menu_explore">Ontdek</string>
+  <string name="title_search">Zoeken</string>
+  <string name="title_settings">Instellingen</string>
+  <string name="title_feedback">Verstuur bug report</string>
+  <!--_NOTIFICATION_AGGREGATIONS-->
+  <string name="dashboard_notifications_message_incoming">van %s</string>
+  <string name="dashboard_notifications_message_incoming_2">van %1$s en %2$s</string>
+  <string name="dashboard_notifications_message_incoming_others">van %1$s, %2$s en anderen</string>
+  <string name="dashboard_notifications_activity_message_repost">%1$s opnieuw geplaatst %2$s</string>
+  <string name="dashboard_notifications_activity_message_repost_one">op %1$s</string>
+  <string name="dashboard_notifications_activity_message_repost_two">op %1$s en %2$s</string>
+  <string name="dashboard_notifications_activity_message_repost_other">op %1$s, %2$s en andere sounds</string>
+  <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">van %1$s en %2$s</string>
+  <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">van %1$s</string>
+  <string name="dashboard_notifications_activity_message_activity_two">Commentaren en likes van %1$s en %2$s</string>
+  <string name="dashboard_notifications_activity_message_activity_other">Commentaren en likes van %1$s, %2$s en anderen</string>
+  <string name="dashboard_notifications_activity_message_comment_single_track_one">nieuw commentaar op %1$s van %2$s</string>
+  <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d nieuwe commentaren op %2$s van %3$s en %4$s</string>
+  <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d nieuwe commentaren op %2$s van %3$s, %4$s en anderen</string>
+  <string name="dashboard_notifications_activity_message_likes">%1$s liked %2$s</string>
+  <string name="dashboard_notifications_activity_message_like_one">op %1$s</string>
+  <string name="dashboard_notifications_activity_message_like_two">op %1$s en %2$s</string>
+  <string name="dashboard_notifications_activity_message_like_other">op %1$s, %2$s en andere sounds</string>
+  <string name="dashboard_notifications_activity_message_comment_one">Commentaren van %s</string>
+  <string name="dashboard_notifications_activity_message_comment_two">Commentaren van %1$s en %2$s</string>
+  <string name="dashboard_notifications_activity_message_comment_other">Commentaren van %1$s, %2$s en anderen</string>
+  <!--__ONBOARDING-->
+  <string name="suggested_users_genres_large_title">Kies je favoriete categorieën</string>
+  <string name="suggested_users_genres_sub_title">Volg mensen trending in de SoundCloud gemeenschap.</string>
+  <string name="suggested_users_section_facebook">Facebook</string>
+  <string name="suggested_users_section_music">Muziek</string>
+  <string name="suggested_users_section_audio">Audio</string>
+  <string name="suggested_users_section_empty">Geen resultaten gevonden</string>
+  <string name="suggested_users_section_error">Geen resultaten gevonden, tik om het opnieuw te proberen</string>
+  <string name="suggested_users_btn_select_all">Selecteer alles</string>
+  <string name="suggested_users_btn_deselect_all">Deselecteer alles</string>
+  <string name="problem_connecting_to_SoundCloud">Er is een probleem met het verbinden naar SoundCloud</string>
+  <string name="and_conjunction">%1$s en %2$s</string>
+  <string name="try_again">Probeer Opnieuw</string>
+  <string name="finish">Voltooi</string>
+  <string name="error_onboarding_fail">We zijn nog steeds bezig met het vullen van jouw stream. We zullen het blijven proberen totdat het werkt! In de tussentijd kan je zoeken en andere muziek &amp; audio ontdekken.</string>
+  <string name="age">Leeftijd</string>
+  <string name="enter_age_hint">Vul je leeftijd in</string>
+  <string name="gender">Geslacht</string>
+  <string name="onboarding_create_account">Creëer een account</string>
+  <string name="onboarding_indicate_gender">Geef je geslacht aan</string>
+  <string name="onboarding_custom_gender_hint">Voer geslacht in </string>
+  <string name="onboarding_gender_option_female">Vrouw</string>
+  <string name="onboarding_gender_option_male">Man</string>
+  <string name="onboarding_gender_option_custom">Aangepast</string>
+  <string name="onboarding_gender_option_nopref">Zeg ik liever niet</string>
+  <!--__ONBOARDING CATEGORIES-->
+  <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook vrienden</string>
+  <string tools:ignore="UnusedResources" name="category_facebook_likes">Facebook Likes</string>
+  <string tools:ignore="UnusedResources" name="category_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="category_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="category_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="category_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="category_punk">Punk</string>
+  <string tools:ignore="UnusedResources" name="category_country">Land</string>
+  <string tools:ignore="UnusedResources" name="category_alternative">Alternatief</string>
+  <string tools:ignore="UnusedResources" name="category_electronic">Elektronisch</string>
+  <string tools:ignore="UnusedResources" name="category_house">House</string>
+  <string tools:ignore="UnusedResources" name="category_rnb_and_soul">R&amp;B en Soul</string>
+  <string tools:ignore="UnusedResources" name="category_hiphop_and_rap">Hiphop en rap</string>
+  <string tools:ignore="UnusedResources" name="category_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="category_singer_songwriter">Singer Songwriter</string>
+  <string tools:ignore="UnusedResources" name="category_jazz_and_blues">Jazz en Blues</string>
+  <string tools:ignore="UnusedResources" name="category_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="category_classical">Klassiek</string>
+  <string tools:ignore="UnusedResources" name="category_folk_and_world">Folk en wereldmuziek</string>
+  <string tools:ignore="UnusedResources" name="category_ideas">Ideeën</string>
+  <string tools:ignore="UnusedResources" name="category_business">Zaken</string>
+  <string tools:ignore="UnusedResources" name="category_religion_and_spirituality">Religie en Spiritualiteit </string>
+  <string tools:ignore="UnusedResources" name="category_audiobooks">Audioboeken</string>
+  <string tools:ignore="UnusedResources" name="category_arts_and_entertainment">Kunst en Entertainment</string>
+  <string tools:ignore="UnusedResources" name="category_sports">Sporten</string>
+  <string tools:ignore="UnusedResources" name="category_science_and_technology">Wetenschap en Technologie</string>
+  <string tools:ignore="UnusedResources" name="category_comedy">Komedie</string>
+  <string tools:ignore="UnusedResources" name="category_news">Nieuws</string>
+  <string tools:ignore="UnusedResources" name="category_storytelling">Verhalen vertellen</string>
+  <string tools:ignore="UnusedResources" name="category_learning">Leren</string>
+  <!--__PLAYABLE-->
+  <string name="private_indicator">Privé</string>
+  <string name="title_now_playing">Nu aan het spelen</string>
+  <string name="like_toast_overflow_action">Opgeslagen bij je Likes</string>
+  <string name="unlike_toast_overflow_action">Verwijderd uit je likes</string>
+  <string name="like_error_toast_overflow_action">Like status is niet gewijzigd</string>
+  <string name="reposted_to_followers">Repost naar je volgers</string>
+  <string name="unposted_to_followers">Niet geplaatst</string>
+  <string name="repost_error_toast_overflow_action">Repost status kon niet worden gewijzigd</string>
+  <!--__PLAYER-->
+  <string name="share">Deel</string>
+  <string name="repost">Plaats opnieuw</string>
+  <string name="unpost">Unpost</string>
+  <string name="comment_at">Reageer op %s</string>
+  <string name="comment_on">Reageer op %s</string>
+  <string name="your_comment_has_been_posted">Jouw reactie is geplaatst</string>
+  <string name="comment_could_not_be_created_at_this_time">Reactie kan op dit moment niet worden geplaatst</string>
+  <string name="share_track_by_artist_on_soundcloud"> Luister naar %1$s van %2$s #np op #SoundCloud\n%3$s</string>
+  <string name="share_track_on_soundcloud">Luister naar %1$s #np op #SoundCloud\n%2$s</string>
+  <string name="share_subject">%s - SoundCloud</string>
+  <string name="info">Informatie</string>
+  <string name="uploaded_at">Uploaded %s</string>
+  <string name="track_info_no_description">Geen beschrijving beschikbaar</string>
+  <string name="playback_error">Niet afspeelbaar</string>
+  <string name="playback_error_connection">Controleer je verbinding. Tik om het opnieuw te proberen.</string>
+  <string name="playback_error_unable_to_play">Nummer kan niet worden gestreamed</string>
+  <string name="playback_missing_playable_tracks">Deze track kon niet worden afgespeeld</string>
+  <string name="play">Afspelen</string>
+  <string name="pause">Pauze</string>
+  <string name="previous">Vorige</string>
+  <string name="next">Volgende</string>
+  <!--__COMMENTS-->
+  <string name="user_commented_at">%1$s op %2$s</string>
+  <!--__PLAYLISTS-->
+  <string name="tab_title_user_playlists">Speellijsten</string>
+  <string name="activity_title_playlist">Afspeellijst</string>
+  <string name="your_playlists_tab">Jouw speellijst</string>
+  <string name="liked_playlists_tab">Gelikete afspeellijsten</string>
+  <string name="playlist_removed">Deze afspeellijst is niet gevonden in SoundCloud</string>
+  <string name="playlist_load_error">We konden je afspeellijst niet laden</string>
+  <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+  <string name="shuffle_playlist">Shuffle playlist</string>
+  <string name="add_to_playlist">Voeg toe aan afspeellijst</string>
+  <string name="remove_from_playlist">Verwijder van playlist</string>
+  <!--__PLAYLIST CREATION-->
+  <string name="add_track_to_playlist">Voeg toe aan afspeellijst...</string>
+  <string name="added_to_playlist">Toegevoegd aan je speellijst</string>
+  <string name="create_new_playlist">Creëer nieuwe afspeellijst</string>
+  <string name="create_new_playlist_hint">Voer titel afspeellijst in</string>
+  <string name="error_new_playlist_blank_title">Vul een geldige titel in</string>
+  <string name="add_playlist_private">Prive</string>
+  <string name="add_playlist_offline">Offline beschikbaar</string>
+  <!--__PROFILE-->
+  <string name="tab_title_user_info">Info</string>
+  <string name="tab_title_user_posts">Plaats</string>
+  <string name="tab_title_user_likes">Likes</string>
+  <string name="tab_title_user_followers">Volgers</string>
+  <string name="tab_title_user_followings">Volgend</string>
+  <string name="discogs">Discogs</string>
+  <string name="myspace">Myspace</string>
+  <!--__RECORD-->
+  <string name="rec_title_idle_rec">Opnemen</string>
+  <string name="rec_title_recording">Opnemen</string>
+  <string name="rec_title_idle_play">Gepauzeerd</string>
+  <string name="rec_title_playing">Spelen</string>
+  <string name="rec_title_editing">Bewerk</string>
+  <string name="record_insert_sd_card">Plaats een SD kaart om op te nemen. </string>
+  <string name="record_instructions">Opnemen</string>
+  <string name="record_storage_is_full">Opslag is vol</string>
+  <string name="recorded_afternoon">%s middag</string>
+  <string name="recorded_evening">%s avond</string>
+  <string name="recorded_morning">%s ochtend</string>
+  <string name="recorded_night">%s nacht</string>
+  <string name="dialog_confirm_delete_recording_message">Weet je zeker dat je deze opname wilt verwijderen?</string>
+  <string name="btn_revert_to_original">Terugkeren naar origineel</string>
+  <string name="fade_toggle_on">Fade in/out</string>
+  <string name="dialog_revert_recording_message">Je zal al je bewerkingen verliezen. Doorgaan?</string>
+  <string name="cloud_recorder_event_message">Opnemen voor %s</string>
+  <string name="cloud_recorder_event_title">Opname bezig</string>
+  <string name="cloud_recorder_playback_event_title">Afspelen bezig</string>
+  <string name="record_track_title">Track titel</string>
+  <string name="recording_pending_upload">In afwachting van uploaden</string>
+  <string name="recording_uploading">Uploaden...</string>
+  <string name="recording_upload_failed">Upload failed</string>
+  <string name="recording_upload_finished">Geüpload</string>
+  <string name="record_privacy_header">Track privacy</string>
+  <string name="record_tap_to_post">Tik om je opname te posten</string>
+  <string name="record_change_artwork">Verander artwork</string>
+  <string name="record_tap_to_record">Tik om opnemen te starten</string>
+  <string name="record_tap_to_pause">Tik om opnemen te pauzeren</string>
+  <string name="record_tap_to_resume">Tik om opnemen te hervatten</string>
+  <!--__SEARCH-->
+  <string name="search_hint">Zoek SoundCloud</string>
+  <string name="search_settings_description">Zoek sounds</string>
+  <string name="search_type_all">Alle</string>
+  <string name="search_type_tracks">Nummers</string>
+  <string name="search_type_playlists">Afspeellijsten</string>
+  <string name="search_type_people">Mensen</string>
+  <string name="search_recent_tags">RECENT</string>
+  <string name="search_popular_tags">POPULAIRE TAGS</string>
+  <string name="search_tags_title">Kies jouw favoriete tag</string>
+  <string name="search_tags_subtitle">Ontdek populaire afspeellijsten op SoundCloud</string>
+  <string name="search_empty">Geen resultaten gevonden</string>
+  <string name="search_empty_subtext">Controleer de spelling of probeer een andere zoekopdracht</string>
+  <string name="search_for_query">Zoek naar %s</string>
+  <!--__RECOMMENDATIONS-->
+  <string name="recommendation_reason_liked">geliked</string>
+  <!--__SETTINGS-->
+  <string name="pref_app_details">Meer informatie over de app</string>
+  <string name="pref_basic_settings">Basis instellingen</string>
+  <string name="pref_clear_cache">Wis Applicatie Cache</string>
+  <string name="pref_clear_cache_desc">Verwijder de cache om geheugen op je smartphone vrij te maken</string>
+  <string name="pref_connection_and_data">Verbinding en data </string>
+  <string name="pref_help">Help</string>
+  <string name="pref_help_desc">Ga naar de SoundCloud support site</string>
+  <string name="pref_revoke_access">Uitloggen</string>
+  <string name="pref_revoke_desc">Deze gebruiker uitloggen</string>
+  <string name="pref_sync_wifi_only">Data alleen updaten via Wi-Fi</string>
+  <string name="pref_sync_wifi_only_description">Likes etc. alleen updaten via Wi-Fi</string>
+  <string name="pref_analytics">Analytisch</string>
+  <string name="pref_analytics_desc">Het inschakelen van analytics staat ons toe om gegevens te verzamelen over jouw gebruik van deze app die helpt ons bij het verbeteren van de app. Zie ons privacybeleid voor meer informatie.</string>
+  <string name="pref_crashlogs">Crashlogs</string>
+  <string name="pref_crashlogs_desc">Inschakelen van crashlogs helpt ons aanzienlijk bij het verbeteren van de app. We verzamelen geen persoonlijke informatie. Bekijk ons privacybeleid voor meer informatie.</string>
+  <string name="playback_error_logging">Afspeel fout logboek : %s</string>
+  <string name="enabled">Ingeschakeld</string>
+  <string name="disabled">Uitgeschakeld</string>
+  <string name="wifi_settings">Draadloze &amp; netwerk instellingen</string>
+  <string name="wifi_settings_summary">Bewerk jouw instellingen. Gebruik wifi voor de beste resultaten.</string>
+  <string name="cache_clearing">Cache wissen</string>
+  <string name="cache_clearing_message">Opgeslagen bestanden verwijderen...</string>
+  <string-array name="pref_dev_record_type_entries">
+    <item> Gecomprimeerd </item>
+    <item> Ruw </item>
   </string-array>
-
-    <!-- __SETTINGS LOG OUT -->
-    <string name="menu_clear_user_desc">U moet uw SoundCloud-account opnieuw verbinden.</string>
-    <string name="menu_clear_user_title">Gebruikersgegevens wissen?</string>
-
-    <!-- __SETTINGS NAVIGATION -->
-    <string name="title_about">Over</string>
-    <string name="title_legal">Legaal</string>
-    <string name="title_offline_settings">Offline Sync Instellingen</string>
-    <string name="title_notification_settings">Notificatie Instellingen</string>
-
-    <!-- __SETTINGS NOTIFICATIONS -->
-    <string name="pref_notifications">Notificaties</string>
-    <string name="pref_notifications_activity">Activiteit</string>
-    <string name="pref_notifications_comments">Reacties</string>
-    <string name="pref_notifications_comments_description">Ontvang updates over nieuwe reacties op uw geluiden</string>
-    <string name="pref_notifications_description">Welke updates wilt u ontvangen?</string>
-    <string name="pref_notifications_favoritings">Likes</string>
-    <string name="pref_notifications_favoritings_description">Ontvang updates over nieuwe likes van uw geluiden</string>
-    <string name="pref_notifications_followers">Volgers</string>
-    <string name="pref_notifications_followers_description">Ontvang updates wanneer u een nieuwe volger hebt</string>
-    <string name="pref_notifications_frequency">Notificatiefrequentie</string>
-    <string name="pref_notifications_frequency_description">Stel de frequentie tussen updates in</string>
-    <string name="pref_notifications_incoming">Inkomende Geluiden</string>
-    <string name="pref_notifications_incoming_description">Ontvang updates over nieuwe openbare geluiden die met u gedeeld worden</string>
-    <string name="pref_notifications_stream">Stream</string>
-    <string name="pref_notifications_wifi_only">Alleen WiFi-notificaties</string>
-    <string name="pref_notifications_wifi_only_description">Vraag alleen notificaties aan wanneer u via WiFi bent verbonden</string>
-    <string name="pref_notifications_reposts">Gedeelde berichten</string>
-    <string name="pref_notifications_reposts_description">Ontvang updates als uw geluiden worden gedeeld</string>
-    <string-array name="pref_notifications_frequency_entries">
-    <item>Om het uur</item>
-    <item>Om de 4 uur</item>
-    <item>Om de 12 uur</item>
-    <item>Om de 24 uur</item>
+  <!--__SETTINGS SIGN OUT-->
+  <string name="menu_clear_user_desc">Je moet opnieuw verbinding maken met je SoundCloud account.</string>
+  <string name="menu_clear_user_title">Wis gebruikersgegevens?</string>
+  <!--__SETTINGS NAVIGATION-->
+  <string name="title_about">Over</string>
+  <string name="title_legal">Legaal</string>
+  <string name="title_offline_settings">Offline Sync Instellingen</string>
+  <string name="title_notification_settings">Notificatie-instellingen</string>
+  <!--__SETTINGS NOTIFICATIONS-->
+  <string name="pref_notifications">Meldingen</string>
+  <string name="pref_notifications_activity">Activiteit</string>
+  <string name="pref_notifications_comments">Reacties</string>
+  <string name="pref_notifications_comments_description">Ontvang updates bij nieuwe reacties op je sounds</string>
+  <string name="pref_notifications_description">Welke updates wil je ontvangen?</string>
+  <string name="pref_notifications_favoritings">Likes</string>
+  <string name="pref_notifications_favoritings_description">Ontvang updates over nieuwe likes op jouw geluiden</string>
+  <string name="pref_notifications_followers">Volgers</string>
+  <string name="pref_notifications_followers_description">Ontvang updates wanneer je een nieuwe volger hebt</string>
+  <string name="pref_notifications_frequency">Frequentie Meldingen</string>
+  <string name="pref_notifications_frequency_description">Stel de frequentie tussen updates in</string>
+  <string name="pref_notifications_incoming">Inkomende geluiden</string>
+  <string name="pref_notifications_incoming_description">Ontvang updates van nieuwe publieke geluiden met jou gedeeld</string>
+  <string name="pref_notifications_stream">Stream</string>
+  <string name="pref_notifications_wifi_only">Alleen wifi meldingen</string>
+  <string name="pref_notifications_wifi_only_description">Verzoek alleen om updates wanneer verbonden met wifi</string>
+  <string name="pref_notifications_reposts">Opnieuw geplaatste berichten</string>
+  <string name="pref_notifications_reposts_description">Ontvang updates over nieuwe plaatsingen met jouw sounds</string>
+  <string-array name="pref_notifications_frequency_entries">
+    <item>Elk uur</item>
+    <item>Elke 4 uren</item>
+    <item>Elke 12 uren</item>
+    <item>Elke 24 uren</item>
   </string-array>
-
-    <!-- __TIME -->
-    <string name="format_abbreviated_seconds">%d sec.</string>
-    <string name="format_abbreviated_minutes">%d min.</string>
-
-    <!-- __TOUR -->
-    <string name="tour_title_1">Hoor de geluiden van de wereld</string>
-    <string name="tour_text_1">Ontdek de grootste gemeenschap\nvan artiesten, bands, podcasters en\nmakers van muziek en audio</string>
-    <string name="tour_title_2">Ontdek</string>
-    <string name="tour_text_2">Vele soorten nieuwe en\nunieke muziek en audio</string>
-    <string name="tour_title_3">Verbind &amp; Deel</string>
-    <string name="tour_text_3">Vind muziek &amp; audio makers\nom te horen en volgen,\ndeel de geluiden waar u van houd</string>
-    <string name="tour_signup_button">Meld u aan met uw e-mailadres</string>
-    <string name="tour_login_header">Of log in met uw account</string>
-
-    <!-- __UPLOAD -->
-    <string name="uploader_event_processing">Aan het verwerken</string>
-    <string name="uploader_event_uploading_percent">%d%% aan het uploaden</string>
-    <string name="uploader_event_cancelling">Annuleren</string>
-    <string name="cloud_upload_clear_artwork">Houd vast om artwork te wissen</string>
-    <string name="cloud_uploader_notification_error_message">Er is een fout opgetreden bij het uploaden van %s</string>
-    <string name="cloud_uploader_notification_error_ticker">Fout bij het uploaden</string>
-    <string name="cloud_uploader_notification_error_title">Fout bij het uploaden</string>
-    <string name="cloud_uploader_notification_finished_message">%s is geüpload</string>
-    <string name="cloud_uploader_notification_finished_ticker">Upload Voltooid</string>
-    <string name="cloud_uploader_notification_finished_title">Upload Voltooid</string>
-    <string name="dialog_cancel_upload_message">Upload annuleren?</string>
-    <string name="sc_upload_private">Privé</string>
-    <string name="sc_upload_public">Openbaar</string>
-
-    <!-- __WIDGET -->
-    <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>
-
-    <!-- __AGE VERFICATION -->
-    <string name="age_verify_label">Geef leeftijd aan</string>
-    <string name="age_verify_title">Geef a.u.b. uw leeftijd aan</string>
-    <string name="age_verify_warning">De inhoud van dit profiel is mogelijk ongeschikt voor personen onder een bepaalde leeftijd.</string>
-    <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
-    <string name="age_verify_button">Geef uw leeftijd aan</string>
-
-    <!-- __GOOGLE CAST -->
-    <string name="cast_unable_play_track">Niet in staat om nummer uit te brengen</string>
-
-    <!-- __PROMOTED TRACKS -->
-    <string name="promoted_label">Gepromoot</string>
-    <string name="promoted_by_label">Gepromoot door %s</string>
-
+  <!--__STATIONS-->
+  <!--__TIME-->
+  <string name="format_abbreviated_seconds">%d sec.</string>
+  <string name="format_abbreviated_minutes">%d min.</string>
+  <!--__TOUR-->
+  <string name="tour_title_1">Hoor de geluiden van de wereld</string>
+  <string name="tour_text_1">Ontdek de grootste gemeenschap van artiesten, bands, podcasters en makers van muziek &amp; audio</string>
+  <string name="tour_title_2">Ontdek</string>
+  <string name="tour_text_2">Allerlei nieuwe en unieke muziek &amp; audio</string>
+  <string name="tour_title_3">Verbind en Deel</string>
+  <string name="tour_text_3">Vind muziek &amp; audio makers om te luisteren en volgen ,\ndeel de geluiden waarvan je houdt.</string>
+  <string name="tour_signup_button">Aanmelden met je e-mailadres</string>
+  <string name="tour_login_header">Of log in met je account</string>
+  <!--__UPLOAD-->
+  <string name="uploader_event_processing">Verwerken</string>
+  <string name="uploader_event_processing_your_sound">We verwerken je sound</string>
+  <string name="uploader_event_uploading_percent">Uploaden: %d%%</string>
+  <string name="uploader_event_cancelling">Annuleren</string>
+  <string name="cloud_upload_clear_artwork">Hou vast om artwork te verwijderen</string>
+  <string name="cloud_uploader_notification_error_message">Er was een fout tijdens het uploaden van %s</string>
+  <string name="cloud_uploader_notification_error_ticker">Upload fout</string>
+  <string name="cloud_uploader_notification_error_title">Fout bij het uploaden</string>
+  <string name="cloud_uploader_notification_finished_message">%s is geüpload</string>
+  <string name="cloud_uploader_notification_finished_ticker">Upload is klaar</string>
+  <string name="cloud_uploader_notification_finished_title">Upload afgerond</string>
+  <string name="dialog_cancel_upload_message">Annuleer uploaden?</string>
+  <string name="sc_upload_private">\u00A0Prive</string>
+  <string name="sc_upload_public">\u00A0Publiek</string>
+  <!--__WIDGET-->
+  <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>
+  <!--__AGE VERFICATION-->
+  <string name="age_verify_label">Verifieer leeftijd</string>
+  <string name="age_verify_title">Bevestig je leeftijd</string>
+  <string name="age_verify_warning">Inhoud van dit profiel kan ongeschikt zijn voor degenen onder een bepaalde leeftijd. </string>
+  <string name="age_verify_info">Deze informatie zal opgeslagen worden in je profiel.</string>
+  <string name="age_verify_button">Bevestig je leeftijd</string>
+  <!--__GOOGLE CAST-->
+  <string name="cast_unable_play_track">We konden deze track niet casten</string>
+  <!--__PROMOTED TRACKS-->
+  <string name="promoted_label">Promoted</string>
+  <string name="promoted_by_label">Gepromoot door %s</string>
+  <!--__STATIONS-->
 </resources>

@@ -38,12 +38,15 @@ class PlayQueueStorage {
         final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
-                newItems.add(ContentValuesBuilder.values(3)
+                final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values(4)
                         .put(Tables.PlayQueue.TRACK_ID, item.getTrackUrn().getNumericId())
-                        .put(Tables.PlayQueue.REPOSTER_ID, item.getReposter().getNumericId())
                         .put(Tables.PlayQueue.SOURCE, item.getSource())
-                        .put(Tables.PlayQueue.SOURCE_VERSION, item.getSourceVersion())
-                        .get());
+                        .put(Tables.PlayQueue.SOURCE_VERSION, item.getSourceVersion());
+
+                if (item.getReposter().isUser()){
+                    valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, item.getReposter().getNumericId());
+                }
+                newItems.add(valuesBuilder.get());
             }
         }
 
@@ -59,13 +62,18 @@ class PlayQueueStorage {
         return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
-                return PlayQueueItem.fromTrack(
+                final PlayQueueItem playQueueItem = PlayQueueItem.fromTrack(
                         Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID)),
-                        Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)),
+                        hasReposter(reader) ? Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) : Urn.NOT_SET,
                         reader.getString(Tables.PlayQueue.SOURCE),
                         reader.getString(Tables.PlayQueue.SOURCE_VERSION)
                 );
+                return playQueueItem;
             }
         });
+    }
+
+    private boolean hasReposter(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.REPOSTER_ID) && reader.getLong(Tables.PlayQueue.REPOSTER_ID) > 0;
     }
 }

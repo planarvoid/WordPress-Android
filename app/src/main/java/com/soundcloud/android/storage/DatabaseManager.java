@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 48;
+     public static final int DATABASE_VERSION = 49;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -40,7 +40,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate(" + db + ")");
 
         try {
-
             // new tables
             db.execSQL(Tables.Recommendations.SQL);
             db.execSQL(Tables.RecommendationSeeds.SQL);
@@ -53,7 +52,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             for (Table t : Table.values()) {
                 SchemaMigrationHelper.create(t, db);
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -107,6 +105,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 48:
                             success = upgradeTo48(db, oldVersion);
+                            break;
+                        case 49:
+                            success = upgradeTo49(db, oldVersion);
                             break;
                         default:
                             break;
@@ -312,15 +313,30 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Created Stations table
+     * Recreate PlayQueue table to try to fix an unknown crash (that we think is migration related)
      */
     private static boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropTable(Tables.PlayQueue.TABLE.name(), db);
+            db.execSQL(Tables.PlayQueue.SQL);
+            return true;
+
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 48);
+        }
+        return false;
+    }
+
+    /**
+     * Created Stations table
+     */
+    private static boolean upgradeTo49(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 48);
+            handleUpgradeException(exception, oldVersion, 49);
         }
         return false;
     }
