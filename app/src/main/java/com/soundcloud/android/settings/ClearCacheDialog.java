@@ -62,7 +62,6 @@ public class ClearCacheDialog extends DialogFragment {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
                 IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
-                subscriber.onNext(null);
                 subscriber.onCompleted();
             }
         });
@@ -70,7 +69,7 @@ public class ClearCacheDialog extends DialogFragment {
 
     private class ClearCompleteSubscriber extends DefaultSubscriber<Void> {
         @Override
-        public void onNext(Void args) {
+        public void onCompleted() {
             dismiss();
         }
     }
