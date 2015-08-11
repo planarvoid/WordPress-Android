@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.List;
 
 @Singleton
 public class AccountOperations {
@@ -63,20 +64,6 @@ public class AccountOperations {
     @Deprecated
     private volatile PublicApiUser loggedInUser;
     private volatile Urn loggedInUserUrn;
-
-    private Func1<Void, Observable<Void>> removeOfflineContentFunc = new Func1<Void, Observable<Void>>() {
-        @Override
-        public Observable<Void> call(Void ignore) {
-            return offlineContentOperations.get().clearOfflineContent().map(TO_VOID);
-        }
-    };
-
-    private static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
-        @Override
-        public Void call(Object o) {
-            return null;
-        }
-    };
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -256,6 +243,17 @@ public class AccountOperations {
     }
 
     public Observable<Void> purgeUserData() {
+        return offlineContentOperations.get().clearOfflineContent()
+                .flatMap(new Func1<List<Urn>, Observable<Void>>() {
+                    @Override
+                    public Observable<Void> call(List<Urn> urns) {
+                        return clearUserData();
+                    }
+                })
+                .subscribeOn(scheduler);
+    }
+
+    private Observable<Void> clearUserData() {
         return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
@@ -266,8 +264,7 @@ public class AccountOperations {
                 resetPlaybackService();
                 subscriber.onCompleted();
             }
-        }).flatMap(removeOfflineContentFunc)
-                .subscribeOn(scheduler);
+        });
     }
 
     // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency

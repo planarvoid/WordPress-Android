@@ -35,6 +35,7 @@ import org.robolectric.Shadows;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -44,6 +45,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import java.util.Arrays;
 
 public class AccountOperationsTest extends AndroidUnitTest {
     
@@ -71,6 +74,8 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
                 modelManager, userStorage, eventBus, InjectionSupport.lazyOf(accountCleanupAction), 
                 InjectionSupport.lazyOf(offlineContentOperations), Schedulers.immediate());
+
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.just(Arrays.<Urn>asList()));
 
         user = ModelFixtures.create(PublicApiUser.class);
     }
@@ -389,6 +394,16 @@ public class AccountOperationsTest extends AndroidUnitTest {
         Intent nextService = Shadows.shadowOf(context()).getShadowApplication().getNextStartedService();
 
         Assertions.assertThat(nextService).containsAction(PlaybackService.Actions.RESET_ALL);
+    }
+
+    @Test
+    public void purgeUserDataShouldRemoveOfflineContent() {
+        PublishSubject subject = PublishSubject.create();
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(subject);
+
+        accountOperations.purgeUserData().subscribe(observer);
+
+        assertThat(subject.hasObservers()).isTrue();
     }
 
     private void mockSoundCloudAccount() {
