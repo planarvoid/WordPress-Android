@@ -7,13 +7,17 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.java.strings.Strings;
 
 import android.support.v7.widget.RecyclerView;
 import android.widget.ListView;
+
+import java.util.List;
 
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = LegacyProfileActivity.class;
@@ -35,6 +39,18 @@ public class ProfileScreen extends Screen {
                 .findElements(With.id(R.id.overflow_button))
                 .get(0).click();
         return new TrackItemMenuElement(testDriver);
+    }
+
+    public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        final List<PlaylistItemElement> playlists = getPlaylists();
+        for (PlaylistItemElement playlistItemElement : playlists){
+            final String trackCount = playlistItemElement.getTrackCount();
+            if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
+                return playlistItemElement.click();
+            }
+        }
+        throw new IllegalStateException("Could not find playlist with a valid track count");
     }
 
     public String getFirstTrackTitle() {
@@ -61,6 +77,13 @@ public class ProfileScreen extends Screen {
     public int getCurrentRecyclerViewItemCount() {
         waiter.waitForItemCountToIncrease(currentRecyclerView().getAdapter(), 0);
         return currentRecyclerView().getItemCount();
+    }
+
+    public VisualPlayerElement clickFirstRepostedTrack() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), currentRecyclerView());
+        viewElement.click();
+        return new VisualPlayerElement(testDriver);
     }
 
     private ListView currentList() {
@@ -98,6 +121,12 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen touchInfoTab() {
         tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_info).toUpperCase()).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchPlaylistsTab() {
+        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_playlists).toUpperCase()).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }

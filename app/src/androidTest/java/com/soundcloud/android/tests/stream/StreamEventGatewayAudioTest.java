@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.player;
+package com.soundcloud.android.tests.stream;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
@@ -15,16 +15,17 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 @EventTrackingTest
-public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO = "player-test";
+public class StreamEventGatewayAudioTest extends TrackingActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_STREAM = "audio-events-v1-stream";
+    private static final String TEST_SCENARIO_STREAM_PLAYLIST = "audio-events-v1-stream-playlist";
 
-    public TrackingPlayerTest() {
+    public StreamEventGatewayAudioTest() {
         super(MainActivity.class);
     }
 
     @Override
     public void setUp() throws Exception {
-        setRequiredDisabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
+        setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
     }
 
@@ -34,14 +35,12 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlayAndPauseTrackFromStream() {
-        final StreamScreen streamScreen = menuScreen
-                .open()
-                .clickStream();
+        final StreamScreen streamScreen = new StreamScreen(solo);
 
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                streamScreen.clickFirstNotPromotedTrack();
+                streamScreen.clickFirstRepostedTrack();
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
@@ -50,7 +49,24 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(playerElement, is(not(playing())));
 
-        finishEventTracking(TEST_SCENARIO);
+        finishEventTracking(TEST_SCENARIO_STREAM);
     }
 
+    public void testPlayAndPausePlaylistTrackFromStream() {
+        final StreamScreen streamScreen = new StreamScreen(solo);
+
+        startEventTracking();
+
+        final VisualPlayerElement playerElement =
+                streamScreen.clickFirstNotPromotedPlaylist().clickFirstTrack();
+
+        assertThat(playerElement, is(visible()));
+        assertThat(playerElement, is(playing()));
+
+        playerElement.clickArtwork();
+
+        assertThat(playerElement, is(not(playing())));
+
+        finishEventTracking(TEST_SCENARIO_STREAM_PLAYLIST);
+    }
 }

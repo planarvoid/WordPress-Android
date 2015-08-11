@@ -24,6 +24,14 @@ public class PlaylistItemElement {
         return getText(wrapped.findElement(With.id(R.id.list_item_header)));
     }
 
+    public String getTrackCount() {
+        return getText(wrapped.findElement(With.id(R.id.list_item_right_info)));
+    }
+
+    public boolean isPromotedPlaylist() {
+        return wrapped.findElement(With.id(R.id.promoted_playlist)).isVisible();
+    }
+
     public PlaylistDetailsScreen click() {
         wrapped.click();
         return new PlaylistDetailsScreen(testDriver);

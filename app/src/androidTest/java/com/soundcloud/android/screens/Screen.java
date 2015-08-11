@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
@@ -18,6 +19,8 @@ import com.soundcloud.java.functions.Function;
 import java.util.List;
 
 public abstract class Screen {
+    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 10;
+
     protected Han testDriver;
     protected Waiter waiter;
 
@@ -111,6 +114,20 @@ public abstract class Screen {
         ViewElement result = testDriver.findElement(with);
         while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
             if (!testDriver.scrollDown()) {
+                return new com.soundcloud.android.framework.viewelements.EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
+    }
+
+    protected ViewElement scrollToItem(With with, RecyclerViewElement recyclerViewElement) {
+        int tries = 0;
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
+            tries++;
+            recyclerViewElement.scrollDown();
+            if (tries > MAX_SCROLLS_TO_FIND_ITEM) {
                 return new com.soundcloud.android.framework.viewelements.EmptyViewElement("Unable to scroll to item; item not in list");
             }
             result = testDriver.findElement(with);

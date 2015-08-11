@@ -2,11 +2,12 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -51,6 +52,21 @@ public class StreamScreen extends Screen {
         return new UpgradeScreen(testDriver);
     }
 
+    public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
+        int tries = 0;
+        while (tries < MAX_SCROLLS_TO_FIND_ITEM) {
+            scrollListToItem(With.id(R.id.playlist_list_item));
+            for (PlaylistItemElement playlistItemElement : getPlaylists()) {
+                if (!playlistItemElement.isPromotedPlaylist()) {
+                    return playlistItemElement.click();
+                }
+            }
+            testDriver.scrollToBottom();
+            tries++;
+        }
+        throw new ViewNotFoundException("Unable to find non-promoted playlist");
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
@@ -72,6 +88,12 @@ public class StreamScreen extends Screen {
         }
     }
 
+    public VisualPlayerElement clickFirstRepostedTrack() {
+        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), streamList());
+        viewElement.click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public VisualPlayerElement clickTrack(int index) {
         getTrack(index).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
@@ -86,6 +108,10 @@ public class StreamScreen extends Screen {
 
     public boolean isFirstTrackPromoted() {
         return getTrack(0).isPromotedTrack();
+    }
+
+    public boolean isFirstPlaylistPromoted() {
+        return getPlaylists().get(0).isPromotedPlaylist();
     }
 
     public boolean isPromotedTrackWithPromoter() {
@@ -106,22 +132,8 @@ public class StreamScreen extends Screen {
 
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToItem(With.id(R.id.track_list_item));
+        scrollToItem(With.id(R.id.track_list_item), streamList());
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
-    }
-
-    private ViewElement scrollToItem(With with) {
-        int tries = 0;
-        ViewElement result = testDriver.findElement(with);
-        while (result instanceof EmptyViewElement) {
-            tries++;
-            streamList().scrollDown();
-            if (tries > 10) {
-                return new EmptyViewElement("Unable to scroll to item; item not in list");
-            }
-            result = testDriver.findElement(with);
-        }
-        return result;
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

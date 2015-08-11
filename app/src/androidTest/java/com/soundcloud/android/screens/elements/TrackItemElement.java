@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.utils.Log;
 
 public class TrackItemElement {
     private final ViewElement wrapped;
@@ -29,6 +30,10 @@ public class TrackItemElement {
 
     public boolean hasPromoter() {
         return getPromotedTrackText().getText().contains("Promoted by");
+    }
+
+    public boolean hasReposter() {
+        return wrapped.findElement(With.id(R.id.reposter)).isVisible();
     }
 
     private TextElement getPromotedTrackText() {

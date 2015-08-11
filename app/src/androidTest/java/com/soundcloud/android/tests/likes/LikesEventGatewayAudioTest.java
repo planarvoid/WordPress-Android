@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.player;
+package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
@@ -11,20 +11,20 @@ import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 @EventTrackingTest
-public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO = "player-test";
+public class LikesEventGatewayAudioTest extends TrackingActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_LIKES = "audio-events-v1-main-likes";
 
-    public TrackingPlayerTest() {
+    public LikesEventGatewayAudioTest() {
         super(MainActivity.class);
     }
 
     @Override
     public void setUp() throws Exception {
-        setRequiredDisabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
+        setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
     }
 
@@ -33,15 +33,15 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testPlayAndPauseTrackFromStream() {
-        final StreamScreen streamScreen = menuScreen
+    public void testPlayAndPauseTrackFromLikes() {
+        final TrackLikesScreen trackLikesScreen = menuScreen
                 .open()
-                .clickStream();
+                .clickLikes();
 
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                streamScreen.clickFirstNotPromotedTrack();
+                trackLikesScreen.clickTrack(0);
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
@@ -50,7 +50,6 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(playerElement, is(not(playing())));
 
-        finishEventTracking(TEST_SCENARIO);
+        finishEventTracking(TEST_SCENARIO_LIKES);
     }
-
 }
