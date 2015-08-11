@@ -12,7 +12,7 @@
 
     <!-- __NOTIFICATIONS -->
     <plurals name="dashboard_notifications_activity_ticker_repost">
-        <item quantity="one">New repost</item>
+        <item quantity="one">%d new repost</item>
         <item quantity="other">%d new reposts</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_ticker_activity">
@@ -24,7 +24,7 @@
         <item quantity="other">%d new comments</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_ticker_like">
-        <item quantity="one">New like</item>
+        <item quantity="one">%d new like</item>
         <item quantity="other">%d new likes</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_title_activity">
@@ -36,12 +36,12 @@
         <item quantity="other">%d new comments</item>
     </plurals>
     <plurals name="dashboard_notifications_activity_title_like">
-        <item quantity="one">A new like</item>
+        <item quantity="one">%d new like</item>
         <item quantity="other">%d new likes</item>
     </plurals>
 
     <plurals name="dashboard_notifications_activity_title_repost">
-        <item quantity="one">A new repost</item>
+        <item quantity="one">%d new repost</item>
         <item quantity="other">%d new reposts</item>
     </plurals>
 
