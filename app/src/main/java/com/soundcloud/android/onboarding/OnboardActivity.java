@@ -1,12 +1,24 @@
 package com.soundcloud.android.onboarding;
 
-import static android.util.Log.INFO;
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
-import static com.soundcloud.android.util.AnimUtils.hideView;
-import static com.soundcloud.android.util.AnimUtils.showView;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
@@ -56,30 +68,20 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.Log;
+
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import java.io.File;
 
 import javax.inject.Inject;
-import java.io.File;
+
+import static android.util.Log.INFO;
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
+import static com.soundcloud.android.util.AnimUtils.hideView;
+import static com.soundcloud.android.util.AnimUtils.showView;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public class OnboardActivity extends FragmentActivity
         implements AuthTaskFragment.OnAuthResultListener, LoginLayout.LoginHandler,
@@ -218,12 +220,18 @@ public class OnboardActivity extends FragmentActivity
                     BugReporter bugReporter,
                     EventBus eventBus,
                     TokenInformationGenerator tokenUtils,
-                    Navigator navigator) {
+                    Navigator navigator,
+                    FacebookSdk facebookSdk,
+                    LoginManager facebookLoginManager,
+                    CallbackManager facebookCallbackManager) {
         this.configurationOperations = configurationOperations;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
         this.tokenUtils = tokenUtils;
         this.navigator = navigator;
+        this.facebookSdk = facebookSdk;
+        this.facebookLoginManager = facebookLoginManager;
+        this.facebookCallbackManager = facebookCallbackManager;
     }
 
     @Override

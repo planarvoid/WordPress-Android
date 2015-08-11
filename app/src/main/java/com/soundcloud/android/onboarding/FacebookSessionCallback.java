@@ -54,7 +54,7 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
             final boolean allowUserFeedback = true;
             activity.onError(activity.getString(R.string.facebook_authentication_failed_message), allowUserFeedback);
         } else {
-            Log.w(ONBOARDING_TAG, "Activity weak reference is gone!");
+            Log.w(ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
         }
     }
 
