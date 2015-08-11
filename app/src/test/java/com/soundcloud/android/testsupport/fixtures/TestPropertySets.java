@@ -25,6 +25,11 @@ import android.net.Uri;
 import java.util.Date;
 
 public abstract class TestPropertySets {
+
+    public static PropertySet user() {
+        return ModelFixtures.create(ApiUser.class).toPropertySet();
+    }
+
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AUDIO_AD_URN.bind("ad:audio:123"),

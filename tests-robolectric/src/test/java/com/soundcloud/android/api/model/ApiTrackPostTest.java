@@ -2,8 +2,8 @@ package com.soundcloud.android.api.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;

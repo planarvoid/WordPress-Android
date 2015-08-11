@@ -7,6 +7,7 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
+import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -14,7 +15,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist implements PropertySetSource, PlaylistRecord {
+public class ApiPlaylist implements PropertySetSource, PlaylistRecord, PlaylistRecordHolder {
 
     private Urn urn;
     private String title;
@@ -194,6 +195,11 @@ public class ApiPlaylist implements PropertySetSource, PlaylistRecord {
                 PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
                 PlaylistProperty.TAGS.bind(Optional.fromNullable(tags))
         );
+    }
+
+    @Override
+    public PlaylistRecord getPlaylistRecord() {
+        return this;
     }
 
     private static class RelatedResources {

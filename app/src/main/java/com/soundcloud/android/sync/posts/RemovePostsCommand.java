@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.posts;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;

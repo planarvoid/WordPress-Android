@@ -5,12 +5,13 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.android.users.UserRecordHolder;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
-public class ApiUser implements PropertySetSource, UserRecord {
+public class ApiUser implements PropertySetSource, UserRecord, UserRecordHolder {
 
     private Urn urn;
     @Nullable private String country;
@@ -153,5 +154,10 @@ public class ApiUser implements PropertySetSource, UserRecord {
             bindings.put(UserProperty.COUNTRY, country);
         }
         return bindings;
+    }
+
+    @Override
+    public UserRecord getUserRecord() {
+        return this;
     }
 }

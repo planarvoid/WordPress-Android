@@ -1,6 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -43,5 +44,13 @@ public abstract class PlayableItem implements ListItem {
 
     public boolean isLiked() {
         return source.getOrElse(PlayableProperty.IS_LIKED, false);
+    }
+
+    public boolean isRepost() {
+        return source.getOrElse(PostProperty.IS_REPOST, false);
+    }
+
+    public Urn getReposterUrn() {
+        return source.get(PlayableProperty.REPOSTER_URN);
     }
 }

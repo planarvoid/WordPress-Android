@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.LegacyCommand;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;

@@ -11,9 +11,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackLike;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -50,9 +47,7 @@ public class UserProfileOperationsLikesTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private StorePlaylistsCommand storePlaylistsCommand;
-    @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
 
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
@@ -69,7 +64,7 @@ public class UserProfileOperationsLikesTest {
     @Before
     public void setUp() {
         operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+                writeMixedRecordsCommand);
     }
 
     @Test
@@ -97,8 +92,7 @@ public class UserProfileOperationsLikesTest {
 
         operations.pagedLikes(USER_URN).subscribe(observer);
 
-        verify(storeTracksCommand).call(Arrays.asList(apiTrackLike.getTrackRecord()));
-        verify(storePlaylistsCommand).call(Arrays.asList(apiPlaylistLike.getPlaylistRecord()));
+        verify(writeMixedRecordsCommand).call(page);
     }
 
     @Test
@@ -129,8 +123,7 @@ public class UserProfileOperationsLikesTest {
 
         operations.likesPagingFunction().call(page1).subscribe(observer);
 
-        verify(storeTracksCommand).call(Arrays.asList(apiTrackLike.getTrackRecord()));
-        verify(storePlaylistsCommand).call(Arrays.asList(apiPlaylistLike.getPlaylistRecord()));
+        verify(writeMixedRecordsCommand).call(page);
     }
 
     private void assertAllItemsEmitted() {

@@ -8,9 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -47,9 +44,7 @@ public class UserProfileOperationsPlaylistsTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private StorePlaylistsCommand storePlaylistsCommand;
-    @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Captor private ArgumentCaptor<Iterable<ApiPlaylist>> playlistsCaptor;
 
     private final ApiPlaylist apiPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
@@ -66,7 +61,7 @@ public class UserProfileOperationsPlaylistsTest {
     @Before
     public void setUp() {
         operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+                writeMixedRecordsCommand);
     }
 
     @Test
@@ -94,7 +89,7 @@ public class UserProfileOperationsPlaylistsTest {
 
         operations.pagedPlaylists(USER_URN).subscribe(observer);
 
-        verify(storePlaylistsCommand).call(playlistsCaptor.capture());
+        verify(writeMixedRecordsCommand).call(playlistsCaptor.capture());
         assertThat(playlistsCaptor.getValue()).containsExactly(apiPlaylist1, apiPlaylist2);
     }
 
@@ -126,7 +121,7 @@ public class UserProfileOperationsPlaylistsTest {
 
         operations.playlistsPagingFunction().call(page1).subscribe(observer);
 
-        verify(storePlaylistsCommand).call(playlistsCaptor.capture());
+        verify(writeMixedRecordsCommand).call(playlistsCaptor.capture());
         assertThat(playlistsCaptor.getValue()).containsExactly(apiPlaylist1, apiPlaylist2);
     }
 

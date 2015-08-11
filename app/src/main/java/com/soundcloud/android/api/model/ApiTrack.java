@@ -7,6 +7,7 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -15,7 +16,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public final class ApiTrack implements PropertySetSource, TrackRecord {
+public final class ApiTrack implements PropertySetSource, TrackRecord, TrackRecordHolder {
 
     private Urn urn;
     private String title;
@@ -327,6 +328,11 @@ public final class ApiTrack implements PropertySetSource, TrackRecord {
         }
 
         return propertySet;
+    }
+
+    @Override
+    public TrackRecord getTrackRecord() {
+        return this;
     }
 
     private static class RelatedResources {

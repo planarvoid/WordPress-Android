@@ -33,10 +33,29 @@ public class UserRepository {
         this.scheduler = scheduler;
     }
 
+    /***
+     * Returns a user from local storage if it exists, and backfills from the api if the user is not found locally
+     */
+    public Observable<PropertySet> userInfo(Urn userUrn) {
+        return Observable
+                .concat(
+                        userStorage.loadUser(userUrn),
+                        syncedUserInfo(userUrn)
+                )
+                .first()
+                .subscribeOn(scheduler);
+    }
+
+    /***
+     * Syncs a given user then returns the local user after the sync
+     */
     public Observable<PropertySet> syncedUserInfo(Urn userUrn) {
         return syncInitiator.syncUser(userUrn).flatMap(continueWith(localUserInfo(userUrn)));
     }
 
+    /***
+     * Returns a local user, then syncs and emits the user again after the sync finishes
+     */
     public Observable<PropertySet> localAndSyncedUserInfo(Urn userUrn) {
         return Observable.concat(
                 localUserInfo(userUrn),
@@ -44,8 +63,11 @@ public class UserRepository {
         );
     }
 
-    public Observable<PropertySet> localUserInfo(Urn urn) {
-        return userStorage.loadUser(urn).filter(IS_NOT_EMPTY).subscribeOn(scheduler);
+    /***
+     * Returns a user from local storage only, or completes without emitting if no user found
+     */
+    public Observable<PropertySet> localUserInfo(Urn userUrn) {
+        return userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY).subscribeOn(scheduler);
     }
 
 }

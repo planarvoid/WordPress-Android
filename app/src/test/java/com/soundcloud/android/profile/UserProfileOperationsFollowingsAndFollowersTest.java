@@ -7,9 +7,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
@@ -42,10 +39,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private StorePlaylistsCommand storePlaylistsCommand;
-    @Mock private StoreUsersCommand storeUsersCommand;
-    @Captor private ArgumentCaptor<Iterable<ApiUser>> userCaptor;
+    @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Captor private ArgumentCaptor<Iterable<PropertySetSource>> userCaptor;
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
     private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
@@ -61,7 +56,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Before
     public void setUp() {
         operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+                writeMixedRecordsCommand);
     }
 
     @Test
@@ -79,7 +74,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
         operations.pagedFollowers(USER_URN).subscribe(observer);
 
-        verify(storeUsersCommand).call(userCaptor.capture());
+        verify(writeMixedRecordsCommand).call(userCaptor.capture());
         assertThat(userCaptor.getValue()).containsExactly(apiUser1, apiUser2);
     }
 
@@ -100,7 +95,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
 
-        verify(storeUsersCommand).call(userCaptor.capture());
+        verify(writeMixedRecordsCommand).call(userCaptor.capture());
         assertThat(userCaptor.getValue()).containsExactly(apiUser1, apiUser2);
     }
 
@@ -119,7 +114,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
         operations.pagedFollowers(USER_URN).subscribe(observer);
 
-        verify(storeUsersCommand).call(userCaptor.capture());
+        verify(writeMixedRecordsCommand).call(userCaptor.capture());
         assertThat(userCaptor.getValue()).containsExactly(apiUser1, apiUser2);
     }
 
@@ -140,7 +135,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
 
-        verify(storeUsersCommand).call(userCaptor.capture());
+        verify(writeMixedRecordsCommand).call(userCaptor.capture());
         assertThat(userCaptor.getValue()).containsExactly(apiUser1, apiUser2);
     }
 

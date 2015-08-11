@@ -7,7 +7,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-public interface TrackRecord {
+public interface TrackRecord  {
     UserRecord getUser();
 
     Urn getUrn();

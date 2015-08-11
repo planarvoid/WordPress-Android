@@ -1,7 +1,5 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.model;
 
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Property;
 import com.soundcloud.java.collections.PropertySet;
 

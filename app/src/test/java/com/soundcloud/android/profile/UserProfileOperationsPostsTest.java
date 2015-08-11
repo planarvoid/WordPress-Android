@@ -13,26 +13,31 @@ import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
+
+import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,10 +45,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserProfileOperationsPostsTest {
+public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
-    private static final Urn USER_URN = Urn.forUser(123L);
+    private static final PropertySet USER = TestPropertySets.user();
+    private static final Urn USER_URN = USER.get(UserProperty.URN);
     private static final String NEXT_HREF = "next-href";
 
     private UserProfileOperations operations;
@@ -51,9 +56,8 @@ public class UserProfileOperationsPostsTest {
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
@@ -77,7 +81,8 @@ public class UserProfileOperationsPostsTest {
     @Before
     public void setUp() {
         operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+                writeMixedRecordsCommand);
+        when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }
 
     @Test
@@ -105,8 +110,7 @@ public class UserProfileOperationsPostsTest {
 
         operations.pagedPostItems(USER_URN).subscribe(observer);
 
-        verify(storeTracksCommand).call(Arrays.asList(apiTrackPost.getTrackRecord(), apiTrackRepost.getTrackRecord()));
-        verify(storePlaylistsCommand).call(Arrays.asList(apiPlaylistPost.getPlaylistRecord(), apiPlaylistRepost.getPlaylistRecord()));
+        verify(writeMixedRecordsCommand).call(page);
     }
 
     @Test
@@ -114,7 +118,7 @@ public class UserProfileOperationsPostsTest {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.postsPagingFunction().call(page1).subscribe(observer);
+        operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
 
         assertAllItemsEmitted();
     }
@@ -125,7 +129,7 @@ public class UserProfileOperationsPostsTest {
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
 
-        operations.postsPagingFunction().call(page1).subscribe(observer);
+        operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
 
         assertItemsEmittedWithLike();
     }
@@ -135,28 +139,59 @@ public class UserProfileOperationsPostsTest {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.postsPagingFunction().call(page1).subscribe(observer);
+        operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
 
-        verify(storeTracksCommand).call(Arrays.asList(apiTrackPost.getTrackRecord(), apiTrackRepost.getTrackRecord()));
-        verify(storePlaylistsCommand).call(Arrays.asList(apiPlaylistPost.getPlaylistRecord(), apiPlaylistRepost.getPlaylistRecord()));
+        verify(writeMixedRecordsCommand).call(page);
+    }
+
+    @Test
+    public void postsForPlaybackReturnsPostsWithReposterInformation() {
+        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+        final TrackItem trackPostItem = TrackItem.from(apiTrackPost.toPropertySet());
+        final TrackItem trackRepostItem = TrackItem.from(attachRepostInfo(apiTrackRepost.toPropertySet()));
+        final PlaylistItem playlistPostItem = PlaylistItem.from(apiPlaylistPost.toPropertySet());
+        final PlaylistItem playlistRepostItem = PlaylistItem.from(attachRepostInfo(apiPlaylistRepost.toPropertySet()));
+
+        operations.postsForPlayback(
+                Arrays.asList(
+                        trackPostItem,
+                        trackRepostItem,
+                        playlistPostItem,
+                        playlistRepostItem
+                )
+        ).subscribe(subscriber);
+
+        subscriber.assertValues(
+                Arrays.asList(
+                        PropertySet.from(TrackProperty.URN.bind(trackPostItem.getEntityUrn())),
+                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getEntityUrn()), TrackProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
+                )
+        );
     }
 
     private void assertAllItemsEmitted() {
         assertItemsEmitted(
                 apiTrackPost.toPropertySet(),
-                apiTrackRepost.toPropertySet(),
+                attachRepostInfo(apiTrackRepost.toPropertySet()),
                 apiPlaylistPost.toPropertySet(),
-                apiPlaylistRepost.toPropertySet()
+                attachRepostInfo(apiPlaylistRepost.toPropertySet())
         );
     }
 
     private void assertItemsEmittedWithLike() {
         assertItemsEmitted(
                 apiTrackPost.toPropertySet(),
-                apiTrackRepost.toPropertySet(),
+                attachRepostInfo(apiTrackRepost.toPropertySet()),
                 apiPlaylistPost.toPropertySet(),
-                apiPlaylistRepost.toPropertySet().put(PlayableProperty.IS_LIKED, true)
+                attachRepostInfo(apiPlaylistRepost.toPropertySet().put(PlayableProperty.IS_LIKED, true))
         );
+    }
+
+    @NonNull
+    private PropertySet attachRepostInfo(PropertySet propertySet) {
+        return propertySet
+                .put(PlayableProperty.REPOSTER_URN, USER_URN)
+                .put(PlayableProperty.REPOSTER, USER.get(UserProperty.USERNAME));
     }
 
     private void assertItemsEmitted(PropertySet... propertySets) {

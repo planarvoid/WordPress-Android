@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;

@@ -1,9 +1,9 @@
 package com.soundcloud.android.api.model;
 
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
-import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.java.collections.PropertySet;
 
 public class ApiPlaylistPost implements PropertySetSource, PlaylistRecordHolder {

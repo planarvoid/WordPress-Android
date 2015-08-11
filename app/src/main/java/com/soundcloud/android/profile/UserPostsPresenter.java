@@ -11,7 +11,9 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
+
 import android.os.Bundle;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -21,10 +23,10 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
 
     @Inject
     UserPostsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                           ImagePauseOnScrollListener imagePauseOnScrollListener,
-                           MixedPlayableRecyclerItemAdapter adapter,
-                           MixedItemClickListener.Factory clickListenerFactory,
-                           PlayableListUpdater.Factory updaterFactory,
+                       ImagePauseOnScrollListener imagePauseOnScrollListener,
+                       MixedPlayableRecyclerItemAdapter adapter,
+                       MixedItemClickListener.Factory clickListenerFactory,
+                       PlayableListUpdater.Factory updaterFactory,
                        UserProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
                 clickListenerFactory, updaterFactory);
@@ -33,10 +35,10 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
 
     @Override
     protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
-        return CollectionBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
+        final Urn urn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
+        return CollectionBinding.from(profileOperations.pagedPostItems(urn), pageTransformer)
                 .withAdapter(adapter)
-                .withPager(profileOperations.postsPagingFunction())
+                .withPager(profileOperations.postsPagingFunction(urn))
                 .build();
     }
 
@@ -44,5 +46,11 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     protected void configureEmptyView(EmptyView emptyView) {
         emptyView.setMessageText(R.string.new_empty_user_posts_message);
         emptyView.setImage(R.drawable.empty_sounds);
+    }
+
+    @Override
+    protected void onItemClicked(View view, int position) {
+        clickListener.onPostClick(profileOperations.postsForPlayback(adapter.getItems()),
+                view, position, adapter.getItem(position));
     }
 }

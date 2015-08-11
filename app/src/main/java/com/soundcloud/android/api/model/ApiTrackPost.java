@@ -1,7 +1,7 @@
 package com.soundcloud.android.api.model;
 
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.java.collections.PropertySet;

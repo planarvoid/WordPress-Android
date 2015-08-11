@@ -17,10 +17,13 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -81,13 +84,21 @@ public class UserPostsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void presenterUsesMixedPlayableClickListener() throws Exception {
-        List<PlayableItem> items = Collections.emptyList();
+    public void presenterUsesMixedPlayableClickListenerToPlayPosts() throws Exception {
+        List<PlayableItem> adapterItems = Collections.emptyList();
+        when(adapter.getItems()).thenReturn(adapterItems);
+
+        final TrackItem clickedItem = TrackItem.from(TestPropertySets.fromApiTrack());
+        when(adapter.getItem(1)).thenReturn(clickedItem);
+
+        final Observable<List<PropertySet>> playbackItems = Observable.just(Collections.<PropertySet>emptyList());
+        when(profileOperations.postsForPlayback(adapterItems)).thenReturn(playbackItems);
+
         presenter.onCreate(fragment, null);
 
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onItemClick(items, itemView, 1);
+        verify(itemClickListener).onPostClick(playbackItems, itemView, 1, clickedItem);
     }
 
 }

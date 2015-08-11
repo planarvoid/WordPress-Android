@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.posts;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 

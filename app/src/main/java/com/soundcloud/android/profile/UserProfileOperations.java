@@ -4,25 +4,25 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.playlists.PlaylistRecord;
-import com.soundcloud.android.playlists.PlaylistRecordHolder;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.android.tracks.TrackRecordHolder;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
+import com.soundcloud.rx.Pager.PagingFunction;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action1;
+import rx.Subscriber;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,71 +34,58 @@ class UserProfileOperations {
 
     private static final Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection> TO_PAGED_REMOTE_COLLECTION =
             new Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection>() {
-        @Override
-        public PagedRemoteCollection call(ModelCollection<? extends PropertySetSource> modelCollection) {
-            return new PagedRemoteCollection(modelCollection);
-        }
-    };
+                @Override
+                public PagedRemoteCollection call(ModelCollection<? extends PropertySetSource> modelCollection) {
+                    return new PagedRemoteCollection(modelCollection);
+                }
+            };
 
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final UserRepository userRepository;
-    private final StoreTracksCommand storeTracksCommand;
-    private final StorePlaylistsCommand storePlaylistsCommand;
-    private final StoreUsersCommand storeUsersCommand;
+    private final WriteMixedRecordsCommand writeMixedRecordsCommand;
 
-    private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo = new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
-        @Override
-        public PagedRemoteCollection call(PagedRemoteCollection input) {
-            final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
-            for (final PropertySet resultItem : input) {
-                final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
-                if (playlistsIsLikedStatus.containsKey(itemUrn)) {
-                    resultItem.update(playlistsIsLikedStatus.get(itemUrn));
+    private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo =
+            new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
+                @Override
+                public PagedRemoteCollection call(PagedRemoteCollection input) {
+                    final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
+                    for (final PropertySet resultItem : input) {
+                        final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
+                        if (playlistsIsLikedStatus.containsKey(itemUrn)) {
+                            resultItem.update(playlistsIsLikedStatus.get(itemUrn));
+                        }
+                    }
+                    return input;
                 }
-            }
-            return input;
-        }
-    };
+            };
 
-    private final Action1<ModelCollection<PropertySetSource>> writeMixedRecordsToStorage = new Action1<ModelCollection<PropertySetSource>>() {
-        @Override
-        public void call(ModelCollection<PropertySetSource> collection) {
-            List<TrackRecord> tracks = new ArrayList<>();
-            List<PlaylistRecord> playlists = new ArrayList<>();
-            for (PropertySetSource entity : collection) {
-                if (entity instanceof TrackRecordHolder) {
-                    tracks.add(((TrackRecordHolder) entity).getTrackRecord());
+    private static final Func2<PagedRemoteCollection, PropertySet, PagedRemoteCollection> MERGE_REPOSTER =
+            new Func2<PagedRemoteCollection, PropertySet, PagedRemoteCollection>() {
+                @Override
+                public PagedRemoteCollection call(PagedRemoteCollection remoteCollection, PropertySet propertySet) {
+                    for (PropertySet post : remoteCollection) {
+                        if (post.getOrElse(PostProperty.IS_REPOST, false)) {
+                            post.put(PlayableProperty.REPOSTER, propertySet.get(UserProperty.USERNAME));
+                            post.put(PlayableProperty.REPOSTER_URN, propertySet.get(UserProperty.URN));
+                        }
+                    }
+                    return remoteCollection;
                 }
-                if (entity instanceof PlaylistRecordHolder) {
-                    playlists.add(((PlaylistRecordHolder) entity).getPlaylistRecord());
-                }
-            }
-            if (!tracks.isEmpty()){
-                storeTracksCommand.call(tracks);
-            }
-            if (!playlists.isEmpty()){
-                storePlaylistsCommand.call(playlists);
-            }
-        }
-    };
+            };
 
     @Inject
     UserProfileOperations(ProfileApi profileApi,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           UserRepository userRepository,
-                          StoreTracksCommand storeTracksCommand,
-                          StorePlaylistsCommand storePlaylistsCommand,
-                          StoreUsersCommand storeUsersCommand) {
+                          WriteMixedRecordsCommand writeMixedRecordsCommand) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
-        this.storeTracksCommand = storeTracksCommand;
-        this.storePlaylistsCommand = storePlaylistsCommand;
-        this.storeUsersCommand = storeUsersCommand;
+        this.writeMixedRecordsCommand = writeMixedRecordsCommand;
     }
 
     public Observable<ProfileUser> getLocalProfileUser(Urn user) {
@@ -131,40 +118,68 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {
         return profileApi
                 .userPosts(user)
-                .doOnNext(writeMixedRecordsToStorage)
+                .doOnNext(writeMixedRecordsCommand.toAction())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
+                .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<PagedRemoteCollection> postsPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> postsPagingFunction(final Urn user) {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPosts(nextPageLink)
-                        .doOnNext(writeMixedRecordsToStorage)
+                        .doOnNext(writeMixedRecordsCommand.toAction())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
+                        .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
                         .subscribeOn(scheduler);
             }
         });
     }
 
+    public Observable<List<PropertySet>> postsForPlayback(final List<? extends PlayableItem> playableItems) {
+        return Observable.create(new Observable.OnSubscribe<List<PropertySet>>() {
+            @Override
+            public void call(Subscriber<? super List<PropertySet>> subscriber) {
+                List<PropertySet> postsForPlayback = new ArrayList<>();
+                for (PlayableItem playableItem : playableItems) {
+                    if (playableItem.getEntityUrn().isTrack()) {
+                        postsForPlayback.add(createPostForPlayback(playableItem));
+                    }
+                }
+                subscriber.onNext(postsForPlayback);
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private PropertySet createPostForPlayback(PlayableItem playableItem) {
+        final PropertySet postForPlayback = PropertySet.from(
+                TrackProperty.URN.bind(playableItem.getEntityUrn())
+        );
+        if (playableItem.isRepost()) {
+            postForPlayback.put(TrackProperty.REPOSTER_URN, playableItem.getReposterUrn());
+        }
+        return postForPlayback;
+    }
+
     public Observable<PagedRemoteCollection> pagedLikes(Urn user) {
         return profileApi
                 .userLikes(user)
-                .doOnNext(writeMixedRecordsToStorage)
+                .doOnNext(writeMixedRecordsCommand.toAction())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<PagedRemoteCollection> likesPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> likesPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userLikes(nextPageLink)
-                        .doOnNext(writeMixedRecordsToStorage)
+                        .doOnNext(writeMixedRecordsCommand.toAction())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
                         .subscribeOn(scheduler);
@@ -175,18 +190,18 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedPlaylists(Urn user) {
         return profileApi
                 .userPlaylists(user)
-                .doOnNext(storePlaylistsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<PagedRemoteCollection> playlistsPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> playlistsPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPlaylists(nextPageLink)
-                        .doOnNext(storePlaylistsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
                         .subscribeOn(scheduler);
@@ -197,17 +212,17 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedFollowings(Urn user) {
         return profileApi
                 .userFollowings(user)
-                .doOnNext(storeUsersCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<PagedRemoteCollection> followingsPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> followingsPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowings(nextPageLink)
-                        .doOnNext(storeUsersCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .subscribeOn(scheduler);
             }
@@ -217,25 +232,26 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
-                .doOnNext(storeUsersCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .subscribeOn(scheduler);
     }
 
-    public Pager.PagingFunction<PagedRemoteCollection> followersPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> followersPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowers(nextPageLink)
-                        .doOnNext(storeUsersCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .subscribeOn(scheduler);
             }
         });
     }
 
-    private Pager.PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String, Observable<PagedRemoteCollection>> nextPage) {
-        return new Pager.PagingFunction<PagedRemoteCollection>() {
+    private PagingFunction<PagedRemoteCollection>pagingFunction(final Command<String,
+            Observable<PagedRemoteCollection>> nextPage) {
+        return new PagingFunction<PagedRemoteCollection>() {
             @Override
             public Observable<PagedRemoteCollection> call(PagedRemoteCollection collection) {
                 final Optional<String> nextPageLink = collection.nextPageLink();

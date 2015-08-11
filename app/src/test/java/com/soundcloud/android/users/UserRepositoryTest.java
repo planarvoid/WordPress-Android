@@ -1,26 +1,25 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UserRepositoryTest {
+public class UserRepositoryTest extends AndroidUnitTest {
 
     private UserRepository userRepository;
 
@@ -48,48 +47,88 @@ public class UserRepositoryTest {
 
         userRepository.localUserInfo(userUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(updatedUser);
+        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
         verifyZeroInteractions(syncInitiator);
     }
 
     @Test
+    public void userInfoReturnsUserInfoFromStorage() {
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncResult>never());
+
+        userRepository.userInfo(userUrn).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).containsExactly(user);
+    }
+
+    @Test
+    public void userInfoReturnsUserInfoFromSyncerIfStorageEmpty() {
+        final PublishSubject<SyncResult> subject = PublishSubject.create();
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.<PropertySet>empty(), Observable.just(updatedUser));
+        when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
+
+        userRepository.userInfo(userUrn).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).isEmpty();
+
+        subject.onNext(SyncResult.success(SyncActions.SYNC_USERS, true));
+
+        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
+    }
+
+    @Test
     public void syncedUserInfoReturnsUserInfoFromStorageAfterSync() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_USERS, true)));
+        final PublishSubject<SyncResult> subject = PublishSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(updatedUser));
+        when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.syncedUserInfo(userUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(updatedUser);
+        assertThat(observer.getOnNextEvents()).isEmpty();
+
+        subject.onNext(SyncResult.success(SyncActions.SYNC_USERS, true));
+
+        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }
 
     @Test
     public void localAndSyncedUserInfoReturnsUserInfoFromStorage() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncResult>never());
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(user);
+        assertThat(observer.getOnNextEvents()).containsExactly(user);
     }
 
     @Test
     public void localAndSyncedUserInfoReturnsUserInfoAgainFromStorageAfterSync() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_USERS, true)));
+        final PublishSubject<SyncResult> subject = PublishSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user), Observable.just(updatedUser));
+        when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(user, updatedUser);
+        assertThat(observer.getOnNextEvents()).containsExactly(user);
+
+        subject.onNext(SyncResult.success(SyncActions.SYNC_USERS, true));
+
+        assertThat(observer.getOnNextEvents()).containsExactly(user, updatedUser);
     }
 
     @Test
     public void localAndSyncedUserInfoReturnsDoesNotEmitMissingUser() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_USERS, true)));
+        final PublishSubject<SyncResult> subject = PublishSubject.create();
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(updatedUser));
+        when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(updatedUser);
+        assertThat(observer.getOnNextEvents()).isEmpty();
+
+        subject.onNext(SyncResult.success(SyncActions.SYNC_USERS, true));
+
+        assertThat(observer.getOnNextEvents()).containsExactly(updatedUser);
     }
 
 }
