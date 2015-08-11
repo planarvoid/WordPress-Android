@@ -114,6 +114,7 @@ public class ErrorUtilsTest extends AndroidUnitTest {
         verify(proxiedHandler).uncaughtException(Thread.currentThread(), rootCause);
     }
 
+    @Test
     public void shouldExcludeApiNetworkErrors() {
         final ApiRequestException apiRequestException = ApiRequestException.networkError(null, new IOException());
 
