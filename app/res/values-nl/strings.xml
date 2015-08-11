@@ -479,7 +479,6 @@
   <string name="age_verify_button">Bevestig je leeftijd</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">We konden deze track niet casten</string>
-  <string name="casting_to">Casten naar</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted_label">Promoted</string>
   <string name="promoted_by_label">Gepromoot door %s</string>

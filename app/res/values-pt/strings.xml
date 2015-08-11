@@ -485,7 +485,6 @@
   <string name="age_verify_button">Verificar idade</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Não é possível enviar a faixa</string>
-  <string name="casting_to">Enviando para</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted_label">Promovidas</string>
   <string name="promoted_by_label">Promovido por %s</string>

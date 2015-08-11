@@ -485,7 +485,6 @@
   <string name="age_verify_button">Verifica tu edad</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">No se puede convertir la pista</string>
-  <string name="casting_to">Convirtiendo en</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted_label">Patrocinado</string>
   <string name="promoted_by_label">Promocionado por %s</string>
