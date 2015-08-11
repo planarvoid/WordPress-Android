@@ -35,7 +35,6 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -72,8 +71,6 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Mock private View view5;
     @Mock private View view6;
     @Mock private View adView;
-
-    @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
     private TestEventBus eventBus;
     private TrackPagerAdapter adapter;
@@ -282,10 +279,19 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindTrackViewForTracks() {
+        ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
+
         adapter.onResume();
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(pageView, track, true, true, viewVisibilityProvider);
+        verify(trackPagePresenter).bindItemView(same(pageView), captorPropertySet.capture());
+
+        assertThat(captorPropertySet.getValue().getTrackUrn()).isEqualTo(TRACK1_URN);
+        assertThat(captorPropertySet.getValue().getTitle()).isEqualTo("title");
+        assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
+        assertThat(captorPropertySet.getValue().isForeground()).isTrue();
+        assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
+        assertThat(captorPropertySet.getValue().getViewVisibilityProvider()).isSameAs(viewVisibilityProvider);
     }
 
     @Test
@@ -302,20 +308,13 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         adapter.onResume();
         setupAudioAd();
         View pageView = getAdPageView();
+        ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true), eq(true), same(viewVisibilityProvider));
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
-        assertThat(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).isTrue();
-        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).isEqualTo(MONETIZABLE_TRACK_URN);
-        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_TITLE)).isEqualTo("title");
-        assertThat(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_CREATOR)).isEqualTo("artist");
-
-        assertThat(captorPropertySet.getValue().contains(AdProperty.DEFAULT_TEXT_COLOR)).isTrue();
-        assertThat(captorPropertySet.getValue().contains(AdProperty.DEFAULT_BACKGROUND_COLOR)).isTrue();
-        assertThat(captorPropertySet.getValue().contains(AdProperty.FOCUSED_TEXT_COLOR)).isTrue();
-        assertThat(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).isTrue();
-        assertThat(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).isTrue();
-        assertThat(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).isTrue();
+        assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
+        assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
     }
 
     @Test

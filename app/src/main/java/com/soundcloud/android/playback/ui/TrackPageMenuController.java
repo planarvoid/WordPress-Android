@@ -42,7 +42,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
-    private PlayerTrack track = PlayerTrack.EMPTY;
+    private PlayerTrackState track = PlayerTrackState.EMPTY;
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
 
     private long commentPosition;
@@ -123,7 +123,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
-    private void handleShare(PlayerTrack track) {
+    private void handleShare(PlayerTrackState track) {
         if (!track.isPrivate()) {
             activity.startActivity(buildShareIntent(track));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
@@ -140,13 +140,13 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
     }
 
-    private void showAddToPlaylistDialog(PlayerTrack track) {
+    private void showAddToPlaylistDialog(PlayerTrackState track) {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
                 track.getUrn(), track.getTitle(), ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
         from.show(activity.getFragmentManager());
     }
 
-    public void setTrack(PlayerTrack track) {
+    public void setTrack(PlayerTrackState track) {
         this.track = track;
         setIsUserRepost(track.isUserRepost());
         setMenuPrivacy(track.isPrivate());
@@ -165,7 +165,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     public void show() {
-        if (track != PlayerTrack.EMPTY) {
+        if (track != PlayerTrackState.EMPTY) {
             popupMenuWrapper.show();
         }
     }
@@ -179,7 +179,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         // no-op
     }
 
-    private Intent buildShareIntent(PlayerTrack track) {
+    private Intent buildShareIntent(PlayerTrackState track) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
@@ -188,7 +188,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         return shareIntent;
     }
 
-    private String buildText(PlayerTrack track) {
+    private String buildText(PlayerTrackState track) {
         if (ScTextUtils.isNotBlank(track.getUserName())) {
             return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(),
                     track.getUserName(), track.getPermalinkUrl());

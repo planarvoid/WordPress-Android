@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.Playa.PlayaState;
 import static com.soundcloud.android.playback.Playa.Reason;
 import static com.soundcloud.android.playback.Playa.StateTransition;
+import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,13 +15,11 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
@@ -32,8 +30,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdPagePresenterTest {
+public class AdPagePresenterTest extends AndroidUnitTest {
 
     private AdPagePresenter presenter;
 
@@ -43,14 +40,13 @@ public class AdPagePresenterTest {
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private SkipListener skipListener;
-    @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
-        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
-        adView = presenter.createItemView(new FrameLayout(new FragmentActivity()), skipListener);
-        presenter.bindItemView(adView, buildAd(), true, true, viewVisibilityProvider);
+        presenter = new AdPagePresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
+        adView = presenter.createItemView(new FrameLayout(context()), skipListener);
+        presenter.bindItemView(adView, new PlayerAd(buildAd()));
     }
 
     @Test
@@ -132,47 +128,47 @@ public class AdPagePresenterTest {
     public void setProgressShouldInitiallySetATimerTo15sec() {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 30));
 
-        expect(skipAd()).toBeGone();
-        expect(previewArtworkOverlay()).toBeVisible();
-        expect(timeUntilSkip()).toBeVisible();
-        expect(timeUntilSkip().getText()).toEqual("Skip in: 15 sec.");
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("Skip in: 15 sec.");
     }
 
     @Test
     public void setProgressShouldUpdateTimeUntilSkipAccordingToPosition() {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 30));
 
-        expect(skipAd()).toBeGone();
-        expect(previewArtworkOverlay()).toBeVisible();
-        expect(timeUntilSkip()).toBeVisible();
-        expect(timeUntilSkip().getText()).toEqual("Skip in: 8 sec.");
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("Skip in: 8 sec.");
     }
 
     @Test
     public void setProgressShouldDisplayEnableSkipAdAfter15sec() {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 15, 30));
 
-        expect(timeUntilSkip()).toBeGone();
-        expect(previewArtworkOverlay()).toBeGone();
-        expect(skipAd()).toBeVisible();
+        assertThat(timeUntilSkip()).isGone();
+        assertThat(previewArtworkOverlay()).isGone();
+        assertThat(skipAd()).isVisible();
     }
 
     @Test
     public void setPlayingStateShouldHidePlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true, true);
-        expect(adView.findViewById(R.id.play_controls)).toBeGone();
+        assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true, true);
-        expect(adView.findViewById(R.id.play_controls)).toBeGone();
+        assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true, true);
-        expect(adView.findViewById(R.id.play_controls)).toBeVisible();
+        assertThat(adView.findViewById(R.id.play_controls)).isVisible();
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {

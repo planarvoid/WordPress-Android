@@ -8,9 +8,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
-class PlayerTrack implements PropertySetSource {
+class PlayerTrackState extends PlayerItem implements PropertySetSource {
 
-    static final PlayerTrack EMPTY = new PlayerTrack(PropertySet.from(
+    static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
             TrackProperty.URN.bind(Urn.NOT_SET),
             TrackProperty.TITLE.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.CREATOR_NAME.bind(ScTextUtils.EMPTY_STRING),
@@ -22,16 +22,36 @@ class PlayerTrack implements PropertySetSource {
             TrackProperty.LIKES_COUNT.bind(0),
             TrackProperty.PERMALINK_URL.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.IS_PRIVATE.bind(false)
-    ));
+    ), false, false, null);
 
-    private final PropertySet source;
+    private final boolean isCurrentTrack;
+    private final boolean isForeground;
+    private final ViewVisibilityProvider viewVisibilityProvider;
 
-    PlayerTrack(PropertySet source) {
-        this.source = source;
+    PlayerTrackState(PropertySet source,
+                     boolean isCurrentTrack,
+                     boolean isForeground,
+                     ViewVisibilityProvider viewVisibilityProvider) {
+        super(source);
+        this.isCurrentTrack = isCurrentTrack;
+        this.isForeground = isForeground;
+        this.viewVisibilityProvider = viewVisibilityProvider;
     }
 
     public PropertySet getSource() {
         return source;
+    }
+
+    public boolean isCurrentTrack() {
+        return isCurrentTrack;
+    }
+
+    public ViewVisibilityProvider getViewVisibilityProvider() {
+        return viewVisibilityProvider;
+    }
+
+    public boolean isForeground() {
+        return isForeground;
     }
 
     Urn getUrn() {

@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.java.collections.PropertySet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -69,8 +68,8 @@ class AdPageListener extends PageListener {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn(), accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
     }
 
-    public void onAboutAds(Activity activity) {
-        whyAdsPresenter.show(activity);
+    public void onAboutAds(Context context) {
+        whyAdsPresenter.show(context);
     }
 
     private void startActivity(Uri uri) {

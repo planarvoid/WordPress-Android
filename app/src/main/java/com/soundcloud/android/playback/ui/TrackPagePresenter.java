@@ -40,7 +40,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
+class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.OnClickListener {
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
@@ -116,30 +116,29 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
-        bindItemView(view, new PlayerTrack(track), isCurrentTrack, isForeground, viewVisibilityProvider);
-    }
-
-    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack,
-                              boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
+    public void bindItemView(View trackView, PlayerTrackState trackState) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        holder.title.setText(track.getTitle());
-        holder.user.setText(track.getUserName());
-        holder.profileLink.setTag(track.getUserUrn());
+        holder.title.setText(trackState.getTitle());
+        holder.user.setText(trackState.getUserName());
+        holder.profileLink.setTag(trackState.getUserUrn());
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
 
-        holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack, viewVisibilityProvider);
-        holder.timestamp.setInitialProgress(track.getDuration());
-        holder.menuController.setTrack(track);
-        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()), isForeground);
-        holder.waveformController.setDuration(track.getDuration());
+        holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
+                trackState.getViewVisibilityProvider());
 
-        setLikeCount(holder, track.getLikeCount());
-        holder.likeToggle.setChecked(track.isUserLike());
-        holder.likeToggle.setTag(track.getUrn());
+        holder.timestamp.setInitialProgress(trackState.getDuration());
+        holder.menuController.setTrack(trackState);
+        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
+                trackState.getWaveformUrl()), trackState.isForeground());
 
-        holder.footerUser.setText(track.getUserName());
-        holder.footerTitle.setText(track.getTitle());
+        holder.waveformController.setDuration(trackState.getDuration());
+
+        setLikeCount(holder, trackState.getLikeCount());
+        holder.likeToggle.setChecked(trackState.isUserLike());
+        holder.likeToggle.setTag(trackState.getUrn());
+
+        holder.footerUser.setText(trackState.getUserName());
+        holder.footerTitle.setText(trackState.getTitle());
 
         if (!holder.errorViewController.isShowingError()){
             holder.timestamp.setVisibility(View.VISIBLE);
