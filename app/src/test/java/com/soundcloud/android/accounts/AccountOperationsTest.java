@@ -1,6 +1,6 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.inOrder;
@@ -16,21 +16,22 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
-import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.Shadows;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
@@ -44,8 +45,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AccountOperationsTest {
+public class AccountOperationsTest extends AndroidUnitTest {
+    
     private static final String SC_ACCOUNT_TYPE = "com.soundcloud.android.account";
     private static final String KEY = "key";
 
@@ -61,32 +62,29 @@ public class AccountOperationsTest {
     @Mock private Observer observer;
     @Mock private Token token;
     @Mock private AccountCleanupAction accountCleanupAction;
+    @Mock private OfflineContentOperations offlineContentOperations;
 
     private PublicApiUser user;
 
     @Before
     public void setUp() throws CreateModelException {
-        accountOperations = new AccountOperations(Robolectric.application, accountManager, tokenOperations,
-                modelManager, userStorage, eventBus, new Lazy<AccountCleanupAction>() {
-            @Override
-            public AccountCleanupAction get() {
-                return accountCleanupAction;
-            }
-        }, Schedulers.immediate());
+        accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
+                modelManager, userStorage, eventBus, InjectionSupport.lazyOf(accountCleanupAction), 
+                InjectionSupport.lazyOf(offlineContentOperations), Schedulers.immediate());
 
         user = ModelFixtures.create(PublicApiUser.class);
     }
 
     @Test
     public void shouldReturnFalseIfAccountDoesNotExist() {
-        expect(accountOperations.isUserLoggedIn()).toBeFalse();
+        assertThat(accountOperations.isUserLoggedIn()).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAccountDoesExist() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
         when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
-        expect(accountOperations.isUserLoggedIn()).toBeTrue();
+        assertThat(accountOperations.isUserLoggedIn()).isTrue();
     }
 
     @Test
@@ -99,21 +97,21 @@ public class AccountOperationsTest {
     public void shouldReturnAccountIfItExists() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
         Account account = accountOperations.getSoundCloudAccount();
-        expect(account).toEqual(scAccount);
+        assertThat(account).isEqualTo(scAccount);
     }
 
     @Test
     public void shouldReturnNullIfAccountManagerReturnsNull() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
         Account account = accountOperations.getSoundCloudAccount();
-        expect(account).toBeNull();
+        assertThat(account).isNull();
     }
 
     @Test
     public void shouldReturnNullIfAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{});
         Account account = accountOperations.getSoundCloudAccount();
-        expect(account).toBeNull();
+        assertThat(account).isNull();
     }
 
     @Test(expected = NullPointerException.class)
@@ -132,7 +130,7 @@ public class AccountOperationsTest {
     @Test
     public void shouldReturnNullIfAccountAdditionFails() {
         when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(false);
-        expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toBeNull();
+        assertThat(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).isNull();
     }
 
     @Test
@@ -142,7 +140,7 @@ public class AccountOperationsTest {
         when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(true);
 
         final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
-        expect(actual).toBeInstanceOf(Account.class);
+        assertThat(actual).isInstanceOf(Account.class);
         verify(accountManager).removeAccount(old, null, null);
         verify(accountManager).addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class));
         verify(accountManager).setUserData(actual, "currentUsername", user.getUsername());
@@ -154,7 +152,7 @@ public class AccountOperationsTest {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{old});
 
         final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
-        expect(actual).toBeInstanceOf(Account.class);
+        assertThat(actual).isInstanceOf(Account.class);
         verify(accountManager, Mockito.never()).removeAccount(any(Account.class), any(AccountManagerCallback.class), any(Handler.class));
         verify(accountManager, Mockito.never()).addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class));
         verify(accountManager).setUserData(actual, "currentUsername", user.getUsername());
@@ -181,7 +179,7 @@ public class AccountOperationsTest {
 
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
 
-        expect(accountOperations.getLoggedInUser()).toBe(user);
+        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
     }
 
     @Test
@@ -202,7 +200,7 @@ public class AccountOperationsTest {
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
 
         final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
-        expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_UPDATED);
+        assertThat(event.getKind()).isSameAs(CurrentUserChangedEvent.USER_UPDATED);
     }
 
     @Test
@@ -210,54 +208,54 @@ public class AccountOperationsTest {
         Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
-        expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toEqual(account);
+        assertThat(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).isEqualTo(account);
     }
 
     @Test
     public void shouldReturnFalseIfBooleanAccountDataDoesNotExist() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(null);
-        expect(accountOperations.getAccountDataBoolean(KEY)).toBe(false);
+        assertThat(accountOperations.getAccountDataBoolean(KEY)).isSameAs(false);
     }
 
     @Test
     public void shouldReturnTrueValueIfTrueBoolAccountDataDoesExist() {
         mockSoundCloudAccount();
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("true");
-        expect(accountOperations.getAccountDataBoolean(KEY)).toBe(true);
+        assertThat(accountOperations.getAccountDataBoolean(KEY)).isSameAs(true);
     }
 
     @Test
     public void shouldReturnFalseValueIfFalseBoolAccountDataDoesExist() {
         mockSoundCloudAccount();
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("false");
-        expect(accountOperations.getAccountDataBoolean(KEY)).toBe(false);
+        assertThat(accountOperations.getAccountDataBoolean(KEY)).isSameAs(false);
         verify(accountManager).getUserData(scAccount, KEY);
     }
 
     @Test
     public void shouldReturnFalseIfSoundCloudDoesNotExist() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(null);
-        expect(accountOperations.setAccountData(KEY, "ads")).toBeFalse();
+        assertThat(accountOperations.setAccountData(KEY, "ads")).isFalse();
     }
 
     @Test
     public void shouldStoreDataIfSoundCloudDoesExist() {
         mockSoundCloudAccount();
-        expect(accountOperations.setAccountData(KEY, "ads")).toBeTrue();
+        assertThat(accountOperations.setAccountData(KEY, "ads")).isTrue();
         verify(accountManager).setUserData(scAccount, KEY, "ads");
     }
 
     @Test
     public void shouldReturnNullTokenIfSoundCloudAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
-        expect(accountOperations.getSoundCloudToken()).toBeNull();
+        assertThat(accountOperations.getSoundCloudToken()).isNull();
     }
 
     @Test
     public void shouldReturnNullTokenIfSoundCloudAccountDoesExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
         when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(token);
-        expect(accountOperations.getSoundCloudToken()).toBe(token);
+        assertThat(accountOperations.getSoundCloudToken()).isSameAs(token);
 
     }
 
@@ -286,9 +284,9 @@ public class AccountOperationsTest {
 
         final PublicApiUser loggedInUser = accountOperations.getLoggedInUser();
 
-        expect(loggedInUser.getId()).toEqual(123L);
-        expect(loggedInUser.getUsername()).toEqual("username");
-        expect(loggedInUser.getPermalink()).toEqual("permalink");
+        assertThat(loggedInUser.getId()).isEqualTo(123L);
+        assertThat(loggedInUser.getUsername()).isEqualTo("username");
+        assertThat(loggedInUser.getPermalink()).isEqualTo("permalink");
     }
 
     @Test
@@ -299,7 +297,7 @@ public class AccountOperationsTest {
 
         accountOperations.loadLoggedInUser();
 
-        expect(accountOperations.getLoggedInUser()).toBe(user);
+        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
     }
 
     @Test
@@ -310,7 +308,7 @@ public class AccountOperationsTest {
 
         accountOperations.loadLoggedInUser();
 
-        expect(accountOperations.getLoggedInUserUrn()).toEqual(user.getUrn());
+        assertThat(accountOperations.getLoggedInUserUrn()).isEqualTo(user.getUrn());
     }
 
     @Test
@@ -322,26 +320,26 @@ public class AccountOperationsTest {
 
         verifyZeroInteractions(userStorage);
 
-        expect(accountOperations.getLoggedInUser()).not.toBe(user);
+        assertThat(accountOperations.getLoggedInUser()).isNotSameAs(user);
     }
 
     @Test
     public void shouldGetLoggedInUserUrn() {
         mockSoundCloudAccount();
 
-        expect(accountOperations.getLoggedInUserUrn()).toEqual(Urn.forUser(123L));
+        assertThat(accountOperations.getLoggedInUserUrn()).isEqualTo(Urn.forUser(123L));
     }
 
     @Test
     public void shouldReturnTrueIfGivenUserIsLoggedInUser() {
         mockSoundCloudAccount();
-        expect(accountOperations.isLoggedInUser(Urn.forUser(123))).toBeTrue();
+        assertThat(accountOperations.isLoggedInUser(Urn.forUser(123))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfGivenUserIsNotTheLoggedInUser() {
         mockSoundCloudAccount();
-        expect(accountOperations.isLoggedInUser(Urn.forUser(1))).toBeFalse();
+        assertThat(accountOperations.isLoggedInUser(Urn.forUser(1))).isFalse();
     }
 
     @Test
@@ -359,11 +357,11 @@ public class AccountOperationsTest {
         when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
         when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
         accountOperations.loadLoggedInUser();
-        expect(accountOperations.getLoggedInUser()).toBe(user);
+        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
 
         accountOperations.purgeUserData().subscribe(observer);
 
-        expect(accountOperations.getLoggedInUser()).not.toBe(user);
+        assertThat(accountOperations.getLoggedInUser()).isNotSameAs(user);
     }
 
     @Test
@@ -381,15 +379,16 @@ public class AccountOperationsTest {
         accountOperations.purgeUserData().subscribe(observer);
 
         final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
-        expect(event.getKind()).toBe(CurrentUserChangedEvent.USER_REMOVED);
+        assertThat(event.getKind()).isSameAs(CurrentUserChangedEvent.USER_REMOVED);
     }
 
     @Test
     public void shouldBroadcastResetAllIntentIfAccountRemovalSucceeds() {
         accountOperations.purgeUserData().subscribe(observer);
 
-        final Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent.getAction()).toEqual(PlaybackService.Actions.RESET_ALL);
+        Intent nextService = Shadows.shadowOf(context()).getShadowApplication().getNextStartedService();
+
+        Assertions.assertThat(nextService).containsAction(PlaybackService.Actions.RESET_ALL);
     }
 
     private void mockSoundCloudAccount() {

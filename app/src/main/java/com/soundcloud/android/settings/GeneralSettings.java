@@ -19,6 +19,7 @@ import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -49,15 +50,18 @@ class GeneralSettings implements OnPreferenceClickListener {
     private final Context appContext;
     private final DeviceHelper deviceHelper;
     private final FeatureOperations featureOperations;
+    private final OfflineSettingsStorage offlineSettingsStorage;
     private final EventBus eventBus;
 
     private PreferenceFragment settings;
 
     @Inject
-    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations, EventBus eventBus) {
+    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations,
+                           OfflineSettingsStorage offlineSettingsStorage, EventBus eventBus) {
         this.appContext = appContext;
         this.deviceHelper = deviceHelper;
         this.featureOperations = featureOperations;
+        this.offlineSettingsStorage = offlineSettingsStorage;
         this.eventBus = eventBus;
     }
 
@@ -70,13 +74,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     }
 
     private void setupOfflineSync(PreferenceFragment settings) {
-        /*
-         * TODO: This should also check whether there is offline content to remove.
-         *
-         * The offline settings screen has a configuration for the case where offline content is not enabled
-         * but there is offline content stored on the device which can be deleted.
-         */
-        if (featureOperations.isOfflineContentEnabled()) {
+        if (featureOperations.isOfflineContentEnabled() || offlineSettingsStorage.hasAnyOfflineContent()) {
             addOfflineSettings(settings);
         } else if (featureOperations.upsellMidTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
@@ -171,8 +169,10 @@ class GeneralSettings implements OnPreferenceClickListener {
 
     private void showLogoutDialog(final Activity parent) {
         new AlertDialog.Builder(parent)
-                .setTitle(R.string.menu_clear_user_title)
-                .setMessage(R.string.menu_clear_user_desc)
+                .setTitle(R.string.sign_out_title)
+                .setMessage(offlineSettingsStorage.hasAnyOfflineContent()
+                        ? R.string.sign_out_description_offline
+                        : R.string.sign_out_description)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

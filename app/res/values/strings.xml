@@ -449,8 +449,8 @@
     </string-array>
 
     <!-- __SETTINGS SIGN OUT -->
-    <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
-    <string name="menu_clear_user_title">Clear user data?</string>
+    <string name="sign_out_title">Clear user data?</string>
+    <string name="sign_out_description">You will have to re-connect your SoundCloud account.</string>
 
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">About</string>

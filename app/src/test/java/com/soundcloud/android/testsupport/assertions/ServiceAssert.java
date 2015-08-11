@@ -1,7 +1,8 @@
 package com.soundcloud.android.testsupport.assertions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.Assertions;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowService;
@@ -28,8 +29,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
                 actual.getClass().getSimpleName());
 
         ShadowService shadowService = Shadows.shadowOf(actual);
-        Assertions
-                .assertThat(shadowService.isStoppedBySelf())
+        assertThat(shadowService.isStoppedBySelf())
                 .overridingErrorMessage(assertErrorMessage, actual)
                 .isTrue();
 
@@ -43,8 +43,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
                 actual.getClass().getSimpleName());
 
         ShadowService shadowService = Shadows.shadowOf(actual);
-        Assertions
-                .assertThat(shadowService.getLastForegroundNotification())
+        assertThat(shadowService.getLastForegroundNotification())
                 .overridingErrorMessage(assertErrorMessage)
                 .isNull();
 
@@ -60,8 +59,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
         final String assertErrorMessage = String.format("<%s> does not contain broadcast receiver with action <%s>",
                 actual.getClass().getSimpleName(), action);
 
-        Assertions
-                .assertThat(getServiceReceiversForAction(action))
+        assertThat(getServiceReceiversForAction(action))
                 .overridingErrorMessage(assertErrorMessage)
                 .containsExactly(receiver);
 

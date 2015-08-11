@@ -13,7 +13,7 @@ import android.net.Uri;
  */
 public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
 
-    protected IntentAssert(Intent actual) {
+    public IntentAssert(Intent actual) {
         super(actual, IntentAssert.class);
     }
 
