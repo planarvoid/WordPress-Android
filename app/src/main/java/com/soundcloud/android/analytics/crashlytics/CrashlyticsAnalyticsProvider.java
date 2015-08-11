@@ -40,23 +40,15 @@ public class CrashlyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        if (Fabric.isInitialized()) {
-            if (event instanceof ScreenEvent) {
-                handleScreenEvent((ScreenEvent) event);
-            } else if (event instanceof UIEvent) {
-                handleUiEvent(((UIEvent) event));
-            }
+        if (Fabric.isInitialized() && shouldLogEvent(event)) {
+            Crashlytics.log(event.toString());
         }
     }
 
     @Override
     public void handleUserSessionEvent(UserSessionEvent event) {}
 
-    private void handleUiEvent(UIEvent event) {
-        Crashlytics.log(event.toString());
-    }
-
-    private void handleScreenEvent(ScreenEvent event) {
-        Crashlytics.log(event.getScreenTag());
+    private boolean shouldLogEvent(TrackingEvent event) {
+        return event instanceof ScreenEvent || event instanceof UIEvent;
     }
 }

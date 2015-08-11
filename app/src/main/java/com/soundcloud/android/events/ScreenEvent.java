@@ -22,4 +22,9 @@ public final class ScreenEvent extends TrackingEvent {
     public String getScreenTag() {
         return get(KEY_SCREEN);
     }
+
+    @Override
+    public String toString() {
+        return "user entered " + getScreenTag();
+    }
 }
