@@ -29,7 +29,7 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class SearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
+public class SearchActivity extends ScActivity implements PlaylistTagsFragment.PlaylistTagsFragmentListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";

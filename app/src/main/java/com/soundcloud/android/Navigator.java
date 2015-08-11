@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
@@ -62,7 +63,7 @@ public class Navigator {
     public void openSearch(Context activityContext) {
         startActivity(activityContext, SearchActivity.class);
     }
-    
+
     public void openProfile(Context context, Urn user, Screen screen) {
         context.startActivity(createProfileIntent(context, user, screen));
     }
@@ -129,6 +130,10 @@ public class Navigator {
 
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
+    }
+
+    public void openRecommendation(Context context, long localSeedId) {
+        context.startActivity(createRecommendationIntent(context, localSeedId));
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {
@@ -211,11 +216,16 @@ public class Navigator {
         return intent;
     }
 
+    private Intent createRecommendationIntent(Context context, long localSeedId) {
+        return new Intent(context, RecommendedTracksActivity.class)
+                .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
+    }
+
     private Intent createWebViewIntent(Context context, Uri uri) {
         return new Intent(context, WebViewActivity.class).setData(uri);
     }
 
     private void startActivity(Context activityContext, Class target) {
         activityContext.startActivity(new Intent(activityContext, target));
-    }    
+    }
 }

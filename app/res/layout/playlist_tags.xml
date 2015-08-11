@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:showIn="@layout/playlist_tags_fragment">
+
+    <TextView
+        style="@style/TagHeaderText"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:text="@string/search_tags_title" />
+
+    <TextView
+        style="@style/TagHeaderText"
+        android:textColor="@color/tag_text"
+        android:text="@string/search_tags_subtitle" />
+
+    <LinearLayout
+        android:id="@+id/recent_tags_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone">
+
+        <TextView
+            style="@style/TagCloudTitle"
+            android:text="@string/search_recent_tags" />
+
+        <com.soundcloud.android.view.FlowLayout
+            android:id="@+id/recent_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingTop="15dp" />
+
+    </LinearLayout>
+
+    <TextView
+        style="@style/TagCloudTitle"
+        android:text="@string/search_popular_tags" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.soundcloud.android.view.EmptyView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="50dp"
+            android:paddingBottom="50dp" />
+
+        <com.soundcloud.android.view.FlowLayout
+            android:id="@+id/all_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingTop="15dp"
+            android:animateLayoutChanges="true" />
+
+    </FrameLayout>
+
+</LinearLayout>

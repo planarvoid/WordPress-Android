@@ -61,7 +61,8 @@ public enum Screen {
     SEARCH_PLAYLIST_DISCO("search:tags"),
 
     // recommendations
-    RECOMMENDATIONS_SEED("recommendations:seed"),
+    RECOMMENDATIONS_MAIN("personal-recommended:main"),
+    RECOMMENDATIONS_MORE("personal-recommended:more"),
 
     // creators
     RECORD_MAIN("record:main"),

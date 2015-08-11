@@ -1,20 +1,14 @@
 package com.soundcloud.android.search;
 
-import static android.view.View.OnClickListener;
-import static android.view.View.VISIBLE;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyViewController;
-import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.android.view.ListenableScrollView;
 import com.soundcloud.android.view.ReactiveComponent;
 import com.soundcloud.lightcycle.LightCycle;
@@ -26,11 +20,9 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -39,6 +31,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
         ReactiveComponent<ConnectableObservable<List<String>>> {
 
     @Inject PlaylistDiscoveryOperations operations;
+    @Inject PlaylistTagsPresenter presenter;
     @Inject EventBus eventBus;
     @Inject @LightCycle EmptyViewController emptyViewController;
 
@@ -47,24 +40,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
     private ConnectableObservable<List<String>> allTagsObservable;
     private Observable<List<String>> recentTagsObservable;
 
-    private final OnClickListener recentTagClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch((String) v.getTag()));
-            selectTag(v);
-        }
-    };
-
-    private final OnClickListener popularTagClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch((String) v.getTag()));
-            selectTag(v);
-        }
-    };
-
-    public interface TagEventsListener {
-        void onTagSelected(String tag);
+    public interface PlaylistTagsFragmentListener extends PlaylistTagsPresenter.Listener {
         void onTagsScrolled();
     }
 
@@ -76,7 +52,14 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        checkArgument(activity instanceof TagEventsListener, "Host activity must be a " + TagEventsListener.class);
+        checkArgument(activity instanceof PlaylistTagsFragmentListener, "Host activity must be a " + PlaylistTagsFragmentListener.class);
+        presenter.setListener((PlaylistTagsPresenter.Listener) activity);
+    }
+
+    @Override
+    public void onDetach() {
+        presenter.setListener(null);
+        super.onDetach();
     }
 
     @Override
@@ -136,46 +119,14 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
 
     @Override
     public void onScroll(int top, int oldTop) {
-        ((TagEventsListener) getActivity()).onTagsScrolled();
-    }
-
-    private void displayPopularTags(List<String> tags) {
-        displayTags(getLayoutInflater(null), getView(), tags, R.id.all_tags, popularTagClickListener);
-    }
-
-    private void displayRecentTags(List<String> tags) {
-        displayTags(getLayoutInflater(null), getView(), tags, R.id.recent_tags, recentTagClickListener);
-    }
-
-    private void displayTags(LayoutInflater inflater, View layout, List<String> tags,
-                             int layoutId, OnClickListener tagClickListener) {
-        ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);
-        tagFlowLayout.removeAllViews();
-
-        int padding = ViewUtils.dpToPx(getActivity(), 5);
-        FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(padding, padding);
-
-        for (final String tag : tags) {
-            if (!TextUtils.isEmpty(tag)) {
-                TextView tagView = ((TextView) inflater.inflate(R.layout.btn_tag, null));
-                tagView.setText("#" + tag);
-                tagView.setTag(tag);
-                tagView.setOnClickListener(tagClickListener);
-                tagFlowLayout.addView(tagView, flowLP);
-            }
-        }
-    }
-
-    private void selectTag(View v) {
-        TagEventsListener listener = (TagEventsListener) getActivity();
-        listener.onTagSelected((String) v.getTag());
+        ((PlaylistTagsFragmentListener) getActivity()).onTagsScrolled();
     }
 
     private final class TagsSubscriber extends DefaultSubscriber<List<String>> {
 
         @Override
         public void onNext(List<String> tags) {
-            displayPopularTags(tags);
+            presenter.displayPopularTags(getView(), tags);
         }
 
     }
@@ -185,8 +136,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
         @Override
         public void onNext(List<String> tags) {
             if (!tags.isEmpty()) {
-                getView().findViewById(R.id.recent_tags_container).setVisibility(VISIBLE);
-                displayRecentTags(tags);
+                presenter.displayRecentTags(getView(), tags);
             }
         }
     }

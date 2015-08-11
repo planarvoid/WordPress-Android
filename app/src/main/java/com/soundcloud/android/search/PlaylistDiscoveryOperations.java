@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-class PlaylistDiscoveryOperations {
+public class PlaylistDiscoveryOperations {
 
     private final ApiClientRx apiClientRx;
     private final PlaylistTagStorage tagStorage;
@@ -58,11 +58,11 @@ class PlaylistDiscoveryOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<List<String>> recentPlaylistTags() {
+    public Observable<List<String>> recentPlaylistTags() {
         return tagStorage.getRecentTagsAsync();
     }
 
-    Observable<List<String>> popularPlaylistTags() {
+    public Observable<List<String>> popularPlaylistTags() {
         return getCachedPlaylistTags().flatMap(new Func1<List<String>, Observable<List<String>>>() {
             @Override
             public Observable<List<String>> call(List<String> tags) {

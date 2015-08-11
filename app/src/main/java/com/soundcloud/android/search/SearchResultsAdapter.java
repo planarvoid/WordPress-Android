@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.MenuItem;
@@ -89,6 +90,11 @@ class SearchResultsAdapter extends PagingListItemAdapter<ListItem> implements Su
     }
 
     @Override
+    public void onAttach(Fragment fragment, Activity activity) {
+        /* no-op */
+    }
+
+    @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         /* no-op */
     }
@@ -130,6 +136,11 @@ class SearchResultsAdapter extends PagingListItemAdapter<ListItem> implements Su
 
     @Override
     public void onDestroy(Fragment fragment) {
+        /* no-op */
+    }
+
+    @Override
+    public void onDetach(Fragment fragment) {
         /* no-op */
     }
 }

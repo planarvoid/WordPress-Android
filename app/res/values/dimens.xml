@@ -113,6 +113,7 @@
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
     <!-- Recommendations -->
+    <dimen name="recommendations_cell_header_height">50dp</dimen>
     <dimen name="recommendations_cell_padding">4dp</dimen>
     <dimen name="recommendations_cell_margin">4dp</dimen>
     <dimen name="recommendations_cell_elevation">3dp</dimen>

@@ -6,6 +6,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.checks.Preconditions;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
@@ -23,14 +24,12 @@ import java.util.List;
 
 public class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
-    private static final String IMAGE_SPAN_SPACER = "    ";
-
     interface OnRecommendationClickListener {
         void onRecommendationReasonClicked(RecommendationItem recommendationItem);
 
         void onRecommendationArtworkClicked(RecommendationItem recommendationItem);
 
-        void onRecommendationViewAllClicked(RecommendationItem recommendationItem);
+        void onRecommendationViewAllClicked(Context context, RecommendationItem recommendationItem);
     }
 
     private final Resources resources;
@@ -50,8 +49,11 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<RecommendationItem> recommendations) {
-        final RecommendationItem recommendationItem = recommendations.get(position);
+    public void bindItemView(int position, View itemView, List<RecommendationItem> list) {
+
+        getTextView(itemView, R.id.recommendations_header).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+
+        final RecommendationItem recommendationItem = list.get(position);
         getTextView(itemView, R.id.reason).setText(getReasonText(recommendationItem));
         getTextView(itemView, R.id.username).setText(recommendationItem.getRecommendationUserName());
         getTextView(itemView, R.id.title).setText(recommendationItem.getRecommendationTitle());
@@ -86,7 +88,7 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
             public void onClick(View v) {
                 final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
                 if (clickListener != null) {
-                    clickListener.onRecommendationViewAllClicked(recommendationItem);
+                    clickListener.onRecommendationViewAllClicked(v.getContext(), recommendationItem);
                 }
             }
         });
@@ -100,7 +102,7 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
     private SpannableString getViewAllText(RecommendationItem recommendationItem) {
         String viewAllText = resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
         // we use toUpperCase because we can't use the built in function with ImageSpans in Api 21+ (framework bug)
-        String viewAllTextWithChevron = viewAllText.toUpperCase() + IMAGE_SPAN_SPACER;
+        String viewAllTextWithChevron = viewAllText.toUpperCase();
 
         Drawable drawable = resources.getDrawable(R.drawable.chevron_333);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());

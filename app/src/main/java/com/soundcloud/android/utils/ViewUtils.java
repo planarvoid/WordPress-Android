@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.util.TypedValue;
 import android.view.TouchDelegate;
@@ -13,7 +14,11 @@ import java.util.Stack;
 public final class ViewUtils {
 
     public static int dpToPx(Context context, int dp) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+        return dpToPx(context.getResources(), dp);
+    }
+
+    public static int dpToPx(Resources resources, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics());
     }
 
     public static void setTouchClickable(View view, View.OnClickListener listener) {

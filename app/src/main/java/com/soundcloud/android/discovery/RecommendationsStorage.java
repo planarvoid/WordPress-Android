@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
@@ -22,6 +23,19 @@ import java.util.List;
 
 public class RecommendationsStorage {
 
+    private static final Object[] RECOMMENDED_TRACKS_SELECTION = new Object[] {
+            Recommendations.RECOMMENDED_SOUND_ID,
+            TableColumns.SoundView.TITLE,
+            TableColumns.SoundView.USERNAME,
+            TableColumns.SoundView.DURATION,
+            TableColumns.SoundView.PLAYBACK_COUNT,
+            TableColumns.SoundView.TRACK_COUNT,
+            TableColumns.SoundView.LIKES_COUNT,
+            TableColumns.SoundView.SHARING,
+            field(Table.SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT),
+            TableColumns.SoundView.POLICIES_SUB_MID_TIER,
+    };
+
     private static final String RECOMMENDATIONS_SOUND_VIEW = "RecommendationsSoundView";
     private final PropellerRx propellerRx;
 
@@ -32,9 +46,9 @@ public class RecommendationsStorage {
 
     Observable<List<PropertySet>> seedTracks() {
 
-        final Where soundViewJoin = filter()
-                .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, Table.SoundView.field(TableColumns.SoundView._TYPE))
-                .whereEq(RecommendationSeeds.SEED_SOUND_ID, Table.SoundView.field(TableColumns.SoundView._ID));
+        final Where soundsViewJoin = filter()
+                .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
+                .whereEq(RecommendationSeeds.SEED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
 
         final Where recommendationsJoin = filter().whereEq(RecommendationSeeds._ID, Recommendations.SEED_ID);
 
@@ -48,28 +62,42 @@ public class RecommendationsStorage {
                 .select(RecommendationSeeds._ID.as(SeedSoundMapper.SEED_LOCAL_ID),
                         RecommendationSeeds.SEED_SOUND_ID,
                         RecommendationSeeds.RECOMMENDATION_REASON,
-                        field(Table.SoundView.field(TableColumns.SoundView.TITLE)).as(SeedSoundMapper.SEED_TITLE),
-                        // TODO: wait for Fernandos branch to land which adds min/max column functions
+                        field(SoundView.field(TableColumns.SoundView.TITLE)).as(SeedSoundMapper.SEED_TITLE),
+                        //TODO: wait for Fernandos branch to land which adds min/max column functions
                         "MIN(" + Recommendations._ID + ")",
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView._ID).as(SeedSoundMapper.RECOMMENDATION_ID),
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView.TITLE).as(SeedSoundMapper.RECOMMENDATION_TITLE),
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView.USERNAME).as(SeedSoundMapper.RECOMMENDATION_USERNAME),
                         count(RecommendationSeeds.SEED_SOUND_ID).as(SeedSoundMapper.RECOMMENDATION_COUNT))
 
-                .innerJoin(Table.SoundView.name(), soundViewJoin)
+                .innerJoin(SoundView.name(), soundsViewJoin)
                 .innerJoin(Recommendations.TABLE, recommendationsJoin)
-                .innerJoin(Table.SoundView.name() + " AS " + RECOMMENDATIONS_SOUND_VIEW, recommendationsViewJoin)
+                .innerJoin(SoundView.name() + " AS " + RECOMMENDATIONS_SOUND_VIEW, recommendationsViewJoin)
                 .groupBy(RecommendationSeeds.SEED_SOUND_ID)
                 .order(Recommendations._ID, Query.Order.ASC);
 
         return propellerRx.query(query).map(new SeedSoundMapper()).toList();
     }
 
-    Observable<List<Urn>> recommendations(long seedId) {
+    Observable<List<PropertySet>> recommendedTracksForSeed(long localSeedId) {
+
+        final Where soundsViewJoin = filter()
+                .whereEq(Recommendations.RECOMMENDED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
+                .whereEq(Recommendations.RECOMMENDED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
+
+        final Query query = Query.from(SoundView.name(), Recommendations.TABLE.name())
+                .select(RECOMMENDED_TRACKS_SELECTION)
+                .whereEq(Recommendations.SEED_ID, localSeedId)
+                .innerJoin(SoundView.name(), soundsViewJoin);
+
+        return propellerRx.query(query).map(new RecommendedTrackMapper()).toList();
+    }
+
+    Observable<List<Urn>> recommendations(long localSeedId) {
 
         Query query = Query.from(Recommendations.TABLE)
                 .select(Recommendations.RECOMMENDED_SOUND_ID)
-                .whereEq(Recommendations.SEED_ID, seedId);
+                .whereEq(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new RecommendationTrackUrnMapper()).toList();
     }
@@ -80,4 +108,6 @@ public class RecommendationsStorage {
             return Urn.forTrack(cursorReader.getLong(Recommendations.RECOMMENDED_SOUND_ID));
         }
     }
+
+
 }

@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -8,11 +11,14 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -21,7 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem> implements RecommendationItemRenderer.OnRecommendationClickListener {
+public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
 
     final @LightCycle DiscoveryView discoveryView;
 
@@ -29,6 +35,9 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem
     private final DiscoveryAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackOperations playbackOperations;
+    private final Navigator navigator;
+
+    @Nullable private PlaylistTagsPresenter.Listener tagsListener;
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -36,13 +45,15 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem
                        DiscoveryView discoveryView,
                        DiscoveryAdapter adapter,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       PlaybackOperations playbackOperations) {
+                       PlaybackOperations playbackOperations,
+                       Navigator navigator) {
         super(swipeRefreshAttacher, Options.cards());
         this.discoveryOperations = discoveryOperations;
         this.discoveryView = discoveryView;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackOperations = playbackOperations;
+        this.navigator = navigator;
     }
 
     @Override
@@ -51,18 +62,37 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem
         getBinding().connect();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    protected void onItemClicked(View view, int i) {
-        //TODO: make it not abstract on android-kit.
-        //no op.
+    public void onAttach(Fragment fragment, Activity activity) {
+        super.onAttach(fragment, activity);
+        checkArgument(activity instanceof PlaylistTagsPresenter.Listener, "Host activity must be a " + PlaylistTagsPresenter.Listener.class);
+        this.tagsListener = ((PlaylistTagsPresenter.Listener) activity);
     }
 
     @Override
-    protected CollectionBinding<RecommendationItem> onBuildBinding(Bundle bundle) {
+    public void onDetach(Fragment fragment) {
+        this.tagsListener = null;
+        super.onDetach(fragment);
+    }
+
+    @Override
+    public void onTagSelected(String tag) {
+        if (tagsListener != null){
+            tagsListener.onTagSelected(tag);
+        }
+    }
+
+    @Override
+    protected void onItemClicked(View view, int position) {
+        //TODO: make it not abstract on android-kit since there is no-op here.
+    }
+
+    @Override
+    protected CollectionBinding<DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setOnRecommendationClickListener(this);
-        return CollectionBinding.from(discoveryOperations.recommendations(), RecommendationItem.fromPropertySets())
-                .withAdapter(adapter)
-                .build();
+        return CollectionBinding.from(discoveryOperations.recommendationsAndPlaylistDiscovery())
+                .withAdapter(adapter).build();
     }
 
     @Override
@@ -81,12 +111,13 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<RecommendationItem
 
     }
 
-    private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
-        playbackOperations.playTracks(playQueue, firstTrackUrn, 0,
-                new PlaySessionSource(Screen.RECOMMENDATIONS_SEED)).subscribe(expandPlayerSubscriberProvider.get());
+    @Override
+    public void onRecommendationViewAllClicked(Context context, RecommendationItem recommendationItem) {
+        navigator.openRecommendation(context, recommendationItem.getSeedTrackLocalId());
     }
 
-    @Override
-    public void onRecommendationViewAllClicked(RecommendationItem recommendationItem) {
+    private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
+        playbackOperations.playTracks(playQueue, firstTrackUrn, 0,
+                new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
     }
 }

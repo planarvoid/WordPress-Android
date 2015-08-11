@@ -116,7 +116,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
-        headerPresenter.onDestroyView(fragment);
+        verify(headerPresenter).onDestroyView(fragment);
     }
 
     @Test

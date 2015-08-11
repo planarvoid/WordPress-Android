@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.search.PlaylistTagsFragment.TagEventsListener;
+import static com.soundcloud.android.search.PlaylistTagsFragment.PlaylistTagsFragmentListener;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -122,24 +122,24 @@ public class PlaylistTagsFragmentTest {
     public void clickingTagShouldCallTagListenerWithCorrectTag() {
         createFragment();
 
-        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagEventsListener.class));
+        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(PlaylistTagsFragmentListener.class));
         Robolectric.shadowOf(fragment).setActivity(listener);
 
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        verify((TagEventsListener) listener).onTagSelected("popular1");
+        verify((PlaylistTagsFragmentListener) listener).onTagSelected("popular1");
     }
     
     @Test
     public void shouldCallBackToActivityWhenScrollingTags() {
         createFragment();
-        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(TagEventsListener.class));
+        FragmentActivity listener = mock(FragmentActivity.class, withSettings().extraInterfaces(PlaylistTagsFragmentListener.class));
         Robolectric.shadowOf(fragment).setActivity(listener);
 
         fragment.onScroll(1, 2);
 
-        verify((TagEventsListener) listener).onTagsScrolled();
+        verify((PlaylistTagsFragmentListener) listener).onTagsScrolled();
     }
 
     @Test
