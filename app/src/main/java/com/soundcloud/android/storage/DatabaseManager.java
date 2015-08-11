@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-     public static final int DATABASE_VERSION = 49;
+    public static final int DATABASE_VERSION = 49;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
