@@ -9,7 +9,9 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
+import io.fabric.sdk.android.Fabric;
 
 import javax.inject.Inject;
 
@@ -38,15 +40,23 @@ public class CrashlyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        if (event instanceof ScreenEvent) {
-            handleScreenEvent(event);
+        if (Fabric.isInitialized()) {
+            if (event instanceof ScreenEvent) {
+                handleScreenEvent((ScreenEvent) event);
+            } else if (event instanceof UIEvent) {
+                handleUiEvent(((UIEvent) event));
+            }
         }
     }
 
     @Override
     public void handleUserSessionEvent(UserSessionEvent event) {}
 
-    private void handleScreenEvent(TrackingEvent event) {
-        Crashlytics.setString("Screen", event.get(ScreenEvent.KEY_SCREEN));
+    private void handleUiEvent(UIEvent event) {
+        Crashlytics.log(event.toString());
+    }
+
+    private void handleScreenEvent(ScreenEvent event) {
+        Crashlytics.log(event.getScreenTag());
     }
 }

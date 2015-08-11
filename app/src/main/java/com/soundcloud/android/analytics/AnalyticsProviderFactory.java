@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.Log;
-import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -72,10 +71,6 @@ public class AnalyticsProviderFactory {
             addOptInProviders(providers);
         }
 
-        if (Fabric.isInitialized()) {
-            providers.add(crashlyticsAnalyticsProvider);
-        }
-
         return providers;
     }
 
@@ -97,6 +92,7 @@ public class AnalyticsProviderFactory {
     private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(localyticsAnalyticsProvider);
         providers.add(adjustAnalyticsProvider);
+        providers.add(crashlyticsAnalyticsProvider);
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
