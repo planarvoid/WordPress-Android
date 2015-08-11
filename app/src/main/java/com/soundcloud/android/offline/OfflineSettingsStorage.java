@@ -64,11 +64,11 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, limit).apply();
     }
 
-    public boolean hasAnyOfflineContent() {
+    public boolean hasOfflineContent() {
         return sharedPreferences.getBoolean(OFFLINE_CONTENT, false);
     }
 
-    public void setHasAnyOfflineContent(boolean hasOfflineContent) {
+    public void setHasOfflineContent(boolean hasOfflineContent) {
         sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
