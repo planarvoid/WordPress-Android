@@ -485,7 +485,6 @@
   <string name="age_verify_button">Vérifier l\'âge</string>
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Impossible de lire ce titre</string>
-  <string name="casting_to">Lecture sur</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted_label">Promu</string>
   <string name="promoted_by_label">Sponsorisé par %s</string>
