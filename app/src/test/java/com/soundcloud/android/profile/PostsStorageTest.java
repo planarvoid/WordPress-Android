@@ -148,7 +148,8 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private PropertySet createTrackRepostAt(Date postedAt) {
         ApiTrack track = createTrackAt(postedAt);
         createTrackRepostWithId(track.getUrn().getNumericId(), postedAt);
-        return createTrackPostPropertySet(track).put(TrackProperty.IS_REPOSTED, true);
+        return createTrackPostPropertySet(track).put(TrackProperty.IS_REPOSTED, true)
+                .put(TrackProperty.REPOSTER, user.getUsername());
     }
 
     private PropertySet createPlaylistPostAt(Date postedAt) {
@@ -160,7 +161,9 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private PropertySet createPlaylistRepostAt(Date postedAt) {
         ApiPlaylist playlist = createPlaylistAt(postedAt);
         createPlaylistRepostWithId(playlist.getUrn().getNumericId(), postedAt);
-        return createPlaylistPostPropertySet(playlist).put(TrackProperty.IS_REPOSTED, true);
+        return createPlaylistPostPropertySet(playlist)
+                .put(TrackProperty.IS_REPOSTED, true)
+                .put(TrackProperty.REPOSTER, user.getUsername());
     }
 
     private PropertySet createPlaylistPostPropertySet(ApiPlaylist playlist) {

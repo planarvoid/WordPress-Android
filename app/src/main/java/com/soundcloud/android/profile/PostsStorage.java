@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.Posts;
 import static com.soundcloud.android.storage.Table.SoundView;
+import static com.soundcloud.android.storage.Table.Users;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
@@ -20,6 +21,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
@@ -27,6 +29,7 @@ import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
+import rx.functions.Func2;
 
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
@@ -41,6 +44,18 @@ public class PostsStorage {
 
     private final static String LIKED_ID = "liked_id";
 
+    private static final Func2<List<PropertySet>, String, List<PropertySet>> COMBINE_REPOSTER = new Func2<List<PropertySet>, String, List<PropertySet>>() {
+        @Override
+        public List<PropertySet> call(List<PropertySet> propertySets, String username) {
+            for (PropertySet propertySet : propertySets) {
+                if (propertySet.getOrElse(PlayableProperty.IS_REPOSTED, false)) {
+                    propertySet.put(PlayableProperty.REPOSTER, username);
+                }
+            }
+            return propertySets;
+        }
+    };
+
     @Inject
     public PostsStorage(PropellerRx propellerRx, AccountOperations accountOperations) {
         this.propellerRx = propellerRx;
@@ -52,7 +67,12 @@ public class PostsStorage {
     }
 
     Observable<List<PropertySet>> loadPosts(int limit, long fromTimestamp){
-        return propellerRx.query(buildQuery(limit, fromTimestamp)).map(new PostsMapper()).toList();
+        return Observable.zip(
+                propellerRx.query(buildPostsQuery(limit, fromTimestamp)).map(new PostsMapper()).toList(),
+                propellerRx.query(buildUserQuery()).map(RxResultMapper.scalar(String.class))
+                        .firstOrDefault(ScTextUtils.EMPTY_STRING),
+                COMBINE_REPOSTER
+        );
     }
 
     private Query buildQueryForPlayback() {
@@ -69,7 +89,7 @@ public class PostsStorage {
                 .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC);
     }
 
-    private Query buildQuery(int limit, long fromTimestamp) {
+    private Query buildPostsQuery(int limit, long fromTimestamp) {
         return Query.from(Posts.name())
                 .select(
                         field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
@@ -90,11 +110,17 @@ public class PostsStorage {
                 .leftJoin(Table.PlaylistTracks.name(), playlistTracksFilter())
                 .leftJoin(Likes.name(),
                         on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
-                        .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
+                                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
                 .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
                 .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC)
                 .limit(limit);
+    }
+
+    private Query buildUserQuery() {
+        return Query.from(Users.name())
+                .select(field(Users.field(TableColumns.Users.USERNAME)))
+                .whereEq(Users.field(TableColumns.Users._ID), accountOperations.getLoggedInUserUrn().getNumericId());
     }
 
     @NonNull
@@ -175,5 +201,4 @@ public class PostsStorage {
             return propertySet;
         }
     }
-
 }
