@@ -6,7 +6,7 @@
     When it is fixed, we should move these plurals back to the strings.xml file.-->
   <!--__NOTIFICATIONS-->
   <plurals name="dashboard_notifications_activity_ticker_repost">
-    <item quantity="one">Nouveau repost</item>
+    <item quantity="one">%d nouveau repost</item>
     <item quantity="other">%d nouveaux reposts</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_ticker_activity">
@@ -18,7 +18,7 @@
     <item quantity="other">%d nouveaux commentaires</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_ticker_like">
-    <item quantity="one">Nouvelle mention J\'aime</item>
+    <item quantity="one">%d nouvelle mention J\'aime</item>
     <item quantity="other">%d nouvelles mentions J\'aime</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_activity">
@@ -30,11 +30,11 @@
     <item quantity="other">%d nouveau commentaire</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_like">
-    <item quantity="one">Une nouvelle mention J\'aime</item>
+    <item quantity="one">%d nouvelle mention J\'aime</item>
     <item quantity="other">%d nouvelles mentions J\'aime</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_repost">
-    <item quantity="one">Un nouveau repost</item>
+    <item quantity="one">%d nouveau repost</item>
     <item quantity="other">%d nouveaux reposts</item>
   </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
