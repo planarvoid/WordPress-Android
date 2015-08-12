@@ -28,6 +28,8 @@ class PlayerTrackState extends PlayerItem implements PropertySetSource {
     private final boolean isForeground;
     private final ViewVisibilityProvider viewVisibilityProvider;
 
+    private PropertySet relatedTrack;
+
     PlayerTrackState(PropertySet source,
                      boolean isCurrentTrack,
                      boolean isForeground,
@@ -52,6 +54,22 @@ class PlayerTrackState extends PlayerItem implements PropertySetSource {
 
     public boolean isForeground() {
         return isForeground;
+    }
+
+    public void setRelatedTrack(PropertySet relatedTrack) {
+        this.relatedTrack = relatedTrack;
+    }
+
+    public boolean hasRelatedTrack() {
+        return relatedTrack != null;
+    }
+
+    public String getRelatedTrackTitle() {
+        return relatedTrack.get(TrackProperty.TITLE);
+    }
+
+    public Urn getRelatedTrackUrn() {
+        return relatedTrack.get(TrackProperty.URN);
     }
 
     Urn getUrn() {

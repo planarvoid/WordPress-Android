@@ -195,4 +195,14 @@
         <item name="android:paddingTop">@dimen/likes_header_padding_top</item>
     </style>
 
+    <style name="PlayerRelatedToArtwork">
+        <item name="android:background">@color/overlay_text_background</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">28dp</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
 </resources>

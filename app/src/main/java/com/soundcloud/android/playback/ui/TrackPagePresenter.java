@@ -6,6 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -27,11 +29,13 @@ import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -46,6 +50,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
+    private final ImageOperations imageOperations;
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -57,6 +62,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
+                              ImageOperations imageOperations,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
@@ -66,6 +72,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               CastConnectionHelper castConnectionHelper) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
+        this.imageOperations = imageOperations;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -122,6 +129,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.user.setText(trackState.getUserName());
         holder.profileLink.setTag(trackState.getUserUrn());
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
+        setupRelatedTrack(trackView, trackState, holder);
 
         holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
@@ -147,6 +155,30 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setClickListener(this, holder.onClickViews);
     }
 
+    private void setupRelatedTrack(View trackView, PlayerTrackState trackState, TrackPageHolder holder) {
+        final boolean hasRelatedTrack = trackState.hasRelatedTrack();
+        if (hasRelatedTrack){
+            holder.relatedToTrack.setText(trackState.getRelatedTrackTitle());
+            holder.relatedTo.setVisibility(View.VISIBLE);
+            holder.relatedToTrack.setVisibility(View.VISIBLE);
+            holder.relatedToTrackArtwork.setVisibility(View.VISIBLE);
+
+            imageOperations.displayWithPlaceholder(trackState.getRelatedTrackUrn(),
+                    ApiImageSize.getSmallImageSize(trackView.getResources()), holder.relatedToTrackArtwork);
+        } else {
+            clearRelated(holder);
+        }
+    }
+
+    private void clearRelated(TrackPageHolder holder) {
+        holder.relatedTo.setVisibility(View.GONE);
+        holder.relatedToTrack.setVisibility(View.GONE);
+        holder.relatedToTrackArtwork.setVisibility(View.GONE);
+        holder.relatedToTrack.setText(ScTextUtils.EMPTY_STRING);
+        holder.relatedToTrackArtwork.setImageDrawable(null);
+        imageOperations.cancelDisplayTask(holder.relatedToTrackArtwork);
+    }
+
     @Override
     public void setCastDeviceName(View view, String deviceName) {
         getViewHolder(view).castDeviceName.setText(deviceName);
@@ -168,6 +200,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(view);
         holder.user.setText(ScTextUtils.EMPTY_STRING);
         holder.title.setText(ScTextUtils.EMPTY_STRING);
+
+        clearRelated(holder);
+
         holder.likeToggle.setChecked(false);
         holder.likeToggle.setEnabled(true);
 
@@ -320,6 +355,17 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.title.showBackground(visible);
         holder.user.showBackground(visible);
         holder.timestamp.showBackground(visible);
+
+        if (visible){
+            final int backgroundColor = holder.title.getResources().getColor(R.color.overlay_text_background);
+            holder.relatedToTrackArtwork.setBackgroundColor(backgroundColor);
+            holder.relatedToTrack.setBackgroundColor(backgroundColor);
+            holder.relatedTo.setBackgroundColor(backgroundColor);
+        } else {
+            holder.relatedToTrackArtwork.setBackgroundColor(Color.TRANSPARENT);
+            holder.relatedToTrack.setBackgroundColor(Color.TRANSPARENT);
+            holder.relatedTo.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
     public void onPageChange(View trackView) {
@@ -443,6 +489,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
+        holder.relatedTo = (TextView) trackView.findViewById(R.id.related_to);
+        holder.relatedToTrack = (TextView) trackView.findViewById(R.id.related_to_track);
+        holder.relatedToTrackArtwork = (ImageView) trackView.findViewById(R.id.related_to_track_artwork);
+
         holder.castDeviceName = (TextView) trackView.findViewById(R.id.cast_device_name);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
@@ -531,6 +581,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         // Expanded player
         JaggedTextView title;
         JaggedTextView user;
+        TextView relatedTo;
+        TextView relatedToTrack;
+        ImageView relatedToTrackArtwork;
         TextView castDeviceName;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
@@ -578,18 +631,18 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
+            List<View> hideOnScrub = Arrays.asList(title, user, relatedTo, relatedToTrack, relatedToTrackArtwork, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, profileLink);
 
-            fullScreenViews = Arrays.asList(title, user, close, timestamp, interstitialHolder);
+            fullScreenViews = Arrays.asList(title, user, relatedTo, relatedToTrack, relatedToTrackArtwork, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);
-            fullScreenErrorViews = Arrays.asList(title, user, close, interstitialHolder);
+            fullScreenErrorViews = Arrays.asList(title, user, relatedTo, relatedToTrack, relatedToTrackArtwork, close, interstitialHolder);
 
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, relatedTo, relatedToTrack, relatedToTrackArtwork, timestamp);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 

@@ -118,6 +118,14 @@ public class PlayQueueManager implements OriginProvider {
         return currentPosition;
     }
 
+    public Urn getRelatedEntity(int position) {
+        return playQueue.getRelatedEntity(position);
+    }
+
+    public Urn getCurrentRelatedEntity() {
+        return playQueue.getRelatedEntity(currentPosition);
+    }
+
     private int getNextPosition() {
         return getCurrentPosition() + 1;
     }

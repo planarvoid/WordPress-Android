@@ -1,22 +1,20 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayQueueDataSourceTest {
+public class PlayQueueDataSourceTest extends AndroidUnitTest {
 
     private PlayQueueDataSource playQueueDataSource;
 
@@ -29,6 +27,8 @@ public class PlayQueueDataSourceTest {
         when(playQueueManager.getUrnAtPosition(1)).thenReturn(Urn.forTrack(456L));
         when(playQueueManager.getMetaDataAt(0)).thenReturn(PropertySet.create());
         when(playQueueManager.getMetaDataAt(1)).thenReturn(TestPropertySets.leaveBehindForPlayer());
+        when(playQueueManager.getRelatedEntity(0)).thenReturn(Urn.NOT_SET);
+        when(playQueueManager.getRelatedEntity(1)).thenReturn(Urn.forTrack(789));
         playQueueDataSource = new PlayQueueDataSource(playQueueManager);
 
     }
@@ -37,9 +37,9 @@ public class PlayQueueDataSourceTest {
     public void getFullQueueReturnsFullPlayQueue() throws Exception {
 
         List<TrackPageData> queue = playQueueDataSource.getFullQueue();
-        expect(queue).toNumber(2);
-        checkTrackPageData(queue.get(0), 0, Urn.forTrack(123L), PropertySet.create());
-        checkTrackPageData(queue.get(1), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer());
+        assertThat(queue).hasSize(2);
+        checkTrackPageData(queue.get(0), 0, Urn.forTrack(123L), PropertySet.create(), Urn.NOT_SET);
+        checkTrackPageData(queue.get(1), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(789));
     }
 
     @Test
@@ -47,15 +47,18 @@ public class PlayQueueDataSourceTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(456L));
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
+        when(playQueueManager.getCurrentRelatedEntity()).thenReturn(Urn.forTrack(789));
 
         List<TrackPageData> queue = playQueueDataSource.getCurrentTrackAsQueue();
-        expect(queue).toNumber(1);
-        checkTrackPageData(queue.get(0), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer());
+        assertThat(queue).hasSize(1);
+        checkTrackPageData(queue.get(0), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(789));
     }
 
-    private void checkTrackPageData(TrackPageData trackPageData, int position, Urn trackUrn, PropertySet propertySet){
-        expect(trackPageData.getPositionInPlayQueue()).toBe(position);
-        expect(trackPageData.getTrackUrn()).toEqual(trackUrn);
-        expect(trackPageData.getProperties()).toEqual(propertySet);
+    private void checkTrackPageData(TrackPageData trackPageData,
+                                    int position, Urn trackUrn, PropertySet propertySet, Urn relatedEntity){
+        assertThat(trackPageData.getPositionInPlayQueue()).isSameAs(position);
+        assertThat(trackPageData.getTrackUrn()).isEqualTo(trackUrn);
+        assertThat(trackPageData.getProperties()).isEqualTo(propertySet);
+        assertThat(trackPageData.getRelatedTrackUrn()).isEqualTo(relatedEntity);
     }
 }

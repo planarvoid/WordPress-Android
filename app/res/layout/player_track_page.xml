@@ -97,6 +97,8 @@
             android:layout_below="@id/track_page_user"
             android:layout_marginTop="4dp" />
 
+        <include layout="@layout/player_related_track" />
+
     </RelativeLayout>
 
     <include layout="@layout/player_footer_controls" />

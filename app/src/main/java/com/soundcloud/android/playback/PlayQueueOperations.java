@@ -27,17 +27,6 @@ class PlayQueueOperations {
 
     @VisibleForTesting static final String SHARED_PREFERENCES_KEY = "playlistPos";
 
-    private static final Func1<RecommendedTracksCollection, PlayQueue> TO_PLAY_QUEUE = new Func1<RecommendedTracksCollection, PlayQueue>() {
-        @Override
-        public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
-            if (recommendedTracks.getCollection().isEmpty()) {
-                return PlayQueue.empty();
-            }
-
-            return PlayQueue.fromRecommendations(recommendedTracks);
-        }
-    };
-
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final StoreTracksCommand storeTracksCommand;
@@ -131,7 +120,16 @@ class PlayQueueOperations {
     }
 
     public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack, boolean continuousPlay) {
-        return relatedTracks(seedTrack, continuousPlay).map(TO_PLAY_QUEUE);
+        return relatedTracks(seedTrack, continuousPlay).map(new Func1<RecommendedTracksCollection, PlayQueue>() {
+            @Override
+            public PlayQueue call(RecommendedTracksCollection recommendedTracks) {
+                if (recommendedTracks.getCollection().isEmpty()) {
+                    return PlayQueue.empty();
+                }
+
+                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks);
+            }
+        });
     }
 
     // this is only used to create radio, which never should have the continuousPlay flag
@@ -147,7 +145,7 @@ class PlayQueueOperations {
                     return PlayQueue.empty();
                 }
 
-                return PlayQueue.fromRecommendations(seedTrack, recommendedTracks);
+                return PlayQueue.fromRecommendationsWithPrependedSeed(seedTrack, recommendedTracks);
             }
         };
     }

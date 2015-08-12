@@ -14,6 +14,8 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -22,6 +24,7 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
@@ -60,6 +63,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
+    @Mock private ImageOperations imageOperations;
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -68,7 +72,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -97,6 +101,30 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         assertThat(getHolder(trackView).footerPlayToggle).isChecked();
+    }
+
+    @Test
+    public void bindItemViewLoadsRelatedTrack()  {
+        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,viewVisibilityProvider);
+        final PropertySet relate = TestPropertySets.fromApiTrack();
+        trackState.setRelatedTrack(relate);
+        presenter.bindItemView(trackView, trackState);
+
+        assertThat(getHolder(trackView).relatedTo).isVisible();
+        assertThat(getHolder(trackView).relatedToTrack).isVisible();
+        assertThat(getHolder(trackView).relatedToTrack).containsText(relate.get(TrackProperty.TITLE));
+        assertThat(getHolder(trackView).relatedToTrackArtwork).isVisible();
+        verify(imageOperations).displayWithPlaceholder(relate.get(TrackProperty.URN), ApiImageSize.TINY_ARTWORK, getHolder(trackView).relatedToTrackArtwork);
+    }
+
+    @Test
+    public void bindItemViewClearsRelatedTrack()  {
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).relatedTo).isNotVisible();
+        assertThat(getHolder(trackView).relatedToTrack).isNotVisible();
+        assertThat(getHolder(trackView).relatedToTrackArtwork).isNotVisible();
+        verify(imageOperations).cancelDisplayTask(getHolder(trackView).relatedToTrackArtwork);
     }
 
     @Test

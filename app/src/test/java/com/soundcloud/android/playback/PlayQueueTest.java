@@ -4,8 +4,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -169,6 +171,22 @@ public class PlayQueueTest {
     public void getUrnAtPositionReturnsUrnAtPosition() throws Exception {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
         assertThat(playQueue.getUrn(2)).isEqualTo(Urn.forTrack(3));
+    }
+
+    @Test
+    public void playRecommendationsReturnsQueueWithRecommendedPlayQueueItems() {
+        final List<ApiTrack> collection = ModelFixtures.create(ApiTrack.class, 2);
+        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(collection, "v1");
+        final Urn seedTrack = Urn.forTrack(1L);
+        PlayQueue playQueue = PlayQueue.fromRecommendations(seedTrack, relatedTracks);
+
+        assertThat(playQueue).hasSize(2);
+        assertThat(playQueue.getTrackUrns()).containsExactly(collection.get(0).getUrn(), collection.get(1).getUrn());
+        assertThat(playQueue.getSourceVersion(0)).isEqualTo("v1");
+        assertThat(playQueue.getSourceVersion(1)).isEqualTo("v1");
+        assertThat(playQueue.getRelatedEntity(0)).isEqualTo(seedTrack);
+        assertThat(playQueue.getRelatedEntity(1)).isEqualTo(seedTrack);
+
     }
 
     private PlayQueue createPlayQueue(List<Urn> trackUrns, PlaySessionSource source) {

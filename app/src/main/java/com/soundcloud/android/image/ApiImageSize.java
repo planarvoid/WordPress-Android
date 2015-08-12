@@ -68,6 +68,16 @@ public enum ApiImageSize {
         }
     }
 
+    public static ApiImageSize getSmallImageSize(Resources resources) {
+        if (resources.getDisplayMetrics().density == 1) {
+            return ApiImageSize.TINY_ARTWORK;
+        } else if (resources.getDisplayMetrics().density < 2) {
+            return ApiImageSize.SMALL;
+        } else {
+            return ApiImageSize.BADGE;
+        }
+    }
+
     public static String formatUriForNotificationLargeIcon(Context c, String uri) {
         return getNotificationLargeIconImageSize(c.getResources().getDisplayMetrics()).formatUri(uri);
     }
