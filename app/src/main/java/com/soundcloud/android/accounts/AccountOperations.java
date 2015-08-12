@@ -16,7 +16,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -28,7 +28,6 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -41,7 +40,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.List;
 
 @Singleton
 public class AccountOperations {
@@ -59,7 +57,7 @@ public class AccountOperations {
     private final Scheduler scheduler;
 
     private final Lazy<AccountCleanupAction> accountCleanupAction;
-    private final Lazy<OfflineContentOperations> offlineContentOperations;
+    private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
 
     @Deprecated
     private volatile PublicApiUser loggedInUser;
@@ -86,7 +84,7 @@ public class AccountOperations {
     AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
                       ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
                       Lazy<AccountCleanupAction> accountCleanupAction,
-                      Lazy<OfflineContentOperations> offlineContentOperations,
+                      Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.accountManager = accountManager;
@@ -95,7 +93,7 @@ public class AccountOperations {
         this.userStorage = userStorage;
         this.eventBus = eventBus;
         this.accountCleanupAction = accountCleanupAction;
-        this.offlineContentOperations = offlineContentOperations;
+        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
         this.scheduler = scheduler;
     }
 
@@ -243,20 +241,10 @@ public class AccountOperations {
     }
 
     public Observable<Void> purgeUserData() {
-        return offlineContentOperations.get().clearOfflineContent()
-                .flatMap(new Func1<List<Urn>, Observable<Void>>() {
-                    @Override
-                    public Observable<Void> call(List<Urn> urns) {
-                        return clearUserData();
-                    }
-                })
-                .subscribeOn(scheduler);
-    }
-
-    private Observable<Void> clearUserData() {
         return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
+                clearTrackDownloadsCommand.get().call(null);
                 accountCleanupAction.get().call();
                 tokenOperations.resetToken();
                 clearLoggedInUser();
@@ -264,7 +252,7 @@ public class AccountOperations {
                 resetPlaybackService();
                 subscriber.onCompleted();
             }
-        });
+        }).subscribeOn(scheduler);
     }
 
     // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency

@@ -49,14 +49,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clearsSettingsStorage() {
-        storage.setWifiOnlyEnabled(false);
-        storage.clear();
-
-        assertThat(storage.isWifiOnlyEnabled()).isTrue();
-    }
-
-    @Test
     public void getPolicyUpdateCheckTimeReturns0ByDefault() {
         assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(0L);
     }
@@ -66,4 +58,25 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
         storage.setPolicyUpdateCheckTime(123456789L);
         assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(123456789L);
     }
+
+    @Test
+    public void offlineContentFlagIsNotSetByDefault() {
+        assertThat(storage.hasOfflineContent()).isFalse();
+    }
+
+    @Test
+    public void savesOfflineContentFlag() {
+        storage.setHasOfflineContent(true);
+
+        assertThat(storage.hasOfflineContent()).isTrue();
+    }
+
+    @Test
+    public void clearsSettingsStorage() {
+        storage.setWifiOnlyEnabled(false);
+        storage.clear();
+
+        assertThat(storage.isWifiOnlyEnabled()).isTrue();
+    }
+
 }

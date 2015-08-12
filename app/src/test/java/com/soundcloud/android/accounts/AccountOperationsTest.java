@@ -16,7 +16,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -35,7 +35,6 @@ import org.robolectric.Shadows;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -45,8 +44,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-
-import java.util.Arrays;
 
 public class AccountOperationsTest extends AndroidUnitTest {
     
@@ -65,7 +62,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private Observer observer;
     @Mock private Token token;
     @Mock private AccountCleanupAction accountCleanupAction;
-    @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private PublicApiUser user;
 
@@ -73,9 +70,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void setUp() throws CreateModelException {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
                 modelManager, userStorage, eventBus, InjectionSupport.lazyOf(accountCleanupAction), 
-                InjectionSupport.lazyOf(offlineContentOperations), Schedulers.immediate());
-
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.just(Arrays.<Urn>asList()));
+                InjectionSupport.lazyOf(clearTrackDownloadsCommand), Schedulers.immediate());
 
         user = ModelFixtures.create(PublicApiUser.class);
     }
@@ -398,12 +393,9 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void purgeUserDataShouldRemoveOfflineContent() {
-        PublishSubject subject = PublishSubject.create();
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(subject);
-
         accountOperations.purgeUserData().subscribe(observer);
 
-        assertThat(subject.hasObservers()).isTrue();
+        verify(clearTrackDownloadsCommand).call(any(Void.class));
     }
 
     private void mockSoundCloudAccount() {

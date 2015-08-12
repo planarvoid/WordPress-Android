@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
+public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
 
     private final PropellerDatabase propeller;
     private final SecureFileStorage secureFileStorage;
