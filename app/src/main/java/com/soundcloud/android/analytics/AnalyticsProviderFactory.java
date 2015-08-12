@@ -10,7 +10,6 @@ import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
-import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -75,7 +74,6 @@ public class AnalyticsProviderFactory {
     }
 
     private void initLogging() {
-        Log.d(analyticsProperties.toString());
         LocalyticsSession.setLoggingEnabled(analyticsProperties.isAnalyticsAvailable()
                 && applicationProperties.useVerboseLogging());
     }

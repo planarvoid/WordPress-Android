@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
@@ -12,18 +12,18 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.settings.SettingKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AnalyticsProviderFactoryTest {
 
     private AnalyticsProviderFactory factory;
@@ -50,7 +50,7 @@ public class AnalyticsProviderFactoryTest {
     public void getProvidersReturnsNoProvidersIfAnalyticsIsNotAvailable() {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(false);
 
-        expect(factory.getProviders()).toNumber(0);
+        assertThat(factory.getProviders()).isEmpty();
     }
 
     @Test
@@ -58,7 +58,7 @@ public class AnalyticsProviderFactoryTest {
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(false);
 
         List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider);
+        assertThat(providers).containsExactly(eventLoggerProvider, playCountProvider, promotedProvider);
     }
 
     @Test
@@ -66,7 +66,14 @@ public class AnalyticsProviderFactoryTest {
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider, comScoreProvider);
+        assertThat(providers).containsExactly(
+                eventLoggerProvider,
+                playCountProvider,
+                promotedProvider,
+                localyticsProvider,
+                adjustAnalyticsProvider,
+                crashlyticsAnalyticsProvider,
+                comScoreProvider);
     }
 
     @Test
@@ -77,7 +84,13 @@ public class AnalyticsProviderFactoryTest {
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider);
+        assertThat(providers).containsExactly(
+                eventLoggerProvider,
+                playCountProvider,
+                promotedProvider,
+                localyticsProvider,
+                adjustAnalyticsProvider,
+                crashlyticsAnalyticsProvider);
     }
 
     @Test
@@ -86,7 +99,7 @@ public class AnalyticsProviderFactoryTest {
 
         factory.getProviders();
 
-        expect(LocalyticsSession.isLoggingEnabled()).toBeTrue();
+        assertThat(LocalyticsSession.isLoggingEnabled()).isTrue();
     }
 
     @Test
@@ -95,6 +108,6 @@ public class AnalyticsProviderFactoryTest {
 
         factory.getProviders();
 
-        expect(LocalyticsSession.isLoggingEnabled()).toBeFalse();
+        assertThat(LocalyticsSession.isLoggingEnabled()).isFalse();
     }
 }
