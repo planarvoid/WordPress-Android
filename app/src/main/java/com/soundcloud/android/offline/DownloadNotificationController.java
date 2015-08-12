@@ -239,7 +239,7 @@ class DownloadNotificationController {
         private final int downloadProgress;
 
         private ProgressNotificationData(int currentDownload, int totalDownloads, int downloadProgress) {
-            this.currentDownload = currentDownload;
+            this.currentDownload = Math.min(currentDownload, totalDownloads);
             this.totalDownloads = totalDownloads;
             this.downloadProgress = downloadProgress;
         }
