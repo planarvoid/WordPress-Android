@@ -48,6 +48,11 @@ Android Studio will automatically download and manage dependencies and will ask 
 Make sure you are using SoundCloud code style on Android Studio by going to: 
 File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
 
+If it doesn't appear in the list, try the following. Tailor the path for your version of AndroidStudio. The link source MUST be an absolute path.
+
+    $ mkdir ~/Library/Preferences/AndroidStudio1.2/codestyles
+    $ ln -sf ~/sc/SoundCloud-Android/.idea-codestyle.xml ~/Library/Preferences/AndroidStudio1.2/codestyles/SoundCloud-Android.xml
+
 ![Android code style][Android code style]
     
 ## Running tests
