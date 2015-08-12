@@ -1,41 +1,46 @@
 package com.soundcloud.android.onboarding;
 
 
-import com.facebook.AccessToken;
+import static com.soundcloud.android.onboarding.OnboardingOperations.ONBOARDING_TAG;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
-import com.soundcloud.android.R;
-import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
+
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
-
 public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
     static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends", "user_likes");
+    static List<String> EMAIL_ONLY_PERMISSION = Arrays.asList("email");
 
-    private final WeakReference<OnboardActivity> activityRef;
-    private final TokenInformationGenerator tokenUtils;
+    private final WeakReference<FacebookLoginCallbacks> activityRef;
 
-    public FacebookSessionCallback(OnboardActivity onboardActivity, TokenInformationGenerator tokenUtils) {
-        this.activityRef = new WeakReference<>(onboardActivity);
-        this.tokenUtils = tokenUtils;
+    public FacebookSessionCallback(FacebookLoginCallbacks callbacks) {
+        this.activityRef = new WeakReference<>(callbacks);
     }
 
     @Override
     public void onSuccess(LoginResult loginResult) {
-        Log.i(ONBOARDING_TAG, "Facebook authorization succeeded");
-        OnboardActivity activity = activityRef.get();
-        if (activity != null) {
-            activity.login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, AccessToken.getCurrentAccessToken().getToken()));
+        log(Log.INFO, ONBOARDING_TAG, "Facebook authorization succeeded");
+        FacebookLoginCallbacks callbacks = activityRef.get();
+        if (callbacks != null) {
+            handleSuccessWithActivity(loginResult, callbacks);
         } else {
-            Log.w(ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
+            log(Log.WARN, ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
+        }
+    }
+
+    private void handleSuccessWithActivity(LoginResult loginResult, FacebookLoginCallbacks callbacks) {
+        if (loginResult.getRecentlyDeniedPermissions().contains("email")) {
+            callbacks.confirmRequestForFacebookEmail();
+        } else {
+            callbacks.loginWithFacebook(loginResult.getAccessToken().getToken());
         }
     }
 
@@ -46,16 +51,21 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
 
     @Override
     public void onError(FacebookException e) {
-        Log.w(ONBOARDING_TAG, "Facebook authorization returned an exception", e);
+        log(Log.ERROR, ONBOARDING_TAG, "Facebook authorization returned an exception " + e.getMessage());
         ErrorUtils.handleSilentException(e);
 
-        OnboardActivity activity = activityRef.get();
-        if (activity != null) {
-            final boolean allowUserFeedback = true;
-            activity.onError(activity.getString(R.string.facebook_authentication_failed_message), allowUserFeedback);
+        FacebookLoginCallbacks callbacks = activityRef.get();
+        if (callbacks != null) {
+            callbacks.onFacebookAuthenticationFailedMessage();
         } else {
-            Log.w(ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
+            log(Log.WARN, ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
         }
+    }
+
+    interface FacebookLoginCallbacks {
+        void loginWithFacebook(String facebookToken);
+        void confirmRequestForFacebookEmail();
+        void onFacebookAuthenticationFailedMessage();
     }
 
 }

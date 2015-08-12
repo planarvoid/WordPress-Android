@@ -96,6 +96,7 @@
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Create account</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
+    <string name="authentication_signup_facebook_email_required">We need your permission for Facebook to share your email with us in order to create an account.</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>

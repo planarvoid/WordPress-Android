@@ -171,7 +171,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openOnboarding(activityContext, USER_URN, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(OnboardActivity.EXTRA_URN, USER_URN)
+                .containsExtra(OnboardActivity.EXTRA_DEEPLINK_URN, USER_URN)
                 .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .containsScreen(Screen.DEEPLINK)
                 .opensActivity(OnboardActivity.class);
