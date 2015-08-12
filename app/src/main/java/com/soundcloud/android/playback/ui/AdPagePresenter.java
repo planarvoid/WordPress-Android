@@ -10,14 +10,12 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
+class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -69,8 +67,12 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
-        bindItemView(view, new PlayerAd(propertySet, resources));
+    public void bindItemView(View view, PlayerAd playerAd) {
+        final Holder holder = getViewHolder(view);
+        displayAdvertisement(playerAd, holder);
+        displayPreview(playerAd, holder);
+        styleLearnMoreButton(holder, playerAd);
+        setClickListener(this, holder.onClickViews);
     }
 
     @Override
@@ -99,7 +101,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 listener.onClickThrough();
                 break;
             case R.id.why_ads:
-                listener.onAboutAds((FragmentActivity) view.getContext());
+                listener.onAboutAds(view.getContext());
                 break;
             case R.id.skip_ad:
                 listener.onSkipAd();
@@ -171,14 +173,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         // no-op
     }
 
-    private void bindItemView(View view, PlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        displayAdvertisement(playerAd, holder);
-        displayPreview(playerAd, holder);
-        styleLearnMoreButton(holder, playerAd);
-        setClickListener(this, holder.onClickViews);
-    }
-
     private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
         holder.learnMore.setTextColor(getColorStates(
                 playerAd.getFocusedTextColor(),
@@ -210,7 +204,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void displayPreview(PlayerAd playerAd, Holder holder) {
-        holder.previewTitle.setText(playerAd.getPreviewTitle());
+        holder.previewTitle.setText(playerAd.getPreviewTitle(holder.previewTitle.getResources()));
         imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), getOptimizedImageSize(), holder.previewArtwork);
     }
 

@@ -24,4 +24,9 @@ public final class ActivityAssert extends AbstractAssert<ActivityAssert, Activit
         Assertions.assertThat(shadowIntent).isNotNull();
         return new IntentAssert(shadowIntent);
     }
+
+    public void hasNoNextStartedIntent() {
+        isNotNull();
+        Assertions.assertThat(shadowIntent).isNull();
+    }
 }

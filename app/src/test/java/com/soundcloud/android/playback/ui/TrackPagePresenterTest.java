@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.Playa.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
+import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -19,24 +19,24 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowToast;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.shadows.ShadowToast;
 
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackPagePresenterTest {
+public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private static final int DURATION = 20000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -44,7 +44,6 @@ public class TrackPagePresenterTest {
     @Mock private Resources resources;
     @Mock private WaveformOperations waveformOperations;
     @Mock private TrackPageListener listener;
-    @Mock private ViewGroup container;
     @Mock private WaveformViewController.Factory waveformFactory;
     @Mock private WaveformViewController waveformViewController;
     @Mock private PlayerArtworkController.Factory artworkFactory;
@@ -58,20 +57,20 @@ public class TrackPagePresenterTest {
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
-
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
 
     private TrackPagePresenter presenter;
     private View trackView;
+    private ViewGroup container;
 
     @Before
     public void setUp() throws Exception {
+        container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper);
-        when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -90,56 +89,56 @@ public class TrackPagePresenterTest {
     @Test
     public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
-        expect(getHolder(trackView).likeToggle).toBeChecked();
-        expect(getHolder(trackView).likeToggle).toHaveText("1");
+        assertThat(getHolder(trackView).likeToggle).isChecked();
+        assertThat(getHolder(trackView).likeToggle).hasText("1");
     }
 
     @Test
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        expect(getHolder(trackView).footerPlayToggle).toBeChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isChecked();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTitle() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        expect(getHolder(trackView).title.isShowingBackground()).toBeTrue();
+        Assertions.assertThat(getHolder(trackView).title.isShowingBackground()).isTrue();
     }
 
     @Test
     public void playingStateShowsBackgroundOnUser() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        expect(getHolder(trackView).user.isShowingBackground()).toBeTrue();
+        Assertions.assertThat(getHolder(trackView).user.isShowingBackground()).isTrue();
     }
 
     @Test
     public void pausedStateSetsToggleUnchecked() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        expect(getHolder(trackView).footerPlayToggle).not.toBeChecked();
+        assertThat(getHolder(trackView).footerPlayToggle).isNotChecked();
     }
 
     @Test
     public void pausedStateHidesBackgroundOnTitle() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        expect(getHolder(trackView).title.isShowingBackground()).toBeFalse();
+        Assertions.assertThat(getHolder(trackView).title.isShowingBackground()).isFalse();
     }
 
     @Test
     public void playingStateHidesBackgroundOnUser() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        expect(getHolder(trackView).user.isShowingBackground()).toBeFalse();
+        Assertions.assertThat(getHolder(trackView).user.isShowingBackground()).isFalse();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTimestamp() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
-        expect(getHolder(trackView).timestamp.isShowingBackground()).toBeTrue();
+        Assertions.assertThat(getHolder(trackView).timestamp.isShowingBackground()).isTrue();
     }
 
     @Test
     public void pauseStateHidesBackgroundOnTimestamp() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        expect(getHolder(trackView).timestamp.isShowingBackground()).toBeFalse();
+        Assertions.assertThat(getHolder(trackView).timestamp.isShowingBackground()).isFalse();
     }
 
     @Test
@@ -238,13 +237,13 @@ public class TrackPagePresenterTest {
     @Test
     public void setExpandedShouldHideFooterControl() {
         presenter.setExpanded(trackView);
-        expect(getHolder(trackView).footer).toBeGone();
+        assertThat(getHolder(trackView).footer).isGone();
     }
 
     @Test
     public void setCollapsedShouldShowFooterControl() {
         presenter.setCollapsed(trackView);
-        expect(getHolder(trackView).footer).toBeVisible();
+        assertThat(getHolder(trackView).footer).isVisible();
     }
 
     @Test
@@ -301,7 +300,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        expect(getHolder(trackView).likeToggle).toBeChecked();
+        assertThat(getHolder(trackView).likeToggle).isChecked();
     }
 
     @Test
@@ -310,7 +309,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        expect(getHolder(trackView).likeToggle).toHaveText("9,999");
+        assertThat(getHolder(trackView).likeToggle).hasText("9,999");
     }
 
     @Test
@@ -328,7 +327,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.reposted_to_followers);
+        Assertions.assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.reposted_to_followers));
     }
 
     @Test
@@ -337,7 +336,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.unposted_to_followers);
+        Assertions.assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.unposted_to_followers));
     }
 
     @Test
@@ -437,8 +436,8 @@ public class TrackPagePresenterTest {
 
         presenter.onPositionSet(trackView, 0, 5);
 
-        expect(getHolder(trackView).nextButton).toBeVisible();
-        expect(getHolder(trackView).previousButton).toBeInvisible();
+        assertThat(getHolder(trackView).nextButton).isVisible();
+        assertThat(getHolder(trackView).previousButton).isInvisible();
     }
 
     @Test
@@ -447,8 +446,8 @@ public class TrackPagePresenterTest {
 
         presenter.onPositionSet(trackView, 4, 5);
 
-        expect(getHolder(trackView).nextButton).toBeInvisible();
-        expect(getHolder(trackView).previousButton).toBeVisible();
+        assertThat(getHolder(trackView).nextButton).isInvisible();
+        assertThat(getHolder(trackView).previousButton).isVisible();
     }
 
     @Test
@@ -457,8 +456,8 @@ public class TrackPagePresenterTest {
 
         presenter.onPositionSet(trackView, 2, 5);
 
-        expect(getHolder(trackView).nextButton).toBeVisible();
-        expect(getHolder(trackView).previousButton).toBeVisible();
+        assertThat(getHolder(trackView).nextButton).isVisible();
+        assertThat(getHolder(trackView).previousButton).isVisible();
     }
 
     @Test
@@ -467,8 +466,8 @@ public class TrackPagePresenterTest {
 
         presenter.onPositionSet(trackView, 0, 1);
 
-        expect(getHolder(trackView).nextButton).toBeInvisible();
-        expect(getHolder(trackView).previousButton).toBeInvisible();
+        assertThat(getHolder(trackView).nextButton).isInvisible();
+        assertThat(getHolder(trackView).previousButton).isInvisible();
     }
 
     @Test
@@ -492,7 +491,9 @@ public class TrackPagePresenterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
-        presenter.onClick(new View(Robolectric.application));
+        final View view = new View(RuntimeEnvironment.application);
+        view.setId(R.id.toolbar_id);
+        presenter.onClick(view);
     }
 
     @Test
@@ -556,6 +557,7 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() {
-        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer(), true, true, viewVisibilityProvider);
+        presenter.bindItemView(trackView, new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,
+                viewVisibilityProvider));
     }
 }

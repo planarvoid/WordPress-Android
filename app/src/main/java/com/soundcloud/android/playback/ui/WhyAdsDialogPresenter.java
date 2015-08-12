@@ -7,7 +7,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
@@ -26,21 +26,21 @@ class WhyAdsDialogPresenter {
         this.eventBus = eventBus;
     }
 
-    public void show(final Activity activity) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(activity)
+    public void show(final Context context) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.why_ads)
                 .setMessage(R.string.why_ads_dialog_message);
-        configureButtons(activity, dialog);
+        configureButtons(context, dialog);
         dialog.create().show();
     }
 
-    private void configureButtons(final Activity activity, AlertDialog.Builder dialog) {
+    private void configureButtons(final Context context, AlertDialog.Builder dialog) {
         if (featureOperations.upsellRemoveAudioAds()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsImpression());
             dialog.setPositiveButton(R.string.upsell_remove_ads, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    navigator.openUpgrade(activity);
+                    navigator.openUpgrade(context);
                     eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsClick());
                 }
             })

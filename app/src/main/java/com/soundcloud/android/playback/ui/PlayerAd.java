@@ -10,14 +10,10 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 
-public class PlayerAd {
+public class PlayerAd extends PlayerItem {
 
-    private final PropertySet source;
-    private final Resources resources;
-
-    PlayerAd(PropertySet source, Resources resources) {
-        this.source = source;
-        this.resources = resources;
+    PlayerAd(PropertySet source) {
+        super(source);
     }
 
     Uri getArtwork() {
@@ -28,7 +24,7 @@ public class PlayerAd {
         return source.get(PlayableProperty.TITLE);
     }
 
-    String getPreviewTitle() {
+    String getPreviewTitle(Resources resources) {
         final String nextTrackTitle = source.get(AdProperty.MONETIZABLE_TRACK_TITLE);
         final String nextTrackCreator = source.get(AdProperty.MONETIZABLE_TRACK_CREATOR);
         return resources.getString(R.string.next_up, nextTrackTitle, nextTrackCreator);

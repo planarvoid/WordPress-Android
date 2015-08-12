@@ -25,6 +25,7 @@ import rx.functions.Func2;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
+import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
@@ -80,6 +81,21 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         @Override
         public void call(EntityStateChangedEvent trackChangedEvent) {
             trackObservableCache.remove(trackChangedEvent.getFirstUrn());
+        }
+    };
+    private static final Func1<PropertySet, PlayerItem> TO_PLAYER_AD = new Func1<PropertySet, PlayerItem>() {
+        @Override
+        public PlayerItem call(PropertySet propertySet) {
+            return new PlayerAd(propertySet);
+        }
+    };
+    private final Func1<PropertySet, PlayerTrackState> toPlayerTrack = new Func1<PropertySet, PlayerTrackState>() {
+        @Override
+        public PlayerTrackState call(PropertySet propertySet) {
+            return new PlayerTrackState(propertySet,
+                    playQueueManager.isCurrentTrack(propertySet.get(TrackProperty.URN)),
+                    isForeground, viewVisibilityProvider
+            );
         }
     };
 
@@ -263,11 +279,14 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         return trackPageData.isAdPage() ? adPagePresenter : trackPagePresenter;
     }
 
-    private Observable<PropertySet> getSoundObservable(TrackPageData viewData) {
+    private Observable<? extends PlayerItem> getSoundObservable(TrackPageData viewData) {
         if (viewData.isAdPage()) {
-            return getAdObservable(viewData.getTrackUrn(), viewData.getProperties());
+            return getAdObservable(viewData.getTrackUrn(), viewData.getProperties())
+                    .map(TO_PLAYER_AD);
+        } else {
+            return getTrackObservable(viewData.getTrackUrn(), viewData.getProperties())
+                    .map(toPlayerTrack);
         }
-        return getTrackObservable(viewData.getTrackUrn(), viewData.getProperties());
     }
 
     private Observable<PropertySet> getTrackObservable(Urn urn, final PropertySet adOverlayData) {
@@ -311,7 +330,9 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
 
     private void subscribeToForegroundEvents(TrackPageData data, PlayerPagePresenter presenter, final View trackPage) {
         foregroundSubscription.add(getSoundObservable(data)
+                .filter(isTrackRelatedToView(trackPage))
                 .subscribe(new TrackSubscriber(presenter, trackPage)));
+
         foregroundSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
                 new PlaybackStateSubscriber(presenter, trackPage)));
         foregroundSubscription.add(eventBus
@@ -319,6 +340,16 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
                 .filter(currentTrackFilter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
+    }
+
+    @NonNull
+    private Func1<PlayerItem, Boolean> isTrackRelatedToView(final View trackPage) {
+        return new Func1<PlayerItem, Boolean>() {
+            @Override
+            public Boolean call(PlayerItem playerItem) {
+                return isTrackRelatedToView(trackPage, playerItem.getTrackUrn());
+            }
+        };
     }
 
     void onTrackChange() {
@@ -376,7 +407,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         presenter.setProgress(trackView, playSessionStateProvider.getLastProgressByUrn(urn));
     }
 
-    private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private static class TrackSubscriber extends DefaultSubscriber<PlayerItem> {
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
@@ -386,13 +417,8 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         }
 
         @Override
-        public void onNext(PropertySet track) {
-            Urn trackUrn = track.get(TrackProperty.URN);
-            if (isTrackRelatedToView(trackPage, trackUrn)) {
-                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn),
-                        isForeground, viewVisibilityProvider);
-                updateProgress(presenter, trackPage, trackUrn);
-            }
+        public void onNext(PlayerItem playerItem) {
+            presenter.bindItemView(trackPage, playerItem);
         }
     }
 
