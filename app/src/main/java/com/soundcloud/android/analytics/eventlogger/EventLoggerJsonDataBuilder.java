@@ -72,9 +72,33 @@ public class EventLoggerJsonDataBuilder {
                 return transform(getAudioAdClickEvent(event));
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 return transform(getAudioAdSkipClickEvent(event));
+            case UIEvent.KIND_LIKE:
+                return transform(getEngagementEvent("like::add", event));
+            case UIEvent.KIND_UNLIKE:
+                return transform(getEngagementEvent("like::remove", event));
+            case UIEvent.KIND_REPOST:
+                return transform(getEngagementEvent("repost::add", event));
+            case UIEvent.KIND_UNREPOST:
+                return transform(getEngagementEvent("repost::remove", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
+    }
+
+    private EventLoggerEventData getEngagementEvent(String clickName, UIEvent event) {
+        final EventLoggerEventData eventData =  buildBaseEvent(CLICK_EVENT, event)
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
+                .clickName(clickName)
+                .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN));
+
+        if (!event.get(AdTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(event.get(AdTrackingKeys.KEY_PAGE_URN));
+        }
+
+        return eventData;
     }
 
     private EventLoggerEventData getAudioAdSkipClickEvent(UIEvent event) {
@@ -197,6 +221,7 @@ public class EventLoggerJsonDataBuilder {
                 return transform(getPromotedClickEvent(event));
             case PromotedTrackingEvent.KIND_IMPRESSION:
                 return transform(getPromotedImpressionEvent(event));
+
             default:
                 throw new IllegalStateException("Unexpected PromotedTrackingEvent type: " + event);
         }

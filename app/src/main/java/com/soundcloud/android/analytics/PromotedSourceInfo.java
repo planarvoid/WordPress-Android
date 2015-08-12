@@ -28,6 +28,7 @@ public final class PromotedSourceInfo implements Parcelable {
     private final Urn promotedItemUrn;
     private final Optional<Urn> promoterUrn;
     private final List<String> trackingUrls;
+    private boolean playedBefore;
 
     public static PromotedSourceInfo fromItem(PromotedListItem item) {
         return new PromotedSourceInfo(
@@ -48,6 +49,7 @@ public final class PromotedSourceInfo implements Parcelable {
 
     public PromotedSourceInfo(Parcel in) {
         ClassLoader loader = PromotedSourceInfo.class.getClassLoader();
+        playedBefore = in.readByte() != 0;
         adUrn = in.readString();
         promotedItemUrn = in.readParcelable(loader);
         Urn nullableUrn = in.readParcelable(loader);
@@ -71,8 +73,17 @@ public final class PromotedSourceInfo implements Parcelable {
         return trackingUrls;
     }
 
+    public boolean isFirstPlay() {
+        return !playedBefore;
+    }
+
+    public void setAsPlayed() {
+        playedBefore = true;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (playedBefore ? 1 : 0));
         dest.writeString(adUrn);
         dest.writeParcelable(promotedItemUrn, NO_FLAGS);
         dest.writeParcelable(promoterUrn.isPresent() ? promoterUrn.get() : null, NO_FLAGS);
@@ -105,5 +116,4 @@ public final class PromotedSourceInfo implements Parcelable {
     public int hashCode() {
         return MoreObjects.hashCode(adUrn, promotedItemUrn, promoterUrn, trackingUrls);
     }
-
 }

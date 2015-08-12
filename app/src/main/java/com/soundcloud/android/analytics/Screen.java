@@ -46,6 +46,7 @@ public enum Screen {
     USER_FOLLOWERS("users:followers"),
 
     // player screens
+    PLAYER_MAIN("tracks:main"),
     PLAYER_INFO("tracks:info"),
     PLAYER_LIKES("tracks:likes"),
     PLAYER_REPOSTS("tracks:reposts"),

@@ -48,7 +48,7 @@ public class PlaylistDetailsControllerTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
-        controller.setContent(playlist);
+        controller.setContent(playlist, null);
 
         InOrder inOrder = Mockito.inOrder(itemAdapter);
         inOrder.verify(itemAdapter).clear();

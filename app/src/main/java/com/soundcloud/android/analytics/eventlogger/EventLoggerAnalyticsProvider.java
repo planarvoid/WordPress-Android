@@ -141,8 +141,18 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleUIEvent(UIEvent event) {
-        if (UIEvent.KIND_AUDIO_AD_CLICK.equals(event.getKind()) || UIEvent.KIND_SKIP_AUDIO_AD_CLICK.equals(event.getKind())) {
-            trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        switch (event.getKind()) {
+            case UIEvent.KIND_AUDIO_AD_CLICK:
+            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
+            case UIEvent.KIND_LIKE:
+            case UIEvent.KIND_UNLIKE:
+            case UIEvent.KIND_REPOST:
+            case UIEvent.KIND_UNREPOST:
+                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+                break;
+            default:
+                // no-op, ignoring certain types
+                break;
         }
     }
 

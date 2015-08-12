@@ -3,6 +3,7 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
@@ -56,6 +57,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     private FragmentActivity activity;
     private TrackItem track;
+    private PromotedSourceInfo promotedSourceInfo;
+    private Urn pageUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
     private Subscription relatedTracksPlaybackSubscription = RxUtils.invalidSubscription();
@@ -94,14 +97,20 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter) {
-        show(activity, button, track, positionInAdapter, null);
+        if (track instanceof PromotedTrackItem) {
+            show(activity, button, track, positionInAdapter, Urn.NOT_SET, null, PromotedSourceInfo.fromItem((PromotedTrackItem) track));
+        } else {
+            show(activity, button, track, positionInAdapter, Urn.NOT_SET, null, null);
+        }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, RemoveTrackListener removeTrackListener) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn, RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
         this.removeTrackListener = removeTrackListener;
+        this.promotedSourceInfo = promotedSourceInfo;
+        this.pageUrn = pageUrn;
         final PopupMenuWrapper menu = setupMenu(button);
         loadTrack(menu);
     }
@@ -200,6 +209,19 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         from.show(activity.getFragmentManager());
     }
 
+    private void trackLike(boolean addLike) {
+        final Urn trackUrn = track.getEntityUrn();
+
+        eventBus.publish(EventQueue.TRACKING,
+               UIEvent.fromToggleLike(addLike,
+                       ScreenElement.LIST.get(),
+                       screenProvider.getLastScreenTag(),
+                       screenProvider.getLastScreenTag(),
+                       trackUrn,
+                       pageUrn,
+                       getPromotedSource()));
+    }
+
     private void handleLike() {
         final Urn trackUrn = track.getEntityUrn();
         final boolean addLike = !track.isLiked();
@@ -207,8 +229,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag(), trackUrn));
+        trackLike(addLike);
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -241,6 +262,13 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         return removeTrackListener != null && !removeTrackListener.getPlaylistUrn().equals(Urn.NOT_SET);
     }
 
+    private boolean isTrackFromPromotedPlaylist() {
+        return this.promotedSourceInfo != null && this.promotedSourceInfo.getPromotedItemUrn().isPlaylist();
+    }
+
+    private PromotedSourceInfo getPromotedSource() {
+        return this.promotedSourceInfo;
+    }
 
     private static class ExpandAndDismissDialogSubscriber extends ExpandPlayerSubscriber {
 

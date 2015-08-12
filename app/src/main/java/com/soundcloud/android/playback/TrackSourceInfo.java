@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -19,6 +20,7 @@ public class TrackSourceInfo {
     private int playlistPosition;
 
     private SearchQuerySourceInfo searchQuerySourceInfo;
+    private PromotedSourceInfo promotedSourceInfo;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
@@ -40,12 +42,20 @@ public class TrackSourceInfo {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
     }
 
+    public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
+        this.promotedSourceInfo = promotedSourceInfo;
+    }
+
     public void setReposter(Urn reposter) {
         this.reposter = reposter;
     }
 
     public SearchQuerySourceInfo getSearchQuerySourceInfo() {
         return searchQuerySourceInfo;
+    }
+
+    public PromotedSourceInfo getPromotedSourceInfo() {
+        return promotedSourceInfo;
     }
 
     public boolean getIsUserTriggered() {
@@ -95,6 +105,8 @@ public class TrackSourceInfo {
     public Urn getReposter() {
         return reposter;
     }
+
+    public boolean isFromPromoted() { return promotedSourceInfo != null; }
 
     @Override
     public String toString() {

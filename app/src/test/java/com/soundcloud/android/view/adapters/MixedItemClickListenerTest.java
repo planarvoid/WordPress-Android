@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.adapters;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +24,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
@@ -82,6 +85,27 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         when(playbackOperations.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onItemClick(items, view, 3);
+
+        verify(expandPlayerSubscriber).onNext(playbackResult);
+        verify(expandPlayerSubscriber).onCompleted();
+    }
+
+    @Test
+    public void itemClickOnPromotedTrackPlaysWithPromotedSourceInfo() {
+        final PromotedTrackItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
+
+        final Observable<List<PropertySet>> trackList = Observable.empty();
+        final PlaybackResult playbackResult = PlaybackResult.success();
+
+        when(playbackOperations.playPosts(eq(trackList), eq(promotedTrack.getEntityUrn()), eq(0), not(eq(playSessionSource))))
+                .thenThrow(new IllegalArgumentException());
+        when(playbackOperations.playPosts(trackList, promotedTrack.getEntityUrn(), 0, playSessionSource))
+                .thenReturn(Observable.just(playbackResult));
+
+        listener.onPostClick(trackList, view, 0, promotedTrack);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();

@@ -50,6 +50,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
+        when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
@@ -146,10 +147,33 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void stateChangeEventForPlayingAudioAdOnPromotedContentDoesntHavePromotedInfo() throws Exception {
+        Urn promoter = Urn.forUser(83L);
+        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        PlaySessionSource source = new PlaySessionSource("stream");
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.of(promoter), Arrays.asList("url")));
+
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
+        when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
+
+        publishPlayingEvent();
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        // ad specific properties
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
+    }
+
+    @Test
     public void stateChangeToPlayEventForPlayingPromotedTrackIncludesPromotedInfo() {
         Urn promoter = Urn.forUser(83L);
         PlaySessionSource source = new PlaySessionSource("stream");
-        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.of(promoter), Arrays.asList("url")));
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.of(promoter), Arrays.asList("url")));
+
+        when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
         Player.StateTransition playEvent = publishPlayingEvent();
@@ -161,14 +185,33 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void promotedInfoIsClearedOnPlayEvent() {
+    public void stateChangeToPlayEventForPlayingNonPromotedTrackAlongWithPromotedContentDoesntIncludePromotedInfo() {
+        Urn promoter = Urn.forUser(83L);
         PlaySessionSource source = new PlaySessionSource("stream");
-        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url")));
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forPlaylist(421L), Optional.of(promoter), Arrays.asList("url")));
+
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
+
+        Player.StateTransition playEvent = publishPlayingEvent();
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isNull();
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).isNull();
+    }
+
+    @Test
+    public void promotedInfoSetsHasPlayedOnPlayEvent() {
+        PlaySessionSource source = new PlaySessionSource("stream");
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.<Urn>absent(), Arrays.asList("url")));
+
+        when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
         publishPlayingEvent();
 
-        assertThat(source.isFromPromotedItem()).isFalse();
+        assertThat(source.isFromPromotedItem()).isTrue();
+        assertThat(source.getPromotedSourceInfo().isFirstPlay()).isFalse();
     }
 
     @Test

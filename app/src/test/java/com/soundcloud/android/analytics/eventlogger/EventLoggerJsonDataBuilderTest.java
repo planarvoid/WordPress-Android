@@ -61,6 +61,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final String CONNECTION_TYPE = "3g";
     private static final String CDN_URL = "host.com";
     private static final String SCREEN_TAG = "screen_tag";
+    private static final String CONTEXT_TAG = "context_tag";
+    private static final String PAGE_NAME = "page_name";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -249,6 +251,174 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .impressionObject(audioAdTrack.get(TrackProperty.URN).toString())
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad"));
+    }
+
+    @Test
+    public void createsJsonForLikeEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForLikeEventWithPageUrn() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageUrn(Urn.forPlaylist(321).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPromotedItemLikeEvent() throws ApiMapperException {
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .adUrn(item.getAdUrn())
+                .monetizationType("promoted")
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForUnlikeEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForUnlikeEventWithPageUrn() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageUrn(Urn.forPlaylist(321).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPromotedItemUnlikeEvent() throws ApiMapperException {
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .adUrn(item.getAdUrn())
+                .monetizationType("promoted")
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForRepostEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForRepostEventWithPageUrn() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageUrn(Urn.forPlaylist(321).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPromotedItemRepostEvent() throws ApiMapperException {
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .adUrn(item.getAdUrn())
+                .monetizationType("promoted")
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForUnRepostEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForUnRepostEventWithPageUrn() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageUrn(Urn.forPlaylist(321).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPromotedItemUnRepostEvent() throws ApiMapperException {
+        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("repost::remove")
+                .clickObject(Urn.forTrack(123).toString())
+                .adUrn(item.getAdUrn())
+                .monetizationType("promoted")
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .pageName(PAGE_NAME));
     }
 
     @Test

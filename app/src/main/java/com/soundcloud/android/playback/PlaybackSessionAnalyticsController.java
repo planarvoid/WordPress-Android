@@ -121,20 +121,24 @@ class PlaybackSessionAnalyticsController {
                     lastPlayAudioAd = playQueueManager.getCurrentMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
+                    final Urn trackUrn = playQueueManager.getCurrentTrackUrn();
+                    PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
+
+                    if (playQueueManager.isTrackFromCurrentPromotedItem(trackUrn) && playSource.getPromotedSourceInfo().isFirstPlay()) {
+                        PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
+                        lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
+
+                        if (!playSource.getCollectionUrn().isPlaylist()) {
+                            // promoted tracks & ads are a one-time deal but we need to preserve promoted playlists
+                            // since they may contain more than one track and we need to report plays as promoted
+                            // for all tracks in these playlists
+                            promotedSourceInfo.setAsPlayed();
+                        }
+                    }
+
                     lastPlayAudioAd = null;
                 }
 
-                PlaySessionSource source = playQueueManager.getCurrentPlaySessionSource();
-                if (source.isFromPromotedItem()) {
-                    PromotedSourceInfo promotedSourceInfo = source.getPromotedSourceInfo();
-                    lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
-                    if (!source.getCollectionUrn().isPlaylist()) {
-                        // promoted tracks & ads are a one-time deal but we need to preserve promoted playlists
-                        // since they may contain more than one track and we need to report plays as promoted
-                        // for all tracks in these playlists
-                        source.clearPromotedSourceInfo();
-                    }
-                }
                 return lastSessionEventData;
             }
         };

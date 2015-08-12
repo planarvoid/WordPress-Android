@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedPlaylist;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -12,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -23,7 +26,10 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -255,15 +261,112 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void toggleLikeActionShouldEmitLikeUIEvent() {
+    public void toggleLikeActionShouldEmitLikeUIEventForRegularTrack() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", WIDGET_TRACK_URN);
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", "widget", WIDGET_TRACK_URN, Urn.NOT_SET, null);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void toggleLikeActionShouldEmitLikeUIEventForPromotedTrack() {
+        final PropertySet promotedTrack = expectedPromotedTrack();
+        final PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(promotedTrack);
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrackItem);
+
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
+        trackSourceInfo.setPromotedSourceInfo(promotedSourceInfo);
+
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
+        when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(promotedTrackItem.getEntityUrn());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(promotedTrack));
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        controller.handleToggleLikeAction(true);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
+                "widget",
+                "context_screen",
+                "widget",
+                promotedTrackItem.getEntityUrn(),
+                Urn.NOT_SET,
+                promotedSourceInfo);
+
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void toggleLikeActionShouldEmitLikeUIEventForTrackInPromotedPlaylist() {
+        final PropertySet promotedPlaylist = expectedPromotedPlaylist();
+        final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(promotedPlaylist);
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
+
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
+        trackSourceInfo.setPromotedSourceInfo(promotedSourceInfo);
+
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
+        when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        controller.handleToggleLikeAction(true);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
+                "widget",
+                "context_screen",
+                "widget",
+                WIDGET_TRACK_URN,
+                Urn.NOT_SET,
+                promotedSourceInfo);
+
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void toggleLikeActionShouldEmitLikeUIEventForTrackNotInButPlayedWithPromotedPlaylist() {
+        final PropertySet promotedPlaylist = expectedPromotedPlaylist();
+        final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(promotedPlaylist);
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
+
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
+        trackSourceInfo.setPromotedSourceInfo(promotedSourceInfo);
+
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
+        when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        controller.handleToggleLikeAction(true);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
+                "widget",
+                "context_screen",
+                "widget",
+                WIDGET_TRACK_URN,
+                Urn.NOT_SET,
+                null);
+
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());

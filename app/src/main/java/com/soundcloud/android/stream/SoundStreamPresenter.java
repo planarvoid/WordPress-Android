@@ -126,7 +126,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> {
     protected void onItemClicked(View view, int position) {
         final ListItem item = adapter.getItem(position);
         if (item instanceof PromotedTrackItem) {
-            playFromPromotedTrack(position, (PromotedTrackItem) item);
+            publishPromotedItemClickEvent((PromotedTrackItem) item);
+            handleListItemClick(view, position, item);
         } else if (item instanceof PromotedPlaylistItem) {
             publishPromotedItemClickEvent((PromotedPlaylistItem) item);
             handleListItemClick(view, position, item);
@@ -144,21 +145,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> {
         itemClickListener.onPostClick(streamOperations.trackUrnsForPlayback(), view, position, item);
     }
 
-    private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack) {
-        publishPromotedItemClickEvent(promotedTrack);
-        PlaySessionSource source = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        source.setPromotedSourceInfo(PromotedSourceInfo.fromItem(promotedTrack));
-        playTracks(position, promotedTrack.getEntityUrn(), source);
-    }
-
     private void publishPromotedItemClickEvent(PromotedListItem item) {
         eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.SIDE_MENU_STREAM.get()));
-    }
-
-    private void playTracks(int position, Urn playableUrn, PlaySessionSource playSessionSource) {
-        playbackOperations
-                .playPosts(streamOperations.trackUrnsForPlayback(), playableUrn, position, playSessionSource)
-                .subscribe(subscriberProvider.get());
     }
 
 }

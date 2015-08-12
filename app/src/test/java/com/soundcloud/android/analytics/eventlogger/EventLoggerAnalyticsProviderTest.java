@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -173,6 +174,66 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         assertThat(captor.getAllValues().get(1).getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         assertThat(captor.getAllValues().get(1).getTimeStamp()).isEqualTo(event2.getTimestamp());
         assertThat(captor.getAllValues().get(1).getData()).isEqualTo("url2");
+    }
+
+    @Test
+    public void shouldTrackLikeEvents() {
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForLikeEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForLikeEvent");
+    }
+
+    @Test
+    public void shouldTrackUnlikeEvents() {
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForUnlikeEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForUnlikeEvent");
+    }
+
+    @Test
+    public void shouldTrackRepostEvents() {
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForRepostEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForRepostEvent");
+    }
+
+    @Test
+    public void shouldTrackUnRepostEvents() {
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForUnRepostEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
     }
 
     @Test

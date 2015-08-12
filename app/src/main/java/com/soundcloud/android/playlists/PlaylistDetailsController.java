@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
@@ -38,8 +39,9 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     protected ListView listView;
     private Listener listener;
 
-    void setContent(PlaylistWithTracks playlist) {
+    void setContent(PlaylistWithTracks playlist, PromotedSourceInfo promotedSourceInfo) {
         eventSubscriptions.unsubscribe();
+        trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn());
         adapter.clear();
         for (TrackItem track : playlist.getTracks()) {
             adapter.addItem(track);
