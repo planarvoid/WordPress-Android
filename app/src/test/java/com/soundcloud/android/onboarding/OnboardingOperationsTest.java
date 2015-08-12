@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.onboarding.OnboardingOperations.EmailOptIn;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,17 +10,15 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-@RunWith(SoundCloudTestRunner.class)
-public class OnboardingOperationsTest {
+public class OnboardingOperationsTest extends AndroidUnitTest {
 
     private OnboardingOperations operations;
 
@@ -39,7 +37,7 @@ public class OnboardingOperationsTest {
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).response(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getMethod()).toEqual("PUT");
+        assertThat(argumentCaptor.getValue().getMethod()).isEqualTo("PUT");
     }
 
     @Test
@@ -51,9 +49,9 @@ public class OnboardingOperationsTest {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).response(argumentCaptor.capture());
         EmailOptIn content = (EmailOptIn) ((ApiObjectContentRequest) argumentCaptor.getValue()).getContent();
-        expect(content.newsletter).toBeTrue();
-        expect(content.productUpdates).toBeTrue();
-        expect(content.surveys).toBeTrue();
+        assertThat(content.newsletter).isTrue();
+        assertThat(content.productUpdates).isTrue();
+        assertThat(content.surveys).isTrue();
     }
 
 }
