@@ -43,9 +43,14 @@ class PlayQueueStorage {
                         .put(Tables.PlayQueue.SOURCE, item.getSource())
                         .put(Tables.PlayQueue.SOURCE_VERSION, item.getSourceVersion());
 
+                if (!item.getRelatedEntity().equals(Urn.NOT_SET)){
+                    valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, item.getRelatedEntity().toString());
+                }
+
                 if (item.getReposter().isUser()){
                     valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, item.getReposter().getNumericId());
                 }
+
                 newItems.add(valuesBuilder.get());
             }
         }
@@ -62,15 +67,23 @@ class PlayQueueStorage {
         return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
-                final PlayQueueItem playQueueItem = PlayQueueItem.fromTrack(
-                        Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID)),
-                        hasReposter(reader) ? Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) : Urn.NOT_SET,
-                        reader.getString(Tables.PlayQueue.SOURCE),
-                        reader.getString(Tables.PlayQueue.SOURCE_VERSION)
-                );
+                final Urn relatedEntity = hasRelatedEntity(reader) ? new Urn(reader.getString(Tables.PlayQueue.RELATED_ENTITY)) : Urn.NOT_SET;
+                final Urn reposter = hasReposter(reader) ? Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) : Urn.NOT_SET;
+                final String source = reader.getString(Tables.PlayQueue.SOURCE);
+                final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
+                final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID));
+                final PlayQueueItem playQueueItem = new PlayQueueItem.Builder()
+                        .relatedEntity(relatedEntity)
+                        .fromSource(source, sourceVersion)
+                        .build(track, reposter);
+
                 return playQueueItem;
             }
         });
+    }
+
+    private boolean hasRelatedEntity(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.RELATED_ENTITY);
     }
 
     private boolean hasReposter(CursorReader reader) {

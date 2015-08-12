@@ -63,6 +63,7 @@ public interface Tables {
 
         public static final Column TRACK_ID = Column.create(TABLE, "track_id");
         public static final Column REPOSTER_ID = Column.create(TABLE, "reposter_id");
+        public static final Column RELATED_ENTITY = Column.create(TABLE, "related_entity");
         public static final Column SOURCE = Column.create(TABLE, "source");
         public static final Column SOURCE_VERSION = Column.create(TABLE, "source_version");
 
@@ -70,6 +71,7 @@ public interface Tables {
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "track_id INTEGER," +
                 "reposter_id INTEGER," +
+                "related_entity TEXT," +
                 "source VARCHAR(255)," +
                 "source_version VARCHAR(255)" +
                 ");";

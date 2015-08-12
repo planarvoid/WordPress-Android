@@ -88,7 +88,9 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
-        PlayQueueItem playQueueItem = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
+        PlayQueueItem playQueueItem = new PlayQueueItem.Builder()
+                .fromSource("source1", "version1")
+                .build(Urn.forTrack(1L));
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
         Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
@@ -104,8 +106,12 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void shouldCreateQueueFromItemsObservable() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
-        PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
-        PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
+        PlayQueueItem playQueueItem1 = new PlayQueueItem.Builder()
+                .fromSource("source1", "version1")
+                .build(Urn.forTrack(1L));
+        PlayQueueItem playQueueItem2 = new PlayQueueItem.Builder()
+                .fromSource("source2", "version2")
+                .build(Urn.forTrack(2L));
         Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
 
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);

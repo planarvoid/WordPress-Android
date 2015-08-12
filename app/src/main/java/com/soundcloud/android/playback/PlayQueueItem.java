@@ -10,36 +10,17 @@ public final class PlayQueueItem {
 
     private final Urn trackUrn;
     private final Urn reposter;
+    private final Urn relatedEntity;
     private final String source;
     private final String sourceVersion;
-
     private final PropertySet metaData;
     private final boolean shouldPersist;
 
-    public static PlayQueueItem fromTrack(Urn trackUrn) {
-        return fromTrack(trackUrn, Urn.NOT_SET, ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING);
-    }
-
-    public static PlayQueueItem fromTrack(PropertySet track, String source, String sourceVersion) {
-        return new PlayQueueItem(track.get(TrackProperty.URN), track.getOrElse(TrackProperty.REPOSTER_URN, Urn.NOT_SET),
-                source, sourceVersion, PropertySet.create(), true);
-    }
-
-    public static PlayQueueItem fromTrack(Urn trackUrn, String source, String sourceVersion) {
-        return new PlayQueueItem(trackUrn, Urn.NOT_SET, source, sourceVersion, PropertySet.create(), true);
-    }
-
-    public static PlayQueueItem fromTrack(Urn trackUrn, Urn reposter, String source, String sourceVersion) {
-        return new PlayQueueItem(trackUrn, reposter, source, sourceVersion, PropertySet.create(), true);
-    }
-
-    public static PlayQueueItem fromTrack(Urn trackUrn, Urn reposter, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
-        return new PlayQueueItem(trackUrn, reposter, source, sourceVersion, metaData, shouldPersist);
-    }
-
-    private PlayQueueItem(Urn trackUrn, Urn reposter, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+    private PlayQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source, String sourceVersion,
+                          PropertySet metaData, boolean shouldPersist) {
         this.trackUrn = trackUrn;
         this.reposter = reposter;
+        this.relatedEntity = relatedEntity;
         this.source = source;
         this.sourceVersion = sourceVersion;
         this.metaData = metaData;
@@ -66,6 +47,10 @@ public final class PlayQueueItem {
         return metaData;
     }
 
+    public Urn getRelatedEntity() {
+        return relatedEntity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,5 +72,50 @@ public final class PlayQueueItem {
 
     public boolean shouldPersist() {
         return shouldPersist;
+    }
+
+    public static class Builder {
+        private String source = ScTextUtils.EMPTY_STRING;
+        private String sourceVersion = ScTextUtils.EMPTY_STRING;
+        private PropertySet adData = PropertySet.create();
+        private Urn relatedEntity = Urn.NOT_SET;
+        private boolean shouldPersist = true;
+
+        public Builder() {
+        }
+
+        public Builder fromSource(String source, String sourceVersion) {
+            this.source = source;
+            this.sourceVersion = sourceVersion;
+            return this;
+        }
+
+        public Builder withAdData(PropertySet adData){
+            this.adData = adData;
+            return this;
+        }
+
+        public Builder persist(boolean shouldPersist) {
+            this.shouldPersist = shouldPersist;
+            return this;
+        }
+
+        public Builder relatedEntity(Urn relatedEntity) {
+            this.relatedEntity = relatedEntity;
+            return this;
+        }
+
+        public PlayQueueItem build(Urn track){
+            return build(track, Urn.NOT_SET);
+        }
+
+        public PlayQueueItem build(PropertySet track){
+            return build(track.get(TrackProperty.URN),
+                    track.getOrElse(TrackProperty.REPOSTER_URN, Urn.NOT_SET));
+        }
+
+        public PlayQueueItem build(Urn track, Urn reposter){
+            return new PlayQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist);
+        }
     }
 }

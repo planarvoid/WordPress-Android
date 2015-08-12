@@ -18,8 +18,12 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayQueueTest {
 
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = PlayQueueItem.fromTrack(Urn.forTrack(1L), "source1", "version1");
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem.Builder()
+            .fromSource("source1", "version1")
+            .build(Urn.forTrack(1L));
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem.Builder()
+            .fromSource("source2", "version2")
+            .build(Urn.forTrack(2L));
 
     private PlaySessionSource playSessionSource;
 
@@ -51,7 +55,9 @@ public class PlayQueueTest {
     public void shouldAddPlayQueueItemToPlayQueue() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
-        playQueue.addPlayQueueItem(PlayQueueItem.fromTrack(Urn.forTrack(123L), "source3", "version3"));
+        playQueue.addPlayQueueItem(new PlayQueueItem.Builder()
+                .fromSource("source3", "version3")
+                .build(Urn.forTrack(123L)));
 
         assertThat(playQueue.size()).isEqualTo(4);
         assertThat(playQueue.getTrackId(3)).isEqualTo(123L);
