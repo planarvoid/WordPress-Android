@@ -89,12 +89,12 @@ public interface Tables {
         public static final Column LAST_PLAYED_TRACK_POSITION = Column.create(TABLE, "last_played_track_position");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Stations (" +
-                "_id INTEGER PRIMARY KEY," +
                 "station_urn TEXT," +
                 "type TEXT," +
                 "title TEXT," +
                 "seed_track_id INTEGER," +
-                "last_played_track_position INTEGER DEFAULT 0" +
+                "last_played_track_position INTEGER DEFAULT 0," +
+                "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";
 
         protected Stations() {
@@ -110,15 +110,33 @@ public interface Tables {
         public static final Column POSITION = Column.create(TABLE, "position");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS StationsPlayQueues (" +
-                "_id INTEGER PRIMARY KEY," +
                 "station_urn TEXT," +
                 "track_urn TEXT," +
                 "position INTEGER DEFAULT 0," +
+                "PRIMARY KEY(station_urn) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
         protected StationsPlayQueues() {
             super("StationsPlayQueues", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
+
+    class RecentStations extends BaseTable {
+        public static final RecentStations TABLE = new RecentStations();
+
+        public static final Column STATION_URN = Column.create(TABLE, "station_urn");
+        public static final Column STARTED_AT = Column.create(TABLE, "started_at");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentStations (" +
+                "station_urn TEXT," +
+                "started_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
+                "PRIMARY KEY(station_urn) ON CONFLICT REPLACE," +
+                "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
+                ");";
+
+        protected RecentStations() {
+            super("RecentStations", PrimaryKey.of(BaseColumns._ID));
         }
     }
 
@@ -139,7 +157,6 @@ public interface Tables {
                 "removed_at INTEGER DEFAULT NULL," + // track marked for deletion
                 "unavailable_at INTEGER DEFAULT NULL" +
                 ");";
-
 
         protected TrackDownloads() {
             super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));

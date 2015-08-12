@@ -42,7 +42,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 }
             }
         });
-    }
+}
 
     private ChangeResult deletePlayQueue(PropellerDatabase propeller, StationRecord station) {
         return propeller.delete(StationsPlayQueues.TABLE, Filter.filter().whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString()));
@@ -55,7 +55,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .put(StationsPlayQueues.TRACK_URN, trackUrn.toString())
                 .put(StationsPlayQueues.POSITION, trackPosition)
                 .get();
-    }
+}
 
     static ContentValues buildContentValues(ApiStationInfo stationInfo) {
         return ContentValuesBuilder
