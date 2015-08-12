@@ -1,16 +1,28 @@
 package com.soundcloud.android.onboarding;
 
-import static android.util.Log.INFO;
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
-import static com.soundcloud.android.util.AnimUtils.hideView;
-import static com.soundcloud.android.util.AnimUtils.showView;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
-import com.facebook.NonCachingTokenCachingStrategy;
-import com.facebook.Session;
-import com.facebook.SessionLoginBehavior;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
@@ -56,36 +68,27 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.Log;
+
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import java.io.File;
 
 import javax.inject.Inject;
-import java.io.File;
+
+import static android.util.Log.INFO;
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
+import static com.soundcloud.android.util.AnimUtils.hideView;
+import static com.soundcloud.android.util.AnimUtils.showView;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public class OnboardActivity extends FragmentActivity
         implements AuthTaskFragment.OnAuthResultListener, LoginLayout.LoginHandler,
         SignupMethodLayout.SignUpMethodHandler, SignupDetailsLayout.UserDetailsHandler,
         AcceptTermsLayout.AcceptTermsHandler, SignupBasicsLayout.SignUpBasicsHandler,
         GenderPickerDialogFragment.CallbackProvider {
+
 
     protected enum OnboardingState {
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
@@ -148,10 +151,6 @@ public class OnboardActivity extends FragmentActivity
 
     private OAuth oauth;
 
-    // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
-    // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
-    private boolean isBeingDestroyed = false;
-
     private final Animation.AnimationListener hideScrollViewListener = new AnimUtils.SimpleAnimationListener() {
         @Override
         public void onAnimationEnd(Animation animation) {
@@ -177,9 +176,7 @@ public class OnboardActivity extends FragmentActivity
     @Nullable private Bundle loginBundle, signUpBasicsBundle, signUpDetailsBundle, acceptTermsBundle;
     private Urn resourceUrn = Urn.NOT_SET;
 
-    private final Session.StatusCallback sessionStatusCallback;
     private PublicApi oldCloudAPI;
-    private Session currentFacebookSession;
     private final View.OnClickListener onLoginButtonClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -204,6 +201,9 @@ public class OnboardActivity extends FragmentActivity
     };
     private TourPhotoPagerAdapter photosAdapter;
 
+    @Inject FacebookSdk facebookSdk;
+    @Inject CallbackManager facebookCallbackManager;
+    @Inject LoginManager facebookLoginManager;
     @Inject ConfigurationOperations configurationOperations;
     @Inject ApplicationProperties applicationProperties;
     @Inject BugReporter bugReporter;
@@ -213,7 +213,6 @@ public class OnboardActivity extends FragmentActivity
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        this.sessionStatusCallback = new FacebookSessionCallback(this, tokenUtils);
     }
 
     @VisibleForTesting
@@ -221,13 +220,18 @@ public class OnboardActivity extends FragmentActivity
                     BugReporter bugReporter,
                     EventBus eventBus,
                     TokenInformationGenerator tokenUtils,
-                    Navigator navigator) {
+                    Navigator navigator,
+                    FacebookSdk facebookSdk,
+                    LoginManager facebookLoginManager,
+                    CallbackManager facebookCallbackManager) {
         this.configurationOperations = configurationOperations;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
         this.tokenUtils = tokenUtils;
-        this.sessionStatusCallback = new FacebookSessionCallback(this, tokenUtils);
         this.navigator = navigator;
+        this.facebookSdk = facebookSdk;
+        this.facebookLoginManager = facebookLoginManager;
+        this.facebookCallbackManager = facebookCallbackManager;
     }
 
     @Override
@@ -256,6 +260,8 @@ public class OnboardActivity extends FragmentActivity
             showDeviceConflictLogoutDialog();
             configurationOperations.clearDeviceConflict();
         }
+
+        facebookLoginManager.registerCallback(facebookCallbackManager, new FacebookSessionCallback(this, tokenUtils));
     }
 
     private void showPhotos(boolean isConfigChange) {
@@ -303,7 +309,6 @@ public class OnboardActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-        isBeingDestroyed = false;
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
@@ -547,17 +552,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void createNewUserFromFacebook() {
-        currentFacebookSession = new Session.Builder(getApplicationContext())
-                .setTokenCachingStrategy(new NonCachingTokenCachingStrategy())
-                .setApplicationId(getString(R.string.production_facebook_app_id))
-                .build();
-        currentFacebookSession.addCallback(sessionStatusCallback);
-
-        Session.OpenRequest openRequest = new Session.OpenRequest(this);
-        openRequest.setRequestCode(Session.DEFAULT_AUTHORIZE_ACTIVITY_CODE);
-        openRequest.setLoginBehavior(SessionLoginBehavior.SSO_WITH_FALLBACK);
-        openRequest.setPermissions(DEFAULT_FACEBOOK_READ_PERMISSIONS);
-        currentFacebookSession.openForRead(openRequest);
+        facebookLoginManager.logInWithReadPermissions(this, DEFAULT_FACEBOOK_READ_PERMISSIONS);
     }
 
     @Override
@@ -612,7 +607,6 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        isBeingDestroyed = true;
         super.onSaveInstanceState(outState);
 
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
@@ -663,9 +657,6 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (currentFacebookSession != null) {
-            currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
-        }
         activityResult = new ActivityResult(requestCode, resultCode, intent);
     }
 
@@ -680,6 +671,10 @@ public class OnboardActivity extends FragmentActivity
         final int requestCode = activityResult.requestCode;
         final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
+
+        if (facebookSdk.isFacebookRequestCode(requestCode)){
+            facebookCallbackManager.onActivityResult(requestCode, resultCode, intent);
+        }
 
         switch (requestCode) {
             case RequestCodes.GALLERY_IMAGE_PICK: {
@@ -699,16 +694,6 @@ public class OnboardActivity extends FragmentActivity
             case Crop.REQUEST_CROP: {
                 if (getSignUpDetailsLayout() != null) {
                     getSignUpDetailsLayout().onImageCrop(resultCode, intent);
-                }
-                break;
-            }
-
-            case RequestCodes.SIGNUP_VIA_FACEBOOK: {
-                if (intent != null && intent.hasExtra("error")) {
-                    final String error = intent.getStringExtra("error");
-                    AndroidUtils.showToast(this, error);
-                } else {
-                    finish();
                 }
                 break;
             }
@@ -885,9 +870,7 @@ public class OnboardActivity extends FragmentActivity
      * @param data contains grant data and FB token
      */
     protected void login(Bundle data) {
-        if (!isBeingDestroyed) {
-            LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
-        }
+        LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
     @Override

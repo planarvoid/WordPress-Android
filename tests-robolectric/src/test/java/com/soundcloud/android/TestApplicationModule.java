@@ -1,8 +1,14 @@
 package com.soundcloud.android;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import android.accounts.AccountManager;
+import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 
+import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -17,9 +23,9 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
-import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -38,20 +44,16 @@ import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.squareup.okhttp.OkHttpClient;
+
+import javax.inject.Named;
+
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
-import android.accounts.AccountManager;
-import android.app.NotificationManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
-
-import javax.inject.Named;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
@@ -292,6 +294,9 @@ public class TestApplicationModule {
     CastConnectionHelper provideCastConnectionHelper() {
         return mock(CastConnectionHelper.class);
     }
+
+    @Provides
+    FacebookSdk facebookSdk() { return new FacebookSdk(); }
 
 }
 

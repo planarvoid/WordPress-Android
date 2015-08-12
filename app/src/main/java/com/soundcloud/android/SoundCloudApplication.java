@@ -4,6 +4,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORIT
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
@@ -100,6 +101,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AdIdHelper adIdHelper;
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
+    @Inject FacebookSdk facebookSdk;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -176,6 +178,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         configurationFeatureController.subscribe();
+        facebookSdk.sdkInitialize(getApplicationContext());
     }
 
     private void generateDeviceKey() {

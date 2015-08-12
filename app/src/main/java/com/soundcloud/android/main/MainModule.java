@@ -15,6 +15,7 @@ import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.search.SearchActivity;
+
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
