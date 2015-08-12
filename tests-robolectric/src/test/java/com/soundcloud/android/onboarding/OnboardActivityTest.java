@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(SoundCloudTestRunner.class)
 public class OnboardActivityTest {
 
-    private OnboardActivity activity;
+    private OnboardActivityWithSettableBundle activity;
 
     @Mock private AccountAuthenticatorResponse accountAuthenticatorResponse;
     @Mock private Intent intent;
@@ -43,7 +43,7 @@ public class OnboardActivityTest {
 
     @Before
     public void setup() throws Exception {
-        activity = new OnboardActivity(configurationOperations, bugReporter, new TestEventBus(),
+        activity = new OnboardActivityWithSettableBundle(configurationOperations, bugReporter, new TestEventBus(),
                 tokenUtils, navigator, new FacebookSdk(), facebookLoginManager, facebookCallbackManager) {
             @Override
             protected boolean wasAuthorizedViaSignupScreen() {
@@ -82,4 +82,29 @@ public class OnboardActivityTest {
         verify(accountAuthenticatorResponse).onError(anyInt(), anyString());
     }
 
+    private class OnboardActivityWithSettableBundle extends OnboardActivity {
+        public OnboardActivityWithSettableBundle(
+                ConfigurationOperations configurationOperations,
+                BugReporter bugReporter,
+                TestEventBus testEventBus,
+                TokenInformationGenerator tokenUtils,
+                Navigator navigator,
+                FacebookSdk facebookSdk,
+                LoginManager facebookLoginManager,
+                CallbackManager facebookCallbackManager)
+        {
+            super(configurationOperations,
+                    bugReporter,
+                    testEventBus,
+                    tokenUtils,
+                    navigator,
+                    facebookSdk,
+                    facebookLoginManager,
+                    facebookCallbackManager);
+        }
+
+        protected void setBundle(Bundle bundle) {
+            this.resultBundle = bundle;
+        }
+    }
 }

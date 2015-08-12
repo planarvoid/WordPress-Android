@@ -14,6 +14,8 @@ import javax.inject.Named;
 
 public class OnboardingOperations {
 
+    public static final String ONBOARDING_TAG = "ScOnboarding";
+
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
 

@@ -96,8 +96,8 @@ public class Navigator {
         context.startActivity(createRecordIntent(context, recording));
     }
 
-    public void openOnboarding(Context context, Urn urn, Screen screen) {
-        context.startActivity(createOnboardingIntent(context, screen, urn));
+    public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {
+        context.startActivity(createOnboardingIntent(context, screen, deeplinkUrn));
     }
 
     public void openStream(Context context, Screen screen) {
@@ -208,9 +208,9 @@ public class Navigator {
         return new Intent(context, LauncherActivity.class);
     }
 
-    private Intent createOnboardingIntent(Context context, Screen screen, Urn urn) {
+    private Intent createOnboardingIntent(Context context, Screen screen, Urn deeplinkUrn) {
         Intent intent = new Intent(context, OnboardActivity.class)
-                .putExtra(OnboardActivity.EXTRA_URN, urn)
+                .putExtra(OnboardActivity.EXTRA_DEEPLINK_URN, deeplinkUrn)
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
