@@ -9,44 +9,67 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
+import com.soundcloud.android.properties.ApplicationProperties;
+import io.fabric.sdk.android.Fabric;
+
+import android.util.Log;
 
 import javax.inject.Inject;
 
 public class CrashlyticsAnalyticsProvider implements AnalyticsProvider {
 
+    private static final String TAG = "CrashlyticsLogger";
+
+    private final boolean debugBuild;
+
     @Inject
-    CrashlyticsAnalyticsProvider() {}
+    CrashlyticsAnalyticsProvider(ApplicationProperties applicationProperties) {
+        debugBuild = applicationProperties.isDebugBuild();
+    }
 
     @Override
-    public void flush() {}
+    public void flush() {
+    }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {}
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
 
     @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {}
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+    }
 
     @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {}
+    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
+    }
 
     @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {}
+    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
+    }
 
     @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {}
+    public void handleOnboardingEvent(OnboardingEvent event) {
+    }
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        if (event instanceof ScreenEvent) {
-            handleScreenEvent(event);
+        if (Fabric.isInitialized() && shouldLogEvent(event)) {
+            final String message = event.toString();
+            if (debugBuild) {
+                Crashlytics.log(Log.DEBUG, TAG, message);
+            } else {
+                Crashlytics.log(message);
+            }
         }
     }
 
     @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {}
+    public void handleUserSessionEvent(UserSessionEvent event) {
+    }
 
-    private void handleScreenEvent(TrackingEvent event) {
-        Crashlytics.setString("Screen", event.get(ScreenEvent.KEY_SCREEN));
+    private boolean shouldLogEvent(TrackingEvent event) {
+        return event instanceof ScreenEvent || event instanceof UIEvent;
     }
 }
