@@ -9,7 +9,7 @@ import com.soundcloud.propeller.schema.Column;
 
 import java.util.Date;
 
-public class DownloadStateMapper extends RxResultMapper<PropertySet> {
+public class OfflineStateMapper extends RxResultMapper<PropertySet> {
 
     @Override
     public PropertySet map(CursorReader reader) {

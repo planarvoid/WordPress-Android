@@ -15,12 +15,12 @@ import org.mockito.Mock;
 
 import java.util.Date;
 
-public class DownloadStateMapperTest extends AndroidUnitTest {
+public class OfflineStateMapperTest extends AndroidUnitTest {
 
     @Mock CursorReader cursorReader;
 
     private final Date unavailable = new Date();
-    private DownloadStateMapper mapper;
+    private OfflineStateMapper mapper;
 
     @Before
     public void setUp() throws Exception {
@@ -28,7 +28,7 @@ public class DownloadStateMapperTest extends AndroidUnitTest {
         when(cursorReader.isNotNull(TrackDownloads.UNAVAILABLE_AT)).thenReturn(true);
         when(cursorReader.getDateFromTimestamp(TrackDownloads.UNAVAILABLE_AT)).thenReturn(unavailable);
 
-        mapper = new DownloadStateMapper();
+        mapper = new OfflineStateMapper();
     }
 
     @Test
