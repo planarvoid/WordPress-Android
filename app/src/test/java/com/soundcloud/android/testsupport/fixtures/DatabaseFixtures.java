@@ -256,7 +256,7 @@ public class DatabaseFixtures {
     private ContentValues getStationContentValues(ApiStationInfo stationInfo, int lastPlayedPosition) {
         final ContentValuesBuilder stationContentValues = ContentValuesBuilder.values();
 
-        stationContentValues.put(Stations.URN, stationInfo.getUrn().toString());
+        stationContentValues.put(Stations.STATION_URN, stationInfo.getUrn().toString());
         stationContentValues.put(Stations.TITLE, stationInfo.getTitle());
         stationContentValues.put(Stations.TYPE, stationInfo.getType());
         stationContentValues.put(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getId());

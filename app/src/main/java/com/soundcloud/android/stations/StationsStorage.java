@@ -23,7 +23,7 @@ class StationsStorage {
         @Override
         public Station call(CursorReader cursorReader) {
             return new Station(
-                    new Urn(cursorReader.getString(Stations.URN)),
+                    new Urn(cursorReader.getString(Stations.STATION_URN)),
                     cursorReader.getString(Stations.TITLE),
                     null,
                     cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
@@ -47,7 +47,7 @@ class StationsStorage {
 
     Observable<Station> station(Urn stationUrn) {
         return Observable.zip(
-                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.URN, stationUrn)).map(toStationInfo),
+                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn)).map(toStationInfo),
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(toTrackUrn).toList(),
                 new Func2<Station, List<Urn>, Station>() {
                     @Override
@@ -85,7 +85,7 @@ class StationsStorage {
         return propellerRx.update(
                 Stations.TABLE,
                 ContentValuesBuilder.values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get(),
-                filter().whereEq(Stations.URN, stationUrn.toString())
+                filter().whereEq(Stations.STATION_URN, stationUrn.toString())
         );
     }
 }

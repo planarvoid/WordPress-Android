@@ -129,7 +129,7 @@ public class DatabaseAssertions {
 
     public void assertStationUnique(Urn station) {
         assertThat(
-                select(from(Stations.TABLE).whereEq(Stations.URN, station)),
+                select(from(Stations.TABLE).whereEq(Stations.STATION_URN, station)),
                 counts(1)
         );
     }
@@ -138,7 +138,7 @@ public class DatabaseAssertions {
         assertThat(
                 select(
                         from(Stations.TABLE)
-                                .whereEq(Stations.URN, stationInfo.getUrn())
+                                .whereEq(Stations.STATION_URN, stationInfo.getUrn())
                                 .whereEq(Stations.TITLE, stationInfo.getTitle())
                                 .whereEq(Stations.TYPE, stationInfo.getType())
                                 .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, 0)
