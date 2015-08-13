@@ -84,7 +84,7 @@ public interface Tables {
     class Stations extends BaseTable {
         public static final Stations TABLE = new Stations();
 
-        public static final Column URN = Column.create(TABLE, "station_urn");
+        public static final Column STATION_URN = Column.create(TABLE, "station_urn");
         public static final Column TYPE = Column.create(TABLE, "type");
         public static final Column TITLE = Column.create(TABLE, "title");
         public static final Column SEED_TRACK_ID = Column.create(TABLE, "seed_track_id");
@@ -100,7 +100,7 @@ public interface Tables {
                 ");";
 
         protected Stations() {
-            super("Stations", PrimaryKey.of(BaseColumns._ID));
+            super("Stations", PrimaryKey.of("station_urn"));
         }
     }
 
@@ -115,12 +115,12 @@ public interface Tables {
                 "station_urn TEXT," +
                 "track_urn TEXT," +
                 "position INTEGER DEFAULT 0," +
-                "PRIMARY KEY(station_urn) ON CONFLICT REPLACE," +
+                "PRIMARY KEY(station_urn, track_urn) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
         protected StationsPlayQueues() {
-            super("StationsPlayQueues", PrimaryKey.of(BaseColumns._ID));
+            super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_urn"));
         }
     }
 
@@ -138,7 +138,7 @@ public interface Tables {
                 ");";
 
         protected RecentStations() {
-            super("RecentStations", PrimaryKey.of(BaseColumns._ID));
+            super("RecentStations", PrimaryKey.of("station_urn"));
         }
     }
 

@@ -60,7 +60,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
     static ContentValues buildContentValues(ApiStationInfo stationInfo) {
         return ContentValuesBuilder
                 .values()
-                .put(Stations.URN, stationInfo.getUrn().toString())
+                .put(Stations.STATION_URN, stationInfo.getUrn().toString())
                 .put(Stations.TYPE, stationInfo.getType())
                 .put(Stations.TITLE, stationInfo.getTitle())
                 .put(Stations.LAST_PLAYED_TRACK_POSITION, 0)

@@ -71,7 +71,6 @@ android {
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
     }
 
