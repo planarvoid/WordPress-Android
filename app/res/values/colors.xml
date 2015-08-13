@@ -39,28 +39,6 @@
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
 
-    <color name="cloud_progress_background_start">#444444</color>
-    <color name="cloud_progress_background_center">#666666</color>
-    <color name="cloud_progress_background_end">#444444</color>
-
-    <color name="cloud_progress_secondary_start">#222222</color>
-    <color name="cloud_progress_secondary_center">#444444</color>
-    <color name="cloud_progress_secondary_end">#222222</color>
-
-    <color name="cloud_progress_start">#ff3300</color>
-    <color name="cloud_progress_center">@color/ak_sc_orange</color>
-    <color name="cloud_progress_end">#ff3300</color>
-
-    <color name="cloud_progress_round_background_start">#222222</color>
-    <color name="cloud_progress_round_background_center">#222222</color>
-    <color name="cloud_progress_round_background_end">#222222</color>
-
-    <color name="cloud_progress_round_start">#fd320c</color>
-    <color name="cloud_progress_round_center">#ef5002</color>
-    <color name="cloud_progress_round_end">#f92600</color>
-
-    <color name="cloud_progress_round_border">#4b504c</color>
-
     <!-- Onboarding -->
     <color name="tour_overlay">#cc000000</color>
     <color name="signup_separator">#999999</color>
