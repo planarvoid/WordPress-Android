@@ -283,6 +283,18 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         if (viewData.isAdPage()) {
             return getAdObservable(viewData.getTrackUrn(), viewData.getProperties())
                     .map(TO_PLAYER_AD);
+        } else if (viewData.hasRelatedTrack()) {
+            return Observable.zip(
+                    getTrackObservable(viewData.getTrackUrn(), viewData.getProperties()).map(toPlayerTrack),
+                    getTrackObservable(viewData.getRelatedTrackUrn()),
+                    new Func2<PlayerTrackState, PropertySet, PlayerItem>() {
+                        @Override
+                        public PlayerItem call(PlayerTrackState playerTrackState, PropertySet propertySet) {
+                            playerTrackState.setRelatedTrack(propertySet);
+                            return playerTrackState;
+                        }
+                    }
+            );
         } else {
             return getTrackObservable(viewData.getTrackUrn(), viewData.getProperties())
                     .map(toPlayerTrack);
@@ -332,7 +344,6 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         foregroundSubscription.add(getSoundObservable(data)
                 .filter(isTrackRelatedToView(trackPage))
                 .subscribe(new TrackSubscriber(presenter, trackPage)));
-
         foregroundSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
                 new PlaybackStateSubscriber(presenter, trackPage)));
         foregroundSubscription.add(eventBus

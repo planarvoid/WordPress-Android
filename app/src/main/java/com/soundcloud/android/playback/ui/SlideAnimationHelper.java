@@ -23,7 +23,9 @@ class SlideAnimationHelper {
         for (PlayerOverlayController overlayController : overlayControllers){
             overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_ARTWORK));
         }
-        setAlpha(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
+        final float slideAnimateValue = getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER);
+        setAlpha(slideAnimateValue, footerView);
+        footerView.setVisibility(slideAnimateValue > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void setAlpha(float alpha, Iterable<View> views) {
@@ -35,7 +37,6 @@ class SlideAnimationHelper {
     private void setAlpha(float alpha, View view) {
         final float adjustedAlpha = Math.min(1.0f, Math.max(0.0f, alpha));
         view.setAlpha(adjustedAlpha);
-        view.setVisibility(adjustedAlpha > 0 ? View.VISIBLE : View.GONE);
     }
 
     private float getSlideAnimateValue(float slideOffset, Pair<Float, Float> bounds) {

@@ -125,9 +125,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource);
     }
 
-    public static PlayQueue fromRecommendations(RecommendedTracksCollection relatedTracks) {
+    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         final PlayQueueItem.Builder builder = new PlayQueueItem.Builder()
+                .relatedEntity(seedTrack)
                 .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion());
 
         for (ApiTrack relatedTrack : relatedTracks) {
@@ -136,8 +137,8 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueue(playQueueItems);
     }
 
-    public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
-        PlayQueue playQueue = fromRecommendations(relatedTracks);
+    public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
+        PlayQueue playQueue = fromRecommendations(seedTrack, relatedTracks);
         playQueue.playQueueItems.add(0, new PlayQueueItem.Builder().build(seedTrack));
         return playQueue;
     }
@@ -156,6 +157,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     String getSourceVersion(int position) {
         return playQueueItems.get(position).getSourceVersion();
+    }
+
+    Urn getRelatedEntity(int position) {
+        return playQueueItems.get(position).getRelatedEntity();
     }
 
     List<Long> getTrackIds() {

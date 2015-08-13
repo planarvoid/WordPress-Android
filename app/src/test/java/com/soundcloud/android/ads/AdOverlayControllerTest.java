@@ -1,12 +1,9 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.assertj.android.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,18 +16,18 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.Context;
 import android.content.Intent;
@@ -39,11 +36,11 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdOverlayControllerTest {
+
+public class AdOverlayControllerTest extends AndroidUnitTest {
 
     private AdOverlayController controller;
 
@@ -61,7 +58,7 @@ public class AdOverlayControllerTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
+        trackView = LayoutInflater.from(context()).inflate(R.layout.player_track_page, new FrameLayout(context()), false);
         AdOverlayController.Factory factory = new AdOverlayController.Factory(imageOperations,
                 context, deviceHelper, eventBus, playQueueManager, accountOperations);
         controller = factory.create(trackView, listener);
@@ -136,7 +133,7 @@ public class AdOverlayControllerTest {
 
         controller.onCloseButtonClick();
 
-        expect(properties.getOrElse(AdOverlayProperty.META_AD_DISMISSED, false)).toBeTrue();
+        assertThat(properties.getOrElse(AdOverlayProperty.META_AD_DISMISSED, false)).isTrue();
     }
 
     @Test
@@ -144,14 +141,14 @@ public class AdOverlayControllerTest {
         final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
         controller.initialize(properties);
         controller.show();
-        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(properties.get(LeaveBehindProperty.IMAGE_URL))), any(ImageView.class), any(ImageListener.class));
+        verify(imageOperations).displayLeaveBehind(Matchers.eq(Uri.parse(properties.get(LeaveBehindProperty.IMAGE_URL))), Matchers.any(ImageView.class), Matchers.any(ImageListener.class));
     }
 
     @Test
     public void setupOnLandscapeOrientationDoesNotDisplayLeaveBehind() {
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_LANDSCAPE);
         controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
-        verify(imageOperations, never()).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
+        verify(imageOperations, Mockito.never()).displayLeaveBehind(Matchers.any(Uri.class), Matchers.any(ImageView.class), Matchers.any(ImageListener.class));
     }
 
     @Test
@@ -168,9 +165,9 @@ public class AdOverlayControllerTest {
         verify(context).startActivity(intentArgumentCaptor.capture());
 
         Intent intent = intentArgumentCaptor.getValue();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(Intent.ACTION_VIEW);
-        expect(intent.getData()).toEqual(properties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
+        assertThat(intent.getData()).isEqualTo(properties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
     }
 
     @Test
@@ -190,13 +187,13 @@ public class AdOverlayControllerTest {
 
         controller.onImageClick();
 
-        expect(eventBus.eventsOn(EventQueue.TRACKING)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toBe(AdOverlayTrackingEvent.KIND_CLICK);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isSameAs(AdOverlayTrackingEvent.KIND_CLICK);
     }
 
     @Test
     public void isNotVisibleReturnsTrueIfPresenterIsNull() throws Exception {
-        expect(controller.isNotVisible()).toBeTrue();
+        assertThat(controller.isNotVisible()).isTrue();
     }
 
     @Test
@@ -204,7 +201,7 @@ public class AdOverlayControllerTest {
         controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
         controller.show();
 
-        expect(controller.isNotVisible()).toBeTrue();
+        assertThat(controller.isNotVisible()).isTrue();
     }
 
     @Test
@@ -214,7 +211,7 @@ public class AdOverlayControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isNotVisible()).toBeFalse();
+        assertThat(controller.isNotVisible()).isFalse();
     }
 
     @Test
@@ -222,7 +219,7 @@ public class AdOverlayControllerTest {
         controller.initialize(interstitialForPlayer());
         controller.show();
 
-        expect(controller.isNotVisible()).toBeTrue();
+        assertThat(controller.isNotVisible()).isTrue();
     }
 
     @Test
@@ -234,7 +231,7 @@ public class AdOverlayControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isNotVisible()).toBeFalse();
+        assertThat(controller.isNotVisible()).isFalse();
     }
 
     @Test
@@ -244,7 +241,7 @@ public class AdOverlayControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isVisibleInFullscreen()).toBeFalse();
+        assertThat(controller.isVisibleInFullscreen()).isFalse();
     }
 
     @Test
@@ -256,11 +253,11 @@ public class AdOverlayControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isVisibleInFullscreen()).toBeTrue();
+        assertThat(controller.isVisibleInFullscreen()).isTrue();
     }
 
     private ImageListener captureImageListener() {
-        verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture());
+        verify(imageOperations).displayLeaveBehind(Matchers.any(Uri.class), Matchers.any(ImageView.class), imageListenerCaptor.capture());
         return imageListenerCaptor.getValue();
     }
 
@@ -282,14 +279,14 @@ public class AdOverlayControllerTest {
     }
 
     private void expectLeaveBehindToBeGone() {
-        expect(getLeaveBehind()).not.toBeClickable();
-        expect(getLeaveBehindImage()).toBeGone();
-        expect(getLeaveBehindHeader()).toBeGone();
+        assertThat(getLeaveBehind()).isNotClickable();
+        assertThat(getLeaveBehindImage()).isGone();
+        assertThat(getLeaveBehindHeader()).isGone();
     }
 
     private void expectLeaveBehindToVisible() {
-        expect(getLeaveBehind()).toBeClickable();
-        expect(getLeaveBehindImage()).toBeVisible();
-        expect(getLeaveBehindHeader()).toBeVisible();
+        assertThat(getLeaveBehind()).isClickable();
+        assertThat(getLeaveBehindImage()).isVisible();
+        assertThat(getLeaveBehindHeader()).isVisible();
     }
 }

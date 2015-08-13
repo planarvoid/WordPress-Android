@@ -50,6 +50,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     private static final Urn TRACK1_URN = Urn.forTrack(123L);
     private static final Urn TRACK2_URN = Urn.forTrack(234L);
+    private static final Urn TRACK2_RELATED_URN = Urn.forTrack(678L);
     private static final Urn AD_URN = Urn.forTrack(235L);
     private static final Urn MONETIZABLE_TRACK_URN = Urn.forTrack(456L);
 
@@ -77,10 +78,10 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     private PropertySet track;
 
     private List<TrackPageData> trackPageData = newArrayList(
-            new TrackPageData(0, TRACK1_URN, PropertySet.create()),
-            new TrackPageData(1, TRACK2_URN, PropertySet.create()),
-            new TrackPageData(2, AD_URN, getAudioAd()),
-            new TrackPageData(3, MONETIZABLE_TRACK_URN, TestPropertySets.interstitialForPlayer()));
+            new TrackPageData(0, TRACK1_URN, PropertySet.create(), Urn.NOT_SET),
+            new TrackPageData(1, TRACK2_URN, PropertySet.create(), TRACK2_RELATED_URN),
+            new TrackPageData(2, AD_URN, getAudioAd(), Urn.NOT_SET),
+            new TrackPageData(3, MONETIZABLE_TRACK_URN, TestPropertySets.interstitialForPlayer(), Urn.NOT_SET));
 
     @Before
     public void setUp() throws Exception {
@@ -108,6 +109,13 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"))
+        ));
+
+        when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
+                PropertySet.from(
+                        TrackProperty.URN.bind(TRACK2_RELATED_URN),
+                        PlayableProperty.TITLE.bind("related title"),
+                        PlayableProperty.CREATOR_NAME.bind("related artist"))
         ));
     }
 
@@ -292,6 +300,27 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         assertThat(captorPropertySet.getValue().isForeground()).isTrue();
         assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
         assertThat(captorPropertySet.getValue().getViewVisibilityProvider()).isSameAs(viewVisibilityProvider);
+    }
+
+    @Test
+    public void shouldBindTrackViewForTrackWithRelatedTrack() {
+        ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
+
+        adapter.onResume();
+
+        setCurrentTrackState(1, TRACK2_URN, true);
+        final View pageView = getPageView(1, TRACK2_URN);
+
+        verify(trackPagePresenter).bindItemView(same(pageView), captorPropertySet.capture());
+
+        assertThat(captorPropertySet.getValue().getTrackUrn()).isEqualTo(TRACK2_URN);
+        assertThat(captorPropertySet.getValue().getTitle()).isEqualTo("title");
+        assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
+        assertThat(captorPropertySet.getValue().isForeground()).isTrue();
+        assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
+        assertThat(captorPropertySet.getValue().getViewVisibilityProvider()).isSameAs(viewVisibilityProvider);
+        assertThat(captorPropertySet.getValue().getRelatedTrackUrn()).isEqualTo(TRACK2_RELATED_URN);
+        assertThat(captorPropertySet.getValue().getRelatedTrackTitle()).isEqualTo("related title");
     }
 
     @Test
@@ -516,6 +545,6 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     }
 
     private void setupAudioAd(PropertySet propertySet) {
-        adapter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet)));
+        adapter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet, Urn.NOT_SET)));
     }
 }

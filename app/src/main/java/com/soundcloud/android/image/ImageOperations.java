@@ -187,6 +187,10 @@ public class ImageOperations {
         imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
     }
 
+    public void cancelDisplayTask(ImageView imageView){
+        imageLoader.cancelDisplayTask(imageView);
+    }
+
     private void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
         imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),

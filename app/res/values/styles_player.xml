@@ -71,7 +71,21 @@
 
     <style name="PlayerTitle" parent="PlayerTitleBase">
         <item name="android:singleLine">false</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:maxLines">3</item>
+    </style>
+
+    <style name="PlayerRelatedTo" parent="PlayerUser">
+        <item name="android:singleLine">true</item>
+        <item name="android:text">@string/player_related_to</item>
+        <item name="android:background">@color/overlay_text_background</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="PlayerRelatedToTrack" parent="PlayerTitle">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">@color/overlay_text_background</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="PlayerCastDeviceName">

@@ -202,13 +202,13 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
     @Test
     public void playTrackWithRecommendationsPlaysQueueWithSeedAtSpecifiedPosition() {
         final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(Arrays.asList(new ApiTrack()), "");
-        final PlayQueue relatedUrns = PlayQueue.fromRecommendations(TRACK1, relatedTracks);
+        final PlayQueue relatedUrns = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
         when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.just(relatedUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         playbackOperations.playTrackWithRecommendations(TRACK1, playSessionSource, 0).subscribe(observer);
 
-        final PlayQueue expectedQueue = PlayQueue.fromRecommendations(TRACK1, relatedTracks);
+        final PlayQueue expectedQueue = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
         verify(playbackStrategy).playNewQueue(eq(expectedQueue), any(Urn.class), anyInt(), eq(false), any(PlaySessionSource.class));
     }
 

@@ -11,11 +11,13 @@ final class TrackPageData {
     private final int positionInPlayQueue;
     private final Urn trackUrn;
     private final PropertySet properties;
+    private final Urn relatedToTrack;
 
-    TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, PropertySet properties) {
+    TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, PropertySet properties, Urn relatedToTrack) {
         this.positionInPlayQueue = positionInPlayQueue;
         this.trackUrn = trackUrn;
         this.properties = properties;
+        this.relatedToTrack = relatedToTrack;
     }
 
     public PropertySet getProperties() {
@@ -28,6 +30,14 @@ final class TrackPageData {
 
     public int getPositionInPlayQueue() {
         return positionInPlayQueue;
+    }
+
+    public boolean hasRelatedTrack() {
+        return relatedToTrack.isTrack();
+    }
+
+    public Urn getRelatedTrackUrn() {
+        return relatedToTrack;
     }
 
     boolean isAdPage(){
