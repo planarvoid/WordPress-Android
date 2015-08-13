@@ -8,6 +8,7 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_I
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.propeller.query.Query;
 
@@ -25,7 +26,8 @@ public final class PlaylistQueries {
             .whereNotNull(TrackDownloads.REQUESTED_AT);
 
 
-    public static final Query IS_MARKED_FOR_OFFLINE_QUERY = Query.from(Table.OfflineContent.name(), Table.Sounds.name())
-            .joinOn(SoundView.field(_ID), Table.OfflineContent.field(_ID))
-            .whereEq(Table.OfflineContent.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
+    public static final Query IS_MARKED_FOR_OFFLINE_QUERY = Query
+            .from(OfflineContent.TABLE.name(), Table.Sounds.name())
+            .joinOn(SoundView.field(_ID), OfflineContent._ID.qualifiedName())
+            .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_PLAYLIST);
 }

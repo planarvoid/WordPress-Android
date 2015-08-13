@@ -17,6 +17,7 @@ import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.RecentStations;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -462,27 +463,27 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistMarkedForOfflineSync(Urn playlistUrn) {
-        assertThat(select(from(Table.OfflineContent.name())
-                .whereEq(TableColumns.OfflineContent._ID, playlistUrn.getNumericId())
-                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)), counts(1));
+        assertThat(select(from(OfflineContent.TABLE)
+                .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)), counts(1));
     }
 
     public void assertPlaylistNotMarkedForOfflineSync(Urn playlistUrn) {
-        assertThat(select(from(Table.OfflineContent.name())
-                .whereEq(TableColumns.OfflineContent._ID, playlistUrn.getNumericId())
-                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)), counts(0));
+        assertThat(select(from(OfflineContent.TABLE)
+                .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)), counts(0));
     }
 
     public void assertOfflineLikesDisabled() {
-        assertThat(select(from(Table.OfflineContent.name())
-                .whereEq(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION)), counts(0));
+        assertThat(select(from(OfflineContent.TABLE)
+                .whereEq(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION)), counts(0));
     }
 
     public void assertOfflineLikesEnabled() {
-        assertThat(select(from(Table.OfflineContent.name())
-                .whereEq(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION)), counts(1));
+        assertThat(select(from(OfflineContent.TABLE)
+                .whereEq(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION)), counts(1));
     }
 
     public void assertWaveformForTrack(Urn track, WaveformData waveformData) {

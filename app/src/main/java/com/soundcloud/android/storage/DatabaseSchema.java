@@ -31,13 +31,6 @@ final class DatabaseSchema {
             "tracking_track_impression_urls TEXT" +
             ");";
 
-    static final String DATABASE_CREATE_OFFLINE_CONTENT = "(" +
-            "_id INTEGER," +
-            "_type INTEGER," +
-            "PRIMARY KEY (_id, _type)," +
-            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
-            ");";
-
     static final String DATABASE_CREATE_SOUNDS = "(" +
             "_id INTEGER," +
             "_type INTEGER," +

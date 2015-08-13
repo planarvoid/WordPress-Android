@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
 import static com.soundcloud.android.playlists.PlaylistMapper.readSoundUrn;
 import static com.soundcloud.android.playlists.PlaylistMapper.readTrackCount;
-import static com.soundcloud.android.playlists.PlaylistStorage.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
@@ -127,7 +126,7 @@ class PlaylistTracksStorage {
                         field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
                         count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(isTrackInPlaylist(trackUrn)).as(IS_TRACK_ALREADY_ADDED),
-                        exists(IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
+                        exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
 
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(SoundView._ID), PlaylistTracks.PLAYLIST_ID)
                 .innerJoin(Table.Posts.name(),

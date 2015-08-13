@@ -48,6 +48,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.StationsPlayQueues.SQL);
             db.execSQL(Tables.RecentStations.SQL);
             db.execSQL(Tables.TrackDownloads.SQL);
+            db.execSQL(Tables.OfflineContent.SQL);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -194,7 +195,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo39(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.create(Table.OfflineContent, db);
+            db.execSQL(Tables.OfflineContent.SQL);
             SchemaMigrationHelper.create(Table.TrackPolicies, db);
             migratePolicies(db);
 

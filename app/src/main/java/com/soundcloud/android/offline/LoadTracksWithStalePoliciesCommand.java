@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentStorage.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.Table.OfflineContent;
+import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
@@ -70,11 +70,15 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
     }
 
     static Query buildOfflinePlaylistTracksQuery() {
+        final Where filterOfflinePlaylist = filter()
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, OfflineContent._ID.qualifiedName())
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
+
         final String trackIdFromPlaylistTracks = Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
         return Query.from(PlaylistTracks.name())
                 .select(
                         field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
-                .innerJoin(OfflineContent.name(), TableColumns.PlaylistTracks.PLAYLIST_ID, TableColumns.OfflineContent._ID)
+                .innerJoin(OfflineContent.TABLE.name(), filterOfflinePlaylist)
                 .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
     }
 }
