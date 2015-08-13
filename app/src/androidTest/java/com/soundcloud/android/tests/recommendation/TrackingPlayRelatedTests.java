@@ -23,7 +23,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
+        setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS, Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
     }
 

@@ -9,14 +9,18 @@ expected_events:
     source_version: naive-source
     action: play
     player_type: Skippy
-    sound: soundcloud:sounds:[0-9]+
-    duration: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    track_length: '[0-9]+'
     page_name: playlists:main
-    user: soundcloud:users:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_owner: soundcloud:users:[0-9]+
     protocol: hls
     ts: '[0-9]+'
     connection_type: wifi
     trigger: manual
+    consumer_subs_plan: none
+    local_storage_playback: false
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -25,17 +29,21 @@ expected_events:
     source: recommender
     client_id: '[0-9]+'
     source_version: naive-source
-    action: stop
+    action: pause
     player_type: Skippy
-    sound: soundcloud:sounds:[0-9]+
-    duration: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    track_length: '[0-9]+'
     page_name: playlists:main
-    user: soundcloud:users:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_owner: soundcloud:users:[0-9]+
     protocol: hls
     ts: '[0-9]+'
     connection_type: wifi
     reason: skip
     trigger: manual
+    consumer_subs_plan: none
+    local_storage_playback: false
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -48,10 +56,14 @@ expected_events:
     action: play
     player_type: Skippy
     trigger: manual
-    sound: soundcloud:sounds:[0-9]+
-    duration: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    track_length: '[0-9]+'
     page_name: playlists:main
-    user: soundcloud:users:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_owner: soundcloud:users:[0-9]+
+    consumer_subs_plan: none
+    local_storage_playback: false
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -61,14 +73,18 @@ expected_events:
     ts: '[0-9]+'
     client_id: '[0-9]+'
     connection_type: wifi
-    action: stop
+    action: pause
     reason: track_finished
     player_type: Skippy
     trigger: manual
-    sound: soundcloud:sounds:[0-9]+
-    duration: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    track_length: '[0-9]+'
     page_name: playlists:main
-    user: soundcloud:users:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_owner: soundcloud:users:[0-9]+
+    consumer_subs_plan: none
+    local_storage_playback: false
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -79,13 +95,17 @@ expected_events:
     source_version: naive-source
     action: play
     player_type: Skippy
-    sound: soundcloud:sounds:[0-9]+
-    duration: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    track_length: '[0-9]+'
     page_name: playlists:main
-    user: soundcloud:users:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_owner: soundcloud:users:[0-9]+
     protocol: hls
     ts: '[0-9]+'
     connection_type: wifi
     trigger: auto
+    consumer_subs_plan: none
+    local_storage_playback: false
   version: '0'
 whitelisted_events: audio

@@ -8,6 +8,8 @@ expected_events:
     trigger: manual
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
+    in_playlist: soundcloud:playlists:[0-9]+
+    playlist_position: 0
     protocol: hls
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
@@ -15,10 +17,9 @@ expected_events:
     action: play
     client_id: '3152'
     anonymous_id: (\w|-)+
-    page_name: you:posts
-    user: soundcloud:users:107904111
+    page_name: users:playlists
+    user: soundcloud:users:151499536
     connection_type: wifi
-    reposted_by: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_owner: soundcloud:users:[0-9]+
     consumer_subs_plan: none
@@ -31,15 +32,16 @@ expected_events:
     protocol: hls
     ts: '[0-9]+'
     reason: pause
+    in_playlist: soundcloud:playlists:[0-9]+
+    playlist_position: 0
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+
     player_type: Skippy
     action: pause
     client_id: '3152'
-    page_name: you:posts
-    user: soundcloud:users:107904111
-    reposted_by: soundcloud:users:[0-9]+
+    page_name: users:playlists
+    user: soundcloud:users:151499536
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
     track_owner: soundcloud:users:[0-9]+
