@@ -17,6 +17,18 @@ android {
   }
 
   buildTypes {
+    debug {
+      resValue "string", "build_type", "debug"
+      resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
+      resValue "string", "adjust_environment", "sandbox"
+      resValue "string", "adjust_log_level", "info"
+
+      resValue "bool", "google_plus_enabled", "true"
+
+      resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
+      resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
+    }
+
     alpha {
       resValue "string", "build_type", "alpha"
       resValue "string", "localytics_app_key", "dd94ecf058dedd10d24cda8-dedc8f8c-0eb5-11e5-9ed9-00739d24cb30"
@@ -41,18 +53,6 @@ android {
       resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
     }
 
-    debug {
-      resValue "string", "build_type", "debug"
-      resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
-      resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
-
-      resValue "bool", "google_plus_enabled", "true"
-
-      resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
-      resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
-    }
-
     end2end {
       resValue "string", "build_type", "debug"
       resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
@@ -73,7 +73,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
 
-      resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
+      resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
     }
 
@@ -85,7 +85,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
 
-      resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
+      resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
     }
 
@@ -98,7 +98,6 @@ android {
       resValue "bool", "google_plus_enabled", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "event_logger_base_url", "http://eventlogger.soundcloud.com"
       resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
     }
   }
