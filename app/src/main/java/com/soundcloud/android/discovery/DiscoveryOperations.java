@@ -113,7 +113,7 @@ public class DiscoveryOperations {
     }
 
     public Observable<List<Urn>> recommendationsForSeedTrack(long seedTrackLocalId) {
-        return recommendationsStorage.recommendations(seedTrackLocalId)
+        return recommendationsStorage.recommendedTrackUrnsForSeed(seedTrackLocalId)
                 .subscribeOn(scheduler);
     }
 

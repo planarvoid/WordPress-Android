@@ -34,13 +34,13 @@ public class RecommendationItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         propertySet = PropertySet.from(
-                SeedSoundProperty.URN.bind(Urn.forTrack(123)),
-                SeedSoundProperty.TITLE.bind("seed_title"),
-                SeedSoundProperty.REASON.bind(RecommendationReason.LIKED),
-                SeedSoundProperty.RECOMMENDATION_COUNT.bind(10),
-                RecommendationProperty.URN.bind(Urn.forTrack(1234)),
-                RecommendationProperty.TITLE.bind("recommendation_title"),
-                RecommendationProperty.USERNAME.bind("username")
+                RecommendationProperty.SEED_TRACK_URN.bind(Urn.forTrack(123)),
+                RecommendationProperty.SEED_TRACK_TITLE.bind("seed_title"),
+                RecommendationProperty.REASON.bind(RecommendationReason.LIKED),
+                RecommendationProperty.RECOMMENDED_TRACKS_COUNT.bind(10),
+                RecommendedTrackProperty.URN.bind(Urn.forTrack(1234)),
+                RecommendedTrackProperty.TITLE.bind("recommendation_title"),
+                RecommendedTrackProperty.USERNAME.bind("username")
         );
         recommendationItem = new RecommendationItem(propertySet);
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
