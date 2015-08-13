@@ -1,7 +1,7 @@
 package com.soundcloud.android.framework;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.TableColumns.OfflineContent._TYPE;
+import static com.soundcloud.android.storage.Tables.OfflineContent._TYPE;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
@@ -9,7 +9,8 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SchemaMigrationHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -22,12 +23,11 @@ public class IntegrationTestsFixtures {
     }
 
     public void insertOfflinePlaylist(Context context, Urn parcelableExtra) {
-        insert(context, Table.OfflineContent.name(), buildOfflineContentValues(parcelableExtra));
+        insert(context, OfflineContent.TABLE.name(), buildOfflineContentValues(parcelableExtra));
     }
 
     public void insertOfflineTrack(Context context, Urn track) {
-
-        insert(context, Tables.TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
+        insert(context, TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
         insert(context, Table.TrackPolicies.name(), buildTrackPoliciesValues(track, System.currentTimeMillis()));
     }
 
@@ -38,8 +38,8 @@ public class IntegrationTestsFixtures {
 
     public void clearOfflineContent(Context context) {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        db.delete(Tables.TrackDownloads.TABLE.name(), null, null);
-        db.delete(Table.OfflineContent.name(), null, null);
+        db.delete(TrackDownloads.TABLE.name(), null, null);
+        db.delete(OfflineContent.TABLE.name(), null, null);
     }
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
@@ -69,7 +69,7 @@ public class IntegrationTestsFixtures {
     private static ContentValues buildOfflineContentValues(Urn urn) {
         return ContentValuesBuilder.values(2)
                 .put(_ID, urn.getNumericId())
-                .put(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)
+                .put(_TYPE, OfflineContent.TYPE_PLAYLIST)
                 .get();
     }
 
@@ -85,8 +85,8 @@ public class IntegrationTestsFixtures {
     private static ContentValues buildTrackDownloadValues(Urn track, long date) {
         return ContentValuesBuilder.values(2)
                 .put(_ID, track.getNumericId())
-                .put(Tables.TrackDownloads.REQUESTED_AT, date)
-                .put(Tables.TrackDownloads.DOWNLOADED_AT, date)
+                .put(TrackDownloads.REQUESTED_AT, date)
+                .put(TrackDownloads.DOWNLOADED_AT, date)
                 .get();
     }
 

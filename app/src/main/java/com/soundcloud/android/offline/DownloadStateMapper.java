@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
@@ -9,8 +10,6 @@ import com.soundcloud.propeller.schema.Column;
 import java.util.Date;
 
 public class DownloadStateMapper extends RxResultMapper<PropertySet> {
-
-    public static final String IS_MARKED_FOR_OFFLINE = "is_marked_for_offline";
 
     @Override
     public PropertySet map(CursorReader reader) {
@@ -23,7 +22,7 @@ public class DownloadStateMapper extends RxResultMapper<PropertySet> {
         final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
         final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
-        final boolean isCollectionOffline = cursorReader.isNotNull(IS_MARKED_FOR_OFFLINE);
+        final boolean isCollectionOffline = cursorReader.isNotNull(OfflineContent._ID.prefixedName());
 
         final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
@@ -10,7 +9,7 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.TableColumns.OfflineContent;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
@@ -71,9 +70,9 @@ public class LikedTrackStorage {
                         TrackDownloads.REMOVED_AT.qualifiedName(),
                         TableColumns.TrackPolicies.SUB_MID_TIER,
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
-                        field(Table.OfflineContent.field(OfflineContent._ID)).as(IS_MARKED_FOR_OFFLINE))
+                        OfflineContent._ID.defaultAlias())
 
-                .leftJoin(Table.OfflineContent.name(), offlineLikesFilter())
+                .leftJoin(OfflineContent.TABLE.name(), offlineLikesFilter())
                 .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
@@ -85,8 +84,8 @@ public class LikedTrackStorage {
 
     static Where offlineLikesFilter() {
         return filter()
-                .whereEq(Table.OfflineContent.field(OfflineContent._ID), OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(Table.OfflineContent.field(OfflineContent._TYPE), OfflineContent.TYPE_COLLECTION);
+                .whereEq(OfflineContent._ID.qualifiedName(), OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_COLLECTION);
     }
 
 }
