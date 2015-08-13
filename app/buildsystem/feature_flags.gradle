@@ -29,13 +29,13 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, TRUE
+      buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
     }
 
     beta {
