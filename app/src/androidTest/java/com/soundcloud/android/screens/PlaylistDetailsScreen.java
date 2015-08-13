@@ -75,6 +75,13 @@ public class PlaylistDetailsScreen extends Screen {
         return clickTrack(0);
     }
 
+    public VisualPlayerElement clickLastTrack() {
+        return scrollToLastTrackItem()
+                .trackItemElements()
+                .get(trackItemElements().size() - 1)
+                .click();
+    }
+
     public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
         trackItemElements()
                 .get(index)

@@ -5,6 +5,7 @@
     <!-- General settings -->
     <string name="key_general">generalSettings</string>
     <string name="key_notifications">notificationSettings</string>
+    <string name="key_autoplay_related_enabled">autoplay_related_enabled</string>
     <string name="key_logout">logout</string>
     <string name="key_analytics_enabled">analytics_enabled</string>
     <string name="key_report_crashes">acra.enable</string>

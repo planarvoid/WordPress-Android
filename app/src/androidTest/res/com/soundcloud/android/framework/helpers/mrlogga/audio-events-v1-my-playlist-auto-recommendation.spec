@@ -1,0 +1,98 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+whitelisted_events:
+- audio
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:5028780
+    client_id: '3152'
+    action: play
+    player_type: Skippy
+    consumer_subs_plan: (\w|-)+
+    page_name: collection:playlists
+    in_playlist: soundcloud:playlists:116114846
+    user: soundcloud:users:50749473
+    playlist_position: '2'
+    playhead_position: '0'
+    track_length: '142301'
+    protocol: hls
+    ts: '[0-9]+'
+    track: soundcloud:tracks:188740741
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: 'false'
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:5028780
+    client_id: '3152'
+    action: pause
+    player_type: Skippy
+    consumer_subs_plan: (\w|-)+
+    page_name: collection:playlists
+    in_playlist: soundcloud:playlists:116114846
+    user: soundcloud:users:50749473
+    playlist_position: '2'
+    playhead_position: '[0-9]+'
+    track_length: '142301'
+    protocol: hls
+    ts: '[0-9]+'
+    track: soundcloud:tracks:188740741
+    connection_type: wifi
+    reason: skip
+    trigger: manual
+    local_storage_playback: 'false'
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:103832346
+    source: recommender
+    client_id: '3152'
+    source_version: cassandra-source
+    action: play
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: collection:playlists
+    in_playlist: soundcloud:playlists:116114846
+    user: soundcloud:users:50749473
+    playlist_position: '3'
+    playhead_position: '[0-9]+'
+    track_length: '217228'
+    protocol: hls
+    ts: '[0-9]+'
+    track: soundcloud:tracks:197512817
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: 'false'
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:103832346
+    source: recommender
+    client_id: '3152'
+    source_version: cassandra-source
+    action: pause
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: collection:playlists
+    in_playlist: soundcloud:playlists:116114846
+    user: soundcloud:users:50749473
+    playlist_position: '3'
+    playhead_position: '[0-9]+'
+    track_length: '217228'
+    protocol: hls
+    ts: '[0-9]+'
+    track: soundcloud:tracks:197512817
+    connection_type: wifi
+    reason: pause
+    trigger: manual
+    local_storage_playback: 'false'
+  version: '1'
