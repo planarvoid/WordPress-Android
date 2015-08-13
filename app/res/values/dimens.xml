@@ -32,7 +32,6 @@
 
     <dimen name="create_wave_view_bottom_margin">37dp</dimen>
 
-    <dimen name="round_progress_bar_corner_radius">10dp</dimen>
     <dimen name="rec_chronometer_text_size">32sp</dimen>
 
     <dimen name="button_bar_height">60dp</dimen>
