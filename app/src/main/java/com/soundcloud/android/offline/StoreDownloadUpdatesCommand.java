@@ -9,6 +9,7 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_A
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -16,12 +17,18 @@ import com.soundcloud.propeller.WriteResult;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineContentUpdates, WriteResult> {
 
+    private final DateProvider dateProvider;
+
     @Inject
-    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller) {
+    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller, DateProvider dateProvider) {
         super(propeller);
+        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -29,46 +36,70 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                for (Urn urn : requests.newRemovedTracks) {
-                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForRemoval(urn)));
-                }
+                step(propeller.bulkUpsert(TrackDownloads.TABLE,
+                        buildContentValuesForRemoval(requests.newRemovedTracks)));
 
-                for (DownloadRequest downloadRequest : requests.newRestoredRequests) {
-                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForDownloaded(downloadRequest.track)));
-                }
+                step(propeller.bulkUpsert(TrackDownloads.TABLE,
+                        buildContentValuesForDownloaded(requests.newRestoredRequests)));
 
-                for (DownloadRequest downloadRequest : requests.newDownloadRequests) {
-                    step(propeller.upsert(TrackDownloads.TABLE, buildContentValuesForPendingDownload(downloadRequest.track)));
-                }
+                step(propeller.bulkUpsert(TrackDownloads.TABLE,
+                            buildContentValuesForPendingDownload(requests.newDownloadRequests)));
+
+                step(propeller.bulkUpsert(TrackDownloads.TABLE,
+                        buildOptOutContentValues(requests.creatorOptOutRequests)));
             }
         });
     }
 
-    private ContentValues buildContentValuesForRemoval(Urn urn) {
-        return ContentValuesBuilder
-                .values()
-                .put(_ID, urn.getNumericId())
-                .put(TrackDownloads.REMOVED_AT, System.currentTimeMillis())
-                .get();
+    private List<ContentValues> buildOptOutContentValues(Collection<DownloadRequest> creatorOptOut) {
+        List<ContentValues> contentValues = new ArrayList<>(creatorOptOut.size());
+        for (DownloadRequest optOuts : creatorOptOut) {
+            contentValues.add(ContentValuesBuilder.values(3)
+                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
+                    .put(TrackDownloads.REQUESTED_AT, null)
+                    .put(TrackDownloads._ID, optOuts.track.getNumericId())
+                    .get());
+        }
+        return contentValues;
     }
 
-    private ContentValues buildContentValuesForDownloaded(Urn urn) {
-        return ContentValuesBuilder
-                .values()
-                .put(_ID, urn.getNumericId())
-                .put(UNAVAILABLE_AT, null)
-                .put(REMOVED_AT, null)
-                .put(DOWNLOADED_AT, System.currentTimeMillis())
-                .get();
+    private List<ContentValues> buildContentValuesForRemoval(List<Urn> removedTracks) {
+        List<ContentValues> contentValues = new ArrayList<>(removedTracks.size());
+        for (Urn track : removedTracks) {
+            contentValues.add(ContentValuesBuilder
+                    .values(2)
+                    .put(TrackDownloads._ID, track.getNumericId())
+                    .put(TrackDownloads.REMOVED_AT, dateProvider.getCurrentTime())
+                    .get());
+        }
+        return contentValues;
     }
 
-    private ContentValues buildContentValuesForPendingDownload(Urn urn) {
-        return ContentValuesBuilder
-                .values()
-                .put(_ID, urn.getNumericId())
-                .put(REQUESTED_AT, System.currentTimeMillis())
-                .put(REMOVED_AT, null)
-                .put(DOWNLOADED_AT, null)
-                .get();
+    private List<ContentValues> buildContentValuesForDownloaded(List<DownloadRequest> downloadedTracks) {
+        List<ContentValues> contentValues = new ArrayList<>(downloadedTracks.size());
+        for (DownloadRequest request : downloadedTracks) {
+            contentValues.add(ContentValuesBuilder
+                    .values(4)
+                    .put(_ID, request.track.getNumericId())
+                    .put(UNAVAILABLE_AT, null)
+                    .put(REMOVED_AT, null)
+                    .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
+                    .get());
+        }
+        return contentValues;
+    }
+
+    private List<ContentValues> buildContentValuesForPendingDownload(List<DownloadRequest> pendingDownloads) {
+        List<ContentValues> contentValues = new ArrayList<>(pendingDownloads.size());
+        for (DownloadRequest request : pendingDownloads) {
+            contentValues.add(ContentValuesBuilder
+                    .values()
+                    .put(_ID, request.track.getNumericId())
+                    .put(REQUESTED_AT, dateProvider.getCurrentTime())
+                    .put(REMOVED_AT, null)
+                    .put(DOWNLOADED_AT, null)
+                    .get());
+        }
+        return contentValues;
     }
 }
