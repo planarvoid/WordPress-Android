@@ -3,10 +3,14 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.storage.Tables.Recommendations;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +24,9 @@ import java.util.List;
 
 public class RecommendationsStorageTest extends StorageIntegrationTest {
 
+    private final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+
     private RecommendationsStorage storage;
-    private TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -42,26 +47,58 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         subscriber.assertReceivedOnNext(Collections.singletonList(Arrays.asList(first, second)));
     }
 
-    private PropertySet insertRecommendation(ApiTrack seedTrack, RecommendationReason reason, List<ApiTrack> recommendedTracks){
-        long seedId = insertSeedTrack(seedTrack, reason);
-        for (ApiTrack track : recommendedTracks){
-            insertRecommendationTrack(track, seedId);
+    @Test
+    public void recommendedTracksReturnTracksFromStorage() {
+        List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 1);
+        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracks);
+
+        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+        final Urn seedUrn = Urn.forTrack(localSeedId);
+        List<PropertySet> recommendedTracksForSeed = Collections.singletonList(mapRecommendedTrack(seedUrn, recommendedTracks.get(0)));
+
+        storage.recommendedTracksForSeed(localSeedId).subscribe(subscriber);
+
+        subscriber.assertReceivedOnNext(Collections.singletonList(recommendedTracksForSeed));
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void recommendedTrackUrnsReturnTrackUrnsFromStorage() {
+        final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
+        List<ApiTrack> apiTrackList = ModelFixtures.create(ApiTrack.class, 2);
+        final ApiTrack seedTrack = apiTrackList.get(0);
+        final ApiTrack recommendedTrack = apiTrackList.get(1);
+        List<Urn> recommendedTrackUrns = Collections.singletonList(recommendedTrack.getUrn());
+
+        final PropertySet recommendation = insertRecommendation(seedTrack, RecommendationReason.LIKED, Collections.singletonList(recommendedTrack));
+        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+
+        storage.recommendedTrackUrnsForSeed(localSeedId).subscribe(testSubscriber);
+
+        testSubscriber.assertReceivedOnNext(Collections.singletonList(recommendedTrackUrns));
+        testSubscriber.assertCompleted();
+    }
+
+    private PropertySet insertRecommendation(ApiTrack seedTrack, RecommendationReason reason, List<ApiTrack> recommendedTracks) {
+        ApiUser user = testFixtures().insertUser();
+        long seedId = insertSeedTrack(seedTrack, user, reason);
+        for (ApiTrack track : recommendedTracks) {
+            insertRecommendedTrack(track, user, seedId);
         }
         return PropertySet.from(
-                SeedSoundProperty.LOCAL_ID.bind(seedId),
-                SeedSoundProperty.URN.bind(seedTrack.getUrn()),
-                SeedSoundProperty.TITLE.bind(seedTrack.getTitle()),
-                SeedSoundProperty.RECOMMENDATION_COUNT.bind(recommendedTracks.size()),
-                SeedSoundProperty.REASON.bind(reason),
-                RecommendationProperty.URN.bind(recommendedTracks.get(0).getUrn()),
-                RecommendationProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
-                RecommendationProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
+                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(seedId),
+                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
+                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
+                RecommendationProperty.RECOMMENDED_TRACKS_COUNT.bind(recommendedTracks.size()),
+                RecommendationProperty.REASON.bind(reason),
+                RecommendedTrackProperty.URN.bind(recommendedTracks.get(0).getUrn()),
+                RecommendedTrackProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
+                RecommendedTrackProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
         );
     }
 
-    private long insertSeedTrack(ApiTrack seedTrack, RecommendationReason reason) {
-        testFixtures().insertUser(seedTrack.getUser());
-        testFixtures().insertTrack(seedTrack);
+    private long insertSeedTrack(ApiTrack seedTrack, ApiUser apiUser, RecommendationReason reason) {
+        testFixtures().insertTrackWithUser(seedTrack, apiUser);
 
         ContentValues cv = new ContentValues();
         cv.put(RecommendationSeeds.SEED_SOUND_ID.name(), seedTrack.getUrn().getNumericId());
@@ -81,14 +118,26 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         }
     }
 
-    private long insertRecommendationTrack(ApiTrack apiTrack, long seedId) {
-        testFixtures().insertUser(apiTrack.getUser());
-        testFixtures().insertTrack(apiTrack);
+    private long insertRecommendedTrack(ApiTrack apiTrack, ApiUser user, long seedId) {
+        testFixtures().insertTrackWithUser(apiTrack, user);
 
         ContentValues cv = new ContentValues();
         cv.put(Recommendations.RECOMMENDED_SOUND_ID.name(), apiTrack.getUrn().getNumericId());
         cv.put(Recommendations.RECOMMENDED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
         cv.put(Recommendations.SEED_ID.name(), seedId);
         return testFixtures().insertInto(Recommendations.TABLE, cv);
+    }
+
+    private PropertySet mapRecommendedTrack(Urn seedTrackUrn, ApiTrack recommendedTrack) {
+        return PropertySet.from(
+                RecommendedTrackProperty.SEED_SOUND_URN.bind(seedTrackUrn),
+                PlayableProperty.URN.bind(recommendedTrack.getUrn()),
+                PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
+                PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
+                PlayableProperty.DURATION.bind(recommendedTrack.getDuration()),
+                TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
+                PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
+                PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())
+        );
     }
 }

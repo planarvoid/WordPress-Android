@@ -155,14 +155,14 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private PropertySet createSeedItem() {
         return PropertySet.from(
-                SeedSoundProperty.LOCAL_ID.bind(SEED_ID),
-                SeedSoundProperty.URN.bind(seedTrack.getUrn()),
-                SeedSoundProperty.TITLE.bind(seedTrack.getTitle()),
-                SeedSoundProperty.RECOMMENDATION_COUNT.bind(recommendedTracks.size()),
-                SeedSoundProperty.REASON.bind(REASON),
-                RecommendationProperty.URN.bind(recommendedTracks.get(0).getUrn()),
-                RecommendationProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
-                RecommendationProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
+                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
+                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
+                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
+                RecommendationProperty.RECOMMENDED_TRACKS_COUNT.bind(recommendedTracks.size()),
+                RecommendationProperty.REASON.bind(REASON),
+                RecommendedTrackProperty.URN.bind(recommendedTracks.get(0).getUrn()),
+                RecommendedTrackProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
+                RecommendedTrackProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
         );
     }
 }

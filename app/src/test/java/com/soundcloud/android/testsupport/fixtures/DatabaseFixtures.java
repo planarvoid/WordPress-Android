@@ -190,6 +190,12 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertTrackWithUser(ApiTrack track, ApiUser user) {
+        track.setUser(user);
+        insertTrack(track);
+        return track;
+    }
+
     public ApiUser insertUser() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
         insertUser(user);
