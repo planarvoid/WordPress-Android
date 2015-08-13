@@ -93,33 +93,6 @@
 
     <!-- misc -->
 
-    <style name="dark_button_bar">
-        <item name="android:layout_height">@dimen/button_bar_height</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@color/dark_bg</item>
-    </style>
-
-    <style name="ScProgressBarRound">
-        <item name="android:background">@drawable/progress_bar_round_bg</item>
-        <item name="android:indeterminateOnly">false</item>
-        <item name="android:minHeight">20dip</item>
-        <item name="android:maxHeight">20dip</item>
-        <item name="android:minWidth">76dip</item>
-        <item name="android:maxWidth">76dip</item>
-        <item name="android:progressDrawable">@drawable/progress_bar_round</item>
-        <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
-    </style>
-
-    <style name="ScProgressBarRoundLeft" parent="ScProgressBarRound">
-        <item name="android:progressDrawable">@drawable/progress_bar_round_left</item>
-        <item name="android:background">@drawable/progress_bar_round_bg_left</item>
-    </style>
-
-    <style name="ScProgressBarRoundRight" parent="ScProgressBarRound">
-        <item name="android:progressDrawable">@drawable/progress_bar_round_right</item>
-        <item name="android:background">@drawable/progress_bar_round_bg_right</item>
-    </style>
-
     <style name="UnderlinedListTitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
