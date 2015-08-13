@@ -39,7 +39,7 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
         command.call(station);
         command.call(upsert);
 
-        databaseAssertions().assertStationUnique(stationUrn);
+        databaseAssertions().assertStationIsUnique(stationUrn);
         databaseAssertions().assertStationInfoInserted(upsert.getInfo());
     }
 

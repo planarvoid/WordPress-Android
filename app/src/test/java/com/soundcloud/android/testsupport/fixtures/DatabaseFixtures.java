@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -76,6 +77,13 @@ public class DatabaseFixtures {
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.UserAssociations.REMOVED_AT, System.currentTimeMillis());
         insertInto(Table.UserAssociations, cv);
+    }
+
+    public void insertRecentlyPlayedStation(Urn stationUrn, int startedAt) {
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(RecentStations.STATION_URN, stationUrn.toString());
+        cv.put(RecentStations.STARTED_AT, startedAt);
+        insertInto(RecentStations.TABLE, cv.get());
     }
 
     private void insertPolicy(ApiTrack track) {

@@ -108,7 +108,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(NEXT_TRACK_URN, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
         verify(trackRepository).track(NEXT_TRACK_URN);
     }
 
@@ -120,7 +120,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.ads(NEXT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
 
         verify(adsOperations).applyAdToTrack(NEXT_TRACK_URN, apiAdsForTrack);
     }
@@ -132,7 +132,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.ads(any(Urn.class))).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         verify(adsOperations, never()).applyAdToTrack(any(Urn.class), any(ApiAdsForTrack.class));
     }
@@ -219,7 +219,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void queueUpdateEventDoesNotClearAudioAd() {
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
 
         verify(adsOperations, never()).clearAllAds();
     }

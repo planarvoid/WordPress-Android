@@ -30,7 +30,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.upsert(Stations.TABLE,buildContentValues(station.getInfo())));
+                step(propeller.upsert(Stations.TABLE, buildContentValues(station.getInfo())));
                 step(deletePlayQueue(propeller, station));
                 addPlayQueue(propeller);
             }

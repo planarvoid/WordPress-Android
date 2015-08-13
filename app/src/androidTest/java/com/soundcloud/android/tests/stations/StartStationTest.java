@@ -35,17 +35,17 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testStartRadio() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+    public void testStartStation() {
+        final VisualPlayerElement player = startStationFromFirstTrack();
 
         assertThat(player, is(visible()));
     }
 
-    public void testStartRadioVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
+    public void testStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+        final VisualPlayerElement playerElement = startStationFromFirstTrack();
 
         assertThat(playerElement, is(not(visible())));
         assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_radio)));
@@ -53,8 +53,8 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         networkManagerClient.switchWifiOn();
     }
 
-    public void testStartRadioShouldResume() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickStartRadio();
+    public void testStartStationShouldResume() {
+        final VisualPlayerElement player = startStationFromFirstTrack();
 
         // We swipe next twice in order to ensure the database is correctly
         // persisting the last played track position
@@ -69,7 +69,19 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         streamScreen.clickFirstTrack();
         player.pressBackToCollapse();
 
-        final String resumedTrackTitle = streamScreen.clickFirstTrackOverflowButton().clickStartRadio().getTrackTitle();
+        final String resumedTrackTitle = startStationFromFirstTrack().getTrackTitle();
         assertEquals(expectedTitle, resumedTrackTitle);
+    }
+
+    public void testStartedStationShouldBeAddedToRecentStations() {
+        final String trackTitle = streamScreen.getTrack(0).getTitle();
+
+        startStationFromFirstTrack().pressBackToCollapse();
+
+        assertTrue(menuScreen.open().clickStations().findStation(trackTitle).isVisible());
+    }
+
+    private VisualPlayerElement startStationFromFirstTrack() {
+        return streamScreen.clickFirstTrackOverflowButton().clickStartStation();
     }
 }

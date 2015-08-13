@@ -157,6 +157,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public VisualPlayerElement pressBackToCollapse() {
+        waitForExpandedPlayer();
         solo.goBack();
         waitForCollapsedPlayer();
         return this;

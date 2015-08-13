@@ -14,8 +14,13 @@ import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class StationsOperations {
     private final StationsStorage stationsStorage;
@@ -69,6 +74,12 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
+    public Observable<ChangeResult> saveRecentlyPlayedStation(Urn stationUrn) {
+        return stationsStorage
+                .saveRecentlyPlayedStation(stationUrn)
+                .subscribeOn(scheduler);
+    }
+
     private Observable<Station> fetchStation(Urn stationUrn) {
         return stationsApi
                 .fetchStation(stationUrn)
@@ -81,5 +92,16 @@ public class StationsOperations {
         return stationsStorage
                 .saveLastPlayedTrackPosition(collectionUrn, position)
                 .subscribeOn(scheduler);
+    }
+
+    public Observable<List<Station>> recentStations() {
+        return stationsStorage
+                .recentStations()
+                .subscribeOn(scheduler);
+    }
+
+    @NonNull
+    private Station getTestStation() {
+        return new Station(Urn.forTrackStation(123L), "test title", Collections.<Urn>emptyList(), 0);
     }
 }

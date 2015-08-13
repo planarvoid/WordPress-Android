@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
 public class PlayQueueEvent {
@@ -9,25 +10,29 @@ public class PlayQueueEvent {
     public static final int AUDIO_AD_REMOVED = 2;
 
     private final int kind;
+    private final Urn collectionUrn;
 
-    public PlayQueueEvent(int kind) {
+    public PlayQueueEvent(int kind, Urn collectionUrn) {
         this.kind = kind;
+        this.collectionUrn = collectionUrn;
     }
 
     public int getKind() {
         return kind;
     }
 
-    public static PlayQueueEvent fromNewQueue() {
-        return new PlayQueueEvent(NEW_QUEUE);
+    public Urn getCollectionUrn() { return  collectionUrn; }
+
+    public static PlayQueueEvent fromNewQueue(Urn collectionUrn) {
+        return new PlayQueueEvent(NEW_QUEUE, collectionUrn);
     }
 
-    public static PlayQueueEvent fromQueueUpdate() {
-        return new PlayQueueEvent(QUEUE_UPDATE);
+    public static PlayQueueEvent fromQueueUpdate(Urn collectionUrn) {
+        return new PlayQueueEvent(QUEUE_UPDATE, collectionUrn);
     }
 
-    public static PlayQueueEvent fromAudioAdRemoved() {
-        return new PlayQueueEvent(AUDIO_AD_REMOVED);
+    public static PlayQueueEvent fromAudioAdRemoved(Urn collectionUrn) {
+        return new PlayQueueEvent(AUDIO_AD_REMOVED, collectionUrn);
     }
 
     public boolean isQueueUpdate() {
