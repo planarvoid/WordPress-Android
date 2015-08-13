@@ -1,12 +1,12 @@
 package com.soundcloud.android.accounts;
 
-
 import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -16,10 +16,9 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import dagger.Lazy;
@@ -36,14 +35,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 
 @Singleton
-public class AccountOperations extends ScheduledOperations {
+public class AccountOperations {
 
     public static final Urn ANONYMOUS_USER_URN = Urn.forUser(Consts.NOT_SET);
 
@@ -55,7 +54,10 @@ public class AccountOperations extends ScheduledOperations {
     private final ScModelManager modelManager;
     private final LegacyUserStorage userStorage;
     private final EventBus eventBus;
+    private final Scheduler scheduler;
+
     private final Lazy<AccountCleanupAction> accountCleanupAction;
+    private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
 
     @Deprecated
     private volatile PublicApiUser loggedInUser;
@@ -81,16 +83,9 @@ public class AccountOperations extends ScheduledOperations {
     @Inject
     AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
                       ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
-                      Lazy<AccountCleanupAction> accountCleanupAction) {
-        this(context, accountManager, tokenOperations, modelManager, userStorage, eventBus, accountCleanupAction,
-                ScSchedulers.HIGH_PRIO_SCHEDULER);
-    }
-
-    @VisibleForTesting
-    AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
-                      ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
-                      Lazy<AccountCleanupAction> accountCleanupAction, Scheduler scheduler) {
-        super(scheduler);
+                      Lazy<AccountCleanupAction> accountCleanupAction,
+                      Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
+                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.accountManager = accountManager;
         this.tokenOperations = tokenOperations;
@@ -98,6 +93,8 @@ public class AccountOperations extends ScheduledOperations {
         this.userStorage = userStorage;
         this.eventBus = eventBus;
         this.accountCleanupAction = accountCleanupAction;
+        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.scheduler = scheduler;
     }
 
     /**
@@ -238,14 +235,16 @@ public class AccountOperations extends ScheduledOperations {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        return schedule(Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager)))
-                .observeOn(AndroidSchedulers.mainThread());
+        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(scheduler);
     }
 
     public Observable<Void> purgeUserData() {
-        return schedule(Observable.create(new Observable.OnSubscribe<Void>() {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
+                clearTrackDownloadsCommand.get().call(null);
                 accountCleanupAction.get().call();
                 tokenOperations.resetToken();
                 clearLoggedInUser();
@@ -253,7 +252,7 @@ public class AccountOperations extends ScheduledOperations {
                 resetPlaybackService();
                 subscriber.onCompleted();
             }
-        }));
+        }).subscribeOn(scheduler);
     }
 
     // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency
@@ -338,4 +337,5 @@ public class AccountOperations extends ScheduledOperations {
     private boolean isAnonymousUser() {
         return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
     }
+    
 }

@@ -17,10 +17,11 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
     private ClearTrackDownloadsCommand command;
 
     @Mock SecureFileStorage secureFileStorage;
+    @Mock OfflineSettingsStorage offlineSettingsStorage;
 
     @Before
     public void setUp() throws Exception {
-        command = new ClearTrackDownloadsCommand(propeller(), secureFileStorage);
+        command = new ClearTrackDownloadsCommand(propeller(), secureFileStorage, offlineSettingsStorage);
     }
 
     @Test
@@ -58,6 +59,13 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
         command.call(null);
 
         verify(secureFileStorage).deleteAllTracks();
+    }
+
+    @Test
+    public void clearOfflineContentClearsOfflineContentState() {
+        command.call(null);
+
+        verify(offlineSettingsStorage).setHasOfflineContent(false);
     }
 
 }

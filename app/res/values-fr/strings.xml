@@ -415,8 +415,8 @@
     <item>Brut</item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
-  <string name="menu_clear_user_desc">Vous devrez reconnecter votre compte SoundCloud.</string>
-  <string name="menu_clear_user_title">Effacer les données d\'utilisateur ?</string>
+  <string name="sign_out_description">Vous devrez reconnecter votre compte SoundCloud.</string>
+  <string name="sign_out_title">Effacer les données d\'utilisateur ?</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">À propos</string>
   <string name="title_legal">Légal</string>

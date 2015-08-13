@@ -409,8 +409,8 @@
     <item> Ruw </item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
-  <string name="menu_clear_user_desc">Je moet opnieuw verbinding maken met je SoundCloud account.</string>
-  <string name="menu_clear_user_title">Wis gebruikersgegevens?</string>
+  <string name="sign_out_description">Je moet opnieuw verbinding maken met je SoundCloud account.</string>
+  <string name="sign_out_title">Wis gebruikersgegevens?</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Over</string>
   <string name="title_legal">Legaal</string>

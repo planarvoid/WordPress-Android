@@ -412,8 +412,8 @@
     <item>Sin procesar</item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
-  <string name="menu_clear_user_desc">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
-  <string name="menu_clear_user_title">¿Borrar datos de usuario?</string>
+  <string name="sign_out_description">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
+  <string name="sign_out_title">¿Borrar datos de usuario?</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Acerca de</string>
   <string name="title_legal">Legal</string>

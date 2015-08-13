@@ -340,8 +340,8 @@
     <item>Asli</item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
-  <string name="menu_clear_user_desc">Anda harus menghubungkan kembali akun SoundCloud Anda.</string>
-  <string name="menu_clear_user_title">Hapus data pengguna?</string>
+  <string name="sign_out_description">Anda harus menghubungkan kembali akun SoundCloud Anda.</string>
+  <string name="sign_out_title">Hapus data pengguna?</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Tentang</string>
   <string name="title_legal">Legal</string>
