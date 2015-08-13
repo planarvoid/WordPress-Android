@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.R;
@@ -47,6 +48,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final Func1<Station, Observable<PlaybackResult>> toPlaybackResult = new Func1<Station, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(Station station) {
+            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
             return playbackOperations.playTracks(station.getTracks(), station.getStartPosition(), PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn()));
         }
     };

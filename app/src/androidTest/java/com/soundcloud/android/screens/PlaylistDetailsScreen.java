@@ -82,6 +82,10 @@ public class PlaylistDetailsScreen extends Screen {
                 .click();
     }
 
+    public VisualPlayerElement startStationFromFirstTrack() {
+        return clickFirstTrackOverflowButton().clickStartStation();
+    }
+
     public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
         trackItemElements()
                 .get(index)

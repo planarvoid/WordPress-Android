@@ -10,10 +10,6 @@ android {
     variant.resValue "bool", "verbose_logging", "false"
     variant.resValue "string", "public_api_base_url", "https://api.soundcloud.com"
     variant.resValue "string", "cast_receiver_app_id", "DCAC4134"
-
-    // Temporary endpoint while developing stations.
-    variant.resValue "string", "stations_mock_api_base_url", "http://stations-mock-service.int.s-cloud.net"
-
   }
 
   buildTypes {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
@@ -30,7 +29,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.upsert(Stations.TABLE, buildContentValues(station.getInfo())));
+                step(propeller.upsert(Stations.TABLE, buildContentValues(station)));
                 step(deletePlayQueue(propeller, station));
                 addPlayQueue(propeller);
             }
@@ -45,26 +44,26 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
 }
 
     private ChangeResult deletePlayQueue(PropellerDatabase propeller, StationRecord station) {
-        return propeller.delete(StationsPlayQueues.TABLE, Filter.filter().whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString()));
+        return propeller.delete(StationsPlayQueues.TABLE, Filter.filter().whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString()));
     }
 
     private ContentValues buildContentValues(StationRecord station, Urn trackUrn, int trackPosition) {
         return ContentValuesBuilder
                 .values()
-                .put(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())
+                .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
                 .put(StationsPlayQueues.TRACK_URN, trackUrn.toString())
                 .put(StationsPlayQueues.POSITION, trackPosition)
                 .get();
 }
 
-    static ContentValues buildContentValues(ApiStationInfo stationInfo) {
+    static ContentValues buildContentValues(StationRecord station) {
         return ContentValuesBuilder
                 .values()
-                .put(Stations.STATION_URN, stationInfo.getUrn().toString())
-                .put(Stations.TYPE, stationInfo.getType())
-                .put(Stations.TITLE, stationInfo.getTitle())
+                .put(Stations.STATION_URN, station.getUrn().toString())
+                .put(Stations.TYPE, station.getType())
+                .put(Stations.TITLE, station.getTitle())
+                .put(Stations.PERMALINK, station.getPermalink())
                 .put(Stations.LAST_PLAYED_TRACK_POSITION, 0)
-                .put(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getUrn().getNumericId())
                 .get();
     }
 }

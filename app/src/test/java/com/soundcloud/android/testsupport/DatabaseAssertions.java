@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
@@ -16,8 +15,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -126,27 +125,29 @@ public class DatabaseAssertions {
     }
 
     public void assertStationInserted(StationRecord station) {
-        assertStationInfoInserted(station.getInfo());
-        assertStationPlayQueueInserted(station);
+        assertThat(
+                select(
+                        from(Stations.TABLE)
+                                .whereEq(Stations.STATION_URN, station.getUrn())
+                                .whereEq(Stations.TITLE, station.getTitle())
+                                .whereEq(Stations.TYPE, station.getType())
+                                .whereEq(Stations.PERMALINK, station.getPermalink())
+                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, 0)
+                ),
+                counts(1)
+        );
+        assertThat(
+                select(from(StationsPlayQueues.TABLE)
+                                .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
+                                .whereIn(StationsPlayQueues.TRACK_URN, transform(station.getTracks().getCollection(), toUrn))
+                ),
+                counts(station.getTracks().getCollection().size())
+        );
     }
 
     public void assertStationIsUnique(Urn station) {
         assertThat(
                 select(from(Stations.TABLE).whereEq(Stations.STATION_URN, station)),
-                counts(1)
-        );
-    }
-
-    public void assertStationInfoInserted(ApiStationInfo stationInfo) {
-        assertThat(
-                select(
-                        from(Stations.TABLE)
-                                .whereEq(Stations.STATION_URN, stationInfo.getUrn())
-                                .whereEq(Stations.TITLE, stationInfo.getTitle())
-                                .whereEq(Stations.TYPE, stationInfo.getType())
-                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, 0)
-                                .whereEq(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getId())
-                ),
                 counts(1)
         );
     }
@@ -162,20 +163,10 @@ public class DatabaseAssertions {
         );
     }
 
-    public void assertStationPlayQueueInserted(StationRecord station) {
-        assertThat(
-                select(from(StationsPlayQueues.TABLE)
-                                .whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())
-                                .whereIn(StationsPlayQueues.TRACK_URN, transform(station.getTracks().getCollection(), toUrn))
-                ),
-                counts(station.getTracks().getCollection().size())
-        );
-    }
-
     public void assertStationsPlayQueueIsEmpty(StationRecord station) {
         assertThat(
                 select(from(StationsPlayQueues.TABLE)
-                        .whereEq(StationsPlayQueues.STATION_URN, station.getInfo().getUrn().toString())),
+                        .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())),
                 counts(0)
         );
     }

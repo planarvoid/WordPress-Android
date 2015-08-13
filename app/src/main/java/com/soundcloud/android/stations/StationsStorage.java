@@ -27,6 +27,7 @@ class StationsStorage {
             return new Station(
                     new Urn(cursorReader.getString(Stations.STATION_URN)),
                     cursorReader.getString(Stations.TITLE),
+                    cursorReader.getString(Stations.TYPE),
                     Collections.<Urn>emptyList(),
                     cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
             );
@@ -75,12 +76,13 @@ class StationsStorage {
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(toTrackUrn).toList(),
                 new Func2<Station, List<Urn>, Station>() {
                     @Override
-                    public Station call(Station info, List<Urn> tracks) {
+                    public Station call(Station station, List<Urn> tracks) {
                         return new Station(
-                                info.getUrn(),
-                                info.getTitle(),
+                                station.getUrn(),
+                                station.getTitle(),
+                                station.getType(),
                                 tracks,
-                                calcStartPosition(info.getStartPosition(), tracks.size())
+                                calcStartPosition(station.getStartPosition(), tracks.size())
                         );
                     }
                 }

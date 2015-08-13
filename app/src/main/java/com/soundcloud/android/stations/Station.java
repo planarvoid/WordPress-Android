@@ -6,25 +6,31 @@ import com.soundcloud.java.objects.MoreObjects;
 import java.util.List;
 
 public class Station {
+    private final String type;
     // TODO : should it be a play queue ?
     private final List<Urn> tracks;
     private final int startPosition;
     private final Urn urn;
     private final String title;
 
-    public Station(Urn urn, String title, List<Urn> tracks, Integer startPosition) {
+    public Station(Urn urn, String title, String type, List<Urn> tracks, Integer startPosition) {
+        this.type = type;
         this.tracks = tracks;
         this.urn = urn;
         this.startPosition = startPosition;
         this.title = title;
     }
 
+    public Urn getUrn() {
+        return urn;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    public Urn getUrn() {
-        return urn;
+    public String getType() {
+        return type;
     }
 
     public List<Urn> getTracks() {

@@ -88,14 +88,14 @@ public interface Tables {
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
         public static final Column TYPE = Column.create(TABLE, "type");
         public static final Column TITLE = Column.create(TABLE, "title");
-        public static final Column SEED_TRACK_ID = Column.create(TABLE, "seed_track_id");
+        public static final Column PERMALINK = Column.create(TABLE, "permalink");
         public static final Column LAST_PLAYED_TRACK_POSITION = Column.create(TABLE, "last_played_track_position");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Stations (" +
                 "station_urn TEXT," +
                 "type TEXT," +
                 "title TEXT," +
-                "seed_track_id INTEGER," +
+                "permalink TEXT," +
                 "last_played_track_position INTEGER DEFAULT 0," +
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";

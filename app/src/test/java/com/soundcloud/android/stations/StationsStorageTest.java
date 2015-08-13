@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.ApiStation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.DateProviderStub;
@@ -35,7 +34,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
     public void shouldReturnTheStation() {
         ApiStation apiStation = testFixtures().insertStation(0);
 
-        storage.station(apiStation.getInfo().getUrn()).subscribe(subscriber);
+        storage.station(apiStation.getUrn()).subscribe(subscriber);
 
         final Station station = StationFixtures.getStation(apiStation);
         subscriber.assertReceivedOnNext(Collections.singletonList(station));
@@ -44,7 +43,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldSaveLastPlayedTrackPosition() {
         final int position = 20;
-        final Urn station = testFixtures().insertStation(0).getInfo().getUrn();
+        final Urn station = testFixtures().insertStation(0).getUrn();
 
         storage.saveLastPlayedTrackPosition(station, position).subscribe();
 
@@ -74,9 +73,9 @@ public class StationsStorageTest extends StorageIntegrationTest {
         final ApiStation secondStation = testFixtures().insertStation(0);
         final ApiStation thirdStation = testFixtures().insertStation(0);
 
-        testFixtures().insertRecentlyPlayedStation(firstStation.getInfo().getUrn(), 0);
-        testFixtures().insertRecentlyPlayedStation(secondStation.getInfo().getUrn(), 2);
-        testFixtures().insertRecentlyPlayedStation(thirdStation.getInfo().getUrn(), 1);
+        testFixtures().insertRecentlyPlayedStation(firstStation.getUrn(), 0);
+        testFixtures().insertRecentlyPlayedStation(secondStation.getUrn(), 2);
+        testFixtures().insertRecentlyPlayedStation(thirdStation.getUrn(), 1);
 
         final TestSubscriber<List<Station>> subscriber = new TestSubscriber<>();
         storage.recentStations().subscribe(subscriber);

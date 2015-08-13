@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.model.ApiStation;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -14,12 +13,8 @@ import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import android.support.annotation.NonNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class StationsOperations {
@@ -37,6 +32,7 @@ public class StationsOperations {
     };
 
     private static final Func1<ApiStation, Station> toStation = new Func1<ApiStation, Station>() {
+        private static final int START_POSITION = 0;
 
         private final Function<TrackRecord, Urn> toUrns = new Function<TrackRecord, Urn>() {
             @Override
@@ -44,10 +40,15 @@ public class StationsOperations {
                 return track.getUrn();
             }
         };
-
         @Override
         public Station call(ApiStation station) {
-            return new Station(station.getInfo().getUrn(), station.getInfo().getTitle(), transform(station.getTracks().getCollection(), toUrns), 0);
+            return new Station(
+                    station.getUrn(),
+                    station.getTitle(),
+                    station.getType(),
+                    transform(station.getTracks().getCollection(), toUrns),
+                    START_POSITION
+            );
         }
     };
 
@@ -100,8 +101,4 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    @NonNull
-    private Station getTestStation() {
-        return new Station(Urn.forTrackStation(123L), "test title", Collections.<Urn>emptyList(), 0);
-    }
 }

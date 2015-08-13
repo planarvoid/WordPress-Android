@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.ApiStation;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.StationRecord;
@@ -12,7 +11,7 @@ import org.junit.Test;
 import java.util.Collections;
 
 public class StoreStationCommandTest extends StorageIntegrationTest {
-    private StationRecord station;
+    private ApiStation station;
     private StoreStationCommand command;
 
     @Before
@@ -23,7 +22,7 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldRemoveThePreviousPlayQueue() {
-        StationRecord stationWithEmptyPlayQueue = new ApiStation(station.getInfo(), new ModelCollection<>(Collections.<ApiTrack>emptyList()));
+        StationRecord stationWithEmptyPlayQueue = new ApiStation(station.getMetadata(), new ModelCollection<>(Collections.<ApiTrack>emptyList()));
 
         command.call(station);
         command.call(stationWithEmptyPlayQueue);
@@ -33,14 +32,14 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldUpdateWhenStationAlreadyExists() {
-        final Urn stationUrn = station.getInfo().getUrn();
+        final Urn stationUrn = station.getUrn();
         StationRecord upsert = StationFixtures.getApiStation(stationUrn);
 
         command.call(station);
         command.call(upsert);
 
         databaseAssertions().assertStationIsUnique(stationUrn);
-        databaseAssertions().assertStationInfoInserted(upsert.getInfo());
+        databaseAssertions().assertStationInserted(upsert);
     }
 
     @Test
