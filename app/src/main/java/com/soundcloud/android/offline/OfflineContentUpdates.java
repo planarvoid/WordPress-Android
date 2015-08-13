@@ -12,15 +12,18 @@ public class OfflineContentUpdates {
     public final List<DownloadRequest> allDownloadRequests;
     public final List<DownloadRequest> newDownloadRequests;
     public final List<DownloadRequest> newRestoredRequests;
+    public final List<DownloadRequest> creatorOptOutRequests;
     public final List<Urn> newRemovedTracks;
 
     public OfflineContentUpdates(List<DownloadRequest> allDownloadRequests,
                                  List<DownloadRequest> newDownloadRequests,
                                  List<DownloadRequest> newRestoredRequests,
+                                 List<DownloadRequest> creatorOptOutRequests,
                                  List<Urn> newRemovedTracks) {
         this.allDownloadRequests = unmodifiableList(allDownloadRequests);
         this.newDownloadRequests = unmodifiableList(newDownloadRequests);
         this.newRestoredRequests = unmodifiableList(newRestoredRequests);
+        this.creatorOptOutRequests = unmodifiableList(creatorOptOutRequests);
         this.newRemovedTracks = unmodifiableList(newRemovedTracks);
     }
 
@@ -30,6 +33,7 @@ public class OfflineContentUpdates {
                 .add("allDownloads", allDownloadRequests)
                 .add("newDownloads", newDownloadRequests)
                 .add("newRestoredRequests", newRestoredRequests)
+                .add("creatorOptOutRequests", creatorOptOutRequests)
                 .add("newRemovedTracks", newRemovedTracks)
                 .toString();
     }

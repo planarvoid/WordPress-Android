@@ -110,6 +110,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.showNowPlaying();
         } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
             itemView.showUpsell();
+        } else if (featureOperations.isOfflineContentEnabled() && track.isCreatorOptOut()){
+            itemView.showNotAvailableOffline();
         } else if (track.isPrivate()) {
             itemView.showPrivateIndicator();
         } else {

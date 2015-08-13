@@ -1,36 +1,27 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.propeller.query.Query.from;
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestObserver;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Mock private DateProvider dateProvider;
@@ -58,7 +49,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 .subscribe(testObserver);
 
         List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        expect(result).toContainExactly(
+        assertThat(result).containsExactly(
                 createAddTrackToPlaylistItem(apiPlaylist1, false),
                 createAddTrackToPlaylistItem(apiPlaylist2, true));
     }
@@ -73,7 +64,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 .subscribe(testObserver);
 
         List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        expect(result).toContainExactly(createAddTrackToPlaylistItem(apiPlaylist, false));
+        assertThat(result).containsExactly(createAddTrackToPlaylistItem(apiPlaylist, false));
     }
 
     @Test
@@ -86,7 +77,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testObserver);
 
         List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        expect(result).toBeEmpty();
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -101,9 +92,38 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123)).subscribe(testObserver);
 
         List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        expect(result).toContainExactly(
+        assertThat(result).contains(
                 createAddTrackToPlaylistItem(offlinePlaylist, false, true),
                 createAddTrackToPlaylistItem(normalPlaylist, false));
+    }
+
+    @Test
+    public void loadPlaylistTracksWithUnavailableOfflineStateWhenPlaylistMarkedForOffline() {
+        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+
+        final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
+        testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
+        ApiTrack track = testFixtures().insertPlaylistTrack(offlinePlaylist.getUrn(), 0);
+        testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
+
+        playlistTracksStorage.playlistTracks(offlinePlaylist.getUrn()).subscribe(testObserver);
+
+        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isTrue();
+    }
+
+    @Test
+    public void doesNotLoadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
+        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+
+        final ApiPlaylist normalPlaylist = insertPostedPlaylist();
+        ApiTrack track = testFixtures().insertPlaylistTrack(normalPlaylist.getUrn(), 0);
+        testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
+
+        playlistTracksStorage.playlistTracks(normalPlaylist.getUrn()).subscribe(testObserver);
+
+        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isFalse();
     }
 
     @Test
@@ -114,7 +134,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 .subscribe(testObserver);
 
         long playlistId = testObserver.getOnNextEvents().get(0).getNumericId();
-        assertPlaylistInserted(playlistId, "title", true);
+        databaseAssertions().assertPlaylistInserted(playlistId, "title", true);
     }
 
     @Test
@@ -136,7 +156,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 .subscribe(testObserver);
 
         long playlistId = testObserver.getOnNextEvents().get(0).getNumericId();
-        databaseAssertions().assertPlaylistTracklist(playlistId, Arrays.asList(Urn.forTrack(123)));
+        databaseAssertions().assertPlaylistTracklist(playlistId, Collections.singletonList(Urn.forTrack(123)));
     }
 
     @Test
@@ -150,7 +170,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(tracks).toContainExactly(
+        assertThat(tracks).containsExactly(
                 fromApiTrack(apiTrack1),
                 fromApiTrack(apiTrack2),
                 expectedMidTierMonetizableTrackFor(apiTrack3)
@@ -165,7 +185,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(tracks).not.toContain(fromApiTrack(apiTrackOther));
+        assertThat(tracks).doesNotContain(fromApiTrack(apiTrackOther));
     }
 
     @Test
@@ -181,7 +201,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(tracks).toContain(
+        assertThat(tracks).contains(
                 fromApiTrack(apiTrack1)
                         .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED),
                 fromApiTrack(apiTrack2)
@@ -203,16 +223,6 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
                 TrackProperty.SUB_MID_TIER.bind(false)
         );
-    }
-
-    private void assertPlaylistInserted(long playlistId, String title, boolean isPrivate) {
-        assertThat(select(from(Table.Sounds.name())
-                .whereEq(TableColumns.Sounds._ID, playlistId)
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereEq(TableColumns.Sounds.USER_ID, 321L)
-                .whereNotNull(TableColumns.Sounds.CREATED_AT)
-                .whereEq(TableColumns.Sounds.SHARING, Sharing.from(!isPrivate).value())
-                .whereEq(TableColumns.Sounds.TITLE, title)), counts(1));
     }
 
     private ApiPlaylist insertPostedPlaylist() {

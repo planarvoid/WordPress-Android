@@ -150,8 +150,8 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     @Test
     public void markTrackAsUnavailable() throws Exception {
         final Date now = new Date();
+        when(dateProvider.getCurrentTime()).thenReturn(now.getTime());
         testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
-        when(dateProvider.getCurrentDate()).thenReturn(now);
 
         storage.markTrackAsUnavailable(TRACK_1);
 

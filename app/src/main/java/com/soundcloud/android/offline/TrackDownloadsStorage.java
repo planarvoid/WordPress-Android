@@ -138,7 +138,7 @@ class TrackDownloadsStorage {
 
     public WriteResult markTrackAsUnavailable(Urn track) {
         final ContentValues contentValues = ContentValuesBuilder.values(1)
-                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentDate().getTime()).get();
+                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime()).get();
 
         return propeller.update(TrackDownloads.TABLE, contentValues,
                 filter().whereEq(_ID, track.getNumericId()));

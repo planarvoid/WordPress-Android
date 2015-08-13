@@ -19,7 +19,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     private final DownloadRequest downloadRequest1 = createDownloadRequest(Urn.forTrack(123L));
     private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
 
-
     private DownloadQueue queue;
     private OfflineStatePublisher publisher;
     private TestEventBus eventBus = new TestEventBus();
@@ -65,6 +64,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(downloadRequest1),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -83,6 +83,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
                 removedDownloads
         );
 
@@ -95,8 +96,28 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     @Test
+    public void publishNotDownloadableStateChangesEmitsTrackUnavailableWithCreatorOptOutTracks() {
+        final List<DownloadRequest> creatorOptOut = Collections.singletonList(creatorOptOutRequest(Urn.forTrack(123L)));
+        final OfflineContentUpdates updates = new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                creatorOptOut,
+                Collections.<Urn>emptyList()
+        );
+
+        publisher.publishNotDownloadableStateChanges(queue, updates, Urn.NOT_SET);
+
+        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
+                CurrentDownloadEvent.idle(),
+                CurrentDownloadEvent.unavailable(creatorOptOut)
+        );
+    }
+
+    @Test
     public void publishNotDownloadableStateChangesDoesNotSendDownloadRemovedWhenCurrentlyDownloading() {
         final OfflineContentUpdates updates = new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -111,6 +132,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
         final OfflineContentUpdates noOfflineRequest = new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -223,6 +245,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track, boolean inLikes, List<Urn> inPlaylists) {
-        return new DownloadRequest(track, 123456, "http://wav", inLikes, inPlaylists);
+        return new DownloadRequest(track, 123456, "http://wav", true, inLikes, inPlaylists);
+    }
+
+    private DownloadRequest creatorOptOutRequest(Urn track){
+        return new DownloadRequest.Builder(track, 123456, "http://wav", false).build();
     }
 }

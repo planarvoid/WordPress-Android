@@ -227,7 +227,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, Collections.<Urn>emptyList());
+        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, true, Collections.<Urn>emptyList());
         final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
 
         presenter.onCreate(fragment, null);

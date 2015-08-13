@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -11,18 +11,15 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
@@ -40,14 +37,14 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     public void hasLocalPlaylistsIsFalseWithNoPlaylists() throws Exception {
         testFixtures().insertPlaylist();
 
-        expect(storage.hasLocalPlaylists()).toBeFalse();
+        assertThat(storage.hasLocalPlaylists()).isFalse();
     }
 
     @Test
     public void hasLocalPlaylistsIsTrueWithLocalPlaylist() throws Exception {
         testFixtures().insertLocalPlaylist();
 
-        expect(storage.hasLocalPlaylists()).toBeTrue();
+        assertThat(storage.hasLocalPlaylists()).isTrue();
     }
 
     @Test
@@ -60,14 +57,14 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
 
-        expect(storage.getPlaylistsDueForSync()).toContainExactly(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
+        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
     }
 
     @Test
     public void loadPlaylistReturnsEmptyPropertySetIfNotStored() throws Exception {
         PropertySet playlist = storage.loadPlaylist(Urn.forPlaylist(123)).toBlocking().single();
 
-        expect(playlist).toEqual(PropertySet.create());
+        assertThat(playlist).isEqualTo(PropertySet.create());
     }
 
     @Test
@@ -76,14 +73,14 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, false));
+        assertThat(playlist).isEqualTo(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, false));
     }
 
     @Test
     public void loadsPlaylistWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() throws Exception {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
-        expect(apiPlaylist.getTrackCount()).toEqual(2);
+        assertThat(apiPlaylist.getTrackCount()).isEqualTo(2);
 
         final Urn playlistUrn = apiPlaylist.getUrn();
         testFixtures().insertPlaylistTrack(playlistUrn, 0);
@@ -92,8 +89,8 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist.get(PlaylistProperty.URN)).toEqual(playlistUrn);
-        expect(playlist.get(PlaylistProperty.TRACK_COUNT)).toEqual(3);
+        assertThat(playlist.get(PlaylistProperty.URN)).isEqualTo(playlistUrn);
+        assertThat(playlist.get(PlaylistProperty.TRACK_COUNT)).isEqualTo(3);
     }
 
     @Test
@@ -102,7 +99,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false, false, false));
+        assertThat(playlist).isEqualTo(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false, false, false));
     }
 
     @Test
@@ -112,7 +109,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true, false, false));
+        assertThat(playlist).isEqualTo(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true, false, false));
     }
 
     @Test
@@ -121,7 +118,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist.slice(
+        assertThat(playlist.slice(
                         EntityProperty.URN,
                         PlayableProperty.TITLE,
                         PlayableProperty.DURATION,
@@ -138,7 +135,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE,
                         PlaylistProperty.TRACK_COUNT
                 )
-        ).toEqual(
+        ).isEqualTo(
                 TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true, false)
         );
     }
@@ -155,7 +152,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                 .fromApiPlaylist(apiPlaylist, false, false, true, false)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
 
-        expect(playlist).toEqual(expected);
+        assertThat(playlist).isEqualTo(expected);
     }
 
     @Test
@@ -170,7 +167,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                 .fromApiPlaylist(apiPlaylist, false, false, true, false)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
 
-        expect(playlist).toEqual(expected);
+        assertThat(playlist).isEqualTo(expected);
     }
 
     @Test
@@ -189,7 +186,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                 .fromApiPlaylist(downloadedPlaylist, false, false, true, false)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
 
-        expect(result).toEqual(expected);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -199,6 +196,6 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, true));
+        assertThat(playlist).isEqualTo(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, true));
     }
 }

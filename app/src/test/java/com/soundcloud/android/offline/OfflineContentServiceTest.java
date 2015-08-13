@@ -77,6 +77,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Arrays.asList(downloadRequest1),
                 Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -92,6 +93,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Arrays.asList(downloadRequest1),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -134,6 +136,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     public void publishesDownloadRequestedWhenCreatingRequestsQueue() {
         final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Arrays.asList(downloadRequest1, downloadRequest2),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
@@ -333,6 +336,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
@@ -351,6 +355,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private OfflineContentUpdates createSingleDownloadRequestUpdate(DownloadRequest... requests) {
         return new OfflineContentUpdates(
                 Arrays.asList(requests),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()

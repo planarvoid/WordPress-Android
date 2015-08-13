@@ -1,23 +1,21 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
-
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LikedTrackStorageTest extends StorageIntegrationTest {
 
     private static final Date LIKED_DATE_1 = new Date(100);
@@ -31,8 +29,8 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     private PropertySet track4;
 
     private LikedTrackStorage storage;
-    private TestObserver<PropertySet> testObserver = new TestObserver<>();
-    private TestObserver<List<PropertySet>> testListObserver = new TestObserver<>();
+    private TestSubscriber<PropertySet> testObserver = new TestSubscriber<>();
+    private TestSubscriber<List<PropertySet>> testListObserver = new TestSubscriber<>();
 
     @Before
     public void setUp() {
@@ -53,7 +51,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     public void loadTrackLikesLoadsAllTrackLikes() {
         storage.loadTrackLikes(4, Long.MAX_VALUE).subscribe(testListObserver);
 
-        expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(
+        testListObserver.assertValue(Arrays.asList(
                 expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4),
                 expectedRequestedLikedTrackFor(track3, LIKED_DATE_3),
                 expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
@@ -64,14 +62,15 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     public void loadTrackLikesAdheresToLimit() {
         storage.loadTrackLikes(1, Long.MAX_VALUE).subscribe(testListObserver);
 
-        expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4)));
+        testListObserver.assertValue(
+                Collections.singletonList(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4)));
     }
 
     @Test
     public void loadTrackLikesAdheresToTimestamp() {
         storage.loadTrackLikes(3, LIKED_DATE_3.getTime()).subscribe(testListObserver);
 
-        expect(testListObserver.getOnNextEvents()).toContainExactly(Arrays.asList(
+        testListObserver.assertValue(Arrays.asList(
                 expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
                 expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1)));
     }
@@ -82,7 +81,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toBeEmpty();
+        testObserver.assertNoValues();
     }
 
     @Test
@@ -91,7 +90,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(expectedLikedTrackFor(track1, LIKED_DATE_1));
+        testObserver.assertValue(expectedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test
@@ -101,7 +100,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1));
+        testObserver.assertValue(expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(expectedRequestedLikedTrackFor(track1, LIKED_DATE_1));
+        testObserver.assertValue(expectedRequestedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test
@@ -121,14 +120,28 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(expectedRemovedLikedTrackFor(track1, LIKED_DATE_1));
+       testObserver.assertValue(expectedRemovedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test
     public void loadLikedTrackLoadsMidTierMonetizableTrackIncludingPolicy() {
         storage.loadTrackLike(track4.get(TrackProperty.URN)).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4));
+        testObserver.assertValue(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4));
+    }
+
+    @Test
+    public void loadLikedTrackLoadsUnavailableOfflineState() {
+        track1 = testFixtures().insertLikedTrack(LIKED_DATE_1).toPropertySet();
+        Urn urn = track1.get(PlayableProperty.URN);
+
+        testFixtures().insertUnavailableTrackDownload(urn, new Date().getTime());
+        testFixtures().insertLikesMarkedForOfflineSync();
+        testFixtures().insertPolicyBlock(urn);
+
+        storage.loadTrackLike(urn).subscribe(testObserver);
+
+        testObserver.assertValue(expectedUnavailableLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt) {
@@ -145,6 +158,10 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
     private PropertySet expectedMidTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
         return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_MID_TIER, true);
+    }
+
+    private PropertySet expectedUnavailableLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

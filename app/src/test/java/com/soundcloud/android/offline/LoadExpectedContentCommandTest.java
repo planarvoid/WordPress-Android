@@ -255,6 +255,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     }
 
     private DownloadRequest downloadRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylists) {
-        return new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), inLikes, inPlaylists);
+        return new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), track.isSyncable(), inLikes, inPlaylists);
     }
 }

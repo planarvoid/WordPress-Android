@@ -13,19 +13,22 @@ public final class DownloadRequest {
     public final String waveformUrl;
     public final List<Urn> inPlaylists;
     public final boolean inLikedTracks;
+    public final boolean downloadable;
 
     public static class Builder {
         private final Urn track;
         private final long duration;
         private final String waveformUrl;
+        private final boolean syncable;
 
         private List<Urn> playlists = new ArrayList<>();
         private boolean inLikes = false;
 
-        public Builder(Urn track, long duration, String waveformUrl) {
+        public Builder(Urn track, long duration, String waveformUrl, boolean syncable) {
             this.track = track;
             this.duration = duration;
             this.waveformUrl = waveformUrl;
+            this.syncable = syncable;
         }
 
         public Builder addToLikes(boolean inLikes) {
@@ -43,20 +46,22 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, duration, waveformUrl, inLikes, playlists);
+            return new DownloadRequest(track, duration, waveformUrl, syncable, inLikes, playlists);
         }
     }
 
-    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean inLikedTracks, List<Urn> inPlaylists) {
+    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean downloadable,
+                           boolean inLikedTracks, List<Urn> inPlaylists) {
         this.track = track;
         this.duration = duration;
         this.waveformUrl = waveformUrl;
+        this.downloadable = downloadable;
         this.inPlaylists = inPlaylists;
         this.inLikedTracks = inLikedTracks;
     }
 
     public DownloadRequest(Urn trackUrn, long duration, String waveformUrl) {
-        this(trackUrn, duration, waveformUrl, false, Collections.<Urn>emptyList());
+        this(trackUrn, duration, waveformUrl, true, false, Collections.<Urn>emptyList());
     }
 
     @Override

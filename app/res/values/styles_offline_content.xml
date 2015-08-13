@@ -5,5 +5,6 @@
     <style name="DownloadItem">
         <item name="downloaded">@drawable/entity_downloaded</item>
         <item name="downloading">@drawable/entity_downloading</item>
+        <item name="unavailable">@drawable/entity_unavailable</item>
     </style>
 </resources>

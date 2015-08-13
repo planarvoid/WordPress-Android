@@ -32,6 +32,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(TRACK)
         );
 
@@ -45,6 +46,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         final OfflineContentUpdates offlineContentUpdates = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(request),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
@@ -61,6 +63,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.singletonList(request),
+                Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -72,7 +75,8 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     private OfflineContentUpdates getOfflineContentRequests(List<DownloadRequest> allDownloadRequests,
                                                              List<DownloadRequest> newDownloadRequests,
                                                              List<DownloadRequest> newRestoredRequests,
+                                                             List<DownloadRequest> creatorOptOutRequests,
                                                              List<Urn> toRemove) {
-        return new OfflineContentUpdates(allDownloadRequests, newDownloadRequests, newRestoredRequests, toRemove);
+        return new OfflineContentUpdates(allDownloadRequests, newDownloadRequests, newRestoredRequests, creatorOptOutRequests, toRemove);
     }
 }

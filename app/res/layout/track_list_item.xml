@@ -46,6 +46,14 @@
                 android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView
+               android:id="@+id/not_available_offline"
+               style="@style/ListItemText.TertiaryText"
+               android:layout_toRightOf="@id/image"
+               android:layout_below="@id/list_item_subheader"
+               android:text="@string/offline_not_available_offline"
+               android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_right_info"
                 style="@style/ListItemText.Numeric"
                 android:layout_marginTop="-2dp"
