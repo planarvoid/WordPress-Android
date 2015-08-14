@@ -1,33 +1,26 @@
-package com.soundcloud.android.api.model;
+package com.soundcloud.android.stations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
-public final class ApiStationInfo {
+public final class ApiStationMetadata {
 
     private final Urn urn;
     private final String title;
+    private final String permalink;
     private final String type;
-    private final ApiTrack seedTrack;
 
     @JsonCreator
-    ApiStationInfo(@JsonProperty("urn") Urn urn,
-                   @JsonProperty("title") String title,
-                   @JsonProperty("type") String type,
-                   @JsonProperty("_embedded") RelatedResources relatedResources) {
-        this(urn, title, type, relatedResources.track);
-    }
-
-    public ApiStationInfo(Urn urn,
-                   String title,
-                   String type,
-                   ApiTrack seedTrack) {
+    ApiStationMetadata(@JsonProperty("urn") Urn urn,
+                       @JsonProperty("title") String title,
+                       @JsonProperty("permalink") String permalink,
+                       @JsonProperty("type") String type) {
         this.urn = urn;
         this.title = title;
+        this.permalink = permalink;
         this.type = type;
-        this.seedTrack = seedTrack;
     }
 
     public Urn getUrn() {
@@ -46,8 +39,8 @@ public final class ApiStationInfo {
         return type;
     }
 
-    public ApiTrack getSeedTrack() {
-        return seedTrack;
+    public String getPermalink() {
+        return permalink;
     }
 
     @Override
@@ -58,7 +51,7 @@ public final class ApiStationInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ApiStationInfo that = (ApiStationInfo) o;
+        ApiStationMetadata that = (ApiStationMetadata) o;
         return MoreObjects.equal(urn, that.urn);
     }
 
@@ -67,12 +60,4 @@ public final class ApiStationInfo {
         return urn.hashCode();
     }
 
-    private static class RelatedResources {
-        private final ApiTrack track;
-
-        @JsonCreator
-        RelatedResources(@JsonProperty("track") ApiTrack track) {
-            this.track = track;
-        }
-    }
 }

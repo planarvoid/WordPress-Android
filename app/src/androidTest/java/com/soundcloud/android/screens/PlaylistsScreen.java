@@ -30,12 +30,10 @@ public class PlaylistsScreen extends Screen {
         return playlistsListOnCurrentPage().getItemCount();
     }
 
-
     public PlaylistDetailsScreen clickPlaylist(With with) {
         testDriver.findElement(with).click();
         return new PlaylistDetailsScreen(testDriver);
     }
-
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
         playlistsList().getItemAt(index).click();

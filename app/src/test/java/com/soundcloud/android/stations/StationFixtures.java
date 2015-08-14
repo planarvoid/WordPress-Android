@@ -2,8 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.java.collections.Lists.transform;
 
-import com.soundcloud.android.api.model.ApiStation;
-import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -28,15 +26,25 @@ public class StationFixtures {
 
     public static ApiStation getApiStation(Urn station) {
         final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, 1));
-        return new ApiStation(getApiStationInfo(station), tracks);
+        return new ApiStation(getApiStationMetadata(station), tracks);
     }
 
-    private static ApiStationInfo getApiStationInfo(Urn station) {
-        final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
-        return new ApiStationInfo(station, "station " + System.currentTimeMillis(), "fixture-stations", seedTrack);
+    private static ApiStationMetadata getApiStationMetadata(Urn station) {
+        return new ApiStationMetadata(
+                station,
+                "station " + System.currentTimeMillis(),
+                "http://artwork",
+                "fixture-stations"
+        );
     }
 
     public static Station getStation(ApiStation apiStation) {
-        return new Station(apiStation.getInfo().getUrn(), apiStation.getInfo().getTitle(), transform(apiStation.getTracks().getCollection(), toUrn), 0);
+        return new Station(
+                apiStation.getUrn(),
+                apiStation.getTitle(),
+                apiStation.getType(),
+                transform(apiStation.getTracks().getCollection(), toUrn),
+                0
+        );
     }
 }

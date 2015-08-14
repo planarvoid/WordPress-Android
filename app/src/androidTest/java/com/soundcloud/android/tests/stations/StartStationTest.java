@@ -7,14 +7,16 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class StartStationTest extends ActivityTest<LauncherActivity> {
-    private StreamScreen streamScreen;
+
+    private PlaylistDetailsScreen playlistDetailsScreen;
 
     public StartStationTest() {
         super(LauncherActivity.class);
@@ -22,7 +24,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.stationsUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -30,13 +32,14 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS);
 
-        //FIXME: This is a workaround for #1487
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        streamScreen = new StreamScreen(solo);
+        playlistDetailsScreen = menuScreen
+                .open()
+                .clickPlaylists()
+                .clickPlaylist(With.text("track-stations"));
     }
 
     public void testStartStation() {
-        final VisualPlayerElement player = startStationFromFirstTrack();
+        final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(player, is(visible()));
     }
@@ -45,7 +48,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
-        final VisualPlayerElement playerElement = startStationFromFirstTrack();
+        final VisualPlayerElement playerElement = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(playerElement, is(not(visible())));
         assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_radio)));
@@ -54,7 +57,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartStationShouldResume() {
-        final VisualPlayerElement player = startStationFromFirstTrack();
+        final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 
         // We swipe next twice in order to ensure the database is correctly
         // persisting the last played track position
@@ -66,22 +69,19 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         player.pressBackToCollapse();
 
         // Start a new play queue
-        streamScreen.clickFirstTrack();
+        playlistDetailsScreen.clickFirstTrack();
         player.pressBackToCollapse();
 
-        final String resumedTrackTitle = startStationFromFirstTrack().getTrackTitle();
+        final String resumedTrackTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
         assertEquals(expectedTitle, resumedTrackTitle);
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
-        final String trackTitle = streamScreen.getTrack(0).getTitle();
+        final String trackTitle = playlistDetailsScreen.getTracks().get(0).getTitle();
 
-        startStationFromFirstTrack().pressBackToCollapse();
+        playlistDetailsScreen.startStationFromFirstTrack().pressBackToCollapse();
+        solo.goBack();
 
         assertTrue(menuScreen.open().clickStations().findStation(trackTitle).isVisible());
-    }
-
-    private VisualPlayerElement startStationFromFirstTrack() {
-        return streamScreen.clickFirstTrackOverflowButton().clickStartStation();
     }
 }

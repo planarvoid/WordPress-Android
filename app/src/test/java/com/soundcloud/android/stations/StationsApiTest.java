@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiStation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;

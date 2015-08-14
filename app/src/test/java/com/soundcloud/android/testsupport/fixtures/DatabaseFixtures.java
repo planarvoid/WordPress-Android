@@ -1,17 +1,16 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiStation;
-import com.soundcloud.android.api.model.ApiStationInfo;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -248,33 +247,32 @@ public class DatabaseFixtures {
 
     public ApiStation insertStation(int lastPlayedPosition) {
         final ApiStation station = StationFixtures.getApiStation();
-        final ApiStationInfo stationInfo = station.getInfo();
 
-        insertInto(Stations.TABLE, getStationContentValues(stationInfo, lastPlayedPosition));
+        insertInto(Stations.TABLE, getStationContentValues(station, lastPlayedPosition));
 
         final List<? extends TrackRecord> playQueue = station.getTracks().getCollection();
 
         for (int i = 0; i < playQueue.size(); i++) {
             final TrackRecord track = playQueue.get(i);
-            insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, stationInfo, track));
+            insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
         }
 
         return station;
     }
 
-    private ContentValues getStationContentValues(ApiStationInfo stationInfo, int lastPlayedPosition) {
+    private ContentValues getStationContentValues(ApiStation station, int lastPlayedPosition) {
         final ContentValuesBuilder stationContentValues = ContentValuesBuilder.values();
 
-        stationContentValues.put(Stations.STATION_URN, stationInfo.getUrn().toString());
-        stationContentValues.put(Stations.TITLE, stationInfo.getTitle());
-        stationContentValues.put(Stations.TYPE, stationInfo.getType());
-        stationContentValues.put(Stations.SEED_TRACK_ID, stationInfo.getSeedTrack().getId());
+        stationContentValues.put(Stations.STATION_URN, station.getUrn().toString());
+        stationContentValues.put(Stations.TITLE, station.getTitle());
+        stationContentValues.put(Stations.TYPE, station.getType());
+        stationContentValues.put(Stations.PERMALINK, station.getPermalink());
         stationContentValues.put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition);
 
         return stationContentValues.get();
     }
 
-    private ContentValues getTrackContentValues(int position, ApiStationInfo stationInfo, TrackRecord track) {
+    private ContentValues getTrackContentValues(int position, ApiStation stationInfo, TrackRecord track) {
         final ContentValuesBuilder trackContentValues = ContentValuesBuilder.values();
         
         trackContentValues.put(StationsPlayQueues.POSITION, position);
