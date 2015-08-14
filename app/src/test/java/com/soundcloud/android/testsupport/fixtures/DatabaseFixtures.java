@@ -11,6 +11,7 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.RecentStations;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -533,25 +534,22 @@ public class DatabaseFixtures {
 
     public ApiPlaylist insertPlaylistMarkedForOfflineSync() {
         final ApiPlaylist apiPlaylist = insertPlaylist();
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.OfflineContent._ID, apiPlaylist.getUrn().getNumericId());
-        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
-        insertInto(Table.OfflineContent, cv);
+        insertPlaylistMarkedForOfflineSync(apiPlaylist);
         return apiPlaylist;
     }
 
     public void insertPlaylistMarkedForOfflineSync(ApiPlaylist playlist) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.OfflineContent._ID, playlist.getUrn().getNumericId());
-        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
-        insertInto(Table.OfflineContent, cv);
+        cv.put(OfflineContent._ID.name(), playlist.getUrn().getNumericId());
+        cv.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_PLAYLIST);
+        insertInto(OfflineContent.TABLE, cv);
     }
 
     public void insertLikesMarkedForOfflineSync() {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.OfflineContent._ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES);
-        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_COLLECTION);
-        insertInto(Table.OfflineContent, cv);
+        cv.put(OfflineContent._ID.name(), OfflineContent.ID_OFFLINE_LIKES);
+        cv.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_COLLECTION);
+        insertInto(OfflineContent.TABLE, cv);
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

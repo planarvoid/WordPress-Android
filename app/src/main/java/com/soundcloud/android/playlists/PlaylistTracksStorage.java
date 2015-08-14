@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE;
 import static com.soundcloud.android.playlists.PlaylistMapper.readSoundUrn;
 import static com.soundcloud.android.playlists.PlaylistMapper.readTrackCount;
-import static com.soundcloud.android.playlists.PlaylistStorage.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
@@ -24,7 +23,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -98,13 +97,13 @@ class PlaylistTracksStorage {
                         TrackDownloads.UNAVAILABLE_AT,
                         TrackPolicies.SUB_MID_TIER,
                         TrackDownloads.REMOVED_AT.qualifiedName(),
-                        field(Table.OfflineContent.field(TableColumns.OfflineContent._ID)).as(IS_MARKED_FOR_OFFLINE))
+                        OfflineContent._ID.defaultAlias())
 
                 .innerJoin(Table.Sounds.name(), Table.PlaylistTracks.field(PlaylistTracks.TRACK_ID), fullSoundIdColumn)
                 .innerJoin(Table.Users.name(), Table.Sounds.field(Sounds.USER_ID), Table.Users.field(Users._ID))
                 .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TrackPolicies.TRACK_ID))
-                .leftJoin(Table.OfflineContent.name(), offlinePlaylistFilter())
+                .leftJoin(OfflineContent.TABLE.name(), offlinePlaylistFilter())
 
                 .whereEq(Table.Sounds.field(Sounds._TYPE), Sounds.TYPE_TRACK)
                 .whereEq(Table.PlaylistTracks.field(PlaylistTracks.PLAYLIST_ID), playlistUrn.getNumericId())
@@ -114,8 +113,8 @@ class PlaylistTracksStorage {
 
     private Where offlinePlaylistFilter() {
         return filter()
-                .whereEq(Table.OfflineContent.field(TableColumns.OfflineContent._ID), PlaylistTracks.PLAYLIST_ID)
-                .whereEq(Table.OfflineContent.field(TableColumns.OfflineContent._TYPE), TableColumns.OfflineContent.TYPE_PLAYLIST);
+                .whereEq(OfflineContent._ID.qualifiedName(), PlaylistTracks.PLAYLIST_ID)
+                .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_PLAYLIST);
     }
 
     private Query queryPlaylistsWithTrackExistStatus(Urn trackUrn) {
@@ -127,7 +126,7 @@ class PlaylistTracksStorage {
                         field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
                         count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(isTrackInPlaylist(trackUrn)).as(IS_TRACK_ALREADY_ADDED),
-                        exists(IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
+                        exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
 
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(SoundView._ID), PlaylistTracks.PLAYLIST_ID)
                 .innerJoin(Table.Posts.name(),

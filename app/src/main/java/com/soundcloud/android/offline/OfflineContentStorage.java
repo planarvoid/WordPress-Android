@@ -1,14 +1,10 @@
 package com.soundcloud.android.offline;
 
-import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.OfflineContent;
-import static com.soundcloud.android.storage.TableColumns.OfflineContent._TYPE;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.query.Filter;
@@ -41,56 +37,56 @@ class OfflineContentStorage {
     }
 
     public Observable<ChangeResult> storeAsOfflinePlaylist(Urn playlistUrn) {
-        return propellerRx.upsert(OfflineContent, buildContentValuesForPlaylist(playlistUrn));
+        return propellerRx.upsert(OfflineContent.TABLE, buildContentValuesForPlaylist(playlistUrn));
     }
 
     public Observable<ChangeResult> removeFromOfflinePlaylists(Urn playlistUrn) {
-        return propellerRx.delete(OfflineContent, playlistFilter(playlistUrn));
+        return propellerRx.delete(OfflineContent.TABLE, playlistFilter(playlistUrn));
     }
 
     public Observable<ChangeResult> storeOfflineLikesDisabled() {
-        return propellerRx.delete(OfflineContent, offlineLikesFilter());
+        return propellerRx.delete(OfflineContent.TABLE, offlineLikesFilter());
     }
 
     public Observable<ChangeResult> storeOfflineLikesEnabled() {
-        return propellerRx.upsert(OfflineContent, buildContentValuesForOfflineLikes());
+        return propellerRx.upsert(OfflineContent.TABLE, buildContentValuesForOfflineLikes());
     }
 
     public static Query isOfflineLikesEnabledQuery() {
-        return Query.apply(exists(Query.from(Table.OfflineContent.name())
+        return Query.apply(exists(Query.from(OfflineContent.TABLE)
                 .where(offlineLikesFilter()))
                 .as(IS_OFFLINE_LIKES));
     }
 
     private Query isMarkedForOfflineQuery(Urn playlistUrn) {
-        return Query.apply(exists(Query.from(Table.OfflineContent.name())
+        return Query.apply(exists(Query.from(OfflineContent.TABLE)
                 .where(playlistFilter(playlistUrn)))
                 .as(IS_OFFLINE_PLAYLIST));
     }
 
     private ContentValues buildContentValuesForPlaylist(Urn urn) {
         return ContentValuesBuilder.values(2)
-                .put(_ID, urn.getNumericId())
-                .put(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)
+                .put(OfflineContent._ID, urn.getNumericId())
+                .put(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
                 .get();
     }
 
     private ContentValues buildContentValuesForOfflineLikes() {
         return ContentValuesBuilder.values(2)
-                .put(_ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
-                .put(_TYPE, TableColumns.OfflineContent.TYPE_COLLECTION)
+                .put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
+                .put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION)
                 .get();
     }
 
     static Where offlineLikesFilter() {
         return Filter.filter()
-                .whereEq(_ID, TableColumns.OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_COLLECTION);
+                .whereEq(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
     }
 
     private Where playlistFilter(Urn urn) {
         return Filter.filter()
-                .whereEq(_ID, urn.getNumericId())
-                .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+                .whereEq(OfflineContent._ID, urn.getNumericId())
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
     }
 }

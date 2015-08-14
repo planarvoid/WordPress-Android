@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.offline.DownloadRequest.Builder;
 import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.Table.OfflineContent;
+import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
@@ -151,12 +151,12 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     }
 
     private Query orderedPlaylistQuery() {
-        return Query.from(OfflineContent.name())
+        return Query.from(OfflineContent.TABLE)
                 .select(
-                        OfflineContent.field(TableColumns.OfflineContent._ID))
+                        OfflineContent._ID.defaultAlias())
                 .innerJoin(Sounds.name(), filter()
-                        .whereEq(Sounds.field(_ID), OfflineContent.field(_ID))
-                        .whereEq(Sounds.field(_TYPE), OfflineContent.field(_TYPE)))
+                        .whereEq(Sounds.field(_ID), OfflineContent._ID.qualifiedName())
+                        .whereEq(Sounds.field(_TYPE), OfflineContent._TYPE.qualifiedName()))
                 .whereEq(Sounds.field(_TYPE), TYPE_PLAYLIST)
                 .order(Sounds.field(CREATED_AT), DESC);
     }

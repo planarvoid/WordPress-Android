@@ -11,7 +11,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -63,15 +63,16 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
 
                 // update offline playlist if exists
                 final ContentValues offlinePlaylistValues = new ContentValues();
-                offlinePlaylistValues.put(TableColumns.OfflineContent._ID, newPlaylist.getUrn().getNumericId());
-                offlinePlaylistValues.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+                offlinePlaylistValues.put(OfflineContent._ID.name(), newPlaylist.getUrn().getNumericId());
+                offlinePlaylistValues.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_PLAYLIST);
 
-                final ChangeResult changeResult = step(propeller.delete(Table.OfflineContent,
-                        filter().whereEq(TableColumns.OfflineContent._ID, localPlaylistUrn.getNumericId())
-                                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)));
+                final ChangeResult changeResult = step(
+                        propeller.delete(OfflineContent.TABLE,
+                        filter().whereEq(OfflineContent._ID, localPlaylistUrn.getNumericId())
+                                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)));
 
                 if (changeResult.getNumRowsAffected() > 0) {
-                    step(propeller.insert(Table.OfflineContent, offlinePlaylistValues));
+                    step(propeller.insert(OfflineContent.TABLE, offlinePlaylistValues));
                 }
             }
         });

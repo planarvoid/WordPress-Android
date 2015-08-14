@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.propeller.schema.BaseTable;
 import com.soundcloud.propeller.schema.Column;
 
@@ -162,6 +163,30 @@ public interface Tables {
 
         protected TrackDownloads() {
             super("TrackDownloads", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
+
+    class OfflineContent extends BaseTable {
+
+        public static final OfflineContent TABLE = new OfflineContent();
+
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column _TYPE = Column.create(TABLE, "_type");
+
+        public static final int TYPE_PLAYLIST = Sounds.TYPE_PLAYLIST;
+        public static final int TYPE_COLLECTION = Sounds.TYPE_COLLECTION;
+
+        public static final int ID_OFFLINE_LIKES = 0;
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS OfflineContent (" +
+                "_id INTEGER," +
+                "_type INTEGER," +
+                "PRIMARY KEY (_id, _type)," +
+                "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
+                ");";
+
+        protected OfflineContent() {
+            super("OfflineContent", PrimaryKey.of(BaseColumns._ID, "_type"));
         }
     }
 }

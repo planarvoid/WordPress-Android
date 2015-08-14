@@ -28,31 +28,32 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     @Mock AccountOperations accountOperations;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         storage = new com.soundcloud.android.playlists.PlaylistStorage(propeller(), propellerRx(), accountOperations);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
     }
 
     @Test
-    public void hasLocalPlaylistsIsFalseWithNoPlaylists() throws Exception {
+    public void hasLocalPlaylistsIsFalseWithNoPlaylists() {
         testFixtures().insertPlaylist();
 
         assertThat(storage.hasLocalPlaylists()).isFalse();
     }
 
     @Test
-    public void hasLocalPlaylistsIsTrueWithLocalPlaylist() throws Exception {
+    public void hasLocalPlaylistsIsTrueWithLocalPlaylist() {
         testFixtures().insertLocalPlaylist();
 
         assertThat(storage.hasLocalPlaylists()).isTrue();
     }
 
     @Test
-    public void hasPlaylistDueForSyncReturnsOnlyRemotePlaylistWithUnpushedTracks() throws Exception {
+    public void hasPlaylistDueForSyncReturnsOnlyRemotePlaylistWithUnpushedTracks() {
         testFixtures().insertPlaylist();
         final ApiPlaylist localPlaylist = testFixtures().insertLocalPlaylist();
         ApiPlaylist playlistWithAddition = testFixtures().insertPlaylist();
         ApiPlaylist playlistWithRemoval = testFixtures().insertPlaylist();
+
         testFixtures().insertPlaylistTrackPendingAddition(localPlaylist, 0, new Date());
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
@@ -61,14 +62,14 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadPlaylistReturnsEmptyPropertySetIfNotStored() throws Exception {
+    public void loadPlaylistReturnsEmptyPropertySetIfNotStored() {
         PropertySet playlist = storage.loadPlaylist(Urn.forPlaylist(123)).toBlocking().single();
 
         assertThat(playlist).isEqualTo(PropertySet.create());
     }
 
     @Test
-    public void loadsPlaylistFromDatabase() throws Exception {
+    public void loadsPlaylistFromDatabase() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
@@ -77,7 +78,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsPlaylistWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() throws Exception {
+    public void loadsPlaylistWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
         assertThat(apiPlaylist.getTrackCount()).isEqualTo(2);
@@ -94,7 +95,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsLikedPlaylistFromDatabase() throws Exception {
+    public void loadsLikedPlaylistFromDatabase() {
         ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date(100));
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
@@ -103,7 +104,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsRepostedPlaylistFromDatabase() throws Exception {
+    public void loadsRepostedPlaylistFromDatabase() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertPlaylistRepost(apiPlaylist.getId(), 123L);
 
@@ -113,7 +114,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsMarkedForOfflineAvailabilityPlaylistFromDatabase() throws Exception {
+    public void loadsMarkedForOfflineAvailabilityPlaylistFromDatabase() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
@@ -141,7 +142,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() throws Exception {
+    public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         testFixtures().insertTrackPendingDownload(track.getUrn(), System.currentTimeMillis());
@@ -156,7 +157,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() throws Exception {
+    public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 123L, System.currentTimeMillis());
@@ -171,7 +172,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() throws Exception {
+    public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() {
         final ApiPlaylist downloadedPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack downloadedTrack = testFixtures().insertPlaylistTrack(downloadedPlaylist, 0);
         testFixtures().insertCompletedTrackDownload(downloadedTrack.getUrn(), 123L, System.currentTimeMillis());
@@ -190,7 +191,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsPostedPlaylistFromDatabase() throws Exception {
+    public void loadsPostedPlaylistFromDatabase() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
 
