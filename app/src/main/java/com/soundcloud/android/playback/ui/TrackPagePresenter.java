@@ -408,6 +408,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final Iterable<View> fullScreenViews = getFullScreenViews(holder);
         helper.configureViewsFromSlide(slideOffset, holder.footer, fullScreenViews, holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
+
+        getViewHolder(trackView).closeIndicator.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
+        getViewHolder(trackView).footer.setVisibility(slideOffset < 1 ? View.VISIBLE : View.GONE);
     }
 
     private Iterable<View> getFullScreenViews(TrackPageHolder holder) {
