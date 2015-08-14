@@ -48,6 +48,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -66,6 +67,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     private ImageOperations imageOperations;
     private Scheduler scheduler;
+    private DisplayMetrics displayMetrics = new DisplayMetrics();
 
     @Mock ImageLoader imageLoader;
     @Mock ApiUrlBuilder apiUrlBuilder;
@@ -98,13 +100,16 @@ public class ImageOperationsTest extends AndroidUnitTest {
                 imageProcessor, placeholderCache, blurCache, fileNameGenerator);
         scheduler = Schedulers.immediate();
 
+        displayMetrics.widthPixels = 1080;
+        displayMetrics.heightPixels = 1920;
+
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
         when(placeholderGenerator.generateTransitionDrawable(any(String.class))).thenReturn(transitionDrawable);
         when(placeholderGenerator.generateDrawable(any(String.class))).thenReturn(gradientDrawable);
         when(apiUrlBuilder.from(eq(ApiEndpoints.IMAGES), eq(URN), anyString())).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(RESOLVER_URL);
-
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
     }
 
     @Test

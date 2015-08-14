@@ -41,6 +41,7 @@ import rx.subjects.PublishSubject;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +53,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     private PropertySet track;
     private PropertySet trackWithAdMeta;
     private Bitmap bitmap;
+    private DisplayMetrics displayMetrics = new DisplayMetrics();
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -74,6 +76,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                 InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, featureFlags);
         controller.subscribe();
 
+        displayMetrics.widthPixels = 1080;
+        displayMetrics.heightPixels = 1920;
+
         track = expectedTrackForPlayer();
         trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
         trackUrn = track.get(TrackProperty.URN);
@@ -84,6 +89,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(trackUrn, true)).thenReturn(Observable.just(recommendedPlayQueue));
         when(featureFlags.isEnabled(Flag.NEVER_ENDING_PLAY_QUEUE)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
     }
 
     @Test
