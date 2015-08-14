@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.NotificationConstants;
-import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -25,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 class BackgroundPlaybackNotificationController implements PlaybackNotificationController.Strategy {
-    private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
     private final TrackRepository trackRepository;
     private final NotificationManager notificationManager;
@@ -47,10 +45,9 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     private NotificationBuilder notificationBuilder;
 
     @Inject
-    BackgroundPlaybackNotificationController(Resources resources, TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
+    BackgroundPlaybackNotificationController(TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
                                              NotificationManager notificationManager, ImageOperations imageOperations,
                                              Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
-        this.resources = resources;
         this.trackRepository = trackRepository;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
@@ -87,7 +84,6 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
-            notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
             subscriptions.add(getBitmap(trackUrn, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override

@@ -51,12 +51,16 @@ public class RemoteAudioManager extends FallbackRemoteAudioManager {
 
     private void applyRemoteMetadata(PropertySet track, Bitmap artwork) {
         final NotificationTrack trackViewModel = new NotificationTrack(resources, track);
-        client.editMetadata(false)
-                .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork)
+        RemoteControlClient.MetadataEditor metadataEditor = client.editMetadata(false)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, trackViewModel.getTitle())
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, trackViewModel.getCreatorName())
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, trackViewModel.getDuration())
-                .apply();
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, trackViewModel.getDuration());
+
+        if (artwork != null) {
+            metadataEditor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork);
+        }
+
+        metadataEditor.apply();
     }
 
     private void registerRemoteControlClient() {
