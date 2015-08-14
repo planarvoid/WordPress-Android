@@ -8,6 +8,7 @@ public class SettingKey {
 
     // GeneralSettings
     public static final String WIRELESS = "wireless";
+    public static final String AUTOPLAY_RELATED_ENABLED = "autoplay_related_enabled";
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
     public static final String ANALYTICS_ENABLED = "analytics_enabled";

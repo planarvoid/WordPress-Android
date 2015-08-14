@@ -11,11 +11,10 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -26,6 +25,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.annotation.VisibleForTesting;
@@ -50,7 +50,7 @@ public class PlaySessionController {
     private final ImageOperations imageOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
-    private final FeatureFlags featureFlags;
+    private final SharedPreferences sharedPreferences;
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
@@ -74,14 +74,15 @@ public class PlaySessionController {
                                  PlayQueueOperations playQueueOperations,
                                  ImageOperations imageOperations,
                                  PlaySessionStateProvider playSessionStateProvider,
-                                 CastConnectionHelper castConnectionHelper, FeatureFlags featureFlags) {
+                                 CastConnectionHelper castConnectionHelper,
+                                 SharedPreferences sharedPreferences) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.playQueueOperations = playQueueOperations;
-        this.featureFlags = featureFlags;
+        this.sharedPreferences = sharedPreferences;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -159,7 +160,7 @@ public class PlaySessionController {
             return false;
         } else {
             final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-            return featureFlags.isEnabled(Flag.NEVER_ENDING_PLAY_QUEUE) ||
+            return sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true) ||
                     currentPlaySessionSource.originatedInExplore() ||
                     Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
         }

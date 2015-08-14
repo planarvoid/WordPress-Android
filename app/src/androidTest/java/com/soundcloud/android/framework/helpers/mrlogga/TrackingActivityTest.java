@@ -39,6 +39,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         verifier.start();
     }
 
+    @SuppressWarnings("unused")
     protected void startEventRecording(String scenario){
         recordMode = true;
         recorder.startRecording(scenario);
