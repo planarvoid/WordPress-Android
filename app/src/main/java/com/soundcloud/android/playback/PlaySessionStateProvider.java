@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -66,20 +67,26 @@ public class PlaySessionStateProvider {
     }
 
     public PlaybackProgress getLastProgressEvent() {
-        return getLastProgressByUrn(currentPlayingUrn);
+        return getLastProgressForTrack(currentPlayingUrn);
     }
 
-    public PlaybackProgress getCurrentPlayQueueTrackProgress() {
-        final PlaybackProgress playbackProgress = progressMap.get(playQueueManager.getCurrentTrackUrn());
-        return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
+    public PlaybackProgress getLastProgressEventForCurrentPlayQueueTrack() {
+        return getLastProgressForTrack(playQueueManager.getCurrentTrackUrn());
     }
 
-    public PlaybackProgress getLastProgressByUrn(Urn trackUrn) {
-        final PlaybackProgress playbackProgress = progressMap.get(trackUrn);
-        return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
+    public PlaybackProgress getLastProgressForTrack(Urn urn) {
+        if (hasLastKnownProgress(urn)){
+            return progressMap.get(urn);
+
+        } else if (playQueueManager.wasLastSavedTrack(urn)) {
+            return new PlaybackProgress(playQueueManager.getLastSavedPosition(), Consts.NOT_SET);
+
+        } else {
+            return PlaybackProgress.empty();
+        }
     }
 
-    public boolean hasCurrentProgress(Urn trackUrn) {
+    public boolean hasLastKnownProgress(Urn trackUrn) {
         return progressMap.containsKey(trackUrn);
     }
 
@@ -101,7 +108,7 @@ public class PlaySessionStateProvider {
             }
 
             if (playingNewTrackFromBeginning(stateTransition, isTrackChange) || playbackStoppedMidSession(stateTransition)) {
-                final long lastValidProgress = getLastProgressByUrn(currentPlayingUrn).getPosition();
+                final long lastValidProgress = getLastProgressForTrack(currentPlayingUrn).getPosition();
                 playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : lastValidProgress);
             }
         }
@@ -112,8 +119,7 @@ public class PlaySessionStateProvider {
     }
 
     private boolean playingNewTrackFromBeginning(StateTransition stateTransition, boolean isTrackChange) {
-        PlaybackProgressInfo info = playQueueManager.getPlayProgressInfo();
-        return isTrackChange && (info == null || !info.shouldResumeTrack(stateTransition.getTrackUrn()));
+        return isTrackChange && !playQueueManager.wasLastSavedTrack(stateTransition.getTrackUrn());
     }
 
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {

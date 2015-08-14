@@ -415,7 +415,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
     }
 
     private void updateProgress(PlayerPagePresenter presenter, View trackView, Urn urn) {
-        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressByUrn(urn));
+        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForTrack(urn));
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PlayerItem> {

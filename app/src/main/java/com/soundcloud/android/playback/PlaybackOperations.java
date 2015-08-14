@@ -303,7 +303,7 @@ public class PlaybackOperations {
 
     public boolean shouldDisableSkipping() {
         return adsOperations.isCurrentTrackAudioAd() &&
-                playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+                playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
     private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
@@ -318,5 +318,7 @@ public class PlaybackOperations {
     private boolean isCurrentTrack(Urn trackUrn) {
         return playQueueManager.isCurrentTrack(trackUrn);
     }
+
+
 
 }
