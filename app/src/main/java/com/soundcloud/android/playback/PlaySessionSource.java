@@ -221,4 +221,16 @@ public class PlaySessionSource implements Parcelable {
             return this.toString().toLowerCase(Locale.ENGLISH);
         }
     }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("origin screen", originScreen)
+                .add("collectionUrn", collectionUrn)
+                .add("collectionOwnerUrn", collectionOwnerUrn)
+                .add("exploreVersion", exploreVersion)
+                .add("searchQuerySourceInfo", searchQuerySourceInfo)
+                .add("promotedSourceInfo", promotedSourceInfo)
+                .toString();
+    }
 }
