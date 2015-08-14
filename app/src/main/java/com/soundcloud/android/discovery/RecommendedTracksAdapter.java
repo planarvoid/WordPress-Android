@@ -1,5 +1,7 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.RecommendedTrackItemRenderer.OnRecommendedTrackClickListener;
+
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
@@ -11,9 +13,12 @@ import javax.inject.Inject;
 
 public class RecommendedTracksAdapter extends RecyclerItemAdapter<RecommendedTrackItem, RecommendedTracksAdapter.RecommendationsViewHolder> {
 
+    private final RecommendedTrackItemRenderer trackItemRenderer;
+
     @Inject
     RecommendedTracksAdapter(RecommendedTrackItemRenderer recommendedTrackItemRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendedTrackItemRenderer));
+        this.trackItemRenderer = recommendedTrackItemRenderer;
     }
 
     @Override
@@ -30,5 +35,9 @@ public class RecommendedTracksAdapter extends RecyclerItemAdapter<RecommendedTra
         public RecommendationsViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    void setOnRecommendedTrackClickListener(OnRecommendedTrackClickListener itemListener) {
+        this.trackItemRenderer.setOnRecommendedTrackClickListener(itemListener);
     }
 }

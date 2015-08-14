@@ -5,7 +5,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -56,7 +55,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Discove
         }
     }
 
-    void setOnRecommendationClickListener(@NonNull DiscoveryItemListener itemListener) {
+    void setOnRecommendationClickListener(DiscoveryItemListener itemListener) {
         this.trackRecommendationRenderer.setOnRecommendationClickListener(itemListener);
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
     }

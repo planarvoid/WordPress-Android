@@ -4,23 +4,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
+import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DiscoveryOperationsTest extends AndroidUnitTest {
@@ -29,10 +34,12 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private static final List<String> POPULAR_TAGS = Arrays.asList("popTag1", "popTag2");
     private static final List<String> RECENT_TAGS = Arrays.asList("recentTag1", "recentTag2");
+
     private final Scheduler scheduler = Schedulers.immediate();
     private final TestSubscriber<List<DiscoveryItem>> observer = new TestSubscriber<>();
     private final PublishSubject<SyncResult> syncSubject = PublishSubject.create();
     private final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
+    private final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
     private final List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 2);
 
     private DiscoveryOperations operations;
@@ -131,6 +138,58 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
+    @Test
+    public void loadsAllRecommendedTracksWithSeed() {
+        final TestObserver<List<Urn>> testObserver = new TestObserver<>();
+        final Urn recommendedTrackUrnOne =  Urn.forTrack(2L);
+        final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
+
+        when(recommendationsStorage.recommendedTracksPreviousToSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnOne)));
+        when(recommendationsStorage.recommendedTracksSubsequentToSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnTwo)));
+
+        operations.recommendedTracksWithSeed(SEED_ID, seedTrack.getUrn()).subscribe(testObserver);
+
+        List<Urn> recommendedTracksWithSeed = testObserver.getOnNextEvents().get(0);
+
+        assertThat(recommendedTracksWithSeed.get(0)).isEqualTo(recommendedTrackUrnOne);
+        assertThat(recommendedTracksWithSeed.get(1)).isEqualTo(seedTrack.getUrn());
+        assertThat(recommendedTracksWithSeed.get(2)).isEqualTo(recommendedTrackUrnTwo);
+    }
+
+    @Test
+    public void loadsRecommendedTracksForSeed() {
+        final TestObserver<List<RecommendedTrackItem>> testObserver = new TestObserver<>();
+
+        when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(createRecommendedTrackPropertySet()));
+
+        operations.recommendedTracksForSeed(SEED_ID).subscribe(testObserver);
+
+        List<RecommendedTrackItem> recommendedTracksForSeed = testObserver.getOnNextEvents().get(0);
+        RecommendedTrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
+
+        assertThat(recommendedTrackItem.getEntityUrn()).isEqualTo(recommendedTrack.getUrn());
+        assertThat(recommendedTrackItem.getTitle()).isEqualTo(recommendedTrack.getTitle());
+        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(recommendedTrack.getUserName());
+        assertThat(recommendedTrackItem.getDuration()).isEqualTo(recommendedTrack.getDuration());
+    }
+
+    @Test
+    public void loadsAllRecommendedTracks() {
+        final TestObserver<List<Urn>> testObserver = new TestObserver<>();
+        final Urn recommendedTrackUrnOne =  Urn.forTrack(2L);
+        final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
+
+        when(recommendationsStorage.recommendedTracks()).thenReturn(Observable.just(Arrays.asList(recommendedTrackUrnOne, recommendedTrackUrnTwo)));
+
+        operations.recommendedTracks().subscribe(testObserver);
+
+        List<Urn> recommendedTracks = testObserver.getOnNextEvents().get(0);
+
+        assertThat(recommendedTracks.size()).isEqualTo(2);
+        assertThat(recommendedTracks.contains(recommendedTrackUrnOne));
+        assertThat(recommendedTracks.contains(recommendedTrackUrnTwo));
+    }
+
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
         assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.TrackRecommendationItem);
 
@@ -164,5 +223,19 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
                 RecommendedTrackProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
                 RecommendedTrackProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
         );
+    }
+
+    private List<PropertySet> createRecommendedTrackPropertySet() {
+        PropertySet trackPropertySet = PropertySet.from(
+                RecommendedTrackProperty.SEED_SOUND_URN.bind(Urn.forTrack(SEED_ID)),
+                PlayableProperty.URN.bind(Urn.forTrack(recommendedTrack.getId())),
+                PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
+                PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
+                PlayableProperty.DURATION.bind(recommendedTrack.getDuration()),
+                TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
+                PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
+                PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())
+        );
+        return Collections.singletonList(trackPropertySet);
     }
 }
