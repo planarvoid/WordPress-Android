@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.propeller.WriteResult;
 
 import javax.inject.Inject;
 import java.util.concurrent.Callable;
@@ -29,8 +30,8 @@ public class RecommendationsSyncer implements Callable<Boolean> {
                         .build();
 
         final ModelCollection<ApiRecommendation> apiRecommendations = getApiRecommendations(request);
-        storeRecommendationsCommand.call(apiRecommendations);
-        return true; // always assume something changed, because we always clear / write whatever we got
+        final WriteResult writeResult = storeRecommendationsCommand.call(apiRecommendations);
+        return writeResult.success();
     }
 
     private ModelCollection<ApiRecommendation> getApiRecommendations(ApiRequest request)
