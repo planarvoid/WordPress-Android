@@ -10,12 +10,18 @@
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
+    <style name="Recommendation.RecommendedForYouText">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/recommended_for_you_text</item>
+    </style>
+
     <style name="Recommendation.ViewAllText">
         <item name="custom_font">fonts/Roboto-Medium.ttf</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/list_primary</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
 </resources>

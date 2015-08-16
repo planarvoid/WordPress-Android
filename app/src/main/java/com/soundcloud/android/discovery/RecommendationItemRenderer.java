@@ -8,11 +8,9 @@ import com.soundcloud.java.checks.Preconditions;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,7 +81,7 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
             }
         });
 
-        itemView.findViewById(R.id.view_all).setOnClickListener(new View.OnClickListener() {
+        itemView.findViewById(R.id.view_all_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
@@ -99,18 +97,8 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
         this.onRecommendationClickListener = listener;
     }
 
-    private SpannableString getViewAllText(RecommendationItem recommendationItem) {
-        String viewAllText = resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
-        // we use toUpperCase because we can't use the built in function with ImageSpans in Api 21+ (framework bug)
-        String viewAllTextWithChevron = viewAllText.toUpperCase();
-
-        Drawable drawable = resources.getDrawable(R.drawable.chevron_333);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
-
-        SpannableString spannableString = new SpannableString(viewAllTextWithChevron);
-        spannableString.setSpan(imageSpan, viewAllTextWithChevron.length() - 1, viewAllTextWithChevron.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        return spannableString;
+    private String getViewAllText(RecommendationItem recommendationItem) {
+        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount()).toUpperCase();
     }
 
     private Spannable getReasonText(RecommendationItem recommendationItem) {
