@@ -8,16 +8,12 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,30 +31,21 @@ public class SoundStreamSyncer implements SyncStrategy {
     private final StoreSoundStreamCommand storeSoundStreamCommand;
     private final ReplaceSoundStreamCommand replaceSoundStreamCommand;
     private final StreamSyncStorage streamSyncStorage;
-    private final FeatureFlags flags;
-    private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() {};
-
-    private final Predicate<ApiStreamItem> removePromotedItemsPredicate = new Predicate<ApiStreamItem>() {
-        @Override
-        public boolean apply(ApiStreamItem input) {
-            return !input.isPromotedStreamItem();
-        }
+    private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() {
     };
 
     @Inject
     public SoundStreamSyncer(ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand,
-                             ReplaceSoundStreamCommand replaceSoundStreamCommand, StreamSyncStorage streamSyncStorage,
-                             FeatureFlags flags) {
+                             ReplaceSoundStreamCommand replaceSoundStreamCommand, StreamSyncStorage streamSyncStorage) {
         this.apiClient = apiClient;
         this.storeSoundStreamCommand = storeSoundStreamCommand;
         this.replaceSoundStreamCommand = replaceSoundStreamCommand;
         this.streamSyncStorage = streamSyncStorage;
-        this.flags = flags;
     }
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws Exception  {
+    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws Exception {
         Log.d(this, "syncActivities(" + uri + "); action=" + action);
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
@@ -74,7 +61,7 @@ public class SoundStreamSyncer implements SyncStrategy {
     private ApiSyncResult prependActivitiesWithFallback() throws Exception {
         try {
             return prependStreamItems();
-        } catch (ApiRequestException exception){
+        } catch (ApiRequestException exception) {
             if (exception.isNetworkError()) {
                 throw exception;
             } else {
@@ -96,7 +83,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
 
         ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
-        replaceSoundStreamCommand.call(getFilteredCollection(streamItems));
+        replaceSoundStreamCommand.call(streamItems.getCollection());
         streamSyncStorage.storeNextPageUrl(streamItems.getNextLink());
 
         final Map<String, Link> links = streamItems.getLinks();
@@ -118,11 +105,11 @@ public class SoundStreamSyncer implements SyncStrategy {
             ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
             streamSyncStorage.storeNextPageUrl(streamItems.getNextLink());
 
-            if (streamItems.getCollection().isEmpty()){
+            if (streamItems.getCollection().isEmpty()) {
                 return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
 
             } else {
-                storeSoundStreamCommand.call(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
+                storeSoundStreamCommand.call(streamItems.getCollection());
                 return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
             }
 
@@ -148,16 +135,8 @@ public class SoundStreamSyncer implements SyncStrategy {
         if (streamItems.getCollection().isEmpty()) {
             return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
         } else {
-            storeSoundStreamCommand.call(getFilteredCollection(streamItems));
+            storeSoundStreamCommand.call(streamItems.getCollection());
             return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
-        }
-    }
-
-    private Iterable<ApiStreamItem> getFilteredCollection(ModelCollection<ApiStreamItem> streamItems) {
-        if (flags.isEnabled(Flag.PROMOTED_IN_STREAM)) {
-            return streamItems.getCollection();
-        } else {
-            return Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate);
         }
     }
 
