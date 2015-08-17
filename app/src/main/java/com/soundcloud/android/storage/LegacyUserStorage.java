@@ -14,7 +14,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 
 @Deprecated
-public class LegacyUserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
+public class LegacyUserStorage extends ScheduledOperations {
     private UserDAO userDAO;
 
     @Deprecated // use @Inject instead
@@ -33,7 +33,6 @@ public class LegacyUserStorage extends ScheduledOperations implements Storage<Pu
         this.userDAO = userDAO;
     }
 
-    @Override
     public PublicApiUser store(PublicApiUser user) {
         userDAO.create(user.buildContentValues());
         return user;

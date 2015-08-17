@@ -20,8 +20,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.storage.Storage;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -86,6 +84,7 @@ public class ApiSyncer extends LegacySyncStrategy {
         } else if (c.remoteUri != null) {
             switch (c) {
                 case ME:
+                    // still reached from system sync
                     result = syncMe(c);
                     if (result.success) {
                         resolver.notifyChange(Content.ME.uri, null);
@@ -100,25 +99,19 @@ public class ApiSyncer extends LegacySyncStrategy {
                     break;
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
-                case ME_SOUND_STREAM:
+                    // still reached from system sync
                     result = safeSyncActivities(uri, action);
                     break;
 
-                case PLAYLIST_LOOKUP:
                 case TRACK_LOOKUP:
                 case USER_LOOKUP:
+                    // still reached from search auto suggest
                     result = fetchAndInsertCollection(c, uri);
                     break;
 
-                case TRACK:
-                case USER:
-                    // sucks, but we'll kick out CP anyway
-                    Storage<? extends PublicApiResource> storage = c == Content.TRACK ? new TrackStorage() : new LegacyUserStorage();
-                    result = doResourceFetchAndInsert(uri, storage);
-                    break;
-
                 case ME_SHORTCUTS:
-                    result = syncMyGenericResource(c);
+                    // still used
+                    result = syncSearchShortcuts(c);
                     break;
             }
         }
@@ -245,7 +238,7 @@ public class ApiSyncer extends LegacySyncStrategy {
      * @return the syncresult
      * @throws IOException
      */
-    private ApiSyncResult syncMyGenericResource(Content c) throws IOException {
+    private ApiSyncResult syncSearchShortcuts(Content c) throws IOException {
         log("Syncing generic resource " + c.uri);
 
         ApiSyncResult result = new ApiSyncResult(c.uri);
@@ -274,32 +267,6 @@ public class ApiSyncer extends LegacySyncStrategy {
             result.success = true;
         } else {
             Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
-        }
-        return result;
-    }
-
-    /**
-     * Fetch a single resource from the api and create it into the content provider.
-     *
-     * @param contentUri the content point to get the request and content provider destination from.
-     *                   see {@link Content}
-     * @return the result of the operation
-     * @throws IOException
-     */
-    private <T extends PublicApiResource> ApiSyncResult doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
-        ApiSyncResult result = new ApiSyncResult(contentUri);
-        T resource = api.read(Content.match(contentUri).request(contentUri));
-
-        storage.store(resource);
-
-        final Uri insertedUri = resource.toUri();
-
-        if (insertedUri != null) {
-            log("inserted " + insertedUri.toString());
-            result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
-        } else {
-            log("failed to create to " + contentUri);
-            result.success = false;
         }
         return result;
     }

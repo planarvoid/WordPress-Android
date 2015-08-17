@@ -1,26 +1,17 @@
 package com.soundcloud.android.storage;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -28,68 +19,13 @@ import java.util.Collections;
 import java.util.List;
 
 @Deprecated
-public class TrackStorage extends ScheduledOperations implements Storage<PublicApiTrack> {
-    private TrackDAO trackDAO;
+public class TrackStorage extends ScheduledOperations {
     private ContentResolver resolver;
-    private ScModelManager modelManager;
-
-    // Use @Inject instead
-    @Deprecated
-    public TrackStorage() {
-        this(SoundCloudApplication.instance.getContentResolver(),
-                new TrackDAO(SoundCloudApplication.instance.getContentResolver()),
-                SoundCloudApplication.sModelManager);
-    }
 
     @Inject
-    public TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager){
-        this(contentResolver, trackDAO, modelManager, ScSchedulers.HIGH_PRIO_SCHEDULER);
-    }
-
-    @VisibleForTesting
-    TrackStorage(ContentResolver resolver, TrackDAO trackDAO, ScModelManager modelManager, Scheduler scheduler){
-        super(scheduler);
-        this.resolver = resolver;
-        this.trackDAO = trackDAO;
-        this.modelManager = modelManager;
-    }
-
-    @Override
-    public PublicApiTrack store(PublicApiTrack track) {
-        modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL);
-        trackDAO.create(track);
-        return track;
-    }
-
-
-    public Observable<PublicApiTrack> getTrackAsync(final long id) {
-        checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
-            @Override
-            public void call(Subscriber<? super PublicApiTrack> observer) {
-                try {
-                    final PublicApiTrack cachedTrack = modelManager.getCachedTrack(id);
-                    if (cachedTrack != null){
-                        observer.onNext(cachedTrack);
-                    } else {
-                        observer.onNext(getTrack(id));
-                    }
-                    observer.onCompleted();
-                } catch (NotFoundException e) {
-                    observer.onError(e);
-                }
-            }
-        }));
-    }
-
-    public PublicApiTrack getTrack(long id) throws NotFoundException {
-        checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
-        final PublicApiTrack track = trackDAO.queryById(id);
-        if (track == null) {
-            throw new NotFoundException(id);
-        } else {
-            return modelManager.cache(track);
-        }
+    public TrackStorage(ContentResolver contentResolver){
+        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
+        this.resolver = contentResolver;
     }
 
     // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without
