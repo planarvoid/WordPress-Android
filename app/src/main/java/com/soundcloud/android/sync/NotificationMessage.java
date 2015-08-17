@@ -24,88 +24,127 @@ import java.util.List;
 class NotificationMessage {
     public final CharSequence title, message, ticker;
 
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    public NotificationMessage(Resources res, Activities activities,
-                               Activities likes,
-                               Activities comments,
-                               Activities reposts) {
+    private NotificationMessage(CharSequence title, CharSequence message, CharSequence ticker) {
+        this.title = title;
+        this.message = message;
+        this.ticker = ticker;
+    }
 
+    static class Builder {
+        private final Resources res;
+        private Activities likes = Activities.EMPTY;
+        private Activities comments = Activities.EMPTY;
+        private Activities reposts = Activities.EMPTY;
+        private Activities followers = Activities.EMPTY;
+        private Activities mixed = Activities.EMPTY;
 
-        if (!reposts.isEmpty() && likes.isEmpty() && comments.isEmpty()) {
-            // only reposts
-            List<Playable> playables = reposts.getUniquePlayables();
-            ticker = res.getQuantityString(
-                    R.plurals.dashboard_notifications_activity_ticker_repost,
-                    reposts.size(),
-                    reposts.size());
+        Builder(Resources resources) {
+            this.res = resources;
+        }
 
-            title = res.getQuantityString(
-                    R.plurals.dashboard_notifications_activity_title_repost,
-                    reposts.size(),
-                    reposts.size());
+        public Builder setLikes(Activities likes) {
+            this.likes = likes;
+            return this;
+        }
 
-            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
-            if (playables.size() == 1 && reposts.size() == 1) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_repost,
-                        reposts.get(0).getUser().username,
-                        reposts.get(0).getPlayable().title);
-            } else if (playables.size() == 1) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_repost_one,
-                        playables.get(0).title);
-            } else if (playables.size() == 2) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_repost_two,
-                        playables.get(0).title,
-                        playables.get(1).title);
+        public Builder setComments(Activities comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public Builder setReposts(Activities reposts) {
+            this.reposts = reposts;
+            return this;
+        }
+
+        public Builder setFollowers(Activities followers) {
+            this.followers = followers;
+            return this;
+        }
+
+        public Builder setMixed(Activities mixed) {
+            this.mixed = mixed;
+            return this;
+        }
+
+        NotificationMessage build() {
+            if (hasRepostsOnly()) {
+                return buildRepostsOnlyNotification();
+            } else if (hasLikesOnly()) {
+                return buildLikesOnlyNotification();
+            } else if (hasCommentsOnly()) {
+                return buildCommentsOnlyNotification();
+            } else if (hasFollowersOnly()) {
+                return buildFollowersOnlyNotification();
             } else {
-                message = res.getString(R.string.dashboard_notifications_activity_message_repost_other,
-                        playables.get(0).title,
-                        playables.get(1).title);
+                return buildMixedActivitiesNotification();
             }
-        } else if (!likes.isEmpty() && comments.isEmpty() && reposts.isEmpty()) {
-            // only likes
-            List<Playable> playables = likes.getUniquePlayables();
-            ticker = res.getQuantityString(
-                    R.plurals.dashboard_notifications_activity_ticker_like,
-                    likes.size(),
-                    likes.size());
+        }
 
-            title = res.getQuantityString(
-                    R.plurals.dashboard_notifications_activity_title_like,
-                    likes.size(),
-                    likes.size());
+        private boolean hasCommentsOnly() {
+            return !comments.isEmpty() && likes.isEmpty() && reposts.isEmpty() && followers.isEmpty();
+        }
 
-            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
-            if (playables.size() == 1 && likes.size() == 1) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_likes,
-                        likes.get(0).getUser().username,
-                        likes.get(0).getPlayable().title);
-            } else if (playables.size() == 1) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_like_one,
-                        playables.get(0).title);
-            } else if (playables.size() == 2) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_like_two,
-                        playables.get(0).title,
-                        playables.get(1).title);
+        private boolean hasLikesOnly() {
+            return !likes.isEmpty() && comments.isEmpty() && reposts.isEmpty() && followers.isEmpty();
+        }
+
+        private boolean hasRepostsOnly() {
+            return !reposts.isEmpty() && likes.isEmpty() && comments.isEmpty() && followers.isEmpty();
+        }
+
+        private boolean hasFollowersOnly() {
+            return !followers.isEmpty() && likes.isEmpty() && comments.isEmpty() && reposts.isEmpty();
+        }
+
+        private NotificationMessage buildMixedActivitiesNotification() {
+            List<Playable> playables = mixed.getUniquePlayables();
+            List<PublicApiUser> users = mixed.getUniqueUsers();
+            final CharSequence ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
+                    mixed.size(),
+                    mixed.size());
+
+            final CharSequence title = res.getQuantityString(R.plurals.dashboard_notifications_activity_title_activity,
+                    mixed.size(),
+                    mixed.size());
+
+            final CharSequence message;
+            if (users.size() == 1) {
+                if (playables.size() == 1) {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_one_playable,
+                            users.get(0).username,
+                            playables.get(0).title);
+                } else {
+                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_multiple_playables,
+                            users.get(0).username);
+                }
+            } else if (users.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_activity_two,
+                        users.get(0).username,
+                        users.get(1).username);
             } else {
-                message = res.getString(R.string.dashboard_notifications_activity_message_like_other,
-                        playables.get(0).title,
-                        playables.get(1).title);
+                message = res.getString(R.string.dashboard_notifications_activity_message_activity_other,
+                        users.get(0).username,
+                        users.get(1).username);
             }
-        } else if (!comments.isEmpty() && likes.isEmpty() && reposts.isEmpty()) {
-            // only comments
+            return new NotificationMessage(title, message, ticker);
+        }
+
+        private NotificationMessage buildCommentsOnlyNotification() {
             List<Playable> playables = comments.getUniquePlayables();
             List<PublicApiUser> users = comments.getUniqueUsers();
 
-            ticker = res.getQuantityString(
+            final CharSequence ticker = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_ticker_comment,
                     comments.size(),
                     comments.size());
 
-            title = res.getQuantityString(
+            final CharSequence title = res.getQuantityString(
                     R.plurals.dashboard_notifications_activity_title_comment,
                     comments.size(),
                     comments.size());
 
+            final CharSequence message;
             if (playables.size() == 1) {
                 if (comments.size() == 1) {
                     message = res.getString(
@@ -141,37 +180,102 @@ class NotificationMessage {
                             users.get(1).username);
                 }
             }
-        } else {
-            // mix of likes, comments, reposts
-            List<Playable> playables = activities.getUniquePlayables();
-            List<PublicApiUser> users = activities.getUniqueUsers();
-            ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
-                    activities.size(),
-                    activities.size());
-
-            title = res.getQuantityString(R.plurals.dashboard_notifications_activity_title_activity,
-                    activities.size(),
-                    activities.size());
-
-            if (users.size() == 1) {
-                if (playables.size() == 1) {
-                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_one_playable,
-                            users.get(0).username,
-                            playables.get(0).title);
-                } else {
-                    message = res.getString(R.string.dashboard_notifications_activity_message_activity_one_user_multiple_playables,
-                            users.get(0).username);
-                }
-            } else if (users.size() == 2) {
-                message = res.getString(R.string.dashboard_notifications_activity_message_activity_two,
-                        users.get(0).username,
-                        users.get(1).username);
-            } else {
-                message = res.getString(R.string.dashboard_notifications_activity_message_activity_other,
-                        users.get(0).username,
-                        users.get(1).username);
-            }
+            return new NotificationMessage(title, message, ticker);
         }
+
+        private NotificationMessage buildLikesOnlyNotification() {
+            List<Playable> playables = likes.getUniquePlayables();
+            final CharSequence ticker = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_ticker_like,
+                    likes.size(),
+                    likes.size());
+
+            final CharSequence title = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_title_like,
+                    likes.size(),
+                    likes.size());
+
+            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
+            final CharSequence message;
+            if (playables.size() == 1 && likes.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_likes,
+                        likes.get(0).getUser().username,
+                        likes.get(0).getPlayable().title);
+            } else if (playables.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_one,
+                        playables.get(0).title);
+            } else if (playables.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_two,
+                        playables.get(0).title,
+                        playables.get(1).title);
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_like_other,
+                        playables.get(0).title,
+                        playables.get(1).title);
+            }
+            return new NotificationMessage(title, message, ticker);
+        }
+
+        private NotificationMessage buildRepostsOnlyNotification() {
+            List<Playable> playables = reposts.getUniquePlayables();
+            final CharSequence ticker = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_ticker_repost,
+                    reposts.size(),
+                    reposts.size());
+
+            final CharSequence title = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_title_repost,
+                    reposts.size(),
+                    reposts.size());
+
+            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
+            final CharSequence message;
+            if (playables.size() == 1 && reposts.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost,
+                        reposts.get(0).getUser().username,
+                        reposts.get(0).getPlayable().title);
+            } else if (playables.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_one,
+                        playables.get(0).title);
+            } else if (playables.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_two,
+                        playables.get(0).title,
+                        playables.get(1).title);
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_repost_other,
+                        playables.get(0).title,
+                        playables.get(1).title);
+            }
+            return new NotificationMessage(title, message, ticker);
+        }
+
+        private NotificationMessage buildFollowersOnlyNotification() {
+            List<PublicApiUser> users = followers.getUniqueUsers();
+            final CharSequence ticker = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_follower,
+                    users.size(),
+                    users.size());
+
+            final CharSequence title = res.getQuantityString(
+                    R.plurals.dashboard_notifications_activity_follower,
+                    users.size(),
+                    users.size());
+
+            // Note: Transifex requires plurals to have numbers, otherwise they should be just strings
+            final CharSequence message;
+            if (users.size() == 1) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_follow_one,
+                        users.get(0).getDisplayName());
+            } else if (users.size() == 2) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_follow_two,
+                        users.get(0).getDisplayName(),
+                        users.get(1).getDisplayName());
+            } else {
+                message = res.getString(R.string.dashboard_notifications_activity_message_follow_many, users.size());
+            }
+            return new NotificationMessage(title, message, ticker);
+        }
+
     }
 
     /* package */

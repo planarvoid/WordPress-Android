@@ -236,6 +236,10 @@
     <string name="dashboard_notifications_activity_message_like_two">on %1$s and %2$s</string>
     <string name="dashboard_notifications_activity_message_like_other">on %1$s, %2$s and other sounds</string>
 
+    <string name="dashboard_notifications_activity_message_follow_one">%1$s followed you</string>
+    <string name="dashboard_notifications_activity_message_follow_two">%1$s and %2$s followed you</string>
+    <string name="dashboard_notifications_activity_message_follow_many">You have %1$s new followers</string>
+
     <string name="dashboard_notifications_activity_message_comment_one">Comments from %s</string>
     <string name="dashboard_notifications_activity_message_comment_two">Comments from %1$s and %2$s</string>
     <string name="dashboard_notifications_activity_message_comment_other">Comments from %1$s, %2$s and others</string>

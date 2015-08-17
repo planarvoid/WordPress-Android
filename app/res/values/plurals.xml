@@ -39,12 +39,14 @@
         <item quantity="one">%d new like</item>
         <item quantity="other">%d new likes</item>
     </plurals>
-
     <plurals name="dashboard_notifications_activity_title_repost">
         <item quantity="one">%d new repost</item>
         <item quantity="other">%d new reposts</item>
     </plurals>
-
+    <plurals name="dashboard_notifications_activity_follower">
+        <item quantity="one">%d new follower</item>
+        <item quantity="other">%d new followers</item>
+    </plurals>
     <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
     <plurals name="dashboard_notifications_ticker">
         <item quantity="one">%s new sound</item>

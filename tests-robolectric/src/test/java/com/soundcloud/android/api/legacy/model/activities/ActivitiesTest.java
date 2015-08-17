@@ -132,6 +132,12 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testSelectNewFollowers() throws Exception {
+        Activities followers = getActivitiesWithNewFollowers().followers();
+        expect(followers.size()).toEqual(1);
+    }
+
+    @Test
     public void testGroupedByTrack() throws Exception {
         Map<Playable,Activities> grouped = getDefaultActivities().groupedByPlayable();
         expect(grouped.size()).toEqual(6);
@@ -154,6 +160,10 @@ public class ActivitiesTest {
 
     private static Activities getActivitiesWithRepost() throws IOException {
         return getActivities("/com/soundcloud/android/sync/e1_activities_with_repost.json");
+    }
+
+    private static Activities getActivitiesWithNewFollowers() throws IOException {
+        return getActivities("/com/soundcloud/android/sync/e1_activities_with_affiliation.json");
     }
 
     @Test
