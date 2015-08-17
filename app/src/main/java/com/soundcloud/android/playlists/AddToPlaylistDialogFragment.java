@@ -16,7 +16,6 @@ import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -156,15 +155,6 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
             if (toDismiss != null) {
                 toDismiss.dismiss();
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            if (e instanceof NotFoundException) {
-                Toast.makeText(getActivity(), getString(R.string.playlist_removed), Toast.LENGTH_SHORT).show();
-            } else {
-                super.onError(e);
             }
         }
     }
