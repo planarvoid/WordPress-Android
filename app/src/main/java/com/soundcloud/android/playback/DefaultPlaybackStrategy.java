@@ -46,7 +46,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 .create(new Observable.OnSubscribe<PlaybackResult>() {
                     @Override
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
-                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition, initialTrackUrn);
+                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition,
+                                initialTrackUrn, playSessionSource);
                         setAndPlayNewQueue(playQueue, updatedPosition, playSessionSource);
                         subscriber.onNext(PlaybackResult.success());
                         subscriber.onCompleted();

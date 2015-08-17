@@ -28,11 +28,11 @@ public class PlaybackUtils {
         }
     }
 
-    public static int correctStartPositionAndDeduplicateList(PlayQueue playQueue, int startPosition, Urn initialTrack) {
+    public static int correctStartPositionAndDeduplicateList(PlayQueue playQueue, int startPosition, Urn initialTrack, PlaySessionSource playSessionSource) {
         int updatedPosition = correctInitialPosition(playQueue, startPosition, initialTrack);
 
         if (updatedPosition < 0) {
-            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to play an adapter track that's not in the list"));
+            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to play an adapter track that's not in the list from " + playSessionSource));
             updatedPosition = 0;
         }
 
