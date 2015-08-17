@@ -91,24 +91,24 @@ public class RecommendationsStorage {
     }
 
     Observable<List<Urn>> recommendedTracks() {
-        final Query query = queryAllRecommendedTrack();
+        final Query query = allRecommendedTracks();
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> recommendedTracksBeforeSeed(long localSeedId) {
-        final Query query = queryAllRecommendedTrack().whereLt(Recommendations.SEED_ID, localSeedId);
+        final Query query = allRecommendedTracks().whereLt(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> recommendedTracksAfterSeed(long localSeedId) {
-        final Query query = queryAllRecommendedTrack().whereGe(Recommendations.SEED_ID, localSeedId);
+        final Query query = allRecommendedTracks().whereGe(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
-    private Query queryAllRecommendedTrack() {
+    private Query allRecommendedTracks() {
         return Query.from(Recommendations.TABLE)
                 .select(Recommendations.RECOMMENDED_SOUND_ID)
                 .whereEq(Recommendations.RECOMMENDED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);

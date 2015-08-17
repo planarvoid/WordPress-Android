@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -86,5 +87,8 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
 
         presenter.onBuildBinding(mock(Bundle.class));
         presenter.onRecommendedTrackClicked(recommendedTrackItemOne);
+        verify(discoveryOperations).recommendedTracksForSeed(anyLong());
+        verify(discoveryOperations).recommendedTracks();
+        verify(playbackOperations).playTracks(eq(recommendedTracks), eq(entityUrn), eq(0), isA(PlaySessionSource.class));
     }
 }

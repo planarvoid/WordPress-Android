@@ -52,7 +52,7 @@ public class RecommendedTrackItemRenderer implements CellRenderer<RecommendedTra
     }
 
     void setOnRecommendedTrackClickListener(OnRecommendedTrackClickListener listener) {
-        Preconditions.checkArgument(listener != null, "Click listener must not be null");
+        Preconditions.checkNotNull(listener, "Click listener must not be null");
         this.onRecommendedTrackClickListener = listener;
     }
 }

@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
-import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -140,16 +139,17 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsAllRecommendedTracksWithSeed() {
-        final TestObserver<List<Urn>> testObserver = new TestObserver<>();
-        final Urn recommendedTrackUrnOne =  Urn.forTrack(2L);
+        final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
+        final Urn recommendedTrackUrnOne = Urn.forTrack(2L);
         final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
 
         when(recommendationsStorage.recommendedTracksBeforeSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnOne)));
         when(recommendationsStorage.recommendedTracksAfterSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnTwo)));
 
-        operations.recommendedTracksWithSeed(SEED_ID, seedTrack.getUrn()).subscribe(testObserver);
+        RecommendationItem recommendationItem = new RecommendationItem(createSeedItem());
+        operations.recommendedTracksWithSeed(recommendationItem).subscribe(testSubscriber);
 
-        List<Urn> recommendedTracksWithSeed = testObserver.getOnNextEvents().get(0);
+        List<Urn> recommendedTracksWithSeed = testSubscriber.getOnNextEvents().get(0);
 
         assertThat(recommendedTracksWithSeed.get(0)).isEqualTo(recommendedTrackUrnOne);
         assertThat(recommendedTracksWithSeed.get(1)).isEqualTo(seedTrack.getUrn());
@@ -158,13 +158,13 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsRecommendedTracksForSeed() {
-        final TestObserver<List<RecommendedTrackItem>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<RecommendedTrackItem>> testSubscriber = new TestSubscriber<>();
 
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(createRecommendedTrackPropertySet()));
 
-        operations.recommendedTracksForSeed(SEED_ID).subscribe(testObserver);
+        operations.recommendedTracksForSeed(SEED_ID).subscribe(testSubscriber);
 
-        List<RecommendedTrackItem> recommendedTracksForSeed = testObserver.getOnNextEvents().get(0);
+        List<RecommendedTrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
         RecommendedTrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
         assertThat(recommendedTrackItem.getEntityUrn()).isEqualTo(recommendedTrack.getUrn());
@@ -175,8 +175,8 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsAllRecommendedTracks() {
-        final TestObserver<List<Urn>> testObserver = new TestObserver<>();
-        final Urn recommendedTrackUrnOne =  Urn.forTrack(2L);
+        final TestSubscriber<List<Urn>> testObserver = new TestSubscriber<>();
+        final Urn recommendedTrackUrnOne = Urn.forTrack(2L);
         final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
 
         when(recommendationsStorage.recommendedTracks()).thenReturn(Observable.just(Arrays.asList(recommendedTrackUrnOne, recommendedTrackUrnTwo)));

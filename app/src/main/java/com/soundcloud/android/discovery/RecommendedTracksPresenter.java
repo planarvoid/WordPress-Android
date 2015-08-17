@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -63,8 +64,8 @@ public class RecommendedTracksPresenter extends RecyclerViewPresenter<Recommende
     }
 
     @Override
-    protected EmptyView.Status handleError(Throwable throwable) {
-        return null;
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
     @Override

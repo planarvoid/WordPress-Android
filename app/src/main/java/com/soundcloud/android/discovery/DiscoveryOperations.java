@@ -101,23 +101,23 @@ public class DiscoveryOperations {
         });
     }
 
-    public Observable<List<Urn>> recommendedTracksWithSeed(long seedTrackLocalId, final Urn seedTrackUrn) {
+    Observable<List<Urn>> recommendedTracksWithSeed(final RecommendationItem recommendationItem) {
         //When a seed track is played, we always enqueue all recommended tracks
         //but we need to keep the seed track position inside the queue, thus,
         //we query all previous and subsequents tracks, put the seed track in
         //its position and build the list.
-        return recommendationsStorage.recommendedTracksBeforeSeed(seedTrackLocalId)
-                .concatWith(recommendationsStorage.recommendedTracksAfterSeed(seedTrackLocalId))
-                .reduce(new Func2<List<Urn>, List<Urn>, List<Urn>>() {
-                    @Override
-                    public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
-                        List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
-                        playList.addAll(previousTracks);
-                        playList.add(seedTrackUrn);
-                        playList.addAll(subsequentTracks);
-                        return playList;
-                    }
-                }).subscribeOn(scheduler);
+        return recommendationsStorage.recommendedTracksBeforeSeed(recommendationItem.getSeedTrackLocalId())
+                .zipWith(recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),
+                        new Func2<List<Urn>, List<Urn>, List<Urn>>() {
+                            @Override
+                            public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
+                                List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
+                                playList.addAll(previousTracks);
+                                playList.add(recommendationItem.getSeedTrackUrn());
+                                playList.addAll(subsequentTracks);
+                                return playList;
+                            }
+                        }).subscribeOn(scheduler);
     }
 
     public Observable<List<Urn>> recommendedTracks() {

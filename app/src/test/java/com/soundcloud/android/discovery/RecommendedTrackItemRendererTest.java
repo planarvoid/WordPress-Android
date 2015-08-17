@@ -52,7 +52,7 @@ public class RecommendedTrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void mustThrowExceptionWhenSettingNullClickListener() {
-        exception.expect(IllegalArgumentException.class);
+        exception.expect(NullPointerException.class);
         exception.expectMessage("Click listener must not be null");
 
         renderer.setOnRecommendedTrackClickListener(null);

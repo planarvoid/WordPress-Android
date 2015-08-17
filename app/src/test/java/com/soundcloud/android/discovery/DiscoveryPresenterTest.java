@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -118,7 +117,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(discoveryOperations.recommendationsAndPlaylistDiscovery()).thenReturn(discoveryItems);
 
         PublishSubject<List<Urn>> recommendedTracksForSeed = PublishSubject.create();
-        when(discoveryOperations.recommendedTracksWithSeed(anyLong(), any(Urn.class))).thenReturn(recommendedTracksForSeed);
+        when(discoveryOperations.recommendedTracksWithSeed(any(RecommendationItem.class))).thenReturn(recommendedTracksForSeed);
 
         discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
         recommendedTracksForSeed.onNext(Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK_URN));
