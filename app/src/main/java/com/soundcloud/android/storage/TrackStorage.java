@@ -24,7 +24,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,21 +59,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
         modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL);
         trackDAO.create(track);
         return track;
-    }
-
-    public Observable<Collection<PublicApiTrack>> storeCollectionAsync(final Collection<PublicApiTrack> tracks) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Collection<PublicApiTrack>>() {
-            @Override
-            public void call(Subscriber<? super Collection<PublicApiTrack>> observer) {
-                storeCollection(tracks);
-                observer.onNext(tracks);
-                observer.onCompleted();
-            }
-        }));
-    }
-
-    private int storeCollection(Collection<PublicApiTrack> tracks) {
-        return trackDAO.createCollection(tracks);
     }
 
 

@@ -1,38 +1,19 @@
 package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.Collection;
 
-@Deprecated
+@Deprecated // only used for WhoToFollow these days
 public class RemoteCollectionLoader<T extends PublicApiResource> implements CollectionLoader<T> {
-
-    private final TrackStorage trackStorage;
-
-    public RemoteCollectionLoader() {
-        this(new TrackStorage());
-    }
-
-    public RemoteCollectionLoader(TrackStorage trackStorage) {
-        this.trackStorage = trackStorage;
-    }
 
     @Override
     public ReturnData<T> load(PublicApi app, CollectionParams<T> params) {
@@ -41,8 +22,6 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
 
             // suppress unknown resources
             holder.removeUnknownResources();
-
-            storeTracks(holder);
 
             return new ReturnData<>(holder.getCollection(),
                     params,
@@ -57,29 +36,6 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             return new ReturnData.Error<>(params);
-        }
-    }
-
-    /**
-     * Store all tracks as they are playback candidates and will be expected to be in the database
-     */
-    private void storeTracks(CollectionHolder<T> holder) {
-        final Collection<T> trackHolders = MoreCollections.filter(holder.getCollection(), new Predicate<T>() {
-            @Override
-            public boolean apply(@Nullable T input) {
-                return input instanceof PlayableHolder && ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
-            }
-        });
-
-        if (!trackHolders.isEmpty()) {
-            final Collection<PublicApiTrack> tracks = MoreCollections.transform(trackHolders, new Function<T, PublicApiTrack>() {
-                @Override
-                public PublicApiTrack apply(T input) {
-                    return (PublicApiTrack) ((PlayableHolder) input).getPlayable();
-                }
-            });
-
-            fireAndForget(trackStorage.storeCollectionAsync(tracks));
         }
     }
 }
