@@ -106,8 +106,8 @@ public class DiscoveryOperations {
         //but we need to keep the seed track position inside the queue, thus,
         //we query all previous and subsequents tracks, put the seed track in
         //its position and build the list.
-        return recommendationsStorage.recommendedTracksPreviousToSeed(seedTrackLocalId)
-                .concatWith(recommendationsStorage.recommendedTracksSubsequentToSeed(seedTrackLocalId))
+        return recommendationsStorage.recommendedTracksBeforeSeed(seedTrackLocalId)
+                .concatWith(recommendationsStorage.recommendedTracksAfterSeed(seedTrackLocalId))
                 .reduce(new Func2<List<Urn>, List<Urn>, List<Urn>>() {
                     @Override
                     public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {

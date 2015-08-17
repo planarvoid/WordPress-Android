@@ -96,13 +96,13 @@ public class RecommendationsStorage {
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
-    Observable<List<Urn>> recommendedTracksPreviousToSeed(long localSeedId) {
+    Observable<List<Urn>> recommendedTracksBeforeSeed(long localSeedId) {
         final Query query = queryAllRecommendedTrack().whereLt(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
-    Observable<List<Urn>> recommendedTracksSubsequentToSeed(long localSeedId) {
+    Observable<List<Urn>> recommendedTracksAfterSeed(long localSeedId) {
         final Query query = queryAllRecommendedTrack().whereGe(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();

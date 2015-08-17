@@ -78,38 +78,38 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void returnsRecommendedTracksPreviousToSeedFromStorage() {
+    public void returnsRecommendedTracksBeforeSeedFromStorage() {
         final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
 
-        final List<ApiTrack> recommendedTracksPreviousToSeed = ModelFixtures.create(ApiTrack.class, 1);
-        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksPreviousToSeed);
+        final List<ApiTrack> recommendedTracksBeforeSeed = ModelFixtures.create(ApiTrack.class, 1);
+        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksBeforeSeed);
 
-        final List<ApiTrack> recommendedTracksSubsequentToSeed = ModelFixtures.create(ApiTrack.class, 1);
-        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksSubsequentToSeed);
+        final List<ApiTrack> recommendedTracksAfterSeed = ModelFixtures.create(ApiTrack.class, 1);
+        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksAfterSeed);
 
         final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
-        storage.recommendedTracksPreviousToSeed(localSeedId).subscribe(testSubscriber);
+        storage.recommendedTracksBeforeSeed(localSeedId).subscribe(testSubscriber);
 
-        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksPreviousToSeed.get(0).getUrn());
+        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksBeforeSeed.get(0).getUrn());
 
         testSubscriber.assertReceivedOnNext(Collections.singletonList(expectedRecommendedUrns));
         testSubscriber.assertCompleted();
     }
 
     @Test
-    public void returnsRecommendedTracksSubsequentToSeedFromStorage() {
+    public void returnsRecommendedTracksAfterSeedFromStorage() {
         final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
 
-        final List<ApiTrack> recommendedTracksPreviousToSeed = ModelFixtures.create(ApiTrack.class, 1);
-        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksPreviousToSeed);
+        final List<ApiTrack> recommendedTracksBeforeSeed = ModelFixtures.create(ApiTrack.class, 1);
+        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksBeforeSeed);
 
-        final List<ApiTrack> recommendedTracksSubsequentToSeed = ModelFixtures.create(ApiTrack.class, 1);
-        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksSubsequentToSeed);
+        final List<ApiTrack> recommendedTracksAfterSeed = ModelFixtures.create(ApiTrack.class, 1);
+        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksAfterSeed);
 
         final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
-        storage.recommendedTracksSubsequentToSeed(localSeedId).subscribe(testSubscriber);
+        storage.recommendedTracksAfterSeed(localSeedId).subscribe(testSubscriber);
 
-        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksSubsequentToSeed.get(0).getUrn());
+        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksAfterSeed.get(0).getUrn());
 
         testSubscriber.assertReceivedOnNext(Collections.singletonList(expectedRecommendedUrns));
         testSubscriber.assertCompleted();

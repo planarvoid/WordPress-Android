@@ -144,8 +144,8 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final Urn recommendedTrackUrnOne =  Urn.forTrack(2L);
         final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
 
-        when(recommendationsStorage.recommendedTracksPreviousToSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnOne)));
-        when(recommendationsStorage.recommendedTracksSubsequentToSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnTwo)));
+        when(recommendationsStorage.recommendedTracksBeforeSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnOne)));
+        when(recommendationsStorage.recommendedTracksAfterSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(recommendedTrackUrnTwo)));
 
         operations.recommendedTracksWithSeed(SEED_ID, seedTrack.getUrn()).subscribe(testObserver);
 
