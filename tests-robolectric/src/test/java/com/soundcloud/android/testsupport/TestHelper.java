@@ -171,16 +171,6 @@ public class TestHelper {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
     }
 
-    public static Uri insert(Uri contentUri, Persisted insertable) {
-        Uri uri = Robolectric.application.getContentResolver().insert(contentUri, insertable.buildContentValues());
-        expect(uri).not.toBeNull();
-        return uri;
-    }
-
-    public static <T extends Persisted & Identifiable> Uri insert(T insertable) {
-        return insert(insertable.toUri(), insertable);
-    }
-
     public static <T extends Persisted & Identifiable> Uri insertWithDependencies(Uri contentUri, T resource) {
         ContentResolver resolver = Robolectric.application.getContentResolver();
         final BulkInsertMap dependencies = new BulkInsertMap();
