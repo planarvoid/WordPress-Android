@@ -113,9 +113,11 @@ dependencies {
   /* Compile/Dev Time */
   apt libraries.daggerCompiler
   apt libraries.lightCycleProcessor
+  apt libraries.autoValue
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
+  provided libraries.autoValue
 
   /* SoundCloud Libraries */
   compile libraries.androidKit

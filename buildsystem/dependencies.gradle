@@ -29,7 +29,8 @@ ext {
           findBugsAnnotations         : "com.google.code.findbugs:annotations:$findBugsVersion",
           findBugsJsr305              : "com.google.code.findbugs:jsr305:$findBugsVersion",
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
-
+          autoValue                   : ["com.google.auto.value:auto-value:1.1",
+                                         "javax.annotation:jsr250-api:1.0"], // adds the @Generated annotation
           // SoundCloud libraries
           androidKit                  : ["com.soundcloud.android-kit:core:$androidKitVersion",
                                          dependencies.create("com.soundcloud.android-kit:platform:$androidKitVersion@aar") {
