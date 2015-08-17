@@ -17,8 +17,8 @@
 package com.soundcloud.android.storage.provider;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,15 +53,6 @@ public class SCQueryBuilder
     public SCQueryBuilder() {
         distinct = false;
         factory = null;
-    }
-
-    /**
-     * Mark the query as DISTINCT.
-     *
-     * @param distinct if true the query is DISTINCT, otherwise it isn't
-     */
-    public void setDistinct(boolean distinct) {
-        this.distinct = distinct;
     }
 
     /**
@@ -102,76 +93,6 @@ public class SCQueryBuilder
             whereClause.append('(');
         }
         whereClause.append(inWhere);
-    }
-
-    /**
-     * Append a chunk to the WHERE clause of the query. All chunks appended are surrounded
-     * by parenthesis and ANDed with the selection passed to {@link #query}. The final
-     * WHERE clause looks like:
-     *
-     * WHERE (&lt;executeAppendTask chunk 1>&lt;executeAppendTask chunk2>) AND (&lt;query() selection parameter>)
-     *
-     * @param inWhere the chunk of text to executeAppendTask to the WHERE clause. it will be escaped
-     * to avoid SQL injection attacks
-     */
-    public void appendWhereEscapeString(String inWhere) {
-        if (whereClause == null) {
-            whereClause = new StringBuilder(inWhere.length() + 16);
-        }
-        if (whereClause.length() == 0) {
-            whereClause.append('(');
-        }
-        DatabaseUtils.appendEscapedSQLString(whereClause, inWhere);
-    }
-
-    /**
-     * Sets the projection map for the query.  The projection map maps
-     * from column names that the caller passes into query to database
-     * column names. This is useful for renaming columns as well as
-     * disambiguating column names when doing joins. For example you
-     * could map "name" to "people.name".  If a projection map is set
-     * it must contain all column names the user may request, even if
-     * the key and value are the same.
-     *
-     * @param columnMap maps from the user column names to the database column names
-     */
-    public void setProjectionMap(Map<String, String> columnMap) {
-        projectionMap = columnMap;
-    }
-
-    /**
-     * Sets the cursor factory to be used for the query.  You can use
-     * one factory for all queries on a database but it is normally
-     * easier to specify the factory when doing this query.  @param
-     * factory the factor to use
-     */
-    public void setCursorFactory(SQLiteDatabase.CursorFactory factory) {
-        this.factory = factory;
-    }
-
-    /**
-     * When set, the selection is verified against malicious arguments.
-     * When using this class to create a statement using
-     * {@link #buildQueryString(boolean, String, String[], String, String, String, String, String)},
-     * non-numeric limits will raise an exception. If a projection map is specified, fields
-     * not in that map will be ignored.
-     * If this class is used to execute the statement directly using
-     * {@link #query(SQLiteDatabase, String[], String, String[], String, String, String)}
-     * or
-     * {@link #query(SQLiteDatabase, String[], String, String[], String, String, String, String)},
-     * additionally also parenthesis escaping selection are caught.
-     *
-     * To summarize: To get maximum protection against malicious third party apps (for example
-     * content provider consumers), make sure to do the following:
-     * <ul>
-     * <li>Set this value to true</li>
-     * <li>Use a projection map</li>
-     * <li>Use one of the query overloads instead of getting the statement as a sql string</li>
-     * </ul>
-     * By default, this value is false.
-     */
-    public void setStrict(boolean flag) {
-        strict = flag;
     }
 
     /**
@@ -443,130 +364,6 @@ public class SCQueryBuilder
             String[] projectionIn, String selection, String[] selectionArgs,
             String groupBy, String having, String sortOrder, String limit) {
         return buildQuery(projectionIn, selection, groupBy, having, sortOrder, limit);
-    }
-
-    /**
-     * Construct a SELECT statement suitable for use in a group of
-     * SELECT statements that will be joined through UNION operators
-     * in buildUnionQuery.
-     *
-     * @param typeDiscriminatorColumn the name of the result column
-     *   whose cells will contain the name of the table from which
-     *   each row was drawn.
-     * @param unionColumns the names of the columns to appear in the
-     *   result.  This may include columns that do not appear in the
-     *   table this SELECT is querying (i.e. mTables), but that do
-     *   appear in one of the other tables in the UNION query that we
-     *   are constructing.
-     * @param columnsPresentInTable a Set of the names of the columns
-     *   that appear in this table (i.e. in the table whose name is
-     *   mTables).  Since columns in unionColumns include columns that
-     *   appear only in other tables, we use this array to distinguish
-     *   which ones actually are present.  Other columns will have
-     *   NULL values for results from this subquery.
-     * @param computedColumnsOffset all columns in unionColumns before
-     *   this index are included under the assumption that they're
-     *   computed and therefore won't appear in columnsPresentInTable,
-     *   e.g. "date * 1000 as normalized_date"
-     * @param typeDiscriminatorValue the value used for the
-     *   type-discriminator column in this subquery
-     * @param selection A filter declaring which rows to return,
-     *   formatted as an SQL WHERE clause (excluding the WHERE
-     *   itself).  Passing null will return all rows for the given
-     *   URL.
-     * @param groupBy A filter declaring how to group rows, formatted
-     *   as an SQL GROUP BY clause (excluding the GROUP BY itself).
-     *   Passing null will cause the rows to not be grouped.
-     * @param having A filter declare which row groups to include in
-     *   the cursor, if row grouping is being used, formatted as an
-     *   SQL HAVING clause (excluding the HAVING itself).  Passing
-     *   null will cause all row groups to be included, and is
-     *   required when row grouping is not being used.
-     * @return the resulting SQL SELECT statement
-     */
-    public String buildUnionSubQuery(
-            String typeDiscriminatorColumn,
-            String[] unionColumns,
-            Set<String> columnsPresentInTable,
-            int computedColumnsOffset,
-            String typeDiscriminatorValue,
-            String selection,
-            String groupBy,
-            String having) {
-        int unionColumnsCount = unionColumns.length;
-        String[] projectionIn = new String[unionColumnsCount];
-
-        for (int i = 0; i < unionColumnsCount; i++) {
-            String unionColumn = unionColumns[i];
-
-            if (unionColumn.equals(typeDiscriminatorColumn)) {
-                projectionIn[i] = "'" + typeDiscriminatorValue + "' AS "
-                        + typeDiscriminatorColumn;
-            } else if (i <= computedColumnsOffset
-                       || columnsPresentInTable.contains(unionColumn)) {
-                projectionIn[i] = unionColumn;
-            } else {
-                projectionIn[i] = "NULL AS " + unionColumn;
-            }
-        }
-        return buildQuery(
-                projectionIn, selection, groupBy, having,
-                null /* sortOrder */,
-                null /* limit */);
-    }
-
-    /**
-     * @deprecated This method's signature is misleading since no SQL parameter
-     * substitution is carried out.  The selection arguments parameter does not get
-     * used at all.  To avoid confusion, call
-     * {@link #buildUnionSubQuery}
-     * instead.
-     */
-    @Deprecated
-    public String buildUnionSubQuery(
-            String typeDiscriminatorColumn,
-            String[] unionColumns,
-            Set<String> columnsPresentInTable,
-            int computedColumnsOffset,
-            String typeDiscriminatorValue,
-            String selection,
-            String[] selectionArgs,
-            String groupBy,
-            String having) {
-        return buildUnionSubQuery(
-                typeDiscriminatorColumn, unionColumns, columnsPresentInTable,
-                computedColumnsOffset, typeDiscriminatorValue, selection,
-                groupBy, having);
-    }
-
-    /**
-     * Given a set of subqueries, all of which are SELECT statements,
-     * construct a query that returns the union of what those
-     * subqueries return.
-     * @param subQueries an array of SQL SELECT statements, all of
-     *   which must have the same columns as the same positions in
-     *   their results
-     * @param sortOrder How to order the rows, formatted as an SQL
-     *   ORDER BY clause (excluding the ORDER BY itself).  Passing
-     *   null will use the default sort order, which may be unordered.
-     * @param limit The limit clause, which applies to the entire union result set
-     *
-     * @return the resulting SQL SELECT statement
-     */
-    public String buildUnionQuery(String[] subQueries, String sortOrder, String limit) {
-        StringBuilder query = new StringBuilder(128);
-        int subQueryCount = subQueries.length;
-        String unionOperator = distinct ? " UNION " : " UNION ALL ";
-
-        for (int i = 0; i < subQueryCount; i++) {
-            if (i > 0) {
-                query.append(unionOperator);
-            }
-            query.append(subQueries[i]);
-        }
-        appendClause(query, " ORDER BY ", sortOrder);
-        appendClause(query, " LIMIT ", limit);
-        return query.toString();
     }
 
     private String[] computeProjection(String[] projectionIn) {
