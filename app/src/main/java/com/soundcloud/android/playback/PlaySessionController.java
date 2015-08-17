@@ -33,6 +33,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collections;
+import java.util.HashMap;
 
 @Singleton
 public class PlaySessionController {
@@ -142,7 +143,8 @@ public class PlaySessionController {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            if (currentQueueAllowsRecommendations() && withinRecommendedFetchTolerance()
+            if (currentQueueAllowsRecommendations()
+                    && withinRecommendedFetchTolerance()
                     && isNotAlreadyLoadingRecommendations()) {
                 loadRecommendations();
             }
@@ -271,8 +273,19 @@ public class PlaySessionController {
     private class RecommendationTracksSubscriber extends DefaultSubscriber<PlayQueue> {
         @Override
         public void onNext(PlayQueue playQueue) {
-            playQueueManager.appendUniquePlayQueueItems(playQueue);
-            stopContinuousPlayback = playQueue.isEmpty();
+            try {
+                playQueueManager.appendUniquePlayQueueItems(playQueue);
+                stopContinuousPlayback = playQueue.isEmpty();
+
+            } catch (UnsupportedOperationException e) {
+                // we should not need this, as we should never get this far with an empty queue.
+                // Just being defensive while we investigate
+
+                final HashMap<String, String> valuePairs = new HashMap<>(2);
+                valuePairs.put("Queue Size" , String.valueOf(playQueueManager.getQueueSize()));
+                valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
+                ErrorUtils.handleSilentException(e, valuePairs);
+            }
         }
     }
 }

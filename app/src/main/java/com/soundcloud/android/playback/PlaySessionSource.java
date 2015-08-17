@@ -225,7 +225,7 @@ public class PlaySessionSource implements Parcelable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("origin screen", originScreen)
+                .add("originScreen", originScreen)
                 .add("collectionUrn", collectionUrn)
                 .add("collectionOwnerUrn", collectionOwnerUrn)
                 .add("exploreVersion", exploreVersion)

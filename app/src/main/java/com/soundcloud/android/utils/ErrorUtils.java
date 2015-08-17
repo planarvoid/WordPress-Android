@@ -142,7 +142,7 @@ public final class ErrorUtils {
         }
     }
 
-    private static synchronized void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    public static synchronized void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         e.printStackTrace();
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);

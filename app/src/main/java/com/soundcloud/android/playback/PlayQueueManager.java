@@ -15,6 +15,7 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Pair;
@@ -74,6 +75,7 @@ public class PlayQueueManager implements OriginProvider {
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, int startPosition) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
+        logEmptyPlayQueues(playQueue, playSessionSource);
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             this.currentPosition = startPosition;
@@ -86,6 +88,13 @@ public class PlayQueueManager implements OriginProvider {
         saveCurrentProgress(0L);
 
         fireAndForget(policyOperations.updatePolicies(playQueue.getTrackUrns()));
+    }
+
+    private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        if (playQueue.isEmpty()){
+            ErrorUtils.handleSilentException(new IllegalStateException("Setting empty play queue"),
+                    "PlaySessionSource", playSessionSource.toString());
+        }
     }
 
     public void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
