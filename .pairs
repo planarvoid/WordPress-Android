@@ -1,0 +1,22 @@
+# .pairs - configuration for 'git pair'
+pairs:
+  # <initials>: <Firstname> <Lastname>[; <email-id>]
+  be: Brian Egan; egan
+  gl: Guillaume Lung; guillaume
+  kr: Karolina Kafel; kr
+  mk: Matthias Käppler; mk
+  bl: Brigit Lyons; brigit.lyons
+  dc: Dave Cameron; dave.bc
+  ds: Duana Stanley; duana
+  fc: Fernando Cejas; fernando.cejas
+  hc: Horaci Cuevas; horaci
+  jm: Jamie McDonald; mcdonald
+  jc: Jon Schmidt; jon
+  ss: Slawomir Smiechura; slawomir
+  tc: Tiffany Conroy; tiffany
+  tcz: Tom Czarniecki; tom
+email:
+  domain: soundcloud.com
+  no_solo_prefix: true
+#global: true
+
