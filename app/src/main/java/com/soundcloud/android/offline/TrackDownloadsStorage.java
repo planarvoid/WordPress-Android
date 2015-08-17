@@ -56,7 +56,7 @@ class TrackDownloadsStorage {
      */
     Observable<List<Urn>> playlistTrackUrns(Urn playlistUrn) {
         final Query query = Query.from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID)
+                .select(TrackDownloads._ID.name())
                 .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.name())
                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
                 .whereNotNull(TrackDownloads.DOWNLOADED_AT)

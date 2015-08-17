@@ -67,12 +67,12 @@ public class LikedTrackStorage {
                         TrackDownloads.REQUESTED_AT,
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT,
-                        TrackDownloads.REMOVED_AT.qualifiedName(),
+                        TrackDownloads.REMOVED_AT,
                         TableColumns.TrackPolicies.SUB_MID_TIER,
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
-                        OfflineContent._ID.defaultAlias())
+                        OfflineContent._ID)
 
-                .leftJoin(OfflineContent.TABLE.name(), offlineLikesFilter())
+                .leftJoin(OfflineContent.TABLE, offlineLikesFilter())
                 .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
@@ -84,8 +84,8 @@ public class LikedTrackStorage {
 
     static Where offlineLikesFilter() {
         return filter()
-                .whereEq(OfflineContent._ID.qualifiedName(), OfflineContent.ID_OFFLINE_LIKES)
-                .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_COLLECTION);
+                .whereEq(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES)
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
     }
 
 }
