@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
@@ -18,13 +17,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PlaylistTagStorage extends ScheduledOperations {
+public class PlaylistTagStorage {
 
     private static final String KEY_RECENT_TAGS = "recent_tags";
     private static final String KEY_POPULAR_TAGS = "popular_tags";
     private static final int MAX_RECENT_TAGS = 5;
 
     private final SharedPreferences sharedPreferences;
+    private final Scheduler scheduler;
 
     @Inject
     public PlaylistTagStorage(@Named(StorageModule.PLAYLIST_TAGS) SharedPreferences sharedPreferences) {
@@ -33,8 +33,8 @@ public class PlaylistTagStorage extends ScheduledOperations {
 
     @VisibleForTesting
     PlaylistTagStorage(SharedPreferences sharedPreferences, Scheduler scheduler) {
-        super(scheduler);
         this.sharedPreferences = sharedPreferences;
+        this.scheduler = scheduler;
     }
 
     public void addRecentTag(String tag) {
@@ -55,23 +55,23 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public Observable<List<String>> getRecentTagsAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribe<List<String>>() {
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
             @Override
             public void call(Subscriber<? super List<String>> subscriber) {
                 subscriber.onNext(getRecentTags());
                 subscriber.onCompleted();
             }
-        }));
+        }).subscribeOn(scheduler);
     }
 
     public Observable<List<String>> getPopularTagsAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribe<List<String>>() {
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
             @Override
             public void call(Subscriber<? super List<String>> observer) {
                 observer.onNext(getPopularTags());
                 observer.onCompleted();
             }
-        }));
+        }).subscribeOn(scheduler);
     }
 
     @VisibleForTesting

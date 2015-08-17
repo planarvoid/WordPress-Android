@@ -3,7 +3,6 @@ package com.soundcloud.android.storage;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import rx.Observable;
 import rx.Subscriber;
@@ -19,12 +18,11 @@ import java.util.Collections;
 import java.util.List;
 
 @Deprecated
-public class TrackStorage extends ScheduledOperations {
+public class TrackStorage {
     private ContentResolver resolver;
 
     @Inject
     public TrackStorage(ContentResolver contentResolver){
-        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = contentResolver;
     }
 
@@ -32,7 +30,7 @@ public class TrackStorage extends ScheduledOperations {
     // migrating the front end first to not use content URIs
     @SuppressWarnings("PMD.NPathComplexity")
     public Observable<List<Urn>> getTracksForUriAsync(final Uri uri) {
-        return schedule(Observable.create(new Observable.OnSubscribe<List<Urn>>() {
+        return Observable.create(new Observable.OnSubscribe<List<Urn>>() {
             @Override
             public void call(Subscriber<? super List<Urn>> observer) {
 
@@ -81,7 +79,7 @@ public class TrackStorage extends ScheduledOperations {
                 }
                 return newQueue;
             }
-        }));
+        }).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
 }
