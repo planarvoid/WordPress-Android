@@ -12,6 +12,8 @@ public class WaveformDataTest {
     private int[] downSampledHalf = {25, 8, 70, 300};
     private int[] downSampledThreeQuarters = {23, 18, 9, 60, 95, 400};
     private int[] otherSamples = {1, 2, 3, 4, 5, 6, 7, 500};
+    private int[] emptySamples = {};
+
 
     @Test
     public void shouldDownscaleSampleData() throws Exception {
@@ -61,17 +63,18 @@ public class WaveformDataTest {
         assertThat(data.maxAmplitude).isEqualTo(483);
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldRequirePositiveWidth() throws Exception {
         WaveformData data = new WaveformData(500, samples);
         data.scale(-1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRequireGreaterThanZeroWidth() throws Exception {
-        WaveformData data = new WaveformData(500, samples);
-        data.scale(0);
+    @Test
+    public void shouldAllowZeroWidth() throws Exception {
+        WaveformData data = new WaveformData(500, samples).scale(0);
+
+        assertThat(data.samples).isEqualTo(emptySamples);
+        assertThat(data.maxAmplitude).isEqualTo(0);
     }
 
     @Test
