@@ -312,7 +312,6 @@
   <string name="activity_title_playlist">Lista de reprodução</string>
   <string name="your_playlists_tab">Suas Listas de Reprodução</string>
   <string name="liked_playlists_tab">Curtiu Listas de Reprodução</string>
-  <string name="playlist_removed">Esta lista não foi encontrada no SoundCloud</string>
   <string name="playlist_load_error">Não foi possível carregar esta lista de reprodução</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
   <string name="shuffle_playlist">Embaralhar lista de reprodução</string>
