@@ -17,6 +17,7 @@ import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -46,6 +47,7 @@ public class UploaderTest {
 
     @Mock private ApiClient apiClient;
 
+    @Mock StoreTracksCommand storeTracksCommand;
     @Mock StorePostsCommand storePostsCommand;
 
     @Before
@@ -54,7 +56,7 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording recording) {
-        return new Uploader(context, apiClient, recording, storePostsCommand, eventBus);
+        return new Uploader(context, apiClient, recording, storeTracksCommand, storePostsCommand, eventBus);
     }
 
     @Test

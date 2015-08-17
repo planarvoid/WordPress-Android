@@ -12,13 +12,13 @@ import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class Uploader implements Runnable {
     static final String PARAM_ASSET_DATA = "track[asset_data]";
     static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
 
-    private final TrackStorage trackStorage = new TrackStorage();
+    private final StoreTracksCommand storeTracksCommand;
     private final StorePostsCommand storePostsCommand;
     private final SyncStateManager syncStateManager;
 
@@ -62,9 +63,11 @@ public class Uploader implements Runnable {
 
     private final EventBus eventBus;
 
-    public Uploader(Context context, ApiClient apiClient, Recording recording, StorePostsCommand storePostsCommand, EventBus eventBus) {
+    public Uploader(Context context, ApiClient apiClient, Recording recording, StoreTracksCommand storeTracksCommand,
+                    StorePostsCommand storePostsCommand, EventBus eventBus) {
         this.apiClient = apiClient;
         this.recording = recording;
+        this.storeTracksCommand = storeTracksCommand;
         this.storePostsCommand = storePostsCommand;
         this.resources = context.getResources();
         this.syncStateManager = new SyncStateManager(context);
@@ -185,7 +188,7 @@ public class Uploader implements Runnable {
     }
 
     private void onUploadFinished(PublicApiTrack track) {
-        trackStorage.createOrUpdate(track);
+        storeTracksCommand.call(Collections.singletonList(track));
         createNewTrackPost(track);
 
         //request to update my collection

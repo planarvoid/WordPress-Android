@@ -62,10 +62,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     }
 
 
-    public long createOrUpdate(PublicApiTrack track) {
-        return trackDAO.createOrUpdate(track);
-    }
-
     public Observable<PublicApiTrack> getTrackAsync(final long id) {
         checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
         return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
