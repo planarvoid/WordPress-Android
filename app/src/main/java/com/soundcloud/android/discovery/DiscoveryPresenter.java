@@ -78,7 +78,7 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> imp
 
     @Override
     public void onTagSelected(String tag) {
-        if (tagsListener != null){
+        if (tagsListener != null) {
             tagsListener.onTagSelected(tag);
         }
     }
@@ -102,12 +102,12 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> imp
 
     @Override
     public void onRecommendationReasonClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getSeedTrackUrn(), discoveryOperations.recommendationsWithSeedTrack(recommendationItem.getSeedTrackLocalId(), recommendationItem.getSeedTrackUrn()));
+        playRecommendations(recommendationItem.getSeedTrackUrn(), discoveryOperations.recommendedTracksWithSeed(recommendationItem));
     }
 
     @Override
     public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendationsForSeedTrack(recommendationItem.getSeedTrackLocalId()));
+        playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendedTracks());
 
     }
 

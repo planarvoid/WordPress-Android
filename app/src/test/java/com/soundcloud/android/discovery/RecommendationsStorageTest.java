@@ -69,13 +69,49 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         final ApiTrack seedTrack = apiTrackList.get(0);
         final ApiTrack recommendedTrack = apiTrackList.get(1);
         List<Urn> recommendedTrackUrns = Collections.singletonList(recommendedTrack.getUrn());
+        insertRecommendation(seedTrack, RecommendationReason.LIKED, Collections.singletonList(recommendedTrack));
 
-        final PropertySet recommendation = insertRecommendation(seedTrack, RecommendationReason.LIKED, Collections.singletonList(recommendedTrack));
-        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
-
-        storage.recommendedTrackUrnsForSeed(localSeedId).subscribe(testSubscriber);
+        storage.recommendedTracks().subscribe(testSubscriber);
 
         testSubscriber.assertReceivedOnNext(Collections.singletonList(recommendedTrackUrns));
+        testSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void returnsRecommendedTracksBeforeSeedFromStorage() {
+        final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
+
+        final List<ApiTrack> recommendedTracksBeforeSeed = ModelFixtures.create(ApiTrack.class, 1);
+        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksBeforeSeed);
+
+        final List<ApiTrack> recommendedTracksAfterSeed = ModelFixtures.create(ApiTrack.class, 1);
+        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksAfterSeed);
+
+        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+        storage.recommendedTracksBeforeSeed(localSeedId).subscribe(testSubscriber);
+
+        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksBeforeSeed.get(0).getUrn());
+
+        testSubscriber.assertReceivedOnNext(Collections.singletonList(expectedRecommendedUrns));
+        testSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void returnsRecommendedTracksAfterSeedFromStorage() {
+        final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
+
+        final List<ApiTrack> recommendedTracksBeforeSeed = ModelFixtures.create(ApiTrack.class, 1);
+        insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksBeforeSeed);
+
+        final List<ApiTrack> recommendedTracksAfterSeed = ModelFixtures.create(ApiTrack.class, 1);
+        PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracksAfterSeed);
+
+        final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+        storage.recommendedTracksAfterSeed(localSeedId).subscribe(testSubscriber);
+
+        final List<Urn> expectedRecommendedUrns = Collections.singletonList(recommendedTracksAfterSeed.get(0).getUrn());
+
+        testSubscriber.assertReceivedOnNext(Collections.singletonList(expectedRecommendedUrns));
         testSubscriber.assertCompleted();
     }
 

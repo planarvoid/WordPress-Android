@@ -32,7 +32,7 @@ public class DiscoveryOperations {
                 }
             };
 
-    private static Func1<List<PropertySet>, List<DiscoveryItem>> TO_RECOMMENDATIONS =
+    private static final Func1<List<PropertySet>, List<DiscoveryItem>> TO_RECOMMENDATIONS =
             new Func1<List<PropertySet>, List<DiscoveryItem>>() {
                 @Override
                 public List<DiscoveryItem> call(List<PropertySet> propertySets) {
@@ -44,7 +44,7 @@ public class DiscoveryOperations {
                 }
             };
 
-    private static Func1<List<PropertySet>, List<RecommendedTrackItem>> TO_RECOMMENDED_TRACKS =
+    private static final Func1<List<PropertySet>, List<RecommendedTrackItem>> TO_RECOMMENDED_TRACKS =
             new Func1<List<PropertySet>, List<RecommendedTrackItem>>() {
                 @Override
                 public List<RecommendedTrackItem> call(List<PropertySet> propertySets) {
@@ -74,18 +74,6 @@ public class DiscoveryOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
-        return recommendations().zipWith(playlistDiscovery(), new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
-            @Override
-            public List<DiscoveryItem> call(List<DiscoveryItem> recommendedTracks, List<DiscoveryItem> playlistTags) {
-                List<DiscoveryItem> combined = new ArrayList<>(recommendedTracks.size() + playlistTags.size());
-                combined.addAll(recommendedTracks);
-                combined.addAll(playlistTags);
-                return combined;
-            }
-        });
-    }
-
     private Observable<List<DiscoveryItem>> recommendations() {
         return syncInitiator.syncRecommendations().flatMap(toSeedTracks)
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
@@ -101,20 +89,39 @@ public class DiscoveryOperations {
                 }).onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
-    public Observable<List<Urn>> recommendationsWithSeedTrack(long seedTrackLocalId, final Urn seedTrackUrn) {
-        return recommendationsForSeedTrack(seedTrackLocalId)
-                .map(new Func1<List<Urn>, List<Urn>>() {
-                    @Override
-                    public List<Urn> call(List<Urn> urns) {
-                        urns.add(0, seedTrackUrn);
-                        return urns;
-                    }
-                });
+    public Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
+        return recommendations().zipWith(playlistDiscovery(), new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
+            @Override
+            public List<DiscoveryItem> call(List<DiscoveryItem> recommendedTracks, List<DiscoveryItem> playlistTags) {
+                List<DiscoveryItem> combined = new ArrayList<>(recommendedTracks.size() + playlistTags.size());
+                combined.addAll(recommendedTracks);
+                combined.addAll(playlistTags);
+                return combined;
+            }
+        });
     }
 
-    public Observable<List<Urn>> recommendationsForSeedTrack(long seedTrackLocalId) {
-        return recommendationsStorage.recommendedTrackUrnsForSeed(seedTrackLocalId)
-                .subscribeOn(scheduler);
+    Observable<List<Urn>> recommendedTracksWithSeed(final RecommendationItem recommendationItem) {
+        //When a seed track is played, we always enqueue all recommended tracks
+        //but we need to keep the seed track position inside the queue, thus,
+        //we query all previous and subsequents tracks, put the seed track in
+        //its position and build the list.
+        return recommendationsStorage.recommendedTracksBeforeSeed(recommendationItem.getSeedTrackLocalId())
+                .zipWith(recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),
+                        new Func2<List<Urn>, List<Urn>, List<Urn>>() {
+                            @Override
+                            public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
+                                List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
+                                playList.addAll(previousTracks);
+                                playList.add(recommendationItem.getSeedTrackUrn());
+                                playList.addAll(subsequentTracks);
+                                return playList;
+                            }
+                        }).subscribeOn(scheduler);
+    }
+
+    public Observable<List<Urn>> recommendedTracks() {
+        return recommendationsStorage.recommendedTracks().subscribeOn(scheduler);
     }
 
     public Observable<List<RecommendedTrackItem>> recommendedTracksForSeed(long seedTrackLocalId) {

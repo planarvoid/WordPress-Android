@@ -2,8 +2,6 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -118,13 +116,13 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
         when(discoveryOperations.recommendationsAndPlaylistDiscovery()).thenReturn(discoveryItems);
 
-        PublishSubject<List<Urn>> recommendationsForSeedTrack = PublishSubject.create();
-        when(discoveryOperations.recommendationsWithSeedTrack(anyLong(), any(Urn.class))).thenReturn(recommendationsForSeedTrack);
+        PublishSubject<List<Urn>> recommendedTracksForSeed = PublishSubject.create();
+        when(discoveryOperations.recommendedTracksWithSeed(any(RecommendationItem.class))).thenReturn(recommendedTracksForSeed);
 
         discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
-        recommendationsForSeedTrack.onNext(Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK_URN));
+        recommendedTracksForSeed.onNext(Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK_URN));
 
-        when(playbackOperations.playTracks(eq(recommendationsForSeedTrack), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
+        when(playbackOperations.playTracks(eq(recommendedTracksForSeed), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onCreate(fragment, null);
@@ -137,13 +135,13 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
         when(discoveryOperations.recommendationsAndPlaylistDiscovery()).thenReturn(discoveryItems);
 
-        PublishSubject<List<Urn>> recommendationsForSeedTrack = PublishSubject.create();
-        when(discoveryOperations.recommendationsForSeedTrack(anyLong())).thenReturn(recommendationsForSeedTrack);
+        PublishSubject<List<Urn>> recommendedTracks = PublishSubject.create();
+        when(discoveryOperations.recommendedTracks()).thenReturn(recommendedTracks);
 
         discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
-        recommendationsForSeedTrack.onNext(Collections.singletonList(RECOMMENDED_TRACK_URN));
+        recommendedTracks.onNext(Collections.singletonList(RECOMMENDED_TRACK_URN));
 
-        when(playbackOperations.playTracks(eq(recommendationsForSeedTrack), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
+        when(playbackOperations.playTracks(eq(recommendedTracks), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onCreate(fragment, null);

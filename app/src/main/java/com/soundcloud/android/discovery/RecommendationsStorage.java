@@ -70,8 +70,8 @@ public class RecommendationsStorage {
                 .whereEq(RecommendationSeeds._ID, Recommendations.SEED_ID);
 
         final Where soundsViewJoin = filter()
-                .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
-                .whereEq(RecommendationSeeds.SEED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
+                .whereEq(Recommendations.RECOMMENDED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
+                .whereEq(Recommendations.RECOMMENDED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
 
         final Query query = Query.from(Recommendations.TABLE)
                 .select(Recommendations.SEED_ID,
@@ -90,12 +90,28 @@ public class RecommendationsStorage {
         return propellerRx.query(query).map(new RecommendedTrackMapper()).toList();
     }
 
-    Observable<List<Urn>> recommendedTrackUrnsForSeed(long localSeedId) {
-        Query query = Query.from(Recommendations.TABLE)
-                .select(Recommendations.RECOMMENDED_SOUND_ID)
-                .whereEq(Recommendations.SEED_ID, localSeedId);
+    Observable<List<Urn>> recommendedTracks() {
+        final Query query = allRecommendedTracks();
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
+    }
+
+    Observable<List<Urn>> recommendedTracksBeforeSeed(long localSeedId) {
+        final Query query = allRecommendedTracks().whereLt(Recommendations.SEED_ID, localSeedId);
+
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
+    }
+
+    Observable<List<Urn>> recommendedTracksAfterSeed(long localSeedId) {
+        final Query query = allRecommendedTracks().whereGe(Recommendations.SEED_ID, localSeedId);
+
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
+    }
+
+    private Query allRecommendedTracks() {
+        return Query.from(Recommendations.TABLE)
+                .select(Recommendations.RECOMMENDED_SOUND_ID)
+                .whereEq(Recommendations.RECOMMENDED_SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {
