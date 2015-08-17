@@ -6,9 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Table object for user associations. Do not use outside this package, use {@link UserAssociationStorage} instead.
  */
@@ -24,14 +21,6 @@ import java.util.List;
                 return content;
             }
         };
-    }
-
-    @Override
-    public List<UserAssociation> queryAll() {
-        List<UserAssociation> result = new ArrayList<>();
-        result.addAll(queryAllByUri(Content.ME_FOLLOWINGS.uri));
-        result.addAll(queryAllByUri(Content.ME_FOLLOWERS.uri));
-        return result;
     }
 
     @Override

@@ -62,10 +62,6 @@ public class TestHelper {
     private TestHelper() {
     }
 
-    public static SoundCloudApplication getApplication() {
-        return (SoundCloudApplication) Robolectric.application;
-    }
-
     public static ObjectMapper getObjectMapper() {
         return PublicApi.buildObjectMapper();
     }
