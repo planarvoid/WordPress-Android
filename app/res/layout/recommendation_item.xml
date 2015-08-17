@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:layout_toEndOf="@id/view_all"
+                    android:layout_toRightOf="@id/view_all"
                     android:paddingLeft="@dimen/recommendations_cell_image_view_all_padding"
                     android:paddingRight="@dimen/recommendations_cell_image_view_all_padding"
                     android:src="@drawable/chevron_333" />
