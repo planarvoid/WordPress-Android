@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -87,6 +86,11 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonIgnore protected CharSequence elapsedTime;
     @JsonIgnore protected String artworkUri;
 
+    protected static int getIntOrNotSet(Cursor c, String column) {
+        final int index = c.getColumnIndex(column);
+        return c.isNull(index) ? ScModel.NOT_SET : c.getInt(index);
+    }
+
     public Playable() {
     }
 
@@ -115,8 +119,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.SHARING)));
         license = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.LICENSE));
         genre = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.GENRE));
-        likes_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
-        reposts_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
+        likes_count = getIntOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
+        reposts_count = getIntOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
         user_id = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
 
         final long lastUpdated = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.LAST_UPDATED));

@@ -6,14 +6,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncStateManager;
 
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 
 import java.util.Collections;
@@ -103,7 +104,9 @@ import java.util.WeakHashMap;
 
     private void doQuery() {
         asyncQueryHandler = new FollowingQueryHandler(context);
-        asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
+        final Uri uri = Content.ME_FOLLOWINGS.uri.buildUpon()
+                .appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build();
+        asyncQueryHandler.startQuery(0, null, uri,
                 null, TableColumns.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
