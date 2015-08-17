@@ -107,6 +107,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         searchActionBarController.onCreateOptionsMenu(menu, getMenuInflater(), this);
+        if (featureFlags.isEnabled(Flag.SEARCH_AND_RECOMMENDATIONS)) {
+            searchActionBarController.clearFocus();
+        }
         return true;
     }
 
