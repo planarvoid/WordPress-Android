@@ -3,12 +3,13 @@ package com.soundcloud.android.sync;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
 public class NotificationMessageBuilderTest extends AndroidUnitTest {
-private NotificationMessage.Builder builder;
+    private NotificationMessage.Builder builder;
 
     @Before
     public void setUp() throws Exception {
@@ -75,6 +76,45 @@ private NotificationMessage.Builder builder;
     }
 
     @Test
+    public void shouldDisplayNotificationFor3NewFollower() {
+        final Activity activity1 = ActivityFixtures.forNewFollower();
+        final Activity activity2 = ActivityFixtures.forNewFollower();
+        final Activity activity3 = ActivityFixtures.forNewFollower();
+        final Activities follower = new Activities(activity1, activity2, activity3);
+
+        final String userName1 = getUserName(activity1);
+        final String userName2 = getUserName(activity2);
+
+        final NotificationMessage message = builder
+                .setFollowers(follower)
+                .build();
+
+        assertThat(message.title).isEqualTo("3 new followers");
+        assertThat(message.message).isEqualTo(userName1 + ", " + userName2 + " and 1 other followed you");
+        assertThat(message.ticker).isEqualTo("3 new followers");
+    }
+
+    @Test
+    public void shouldDisplayNotificationForMoreThan3NewFollower() {
+        final Activity activity1 = ActivityFixtures.forNewFollower();
+        final Activity activity2 = ActivityFixtures.forNewFollower();
+        final Activity activity3 = ActivityFixtures.forNewFollower();
+        final Activity activity4 = ActivityFixtures.forNewFollower();
+        final Activities follower = new Activities(activity1, activity2, activity3, activity4);
+
+        final String userName1 = getUserName(activity1);
+        final String userName2 = getUserName(activity2);
+
+        final NotificationMessage message = builder
+                .setFollowers(follower)
+                .build();
+
+        assertThat(message.title).isEqualTo("4 new followers");
+        assertThat(message.message).isEqualTo(userName1 + ", " + userName2 + " and 2 others followed you");
+        assertThat(message.ticker).isEqualTo("4 new followers");
+    }
+
+    @Test
     public void shouldDisplayNotificationForMixedNotifications() {
         final Activities comment = new Activities(ActivityFixtures.forComment());
         final Activities like = new Activities(ActivityFixtures.forLike());
@@ -101,6 +141,11 @@ private NotificationMessage.Builder builder;
 
     private String getUserName(Activities like) {
         return like.getUniqueUsers().get(0).getDisplayName();
+    }
+
+
+    private String getUserName(Activity activity) {
+        return activity.getUser().getDisplayName();
     }
 
     private String getTrackTitle(Activities comment) {

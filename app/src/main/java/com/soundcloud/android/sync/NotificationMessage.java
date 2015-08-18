@@ -270,8 +270,15 @@ class NotificationMessage {
                 message = res.getString(R.string.dashboard_notifications_activity_message_follow_two,
                         users.get(0).getDisplayName(),
                         users.get(1).getDisplayName());
+            } else if (users.size() == 3) {
+                message = res.getString(R.string.dashboard_notifications_activity_message_follow_three,
+                        users.get(0).getDisplayName(),
+                        users.get(1).getDisplayName());
             } else {
-                message = res.getString(R.string.dashboard_notifications_activity_message_follow_many, users.size());
+                message = res.getString(R.string.dashboard_notifications_activity_message_follow_many,
+                        users.get(0).getDisplayName(),
+                        users.get(1).getDisplayName(),
+                        users.size() - 2);
             }
             return new NotificationMessage(title, message, ticker);
         }
