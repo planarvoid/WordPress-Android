@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlists;
 
 
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;

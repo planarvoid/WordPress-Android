@@ -9,11 +9,11 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
 import android.content.Intent;

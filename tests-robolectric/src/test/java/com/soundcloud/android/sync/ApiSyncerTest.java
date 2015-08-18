@@ -16,7 +16,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;

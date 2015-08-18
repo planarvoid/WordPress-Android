@@ -12,7 +12,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;

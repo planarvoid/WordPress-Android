@@ -11,7 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.junit.Before;

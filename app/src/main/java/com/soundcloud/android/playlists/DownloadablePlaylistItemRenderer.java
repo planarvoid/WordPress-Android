@@ -7,8 +7,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
 import android.view.View;

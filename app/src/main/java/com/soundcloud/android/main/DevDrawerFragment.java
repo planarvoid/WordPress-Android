@@ -4,8 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

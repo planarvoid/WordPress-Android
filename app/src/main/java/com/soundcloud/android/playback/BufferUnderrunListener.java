@@ -5,10 +5,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;

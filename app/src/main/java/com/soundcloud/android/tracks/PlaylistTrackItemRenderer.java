@@ -6,7 +6,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.View;

@@ -13,13 +13,13 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 

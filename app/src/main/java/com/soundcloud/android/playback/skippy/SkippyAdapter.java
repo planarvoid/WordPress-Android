@@ -28,7 +28,6 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DebugUtils;
@@ -38,6 +37,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

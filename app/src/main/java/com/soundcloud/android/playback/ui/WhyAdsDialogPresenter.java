@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.DialogInterface;

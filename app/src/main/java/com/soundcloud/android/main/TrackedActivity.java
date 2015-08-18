@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

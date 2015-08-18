@@ -5,9 +5,9 @@ import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

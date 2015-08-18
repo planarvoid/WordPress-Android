@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
 import android.os.Bundle;

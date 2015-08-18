@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;

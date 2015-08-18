@@ -10,8 +10,8 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.annotation.SuppressLint;

@@ -14,10 +14,10 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.exceptions.SignInException;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;

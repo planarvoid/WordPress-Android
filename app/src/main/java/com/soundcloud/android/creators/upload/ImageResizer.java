@@ -6,8 +6,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;

@@ -9,7 +9,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;

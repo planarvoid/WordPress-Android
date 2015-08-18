@@ -3,9 +3,9 @@ package com.soundcloud.android.stations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Func1;
 

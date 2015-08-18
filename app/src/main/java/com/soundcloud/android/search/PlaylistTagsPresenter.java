@@ -5,9 +5,9 @@ import static android.view.View.VISIBLE;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
 import android.support.annotation.Nullable;

@@ -8,11 +8,11 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.app.Service;

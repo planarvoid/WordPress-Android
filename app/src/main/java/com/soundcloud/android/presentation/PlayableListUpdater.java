@@ -1,11 +1,11 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 

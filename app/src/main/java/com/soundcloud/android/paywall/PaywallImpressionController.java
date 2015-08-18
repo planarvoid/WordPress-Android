@@ -7,8 +7,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Handler;
 import android.os.Message;

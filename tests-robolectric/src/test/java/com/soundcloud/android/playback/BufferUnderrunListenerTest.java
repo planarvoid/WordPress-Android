@@ -14,7 +14,7 @@ import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.UninterruptedPlaytimeStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.utils.DateProvider;
 
 import org.junit.Before;

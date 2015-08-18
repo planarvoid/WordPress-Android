@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.entities;
 
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 
 import android.content.Intent;

@@ -1,11 +1,11 @@
 package com.soundcloud.android.sync.playlists;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SingleJobRequest;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.ResultReceiver;
 

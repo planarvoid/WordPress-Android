@@ -6,8 +6,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;

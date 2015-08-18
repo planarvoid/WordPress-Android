@@ -16,8 +16,8 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.Intent;

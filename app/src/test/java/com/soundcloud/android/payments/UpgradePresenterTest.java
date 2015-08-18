@@ -13,7 +13,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;

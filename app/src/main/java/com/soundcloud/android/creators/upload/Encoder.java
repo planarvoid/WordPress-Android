@@ -11,9 +11,9 @@ import com.soundcloud.android.creators.record.jni.ProgressListener;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.util.Log;
