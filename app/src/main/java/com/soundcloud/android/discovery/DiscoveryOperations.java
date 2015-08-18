@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -38,18 +39,6 @@ class DiscoveryOperations {
                         recommendationItems.add(new RecommendationItem(propertySet));
                     }
                     return recommendationItems;
-                }
-            };
-
-    private static final Func1<List<PropertySet>, List<RecommendedTrackItem>> TO_RECOMMENDED_TRACKS =
-            new Func1<List<PropertySet>, List<RecommendedTrackItem>>() {
-                @Override
-                public List<RecommendedTrackItem> call(List<PropertySet> propertySets) {
-                    List<RecommendedTrackItem> recommendedTrackItems = new ArrayList<>(propertySets.size());
-                    for (PropertySet propertySet : propertySets) {
-                        recommendedTrackItems.add(new RecommendedTrackItem(propertySet));
-                    }
-                    return recommendedTrackItems;
                 }
             };
 
@@ -125,9 +114,9 @@ class DiscoveryOperations {
         return recommendationsStorage.recommendedTracks().subscribeOn(scheduler);
     }
 
-    Observable<List<RecommendedTrackItem>> recommendedTracksForSeed(long seedTrackLocalId) {
+    Observable<List<TrackItem>> recommendedTracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
-                .map(TO_RECOMMENDED_TRACKS)
+                .map(TrackItem.fromPropertySets())
                 .subscribeOn(scheduler);
     }
 }
