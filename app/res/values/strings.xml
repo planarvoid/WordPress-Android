@@ -416,7 +416,7 @@
     <string name="recommendation_view_all">View all %1$d</string>
     <string name="recommendation_reason_because_you">Because you %1$s %2$s</string>
     <string name="recommendation_reason_liked">liked</string>
-    <string name="recommendation_reason_listened_to">listened to</string>
+    <string name="recommendation_reason_listened_to">played</string> <!-- https://github.com/soundcloud/personalized-tracks/ -->
     <string name="recommendation_seeds_header">Recommended for you</string>
 
     <!-- __SETTINGS -->

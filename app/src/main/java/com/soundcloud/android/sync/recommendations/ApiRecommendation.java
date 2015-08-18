@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 
-import android.support.annotation.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,9 +12,16 @@ class ApiRecommendation {
 
     final static Map<String, Reason> relationKeys = new HashMap<>(Reason.values().length);
 
+    // https://github.com/soundcloud/personalized-tracks/
+    // IMPORTANT: Clients must only use the first two relation responses.
+    // In all other cases clients should fall back to the first relation.
+    // E.g. in case "curated" is returned clients should display the wording for "listened to".
     static {
         relationKeys.put("liked", Reason.LIKED);
         relationKeys.put("listened_to", Reason.LISTENED_TO);
+        relationKeys.put("curated", Reason.LISTENED_TO);
+        relationKeys.put("reposted", Reason.LISTENED_TO);
+        relationKeys.put("uploaded", Reason.LISTENED_TO);
     }
 
     enum Reason {
