@@ -16,15 +16,11 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
-import android.content.ContentValues;
-
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,18 +47,19 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     @Override
     public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
-        final Collection<DownloadRequest> creatorOptOut = updateCreatorOptOut(userExpectedContent);
-        final List<DownloadRequest> expectedRequests = getExpectedRequest(userExpectedContent);
+        final List<DownloadRequest> expectedRequests = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
+        final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
 
         final Collection<Urn> expectedTracks = MoreCollections.transform(expectedRequests, toUrn);
-        final List<Urn> downloadRequests = getDownloadRequests();
-        final List<Urn> downloadedContent = getDownloaded();
+        final List<Urn> requested = getDownloadRequests();
+        final List<Urn> downloaded = getDownloaded();
         final List<Urn> pendingRemovals = getPendingRemovals();
+        final List<Urn> unavailable = getMarkedAsUnavailable();
 
         final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(expectedRequests, pendingRemovals);
-        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(expectedRequests, downloadRequests, downloadedContent, tracksToRestore);
-        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(expectedRequests, pendingRemovals, tracksToRestore, downloadedContent);
-        final List<Urn> newPendingRemovals = getNewPendingRemovals(expectedTracks, downloadedContent, downloadRequests);
+        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(expectedRequests, requested, downloaded, tracksToRestore);
+        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(expectedRequests, pendingRemovals, tracksToRestore, downloaded);
+        final List<Urn> newPendingRemovals = getNewPendingRemovals(expectedTracks, downloaded, unavailable, requested);
 
         return new OfflineContentUpdates(
                 newArrayList(allDownloadRequests),
@@ -73,31 +70,6 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         );
     }
 
-    private List<DownloadRequest> getExpectedRequest(Collection<DownloadRequest> userExpectedContent) {
-        return newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
-    }
-
-    private Collection<DownloadRequest> updateCreatorOptOut(Collection<DownloadRequest> userExpectedContent) {
-        Collection<DownloadRequest> outOuts = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
-
-        if (!outOuts.isEmpty()) {
-            propellerDatabase.bulkUpsert(TrackDownloads.TABLE, creatorOptOutContentValues(outOuts));
-        }
-        return outOuts;
-    }
-
-    private List<ContentValues> creatorOptOutContentValues(Collection<DownloadRequest> creatorOptOut) {
-        List<ContentValues> contentValues = new ArrayList<>();
-        for (DownloadRequest optOuts : creatorOptOut) {
-            contentValues.add(ContentValuesBuilder.values()
-                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
-                    .put(TrackDownloads.REQUESTED_AT, null)
-                    .put(TrackDownloads._ID, optOuts.track.getNumericId())
-                    .get());
-        }
-        return contentValues;
-    }
-
     private static Predicate<DownloadRequest> downloadablePredicate(final boolean isDownloadable) {
         return new Predicate<DownloadRequest>() {
             @Override
@@ -105,6 +77,14 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
                 return input.downloadable == isDownloadable;
             }
         };
+    }
+
+    private List<Urn> getMarkedAsUnavailable() {
+        Query query = Query
+                .from(TrackDownloads.TABLE)
+                .whereNotNull(TrackDownloads.UNAVAILABLE_AT);
+
+        return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
     private List<Urn> getDownloadRequests() {
@@ -119,7 +99,9 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private List<Urn> getDownloaded() {
-        final Query query = Query.from(TrackDownloads.TABLE).whereNotNull(DOWNLOADED_AT).whereNull(REMOVED_AT);
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .whereNotNull(DOWNLOADED_AT)
+                .whereNull(REMOVED_AT);
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
@@ -134,9 +116,9 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloadedTracks,
-                                            Collection<Urn> downloadRequests) {
-        return newArrayList(subtract(add(downloadedTracks, downloadRequests), expectedContent));
+    private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloaded,
+                                            Collection<Urn> unavailable, Collection<Urn> requested) {
+        return newArrayList(subtract(add(downloaded, requested, unavailable), expectedContent));
     }
 
     private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent,

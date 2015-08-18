@@ -84,16 +84,6 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     @Test
-    public void marksAsUnavailableOfflineCreatorOptOutTracks() {
-        final List<DownloadRequest> expectedRequests = new ArrayList<>(2);
-        expectedRequests.add(new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build());
-
-        command.call(expectedRequests);
-
-        databaseAssertions().assertTrackIsUnavailable(TRACK_URN_1, now.getTime());
-    }
-
-    @Test
     public void returnsFilteredOutCreatorOptOuts() {
         final List<DownloadRequest> expectedRequests = new ArrayList<>(2);
         DownloadRequest creatorOptOut = new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build();
