@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DisplayMetricsStub;
 import org.junit.Test;
 
 import android.content.Context;
@@ -149,9 +150,7 @@ public class ApiImageSizeTest extends AndroidUnitTest {
 
     private void assertFullImageUri(int width, int height, ApiImageSize expected) {
         Resources resources = mock(Resources.class);
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        displayMetrics.widthPixels = width;
-        displayMetrics.heightPixels = height;
+        DisplayMetrics displayMetrics = new DisplayMetricsStub(width, height);
 
         when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
 

@@ -28,6 +28,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
@@ -47,13 +48,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
-    private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L,2L), PlaySessionSource.EMPTY);
+    private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
 
     private Urn trackUrn;
     private PropertySet track;
     private PropertySet trackWithAdMeta;
     private Bitmap bitmap;
-    private DisplayMetrics displayMetrics = new DisplayMetrics();
+    private DisplayMetrics displayMetrics = new DisplayMetricsStub();
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -75,9 +76,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         PlaySessionController controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
                 InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, featureFlags);
         controller.subscribe();
-
-        displayMetrics.widthPixels = 1080;
-        displayMetrics.heightPixels = 1920;
 
         track = expectedTrackForPlayer();
         trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
