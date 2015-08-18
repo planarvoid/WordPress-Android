@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -10,16 +10,14 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaySessionStateProviderTest {
+public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     private static final long TRACK_ID = 123L;
     private static final Urn TRACK_URN = Urn.forTrack(TRACK_ID);
@@ -45,26 +43,26 @@ public class PlaySessionStateProviderTest {
         final Playa.StateTransition lastTransition = TestPlayStates.playing();
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, Playa.StateTransition.DEFAULT);
-        expect(provider.isPlaying()).toBeTrue();
+        assertThat(provider.isPlaying()).isTrue();
     }
 
     @Test
     public void isPlayingTrackReturnsFalseIfNoPlayStateEventIsReceived() {
-        expect(provider.isPlayingTrack(TRACK)).toBeFalse();
+        assertThat(provider.isPlayingTrack(TRACK)).isFalse();
     }
 
     @Test
     public void isPlayingTrackReturnsTrueIfLastTransitionHappenedOnTheTargetTrack() {
         sendIdleStateEvent();
 
-        expect(provider.isPlayingTrack(TRACK)).toBeTrue();
+        assertThat(provider.isPlayingTrack(TRACK)).isTrue();
     }
 
     @Test
     public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
         sendIdleStateEvent();
 
-        expect(provider.getLastProgressByUrn(TRACK_URN).getPosition()).toEqual(0L);
+        assertThat(provider.getLastProgressForTrack(TRACK_URN).getPosition()).isEqualTo(0L);
     }
 
     @Test
@@ -72,12 +70,12 @@ public class PlaySessionStateProviderTest {
 
         final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(provider.getLastProgressByUrn(TRACK_URN)).toBe(playbackProgressEvent.getPlaybackProgress());
+        assertThat(provider.getLastProgressForTrack(TRACK_URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
     }
 
     @Test
     public void returnsEmptyProgressByUrnIfNoProgressReceived() throws Exception {
-        expect(provider.getLastProgressByUrn(TRACK_URN)).toEqual(PlaybackProgress.empty());
+        assertThat(provider.getLastProgressForTrack(TRACK_URN)).isEqualTo(PlaybackProgress.empty());
     }
 
     @Test
@@ -87,7 +85,7 @@ public class PlaySessionStateProviderTest {
         Urn nextTrackUrn = Urn.forTrack(321);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
 
-        expect(provider.getLastProgressByUrn(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));
+        assertThat(provider.getLastProgressForTrack(nextTrackUrn)).isEqualTo(new PlaybackProgress(123, 456));
     }
 
     private void sendIdleStateEvent() {
@@ -116,7 +114,8 @@ public class PlaySessionStateProviderTest {
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
-        when(playQueueManager.getPlayProgressInfo()).thenReturn(new PlaybackProgressInfo(TRACK_ID, 123L));
+        when(playQueueManager.wasLastSavedTrack(TRACK_URN)).thenReturn(true);
+        when(playQueueManager.getLastSavedPosition()).thenReturn(123L);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN, 0, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyLong());
     }
@@ -137,7 +136,7 @@ public class PlaySessionStateProviderTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeFalse();
+        assertThat(provider.hasLastKnownProgress(Urn.forTrack(2L))).isFalse();
     }
 
     @Test
@@ -146,6 +145,6 @@ public class PlaySessionStateProviderTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeTrue();
+        assertThat(provider.hasLastKnownProgress(Urn.forTrack(2L))).isTrue();
     }
 }

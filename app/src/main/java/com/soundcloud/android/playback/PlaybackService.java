@@ -293,10 +293,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         waitingForPlaylist = false;
         currentTrack = track;
 
-        final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
-        if (!playUninterrupted && resumeInfo != null && resumeInfo.shouldResumeTrack(getCurrentTrackUrn())) {
-            Log.d(TAG, "Resuming track at " + resumeInfo.getTime());
-            streamPlayer.play(currentTrack, resumeInfo.getTime());
+        if (!playUninterrupted && playQueueManager.wasLastSavedTrack(getCurrentTrackUrn())) {
+            final long lastSavedPosition = playQueueManager.getLastSavedPosition();
+            Log.d(TAG, "Resuming track at " + lastSavedPosition);
+            streamPlayer.play(currentTrack, lastSavedPosition);
         } else {
             playCurrentTrackFromStart(playUninterrupted);
         }

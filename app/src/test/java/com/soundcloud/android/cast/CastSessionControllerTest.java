@@ -1,7 +1,7 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -15,24 +15,24 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCa
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
+import android.app.Activity;
 import android.content.Intent;
 
 import javax.inject.Provider;
@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class CastSessionControllerTest {
+public class CastSessionControllerTest extends AndroidUnitTest  {
 
     private static final Urn URN = Urn.forTrack(123L);
     private static final Urn URN2 = Urn.forTrack(456L);
@@ -92,7 +91,7 @@ public class CastSessionControllerTest {
     @Test
     public void onConnectedToReceiverAppStopsPlaybackService() throws Exception {
         castSessionController.startListening();
-        when(playSessionStateProvider.getLastProgressByUrn(any(Urn.class))).thenReturn(PlaybackProgress.empty());
+        when(playSessionStateProvider.getLastProgressForTrack(any(Urn.class))).thenReturn(PlaybackProgress.empty());
         when(castPlayer.reloadAndPlayCurrentQueue(anyLong())).thenReturn(Observable.<PlaybackResult>empty());
 
         callOnConnectedToReceiverApp();
@@ -104,16 +103,15 @@ public class CastSessionControllerTest {
     public void onConnectedToReceiverAppExpandsPlayerWhenLocalQueueIsPopulated() throws Exception {
         castSessionController.startListening();
         PlaybackResult playbackResult = PlaybackResult.success();
-        PlaybackProgress lastPlaybackProgress = new PlaybackProgress(123L, 456L);
-        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(lastPlaybackProgress);
-        when(castPlayer.reloadAndPlayCurrentQueue(lastPlaybackProgress.getPosition())).thenReturn(Observable.just(playbackResult));
+        when(playSessionStateProvider.getLastProgressForTrack(URN)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(castPlayer.reloadAndPlayCurrentQueue(123L)).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
 
         callOnConnectedToReceiverApp();
 
-        expect(expandPlayerSubscriber.getOnNextEvents()).toNumber(1);
-        expect(expandPlayerSubscriber.getOnNextEvents().get(0)).toEqual(playbackResult);
+        assertThat(expandPlayerSubscriber.getOnNextEvents()).hasSize(1);
+        assertThat(expandPlayerSubscriber.getOnNextEvents().get(0)).isEqualTo(playbackResult);
     }
 
     @Test
@@ -145,8 +143,8 @@ public class CastSessionControllerTest {
 
         callOnMetadatUpdated();
 
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).toBeTrue();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
     }
 
     @Test
@@ -166,21 +164,23 @@ public class CastSessionControllerTest {
 
         callOnMetadatUpdated();
 
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
-        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).toBeTrue();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
     }
 
     @Test
     public void onMediaRouteDialogCellClickOpensStreamAndExpandsPlayer() {
         castSessionController.startListening();
 
-        castSessionController.onMediaRouteDialogCellClick(Robolectric.application);
+        final Activity activityContext = new Activity();
 
-        final Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(Actions.STREAM);
-        expect(intent.getBooleanExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false)).toBeTrue();
-        expect(intent.getFlags()).toEqual(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        castSessionController.onMediaRouteDialogCellClick(activityContext);
+
+        Assertions.assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.STREAM)
+                .containsExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     private void callOnMetadatUpdated() {

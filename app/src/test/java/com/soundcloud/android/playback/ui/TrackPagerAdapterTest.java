@@ -367,10 +367,10 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
         when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
         when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
-        when(playSessionStateProvider.hasCurrentProgress(TRACK1_URN)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressByUrn(TRACK1_URN)).thenReturn(firstProgress);
-        when(playSessionStateProvider.hasCurrentProgress(TRACK2_URN)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressByUrn(TRACK2_URN)).thenReturn(secondProgress);
+        when(playSessionStateProvider.hasLastKnownProgress(TRACK1_URN)).thenReturn(true);
+        when(playSessionStateProvider.getLastProgressForTrack(TRACK1_URN)).thenReturn(firstProgress);
+        when(playSessionStateProvider.hasLastKnownProgress(TRACK2_URN)).thenReturn(true);
+        when(playSessionStateProvider.getLastProgressForTrack(TRACK2_URN)).thenReturn(secondProgress);
         Mockito.reset(adPagePresenter); // progress gets set on initial bind, which we are not testing
 
         adapter.onTrackChange();

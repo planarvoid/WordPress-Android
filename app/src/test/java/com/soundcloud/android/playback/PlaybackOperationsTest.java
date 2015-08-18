@@ -687,7 +687,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
 
     private void setupAdInProgress(long currentProgress) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack()).thenReturn(progress);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456L)));
     }

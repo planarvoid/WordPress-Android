@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -16,6 +17,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
@@ -53,7 +55,7 @@ public class PlayQueueManager implements OriginProvider {
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private Subscription playQueueSubscription = RxUtils.invalidSubscription();
-    private PlaybackProgressInfo playbackProgressInfo;
+    private Pair<Urn, Long> lastPlayedTrackAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
 
     @Inject
     public PlayQueueManager(Context context,
@@ -126,6 +128,14 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getRelatedEntity(currentPosition);
     }
 
+    public boolean wasLastSavedTrack(Urn urn) {
+        return lastPlayedTrackAndPosition.first().equals(urn);
+    }
+
+    public long getLastSavedPosition() {
+        return lastPlayedTrackAndPosition.second();
+    }
+
     private int getNextPosition() {
         return getCurrentPosition() + 1;
     }
@@ -153,10 +163,6 @@ public class PlayQueueManager implements OriginProvider {
                 return input.getTrackUrn().equals(trackUrn);
             }
         });
-    }
-
-    public PlaybackProgressInfo getPlayProgressInfo() {
-        return playbackProgressInfo;
     }
 
     public void setPosition(int position) {
@@ -234,7 +240,7 @@ public class PlayQueueManager implements OriginProvider {
             final int savePosition = getPositionToBeSaved();
             final long progress = getProgressToBeSaved(currentTrackProgress);
             playQueueOperations.savePositionInfo(savePosition, getCurrentTrackUrn(), playSessionSource, progress);
-            playbackProgressInfo = new PlaybackProgressInfo(getCurrentTrackId(), progress);
+            setLastPlayedTrackAndPosition(getCurrentTrackUrn(), progress);
         }
     }
 
@@ -280,8 +286,13 @@ public class PlayQueueManager implements OriginProvider {
                         }
                     });
             // return so player can have the resume information while load is in progress
-            playbackProgressInfo = new PlaybackProgressInfo(lastStoredPlayingTrackId, playQueueOperations.getLastStoredSeekPosition());
+            setLastPlayedTrackAndPosition(Urn.forTrack(lastStoredPlayingTrackId), playQueueOperations.getLastStoredSeekPosition());
+
         }
+    }
+
+    private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
+        lastPlayedTrackAndPosition = Pair.of(urn, lastStoredSeekPosition);
     }
 
     private void publishPositionUpdate() {
