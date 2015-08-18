@@ -109,7 +109,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldAdhereToPostedTime() throws Exception {
         post1 = createTrackPostAt(POSTED_DATE_2);
-        post2 = createPlaylistPostAt(POSTED_DATE_2);
+        post2 = createPlaylistPostAt(POSTED_DATE_1);
 
         // 2 old items, reposted after the above tracks
         post3 = createTrackRepostAt(POSTED_DATE_4, POSTED_DATE_1);
