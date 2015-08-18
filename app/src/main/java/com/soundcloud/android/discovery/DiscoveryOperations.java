@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscoveryOperations {
+class DiscoveryOperations {
 
     private static final Observable<List<DiscoveryItem>> ON_ERROR_EMPTY_ITEM_LIST =
             Observable.just(Collections.<DiscoveryItem>emptyList());
