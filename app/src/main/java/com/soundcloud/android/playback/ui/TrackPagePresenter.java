@@ -17,6 +17,8 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
@@ -58,6 +60,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final AdOverlayController.Factory adOverlayControllerFactory;
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
+    private final FeatureFlags featureFlags;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
@@ -69,7 +72,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
-                              CastConnectionHelper castConnectionHelper) {
+                              CastConnectionHelper castConnectionHelper, FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.imageOperations = imageOperations;
@@ -80,6 +83,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.adOverlayControllerFactory = adOverlayControllerFactory;
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -157,7 +161,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void setupRelatedTrack(View trackView, PlayerTrackState trackState, TrackPageHolder holder) {
         final boolean hasRelatedTrack = trackState.hasRelatedTrack();
-        if (hasRelatedTrack){
+        if (hasRelatedTrack && featureFlags.isEnabled(Flag.RECOMMENDED_PLAYER_CONTEXT)){
             holder.relatedToTrack.setText(trackState.getRelatedTrackTitle());
             holder.relatedTo.setVisibility(View.VISIBLE);
             holder.relatedToTrack.setVisibility(View.VISIBLE);
