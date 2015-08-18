@@ -120,6 +120,14 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiPlaylist insertPlaylistWithCreatedAt(Date createdAt) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setCreatedAt(createdAt);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
     public ApiPlaylist insertLocalPlaylist() {
         return insertLocalPlaylist(ModelFixtures.create(ApiPlaylist.class));
     }
