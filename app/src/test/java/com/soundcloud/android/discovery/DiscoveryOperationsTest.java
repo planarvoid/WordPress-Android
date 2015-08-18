@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -157,14 +158,14 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsRecommendedTracksForSeed() {
-        final TestSubscriber<List<RecommendedTrackItem>> testSubscriber = new TestSubscriber<>();
+        final TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
 
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(createRecommendedTrackPropertySet()));
 
         operations.recommendedTracksForSeed(SEED_ID).subscribe(testSubscriber);
 
-        List<RecommendedTrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
-        RecommendedTrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
+        List<TrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
+        TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
         assertThat(recommendedTrackItem.getEntityUrn()).isEqualTo(recommendedTrack.getUrn());
         assertThat(recommendedTrackItem.getTitle()).isEqualTo(recommendedTrack.getTitle());

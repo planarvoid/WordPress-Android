@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
+
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -8,10 +11,16 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.TracksRecyclerItemAdapter;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,26 +30,30 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class RecommendedTracksPresenter extends RecyclerViewPresenter<RecommendedTrackItem> implements RecommendedTrackItemRenderer.OnRecommendedTrackClickListener {
+public class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
-    private static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
+    static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 
     private final DiscoveryOperations discoveryOperations;
-    private final RecommendedTracksAdapter adapter;
+    private final TracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackOperations playbackOperations;
+    private final EventBus eventBus;
+
+    private CompositeSubscription viewLifeCycle;
 
     @Inject
     RecommendedTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                DiscoveryOperations discoveryOperations,
-                               RecommendedTracksAdapter adapter,
+                               TracksRecyclerItemAdapter adapter,
                                Provider<ExpandPlayerSubscriber> subscriberProvider,
-                               PlaybackOperations playbackOperations) {
+                               PlaybackOperations playbackOperations, EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackOperations = playbackOperations;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -50,14 +63,29 @@ public class RecommendedTracksPresenter extends RecyclerViewPresenter<Recommende
     }
 
     @Override
-    protected void onItemClicked(View view, int position) {
-        //TODO: make it not abstract on android-kit since there is no-op here.
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
+        viewLifeCycle = new CompositeSubscription(
+                eventBus.subscribe(PLAY_QUEUE_TRACK,
+                        new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(ENTITY_STATE_CHANGED,
+                        new UpdateEntityListSubscriber(adapter)));
     }
 
     @Override
-    protected CollectionBinding<RecommendedTrackItem> onBuildBinding(Bundle bundle) {
+    public void onDestroyView(Fragment fragment) {
+        viewLifeCycle.unsubscribe();
+        super.onDestroyView(fragment);
+    }
+
+    @Override
+    protected void onItemClicked(View view, int position) {
+        playRecommendedTracks(adapter.getItem(position).getEntityUrn(), discoveryOperations.recommendedTracks());
+    }
+
+    @Override
+    protected CollectionBinding<TrackItem> onBuildBinding(Bundle bundle) {
         final long localSeedId = bundle.getLong(EXTRA_LOCAL_SEED_ID);
-        adapter.setOnRecommendedTrackClickListener(this);
         return CollectionBinding.from(discoveryOperations.recommendedTracksForSeed(localSeedId))
                 .withAdapter(adapter)
                 .build();
@@ -68,13 +96,9 @@ public class RecommendedTracksPresenter extends RecyclerViewPresenter<Recommende
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    @Override
-    public void onRecommendedTrackClicked(RecommendedTrackItem recommendedTrackItem) {
-        playRecommendedTracks(recommendedTrackItem.getEntityUrn(), discoveryOperations.recommendedTracks());
-    }
-
     private void playRecommendedTracks(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
-        playbackOperations.playTracks(playQueue, firstTrackUrn, 0,
+        final int incorrectPosition = 0; // https://github.com/soundcloud/SoundCloud-Android/issues/3705
+        playbackOperations.playTracks(playQueue, firstTrackUrn, incorrectPosition,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MORE)).subscribe(expandPlayerSubscriberProvider.get());
     }
 }
