@@ -30,7 +30,10 @@ public class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> 
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistDiscoveryItem> discoveryItems) {
-        playlistTagsPresenter.displayRecentTags(itemView, discoveryItems.get(position).getRecentTags());
+        final List<String> recentTags = discoveryItems.get(position).getRecentTags();
+        if (!recentTags.isEmpty()) {
+            playlistTagsPresenter.displayRecentTags(itemView, recentTags);
+        }
         playlistTagsPresenter.displayPopularTags(itemView, discoveryItems.get(position).getPopularTags());
     }
 

@@ -1,8 +1,10 @@
 package com.soundcloud.android.discovery;
 
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import org.junit.Before;
@@ -32,16 +34,27 @@ public class PlaylistTagRendererTest {
     @Test
     public void rendererDisplayTagsWhenBindingItemView() {
         View itemView = mock(View.class);
-        PlaylistDiscoveryItem discoveryItem = mock(PlaylistDiscoveryItem.class);
+        List<String> recentTags = Arrays.asList("#dub", "#hardcore");
         List<String> playListTags = Arrays.asList("#rock", "#metal");
-        when(discoveryItem.getPopularTags()).thenReturn(playListTags);
-        when(discoveryItem.getRecentTags()).thenReturn(playListTags);
+        PlaylistDiscoveryItem discoveryItem = new PlaylistDiscoveryItem(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 
-        verify(discoveryItem).getPopularTags();
-        verify(discoveryItem).getPopularTags();
-        verify(playlistTagsPresenter).displayRecentTags(itemView, playListTags);
+        verify(playlistTagsPresenter).displayPopularTags(itemView, playListTags);
+        verify(playlistTagsPresenter).displayRecentTags(itemView, recentTags);
+    }
+
+    @Test
+    public void doesNotRenderRecentTagsIfEmpty() {
+        View itemView = mock(View.class);
+        List<String> recentTags = Collections.emptyList();
+        List<String> playListTags = Arrays.asList("#rock", "#metal");
+        PlaylistDiscoveryItem discoveryItem = new PlaylistDiscoveryItem(playListTags, recentTags);
+
+        renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
+
+        verify(playlistTagsPresenter).displayPopularTags(itemView, playListTags);
+        verify(playlistTagsPresenter, never()).displayRecentTags(same(itemView), anyList());
     }
 
     @Test
