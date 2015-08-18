@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import org.junit.Before;
@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -30,26 +30,31 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     private MyProfileOperations operations;
     private List<PropertySet> posts;
+    private List<PropertySet> playlists;
 
     @Mock private PostsStorage postStorage;
     @Mock private SyncInitiator syncInitiator;
+    @Mock private PlaylistPostStorage playlistPostStorage;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     private Scheduler scheduler = Schedulers.immediate();
-    private TestObserver<List<PropertySet>> observer;
+    private TestSubscriber<List<PropertySet>> observer;
 
     @Before
     public void setUp() throws Exception {
         operations = new MyProfileOperations(
                 postStorage,
-                syncInitiator,
-                scheduler);
+                playlistPostStorage, syncInitiator,
+                networkConnectionHelper, scheduler);
 
         posts = Arrays.asList(
                 TestPropertySets.expectedPostedPlaylistForPostsScreen(),
                 TestPropertySets.expectedPostedTrackForPostsScreen()
         );
 
-        observer = new TestObserver<>();
+        playlists = createPageOfPlaylists(2);
+
+        observer = new TestSubscriber<>();
     }
 
     @Test
@@ -59,7 +64,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
         operations.postsForPlayback().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(trackPosts);
+        observer.assertValue(trackPosts);
     }
 
     @Test
@@ -70,32 +75,31 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
         operations.pagedPostItems().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(firstPage);
+        observer.assertValue(firstPage);
     }
 
     @Test
-    public void syncAndLoadEmptyPostsResultsWithEmptyResults() throws Exception {
+    public void syncAndLoadEmptyPostsResultsWithEmptyResults() {
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
         operations.pagedPostItems().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Collections.<PropertySet>emptyList());
+        observer.assertValue(Collections.<PropertySet>emptyList());
     }
 
     @Test
-    public void postedPlaylistsReturnsPostedPlaylistsFromStorage() {
+    public void pagedPostItemsReturnsPostedItemsFromStorage() {
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
-        when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPosts()).thenReturn(Observable.<Boolean>empty());
 
         operations.pagedPostItems().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(posts);
+        observer.assertValue(posts);
     }
 
     @Test
-    public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
+    public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
@@ -108,23 +112,90 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
+    public void postPagerFinishesIfLastPageIncomplete() {
         assertThat(operations.postsPagingFunction().call(posts)).isEqualTo(Pager.finish());
     }
 
     @Test
-    public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
+    public void updatedPostsReloadsPostedPostsAfterSyncWithChange() {
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
         when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
         operations.updatedPosts().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(posts);
+        observer.assertValue(posts);
     }
 
-    private List<PropertySet> createPageOfPostedTracks(int size){
+    @Test
+    public void syncAndLoadPlaylistsWhenInitialPlaylistLoadReturnsEmptyList() {
+        final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+
+        operations.pagedPlaylistItems().subscribe(observer);
+
+        observer.assertValue(firstPage);
+    }
+
+    @Test
+    public void syncAndLoadEmptyPlaylistsResultsWithEmptyResults() {
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+
+        operations.pagedPlaylistItems().subscribe(observer);
+
+        observer.assertValue(Collections.<PropertySet>emptyList());
+    }
+
+    @Test
+    public void pagedPlaylistItemsReturnsPlaylistItemsFromStorage() {
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
+
+        operations.pagedPlaylistItems().subscribe(observer);
+
+        observer.assertValue(playlists);
+    }
+
+    @Test
+    public void playlistPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() {
+        final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
+        final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
+
+        operations.playlistPagingFunction().call(firstPage);
+
+        verify(playlistPostStorage).loadPostedPlaylists(PAGE_SIZE, time);
+    }
+
+    @Test
+    public void playlistPagerFinishesIfLastPageIncomplete() {
+        assertThat(operations.playlistPagingFunction().call(playlists)).isEqualTo(Pager.finish());
+    }
+
+    @Test
+    public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+
+        operations.updatedPlaylists().subscribe(observer);
+
+        observer.assertValue(playlists);
+    }
+
+    private List<PropertySet> createPageOfPlaylists(int size) {
         List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
+            page.add(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
+        }
+        return page;
+    }
+
+    private List<PropertySet> createPageOfPostedTracks(int size) {
+        List<PropertySet> page = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedPostedTrackForPostsScreen());
         }
         return page;
