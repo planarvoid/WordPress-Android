@@ -14,12 +14,9 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import android.content.Context;
-
 import java.util.Collections;
 
 public class StationsApiTest extends AndroidUnitTest {
-    @Mock Context context;
     @Mock ApiClientRx apiClientRx;
 
     private final Urn stationUrn = Urn.forTrackStation(123L);
@@ -28,10 +25,7 @@ public class StationsApiTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        api = new StationsApi(
-                context,
-                apiClientRx
-        );
+        api = new StationsApi(apiClientRx);
 
         apiStation = StationFixtures.getApiStation();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiStation.class))).thenReturn(Observable.just(apiStation));

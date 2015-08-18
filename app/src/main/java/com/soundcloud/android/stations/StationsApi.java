@@ -6,18 +6,13 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 
 class StationsApi {
-    private final Context context;
     private final ApiClientRx apiClientRx;
 
     @Inject
-    public StationsApi(Context context,
-                       ApiClientRx apiClientRx) {
-        this.context = context;
+    public StationsApi(ApiClientRx apiClientRx) {
         this.apiClientRx = apiClientRx;
     }
 
