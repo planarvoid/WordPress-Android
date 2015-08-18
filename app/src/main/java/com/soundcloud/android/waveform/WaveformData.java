@@ -1,5 +1,7 @@
 package com.soundcloud.android.waveform;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.Arrays;
@@ -34,9 +36,7 @@ public class WaveformData {
      * @return the waveform data downsampled to the required width
      */
     public WaveformData scale(double requiredWidth) {
-        if (requiredWidth <= 0) {
-            throw new IllegalArgumentException("Invalid width: " + requiredWidth);
-        }
+        checkArgument(requiredWidth >= 0, "invalid width");
 
         double samplesPerWidth = samples.length / requiredWidth;
         int totalSamples = (int) Math.ceil(requiredWidth);
