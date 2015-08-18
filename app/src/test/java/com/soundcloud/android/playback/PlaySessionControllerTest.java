@@ -323,6 +323,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void appendsRecommendedTracksWhenAtEndForSearchSuggestions() {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource(Screen.SEARCH_SUGGESTIONS));
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueOperations.relatedTracksPlayQueue(trackUrn, false)).thenReturn(Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -363,6 +364,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void appendsRecommendedTracksConsecutivelyIfResultsAreReceivedFirstTime() {
         final Observable<PlayQueue> first = Observable.just(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), PlaySessionSource.EMPTY));
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueOperations.relatedTracksPlayQueue(trackUrn, true)).thenReturn(first, Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
@@ -387,6 +389,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void appendsRecommendedTracksConsecutivelyIfNoResultsAreReceivedFirstTimeAndPlayQueueChanges() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueOperations.relatedTracksPlayQueue(trackUrn, true)).thenReturn(Observable.just(PlayQueue.empty()), Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
