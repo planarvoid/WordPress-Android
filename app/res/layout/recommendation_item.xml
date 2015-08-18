@@ -59,16 +59,16 @@
                     android:id="@+id/username"
                     style="@style/BlackOverlayText.RegularSubtext"
                     android:layout_above="@+id/title"
-                    android:layout_marginStart="@dimen/grid_item_padding"
-                    android:layout_marginLeft="@dimen/grid_item_padding" />
+                    android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
+                    android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right" />
 
                 <com.soundcloud.android.view.JaggedTextView
                     android:id="@+id/title"
                     style="@style/BlackOverlayText.Regular"
-                    android:layout_marginLeft="@dimen/grid_item_padding"
-                    android:layout_marginRight="@dimen/grid_item_padding"
-                    android:layout_marginBottom="@dimen/grid_item_padding"
-                    android:layout_marginTop="@dimen/recommendations_cell_margin"
+                    android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
+                    android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right"
+                    android:layout_marginBottom="@dimen/recommendations_cell_track_data_padding_top_bottom"
+                    android:layout_marginTop="@dimen/recommendations_cell_track_data_padding_top_bottom"
                     android:layout_alignBottom="@id/image" />
 
             </RelativeLayout>
