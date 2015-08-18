@@ -16,7 +16,7 @@ ext {
   androidKitVersion = '0.20'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
-  propellerVersion = '0.47'
+  propellerVersion = '0.48'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
