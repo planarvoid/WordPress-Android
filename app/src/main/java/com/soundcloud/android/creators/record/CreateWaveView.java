@@ -509,8 +509,10 @@ public class CreateWaveView extends View {
         public float get(int i) {
             if (i < preRecData.size()) {
                 return preRecData.get(i);
-            } else {
+            } else if (i - preRecData.size() < recData.size() ) {
                 return recData.get(i - preRecData.size());
+            } else {
+                return 0;
             }
         }
     }
