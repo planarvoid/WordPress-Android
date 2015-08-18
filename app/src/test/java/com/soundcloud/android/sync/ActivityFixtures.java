@@ -26,10 +26,10 @@ public class ActivityFixtures {
         return createActivity(Activity.Type.AFFILIATION);
     }
 
-    private static Activity createActivity(Activity.Type trackLike) {
+    private static Activity createActivity(Activity.Type type) {
         final PublicApiUser apiUser = ModelFixtures.create(PublicApiUser.class);
         final PublicApiTrack apiTrack = ModelFixtures.create(PublicApiTrack.class);
-        return new ActivityStub(trackLike, apiUser, apiTrack);
+        return new ActivityStub(type, apiUser, apiTrack);
     }
 
     private static class ActivityStub extends Activity {

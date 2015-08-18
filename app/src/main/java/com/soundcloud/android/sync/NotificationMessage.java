@@ -36,7 +36,7 @@ class NotificationMessage {
         private Activities comments = Activities.EMPTY;
         private Activities reposts = Activities.EMPTY;
         private Activities followers = Activities.EMPTY;
-        private Activities mixed = Activities.EMPTY;
+        private Activities allActivitiesToNotify = Activities.EMPTY;
 
         Builder(Resources resources) {
             this.res = resources;
@@ -62,8 +62,11 @@ class NotificationMessage {
             return this;
         }
 
-        public Builder setMixed(Activities mixed) {
-            this.mixed = mixed;
+        // This setter is actually all activities to notify (likes, comments, ...)
+        // In the next refactor step we could get rid of it and build this in
+        // `buildMixedActivitiesNotification`. Your friend.
+        public Builder setAllActivitiesToNotify(Activities allActivitiesToNotify) {
+            this.allActivitiesToNotify = allActivitiesToNotify;
             return this;
         }
 
@@ -98,15 +101,15 @@ class NotificationMessage {
         }
 
         private NotificationMessage buildMixedActivitiesNotification() {
-            List<Playable> playables = mixed.getUniquePlayables();
-            List<PublicApiUser> users = mixed.getUniqueUsers();
+            List<Playable> playables = allActivitiesToNotify.getUniquePlayables();
+            List<PublicApiUser> users = allActivitiesToNotify.getUniqueUsers();
             final CharSequence ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
-                    mixed.size(),
-                    mixed.size());
+                    allActivitiesToNotify.size(),
+                    allActivitiesToNotify.size());
 
             final CharSequence title = res.getQuantityString(R.plurals.dashboard_notifications_activity_title_activity,
-                    mixed.size(),
-                    mixed.size());
+                    allActivitiesToNotify.size(),
+                    allActivitiesToNotify.size());
 
             final CharSequence message;
             if (users.size() == 1) {

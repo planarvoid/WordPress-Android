@@ -120,7 +120,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
             if (activitiesToNotify.newerThan(ContentStats.getLastNotifiedItem(context, Content.ME_ACTIVITIES))) {
                 final NotificationMessage msg = new NotificationMessage
                         .Builder(context.getResources())
-                        .setMixed(activitiesToNotify)
+                        .setAllActivitiesToNotify(activitiesToNotify)
                         .setLikes(likes)
                         .setComments(comments)
                         .setReposts(reposts)

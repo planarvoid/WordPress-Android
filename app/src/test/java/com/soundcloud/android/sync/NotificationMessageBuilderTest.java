@@ -130,7 +130,7 @@ public class NotificationMessageBuilderTest extends AndroidUnitTest {
                 .setLikes(like)
                 .setReposts(repost)
                 .setFollowers(newFollower)
-                .setMixed(all)
+                .setAllActivitiesToNotify(all)
                 .build();
 
         assertThat(message.title).isEqualTo("4 new activities");
