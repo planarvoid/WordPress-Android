@@ -36,6 +36,10 @@ public abstract class Screen {
         waiter.waitForTextToDisappear("Loading");
     }
 
+    public void waitForContentAndRetryIfLoadingFailed() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
     public void swipeLeft() {
         testDriver.swipeLeft();
     }

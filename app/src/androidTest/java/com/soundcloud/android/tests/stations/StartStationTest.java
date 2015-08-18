@@ -36,6 +36,8 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
                 .open()
                 .clickPlaylists()
                 .clickPlaylist(With.text("track-stations"));
+
+        playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void testStartStation() {
@@ -44,7 +46,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         assertThat(player, is(visible()));
     }
 
-    public void disableTestStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
+    public void testStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
