@@ -1,6 +1,5 @@
 --- !ruby/object:MrLoggerLogger::ResultSpec
 whitelisted_events:
-- impression
 - click
 - audio
 expected_events:
