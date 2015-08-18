@@ -3,14 +3,18 @@ package com.soundcloud.android.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertResolverNotified;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static java.util.Collections.singleton;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -18,7 +22,7 @@ import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.matchers.RequestMatchers;
+import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +45,7 @@ public class ApiSyncerTest {
     @Mock private EventBus eventBus;
     @Mock private ApiClient apiClient;
     @Mock private AccountOperations accountOperations;
+    @Mock private StoreTracksCommand storeTracksCommand;
 
     @Before
     public void before() {
@@ -57,7 +62,7 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncMe() throws Exception {
         when(apiClient.fetchMappedResponse(
-                argThat(RequestMatchers.isPublicApiRequestTo("GET", "/me")), eq(PublicApiUser.class)))
+                argThat(isPublicApiRequestTo("GET", "/me")), eq(PublicApiUser.class)))
                 .thenReturn(new PublicApiUser(123L));
         expect(Content.ME).toBeEmpty();
         ApiSyncResult result = sync(Content.ME.uri);
@@ -125,6 +130,22 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncSingleTrack() throws Exception {
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("GET", "/tracks/" + track.getId())), eq(PublicApiTrack.class))).thenReturn(track);
+        when(storeTracksCommand.call(singleton(track))).thenReturn(TestStorageResults.successfulInsert());
+
+        ApiSyncer syncer = new ApiSyncer(
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus,
+                apiClient, accountOperations, storeTracksCommand);
+        ApiSyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
+        expect(result.success).toBe(true);
+        expect(result.synced_at).toBeGreaterThan(startTime);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
+    }
+
+    @Test
     public void shouldDoUserLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "users.json");
         ApiSyncResult result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
@@ -146,7 +167,8 @@ public class ApiSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(
-                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient, accountOperations);
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus,
+                apiClient, accountOperations, storeTracksCommand);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

@@ -237,6 +237,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
+    public Optional<String> getDescription() {
+        return Optional.fromNullable(description);
+    }
+
+    @Override
     public void setId(long id) {
         super.setId(id);
         urn = Urn.forTrack(id);

@@ -1,7 +1,10 @@
 package com.soundcloud.android.commands;
 
+import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
+
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.TableColumns.Sounds;
+import com.soundcloud.android.storage.TableColumns.TrackPolicies;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -25,7 +28,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (TrackRecord trackRecord : input) {
-                    step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(trackRecord.getUser())));
+                    step(propeller.upsert(Table.Users, buildUserContentValues(trackRecord.getUser())));
                     step(propeller.upsert(Table.Sounds, buildTrackContentValues(trackRecord)));
                     step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(trackRecord)));
                 }
@@ -37,42 +40,46 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
         if (trackRecord.getTitle() == null) {
             ErrorUtils.handleSilentException(new IllegalStateException("Inserting a track with a NULL title: " + trackRecord.getUrn()));
         }
-        return ContentValuesBuilder.values()
-                .put(TableColumns.Sounds._ID, trackRecord.getUrn().getNumericId())
-                .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .put(TableColumns.Sounds.TITLE, trackRecord.getTitle())
-                .put(TableColumns.Sounds.DURATION, trackRecord.getDuration())
-                .put(TableColumns.Sounds.WAVEFORM_URL, trackRecord.getWaveformUrl())
-                .put(TableColumns.Sounds.STREAM_URL, trackRecord.getStreamUrl())
-                .put(TableColumns.Sounds.PERMALINK_URL, trackRecord.getPermalinkUrl())
-                .put(TableColumns.Sounds.CREATED_AT, trackRecord.getCreatedAt().getTime())
-                .put(TableColumns.Sounds.GENRE, trackRecord.getGenre())
-                .put(TableColumns.Sounds.SHARING, trackRecord.getSharing().value())
-                .put(TableColumns.Sounds.COMMENTABLE, trackRecord.isCommentable())
-                .put(TableColumns.Sounds.PLAYBACK_COUNT, trackRecord.getPlaybackCount())
-                .put(TableColumns.Sounds.COMMENT_COUNT, trackRecord.getCommentsCount())
-                .put(TableColumns.Sounds.LIKES_COUNT, trackRecord.getLikesCount())
-                .put(TableColumns.Sounds.REPOSTS_COUNT, trackRecord.getRepostsCount())
-                .put(TableColumns.Sounds.USER_ID, trackRecord.getUser().getUrn().getNumericId())
-                .get();
+        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values();
+        valuesBuilder
+                .put(Sounds._ID, trackRecord.getUrn().getNumericId())
+                .put(Sounds._TYPE, Sounds.TYPE_TRACK)
+                .put(Sounds.TITLE, trackRecord.getTitle())
+                .put(Sounds.DURATION, trackRecord.getDuration())
+                .put(Sounds.WAVEFORM_URL, trackRecord.getWaveformUrl())
+                .put(Sounds.STREAM_URL, trackRecord.getStreamUrl())
+                .put(Sounds.PERMALINK_URL, trackRecord.getPermalinkUrl())
+                .put(Sounds.CREATED_AT, trackRecord.getCreatedAt().getTime())
+                .put(Sounds.GENRE, trackRecord.getGenre())
+                .put(Sounds.SHARING, trackRecord.getSharing().value())
+                .put(Sounds.COMMENTABLE, trackRecord.isCommentable())
+                .put(Sounds.PLAYBACK_COUNT, trackRecord.getPlaybackCount())
+                .put(Sounds.COMMENT_COUNT, trackRecord.getCommentsCount())
+                .put(Sounds.LIKES_COUNT, trackRecord.getLikesCount())
+                .put(Sounds.REPOSTS_COUNT, trackRecord.getRepostsCount())
+                .put(Sounds.USER_ID, trackRecord.getUser().getUrn().getNumericId());
+        if (trackRecord.getDescription().isPresent()) {
+            valuesBuilder.put(Sounds.DESCRIPTION, trackRecord.getDescription().get());
+        }
+        return valuesBuilder.get();
     }
 
     public static ContentValues buildPolicyContentValues(TrackRecord trackRecord) {
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
-                .put(TableColumns.TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
-                .put(TableColumns.TrackPolicies.POLICY, trackRecord.getPolicy())
-                .put(TableColumns.TrackPolicies.SYNCABLE, trackRecord.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
+                .put(TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
+                .put(TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
+                .put(TrackPolicies.POLICY, trackRecord.getPolicy())
+                .put(TrackPolicies.SYNCABLE, trackRecord.isSyncable())
+                .put(TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         if (trackRecord.getMonetizationModel().isPresent()) {
-            valuesBuilder.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, trackRecord.getMonetizationModel().get());
+            valuesBuilder.put(TrackPolicies.MONETIZATION_MODEL, trackRecord.getMonetizationModel().get());
         }
         if (trackRecord.isSubMidTier().isPresent()) {
-            valuesBuilder.put(TableColumns.TrackPolicies.SUB_MID_TIER, trackRecord.isSubMidTier().get());
+            valuesBuilder.put(TrackPolicies.SUB_MID_TIER, trackRecord.isSubMidTier().get());
         }
         if (trackRecord.isSubHighTier().isPresent()) {
-            valuesBuilder.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, trackRecord.isSubHighTier().get());
+            valuesBuilder.put(TrackPolicies.SUB_HIGH_TIER, trackRecord.isSubHighTier().get());
         }
         return valuesBuilder.get();
     }

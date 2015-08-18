@@ -4,19 +4,18 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StoreTracksCommandTest extends StorageIntegrationTest {
 
     private StoreTracksCommand command;
@@ -39,9 +38,21 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
         final ApiTrack track = testFixtures().insertTrack();
         track.setTitle("new title");
 
-        command.call(Arrays.asList(track));
+        command.call(Collections.singletonList(track));
 
         assertThat(select(from(Table.Sounds.name())), counts(1));
         databaseAssertions().assertTrackInserted(track);
+    }
+
+    @Test
+    public void shouldPersistTrackWithDescription() {
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
+        track.description = "description";
+
+        command.call(Collections.singletonList(track));
+
+        assertThat(select(from(Table.Sounds.name())
+                .whereEq(TableColumns.Sounds.DESCRIPTION, "description")), counts(1));
+
     }
 }
