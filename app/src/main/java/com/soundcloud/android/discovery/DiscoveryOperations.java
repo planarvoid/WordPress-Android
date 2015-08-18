@@ -3,8 +3,6 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -17,18 +15,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscoveryOperations {
+class DiscoveryOperations {
 
     private static final Observable<List<DiscoveryItem>> ON_ERROR_EMPTY_ITEM_LIST =
             Observable.just(Collections.<DiscoveryItem>emptyList());
 
-    private final Func1<SyncResult, Observable<List<DiscoveryItem>>> toSeedTracks =
-            new Func1<SyncResult, Observable<List<DiscoveryItem>>>() {
+    private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
+            new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
                 @Override
-                public Observable<List<DiscoveryItem>> call(SyncResult ignored) {
-                    return recommendationsStorage.seedTracks()
-                            .map(TO_RECOMMENDATIONS)
-                            .subscribeOn(scheduler);
+                public Observable<List<DiscoveryItem>> call(Boolean ignore) {
+                    //we always retrieve recommendations from local storage
+                    return recommendationsFromStorage();
                 }
             };
 
@@ -56,27 +53,31 @@ public class DiscoveryOperations {
                 }
             };
 
-    private final SyncInitiator syncInitiator;
+    private final RecommendationsSync syncer;
     private final RecommendationsStorage recommendationsStorage;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final Scheduler scheduler;
 
-
     @Inject
-    DiscoveryOperations(SyncInitiator syncInitiator,
+    DiscoveryOperations(RecommendationsSync recommendationsSyncer,
                         RecommendationsStorage recommendationsStorage,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
 
-        this.syncInitiator = syncInitiator;
+        this.syncer = recommendationsSyncer;
         this.recommendationsStorage = recommendationsStorage;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
         this.scheduler = scheduler;
     }
 
     private Observable<List<DiscoveryItem>> recommendations() {
-        return syncInitiator.syncRecommendations().flatMap(toSeedTracks)
+        return syncer.syncRecommendations()
+                .flatMap(toRecommendations)
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
+    }
+
+    private Observable<List<DiscoveryItem>> recommendationsFromStorage() {
+        return recommendationsStorage.seedTracks().map(TO_RECOMMENDATIONS).subscribeOn(scheduler);
     }
 
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
@@ -89,16 +90,16 @@ public class DiscoveryOperations {
                 }).onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
-    public Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
+    Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
         return recommendations().zipWith(playlistDiscovery(), new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
             @Override
-            public List<DiscoveryItem> call(List<DiscoveryItem> recommendedTracks, List<DiscoveryItem> playlistTags) {
-                List<DiscoveryItem> combined = new ArrayList<>(recommendedTracks.size() + playlistTags.size());
-                combined.addAll(recommendedTracks);
+            public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
+                List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size());
+                combined.addAll(recommendations);
                 combined.addAll(playlistTags);
                 return combined;
             }
-        });
+        }).subscribeOn(scheduler);
     }
 
     Observable<List<Urn>> recommendedTracksWithSeed(final RecommendationItem recommendationItem) {
@@ -120,11 +121,11 @@ public class DiscoveryOperations {
                         }).subscribeOn(scheduler);
     }
 
-    public Observable<List<Urn>> recommendedTracks() {
+    Observable<List<Urn>> recommendedTracks() {
         return recommendationsStorage.recommendedTracks().subscribeOn(scheduler);
     }
 
-    public Observable<List<RecommendedTrackItem>> recommendedTracksForSeed(long seedTrackLocalId) {
+    Observable<List<RecommendedTrackItem>> recommendedTracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                 .map(TO_RECOMMENDED_TRACKS)
                 .subscribeOn(scheduler);

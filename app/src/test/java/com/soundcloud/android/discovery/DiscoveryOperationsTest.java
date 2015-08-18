@@ -7,8 +7,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -36,24 +34,25 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private final Scheduler scheduler = Schedulers.immediate();
     private final TestSubscriber<List<DiscoveryItem>> observer = new TestSubscriber<>();
-    private final PublishSubject<SyncResult> syncSubject = PublishSubject.create();
+    private final PublishSubject<Boolean> syncSubject = PublishSubject.create();
     private final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
     private final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
     private final List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 2);
 
     private DiscoveryOperations operations;
 
+    @Mock private RecommendationsSync recommendationsSync;
     @Mock private RecommendationsStorage recommendationsStorage;
-    @Mock private SyncInitiator syncInitiator;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
 
     @Before
     public void setUp() throws Exception {
-        operations = new DiscoveryOperations(syncInitiator, recommendationsStorage, playlistDiscoveryOperations, scheduler);
+        operations = new DiscoveryOperations(recommendationsSync, recommendationsStorage,
+                playlistDiscoveryOperations, scheduler);
 
         // setup happy path
         when(recommendationsStorage.seedTracks()).thenReturn(Observable.just(Arrays.asList(createSeedItem())));
-        when(syncInitiator.syncRecommendations()).thenReturn(syncSubject);
+        when(recommendationsSync.syncRecommendations()).thenReturn(syncSubject);
         when(playlistDiscoveryOperations.popularPlaylistTags()).thenReturn(Observable.just(POPULAR_TAGS));
         when(playlistDiscoveryOperations.recentPlaylistTags()).thenReturn(Observable.just(RECENT_TAGS));
     }
@@ -62,7 +61,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsRecommendationsFollowedByPlaylistDiscoTags() {
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
         observer.assertNoValues(); // make sure we sync before loading
-        syncSubject.onNext(SyncResult.success("action", true));
+        syncSubject.onNext(true);
 
         final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
@@ -76,7 +75,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistDiscoTagsWhenRecommendationsSyncErrors() {
-        when(syncInitiator.syncRecommendations()).thenReturn(Observable.<SyncResult>error(new IOException()));
+        when(recommendationsSync.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
 
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
 
@@ -94,7 +93,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.seedTracks()).thenReturn(Observable.<List<PropertySet>>error(new IOException()));
 
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
-        syncSubject.onNext(SyncResult.success("action", true));
+        syncSubject.onNext(true);
 
         final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
@@ -110,7 +109,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         when(playlistDiscoveryOperations.recentPlaylistTags()).thenReturn(Observable.<List<String>>error(new IOException()));
 
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
-        syncSubject.onNext(SyncResult.success("action", true));
+        syncSubject.onNext(true);
 
         final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);
@@ -126,7 +125,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         when(playlistDiscoveryOperations.popularPlaylistTags()).thenReturn(Observable.<List<String>>error(new IOException()));
 
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
-        syncSubject.onNext(SyncResult.success("action", true));
+        syncSubject.onNext(true);
 
         final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
         assertThat(onNextEvents).hasSize(1);

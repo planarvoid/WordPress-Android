@@ -26,6 +26,8 @@ public class StorageModule {
     public static final String OFFLINE_SETTINGS = "OfflineSettings";
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
+    public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
+
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -34,6 +36,7 @@ public class StorageModule {
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FEATURES = "features_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
+    private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -80,6 +83,12 @@ public class StorageModule {
     @Named(STREAM_SYNC)
     public SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(RECOMMENDATIONS_SYNC)
+    public SharedPreferences provideRecommendationsSyncPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_RECOMMENDATIONS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
