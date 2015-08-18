@@ -49,4 +49,6 @@ public interface TrackRecord  {
     int getLikesCount();
 
     int getRepostsCount();
+
+    Optional<String> getDescription();
 }

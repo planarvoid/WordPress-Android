@@ -245,6 +245,11 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
         return stats.getRepostsCount();
     }
 
+    @Override
+    public Optional<String> getDescription() {
+        return Optional.absent(); // api-mobile doesn't return track descriptions yet
+    }
+
     @JsonProperty("syncable")
     public void setSyncable(boolean syncable) {
         this.syncable = syncable;
