@@ -3,7 +3,9 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.utils.DateProvider;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.content.SharedPreferences;
@@ -19,34 +21,43 @@ class RecommendationsSync {
 
     private final SyncInitiator syncInitiator;
     private final SharedPreferences sharedPreferences;
+    private final DateProvider dateProvider;
 
-    private final Func1<SyncResult, Boolean> TO_SYNC_RESULT = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> FROM_SYNC_RESULT = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
+            return syncResult.wasSuccess();
+        }
+    };
+
+    private final Action1<SyncResult> setLastSyncTime = new Action1<SyncResult>() {
+        @Override
+        public void call(SyncResult syncResult) {
             if (syncResult.wasSuccess()) {
                 updateLastSyncTime();
-                return true;
             }
-            return false;
         }
     };
 
     @Inject
-    RecommendationsSync(SyncInitiator syncInitiator, @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences) {
+    RecommendationsSync(SyncInitiator syncInitiator,
+                        @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
+                        DateProvider dateProvider) {
         this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
+        this.dateProvider = dateProvider;
     }
 
     Observable<Boolean> syncRecommendations() {
         if (isRecommendationsCacheExpired()) {
-            return syncInitiator.syncRecommendations().map(TO_SYNC_RESULT);
+            return syncInitiator.syncRecommendations().doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
         }
     }
 
     private boolean isRecommendationsCacheExpired() {
-        return (System.currentTimeMillis() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
+        return (dateProvider.getCurrentTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
     }
 
     private long getLastSyncTime() {
@@ -55,7 +66,7 @@ class RecommendationsSync {
 
     private void updateLastSyncTime() {
         final SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(KEY_LAST_SYNC_TIME, System.currentTimeMillis());
+        editor.putLong(KEY_LAST_SYNC_TIME, dateProvider.getCurrentTime());
         editor.apply();
     }
 }

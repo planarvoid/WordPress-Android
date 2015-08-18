@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.utils.DateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,15 +29,16 @@ public class RecommendationsSyncTest {
 
     @Mock private SyncInitiator syncInitiator;
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private DateProvider dateProvider;
 
     @Before
     public void setUp() {
-        syncer = new RecommendationsSync(syncInitiator, sharedPreferences);
+        syncer = new RecommendationsSync(syncInitiator, sharedPreferences, dateProvider);
     }
 
     @Test
     public void syncRecommendationsOnlyIfCacheIsExpired() {
-        mockRecommendationsLastSyncDate(TimeUnit.DAYS.toMillis(2));
+        mockRecommendationsSyncDate(TimeUnit.DAYS.toMillis(3), TimeUnit.DAYS.toMillis(1));
         when(syncInitiator.syncRecommendations()).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDATIONS, true)));
 
         syncer.syncRecommendations();
@@ -48,7 +50,7 @@ public class RecommendationsSyncTest {
 
     @Test
     public void doNotSyncRecommendationsIfCacheIsValid() {
-        mockRecommendationsLastSyncDate(TimeUnit.HOURS.toMillis(2));
+        mockRecommendationsSyncDate(TimeUnit.DAYS.toMillis(1), TimeUnit.HOURS.toMillis(2));
 
         syncer.syncRecommendations();
 
@@ -57,8 +59,8 @@ public class RecommendationsSyncTest {
         verifyNoMoreInteractions(sharedPreferences);
     }
 
-    private void mockRecommendationsLastSyncDate(long elapsedTimeSinceLastSyncMillis) {
-        final long lastSyncDate = System.currentTimeMillis() - elapsedTimeSinceLastSyncMillis;
-        when(sharedPreferences.getLong(anyString(), anyLong())).thenReturn(lastSyncDate);
+    private void mockRecommendationsSyncDate(long currentTime, long elapsedTimeSinceLastSyncMillis) {
+        when(dateProvider.getCurrentTime()).thenReturn(currentTime);
+        when(sharedPreferences.getLong(anyString(), anyLong())).thenReturn(elapsedTimeSinceLastSyncMillis);
     }
 }
