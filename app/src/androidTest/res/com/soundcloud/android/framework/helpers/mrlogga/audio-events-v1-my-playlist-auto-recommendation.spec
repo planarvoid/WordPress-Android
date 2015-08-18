@@ -51,7 +51,7 @@ expected_events:
   name: audio
   params:
     anonymous_id: (\w|-)+
-    track_owner: soundcloud:users:103832346
+    track_owner: soundcloud:users:[0-9]+
     source: recommender
     client_id: '3152'
     source_version: cassandra-source
@@ -63,10 +63,10 @@ expected_events:
     user: soundcloud:users:50749473
     playlist_position: '3'
     playhead_position: '[0-9]+'
-    track_length: '217228'
+    track_length: '[0-9]+'
     protocol: hls
     ts: '[0-9]+'
-    track: soundcloud:tracks:197512817
+    track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
     local_storage_playback: 'false'
@@ -75,7 +75,7 @@ expected_events:
   name: audio
   params:
     anonymous_id: (\w|-)+
-    track_owner: soundcloud:users:103832346
+    track_owner: soundcloud:users:[0-9]+
     source: recommender
     client_id: '3152'
     source_version: cassandra-source
@@ -87,10 +87,10 @@ expected_events:
     user: soundcloud:users:50749473
     playlist_position: '3'
     playhead_position: '[0-9]+'
-    track_length: '217228'
+    track_length: '[0-9]+'
     protocol: hls
     ts: '[0-9]+'
-    track: soundcloud:tracks:197512817
+    track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     reason: pause
     trigger: manual
