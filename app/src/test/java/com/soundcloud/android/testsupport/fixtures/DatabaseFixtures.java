@@ -510,19 +510,19 @@ public class DatabaseFixtures {
     }
 
     public void insertCompletedTrackDownload(Urn trackUrn, long requestedAtTimestamp, long completedTimestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAtTimestamp);
-        cv.put(TrackDownloads.DOWNLOADED_AT.name(), completedTimestamp);
-        insertInto(TrackDownloads.TABLE, cv);
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
+        cv.put(TrackDownloads.DOWNLOADED_AT, completedTimestamp);
+        insertInto(TrackDownloads.TABLE, cv.get());
     }
 
     public void insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT.name(), 33333333L);
-        cv.put(TrackDownloads.UNAVAILABLE_AT.name(), unavailableTimestamp);
-        insertInto(TrackDownloads.TABLE, cv);
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT, 33333333L);
+        cv.put(TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
+        insertInto(TrackDownloads.TABLE, cv.get());
     }
 
     public void insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
@@ -530,12 +530,12 @@ public class DatabaseFixtures {
     }
 
     public void insertTrackDownloadPendingRemoval(Urn trackUrn, long requestedAtTimestamp, long removedAtTimestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TrackDownloads._ID.name(), trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT.name(), requestedAtTimestamp);
-        cv.put(TrackDownloads.DOWNLOADED_AT.name(), requestedAtTimestamp);
-        cv.put(TrackDownloads.REMOVED_AT.name(), removedAtTimestamp);
-        insertInto(TrackDownloads.TABLE, cv);
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
+        cv.put(TrackDownloads.DOWNLOADED_AT, requestedAtTimestamp);
+        cv.put(TrackDownloads.REMOVED_AT, removedAtTimestamp);
+        insertInto(TrackDownloads.TABLE, cv.get());
     }
 
     public ApiPlaylist insertPlaylistMarkedForOfflineSync() {
@@ -545,17 +545,17 @@ public class DatabaseFixtures {
     }
 
     public void insertPlaylistMarkedForOfflineSync(ApiPlaylist playlist) {
-        ContentValues cv = new ContentValues();
-        cv.put(OfflineContent._ID.name(), playlist.getUrn().getNumericId());
-        cv.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_PLAYLIST);
-        insertInto(OfflineContent.TABLE, cv);
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(OfflineContent._ID, playlist.getUrn().getNumericId());
+        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
+        insertInto(OfflineContent.TABLE, cv.get());
     }
 
     public void insertLikesMarkedForOfflineSync() {
-        ContentValues cv = new ContentValues();
-        cv.put(OfflineContent._ID.name(), OfflineContent.ID_OFFLINE_LIKES);
-        cv.put(OfflineContent._TYPE.name(), OfflineContent.TYPE_COLLECTION);
-        insertInto(OfflineContent.TABLE, cv);
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES);
+        cv.put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
+        insertInto(OfflineContent.TABLE, cv.get());
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

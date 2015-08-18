@@ -1,6 +1,7 @@
 package com.soundcloud.android.policies;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -17,16 +18,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class FetchPoliciesCommandTest extends AndroidUnitTest {
 
     private FetchPoliciesCommand command;
 
-    private final List<String> body = Collections.singletonList("soundcloud:playlists:1");
+    private final List<String> body = singletonList("soundcloud:playlists:1");
     private final PolicyInfo policy = new PolicyInfo("soundcloud:playlists:1", true, "Allow", false);
-    private final ModelCollection<PolicyInfo> policies = new ModelCollection<>(Collections.singletonList(policy));
+    private final ModelCollection<PolicyInfo> policies = new ModelCollection<>(singletonList(policy));
 
     @Mock private ApiClient apiClient;
 
@@ -41,7 +41,7 @@ public class FetchPoliciesCommandTest extends AndroidUnitTest {
                 isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(body)), any(TypeToken.class)))
                 .thenReturn(policies);
 
-        Collection<PolicyInfo> result = command.with(Collections.singletonList(Urn.forPlaylist(1))).call();
+        Collection<PolicyInfo> result = command.with(singletonList(Urn.forPlaylist(1))).call();
 
         assertThat(result).contains(policy);
     }
