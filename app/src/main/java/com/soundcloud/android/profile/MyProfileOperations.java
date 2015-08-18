@@ -4,7 +4,7 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.java.collections.PropertySet;
@@ -45,36 +45,36 @@ public class MyProfileOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<List<PropertySet>> pagedPostItems() {
-        return postedPlaylists(Long.MAX_VALUE);
+    Observable<List<PropertySet>> pagedPostItems() {
+        return postedItems(Long.MAX_VALUE);
     }
 
-    public Pager.PagingFunction<List<PropertySet>> postsPagingFunction() {
+    Pager.PagingFunction<List<PropertySet>> postsPagingFunction() {
         return new Pager.PagingFunction<List<PropertySet>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {
                 if (result.size() < PAGE_SIZE) {
                     return Pager.finish();
                 } else {
-                    return postedPlaylists(getLast(result).get(PlaylistProperty.CREATED_AT).getTime());
+                    return postedItems(getLast(result).get(PostProperty.CREATED_AT).getTime());
                 }
             }
         };
     }
 
-    public Observable<List<PropertySet>> postsForPlayback() {
+    Observable<List<PropertySet>> postsForPlayback() {
         return postsStorage.loadPostsForPlayback().subscribeOn(scheduler);
-    }
-
-    private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
-        return postsStorage.loadPosts(PAGE_SIZE, beforeTime)
-                .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedPosts()));
     }
 
     Observable<List<PropertySet>> updatedPosts() {
         return syncInitiator.refreshPosts()
                 .flatMap(loadInitialPosts);
+    }
+
+    private Observable<List<PropertySet>> postedItems(long beforeTime) {
+        return postsStorage.loadPosts(PAGE_SIZE, beforeTime)
+                .subscribeOn(scheduler)
+                .lift(new OperatorSwitchOnEmptyList<>(updatedPosts()));
     }
 
 }

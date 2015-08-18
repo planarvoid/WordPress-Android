@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
@@ -200,8 +201,8 @@ public abstract class TestPropertySets {
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
                 PlaylistProperty.DURATION.bind(123456L),
                 PlaylistProperty.LIKES_COUNT.bind(2),
-                PlaylistProperty.CREATED_AT.bind(new Date()),
-                PlaylistProperty.IS_PRIVATE.bind(false));
+                PlaylistProperty.IS_PRIVATE.bind(false),
+                PostProperty.CREATED_AT.bind(new Date()));
     }
 
     private static PropertySet basePromotedPlaylist() {

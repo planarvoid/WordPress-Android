@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.likes.ApiLike;
@@ -106,13 +107,17 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldAdhereToTimestamp() throws Exception {
-        post1 = createTrackPostAt(POSTED_DATE_1);
+    public void shouldAdhereToPostedTime() throws Exception {
+        post1 = createTrackPostAt(POSTED_DATE_2);
         post2 = createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.loadPosts(2, POSTED_DATE_2.getTime()).subscribe(observer);
+        // 2 old items, reposted after the above tracks
+        post3 = createTrackRepostAt(POSTED_DATE_4, POSTED_DATE_1);
+        post4 = createPlaylistRepostAt(POSTED_DATE_4, POSTED_DATE_1);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post1));
+        storage.loadPosts(2, POSTED_DATE_3.getTime()).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post1, post2));
     }
 
     @Test
@@ -146,7 +151,11 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet createTrackRepostAt(Date postedAt) {
-        ApiTrack track = createTrackAt(postedAt);
+        return createTrackRepostAt(postedAt, postedAt);
+    }
+
+    private PropertySet createTrackRepostAt(Date postedAt, Date createdAt) {
+        ApiTrack track = createTrackAt(createdAt);
         createTrackRepostWithId(track.getUrn().getNumericId(), postedAt);
         return createTrackPostPropertySet(track).put(TrackProperty.IS_REPOSTED, true)
                 .put(TrackProperty.REPOSTER, user.getUsername());
@@ -159,7 +168,11 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet createPlaylistRepostAt(Date postedAt) {
-        ApiPlaylist playlist = createPlaylistAt(postedAt);
+        return createPlaylistRepostAt(postedAt, postedAt);
+    }
+
+    private PropertySet createPlaylistRepostAt(Date postedAt, Date createdAt) {
+        ApiPlaylist playlist = createPlaylistAt(createdAt);
         createPlaylistRepostWithId(playlist.getUrn().getNumericId(), postedAt);
         return createPlaylistPostPropertySet(playlist)
                 .put(TrackProperty.IS_REPOSTED, true)
@@ -173,22 +186,22 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.CREATOR_NAME,
                 PlaylistProperty.TRACK_COUNT,
                 PlaylistProperty.LIKES_COUNT,
-                PlaylistProperty.CREATED_AT,
                 PlaylistProperty.IS_PRIVATE
-        ).put(PlayableProperty.IS_LIKED, false)
+        ).put(PostProperty.CREATED_AT, playlist.getCreatedAt())
+                .put(PlayableProperty.IS_LIKED, false)
                 .put(PlayableProperty.IS_REPOSTED, false);
     }
 
-    private PropertySet createTrackPostPropertySet(ApiTrack playlist) {
-        return playlist.toPropertySet().slice(
+    private PropertySet createTrackPostPropertySet(ApiTrack track) {
+        return track.toPropertySet().slice(
                 TrackProperty.URN,
                 TrackProperty.TITLE,
                 TrackProperty.CREATOR_NAME,
                 TrackProperty.LIKES_COUNT,
-                TrackProperty.CREATED_AT,
                 TrackProperty.DURATION,
                 TrackProperty.IS_PRIVATE
-        ).put(PlayableProperty.IS_LIKED, false)
+        ).put(PostProperty.CREATED_AT, track.getCreatedAt())
+                .put(PlayableProperty.IS_LIKED, false)
                 .put(PlayableProperty.IS_REPOSTED, false);
     }
 

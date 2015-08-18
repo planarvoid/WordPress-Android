@@ -14,6 +14,7 @@ import static com.soundcloud.propeller.query.Query.on;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.OfflinePlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistMapper;
@@ -99,9 +100,9 @@ public class PostsStorage {
                         field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
                         field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                        field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT),
                         field(SoundView.field(TableColumns.SoundView.DURATION)).as(TableColumns.SoundView.DURATION),
                         field(Posts.field(TableColumns.Posts.TYPE)).as(TableColumns.Posts.TYPE),
+                        field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
                         field(Likes.field(TableColumns.Likes._ID)).as(LIKED_ID),
                         count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
                 .innerJoin(SoundView.name(),
@@ -111,7 +112,7 @@ public class PostsStorage {
                 .leftJoin(Likes.name(),
                         on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
                                 .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
-                .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
+                .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
                 .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC)
                 .limit(limit);
@@ -156,9 +157,9 @@ public class PostsStorage {
             propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
             propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.isNotNull(LIKED_ID));
             propertySet.put(PlayableProperty.IS_REPOSTED, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
+            propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
             return propertySet;
         }
 
@@ -178,9 +179,9 @@ public class PostsStorage {
             propertySet.put(TrackProperty.DURATION, cursorReader.getLong(TableColumns.SoundView.DURATION));
             propertySet.put(TrackProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(TrackProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.isNotNull(LIKED_ID));
             propertySet.put(PlayableProperty.IS_REPOSTED, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
+            propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
             return propertySet;
         }
     }

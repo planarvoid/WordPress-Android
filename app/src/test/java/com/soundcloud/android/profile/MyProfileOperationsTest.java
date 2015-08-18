@@ -5,7 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -96,7 +97,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
-        final long time = firstPage.get(PAGE_SIZE - 1).get(PlaylistProperty.CREATED_AT).getTime();
+        final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(postStorage.loadPosts(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
         when(syncInitiator.refreshPosts()).thenReturn(Observable.<Boolean>empty());
