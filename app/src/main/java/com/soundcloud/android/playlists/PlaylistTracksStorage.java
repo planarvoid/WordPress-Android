@@ -136,7 +136,7 @@ class PlaylistTracksStorage {
                 .whereEq(Table.Posts.field(Posts.TYPE), Posts.TYPE_POST)
                 .whereEq(Table.SoundView.field(Sounds._TYPE), Sounds.TYPE_PLAYLIST)
                 .groupBy(Table.SoundView.field(SoundView._ID))
-                .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.ASC);
+                .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.DESC);
     }
 
     private Query isTrackInPlaylist(Urn trackUrn) {

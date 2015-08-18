@@ -16,8 +16,9 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -39,123 +40,137 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void playlistForAddingTrackLoadsPlaylistWithCorrectOrder() {
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
+        final ApiPlaylist apiPlaylist1 = insertPostedPlaylist(ADDED_AT);
+        final ApiPlaylist apiPlaylist2 = insertPostedPlaylist(new Date(ADDED_AT.getTime() - 1000));
+
+        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123L))
+                .subscribe(testSubscriber);
+
+        testSubscriber.assertValues(Arrays.asList(
+                createAddTrackToPlaylistItem(apiPlaylist1, false),
+                createAddTrackToPlaylistItem(apiPlaylist2, false)));
+    }
+
+    @Test
     public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatus() {
-        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist1 = insertPostedPlaylist();
         final ApiPlaylist apiPlaylist2 = insertPostedPlaylist();
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
-                .subscribe(testObserver);
+                .subscribe(testSubscriber);
 
-        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        assertThat(result).containsExactly(
+        testSubscriber.assertValues(Arrays.asList(
                 createAddTrackToPlaylistItem(apiPlaylist1, false),
-                createAddTrackToPlaylistItem(apiPlaylist2, true));
+                createAddTrackToPlaylistItem(apiPlaylist2, true)));
     }
 
     @Test
     public void addTrackToPlaylistItemsLoadsPlaylistWithCorrectIsAddedStatusForLocallyRemovedTracks() {
-        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = insertPostedPlaylist();
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 0, new Date());
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
-                .subscribe(testObserver);
+                .subscribe(testSubscriber);
 
-        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        assertThat(result).containsExactly(createAddTrackToPlaylistItem(apiPlaylist, false));
+        testSubscriber.assertValues(
+                Collections.singletonList(createAddTrackToPlaylistItem(apiPlaylist, false)));
     }
 
     @Test
     public void addTrackToPlaylistItemsDoNotIncludeRepostedPlaylists() {
-        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getCurrentDate().getTime());
 
-        playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testObserver);
+        playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testSubscriber);
 
-        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        assertThat(result).isEmpty();
+        testSubscriber.assertValues(Collections.<AddTrackToPlaylistItem>emptyList());
     }
 
     @Test
     public void addTrackToPlaylistItemsLoadCorrectPlaylistOfflineState() {
-        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
 
         final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
         testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
 
         final ApiPlaylist normalPlaylist = insertPostedPlaylist();
 
-        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123)).subscribe(testObserver);
+        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123)).subscribe(testSubscriber);
 
-        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
-        assertThat(result).contains(
-                createAddTrackToPlaylistItem(offlinePlaylist, false, true),
-                createAddTrackToPlaylistItem(normalPlaylist, false));
+        testSubscriber.assertValues(
+                Arrays.asList(
+                        createAddTrackToPlaylistItem(offlinePlaylist, false, true),
+                        createAddTrackToPlaylistItem(normalPlaylist, false)
+                )
+        );
     }
 
     @Test
     public void loadPlaylistTracksWithUnavailableOfflineStateWhenPlaylistMarkedForOffline() {
-        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<PropertySet>> testSubscriber = new TestSubscriber<>();
 
         final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
         testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
         ApiTrack track = testFixtures().insertPlaylistTrack(offlinePlaylist.getUrn(), 0);
         testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
 
-        playlistTracksStorage.playlistTracks(offlinePlaylist.getUrn()).subscribe(testObserver);
+        playlistTracksStorage.playlistTracks(offlinePlaylist.getUrn()).subscribe(testSubscriber);
 
-        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        List<PropertySet> result = testSubscriber.getOnNextEvents().get(0);
         assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isTrue();
     }
 
     @Test
     public void doesNotLoadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
-        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+        final TestSubscriber<List<PropertySet>> testSubscriber = new TestSubscriber<>();
 
         final ApiPlaylist normalPlaylist = insertPostedPlaylist();
         ApiTrack track = testFixtures().insertPlaylistTrack(normalPlaylist.getUrn(), 0);
         testFixtures().insertUnavailableTrackDownload(track.getUrn(), new Date().getTime());
 
-        playlistTracksStorage.playlistTracks(normalPlaylist.getUrn()).subscribe(testObserver);
+        playlistTracksStorage.playlistTracks(normalPlaylist.getUrn()).subscribe(testSubscriber);
 
-        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        List<PropertySet> result = testSubscriber.getOnNextEvents().get(0);
         assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isFalse();
     }
 
     @Test
     public void insertsNewPlaylist() {
-        final TestObserver<Urn> testObserver = new TestObserver<>();
+        final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testObserver);
+                .subscribe(testSubscriber);
 
-        long playlistId = testObserver.getOnNextEvents().get(0).getNumericId();
+        long playlistId = testSubscriber.getOnNextEvents().get(0).getNumericId();
         databaseAssertions().assertPlaylistInserted(playlistId, "title", true);
     }
 
     @Test
     public void insertsPlaylistPost() {
-        final TestObserver<Urn> testObserver = new TestObserver<>();
+        final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testObserver);
+                .subscribe(testSubscriber);
 
-        Urn playlistUrn = testObserver.getOnNextEvents().get(0);
+        Urn playlistUrn = testSubscriber.getOnNextEvents().get(0);
         databaseAssertions().assertPlaylistPostInsertedFor(playlistUrn);
     }
 
     @Test
     public void insertsFirstPlaylistTrack() {
-        final TestObserver<Urn> testObserver = new TestObserver<>();
+        final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testObserver);
+                .subscribe(testSubscriber);
 
-        long playlistId = testObserver.getOnNextEvents().get(0).getNumericId();
+        long playlistId = testSubscriber.getOnNextEvents().get(0).getNumericId();
         databaseAssertions().assertPlaylistTracklist(playlistId, Collections.singletonList(Urn.forTrack(123)));
     }
 
@@ -226,8 +241,12 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     }
 
     private ApiPlaylist insertPostedPlaylist() {
-        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        testFixtures().insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), dateProvider.getCurrentDate().getTime(), false);
+        return insertPostedPlaylist(ADDED_AT);
+    }
+
+    private ApiPlaylist insertPostedPlaylist(Date postedAt) {
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylistWithCreatedAt(postedAt);
+        testFixtures().insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedAt.getTime(), false);
         return apiPlaylist;
     }
 
