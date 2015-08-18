@@ -2,11 +2,18 @@
 
 ## Building
 
-Make sure both [Android SDK][] and [Android Studio][] are installed.
+Prerequisites:
 
-    $ brew tap homebrew/versions
-    $ brew install android-sdk android-ndk homebrew/versions/maven # OSX - you'll also need XCode CLI tools
-    
+* Xcode command line tools (if you have `gcc` and `make` you are good)
+* Java 8. Either use [jenv][] to manage your environments, or ensure
+JAVA_HOME is set, eg.
+
+	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
+
+Install the [Android SDK][]
+
+    $ brew install android-sdk android-ndk maven
+
 
 Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
 
@@ -15,37 +22,44 @@ Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
 
-Make sure you are using JDK 8:
+Run the [Android SDK Manager][] to install packages.
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-    
-or you can use [Jenv][] as your Java Environment Manager.
-    
+    $ android
 
-Run
+You don't need to install everything. To get started, you can install the following:
 
-    $ android update sdk --no-ui --all --force
+* From `Tools`, install the latest versions of `Android SDK Tools` and `Android SDK Platform-tools`
+and the version of `Android SDK Build-tools` specified by the `androidBuildToolsVersion` variable in
+[buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).
+* Install the release we are targeting, which is currently `Android 5.0.1 (API 21)`. You can check by
+looking for `android:targetSdkVersion` in [AndroidManifest.xml](app/AndroidManifest.xml). Install
+all release packages except for the system images, because we will use [Genymotion][] for managing emulators.
+* From `Extras`, install the latest versions of `Android Support Repository`, `Android Support Library`,
+`Google Play services` and `Google Repository`.
 
-Clone and build this project:
+If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
+
+Clone and build the project, making sure you are on the VPN:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
     $ ./gradlew assembleDebug
-    $ ./gradlew installDebug
 
-If you encounter problems, check (and update) the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
+If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
 ## Opening the project in Android Studio
 
-Open Android Studio, select "Import project", select `build.gradle` from the root project directory.
+Install [Android Studio][].
+
+Open Android Studio, select "Import project" and select `build.gradle` from the root project directory.
 
 Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
-Android Studio will automatically download and manage dependencies and will ask you to reload the project. 
+Android Studio will automatically download and manage dependencies and will ask you to reload the project.
 
 ## Setup code style
 
-Make sure you are using SoundCloud code style on Android Studio by going to: 
+Make sure you are using SoundCloud code style on Android Studio by going to:
 File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
 
 If it doesn't appear in the list, try the following. Tailor the path for your version of AndroidStudio. The link source MUST be an absolute path.
@@ -54,7 +68,16 @@ If it doesn't appear in the list, try the following. Tailor the path for your ve
     $ ln -sf ~/sc/SoundCloud-Android/.idea-codestyle.xml ~/Library/Preferences/AndroidStudio1.2/codestyles/SoundCloud-Android.xml
 
 ![Android code style][Android code style]
-    
+
+## Running the app on Genymotion
+
+Install [Genymotion][] and add a virtual device. A Google Nexus phone is a good one, eg. Google Nexus 6.
+Click Play to start the device.
+
+Install the Genymotion plugin for Android Studio in Preferences -> Plugins and search for Genymotion.
+
+Click the Play button in Android Studio (next to app at the top) and it should recognize your Genymotino device.
+
 ## Running tests
 
 ### Robolectric tests on command line
@@ -70,7 +93,7 @@ to run all tests, or
 to run all tests inside a class, or
 
     $ ./gradlew tests-robolectric:test --tests *SimpleTrackingApiTest.failedTest
-    
+
 to run one single test.
 
 ### Robolectric tests in Android Studio
@@ -101,7 +124,9 @@ You should also setup your default run configuration for JUnit so it looks like 
 * [Java syntax][java-syntax]
 
 [Android SDK]: http://developer.android.com/sdk/index.html
+[Android SDK Manager]: http://developer.android.com/sdk/installing/adding-packages.html
 [Android Studio]: http://developer.android.com/sdk/index.html
+[Genymotion]: https://www.genymotion.com
 [Jenv]: http://www.jenv.be/
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
