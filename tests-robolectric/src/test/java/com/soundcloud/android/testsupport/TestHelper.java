@@ -62,10 +62,6 @@ public class TestHelper {
     private TestHelper() {
     }
 
-    public static SoundCloudApplication getApplication() {
-        return (SoundCloudApplication) Robolectric.application;
-    }
-
     public static ObjectMapper getObjectMapper() {
         return PublicApi.buildObjectMapper();
     }
@@ -169,16 +165,6 @@ public class TestHelper {
 
     public static void disableSDCard() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
-    }
-
-    public static Uri insert(Uri contentUri, Persisted insertable) {
-        Uri uri = Robolectric.application.getContentResolver().insert(contentUri, insertable.buildContentValues());
-        expect(uri).not.toBeNull();
-        return uri;
-    }
-
-    public static <T extends Persisted & Identifiable> Uri insert(T insertable) {
-        return insert(insertable.toUri(), insertable);
     }
 
     public static <T extends Persisted & Identifiable> Uri insertWithDependencies(Uri contentUri, T resource) {

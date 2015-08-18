@@ -13,7 +13,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.LoadCommentsTask;
-import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -179,10 +178,10 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         download_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOAD_URL));
 
         stream_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STREAM_URL));
-        playback_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
-        download_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
-        comment_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
-        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
+        playback_count = getIntOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
+        download_count = getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
+        comment_count = getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
+        shared_to_count = getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
         commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
         description = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DESCRIPTION));
 

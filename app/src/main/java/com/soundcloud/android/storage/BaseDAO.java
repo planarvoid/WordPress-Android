@@ -77,10 +77,6 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         dependencies.insert(resolver);
     }
 
-    public long createOrUpdate(T resource) {
-        return createOrUpdate(resource.getId(), resource.buildContentValues());
-    }
-
     public long createOrUpdate(long id, ContentValues values) {
         T obj = queryById(id);
         if (obj == null) {

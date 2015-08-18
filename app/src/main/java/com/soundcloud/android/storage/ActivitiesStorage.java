@@ -4,8 +4,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +15,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ActivitiesStorage extends ScheduledOperations {
+public class ActivitiesStorage {
     private SyncStateManager syncStateManager;
     private ActivityDAO activitiesDAO;
     private final ContentResolver resolver;
@@ -33,7 +31,6 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Inject
     public ActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
                              ActivityDAO activitiesDAO) {
-        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = contentResolver;
         this.syncStateManager = syncStateManager;
         this.activitiesDAO = activitiesDAO;
@@ -41,8 +38,6 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     private Activities getCollectionSince(final Uri contentUri, final long since, final int limit)  {
-        log("get activities " + contentUri + ", since=" + since);
-
         Activities activities = new Activities();
         LocalCollection lc = syncStateManager.fromContent(contentUri);
         activities.future_href = lc.extra;
@@ -89,8 +84,6 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public Activities getCollectionBefore(final Uri contentUri, final long before)  {
-        log("get activities " + contentUri + ", before=" + before);
-
         BaseDAO.QueryBuilder query = activitiesDAO.buildQuery(contentUri);
         if (before > 0) {
             query.where(TableColumns.ActivityView.CREATED_AT + "< ?", String.valueOf(before));

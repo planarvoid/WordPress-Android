@@ -311,7 +311,6 @@
   <string name="activity_title_playlist">Lista</string>
   <string name="your_playlists_tab">Tus listas</string>
   <string name="liked_playlists_tab">Listas que te han gustado</string>
-  <string name="playlist_removed">Esta lista no se encontró en SoundCloud</string>
   <string name="playlist_load_error">No se pudo cargar esta lista</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lista aleatoria</string>

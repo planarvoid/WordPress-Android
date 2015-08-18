@@ -311,7 +311,6 @@
   <string name="activity_title_playlist">Afspeellijst</string>
   <string name="your_playlists_tab">Jouw speellijst</string>
   <string name="liked_playlists_tab">Gelikete afspeellijsten</string>
-  <string name="playlist_removed">Deze afspeellijst is niet gevonden in SoundCloud</string>
   <string name="playlist_load_error">We konden je afspeellijst niet laden</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
   <string name="shuffle_playlist">Shuffle playlist</string>

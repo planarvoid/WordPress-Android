@@ -3,7 +3,6 @@ package com.soundcloud.android.storage;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -14,8 +13,9 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 
 @Deprecated
-public class LegacyUserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
+public class LegacyUserStorage {
     private UserDAO userDAO;
+    private final Scheduler scheduler;
 
     @Deprecated // use @Inject instead
     public LegacyUserStorage() {
@@ -29,24 +29,23 @@ public class LegacyUserStorage extends ScheduledOperations implements Storage<Pu
 
     @VisibleForTesting
     LegacyUserStorage(UserDAO userDAO, Scheduler scheduler) {
-        super(scheduler);
         this.userDAO = userDAO;
+        this.scheduler = scheduler;
     }
 
-    @Override
     public PublicApiUser store(PublicApiUser user) {
         userDAO.create(user.buildContentValues());
         return user;
     }
 
     public Observable<PublicApiUser> storeAsync(final PublicApiUser user) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
+        return Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
             public void call(Subscriber<? super PublicApiUser> observer) {
                 observer.onNext(store(user));
                 observer.onCompleted();
             }
-        }));
+        }).subscribeOn(scheduler);
     }
 
     public PublicApiUser createOrUpdate(PublicApiUser user) {
@@ -55,13 +54,13 @@ public class LegacyUserStorage extends ScheduledOperations implements Storage<Pu
     }
 
     public Observable<PublicApiUser> getUserAsync(final long id) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
+        return Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
             public void call(Subscriber<? super PublicApiUser> subscriber) {
                 subscriber.onNext(getUser(id));
                 subscriber.onCompleted();
             }
-        }));
+        }).subscribeOn(scheduler);
     }
 
     public PublicApiUser getUser(long id) {

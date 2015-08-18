@@ -317,7 +317,6 @@
   <string name="activity_title_playlist">Playlists</string>
   <string name="your_playlists_tab">Vos playlists</string>
   <string name="liked_playlists_tab">Playlists « Aimées »</string>
-  <string name="playlist_removed">Cette playlist n\'a pas pu être trouvée sur SoundCloud</string>
   <string name="playlist_load_error">Impossible de charger cette playlist</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist aléatoire</string>

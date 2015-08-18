@@ -33,14 +33,6 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     }
 
     @Test
-    public void shouldQueryForAll() {
-        expect(getDAO().queryAll()).toNumber(0);
-        TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), SoundAssociation.Type.FOLLOWING);
-        TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), SoundAssociation.Type.FOLLOWER);
-        expect(getDAO().queryAll()).toNumber(2);
-    }
-
-    @Test
     public void shouldInsertFollowing() {
         PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);

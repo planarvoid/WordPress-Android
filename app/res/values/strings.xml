@@ -340,7 +340,6 @@
     <string name="activity_title_playlist">Playlist</string>
     <string name="your_playlists_tab">Your Playlists</string>
     <string name="liked_playlists_tab">Liked Playlists</string>
-    <string name="playlist_removed">This playlist was not found on SoundCloud</string>
     <string name="playlist_load_error">Could not load this playlist</string>
     <string name="playlist_new_info_header_text">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>

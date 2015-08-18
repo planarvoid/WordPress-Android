@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -30,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 // TODO: merge this class with SyncOperations
-public class SyncStateManager extends ScheduledOperations {
+public class SyncStateManager {
     private final LocalCollectionDAO localCollectionDao;
     private final ContentResolver resolver;
 
@@ -44,7 +43,6 @@ public class SyncStateManager extends ScheduledOperations {
 
     @Inject
     public SyncStateManager(ContentResolver resolver, LocalCollectionDAO dao) {
-        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = resolver;
         localCollectionDao = dao;
         contentObservers = new HashMap<>();
@@ -99,13 +97,13 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     public Observable<Boolean> forceToStaleAsync(final Content content) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Boolean>() {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> observer) {
                 observer.onNext(forceToStale(content));
                 observer.onCompleted();
             }
-        }));
+        }).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     public Boolean forceToStale(final Content content) {

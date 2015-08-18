@@ -1,9 +1,7 @@
 package com.soundcloud.android.collections.tasks;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,22 +11,14 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -43,18 +33,15 @@ public class RemoteCollectionLoaderTest {
     private Request request;
     @Mock
     private PublicApiResource.ResourceHolder<PublicApiResource> collectionHolder;
-    @Mock
-    private TrackStorage trackStorage;
 
     @Before
     public void setup() throws IOException {
         initMocks(this);
-        remoteCollectionLoader = new RemoteCollectionLoader<>(trackStorage);
+        remoteCollectionLoader = new RemoteCollectionLoader<>();
 
         stub(parameters.getRequest()).toReturn(request);
         stub(publicCloudApi.readCollection(request)).toReturn(collectionHolder);
     }
-
 
     @Test
     public void shouldRemoveUnknownResourcesFromCollectionHolder() throws IOException {
@@ -87,29 +74,5 @@ public class RemoteCollectionLoaderTest {
         assertThat(responseData.success, is(false));
         assertThat(responseData.wasRefresh, is(true));
         assertThat(responseData.responseCode, is(Consts.NOT_SET));
-    }
-
-    @Test
-    public void shouldStoreTracksFromCollection() throws CreateModelException {
-        List<PublicApiResource> collection = new ArrayList<>();
-        final PublicApiTrack track1 = ModelFixtures.create(PublicApiTrack.class);
-        final PublicApiTrack track2 = ModelFixtures.create(PublicApiTrack.class);
-
-        collection.add(ModelFixtures.create(PublicApiUser.class));
-        collection.add(track1);
-        collection.add(ModelFixtures.create(PublicApiUser.class));
-        collection.add(track2);
-
-        TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(trackStorage.storeCollectionAsync(anyCollection())).thenReturn(observable);
-
-        when(collectionHolder.getCollection()).thenReturn(collection);
-        remoteCollectionLoader.load(publicCloudApi, parameters);
-
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-        verify(trackStorage).storeCollectionAsync((Collection<PublicApiTrack>) captor.capture());
-        expect(captor.getValue()).toContainExactly(track1, track2);
-
-        expect(observable.subscribedTo()).toBeTrue();
     }
 }
