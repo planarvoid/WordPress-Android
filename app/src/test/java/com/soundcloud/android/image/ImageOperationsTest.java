@@ -26,6 +26,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import org.junit.Before;
@@ -48,6 +49,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -66,6 +68,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     private ImageOperations imageOperations;
     private Scheduler scheduler;
+    private DisplayMetrics displayMetrics = new DisplayMetricsStub();
 
     @Mock ImageLoader imageLoader;
     @Mock ApiUrlBuilder apiUrlBuilder;
@@ -104,7 +107,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(placeholderGenerator.generateDrawable(any(String.class))).thenReturn(gradientDrawable);
         when(apiUrlBuilder.from(eq(ApiEndpoints.IMAGES), eq(URN), anyString())).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(RESOLVER_URL);
-
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
     }
 
     @Test

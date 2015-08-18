@@ -1,6 +1,5 @@
 package com.soundcloud.android.image;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
@@ -27,6 +26,9 @@ public enum ApiImageSize {
     public final int width;
     public final int height;
     public final String sizeSpec;
+
+    public final static int HIGH_RESOLUTION_SIZE = 960; // xhdpi, WXGA
+    public final static int MEDIUM_RESOLUTION_SIZE = 480; // hdpi, WVGA
 
     public static final EnumSet<ApiImageSize> SMALL_SIZES = EnumSet.of(
             ApiImageSize.BADGE,
@@ -95,13 +97,16 @@ public enum ApiImageSize {
     }
 
     public static ApiImageSize getFullImageSize(Resources resources) {
-        ApiImageSize apiImageSize = ApiImageSize.fromString(resources.getString(R.string.full_image_size));
-        if (apiImageSize != Unknown) {
-            return apiImageSize;
-        } else {
-            return ApiImageSize.T500;
-        }
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        int maxResolution = Math.max(metrics.heightPixels, metrics.widthPixels);
 
+        if (maxResolution >= HIGH_RESOLUTION_SIZE) {
+            return ApiImageSize.T500;
+        } else if (maxResolution >= MEDIUM_RESOLUTION_SIZE) {
+            return ApiImageSize.T300;
+        } else {
+            return ApiImageSize.LARGE;
+        }
     }
 
     public String formatUri(String uri) {

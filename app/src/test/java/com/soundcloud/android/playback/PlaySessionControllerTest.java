@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
@@ -41,17 +42,19 @@ import rx.subjects.PublishSubject;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 
 import java.io.IOException;
 import java.util.List;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
-    private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L,2L), PlaySessionSource.EMPTY);
+    private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
 
     private Urn trackUrn;
     private PropertySet track;
     private PropertySet trackWithAdMeta;
     private Bitmap bitmap;
+    private DisplayMetrics displayMetrics = new DisplayMetricsStub();
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -84,6 +87,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(trackUrn, true)).thenReturn(Observable.just(recommendedPlayQueue));
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
     }
 
     @Test

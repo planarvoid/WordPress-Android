@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DisplayMetricsStub;
 import org.junit.Test;
 
 import android.content.Context;
@@ -120,6 +121,21 @@ public class ApiImageSizeTest extends AndroidUnitTest {
         assertFormatUri(10.0f, "https://i1.sndcdn.com/artworks-000032795722-aaqx24-mini.jpg", "https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg");
     }
 
+    @Test
+    public void shouldReturnT500FullImageForHiResScreens() {
+        assertFullImageUri(1080, 1920, ApiImageSize.T500);
+    }
+
+    @Test
+    public void shouldReturnT300FullImageForMidResScreens() {
+        assertFullImageUri(640, 480, ApiImageSize.T300);
+    }
+
+    @Test
+    public void shouldReturnLargeFullImageForLowResScreens() {
+        assertFullImageUri(240, 320, ApiImageSize.LARGE);
+    }
+
     private void assertFormatUri(float density, String input, String expected) {
         Resources resources = mock(Resources.class);
         Context context = mock(Context.class);
@@ -131,4 +147,14 @@ public class ApiImageSizeTest extends AndroidUnitTest {
 
         assertThat(ApiImageSize.formatUriForNotificationLargeIcon(context, input)).isEqualTo(expected);
     }
+
+    private void assertFullImageUri(int width, int height, ApiImageSize expected) {
+        Resources resources = mock(Resources.class);
+        DisplayMetrics displayMetrics = new DisplayMetricsStub(width, height);
+
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
+
+        assertThat(ApiImageSize.getFullImageSize(resources)).isEqualTo(expected);
+    }
+
 }
