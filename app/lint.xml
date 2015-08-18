@@ -7,6 +7,11 @@
         <ignore path="target/classes/com/google/sample/castcompanionlibrary/*.class" />
         <ignore path="target/classes/com/google/sample/castcompanionlibrary/**/*.class" />
     </issue>
+
+    <!-- auto/value uses GWT related annotations about which we don't care -->
+    <issue id="InvalidPackage">
+        <ignore path="**/com.google.auto.value/**/*"/>
+    </issue>
      
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
