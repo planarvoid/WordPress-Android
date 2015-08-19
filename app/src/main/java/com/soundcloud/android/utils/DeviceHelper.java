@@ -1,7 +1,9 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.R;
+import com.soundcloud.java.hashing.Hashing;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -35,14 +37,13 @@ public class DeviceHelper {
 
     private void generateUdid() {
         String id = getUniqueDeviceId();
-        if (ScTextUtils.isNotBlank(id)) {
-            // We still use IOUtils here instead of guava because its a different algorithm, and tracking needs the legacy values
-            udid = IOUtils.md5(id);
+        if (Strings.isNotBlank(id)) {
+            udid = Hashing.md5(id);
         }
     }
 
     public boolean hasUdid() {
-        return ScTextUtils.isNotBlank(udid);
+        return Strings.isNotBlank(udid);
     }
 
     /**
@@ -56,7 +57,7 @@ public class DeviceHelper {
     private String getUniqueDeviceId() {
         TelephonyManager tmgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String id = tmgr == null ? null : tmgr.getDeviceId();
-        if (ScTextUtils.isBlank(id)) {
+        if (Strings.isBlank(id)) {
             id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return id;
@@ -65,8 +66,8 @@ public class DeviceHelper {
     public String getDeviceName(){
         final String manufacturer = buildHelper.getManufacturer();
         final String model = buildHelper.getModel();
-        if (ScTextUtils.isNotBlank(model)) {
-            if (ScTextUtils.isNotBlank(manufacturer)) {
+        if (Strings.isNotBlank(model)) {
+            if (Strings.isNotBlank(manufacturer)) {
                 return model.startsWith(manufacturer) ? model : manufacturer + " " + model;
             } else {
                 return model;

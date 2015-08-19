@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -144,10 +143,6 @@ public class ScTextUtils {
             view.setHighlightColor(Color.TRANSPARENT);
         } // it will highlight by default
         return true;
-    }
-
-    public static String hexString(byte[] bytes) {
-        return String.format(Locale.ENGLISH, "%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
     public static String getClippedString(String string, int maxLength) {

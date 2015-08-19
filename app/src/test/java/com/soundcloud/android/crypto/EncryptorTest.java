@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Charsets;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ public class EncryptorTest {
 
         final String result = encryptor.hash(urn, digest);
 
-        assertThat(result).isEqualTo(ScTextUtils.hexString(testBytes));
+        assertThat(result).isEqualTo(Strings.toHexString(testBytes));
     }
 
     @Test(expected = EncryptionInterruptedException.class)

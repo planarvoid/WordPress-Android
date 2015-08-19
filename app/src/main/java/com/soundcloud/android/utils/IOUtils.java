@@ -24,7 +24,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.EOFException;
@@ -36,8 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -335,27 +332,6 @@ public final class IOUtils {
 
     public static String inMbFormatted(double bytes) {
         return new DecimalFormat("#.#").format(bytes / 1048576d);
-    }
-
-    public static String md5(String s) {
-        return md5(new ByteArrayInputStream(s.getBytes()));
-    }
-
-    public static String md5(InputStream f) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] buffer = new byte[8192];
-            int n;
-            while ((n = f.read(buffer)) != -1) {
-                digest.update(buffer, 0, n);
-            }
-            return ScTextUtils.hexString(digest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "error", e);
-            return "";
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
