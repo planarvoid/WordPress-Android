@@ -36,12 +36,12 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testPlayAndPauseTrackFromPosts() {
+    // Disabed because of bigger change needed to make this test stable #3715
+    public void disable_testPlayAndPauseTrackFromPosts() {
         final ProfileScreen profileScreen = menuScreen
                 .open()
                 .clickUserProfile();
 
-        // Workaround for #3715
         profileScreen.pullToRefresh();
 
         startEventTracking();
