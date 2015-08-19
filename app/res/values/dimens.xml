@@ -113,7 +113,6 @@
 
     <!-- Recommendations -->
     <dimen name="recommendations_cell_padding">4dp</dimen>
-    <dimen name="recommendations_cell_margin">4dp</dimen>
     <dimen name="recommendations_cell_elevation">3dp</dimen>
     <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top_bottom">6dp</dimen>
