@@ -35,6 +35,7 @@ apply from: "${buildSrcDir}/networkmanager.gradle"
 apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
 apply from: "${buildSrcDir}/repacker/repacker.gradle"
+apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
 
 apply plugin: 'com.android.application'
 apply plugin: 'maven'

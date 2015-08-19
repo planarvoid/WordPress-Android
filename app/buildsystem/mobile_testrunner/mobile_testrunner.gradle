@@ -1,0 +1,65 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+
+class Test { String class_name; String test_name }
+class Package { String name; String location }
+class Session { Package application_package; Package test_package; Package[] tools_packages }
+class RunConfiguration { String label; String test_runner; Test[] tests }
+class Execution { Session session; RunConfiguration run_configuration }
+
+class TestResult { String description; Integer duration; Boolean result; Test test }
+
+def executePostWithData(url, json) {
+  def p = ['curl', 'i', '-X', 'POST', url, '-d', json].execute()
+  new JsonSlurper().parseText(p.text)
+}
+
+def executeGet(url) {
+  def p = ['curl', 'i', '-X', 'GET', url].execute()
+  new JsonSlurper().parseText(p.text)
+}
+
+def executeQueryForResult(runId) {
+  def url = "http://localhost:5000/results/$runId/no_grouping"
+  executeGet(url)
+}
+
+def parseQueryForResultResponse(response) {
+  response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name)) }
+}
+
+def executeSpecificTestsForLabel(execution) {
+  def url = 'http://localhost:5000/devices/android/tests'
+  def json_execution = JsonOutput.toJson(execution)
+//  println JsonOutput.prettyPrint(json_execution)
+  executePostWithData(url, json_execution)
+}
+
+task lollipop << {
+  def applicationPackage = new Package(name: "com.soundcloud.android", location: "data/SoundCloud.apk")
+  def testPackage = new Package(name: "com.soundcloud.android.tests", location: "data/SoundCloudTests.apk")
+  def toolsPackages = [new Package(name: "com.soundcloud.androidnetworkmanager", location: "data/SoundCloudTools.apk")]
+
+  def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
+
+  def tests = [new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")]
+  def runConfiguration = new RunConfiguration(label: "Lollipop", test_runner: "com.soundcloud.android.framework.runner.RandomizingRunner", tests: tests)
+
+  def execution = new Execution(session: session, run_configuration: runConfiguration)
+  def runId = executeSpecificTestsForLabel(execution).id
+  println "runId: $runId"
+
+  def retrievedResults = []
+
+  while(true) {
+    def result = executeQueryForResult(runId)
+    def allResults = parseQueryForResultResponse(result)
+    def newResults = allResults - retrievedResults
+    retrievedResults += allResults
+
+    newResults.forEach{ println("Test Result $it")}
+
+    sleep(2000)
+  }
+}
