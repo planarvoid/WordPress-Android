@@ -1,5 +1,7 @@
 # SoundCloud Android
 
+Please read [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Building
 
 Prerequisites:
