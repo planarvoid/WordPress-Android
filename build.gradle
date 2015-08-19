@@ -31,6 +31,11 @@ allprojects {
 
     testApplicationId = "${applicationId}.tests"
     testInstrumentationRunner = "${applicationId}.framework.runner.RandomizingRunner"
+
+    androidNetorkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
+
+    mobileTestRunnerHost = 'localhost'
+    mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
   }
   repositories {
     mavenLocal()

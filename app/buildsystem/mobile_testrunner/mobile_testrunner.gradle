@@ -1,5 +1,12 @@
-import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+
+class Package { String name; String location }
+class Session { Package application_package; Package test_package; Package[] tools_packages }
+class RunConfiguration { String label; String test_runner; Test[] tests }
+class Execution { Session session; RunConfiguration run_configuration }
+class Run { String id; Integer numTests }
 
 class Test {
   String class_name
@@ -21,11 +28,6 @@ class Test {
   }
 }
 
-class Package { String name; String location }
-class Session { Package application_package; Package test_package; Package[] tools_packages }
-class RunConfiguration { String label; String test_runner; Test[] tests }
-class Execution { Session session; RunConfiguration run_configuration }
-
 class TestResult {
   String description
   Integer duration
@@ -37,7 +39,7 @@ class TestResult {
       return false
     }
     def otherTestResult = (TestResult) other
-      this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test)
+    this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test)
   }
 
   def int hashCode() {
@@ -84,8 +86,14 @@ def executeGet(url) {
   executeCurlCommand(cmd, [])
 }
 
+def executeSpecificTestsForLabel(execution) {
+  def url = "$project.ext.mobileTestRunnerUrl/devices/android/tests"
+  def json_execution = JsonOutput.toJson(execution)
+  executePostWithData(url, json_execution)
+}
+
 def executeQueryForResult(runId) {
-  def url = "http://localhost:5000/results/$runId/no_grouping"
+  def url = "$project.ext.mobileTestRunnerUrl/results/$runId/no_grouping"
   executeGet(url)
 }
 
@@ -93,34 +101,33 @@ def parseQueryForResultResponse(response) {
   response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name)) }
 }
 
-def executeSpecificTestsForLabel(execution) {
-  def url = 'http://localhost:5000/devices/android/tests'
-  def json_execution = JsonOutput.toJson(execution)
-  executePostWithData(url, json_execution)
-}
-
-task lollipop << {
-  def applicationPackage = new Package(name: "com.soundcloud.android", location: "data/SoundCloudWithFailTest.apk")
-  def testPackage = new Package(name: "com.soundcloud.android.tests", location: "data/SoundCloudTestsWithFailTest.apk")
-  def toolsPackages = [new Package(name: "com.soundcloud.androidnetworkmanager", location: "data/SoundCloudTools.apk")]
+def createExecution(String label) {
+  def applicationPackage = new Package(name: project.ext.applicationId, location: "data/SoundCloudWithFailTest.apk")
+  def testPackage = new Package(name: project.ext.testApplicationId, location: "data/SoundCloudTestsWithFailTest.apk")
+  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: "data/SoundCloudTools.apk")]
 
   def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 
   def tests = [new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
                new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")]
-  def runConfiguration = new RunConfiguration(label: "Lollipop", test_runner: "com.soundcloud.android.framework.runner.RandomizingRunner", tests: tests)
+  def runConfiguration = new RunConfiguration(label: label, test_runner: project.ext.testInstrumentationRunner, tests: tests)
 
-  def execution = new Execution(session: session, run_configuration: runConfiguration)
+  new Execution(session: session, run_configuration: runConfiguration)
+}
 
+def execute(Execution execution) {
   def r = executeSpecificTestsForLabel(execution)
   def runId = r.id
   def numTests = r.num_tests
   println "Executing $numTests test(s) with run id $runId"
+  new Run(id: runId, numTests: numTests)
+}
 
+def TestResult[] getAndShowResultsForRun(Run run) {
   def retrievedResults = []
 
-  while( retrievedResults.size < numTests ) {
-    def result = executeQueryForResult(runId)
+  while( retrievedResults.size < run.numTests ) {
+    def result = executeQueryForResult(run.id)
     def allResults = parseQueryForResultResponse(result)
     def newResults = allResults - retrievedResults
     retrievedResults = (retrievedResults + allResults).unique()
@@ -130,11 +137,21 @@ task lollipop << {
     sleep(500)
   }
 
-  def failedTests = retrievedResults.count{ it.result == false }
+  retrievedResults
+}
+
+def failBuildIfNecessary(TestResult[] retrievedResults) {
+  def failedTests = retrievedResults.count{ (!it.result) }
 
   if (failedTests > 0) {
     def red = "\u001B[31m"
     def reset = "\u001B[0m"
     throw new GradleException("$red$failedTests test(s) failed $reset")
   }
+}
+
+task lollipop << {
+  def run = execute(createExecution("Lollipop"))
+  def results = getAndShowResultsForRun(run)
+  failBuildIfNecessary(results)
 }
