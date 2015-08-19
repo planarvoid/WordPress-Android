@@ -199,6 +199,16 @@ public class DatabaseAssertions {
         assertThat(select(query), counts(1));
     }
 
+    public void assetPolicyInserted(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
+        assertThat(select(from(Table.SoundView.name())
+                        .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
+                        .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                        .whereEq(TableColumns.SoundView.POLICIES_MONETIZABLE, monetizable)
+                        .whereEq(TableColumns.SoundView.POLICIES_POLICY, policy)
+                        .whereEq(TableColumns.SoundView.POLICIES_SYNCABLE, syncable)
+        ), counts(1));
+    }
+
     public void assertLikedTrackPendingAddition(Urn targetUrn) {
         assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_TRACK);
     }
@@ -409,7 +419,7 @@ public class DatabaseAssertions {
     }
 
     private void assertOptionalColumn(Query query, String column, Optional<String> optional) {
-        if (optional.isPresent()){
+        if (optional.isPresent()) {
             query.whereEq(column, optional.get());
         } else {
             query.whereNull(column);
