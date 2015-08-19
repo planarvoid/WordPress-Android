@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -133,6 +134,10 @@ public class Activities extends CollectionHolder<Activity> {
         return selectType(TrackRepostActivity.class);
     }
 
+    public Activities followers() {
+        return selectType(AffiliationActivity.class);
+    }
+
     public Map<Playable, Activities> groupedByPlayable() {
         Map<Playable, Activities> grouped = new HashMap<>();
 
@@ -151,7 +156,6 @@ public class Activities extends CollectionHolder<Activity> {
         Collections.sort(collection);
     }
 
-    public
     @NotNull
     Activities merge(Activities old) {
         //noinspection ObjectEquality
@@ -169,6 +173,16 @@ public class Activities extends CollectionHolder<Activity> {
             }
         }
         return merged;
+    }
+
+
+    @NonNull
+    public Activities merge(Activities... activities) {
+        Activities result = this;
+        for (Activities activity : activities) {
+            result = merge(activity);
+        }
+        return result;
     }
 
     public Activities filter(Date d) {

@@ -34,19 +34,23 @@ public final class SyncConfig {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true);
     }
 
-    public static boolean isLikeEnabled(Context c) {
+    public static boolean isLikeNotificationEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true);
     }
 
-    public static boolean isRepostEnabled(Context c) {
+    public static boolean isRepostNotificationsEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true);
     }
 
-    public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
-        return isLikeEnabled(c) || isCommentsEnabled(c);
+    public static boolean isNewFollowerNotificationsEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true);
     }
 
-    public static boolean isCommentsEnabled(Context c) {
+    public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
+        return isLikeNotificationEnabled(c) || isCommentNotificationsEnabled(c);
+    }
+
+    public static boolean isCommentNotificationsEnabled(Context c) {
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
                 .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true);

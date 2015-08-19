@@ -94,7 +94,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         if (SyncConfig.isActivitySyncEnabled(context, extras)) {
             final long lastOwnSeen = ContentStats.getLastSeen(context, Content.ME_ACTIVITIES);
             Activities activities = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen);
-            maybeNotifyActivity(context, activities, extras);
+            maybeNotifyActivity(context, activities);
         }
 
     }
@@ -102,40 +102,36 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    private boolean maybeNotifyActivity(Context app, Activities activities, Bundle extras) {
+    private boolean maybeNotifyActivity(Context context, Activities activities) {
         if (!activities.isEmpty()) {
-            final boolean likeEnabled = SyncConfig.isLikeEnabled(app);
-            final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app);
-            final boolean repostsEnabled = SyncConfig.isRepostEnabled(app);
 
-            final Activities likes = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
-            final Activities comments = commentsEnabled ? activities.comments() : Activities.EMPTY;
-            final Activities reposts = repostsEnabled ? activities.trackReposts() : Activities.EMPTY;
+            final Activities likes = getLikeNotifications(context, activities);
+            final Activities comments = getCommentNotifications(context, activities);
+            final Activities reposts = getRepostNotifications(context, activities);
+            final Activities followers = getFollowersNotifications(context, activities);
+            final Activities activitiesToNotify = Activities.EMPTY.merge(likes, comments, reposts, followers);
 
-            Activities notifyable = new Activities();
-            if (likeEnabled) {
-                notifyable = notifyable.merge(likes);
-            }
-            if (commentsEnabled) {
-                notifyable = notifyable.merge(comments);
-            }
-            if (repostsEnabled) {
-                notifyable = notifyable.merge(reposts);
-            }
-
-            if (notifyable.isEmpty()) {
+            if (activitiesToNotify.isEmpty()) {
                 return false;
             }
-            notifyable.sort();
 
-            if (notifyable.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
-                NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
-                NotificationMessage.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
+            activitiesToNotify.sort();
+
+            if (activitiesToNotify.newerThan(ContentStats.getLastNotifiedItem(context, Content.ME_ACTIVITIES))) {
+                final NotificationMessage msg = new NotificationMessage
+                        .Builder(context.getResources())
+                        .setAllActivitiesToNotify(activitiesToNotify)
+                        .setLikes(likes)
+                        .setComments(comments)
+                        .setReposts(reposts)
+                        .setFollowers(followers)
+                        .build();
+                NotificationMessage.showDashboardNotification(context, msg.ticker, msg.title, msg.message,
                         NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
                         NotificationConstants.DASHBOARD_NOTIFY_ACTIVITIES_ID,
-                        notifyable.getFirstAvailableAvatar());
+                        activitiesToNotify.getFirstAvailableAvatar());
 
-                ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, notifyable.getTimestamp());
+                ContentStats.setLastNotifiedItem(context, Content.ME_ACTIVITIES, activitiesToNotify.getTimestamp());
                 return true;
             } else {
                 return false;
@@ -143,6 +139,22 @@ class SyncServiceResultReceiver extends ResultReceiver {
         } else {
             return false;
         }
+    }
+
+    private Activities getFollowersNotifications(Context context, Activities activities) {
+        return SyncConfig.isNewFollowerNotificationsEnabled(context) ? activities.followers() : Activities.EMPTY;
+    }
+
+    private Activities getRepostNotifications(Context context, Activities activities) {
+        return SyncConfig.isRepostNotificationsEnabled(context) ? activities.trackReposts() : Activities.EMPTY;
+    }
+
+    private Activities getCommentNotifications(Context context, Activities activities) {
+        return SyncConfig.isCommentNotificationsEnabled(context) ? activities.comments() : Activities.EMPTY;
+    }
+
+    private Activities getLikeNotifications(Context context, Activities activities) {
+        return SyncConfig.isLikeNotificationEnabled(context) ? activities.trackLikes() : Activities.EMPTY;
     }
 
     public interface OnResultListener {
