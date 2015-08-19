@@ -57,11 +57,10 @@ class StationsStorage {
         this.dateProvider = dateProvider;
     }
 
-    Observable<List<Station>> recentStations() {
+    Observable<Station> recentStations() {
         return propellerRx
                 .query(buildRecentStationsQuery())
-                .flatMap(toStation)
-                .toList();
+                .flatMap(toStation);
     }
 
     private Query buildRecentStationsQuery() {

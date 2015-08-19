@@ -8,4 +8,5 @@
 
     <!-- Stations -->
     <integer name="stations_grid_span_count">2</integer>
+    <integer name="stations_home_bucket_max_row_count">2</integer>
 </resources>

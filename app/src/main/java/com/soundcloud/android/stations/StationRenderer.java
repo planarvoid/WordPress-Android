@@ -15,12 +15,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class RecentStationRenderer implements CellRenderer<Station> {
+class StationRenderer implements CellRenderer<Station> {
     private final ImageOperations imageOperations;
     private final Resources resources;
 
     @Inject
-    public RecentStationRenderer(ImageOperations imageOperations, Resources resources) {
+    public StationRenderer(ImageOperations imageOperations, Resources resources) {
         this.imageOperations = imageOperations;
         this.resources = resources;
     }

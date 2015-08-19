@@ -38,6 +38,10 @@ public class StationFixtures {
         );
     }
 
+    public static Station getStation(Urn urn) {
+        return getStation(getApiStation(urn));
+    }
+
     public static Station getStation(ApiStation apiStation) {
         return new Station(
                 apiStation.getUrn(),

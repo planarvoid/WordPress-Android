@@ -7,9 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class StationsStorageTest extends StorageIntegrationTest {
     private final DateProviderStub dateProvider = new DateProviderStub();
@@ -77,14 +75,14 @@ public class StationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertRecentlyPlayedStation(secondStation.getUrn(), 2);
         testFixtures().insertRecentlyPlayedStation(thirdStation.getUrn(), 1);
 
-        final TestSubscriber<List<Station>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
         storage.recentStations().subscribe(subscriber);
 
-        subscriber.assertValue(Arrays.asList(
+        subscriber.assertValues(
                 StationFixtures.getStation(secondStation),
                 StationFixtures.getStation(thirdStation),
                 StationFixtures.getStation(firstStation)
-        ));
+        );
     }
 
 }

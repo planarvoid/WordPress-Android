@@ -2,4 +2,5 @@
 <resources>
     <!-- Stations -->
     <integer name="stations_grid_span_count">4</integer>
+    <integer name="stations_home_bucket_max_row_count">1</integer>
 </resources>

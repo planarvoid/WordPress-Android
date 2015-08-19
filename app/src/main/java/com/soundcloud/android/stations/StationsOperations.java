@@ -95,7 +95,7 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<List<Station>> recentStations() {
+    public Observable<Station> recentStations() {
         return stationsStorage
                 .recentStations()
                 .subscribeOn(scheduler);
