@@ -2,6 +2,7 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -121,7 +122,7 @@ public class ApiClient {
         // default headers
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
-        builder.header(ApiHeaders.APP_VERSION, String.valueOf(deviceHelper.getAppVersionCode()));
+        builder.header(ApiHeaders.APP_VERSION, String.valueOf(BuildConfig.VERSION_CODE));
 
         if (accountOperations.getSoundCloudToken().valid()) {
             builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
