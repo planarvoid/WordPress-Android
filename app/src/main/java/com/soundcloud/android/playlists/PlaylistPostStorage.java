@@ -25,6 +25,7 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PlaylistPostStorage {
 
@@ -35,7 +36,7 @@ public class PlaylistPostStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<java.util.List<PropertySet>> loadPostedPlaylists(int limit, long fromTimestamp){
+    public Observable<List<PropertySet>> loadPostedPlaylists(int limit, long fromTimestamp){
         return propellerRx.query(buildQuery(limit, fromTimestamp)).map(new PostedPlaylistMapper()).toList();
     }
 
