@@ -1,23 +1,87 @@
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
+class Test {
+  String class_name
+  String test_name
 
-class Test { String class_name; String test_name }
+  def boolean equals(other) {
+    if (!(other instanceof Test)) {
+      return false
+    }
+    def otherTest = (Test) other
+    this.class_name.equals(otherTest.class_name) && this.test_name.equals(otherTest.test_name)
+  }
+
+  def int hashCode() {
+    int hash = 1
+    hash = hash * 17 + (class_name == null ? 0 : class_name.hashCode())
+    hash = hash * 31 + (test_name == null ? 0 : test_name.hashCode())
+    return hash
+  }
+}
+
 class Package { String name; String location }
 class Session { Package application_package; Package test_package; Package[] tools_packages }
 class RunConfiguration { String label; String test_runner; Test[] tests }
 class Execution { Session session; RunConfiguration run_configuration }
 
-class TestResult { String description; Integer duration; Boolean result; Test test }
+class TestResult {
+  String description
+  Integer duration
+  Boolean result
+  Test test
 
-def executePostWithData(url, json) {
-  def p = ['curl', 'i', '-X', 'POST', url, '-d', json].execute()
+  def boolean equals(other) {
+    if (!(other instanceof TestResult)) {
+      return false
+    }
+    def otherTestResult = (TestResult) other
+      this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test)
+  }
+
+  def int hashCode() {
+    int hash = 1
+    hash = hash * 17 + (description == null ? 0 : description.hashCode())
+    hash = hash * 31 + (duration == null ? 0 : duration.hashCode())
+    hash = hash * 53 + (result == null ? 0 : result.hashCode())
+    hash = hash * 79 + (test == null ? 0 : test.hashCode())
+    return hash
+  }
+
+  def consolePrint() {
+    def red = "\u001B[31m"
+    def green = "\u001B[32m"
+    def reset = "\u001B[0m"
+    def color = result ? green : red
+    def passed = result ? "PASSED" : "FAILED"
+    println "$color$passed: $test.class_name.$test.test_name $reset"
+    if (!result) {
+      println()
+      description.split("\n").each{ println "$color \t$it $reset" }
+    }
+  }
+}
+
+def executeCurlCommand(cmd, defaultReturnValue) {
+  def p = cmd.execute()
+  p.waitFor()
+  def exitValue = p.exitValue()
+  if (exitValue != 0) {
+    System.err.println("executeCurlCommand($cmd) exitValue: $exitValue")
+    return defaultReturnValue
+  }
   new JsonSlurper().parseText(p.text)
 }
 
+def executePostWithData(url, json) {
+  def cmd = ['curl', 'i', '-X', 'POST', url, '-d', json]
+  executeCurlCommand(cmd, "")
+}
+
 def executeGet(url) {
-  def p = ['curl', 'i', '-X', 'GET', url].execute()
-  new JsonSlurper().parseText(p.text)
+  def cmd = ['curl', 'i', '-X', 'GET', url]
+  executeCurlCommand(cmd, [])
 }
 
 def executeQueryForResult(runId) {
@@ -32,34 +96,45 @@ def parseQueryForResultResponse(response) {
 def executeSpecificTestsForLabel(execution) {
   def url = 'http://localhost:5000/devices/android/tests'
   def json_execution = JsonOutput.toJson(execution)
-//  println JsonOutput.prettyPrint(json_execution)
   executePostWithData(url, json_execution)
 }
 
 task lollipop << {
-  def applicationPackage = new Package(name: "com.soundcloud.android", location: "data/SoundCloud.apk")
-  def testPackage = new Package(name: "com.soundcloud.android.tests", location: "data/SoundCloudTests.apk")
+  def applicationPackage = new Package(name: "com.soundcloud.android", location: "data/SoundCloudWithFailTest.apk")
+  def testPackage = new Package(name: "com.soundcloud.android.tests", location: "data/SoundCloudTestsWithFailTest.apk")
   def toolsPackages = [new Package(name: "com.soundcloud.androidnetworkmanager", location: "data/SoundCloudTools.apk")]
 
   def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 
-  def tests = [new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")]
+  def tests = [new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
+               new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")]
   def runConfiguration = new RunConfiguration(label: "Lollipop", test_runner: "com.soundcloud.android.framework.runner.RandomizingRunner", tests: tests)
 
   def execution = new Execution(session: session, run_configuration: runConfiguration)
-  def runId = executeSpecificTestsForLabel(execution).id
-  println "runId: $runId"
+
+  def r = executeSpecificTestsForLabel(execution)
+  def runId = r.id
+  def numTests = r.num_tests
+  println "Executing $numTests test(s) with run id $runId"
 
   def retrievedResults = []
 
-  while(true) {
+  while( retrievedResults.size < numTests ) {
     def result = executeQueryForResult(runId)
     def allResults = parseQueryForResultResponse(result)
     def newResults = allResults - retrievedResults
-    retrievedResults += allResults
+    retrievedResults = (retrievedResults + allResults).unique()
 
-    newResults.forEach{ println("Test Result $it")}
+    newResults.forEach{ it.consolePrint() }
 
-    sleep(2000)
+    sleep(500)
+  }
+
+  def failedTests = retrievedResults.count{ it.result == false }
+
+  if (failedTests > 0) {
+    def red = "\u001B[31m"
+    def reset = "\u001B[0m"
+    throw new GradleException("$red$failedTests test(s) failed $reset")
   }
 }
