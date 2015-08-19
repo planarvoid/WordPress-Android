@@ -40,13 +40,6 @@ public class LocalyticsOnboardingEventHandlerTest {
     }
 
     @Test
-    public void shouldHandleConfirmTermsEvent() {
-        OnboardingEvent event = OnboardingEvent.termsAccepted();
-        handler.handleEvent(event);
-        verify(localyticsSession).tagEvent("Confirm terms", event.getAttributes());
-    }
-
-    @Test
     public void shouldHandleAuthCompleteEvent() {
         OnboardingEvent event = OnboardingEvent.authComplete();
         handler.handleEvent(event);
@@ -54,24 +47,10 @@ public class LocalyticsOnboardingEventHandlerTest {
     }
 
     @Test
-    public void shouldHandleUserInfoEvent() {
-        OnboardingEvent event = OnboardingEvent.savedUserInfo("Skrillex", new File("asdf"));
-        handler.handleEvent(event);
-        verify(localyticsSession).tagEvent("User info", event.getAttributes());
-    }
-
-    @Test
     public void shouldHandleOnboardingCompleteEvent() {
         OnboardingEvent event = OnboardingEvent.onboardingComplete();
         handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Onboarding complete", event.getAttributes());
-    }
-
-    @Test
-    public void shouldHandleEmailMarketingEvent() {
-        OnboardingEvent event = OnboardingEvent.acceptEmailOptIn();
-        handler.handleEvent(event);
-        verify(localyticsSession).tagEvent("Email marketing", event.getAttributes());
     }
 
     @Test

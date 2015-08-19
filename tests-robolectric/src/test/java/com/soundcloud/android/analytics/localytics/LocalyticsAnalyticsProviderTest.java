@@ -109,28 +109,4 @@ public class LocalyticsAnalyticsProviderTest {
         verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PLAY_CONTROLS), eq(event.getAttributes()));
     }
 
-    @Test
-    public void shouldTrackSkippyInitilizationError() {
-        SkippyInitilizationFailedEvent event = new SkippyInitilizationFailedEvent(new IOException(), "error message", 3, 4);
-        localyticsProvider.handleTrackingEvent(event);
-
-        verify(localyticsSession).tagEvent(eq("Skippy Init Error"), eq(event.getAttributes()));
-    }
-
-    @Test
-    public void shouldTrackSkippyInitilizationSuccess() {
-        SkippyInitilizationSucceededEvent event = new SkippyInitilizationSucceededEvent(3, 4);
-        localyticsProvider.handleTrackingEvent(event);
-
-        verify(localyticsSession).tagEvent(eq("Skippy Init Success"), eq(event.getAttributes()));
-    }
-
-    @Test
-    public void shouldTrackSkippyPlayEvent() {
-        SkippyPlayEvent event = new SkippyPlayEvent(ConnectionType.FOUR_G, true);
-        localyticsProvider.handleTrackingEvent(event);
-
-        verify(localyticsSession).tagEvent(eq("Skippy Play"), eq(event.getAttributes()));
-    }
-
 }

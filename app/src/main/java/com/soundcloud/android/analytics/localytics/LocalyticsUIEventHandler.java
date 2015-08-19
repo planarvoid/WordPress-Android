@@ -22,9 +22,6 @@ class LocalyticsUIEventHandler {
             case UIEvent.KIND_FOLLOW:
                 tagEvent(LocalyticsEvents.UI.FOLLOW, event.getAttributes());
                 break;
-            case UIEvent.KIND_UNFOLLOW:
-                tagEvent(LocalyticsEvents.UI.UNFOLLOW, event.getAttributes());
-                break;
             case UIEvent.KIND_LIKE:
                 tagEvent(LocalyticsEvents.UI.LIKE, event.getAttributes());
                 break;
@@ -34,9 +31,6 @@ class LocalyticsUIEventHandler {
             case UIEvent.KIND_REPOST:
                 tagEvent(LocalyticsEvents.UI.REPOST, event.getAttributes());
                 break;
-            case UIEvent.KIND_UNREPOST:
-                tagEvent(LocalyticsEvents.UI.UNREPOST, event.getAttributes());
-                break;
             case UIEvent.KIND_ADD_TO_PLAYLIST:
                 tagEvent(LocalyticsEvents.UI.ADD_TO_PLAYLIST, event.getAttributes());
                 break;
@@ -45,18 +39,6 @@ class LocalyticsUIEventHandler {
                 break;
             case UIEvent.KIND_SHARE:
                 tagEvent(LocalyticsEvents.UI.SHARE, event.getAttributes());
-                break;
-            case UIEvent.KIND_SHUFFLE_LIKES:
-                tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, event.getAttributes());
-                break;
-            case UIEvent.KIND_NAVIGATION:
-                tagEvent(LocalyticsEvents.UI.NAVIGATION, event.getAttributes());
-                break;
-            case UIEvent.KIND_PLAYER_OPEN:
-                tagEvent(LocalyticsEvents.UI.PLAYER_OPEN, event.getAttributes());
-                break;
-            case UIEvent.KIND_PLAYER_CLOSE:
-                tagEvent(LocalyticsEvents.UI.PLAYER_CLOSE, event.getAttributes());
                 break;
             default:
                 break;
