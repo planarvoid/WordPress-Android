@@ -39,6 +39,7 @@ public class ScTextUtils {
     public static final String EMPTY_STRING = "";
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###,###");
     public static final DecimalFormat ROUNDED_FORMAT = getRoundedFormat();
+    public static final String SPACE_SEPARATOR = " ";
 
     private ScTextUtils() {
     }
