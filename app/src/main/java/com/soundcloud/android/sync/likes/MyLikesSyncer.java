@@ -28,7 +28,9 @@ public class MyLikesSyncer implements SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        return trackLikesSyncer.get().call() || playlistLikesSyncer.get().call()
+        Boolean tracksChanged = trackLikesSyncer.get().call();
+        Boolean playlistsChanged = playlistLikesSyncer.get().call();
+        return tracksChanged || playlistsChanged
                 ? ApiSyncResult.fromSuccessfulChange(uri) : ApiSyncResult.fromSuccessWithoutChange(uri);
     }
 }
