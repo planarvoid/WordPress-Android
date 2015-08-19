@@ -186,8 +186,8 @@ public abstract class TestPropertySets {
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
                 PlaylistProperty.TRACK_COUNT.bind(4),
                 PlaylistProperty.LIKES_COUNT.bind(2),
-                PlaylistProperty.CREATED_AT.bind(new Date()),
-                PlaylistProperty.IS_PRIVATE.bind(false));
+                PlaylistProperty.IS_PRIVATE.bind(false),
+                PostProperty.CREATED_AT.bind(new Date()));
     }
 
     public static PropertySet expectedPostedPlaylistForPostsScreen() {
