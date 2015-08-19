@@ -29,6 +29,6 @@ public class FacebookSessionCallbackTest {
 
         facebookSessionCallback.onSuccess(new LoginResult(accessToken, new HashSet<String>(), declinedPermissions));
 
-        verify(onboardActivity).rerequestFacebookEmail();
+        verify(onboardActivity).confirmRequestForFacebookEmail();
     }
 }
