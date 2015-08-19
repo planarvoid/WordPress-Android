@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -123,7 +124,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void trackPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
-        final long time = firstPage.get(PAGE_SIZE - 1).get(PlaylistProperty.CREATED_AT).getTime();
+        final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());

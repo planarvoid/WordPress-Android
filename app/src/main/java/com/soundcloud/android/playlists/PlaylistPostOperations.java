@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -37,7 +38,7 @@ class PlaylistPostOperations {
             if (result.size() < PAGE_SIZE) {
                 return LegacyPager.finish();
             } else {
-                return postedPlaylists(getLast(result).get(PlaylistProperty.CREATED_AT).getTime());
+                return postedPlaylists(getLast(result).get(PostProperty.CREATED_AT).getTime());
             }
         }
     };

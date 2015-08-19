@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
 import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
+import static com.soundcloud.android.storage.Table.Posts;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
@@ -47,7 +48,7 @@ public class PlaylistPostStorage {
                         field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
                         field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                        field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT),
+                        field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
                         count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
                         exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
@@ -59,7 +60,7 @@ public class PlaylistPostStorage {
                 .leftJoin(TrackDownloads.TABLE.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), fromTimestamp)
+                .whereLt(Posts.field(TableColumns.Posts.CREATED_AT), fromTimestamp)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID))
                 .order(CREATED_AT, DESC)
                 .limit(limit);
