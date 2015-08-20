@@ -75,13 +75,26 @@ public final class PlayQueueItem {
     }
 
     public static class Builder {
+        private final Urn track;
+        private final Urn reposter;
         private String source = ScTextUtils.EMPTY_STRING;
         private String sourceVersion = ScTextUtils.EMPTY_STRING;
         private PropertySet adData = PropertySet.create();
         private Urn relatedEntity = Urn.NOT_SET;
         private boolean shouldPersist = true;
 
-        public Builder() {
+        public Builder(Urn track) {
+            this(track, Urn.NOT_SET);
+        }
+
+        public Builder(PropertySet track) {
+            this(track.get(TrackProperty.URN),
+                    track.getOrElse(TrackProperty.REPOSTER_URN, Urn.NOT_SET));
+        }
+
+        public Builder(Urn track, Urn reposter) {
+            this.track = track;
+            this.reposter = reposter;
         }
 
         public Builder fromSource(String source, String sourceVersion) {
@@ -105,16 +118,7 @@ public final class PlayQueueItem {
             return this;
         }
 
-        public PlayQueueItem build(Urn track){
-            return build(track, Urn.NOT_SET);
-        }
-
-        public PlayQueueItem build(PropertySet track){
-            return build(track.get(TrackProperty.URN),
-                    track.getOrElse(TrackProperty.REPOSTER_URN, Urn.NOT_SET));
-        }
-
-        public PlayQueueItem build(Urn track, Urn reposter){
+        public PlayQueueItem build(){
             return new PlayQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist);
         }
     }

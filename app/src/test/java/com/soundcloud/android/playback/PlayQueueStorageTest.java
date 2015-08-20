@@ -34,21 +34,21 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
-        insertPlayQueueItem(new PlayQueueItem.Builder()
+        insertPlayQueueItem(new PlayQueueItem.Builder(Urn.forTrack(1))
                 .fromSource("existing", "existing_version")
-                .build(Urn.forTrack(1)));
+                .build());
 
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         TestObserver<TxnResult> observer = new TestObserver<>();
-        PlayQueueItem playQueueItem1 = new PlayQueueItem.Builder()
+        PlayQueueItem playQueueItem1 = new PlayQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source1", "version1")
                 .relatedEntity(RELATED_ENTITY)
-                .build(Urn.forTrack(123L));
+                .build();
 
-        PlayQueueItem playQueueItem2 = new PlayQueueItem.Builder()
+        PlayQueueItem playQueueItem2 = new PlayQueueItem.Builder(Urn.forTrack(456L), Urn.forUser(456L))
                 .fromSource("source2", "version2")
-                .build(Urn.forTrack(456L), Urn.forUser(456L));
+                .build();
 
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
 
@@ -76,16 +76,16 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldSavePersistantItems() {
-        final PlayQueueItem playQueueItem1 = new PlayQueueItem.Builder()
+        final PlayQueueItem playQueueItem1 = new PlayQueueItem.Builder(Urn.forTrack(1), Urn.forUser(1))
                 .fromSource("source1", "version1")
                 .withAdData(PropertySet.create())
                 .persist(true)
-                .build(Urn.forTrack(1), Urn.forUser(1));
-        final PlayQueueItem playQueueItem2 = new PlayQueueItem.Builder()
+                .build();
+        final PlayQueueItem playQueueItem2 = new PlayQueueItem.Builder(Urn.forTrack(2), Urn.forUser(2))
                 .fromSource("source2", "version2")
                 .withAdData(PropertySet.create())
                 .persist(false)
-                .build(Urn.forTrack(2), Urn.forUser(2));
+                .build();
         PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
 
         storage.storeAsync(playQueue).subscribe(new TestObserver<TxnResult>());
@@ -96,9 +96,9 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldDeleteAllPlayQueueItems() {
         TestObserver<ChangeResult> observer = new TestObserver<>();
-        insertPlayQueueItem(new PlayQueueItem.Builder()
+        insertPlayQueueItem(new PlayQueueItem.Builder(Urn.forTrack(123L), Urn.forUser(123L))
                 .fromSource("source", "source_version")
-                .build(Urn.forTrack(123L), Urn.forUser(123L)));
+                .build());
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
         storage.clearAsync().subscribe(observer);
@@ -111,10 +111,10 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItems() {
         TestObserver<PlayQueueItem> observer = new TestObserver<>();
-        final PlayQueueItem expectedItem = new PlayQueueItem.Builder()
+        final PlayQueueItem expectedItem = new PlayQueueItem.Builder(Urn.forTrack(123L), Urn.forUser(123L))
                 .fromSource("source", "source_version")
                 .relatedEntity(RELATED_ENTITY)
-                .build(Urn.forTrack(123L), Urn.forUser(123L));
+                .build();
         insertPlayQueueItem(expectedItem);
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
@@ -128,10 +128,10 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutReposter() {
         TestObserver<PlayQueueItem> observer = new TestObserver<>();
-        final PlayQueueItem expectedItem = new PlayQueueItem.Builder()
+        final PlayQueueItem expectedItem = new PlayQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source", "source_version")
                 .relatedEntity(RELATED_ENTITY)
-                .build(Urn.forTrack(123L));
+                .build();
         insertPlayQueueItem(expectedItem);
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 
@@ -145,9 +145,9 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutRelatedEntities() {
         TestObserver<PlayQueueItem> observer = new TestObserver<>();
-        final PlayQueueItem expectedItem = new PlayQueueItem.Builder()
+        final PlayQueueItem expectedItem = new PlayQueueItem.Builder(Urn.forTrack(123L), Urn.forTrack(123L))
                 .fromSource("source", "source_version")
-                .build(Urn.forTrack(123L), Urn.forTrack(123L));
+                .build();
         insertPlayQueueItem(expectedItem);
         Assert.assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
 

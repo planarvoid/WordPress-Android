@@ -48,17 +48,17 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public void addTrack(Urn trackUrn, String source, String sourceVersion) {
-        playQueueItems.add(new PlayQueueItem.Builder()
+        playQueueItems.add(new PlayQueueItem.Builder(trackUrn)
                 .fromSource(source, sourceVersion)
-                .build(trackUrn));
+                .build());
     }
 
     public void insertTrack(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
         checkArgument(position >= 0 && position <= size(), String.format("Cannot insert track at position:%d, size:%d", position, playQueueItems.size()));
-        playQueueItems.add(position, new PlayQueueItem.Builder()
+        playQueueItems.add(position, new PlayQueueItem.Builder(trackUrn)
                 .withAdData(metaData)
                 .persist(shouldPersist)
-                .build(trackUrn));
+                .build());
     }
 
     public void remove(int position) {
@@ -127,19 +127,18 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
-        final PlayQueueItem.Builder builder = new PlayQueueItem.Builder()
-                .relatedEntity(seedTrack)
-                .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion());
-
         for (ApiTrack relatedTrack : relatedTracks) {
-            playQueueItems.add(builder.build(relatedTrack.getUrn()));
+            final PlayQueueItem.Builder builder = new PlayQueueItem.Builder(relatedTrack.getUrn())
+                    .relatedEntity(seedTrack)
+                    .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion());
+            playQueueItems.add(builder.build());
         }
         return new PlayQueue(playQueueItems);
     }
 
     public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
         PlayQueue playQueue = fromRecommendations(seedTrack, relatedTracks);
-        playQueue.playQueueItems.add(0, new PlayQueueItem.Builder().build(seedTrack));
+        playQueue.playQueueItems.add(0, new PlayQueueItem.Builder(seedTrack).build());
         return playQueue;
     }
 
@@ -179,26 +178,24 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
                                                              final PlaySessionSource playSessionSource) {
-        final PlayQueueItem.Builder builder = new PlayQueueItem.Builder()
-                .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
+
 
         return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {
-                return builder
-                        .build(track);
+                return new PlayQueueItem.Builder(track)
+                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                        .build();
             }
         }));
     }
 
     private static List<PlayQueueItem> playQueueItemsFromTracks(List<PropertySet> trackIds, final PlaySessionSource playSessionSource) {
-        final PlayQueueItem.Builder builder = new PlayQueueItem.Builder()
-                .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
-
         return newArrayList(transform(trackIds, new Function<PropertySet, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(PropertySet track) {
-                return builder.build(track);
+                return new PlayQueueItem.Builder(track)
+                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion()).build();
             }
         }));
     }
