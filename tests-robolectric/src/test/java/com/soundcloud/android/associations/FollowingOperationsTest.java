@@ -23,7 +23,7 @@ import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -49,7 +49,7 @@ public class FollowingOperationsTest {
     private FollowingOperations ops;
 
     @Mock
-    private UserAssociationStorage userAssociationStorage;
+    private LegacyUserAssociationStorage userAssociationStorage;
     @Mock
     private FollowStatus followStatus;
     @Mock

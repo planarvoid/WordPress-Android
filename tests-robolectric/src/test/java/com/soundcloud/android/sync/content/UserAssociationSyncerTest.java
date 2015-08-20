@@ -27,7 +27,7 @@ import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -58,7 +58,7 @@ public class UserAssociationSyncerTest {
     UserAssociationSyncer userAssociationSyncer;
 
     @Mock private ContentResolver resolver;
-    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private LegacyUserAssociationStorage userAssociationStorage;
     @Mock private UserAssociation mockUserAssociation;
     @Mock private SuggestedUsersOperations suggestedUsersOperations;
     @Mock private AccountOperations accountOperations;

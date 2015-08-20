@@ -11,7 +11,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations.CategoryGroupListToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class SuggestedUsersOperationsTest {
     private SuggestedUsersOperations suggestedUsersOperations;
 
     @Mock private ApiClientRx apiClientRx;
-    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private LegacyUserAssociationStorage userAssociationStorage;
     @Mock private CategoryGroup categoryGroupOne;
     @Mock private CategoryGroup categoryGroupTwo;
     @Mock private Observer<CategoryGroup> observer;
