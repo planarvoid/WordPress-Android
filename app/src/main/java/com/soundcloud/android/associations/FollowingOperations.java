@@ -21,7 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -53,17 +53,17 @@ public class FollowingOperations {
     private final FollowStatus followStatus;
     private final SyncStateManager syncStateManager;
     private final ScModelManager modelManager;
-    private final UserAssociationStorage userAssociationStorage;
+    private final LegacyUserAssociationStorage legacyUserAssociationStorage;
     private final ApiClientRx apiClientRx;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     @Inject
-    public FollowingOperations(ApiClientRx apiClientRx, UserAssociationStorage userAssociationStorage,
+    public FollowingOperations(ApiClientRx apiClientRx, LegacyUserAssociationStorage legacyUserAssociationStorage,
                                SyncStateManager syncStateManager,
                                ScModelManager modelManager, SyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
-        this.userAssociationStorage = userAssociationStorage;
+        this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.syncStateManager = syncStateManager;
         this.scheduler = scheduler;
         this.followStatus = FollowStatus.get();
@@ -72,11 +72,11 @@ public class FollowingOperations {
     }
 
     @VisibleForTesting
-    FollowingOperations(ApiClientRx apiClientRx, UserAssociationStorage userAssociationStorage,
+    FollowingOperations(ApiClientRx apiClientRx, LegacyUserAssociationStorage legacyUserAssociationStorage,
                         SyncStateManager syncStateManager, FollowStatus followStatus,
                         ScModelManager modelManager, SyncInitiator syncInitiator, Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
-        this.userAssociationStorage = userAssociationStorage;
+        this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.syncStateManager = syncStateManager;
         this.followStatus = followStatus;
         this.modelManager = modelManager;
@@ -86,22 +86,22 @@ public class FollowingOperations {
 
     public Observable<Boolean> addFollowing(@NotNull final PublicApiUser user) {
         updateLocalStatus(true, user.getId());
-        return userAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
+        return legacyUserAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
 
     Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
-        return userAssociationStorage.followSuggestedUser(suggestedUser);
+        return legacyUserAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
     public Observable<Boolean> removeFollowing(final PublicApiUser user) {
         updateLocalStatus(false, user.getId());
-        return userAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
+        return legacyUserAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
     }
 
     public Observable<Void> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
         updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-        return userAssociationStorage.followSuggestedUserList(suggestedUsers);
+        return legacyUserAssociationStorage.followSuggestedUserList(suggestedUsers);
     }
 
     public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
@@ -140,7 +140,7 @@ public class FollowingOperations {
                 @Override
                 public Observable<Collection<UserAssociation>> call(ApiResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
-                    return userAssociationStorage.setFollowingsAsSynced(userAssociations);
+                    return legacyUserAssociationStorage.setFollowingsAsSynced(userAssociations);
                 }
             });
         }
@@ -204,7 +204,7 @@ public class FollowingOperations {
 
     private Observable<Void> removeFollowings(final List<PublicApiUser> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
-        return userAssociationStorage.unfollowList(users);
+        return legacyUserAssociationStorage.unfollowList(users);
     }
 
     @Nullable
@@ -254,7 +254,7 @@ public class FollowingOperations {
         return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> subscriber) {
-                RxUtils.emitIterable(subscriber, userAssociationStorage.getFollowingsNeedingSync());
+                RxUtils.emitIterable(subscriber, legacyUserAssociationStorage.getFollowingsNeedingSync());
                 subscriber.onCompleted();
             }
         });

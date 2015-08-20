@@ -9,7 +9,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
@@ -203,7 +203,7 @@ public class SyncAdapterService extends Service {
         }
 
         // see if there are any local playlists that need to be pushed
-        if (new UserAssociationStorage(app).hasFollowingsNeedingSync()) {
+        if (new LegacyUserAssociationStorage(app).hasFollowingsNeedingSync()) {
             urisToSync.add(Content.ME_FOLLOWINGS.uri);
         }
 

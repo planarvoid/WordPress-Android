@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import android.content.ContentResolver;
 
 /**
- * Table object for user associations. Do not use outside this package, use {@link UserAssociationStorage} instead.
+ * Table object for user associations. Do not use outside this package, use {@link LegacyUserAssociationStorage} instead.
  */
 /* package */ class UserAssociationDAO extends BaseDAO<UserAssociation> {
     public UserAssociationDAO(ContentResolver contentResolver) {

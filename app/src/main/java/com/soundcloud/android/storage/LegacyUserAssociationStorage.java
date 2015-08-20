@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @see com.soundcloud.android.api.legacy.model.UserAssociation.Type
  */
-public class UserAssociationStorage {
+public class LegacyUserAssociationStorage {
     private final Scheduler scheduler;
     private final ContentResolver resolver;
     private final UserAssociationDAO userAssociationDAO;
@@ -74,11 +74,11 @@ public class UserAssociationStorage {
     }
 
     @Inject
-    public UserAssociationStorage(Context context) {
+    public LegacyUserAssociationStorage(Context context) {
         this(ScSchedulers.HIGH_PRIO_SCHEDULER, context.getContentResolver());
     }
 
-    public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
+    public LegacyUserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
         this.scheduler = scheduler;
         this.resolver = resolver;
         userAssociationDAO = new UserAssociationDAO(this.resolver);

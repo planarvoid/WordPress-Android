@@ -21,7 +21,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -59,7 +59,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
-    private final UserAssociationStorage userAssociationStorage;
+    private final LegacyUserAssociationStorage legacyUserAssociationStorage;
     private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
@@ -71,17 +71,17 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
                                  FollowingOperations followingOperations, NotificationManager notificationManager,
                                  JsonTransformer jsonTransformer, Navigator navigator) {
         this(context, context.getContentResolver(),
-                new UserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
+                new LegacyUserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
                 followingOperations, accountOperations, notificationManager, jsonTransformer, navigator);
     }
 
     @VisibleForTesting
-    protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
+    protected UserAssociationSyncer(Context context, ContentResolver resolver, LegacyUserAssociationStorage legacyUserAssociationStorage,
                                     FollowingOperations followingOperations, AccountOperations accountOperations,
                                     NotificationManager notificationManager, JsonTransformer jsonTransformer,
                                     Navigator navigator) {
         super(context, resolver, accountOperations);
-        this.userAssociationStorage = userAssociationStorage;
+        this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
@@ -112,7 +112,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
             return result;
         }
 
-        List<Long> local = userAssociationStorage.getStoredIds(content.uri);
+        List<Long> local = legacyUserAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = api.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         if (!isLoggedIn()) {
@@ -130,7 +130,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<>(local);
         itemDeletions.removeAll(remote);
-        userAssociationStorage.deleteAssociations(content.uri, itemDeletions);
+        legacyUserAssociationStorage.deleteAssociations(content.uri, itemDeletions);
 
         int startPosition = 1;
         int added = 0;
@@ -147,7 +147,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
                     return new ApiSyncResult(content.uri);
                 }
 
-                added = userAssociationStorage.insertAssociations(resources, content.uri, userId);
+                added = legacyUserAssociationStorage.insertAssociations(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (PublicApiResource u : resources) {
@@ -158,7 +158,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         }
 
         log("Added " + added + " new items for this endpoint");
-        userAssociationStorage.insertInBatches(content, userId, remote, startPosition, bulkInsertBatchSize);
+        legacyUserAssociationStorage.insertInBatches(content, userId, remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;
     }
@@ -191,7 +191,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
             forbiddenUserPushHandler(userAssociation, extractApiErrors(response.getEntity()));
             return true;
         } else if (status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED) {
-            userAssociationStorage.setFollowingAsSynced(userAssociation);
+            legacyUserAssociationStorage.setFollowingAsSynced(userAssociation);
             return true;
         } else {
             Log.w(TAG, "failure " + status + " in user association addition of " + userAssociation.getUser().getId());
@@ -270,7 +270,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private boolean pushUserAssociationRemoval(UserAssociation userAssociation, Request request) throws IOException {
         int status = api.delete(request).getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND || status == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
-            userAssociationStorage.setFollowingAsSynced(userAssociation);
+            legacyUserAssociationStorage.setFollowingAsSynced(userAssociation);
             return true;
         } else {
             Log.w(TAG, "failure " + status + " in user association removal of " + userAssociation.getUser().getId());
@@ -307,15 +307,15 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private ApiSyncResult pushUserAssociations(Content content) {
         final ApiSyncResult result = new ApiSyncResult(content.uri);
         result.success = true;
-        if (content == Content.ME_FOLLOWINGS && userAssociationStorage.hasFollowingsNeedingSync()) {
-            List<UserAssociation> associationsNeedingSync = userAssociationStorage.getFollowingsNeedingSync();
+        if (content == Content.ME_FOLLOWINGS && legacyUserAssociationStorage.hasFollowingsNeedingSync()) {
+            List<UserAssociation> associationsNeedingSync = legacyUserAssociationStorage.getFollowingsNeedingSync();
             for (UserAssociation userAssociation : associationsNeedingSync) {
                 if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)) {
                     result.success = false;
                 }
             }
 
-            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, userAssociationStorage, followingOperations);
+            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, legacyUserAssociationStorage, followingOperations);
             followingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
             if (!observer.wasSuccess()) {
                 result.success = false;
@@ -327,12 +327,12 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     protected static class BulkFollowSubscriber extends SuccessSubscriber {
 
         private final FollowingOperations followingOperations;
-        private final UserAssociationStorage userAssociationStorage;
+        private final LegacyUserAssociationStorage legacyUserAssociationStorage;
         private final Collection<UserAssociation> userAssociations;
 
-        public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
+        public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, LegacyUserAssociationStorage legacyUserAssociationStorage, FollowingOperations followingOperations) {
             this.userAssociations = userAssociations;
-            this.userAssociationStorage = userAssociationStorage;
+            this.legacyUserAssociationStorage = legacyUserAssociationStorage;
             this.followingOperations = followingOperations;
         }
 
@@ -350,7 +350,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
                     }
                 });
                 followingOperations.updateLocalStatus(false, ScModel.getIdList(new ArrayList<ScModel>(users)));
-                userAssociationStorage.deleteFollowings(userAssociations);
+                legacyUserAssociationStorage.deleteFollowings(userAssociations);
             }
             super.onError(e);
         }

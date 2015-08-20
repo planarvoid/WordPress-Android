@@ -17,7 +17,7 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.java.functions.Functions;
 import org.apache.http.HttpStatus;
@@ -58,7 +58,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = new UserAssociationStorage(context).getStoredIds(params.getPagedUri());
+                List<Long> storedIds = new LegacyUserAssociationStorage(context).getStoredIds(params.getPagedUri());
 
                 // if we already have all the data, this is a NOP
                 try {
