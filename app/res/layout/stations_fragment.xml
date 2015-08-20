@@ -1,14 +1,16 @@
 <FrameLayout
+    style="@style/Stations.Home"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.soundcloud.android.stations.StationsFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="com.soundcloud.android.stations.StationsFragment">
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/ak_recycler_view"
+        style="@style/Stations.Bucket"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/ak_recycler_view" />
+        android:layout_height="match_parent" />
 
     <com.soundcloud.android.view.EmptyView
         android:id="@android:id/empty"

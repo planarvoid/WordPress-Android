@@ -545,5 +545,6 @@
 
     <!-- __STATIONS -->
     <string name="side_menu_stations">Stations</string>
+    <string name="track_station_type">Track Station</string>
 
 </resources>

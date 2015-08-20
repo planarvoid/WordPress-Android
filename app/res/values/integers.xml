@@ -5,4 +5,7 @@
     <integer name="waveform_ratio_bottom">1</integer>
     <integer name="timestamp_animate_percentage">50</integer>
     <integer name="overlay_animate_duration">120</integer>
+
+    <!-- Stations -->
+    <integer name="stations_grid_span_count">2</integer>
 </resources>
