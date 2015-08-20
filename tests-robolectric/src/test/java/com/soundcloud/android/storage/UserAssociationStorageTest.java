@@ -211,7 +211,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = Collections.singletonList(1L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -221,7 +221,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = asList(1L, 2L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -232,7 +232,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
-        new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
@@ -250,7 +250,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);
-        new UserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
