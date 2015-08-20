@@ -43,13 +43,13 @@ public class UserAssociationStorageTest {
 
     private PublicApiUser user;
     private ContentResolver resolver;
-    private UserAssociationStorage storage;
+    private LegacyUserAssociationStorage storage;
 
     @Before
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new UserAssociationStorage(Schedulers.immediate(), resolver);
+        storage = new LegacyUserAssociationStorage(Schedulers.immediate(), resolver);
         user = new PublicApiUser(1);
     }
 
