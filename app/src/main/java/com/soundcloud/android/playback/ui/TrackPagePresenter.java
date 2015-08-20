@@ -649,7 +649,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, relatedTo, relatedToTrack, relatedToTrackArtwork, timestamp);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 
