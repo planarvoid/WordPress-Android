@@ -5,8 +5,9 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
@@ -25,6 +26,7 @@ public class MyProfileOperations {
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private final PostsStorage postsStorage;
+    private final SyncStateStorage syncStateStorage;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
@@ -38,9 +40,11 @@ public class MyProfileOperations {
 
     @Inject
     public MyProfileOperations(PostsStorage postsStorage,
+                               SyncStateStorage syncStateStorage,
                                SyncInitiator syncInitiator,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.postsStorage = postsStorage;
+        this.syncStateStorage = syncStateStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
     }
@@ -71,10 +75,14 @@ public class MyProfileOperations {
                 .flatMap(loadInitialPosts);
     }
 
-    private Observable<List<PropertySet>> postedItems(long beforeTime) {
-        return postsStorage.loadPosts(PAGE_SIZE, beforeTime)
-                .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedPosts()));
+    private Observable<List<PropertySet>> postedItems(final long beforeTime) {
+        return syncStateStorage.hasSyncedBefore(SyncContent.MySounds)
+                .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
+            @Override
+            public Observable<List<PropertySet>> call(Boolean hasSynced) {
+                return hasSynced ? postsStorage.loadPosts(PAGE_SIZE, beforeTime) : updatedPosts();
+            }
+        }).subscribeOn(scheduler);
     }
 
 }

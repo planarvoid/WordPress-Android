@@ -2,13 +2,14 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.MyProfileOperations.PAGE_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.playlists.PlaylistPostStorage;
+import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -18,7 +19,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -32,16 +33,17 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     private List<PropertySet> posts;
 
     @Mock private PostsStorage postStorage;
+    @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncInitiator syncInitiator;
 
     private Scheduler scheduler = Schedulers.immediate();
-    private TestObserver<List<PropertySet>> observer;
+    private TestSubscriber<List<PropertySet>> subscriber;
 
     @Before
     public void setUp() throws Exception {
         operations = new MyProfileOperations(
                 postStorage,
-                syncInitiator,
+                syncStateStorage, syncInitiator,
                 scheduler);
 
         posts = Arrays.asList(
@@ -49,7 +51,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
                 TestPropertySets.expectedPostedTrackForPostsScreen()
         );
 
-        observer = new TestObserver<>();
+        subscriber = new TestSubscriber<>();
     }
 
     @Test
@@ -57,54 +59,70 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> trackPosts = createPageOfPostedTracks(PAGE_SIZE);
         when(postStorage.loadPostsForPlayback()).thenReturn(Observable.just(trackPosts));
 
-        operations.postsForPlayback().subscribe(observer);
+        operations.postsForPlayback().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(trackPosts);
+        subscriber.assertValues(trackPosts);
     }
 
-    @Test
-    public void syncAndLoadPostsWhenInitialPostsLoadReturnsEmptyList() {
-        final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
-        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
-
-        operations.pagedPostItems().subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(firstPage);
-    }
 
     @Test
-    public void syncAndLoadEmptyPostsResultsWithEmptyResults() throws Exception {
-        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
-
-        operations.pagedPostItems().subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(Collections.<PropertySet>emptyList());
-    }
-
-    @Test
-    public void postedPlaylistsReturnsPostedPlaylistsFromStorage() {
+    public void postedPlaylistsReturnsPostedPlaylistsFromStorageIfSyncedBefore() {
+        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
-        when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.<Boolean>empty());
 
-        operations.pagedPostItems().subscribe(observer);
+        operations.pagedPostItems().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(posts);
+        subscriber.assertValues(posts);
+        verify(syncInitiator, never()).refreshPosts();
+    }
+
+    @Test
+    public void postedPlaylistsReturnsEmptyPostsFromStorageIfSyncedBefore() {
+        final List<PropertySet> emptyList = Collections.emptyList();
+        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
+        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(emptyList));
+
+        operations.pagedPostItems().subscribe(subscriber);
+
+        subscriber.assertValues(emptyList);
+        verify(syncInitiator, never()).refreshPosts();
+    }
+
+    @Test
+    public void postedPlaylistsSyncsAndLoadPostsIfNeverSyncedBefore() {
+        final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
+        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(false));
+        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
+        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
+
+        operations.pagedPostItems().subscribe(subscriber);
+
+        subscriber.assertValues(firstPage);
+    }
+
+    @Test
+    public void syncAndLoadEmptyPostsResultsIfNeverSyncedBefore() throws Exception {
+        final List<PropertySet> emptyList = Collections.emptyList();
+        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(false));
+        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(emptyList));
+        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
+
+        operations.pagedPostItems().subscribe(subscriber);
+
+        subscriber.assertValues(emptyList);
     }
 
     @Test
     public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
+        final List<PropertySet> secondPage = createPageOfPostedTracks(1);
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
-        when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
-        when(postStorage.loadPosts(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.<Boolean>empty());
+        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
+        when(postStorage.loadPosts(PAGE_SIZE, time)).thenReturn(Observable.just(secondPage));
 
-        operations.postsPagingFunction().call(firstPage);
+        operations.postsPagingFunction().call(firstPage).subscribe(subscriber);
 
-        verify(postStorage).loadPosts(PAGE_SIZE, time);
+        subscriber.assertValues(secondPage);
     }
 
     @Test
@@ -117,9 +135,9 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
         when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
-        operations.updatedPosts().subscribe(observer);
+        operations.updatedPosts().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(posts);
+        subscriber.assertValues(posts);
     }
 
     private List<PropertySet> createPageOfPostedTracks(int size){
