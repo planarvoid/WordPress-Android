@@ -14,6 +14,7 @@ import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
+import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -568,6 +569,21 @@ public class DatabaseFixtures {
         cv.put(OfflineContent._ID, OfflineContent.ID_OFFLINE_LIKES);
         cv.put(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
         insertInto(OfflineContent.TABLE, cv.get());
+    }
+
+    public void insertSyncAttempt(SyncContent syncContent, long when) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
+        cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
+        insertInto(Table.Collections, cv);
+    }
+
+    public void insertSuccessfulSync(SyncContent syncContent, long when) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
+        cv.put(TableColumns.Collections.LAST_SYNC, when);
+        cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
+        insertInto(Table.Collections, cv);
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

@@ -20,12 +20,12 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayQueueTest {
 
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem.Builder()
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem.Builder(Urn.forTrack(1L))
             .fromSource("source1", "version1")
-            .build(Urn.forTrack(1L));
-    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem.Builder()
+            .build();
+    private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem.Builder(Urn.forTrack(2L))
             .fromSource("source2", "version2")
-            .build(Urn.forTrack(2L));
+            .build();
 
     private PlaySessionSource playSessionSource;
 
@@ -54,12 +54,18 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void shouldHaveSeparateMetaDataByDefaultForEachPlayQueueItem() {
+        PlayQueue playQueue = new PlayQueue(asList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2));
+        assertThat(playQueue.getMetaData(0)).isNotSameAs(playQueue.getMetaData(1));
+    }
+
+    @Test
     public void shouldAddPlayQueueItemToPlayQueue() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
-        playQueue.addPlayQueueItem(new PlayQueueItem.Builder()
+        playQueue.addPlayQueueItem(new PlayQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source3", "version3")
-                .build(Urn.forTrack(123L)));
+                .build());
 
         assertThat(playQueue.size()).isEqualTo(4);
         assertThat(playQueue.getTrackId(3)).isEqualTo(123L);

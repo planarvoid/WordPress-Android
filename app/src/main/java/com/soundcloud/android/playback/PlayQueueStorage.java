@@ -72,10 +72,10 @@ class PlayQueueStorage {
                 final String source = reader.getString(Tables.PlayQueue.SOURCE);
                 final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
                 final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID));
-                final PlayQueueItem playQueueItem = new PlayQueueItem.Builder()
+                final PlayQueueItem playQueueItem = new PlayQueueItem.Builder(track, reposter)
                         .relatedEntity(relatedEntity)
                         .fromSource(source, sourceVersion)
-                        .build(track, reposter);
+                        .build();
 
                 return playQueueItem;
             }

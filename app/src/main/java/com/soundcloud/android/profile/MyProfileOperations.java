@@ -9,7 +9,9 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
@@ -33,6 +35,7 @@ public class MyProfileOperations {
     private final LikesStorage likesStorage;
     private final PostsStorage postsStorage;
     private final PlaylistPostStorage playlistPostStorage;
+    private final SyncStateStorage syncStateStorage;
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final Scheduler scheduler;
@@ -71,14 +74,17 @@ public class MyProfileOperations {
 
     @Inject
     public MyProfileOperations(
-            LikesStorage likesStorage, 
+            LikesStorage likesStorage,
             PostsStorage postsStorage,
-                               PlaylistPostStorage playlistPostStorage,
-                               SyncInitiator syncInitiator,
-                               NetworkConnectionHelper networkConnectionHelper, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+            PlaylistPostStorage playlistPostStorage,
+            SyncStateStorage syncStateStorage,
+            SyncInitiator syncInitiator,
+            NetworkConnectionHelper networkConnectionHelper,
+            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.likesStorage = likesStorage;
         this.postsStorage = postsStorage;
         this.playlistPostStorage = playlistPostStorage;
+        this.syncStateStorage = syncStateStorage;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
         this.scheduler = scheduler;
@@ -142,10 +148,14 @@ public class MyProfileOperations {
                 .flatMap(loadInitialPosts);
     }
 
-    private Observable<List<PropertySet>> postedItems(long beforeTime) {
-        return postsStorage.loadPosts(PAGE_SIZE, beforeTime)
-                .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedPosts()));
+    private Observable<List<PropertySet>> postedItems(final long beforeTime) {
+        return syncStateStorage.hasSyncedBefore(SyncContent.MySounds)
+                .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
+                    @Override
+                    public Observable<List<PropertySet>> call(Boolean hasSynced) {
+                        return hasSynced ? postsStorage.loadPosts(PAGE_SIZE, beforeTime) : updatedPosts();
+                    }
+                }).subscribeOn(scheduler);
     }
 
     Observable<List<PropertySet>> pagedPlaylistItems() {
