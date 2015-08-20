@@ -10,6 +10,17 @@ There are two ways to do this:
 
 If you are pairing you can choose whichever suits. If you are working solo, you need to use a PR.
 
+## Communicate early with Release Captains
+
+If you want to get a feature or bugfix into the next beta, contact the release
+captains and make them aware of your intention. They can advise you of
+timelines and help you in case your change is urgent.
+
+You can find out who the current release captains are in the #android slack channel–look at the topic.
+
+Make sure you are subscribed to [android-releases@soundcloud.com](https://groups.google.com/a/soundcloud.com/forum/#!forum/android-releases).
+Information about release timelines and contents are sent here.
+
 ## Assure your feature's quality
 
 * have someone on your feature team test changes you make
