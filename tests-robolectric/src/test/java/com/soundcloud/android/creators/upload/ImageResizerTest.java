@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import org.junit.Before;
 import org.junit.Test;

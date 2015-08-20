@@ -4,7 +4,7 @@ import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 
 import javax.inject.Provider;
 

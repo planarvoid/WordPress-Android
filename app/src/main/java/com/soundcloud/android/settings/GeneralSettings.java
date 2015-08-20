@@ -21,10 +21,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;

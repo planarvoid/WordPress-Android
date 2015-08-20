@@ -5,8 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;

@@ -19,7 +19,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;

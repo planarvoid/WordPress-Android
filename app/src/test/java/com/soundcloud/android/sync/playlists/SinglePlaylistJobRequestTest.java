@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

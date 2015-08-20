@@ -5,13 +5,13 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.ResultReceiverAdapter;
 import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncRequest;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

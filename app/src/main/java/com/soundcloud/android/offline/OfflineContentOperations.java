@@ -7,8 +7,8 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -183,12 +183,12 @@ public class OfflineContentOperations {
     }
 
     private Action1<Boolean> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {
-        return eventBus.publishAction(EventQueue.ENTITY_STATE_CHANGED,
+        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromMarkedForOffline(playlistUrn, isMarkedOffline));
     }
 
     private Action1<Boolean> publishLikesMarkedForOfflineChange(final boolean isMarkedOffline) {
-        return eventBus.publishAction(EventQueue.ENTITY_STATE_CHANGED,
+        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromLikesMarkedForOffline(isMarkedOffline));
     }
 

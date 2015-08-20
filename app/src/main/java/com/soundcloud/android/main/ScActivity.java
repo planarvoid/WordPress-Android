@@ -13,10 +13,10 @@ import com.soundcloud.android.offline.PolicyUpdateController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Fragment;
 import android.content.Intent;

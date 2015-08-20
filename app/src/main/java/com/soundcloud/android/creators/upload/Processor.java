@@ -8,7 +8,7 @@ import com.soundcloud.android.creators.record.jni.EncoderException;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;

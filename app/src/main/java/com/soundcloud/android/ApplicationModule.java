@@ -33,15 +33,16 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.eventbus.DefaultEventBus;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
+import com.soundcloud.rx.eventbus.DefaultEventBus;
+import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
@@ -136,7 +137,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public EventBus provideEventBus() {
-        return new DefaultEventBus();
+        return new DefaultEventBus(AndroidSchedulers.mainThread());
     }
 
     @Provides

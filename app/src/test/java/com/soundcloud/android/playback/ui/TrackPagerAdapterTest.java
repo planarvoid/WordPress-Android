@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.Playa.PlayaState;
 import com.soundcloud.android.playback.Playa.Reason;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;

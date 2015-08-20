@@ -3,10 +3,10 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
