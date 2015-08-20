@@ -23,13 +23,6 @@ public class IOUtilsTest {
     @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
-    public void testMD5() throws Exception {
-        expect(IOUtils.md5("foo")).toEqual("acbd18db4cc2f85cedef654fccc4a4d8");
-        expect(IOUtils.md5("000012345")).toEqual("4748cdb4de48635e843db0670e1ad47a");
-        expect(IOUtils.md5("00001234588888")).toEqual("1dff78cccd58a9a316d872a9d6d08db2");
-    }
-
-    @Test
     public void maxUsableSpaceIsCappedBySpaceLeft() {
         long spaceLeft = 20 * MB;
         long maxSpace = 60 * MB;

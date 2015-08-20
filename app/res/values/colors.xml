@@ -124,4 +124,8 @@
     <color name="seed_track_text">#333</color>
     <color name="recommended_for_you_text">#666</color>
 
+    <!-- Stations -->
+    <color name="stations_home_background">#e5e5e5</color>
+    <color name="stations_item_background">#f4f4f4</color>
+
 </resources>

@@ -11,11 +11,6 @@ import java.util.concurrent.TimeUnit;
 public class ScTextUtilsTest extends AndroidUnitTest {
 
     @Test
-    public void testHexString() throws Exception {
-        assertThat(ScTextUtils.hexString(new byte[]{0, 12, 32, 0, 16})).isEqualTo("000c200010");
-    }
-
-    @Test
     public void shouldGetClippedStringWhenLongerThanMaxLength() throws Exception {
         assertThat(ScTextUtils.getClippedString("1234567890", 5)).isEqualTo("12345");
     }

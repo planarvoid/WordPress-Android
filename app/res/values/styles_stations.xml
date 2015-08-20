@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Stations" />
+
+    <style name="Stations.Home">
+        <item name="android:background">@color/stations_home_background</item>
+    </style>
+
+    <style name="Stations.Bucket">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+    </style>
+
+    <style name="Stations.Item">
+        <item name="android:background">@color/stations_item_background</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="cardCornerRadius">3dp</item>
+    </style>
+
+    <style name="Stations.ItemArtwork">
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="Stations.ItemTitle" parent="ListItemText.PrimaryText">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">32dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingMultiplier">1</item>
+    </style>
+
+    <style name="Stations.ItemType" parent="ListItemText.SecondaryText">
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginRight">32dp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">
+        <item name="android:layout_marginBottom">13dp</item>
+        <item name="android:layout_marginRight">-6dp</item>
+    </style>
+</resources>

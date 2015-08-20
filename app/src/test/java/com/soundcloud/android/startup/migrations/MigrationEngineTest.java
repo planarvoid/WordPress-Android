@@ -6,16 +6,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class MigrationEngineTest {
 
     @Mock
@@ -28,7 +28,7 @@ public class MigrationEngineTest {
     private Migration migrationTwo;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         when(sharedPreferences.edit()).thenReturn(editor);
     }
 
@@ -81,7 +81,7 @@ public class MigrationEngineTest {
     }
 
     @Test
-    public void shouldSortTheMigrationsToApplyBasedOnApplicableVersionCode(){
+    public void shouldSortTheMigrationsToApplyBasedOnApplicableVersionCode() {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(54);
         when(migrationTwo.getApplicableAppVersionCode()).thenReturn(53);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(52);
@@ -92,7 +92,7 @@ public class MigrationEngineTest {
     }
 
     @Test
-    public void shouldUpdateTheCurrentVersionCodeAfterMigrations(){
+    public void shouldUpdateTheCurrentVersionCodeAfterMigrations() {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(56);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(54);
         new MigrationEngine(57, sharedPreferences, migrationOne).migrate();
