@@ -312,9 +312,14 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertLikedTrackPendingRemoval(Date unlikedDate) {
+        return insertLikedTrackPendingRemoval(new Date(0), unlikedDate);
+    }
+
+    public ApiTrack insertLikedTrackPendingRemoval(Date likedDate, Date unlikedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertUser(track.getUser());
         insertTrack(track);
-        insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, new Date(0));
+        insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
                 + " WHERE _id=" + track.getUrn().getNumericId()
                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
@@ -323,8 +328,9 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrackPendingAddition(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertUser(track.getUser());
         insertTrack(track);
-        insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, new Date(0));
+        insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
                 + " WHERE _id=" + track.getUrn().getNumericId()
                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
@@ -339,9 +345,14 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLikedPlaylistPendingRemoval(Date unlikedDate) {
+        return insertLikedPlaylistPendingRemoval(new Date(0), unlikedDate);
+    }
+
+    public ApiPlaylist insertLikedPlaylistPendingRemoval(Date likedDate, Date unlikedDate) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertUser(playlist.getUser());
         insertPlaylist(playlist);
-        insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, new Date(0));
+        insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
                 + " WHERE _id=" + playlist.getUrn().getNumericId()
                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
@@ -350,8 +361,9 @@ public class DatabaseFixtures {
 
     public ApiPlaylist insertLikedPlaylistPendingAddition(Date likedDate) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertUser(playlist.getUser());
         insertPlaylist(playlist);
-        insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, new Date(0));
+        insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
                 + " WHERE _id=" + playlist.getUrn().getNumericId()
                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);

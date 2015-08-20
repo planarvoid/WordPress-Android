@@ -13,6 +13,7 @@ import dagger.Provides;
                 MeActivity.class,
                 MyPostsFragment.class,
                 MyPlaylistsFragment.class,
+                MyLikesFragment.class,
                 UserPostsFragment.class,
                 UserPlaylistsFragment.class,
                 UserLikesFragment.class,

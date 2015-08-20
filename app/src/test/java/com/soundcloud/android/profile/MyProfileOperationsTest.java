@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -30,30 +31,25 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     private MyProfileOperations operations;
     private List<PropertySet> posts;
-    private List<PropertySet> playlists;
 
     @Mock private PostsStorage postStorage;
     @Mock private SyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private LikesStorage likesStorage;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<List<PropertySet>> observer;
 
     @Before
     public void setUp() throws Exception {
-        operations = new MyProfileOperations(
-                postStorage,
-                playlistPostStorage, syncInitiator,
+        operations = new MyProfileOperations(likesStorage, postStorage, playlistPostStorage, syncInitiator,
                 networkConnectionHelper, scheduler);
 
         posts = Arrays.asList(
                 TestPropertySets.expectedPostedPlaylistForPostsScreen(),
                 TestPropertySets.expectedPostedTrackForPostsScreen()
         );
-
-        playlists = createPageOfPlaylists(2);
-
         observer = new TestSubscriber<>();
     }
 
@@ -127,6 +123,68 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void syncAndLoadLikesWhenInitialLikesLoadReturnsEmptyList() {
+        final List<PropertySet> firstPage = createPageOfLikes(PAGE_SIZE);
+        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+
+        operations.pagedLikes().subscribe(observer);
+
+        observer.assertValue(firstPage);
+    }
+
+    @Test
+    public void syncAndLoadEmptyLikesResultsWithEmptyResults() {
+        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+
+        operations.pagedLikes().subscribe(observer);
+
+        observer.assertValue(Collections.<PropertySet>emptyList());
+    }
+
+    @Test
+    public void pagedLikesReturnsLikesFromStorage() {
+        final List<PropertySet> pageOfLikes = createPageOfLikes(2);
+
+        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
+        when(syncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
+
+        operations.pagedLikes().subscribe(observer);
+
+        observer.assertValue(pageOfLikes);
+    }
+
+    @Test
+    public void likesPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() {
+        final List<PropertySet> firstPage = createPageOfLikes(PAGE_SIZE);
+        final long time = firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime();
+        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
+        when(likesStorage.loadLikes(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
+        when(syncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
+
+        operations.likesPagingFunction().call(firstPage);
+
+        verify(likesStorage).loadLikes(PAGE_SIZE, time);
+    }
+
+    @Test
+    public void likesPagerFinishesIfLastPageIncomplete() {
+        assertThat(operations.likesPagingFunction().call(createPageOfLikes(PAGE_SIZE - 1))).isEqualTo(Pager.finish());
+    }
+
+    @Test
+    public void updatedLikesReloadsLikesAfterSyncWithChange() {
+        final List<PropertySet> pageOfLikes = createPageOfLikes(2);
+        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
+        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+
+        operations.updatedLikes().subscribe(observer);
+
+        observer.assertValue(pageOfLikes);
+    }
+
+    @Test
     public void syncAndLoadPlaylistsWhenInitialPlaylistLoadReturnsEmptyList() {
         final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
@@ -149,6 +207,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void pagedPlaylistItemsReturnsPlaylistItemsFromStorage() {
+        final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
@@ -172,11 +231,12 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void playlistPagerFinishesIfLastPageIncomplete() {
-        assertThat(operations.playlistPagingFunction().call(playlists)).isEqualTo(Pager.finish());
+        assertThat(operations.playlistPagingFunction().call(createPageOfPlaylists(PAGE_SIZE - 1))).isEqualTo(Pager.finish());
     }
 
     @Test
     public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
+        final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
 
@@ -185,10 +245,19 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         observer.assertValue(playlists);
     }
 
+
     private List<PropertySet> createPageOfPlaylists(int size) {
         List<PropertySet> page = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
+        }
+        return page;
+    }
+
+    private List<PropertySet> createPageOfLikes(int size) {
+        List<PropertySet> page = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
         }
         return page;
     }

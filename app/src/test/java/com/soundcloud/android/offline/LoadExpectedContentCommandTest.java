@@ -218,7 +218,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotIncludeReturnRemovedLikes() {
-        ApiTrack apiTrack = testFixtures().insertLikedTrackPendingRemoval(new Date(10));
+        ApiTrack apiTrack = testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(10));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);

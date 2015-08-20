@@ -76,4 +76,32 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
     }
 
+    public void testLikesLoadsNextPage() {
+        profileScreen.touchLikesTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        int likesBefore = profileScreen.getCurrentRecyclerViewItemCount();
+        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
+        assertThat(likesBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+    }
+
+    public void testLikedPlaylistClickOpensPlaylistPage() {
+        profileScreen.touchLikesTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        final PlaylistItemElement expectedPlaylist = profileScreen
+                .getPlaylists()
+                .get(0);
+
+        String targetPlaylistTitle = expectedPlaylist.getTitle();
+        assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
+    }
+
+    public void testLikedTrackClickStartsPlayer() {
+        profileScreen.touchLikesTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        assertThat(profileScreen.playTrack(0), is(visible()));
+    }
+
 }

@@ -4,7 +4,9 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -28,6 +30,7 @@ public class MyProfileOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
+    private final LikesStorage likesStorage;
     private final PostsStorage postsStorage;
     private final PlaylistPostStorage playlistPostStorage;
     private final SyncInitiator syncInitiator;
@@ -58,16 +61,59 @@ public class MyProfileOperations {
         }
     };
 
+    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialLikes = new Func1<Boolean, Observable<List<PropertySet>>>() {
+        @Override
+        public Observable<List<PropertySet>> call(Boolean aBoolean) {
+            return likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)
+                    .subscribeOn(scheduler);
+        }
+    };
+
     @Inject
-    public MyProfileOperations(PostsStorage postsStorage,
+    public MyProfileOperations(
+            LikesStorage likesStorage, 
+            PostsStorage postsStorage,
                                PlaylistPostStorage playlistPostStorage,
                                SyncInitiator syncInitiator,
                                NetworkConnectionHelper networkConnectionHelper, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.likesStorage = likesStorage;
         this.postsStorage = postsStorage;
         this.playlistPostStorage = playlistPostStorage;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
         this.scheduler = scheduler;
+    }
+
+    Observable<List<Urn>> likesForPlayback() {
+        return likesStorage.loadLikesForPlayback().subscribeOn(scheduler);
+    }
+
+    Pager.PagingFunction<List<PropertySet>> likesPagingFunction() {
+        return new Pager.PagingFunction<List<PropertySet>>() {
+            @Override
+            public Observable<List<PropertySet>> call(List<PropertySet> result) {
+                if (result.size() < PAGE_SIZE) {
+                    return Pager.finish();
+                } else {
+                    return likedItems(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+                }
+            }
+        };
+    }
+
+    private Observable<List<PropertySet>> likedItems(long beforeTime) {
+        return likesStorage.loadLikes(PAGE_SIZE, beforeTime)
+                .subscribeOn(scheduler)
+                .lift(new OperatorSwitchOnEmptyList<>(updatedLikes()));
+    }
+
+    Observable<List<PropertySet>> updatedLikes() {
+        return syncInitiator.refreshLikes()
+                .flatMap(loadInitialLikes);
+    }
+
+    Observable<List<PropertySet>> pagedLikes() {
+        return likedItems(Long.MAX_VALUE);
     }
 
     Observable<List<PropertySet>> pagedPostItems() {

@@ -59,7 +59,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     @Test
     public void ignoresLikeWithRemovedAt() throws Exception {
         testFixtures().insertLikesMarkedForOfflineSync();
-        testFixtures().insertLikedTrackPendingRemoval(new Date(100));
+        testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(100));
 
         Collection<Urn> trackLikes = command.call(null);
 
