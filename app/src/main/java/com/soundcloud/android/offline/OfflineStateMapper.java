@@ -22,7 +22,7 @@ public class OfflineStateMapper extends RxResultMapper<PropertySet> {
         final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
         final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
-        final boolean isCollectionOffline = cursorReader.isNotNull(OfflineContent._ID.prefixedName());
+        final boolean isCollectionOffline = cursorReader.isNotNull(OfflineContent._ID);
 
         final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {

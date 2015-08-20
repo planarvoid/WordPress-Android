@@ -152,11 +152,10 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private Query orderedPlaylistQuery() {
         return Query.from(OfflineContent.TABLE)
-                .select(
-                        OfflineContent._ID.defaultAlias())
+                .select(OfflineContent._ID)
                 .innerJoin(Sounds.name(), filter()
-                        .whereEq(Sounds.field(_ID), OfflineContent._ID.qualifiedName())
-                        .whereEq(Sounds.field(_TYPE), OfflineContent._TYPE.qualifiedName()))
+                        .whereEq(Sounds.field(_ID), OfflineContent._ID)
+                        .whereEq(Sounds.field(_TYPE), OfflineContent._TYPE))
                 .whereEq(Sounds.field(_TYPE), TYPE_PLAYLIST)
                 .order(Sounds.field(CREATED_AT), DESC);
     }

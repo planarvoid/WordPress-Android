@@ -96,14 +96,14 @@ class PlaylistTracksStorage {
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT,
                         TrackPolicies.SUB_MID_TIER,
-                        TrackDownloads.REMOVED_AT.qualifiedName(),
-                        OfflineContent._ID.defaultAlias())
+                        TrackDownloads.REMOVED_AT,
+                        OfflineContent._ID)
 
                 .innerJoin(Table.Sounds.name(), Table.PlaylistTracks.field(PlaylistTracks.TRACK_ID), fullSoundIdColumn)
                 .innerJoin(Table.Users.name(), Table.Sounds.field(Sounds.USER_ID), Table.Users.field(Users._ID))
                 .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
                 .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TrackPolicies.TRACK_ID))
-                .leftJoin(OfflineContent.TABLE.name(), offlinePlaylistFilter())
+                .leftJoin(OfflineContent.TABLE, offlinePlaylistFilter())
 
                 .whereEq(Table.Sounds.field(Sounds._TYPE), Sounds.TYPE_TRACK)
                 .whereEq(Table.PlaylistTracks.field(PlaylistTracks.PLAYLIST_ID), playlistUrn.getNumericId())
@@ -113,8 +113,8 @@ class PlaylistTracksStorage {
 
     private Where offlinePlaylistFilter() {
         return filter()
-                .whereEq(OfflineContent._ID.qualifiedName(), PlaylistTracks.PLAYLIST_ID)
-                .whereEq(OfflineContent._TYPE.qualifiedName(), OfflineContent.TYPE_PLAYLIST);
+                .whereEq(OfflineContent._ID, PlaylistTracks.PLAYLIST_ID)
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
     }
 
     private Query queryPlaylistsWithTrackExistStatus(Urn trackUrn) {
