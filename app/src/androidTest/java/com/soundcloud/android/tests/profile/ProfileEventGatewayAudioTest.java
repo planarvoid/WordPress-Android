@@ -41,9 +41,6 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
                 .open()
                 .clickUserProfile();
 
-        // Workaround for #3715
-        profileScreen.pullToRefresh();
-
         startEventTracking();
 
         final VisualPlayerElement playerElement =

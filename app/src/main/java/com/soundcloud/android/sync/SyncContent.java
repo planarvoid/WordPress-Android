@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import java.util.EnumSet;
 
-enum SyncContent {
+public enum SyncContent {
 
     MySoundStream (Content.ME_SOUND_STREAM, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyActivities  (Content.ME_ACTIVITIES, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
