@@ -1,8 +1,8 @@
 package com.soundcloud.android.crypto;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Charsets;
+import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -86,7 +86,7 @@ public class Encryptor {
     @VisibleForTesting
     protected String hash(Urn trackUrn, MessageDigest digest) {
         final byte[] bytes = trackUrn.toEncodedString().getBytes(Charsets.UTF_8);
-        return ScTextUtils.hexString(digest.digest(bytes));
+        return Strings.toHexString(digest.digest(bytes));
     }
 
     public String hash(Urn trackUrn) throws EncryptionException {

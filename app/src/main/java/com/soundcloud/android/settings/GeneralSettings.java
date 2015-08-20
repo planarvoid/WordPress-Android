@@ -13,6 +13,7 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_SYNC_SETTINGS;
 import static com.soundcloud.android.settings.SettingKey.VERSION;
 import static com.soundcloud.android.settings.SettingKey.WIRELESS;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -111,7 +112,7 @@ class GeneralSettings implements OnPreferenceClickListener {
 
     private void setupVersion(PreferenceFragment settings) {
         final Preference versionPref = settings.findPreference(VERSION);
-        versionPref.setSummary(deviceHelper.getUserVisibleVersion());
+        versionPref.setSummary(BuildConfig.VERSION_NAME);
         versionPref.setOnPreferenceClickListener(
                 new OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {

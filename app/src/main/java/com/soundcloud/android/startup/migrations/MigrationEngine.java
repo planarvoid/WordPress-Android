@@ -2,7 +2,7 @@ package com.soundcloud.android.startup.migrations;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
 
@@ -24,17 +24,17 @@ public class MigrationEngine {
     private final List<Migration> migrations;
 
     @Inject
-    public MigrationEngine(DeviceHelper deviceHelper, SharedPreferences sharedPreferences,
+    public MigrationEngine(SharedPreferences sharedPreferences,
                            SettingsMigration settingsMigration, DiskCacheMigration diskCacheMigration,
                            StreamCacheMigration streamCacheMigration) {
-        this(deviceHelper.getAppVersionCode(),
+        this(BuildConfig.VERSION_CODE,
                 sharedPreferences,
                 settingsMigration, diskCacheMigration, streamCacheMigration);
     }
 
     @VisibleForTesting
     MigrationEngine(int currentVersion, SharedPreferences sharedPreferences,
-                              Migration... migrationsToApply) {
+                    Migration... migrationsToApply) {
         this.sharedPreferences = sharedPreferences;
         this.currentVersion = currentVersion;
         migrations = newArrayList(migrationsToApply);
@@ -49,7 +49,7 @@ public class MigrationEngine {
                     new ApplicableMigrationsPredicate(previousVersionCode, currentVersion)));
             Collections.sort(applicableMigrations, Migration.APPLICABLE_VERSION_COMPARATOR);
 
-            for(Migration migration : applicableMigrations){
+            for (Migration migration : applicableMigrations) {
                 migration.applyMigration();
             }
         }
@@ -58,9 +58,9 @@ public class MigrationEngine {
     }
 
     private void updateVersionKey() {
-       Editor editor = sharedPreferences.edit();
-       editor.putInt(VERSION_KEY, currentVersion);
-       editor.apply();
+        Editor editor = sharedPreferences.edit();
+        editor.putInt(VERSION_KEY, currentVersion);
+        editor.apply();
     }
 
     private static class ApplicableMigrationsPredicate implements Predicate<Migration> {
