@@ -25,8 +25,8 @@
 
     <style name="Stations.ItemTitle" parent="ListItemText.PrimaryText">
         <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginEnd">32dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">32dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">13sp</item>
@@ -35,9 +35,9 @@
 
     <style name="Stations.ItemType" parent="ListItemText.SecondaryText">
         <item name="android:layout_marginTop">2dp</item>
-        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
         <item name="android:layout_marginBottom">16dp</item>
-        <item name="android:layout_marginEnd">32dp</item>
+        <item name="android:layout_marginRight">32dp</item>
         <item name="android:textSize">13sp</item>
     </style>
 
