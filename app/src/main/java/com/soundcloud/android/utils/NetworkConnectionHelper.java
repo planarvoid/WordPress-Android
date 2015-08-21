@@ -33,7 +33,7 @@ public class NetworkConnectionHelper {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         if(activeNetworkInfo == null){
-            return ConnectionType.UNKNOWN;
+            return ConnectionType.OFFLINE;
         }
 
         int activeNetworkType = activeNetworkInfo.getType();

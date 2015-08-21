@@ -56,7 +56,7 @@ import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.HashMap;
 
-final class EventLoggerEventData {
+class EventLoggerEventData {
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
@@ -144,11 +144,6 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData playerType(String playa) {
         addToPayload(PLAYER_TYPE, playa);
-        return this;
-    }
-
-    public EventLoggerEventData connectionType(String connectionType) {
-        addToPayload(CONNECTION_TYPE, connectionType);
         return this;
     }
 
@@ -297,7 +292,13 @@ final class EventLoggerEventData {
         return this;
     }
 
-    private void addToPayload(String key, String value) {
+    @Deprecated // this is added to the base event in v1
+    public EventLoggerEventData connectionType(String connectionType) {
+        addToPayload(CONNECTION_TYPE, connectionType);
+        return this;
+    }
+
+    protected void addToPayload(String key, String value) {
         if (ScTextUtils.isNotBlank(value)) {
             payload.put(key, value);
         }

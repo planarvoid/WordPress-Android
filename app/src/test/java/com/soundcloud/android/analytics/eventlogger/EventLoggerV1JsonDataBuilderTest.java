@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -20,6 +21,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -44,6 +46,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureOperations featureOperations;
+    @Mock private NetworkConnectionHelper connectionHelper;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
@@ -52,8 +55,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         jsonDataBuilder = new EventLoggerV1JsonDataBuilder(context().getResources(), experimentOperations,
-                deviceHelper, accountOperations, jsonTransformer, featureOperations);
+                deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations);
 
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(featureOperations.getPlan()).thenReturn(CONSUMER_SUBS_PLAN);
@@ -87,8 +91,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .inPlaylist(PLAYLIST_URN)
                 .playlistPosition("2")
                 .protocol("hls")
-                .playerType("PLAYA")
-                .connectionType("3g"));
+                .playerType("PLAYA"));
     }
 
     @Test
@@ -120,8 +123,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition("2")
                 .protocol("hls")
                 .playerType("PLAYA")
-                .reason("playback_error")
-                .connectionType("3g"));
+                .reason("playback_error"));
     }
 
     @Test
@@ -151,7 +153,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition("2")
                 .protocol("hls")
                 .playerType("PLAYA")
-                .connectionType("3g")
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad"));
@@ -187,7 +188,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition("2")
                 .protocol("hls")
                 .playerType("PLAYA")
-                .connectionType("3g")
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad")
@@ -222,14 +222,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition("2")
                 .protocol("hls")
                 .playerType("PLAYA")
-                .connectionType("3g")
                 .adUrn("ad:urn:123")
                 .monetizationType("promoted")
                 .promotedBy("soundcloud:users:123"));
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, String timestamp) {
-        return new EventLoggerEventData(eventName, boogalooVersion, "3152", UDID, LOGGED_IN_USER.toString(), timestamp);
+        return new EventLoggerEventDataV1(eventName, boogalooVersion, "3152", UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue());
     }
 
 }
