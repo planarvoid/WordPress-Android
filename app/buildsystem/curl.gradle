@@ -1,0 +1,29 @@
+import groovy.json.JsonSlurper
+
+def executeCurlCommand(cmd, defaultReturnValue) {
+  def p = cmd.execute()
+  p.waitFor()
+  def exitValue = p.exitValue()
+  if (exitValue != 0) {
+    System.err.println("executeCurlCommand($cmd) exitValue: $exitValue")
+    return defaultReturnValue
+  }
+  new JsonSlurper().parseText(p.text)
+}
+
+def executePostWithData(url, json, defaultReturnValue) {
+  def cmd = ['curl', 'i', '-X', 'POST', url, '-d', json]
+  executeCurlCommand(cmd, defaultReturnValue)
+}
+
+def executeGet(url, defaultReturnValue) {
+  def cmd = ['curl', 'i', '-X', 'GET', url]
+  executeCurlCommand(cmd, defaultReturnValue)
+}
+
+// Export methods by turning them into closures
+ext{
+  executeCurlCommand = this.&executeCurlCommand
+  executePostWithData = this.&executePostWithData
+  executeGet = this.&executeGet
+}

@@ -9,6 +9,8 @@ ext {
   buildType   = System.env.containsKey('BUILD_TYPE') ? System.env.BUILD_TYPE : 'debug' // 'debug' signals local build
   gitBranch   = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
   apkPath     = "${project.buildDir}/outputs/apk/soundcloud-android-${versionName}-${buildType}.apk" // only used by renameApk task for CI
+
+  buildSrcDir = 'buildsystem'
 }
 
 buildscript {
@@ -24,7 +26,6 @@ buildscript {
   }
 }
 
-def buildSrcDir = 'buildsystem'
 apply from: "${buildSrcDir}/build_variants.gradle"
 apply from: "${buildSrcDir}/feature_flags.gradle"
 apply from: "${buildSrcDir}/app_properties.gradle"

@@ -1,6 +1,6 @@
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 
+apply from: "$project.ext.buildSrcDir/curl.gradle"
 
 class Package { String name; String location }
 class Session { Package application_package; Package test_package; Package[] tools_packages }
@@ -65,36 +65,15 @@ class TestResult {
   }
 }
 
-def executeCurlCommand(cmd, defaultReturnValue) {
-  def p = cmd.execute()
-  p.waitFor()
-  def exitValue = p.exitValue()
-  if (exitValue != 0) {
-    System.err.println("executeCurlCommand($cmd) exitValue: $exitValue")
-    return defaultReturnValue
-  }
-  new JsonSlurper().parseText(p.text)
-}
-
-def executePostWithData(url, json) {
-  def cmd = ['curl', 'i', '-X', 'POST', url, '-d', json]
-  executeCurlCommand(cmd, "")
-}
-
-def executeGet(url) {
-  def cmd = ['curl', 'i', '-X', 'GET', url]
-  executeCurlCommand(cmd, [])
-}
-
 def executeSpecificTestsForLabel(execution) {
   def url = "$project.ext.mobileTestRunnerUrl/devices/android/tests"
   def json_execution = JsonOutput.toJson(execution)
-  executePostWithData(url, json_execution)
+  executePostWithData(url, json_execution, "")
 }
 
 def executeQueryForResult(runId) {
   def url = "$project.ext.mobileTestRunnerUrl/results/$runId/no_grouping"
-  executeGet(url)
+  executeGet(url, [])
 }
 
 def parseQueryForResultResponse(response) {
