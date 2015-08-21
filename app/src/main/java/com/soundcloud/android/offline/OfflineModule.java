@@ -13,7 +13,7 @@ import javax.inject.Named;
                 OfflineContentService.class,
                 OfflineSettingsStorage.class,
                 OfflineLikesDialog.class,
-                OfflineContentStartReceiver.class
+                AlarmManagerReceiver.class
         })
 public class OfflineModule {
 

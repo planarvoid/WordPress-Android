@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
@@ -26,6 +27,8 @@ import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.content.Intent;
+
+import java.util.Arrays;
 
 public class OfflineServiceInitiatorTest extends AndroidUnitTest {
 
@@ -218,6 +221,13 @@ public class OfflineServiceInitiatorTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 
         verify(context, never()).startService(any(Intent.class));
+    }
+
+    @Test
+    public void startOfflineSyncOnPolicyUpdateEvent() {
+        eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(Arrays.asList(Urn.forTrack(123L))));
+
+        assertThat(wasServiceStarted()).isTrue();
     }
 
     private Intent captureStartServiceIntent() {

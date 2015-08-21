@@ -74,6 +74,8 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
         ShadowPendingIntent intent = Shadows.shadowOf(intentArgumentCaptor.getValue());
         assertThat(intent.getRequestCode()).isEqualTo(OfflineContentScheduler.REQUEST_ID);
         assertThat(intent.getSavedIntent().getComponent().getClassName())
-                .isEqualTo(OfflineContentStartReceiver.class.getCanonicalName());
+                .isEqualTo(AlarmManagerReceiver.class.getCanonicalName());
+        assertThat(intent.getSavedIntent().getAction())
+                .isEqualTo(OfflineContentService.ACTION_START);
     }
 }

@@ -21,6 +21,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
+import com.soundcloud.android.policies.PolicyUpdateScheduler;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -102,6 +103,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject FacebookSdk facebookSdk;
+    @Inject PolicyUpdateScheduler policyUpdateScheduler;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -182,6 +184,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             stationsController.subscribe();
         }
 
+        policyUpdateScheduler.scheduleDailyPolicyUpdates();
         configurationFeatureController.subscribe();
         facebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();

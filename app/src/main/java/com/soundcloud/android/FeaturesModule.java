@@ -14,6 +14,7 @@ import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.payments.PaymentModule;
 import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
+import com.soundcloud.android.policies.PoliciesModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.settings.SettingsModule;
@@ -36,6 +37,7 @@ import dagger.Module;
         CommentsModule.class,
         PaymentModule.class,
         OfflineModule.class,
+        PoliciesModule.class,
         RecordModule.class,
         UploadModule.class,
         LikesModule.class,

@@ -328,6 +328,7 @@
         <service android:name=".creators.record.SoundRecorderService"/>
         <service android:exported="false" android:name=".playback.PlaybackService"/>
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
+        <service android:exported="false" android:name=".policies.PolicyUpdateService"/>
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
@@ -364,7 +365,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".offline.OfflineContentStartReceiver"/>
+        <receiver android:name=".offline.AlarmManagerReceiver"/>
 
         <receiver android:label="SoundCloud Player" android:name=".playback.service.PlayerAppWidgetProvider">
           <intent-filter>
