@@ -141,7 +141,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private void subscribeToCurrentDownloadQueue() {
         downloadSubscription.unsubscribe();
-        downloadSubscription = likesDownloadState().subscribe(new OfflineStateSubscriber());
+        downloadSubscription = likesDownloadState()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OfflineStateSubscriber());
     }
 
     private Observable<OfflineState> likesDownloadState() {

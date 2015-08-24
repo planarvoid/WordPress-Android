@@ -49,8 +49,9 @@ import java.util.List;
 public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
-    private static final DownloadRequest TRACK1_DOWNLOAD_REQUEST = new DownloadRequest(TRACK1, 0, "http://wav", true, true, Collections.<Urn>emptyList());
     private static final Urn TRACK2 = Urn.forTrack(456L);
+    private static final DownloadRequest TRACK1_DOWNLOAD_REQUEST =
+            new DownloadRequest(TRACK1, 0, "http://wav", true, true, Collections.<Urn>emptyList());
     private TrackLikesHeaderPresenter presenter;
 
     @Mock private TrackLikesHeaderView headerView;
