@@ -8,8 +8,29 @@
     </style>
 
     <style name="Stations.Bucket">
-        <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginBottom">18dp</item>
+    </style>
+
+    <style name="Stations.BucketTitle">
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginBottom">22dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="Stations.BucketAction">
+        <item name="android:background">@color/stations_bucket_action_background</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_marginRight">18dp</item>
+        <item name="android:textColor">@color/stations_bucket_action_text</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Stations.Item">
@@ -29,7 +50,7 @@
         <item name="android:layout_marginRight">32dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingMultiplier">1</item>
     </style>
 
@@ -38,7 +59,7 @@
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:layout_marginBottom">16dp</item>
         <item name="android:layout_marginRight">32dp</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">

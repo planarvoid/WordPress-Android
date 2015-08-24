@@ -27,7 +27,7 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.stations.StationsFragment;
+import com.soundcloud.android.stations.StationsHomeFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -305,7 +305,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STATIONS_FRAGMENT_TAG);
 
         if (fragment == null) {
-            fragment = new StationsFragment();
+            fragment = new StationsHomeFragment();
             attachFragment(fragment, STATIONS_FRAGMENT_TAG, R.string.side_menu_stations);
         }
     }
