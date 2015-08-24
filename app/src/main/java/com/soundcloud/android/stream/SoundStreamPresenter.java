@@ -7,13 +7,10 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -22,17 +19,14 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -42,35 +36,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
-
-    private static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
-            new Func1<List<PropertySet>, List<PlayableItem>>() {
-                @Override
-                public List<PlayableItem> call(List<PropertySet> bindings) {
-                    final List<PlayableItem> items = new ArrayList<>(bindings.size());
-                    for (PropertySet source : bindings) {
-                        final Urn urn = source.get(EntityProperty.URN);
-                        if (urn.isTrack()) {
-                            if (source.contains(PromotedItemProperty.AD_URN)) {
-                                items.add(PromotedTrackItem.from(source));
-                            } else {
-                                items.add(TrackItem.from(source));
-                            }
-                        } else if (urn.isPlaylist()) {
-                            if (source.contains(PromotedItemProperty.AD_URN)) {
-                                items.add(PromotedPlaylistItem.from(source));
-                            } else {
-                                items.add(PlaylistItem.from(source));
-                            }
-                        }
-                    }
-                    return items;
-                }
-            };
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
@@ -114,7 +81,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @Override
     protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(streamOperations.initialStreamItems(), PAGE_TRANSFORMER)
+        return CollectionBinding.from(streamOperations.initialStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -122,7 +89,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @Override
     protected CollectionBinding<PlayableItem> onRefreshBinding() {
-        return CollectionBinding.from(streamOperations.updatedStreamItems(), PAGE_TRANSFORMER)
+        return CollectionBinding.from(streamOperations.updatedStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();

@@ -9,10 +9,9 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -32,6 +31,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +43,7 @@ class SoundStreamOperations {
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private static final String TAG = "SoundStream";
-    private static final List<PropertySet> NO_MORE_PAGES = Collections.emptyList();
+    private static final List<PlayableItem> NO_MORE_PAGES = Collections.emptyList();
 
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
@@ -53,10 +53,27 @@ class SoundStreamOperations {
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
 
-    private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
+    private static final Func1<List<PropertySet>, List<PlayableItem>> TO_PLAYABLE_ITEMS =
+            new Func1<List<PropertySet>, List<PlayableItem>>() {
+                @Override
+                public List<PlayableItem> call(List<PropertySet> bindings) {
+                    final List<PlayableItem> items = new ArrayList<>(bindings.size());
+
+                    for (PropertySet source : bindings) {
+                        final Urn urn = source.get(EntityProperty.URN);
+
+                        if (urn.isTrack() || urn.isPlaylist()) {
+                            items.add(PlayableItem.from(source));
+                        }
+                    }
+                    return items;
+                }
+            };
+
+    private final PagingFunction<List<PlayableItem>> pagingFunc = new PagingFunction<List<PlayableItem>>() {
         @Override
         @SuppressWarnings("PMD.CompareObjectsWithEquals") // No, PMD. I DO want to compare references.
-        public Observable<List<PropertySet>> call(List<PropertySet> result) {
+        public Observable<List<PlayableItem>> call(List<PlayableItem> result) {
             // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
             // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
             // a local result set, but there are more items on the server.
@@ -64,26 +81,26 @@ class SoundStreamOperations {
                 return Pager.finish();
             } else {
                 // to implement paging, we move the timestamp down reverse chronologically
-                final long nextTimestamp = getLast(result).get(PlayableProperty.CREATED_AT).getTime();
+                final long nextTimestamp = getLast(result).getCreatedAt().getTime();
                 Log.d(TAG, "Building next page observable for timestamp " + nextTimestamp);
                 return pagedStreamItems(nextTimestamp, false);
             }
         }
     };
 
-    private final Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
+    private final Action1<List<PlayableItem>> promotedImpressionAction = new Action1<List<PlayableItem>>() {
         @Override
-        public void call(List<PropertySet> propertySets) {
-            if (!propertySets.isEmpty()) {
-                PropertySet first = propertySets.get(0);
-                if (first.contains(PromotedItemProperty.AD_URN)) {
+        public void call(List<PlayableItem> playableItems) {
+            if (!playableItems.isEmpty()) {
+                PlayableItem first = playableItems.get(0);
+                if (first.hasAdUrn()) {
                     // seen the item once, don't see it again until we refresh the stream
-                    markPromotedItemAsStaleCommand.call(first);
-                    Urn urn = first.get(EntityProperty.URN);
+                    markPromotedItemAsStaleCommand.call(first.getPropertySet());
+                    Urn urn = first.getEntityUrn();
                     if (urn.isTrack()) {
-                        publishTrackingEvent(PromotedTrackItem.from(first));
+                        publishTrackingEvent((PromotedTrackItem) first);
                     } else if (urn.isPlaylist()) {
-                        publishTrackingEvent(PromotedPlaylistItem.from(first));
+                        publishTrackingEvent((PromotedPlaylistItem) first);
                     }
                 }
             }
@@ -108,7 +125,7 @@ class SoundStreamOperations {
         this.eventBus = eventBus;
     }
 
-    PagingFunction<List<PropertySet>> pagingFunction() {
+    PagingFunction<List<PlayableItem>> pagingFunction() {
         return pagingFunc;
     }
 
@@ -116,31 +133,32 @@ class SoundStreamOperations {
      * Will deliver any stream items already existing in local storage, but also fall back to a
      * backfill sync in case it didn't find enough.
      */
-    public Observable<List<PropertySet>> initialStreamItems() {
+    public Observable<List<PlayableItem>> initialStreamItems() {
         return initialStreamItems(false)
                 .doOnNext(promotedImpressionAction);
     }
 
-    private Observable<List<PropertySet>> initialStreamItems(final boolean syncCompleted) {
+    private Observable<List<PlayableItem>> initialStreamItems(final boolean syncCompleted) {
         Log.d(TAG, "Preparing page; initial page");
         return removeStalePromotedItemsCommand.toObservable(null)
                 .flatMap(loadFirstPageOfStream(syncCompleted))
                 .subscribeOn(scheduler);
     }
 
-    private Func1<List<Long>, Observable<List<PropertySet>>> loadFirstPageOfStream(final boolean syncCompleted) {
-        return new Func1<List<Long>, Observable<List<PropertySet>>>() {
+    private Func1<List<Long>, Observable<List<PlayableItem>>> loadFirstPageOfStream(final boolean syncCompleted) {
+        return new Func1<List<Long>, Observable<List<PlayableItem>>>() {
             @Override
-            public Observable<List<PropertySet>> call(List<Long> longs) {
+            public Observable<List<PlayableItem>> call(List<Long> longs) {
                 Log.d(TAG, "Removed stale promoted items: " + longs.size());
                 return soundStreamStorage
                         .initialStreamItems(PAGE_SIZE).toList()
+                        .map(TO_PLAYABLE_ITEMS)
                         .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
             }
         };
     }
 
-    public Observable<List<PropertySet>> updatedStreamItems() {
+    public Observable<List<PlayableItem>> updatedStreamItems() {
         return syncInitiator.refreshSoundStream()
                 .flatMap(handleSyncResult(INITIAL_TIMESTAMP))
                 .doOnNext(promotedImpressionAction);
@@ -153,19 +171,20 @@ class SoundStreamOperations {
                 .toList();
     }
 
-    private Observable<List<PropertySet>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
+    private Observable<List<PlayableItem>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Preparing page; timestamp=" + timestamp);
         return soundStreamStorage
                 .streamItemsBefore(timestamp, PAGE_SIZE).toList()
                 .subscribeOn(scheduler)
+                .map(TO_PLAYABLE_ITEMS)
                 .flatMap(handleLocalResult(timestamp, syncCompleted));
     }
 
-    private Func1<List<PropertySet>, Observable<List<PropertySet>>> handleLocalResult(
+    private Func1<List<PlayableItem>, Observable<List<PlayableItem>>> handleLocalResult(
             final long timestamp, final boolean syncCompleted) {
-        return new Func1<List<PropertySet>, Observable<List<PropertySet>>>() {
+        return new Func1<List<PlayableItem>, Observable<List<PlayableItem>>>() {
             @Override
-            public Observable<List<PropertySet>> call(List<PropertySet> result) {
+            public Observable<List<PlayableItem>> call(List<PlayableItem> result) {
                 if (result.isEmpty() || containsOnlyPromotedTrack(result)) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
@@ -177,11 +196,11 @@ class SoundStreamOperations {
         };
     }
 
-    private boolean containsOnlyPromotedTrack(List<PropertySet> result) {
-        return result.size() == 1 && result.get(0).contains(PromotedItemProperty.AD_URN);
+    private boolean containsOnlyPromotedTrack(List<PlayableItem> result) {
+        return result.size() == 1 && result.get(0).hasAdUrn();
     }
 
-    private Observable<List<PropertySet>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
+    private Observable<List<PlayableItem>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Received empty set from local storage");
         if (syncCompleted) {
             Log.d(TAG, "No items after previous sync, return empty page");
@@ -198,20 +217,20 @@ class SoundStreamOperations {
     }
 
     // can remove this later, useful for debugging right now
-    private void logPropertySet(List<PropertySet> propertySets) {
-        Log.d(TAG, "Received " + propertySets.size() + " items");
-        if (!propertySets.isEmpty()) {
-            Log.d(TAG, "First item = " + propertySets.get(0).get(PlayableProperty.URN) +
-                    "; timestamp = " + propertySets.get(0).get(PlayableProperty.CREATED_AT).getTime());
-            Log.d(TAG, "Last item = " + getLast(propertySets).get(PlayableProperty.URN) +
-                    "; timestamp = " + getLast(propertySets).get(PlayableProperty.CREATED_AT).getTime());
+    private void logPropertySet(List<PlayableItem> playableItems) {
+        Log.d(TAG, "Received " + playableItems.size() + " items");
+        if (!playableItems.isEmpty()) {
+            Log.d(TAG, "First item = " + playableItems.get(0).getEntityUrn() +
+                    "; timestamp = " + playableItems.get(0).getCreatedAt().getTime());
+            Log.d(TAG, "Last item = " + getLast(playableItems).getEntityUrn() +
+                    "; timestamp = " + getLast(playableItems).getCreatedAt().getTime());
         }
     }
 
-    private Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult(final long currentTimestamp) {
-        return new Func1<Boolean, Observable<List<PropertySet>>>() {
+    private Func1<Boolean, Observable<List<PlayableItem>>> handleSyncResult(final long currentTimestamp) {
+        return new Func1<Boolean, Observable<List<PlayableItem>>>() {
             @Override
-            public Observable<List<PropertySet>> call(Boolean syncSuccess) {
+            public Observable<List<PlayableItem>> call(Boolean syncSuccess) {
                 Log.d(TAG, "Sync finished; success = " + syncSuccess);
                 if (syncSuccess) {
                     if (currentTimestamp == INITIAL_TIMESTAMP) {
@@ -226,19 +245,19 @@ class SoundStreamOperations {
         };
     }
 
-    private void updateLastSeen(List<PropertySet> result) {
-        final PropertySet firstNonPromotedItem = getFirstNonPromotedItem(result);
+    private void updateLastSeen(List<PlayableItem> result) {
+        final PlayableItem firstNonPromotedItem = getFirstNonPromotedItem(result);
         if (firstNonPromotedItem != null) {
             contentStats.setLastSeen(Content.ME_SOUND_STREAM,
-                    firstNonPromotedItem.get(PlayableProperty.CREATED_AT).getTime());
+                    firstNonPromotedItem.getCreatedAt().getTime());
         }
     }
 
     @Nullable
-    private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
-        for (PropertySet propertySet : result) {
-            if (!propertySet.contains(PromotedItemProperty.AD_URN)) {
-                return propertySet;
+    private PlayableItem getFirstNonPromotedItem(List<PlayableItem> result) {
+        for (PlayableItem playableItem : result) {
+            if (!playableItem.hasAdUrn()) {
+                return playableItem;
             }
         }
         return null;

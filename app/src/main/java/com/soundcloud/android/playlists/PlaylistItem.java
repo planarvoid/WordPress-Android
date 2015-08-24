@@ -58,7 +58,7 @@ public class PlaylistItem extends PlayableItem {
         };
     }
 
-    PlaylistItem(PropertySet source) {
+    public PlaylistItem(PropertySet source) {
         super(source);
     }
 
