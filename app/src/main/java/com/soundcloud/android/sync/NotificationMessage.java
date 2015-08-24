@@ -8,6 +8,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.service.sync.NotificationImageDownloader;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -328,8 +329,9 @@ class NotificationMessage {
         builder.setAutoCancel(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setTicker(ticker);
-        builder.setContentTitle(title);
-        builder.setContentText(message);
+        builder.setContentTitle(context.getResources().getString(R.string.app_name));
+        builder.setContentText(title + ScTextUtils.SPACE_SEPARATOR + message);
+
         if (bmp != null) {
             builder.setLargeIcon(bmp);
         }

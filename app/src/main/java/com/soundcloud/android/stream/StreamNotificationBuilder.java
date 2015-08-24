@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
@@ -58,8 +59,8 @@ public class StreamNotificationBuilder {
         builder.setAutoCancel(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setTicker(ticker);
-        builder.setContentTitle(title);
-        builder.setContentText(message);
+        builder.setContentTitle(appContext.getResources().getString(R.string.app_name));
+        builder.setContentText(title + ScTextUtils.SPACE_SEPARATOR + message);
         return builder;
     }
 

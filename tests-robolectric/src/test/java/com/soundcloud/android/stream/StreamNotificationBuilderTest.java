@@ -83,45 +83,31 @@ public class StreamNotificationBuilderTest {
     }
 
     @Test
-    public void notificationSetsTitleForSingleTrack() throws Exception {
+    public void notificationSetsTitleAndTextForSingleTrack() throws Exception {
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentTitle("1 new sound");
+        verify(notificationBuilder).setContentTitle("SoundCloud");
+        verify(notificationBuilder).setContentText("1 new sound from creator1");
     }
 
     @Test
-    public void notificationSetsTitleForTwoTracks() throws Exception {
+    public void notificationSetsTitleAndTextForTwoTracks() throws Exception {
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentTitle("2 new sounds");
+        verify(notificationBuilder).setContentTitle("SoundCloud");
+        verify(notificationBuilder).setContentText("2 new sounds from creator1 and creator2");
     }
 
     @Test
-    public void notificationSetsTitleForMoreThanMaxTracks() throws Exception {
+    public void notificationSetsTitleAndTextForMoreThanMaxTracks() throws Exception {
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"), getTrack("creator3"), getTrack("creator4"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentTitle("3+ new sounds");
+        verify(notificationBuilder).setContentTitle("SoundCloud");
+        verify(notificationBuilder).setContentText("3+ new sounds from creator1, creator2 and others");
     }
 
     @Test
-    public void notificationSetsMessageForSingleTrack() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentText("from creator1");
-    }
-
-    @Test
-    public void notificationSetsMessageForTwoTracksWithDifferentCreators() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentText("from creator1 and creator2");
-    }
-
-    @Test
-    public void notificationSetsMessageForTracksWithMoreThanTwoCreators() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"), getTrack("creator3"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentText("from creator1, creator2 and others");
-    }
-
-    @Test
-    public void notificationSetsMessageForThreeTracksWithOneCreator() throws Exception {
+    public void notificationSetsTitleAndMessageForThreeTracksWithOneCreator() throws Exception {
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator1"), getTrack("creator1"))).subscribe(subscriber);
-        verify(notificationBuilder).setContentText("from creator1");
+        verify(notificationBuilder).setContentTitle("SoundCloud");
+        verify(notificationBuilder).setContentText("3 new sounds from creator1");
     }
 
     @Test
