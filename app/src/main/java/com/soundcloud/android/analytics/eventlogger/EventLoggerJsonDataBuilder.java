@@ -40,7 +40,7 @@ public class EventLoggerJsonDataBuilder {
     private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
     private static final String AUDIO_ERROR_EVENT = "audio_error";
     private static final String BOOGALOO_VERSION = "v0.0.0";
-    protected final String appId;
+    protected final int appId;
     protected final DeviceHelper deviceHelper;
     protected final ExperimentOperations experimentOperations;
     protected final AccountOperations accountOperations;
@@ -52,7 +52,7 @@ public class EventLoggerJsonDataBuilder {
                                       DeviceHelper deviceHelper, AccountOperations accountOperations,
                                       JsonTransformer jsonTransformer) {
         this.accountOperations = accountOperations;
-        this.appId = resources.getString(R.string.app_id);
+        this.appId = resources.getInteger(R.integer.app_id);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
@@ -265,7 +265,7 @@ public class EventLoggerJsonDataBuilder {
         if (trackSourceInfo.isFromSearchQuery()) {
             SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
             data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
-            data.queryPosition(String.valueOf(searchQuerySourceInfo.getUpdatedResultPosition(urn)));
+            data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
         return data;
     }
@@ -275,7 +275,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildPlaybackPerformanceEvent(PlaybackPerformanceEvent event) {
-        return buildBaseEvent(AUDIO_PERFORMANCE_EVENT, event.getTimeStamp())
+        return buildBaseEvent(AUDIO_PERFORMANCE_EVENT, event.getTimestamp())
                 .latency(event.getMetricValue())
                 .protocol(event.getProtocol().getValue())
                 .playerType(event.getPlayerType().getValue())
@@ -295,7 +295,7 @@ public class EventLoggerJsonDataBuilder {
                 return transform(buildBaseEvent(CLICK_EVENT, event)
                         .pageName(event.get(SearchEvent.KEY_PAGE_NAME))
                         .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
-                        .queryPosition(event.get(SearchEvent.KEY_CLICK_POSITION))
+                        .queryPosition(event.getClickPosition())
                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME))
                         .clickObject(event.get(SearchEvent.KEY_CLICK_OBJECT)));
 
@@ -362,7 +362,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        return new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), String.valueOf(timestamp));
+        return new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), timestamp);
     }
 
     private String getAnonymousId() {

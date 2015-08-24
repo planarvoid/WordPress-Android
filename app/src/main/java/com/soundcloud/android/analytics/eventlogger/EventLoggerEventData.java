@@ -51,8 +51,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 
 import java.util.HashMap;
 
@@ -60,9 +60,9 @@ class EventLoggerEventData {
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
-    @JsonProperty("payload") final HashMap<String, String> payload;
+    @JsonProperty("payload") final HashMap<String, Object> payload;
 
-    public EventLoggerEventData(String event, String version, String clientId, String anonymousId, String loggedInUserUrn, String timestamp) {
+    public EventLoggerEventData(String event, String version, int clientId, String anonymousId, String loggedInUserUrn, long timestamp) {
         this.event = event;
         this.version = version;
         this.payload = new HashMap<>();
@@ -91,6 +91,7 @@ class EventLoggerEventData {
         addToPayload(CLICK_NAME, clickName);
         return this;
     }
+
 
     public EventLoggerEventData clickTarget(String clickTarget) {
         addToPayload(CLICK_TARGET, clickTarget);
@@ -128,7 +129,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData trackLength(long length) {
-        addToPayload(TRACK_LENGTH, String.valueOf(length));
+        addToPayload(TRACK_LENGTH, length);
         return this;
     }
 
@@ -178,7 +179,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData localStoragePlayback(boolean isLocalStoragePlayback) {
-        addToPayload(LOCAL_STORAGE_PLAYBACK, String.valueOf(isLocalStoragePlayback));
+        addToPayload(LOCAL_STORAGE_PLAYBACK, isLocalStoragePlayback);
         return this;
     }
 
@@ -187,8 +188,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData playlistPosition(String position) {
-        addToPayload(PLAYLIST_POSITION, String.valueOf(position));
+    public EventLoggerEventData playlistPosition(int position) {
+        addToPayload(PLAYLIST_POSITION, position);
         return this;
     }
 
@@ -237,7 +238,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData queryPosition(String queryPosition) {
+    public EventLoggerEventData queryPosition(int queryPosition) {
         addToPayload(QUERY_POSITION, queryPosition);
         return this;
     }
@@ -263,7 +264,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData playheadPosition(long position) {
-        addToPayload(PLAYHEAD_POSITION, String.valueOf(position));
+        addToPayload(PLAYHEAD_POSITION, position);
         return this;
     }
 
@@ -298,14 +299,26 @@ class EventLoggerEventData {
         return this;
     }
 
+    private void addToPayload(String key, boolean value) {
+        payload.put(key, value);
+    }
+
+    protected void addToPayload(String key, int value) {
+        payload.put(key, value);
+    }
+
+    protected void addToPayload(String key, long value) {
+        payload.put(key, value);
+    }
+
     protected void addToPayload(String key, String value) {
-        if (ScTextUtils.isNotBlank(value)) {
+        if (Strings.isNotBlank(value)) {
             payload.put(key, value);
         }
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof EventLoggerEventData)) return false;
 
@@ -317,7 +330,7 @@ class EventLoggerEventData {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return MoreObjects.hashCode(event, version, payload);
     }
 

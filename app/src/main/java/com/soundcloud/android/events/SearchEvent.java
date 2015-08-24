@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.storage.provider.Content;
@@ -14,7 +15,6 @@ public final class SearchEvent extends TrackingEvent {
     public static final String KEY_CLICK_OBJECT = "click_object";
     public static final String KEY_CONTEXT = "context";
     public static final String KEY_QUERY_URN = "query_urn";
-    public static final String KEY_CLICK_POSITION = "click_position";
     public static final String KEY_CONTENT = "content";
 
     private static final String KEY_LOCATION = "location";
@@ -47,6 +47,8 @@ public final class SearchEvent extends TrackingEvent {
     public static final String KIND_SUBMIT = "submit";
     public static final String KIND_RESULTS = "results";
     public static final String CLICK_NAME_SEARCH = "search";
+
+    private int clickPosition = Consts.NOT_SET;
 
     public static SearchEvent searchSuggestion(Content itemKind, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
@@ -117,13 +119,17 @@ public final class SearchEvent extends TrackingEvent {
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
+    public int getClickPosition() {
+        return clickPosition;
+    }
+
     private SearchEvent addSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
         if (searchQuerySourceInfo != null) {
             put(KEY_QUERY_URN, searchQuerySourceInfo.getQueryUrn().toString());
 
             final int currentPosition = searchQuerySourceInfo.getClickPosition();
             if (currentPosition >= 0) {
-                put(KEY_CLICK_POSITION, Integer.toString(currentPosition));
+                clickPosition = currentPosition;
             }
 
             if (searchQuerySourceInfo.getClickUrn() != null) {

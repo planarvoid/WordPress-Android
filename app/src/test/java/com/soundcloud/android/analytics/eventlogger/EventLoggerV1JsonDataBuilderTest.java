@@ -54,7 +54,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        jsonDataBuilder = new EventLoggerV1JsonDataBuilder(context().getResources(), experimentOperations,
+        jsonDataBuilder = new EventLoggerV1JsonDataBuilder(context().getResources(),
                 deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
@@ -75,7 +75,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", String.valueOf(event.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -89,7 +89,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
-                .playlistPosition("2")
+                .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA"));
     }
@@ -107,7 +107,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", String.valueOf(event.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -120,7 +120,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
-                .playlistPosition("2")
+                .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
                 .reason("playback_error"));
@@ -137,7 +137,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", String.valueOf(event.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -150,7 +150,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
-                .playlistPosition("2")
+                .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
@@ -171,7 +171,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", String.valueOf(event.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -185,14 +185,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
-                .playlistPosition("2")
+                .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")
-                .queryPosition("5"));
+                .queryPosition(5));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", String.valueOf(event.getTimestamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -219,7 +219,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
-                .playlistPosition("2")
+                .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
                 .adUrn("ad:urn:123")
@@ -227,8 +227,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .promotedBy("soundcloud:users:123"));
     }
 
-    private EventLoggerEventData getEventData(String eventName, String boogalooVersion, String timestamp) {
-        return new EventLoggerEventDataV1(eventName, boogalooVersion, "3152", UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue());
+    private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
+        return new EventLoggerEventDataV1(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue());
     }
 
 }

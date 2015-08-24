@@ -81,7 +81,7 @@ public final class PlaybackPerformanceEvent {
         return metricValue;
     }
 
-    public long getTimeStamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
