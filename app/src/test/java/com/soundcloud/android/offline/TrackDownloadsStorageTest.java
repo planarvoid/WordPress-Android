@@ -115,11 +115,11 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     @Test
     public void getTracksToRemoveReturnsTrackPendingRemovalSinceAtLeast3Minutes() {
         final Date now = new Date();
-        final Date fourMinutesAgo = new Date(now.getTime() - TimeUnit.MINUTES.toMillis(4));
-        when(dateProvider.getCurrentDate()).thenReturn(now);
+        final long fourMinutesAgo = now.getTime() - TimeUnit.MINUTES.toMillis(4);
+        when(dateProvider.getCurrentTime()).thenReturn(now.getTime());
 
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, now.getTime());
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_2, fourMinutesAgo.getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_2, fourMinutesAgo);
 
         storage.getTracksToRemove().subscribe(observer);
 

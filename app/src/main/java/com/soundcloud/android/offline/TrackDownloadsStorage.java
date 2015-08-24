@@ -109,7 +109,7 @@ class TrackDownloadsStorage {
     }
 
     Observable<List<Urn>> getTracksToRemove() {
-        final long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
+        final long removalDelayedTimestamp = dateProvider.getCurrentTime() - DELAY_BEFORE_REMOVAL;
         return propellerRx.query(Query.from(TrackDownloads.TABLE)
                 .select(_ID)
                 .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))

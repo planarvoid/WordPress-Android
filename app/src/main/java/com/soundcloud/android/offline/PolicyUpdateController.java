@@ -1,9 +1,12 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentService.*;
+
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -74,11 +77,13 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
         @Override
         public void onNext(Long lastPolicyUpdateDate) {
             if (shouldNotifyUser(lastPolicyUpdateDate)) {
+                Log.d(TAG, "No policy update in last 27 days");
                 goBackOnlineDialogPresenter.show(activity, lastPolicyUpdateDate);
-            }
 
-            if (shouldDeleteOfflineContent(lastPolicyUpdateDate)) {
-                OfflineContentService.start(context);
+                if (shouldDeleteOfflineContent(lastPolicyUpdateDate)) {
+                    Log.d(TAG, "No policy update in last 30 days");
+                    fireAndForget(offlineContentOperations.clearOfflineContent());
+                }
             }
         }
 
