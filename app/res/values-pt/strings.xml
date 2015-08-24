@@ -380,7 +380,7 @@
   <string name="recommendation_view_all">Ver todos os %1$d</string>
   <string name="recommendation_reason_because_you">Porque você %1$s %2$s</string>
   <string name="recommendation_reason_liked">gostado</string>
-  <string name="recommendation_reason_listened_to">ouviu</string>
+  <!--https://github.com/soundcloud/personalized-tracks/-->
   <!--__SETTINGS-->
   <string name="pref_app_details">Detalhes do aplicativo</string>
   <string name="pref_basic_settings">Configurações básicas</string>
@@ -409,8 +409,6 @@
     <item>Bruto</item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
-  <string name="sign_out_description">Você terá que reconectar sua conta do SoundCloud.</string>
-  <string name="sign_out_title">Excluir dados de usuário?</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Sobre</string>
   <string name="title_legal">Legal</string>
