@@ -5,10 +5,6 @@
     Until this translation issue on Transifex is fixed, we will keep this file.
     When it is fixed, we should move these plurals back to the strings.xml file.-->
   <!--__NOTIFICATIONS-->
-  <plurals name="dashboard_notifications_activity_ticker_repost">
-    <item quantity="one">Republicación nueva</item>
-    <item quantity="other">%d republicaciones nuevas</item>
-  </plurals>
   <plurals name="dashboard_notifications_activity_ticker_activity">
     <item quantity="one">%d actividad nueva</item>
     <item quantity="other">%d actividades nuevas</item>
@@ -17,10 +13,6 @@
     <item quantity="one">%d comentario nuevo</item>
     <item quantity="other">%d comentarios nuevos</item>
   </plurals>
-  <plurals name="dashboard_notifications_activity_ticker_like">
-    <item quantity="one">Me gusta nuevo</item>
-    <item quantity="other">%d me gusta nuevos</item>
-  </plurals>
   <plurals name="dashboard_notifications_activity_title_activity">
     <item quantity="one">%d actividad nueva</item>
     <item quantity="other">%d actividades nuevas</item>
@@ -28,14 +20,6 @@
   <plurals name="dashboard_notifications_activity_title_comment">
     <item quantity="one">%d comentario nuevo</item>
     <item quantity="other">%d comentarios nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_like">
-    <item quantity="one">Un me gusta nuevo</item>
-    <item quantity="other">%d me gusta nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_repost">
-    <item quantity="one">Una republicación nueva</item>
-    <item quantity="other">%d republicaciones nuevas</item>
   </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
   <plurals name="dashboard_notifications_ticker">
