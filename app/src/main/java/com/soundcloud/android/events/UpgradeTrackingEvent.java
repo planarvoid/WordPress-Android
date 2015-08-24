@@ -84,4 +84,9 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
         return "soundcloud:tcode:" + trackingCode;
     }
 
+    @Override
+    public String toString() {
+        return kind + " : " + get(KEY_TCODE);
+    }
+
 }
