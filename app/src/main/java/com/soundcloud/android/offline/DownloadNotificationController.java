@@ -239,6 +239,7 @@ class DownloadNotificationController {
         private final int downloadProgress;
 
         private ProgressNotificationData(int currentDownload, int totalDownloads, int downloadProgress) {
+            // We display the current download as completed + 1, so display total as current when last download completes
             this.currentDownload = Math.min(currentDownload, totalDownloads);
             this.totalDownloads = totalDownloads;
             this.downloadProgress = downloadProgress;
