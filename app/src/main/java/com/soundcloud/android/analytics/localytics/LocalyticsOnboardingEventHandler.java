@@ -29,20 +29,11 @@ public class LocalyticsOnboardingEventHandler {
             case OnboardingEvent.AUTH_CREDENTIALS:
                 sendEvent(Onboarding.AUTH_CREDENTIALS, attributes);
                 break;
-            case OnboardingEvent.CONFIRM_TERMS:
-                sendEvent(Onboarding.CONFIRM_TERMS, attributes);
-                break;
             case OnboardingEvent.AUTH_COMPLETE:
                 sendEvent(Onboarding.AUTH_COMPLETE, attributes);
                 break;
-            case OnboardingEvent.USER_INFO:
-                sendEvent(Onboarding.USER_INFO, attributes);
-                break;
             case OnboardingEvent.ONBOARDING_COMPLETE:
                 sendEvent(Onboarding.ONBOARDING_COMPLETE, attributes);
-                break;
-            case OnboardingEvent.EMAIL_MARKETING:
-                sendEvent(Onboarding.EMAIL_MARKETING, attributes);
                 break;
             case OnboardingEvent.SIGNUP_ERROR:
                 sendEvent(Onboarding.SIGNUP_ERROR, attributes);

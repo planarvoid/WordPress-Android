@@ -5,7 +5,6 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -14,10 +13,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
-import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
-import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -48,7 +43,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private final LocalyticsAmpSession session;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
-    private final LocalyticsSearchEventHandler searchEventHandler;
 
     static {
         LocalyticsSession.setSessionExpiration(SESSION_EXPIRY);
@@ -72,7 +66,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         session = localyticsSession;
         uiEventHandler = new LocalyticsUIEventHandler(session);
         onboardingEventHandler = new LocalyticsOnboardingEventHandler(session);
-        searchEventHandler = new LocalyticsSearchEventHandler(session);
     }
 
     @Override
@@ -129,18 +122,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             handleScreenEvent(event);
         } else if (event instanceof PlayControlEvent) {
             handlePlayControlEvent(event);
-        } else if (event instanceof SearchEvent) {
-            searchEventHandler.handleEvent((SearchEvent) event);
         } else if (event instanceof AudioAdFailedToBufferEvent) {
             tagEvent(LocalyticsEvents.AD_FAILED_TO_BUFFER, event.getAttributes());
-        } else if (event instanceof SkippyPlayEvent) {
-            tagEvent(LocalyticsEvents.SKIPPY_PLAY, event.getAttributes());
-        } else if (event instanceof SkippyInitilizationFailedEvent) {
-            tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_ERROR, event.getAttributes());
-        } else if (event instanceof SkippyInitilizationSucceededEvent) {
-            tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_SUCCESS, event.getAttributes());
-        } else if (event instanceof AdDebugEvent) {
-            tagEvent(LocalyticsEvents.AD_DEBUG, event.getAttributes());
         }
     }
 
