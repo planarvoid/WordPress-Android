@@ -1,4 +1,5 @@
 <LinearLayout
+    android:id="@+id/stations_bucket"
     style="@style/Stations.Bucket"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -18,6 +19,7 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/view_all"
             style="@style/Stations.BucketAction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

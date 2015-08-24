@@ -1,9 +1,10 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.StationElement;
+import com.soundcloud.android.screens.elements.StationsBucketElement;
 
 public class StationsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -18,7 +19,7 @@ public class StationsScreen extends Screen {
         return ACTIVITY;
     }
 
-    public StationElement findStation(String title) {
-        return new StationElement(testDriver.findElement(With.text(title)));
+    public StationsBucketElement getRecentStationsBucket() {
+        return new StationsBucketElement(testDriver, testDriver.findElement(With.id(R.id.stations_bucket)));
     }
 }

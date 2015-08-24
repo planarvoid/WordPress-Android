@@ -1,0 +1,29 @@
+<com.soundcloud.android.view.MultiSwipeRefreshLayout
+    android:id="@+id/stations_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <FrameLayout
+        style="@style/Stations.ListContainer"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.soundcloud.android.stations.ShowAllStationsFragment">
+
+        <android.support.v7.widget.RecyclerView
+            style="@style/Stations.List"
+            android:id="@+id/ak_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false" />
+
+        <com.soundcloud.android.view.EmptyView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+</com.soundcloud.android.view.MultiSwipeRefreshLayout>

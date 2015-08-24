@@ -274,6 +274,9 @@
         <!-- recommendations -->
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
 
+        <!-- stations -->
+        <activity android:name=".stations.ShowAllStationsActivity" />
+
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 

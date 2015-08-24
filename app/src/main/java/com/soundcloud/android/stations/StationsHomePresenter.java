@@ -72,7 +72,7 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
                 .recentStations()
                 .take(maxNumberOfStations())
                 .toList()
-                .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_bucket_title)));
+                .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_title)));
     }
 
     private int maxNumberOfStations() {

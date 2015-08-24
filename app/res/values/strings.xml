@@ -545,7 +545,7 @@
     <!-- __STATIONS -->
     <string name="side_menu_stations">Stations</string>
     <string name="track_station_type">Track station</string>
-    <string name="recent_stations_bucket_title">Recent stations</string>
+    <string name="recent_stations_title">Recently played stations</string>
     <string name="station_bucket_action_text">View all</string>
 
 </resources>
