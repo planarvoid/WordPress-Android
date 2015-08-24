@@ -64,10 +64,14 @@ public class DatabaseFixtures {
     }
 
     public void insertFollowing(Urn followedUrn) {
+        insertFollowing(followedUrn, System.currentTimeMillis());
+    }
+
+    public void insertFollowing(Urn followedUrn, long follwedAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
-        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, follwedAt);
         insertInto(Table.UserAssociations, cv);
     }
 
@@ -77,6 +81,14 @@ public class DatabaseFixtures {
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.UserAssociations.REMOVED_AT, System.currentTimeMillis());
+        insertInto(Table.UserAssociations, cv);
+    }
+
+    public void insertFollower(Urn userUrn, long followedAt) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWER);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, userUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, followedAt);
         insertInto(Table.UserAssociations, cv);
     }
 
