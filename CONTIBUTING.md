@@ -4,11 +4,10 @@ Running on a feature team model means there are different expecations when you c
 
 ## Share your code early
 
-There are two ways to do this:
-* work on a branch and open up a WIP PR on github
-* make tested, working commits to master, and push them frequently
-
-If you are pairing you can choose whichever suits. If you are working solo, you need to use a PR.
+1. work on a branch and open up a WIP PR on github
+2. make tested, working commits and push them frequently
+3. when your changes are ready for final review, remove WIP from the PR title and ask for a review in the #android slack channel
+4. your PR needs two thumbs up before you merge it, or one thumb up if you paired on it
 
 ## Communicate early with Release Captains
 
