@@ -8,7 +8,6 @@ def FALSE = "false"
 def FEATURE_PAYMENTS_TEST = "FEATURE_PAYMENTS_TEST"
 def FEATURE_GOOGLE_CAST = "FEATURE_GOOGLE_CAST"
 def FEATURE_OFFLINE_SYNC = "FEATURE_OFFLINE_SYNC"
-def FEATURE_PROMOTED_IN_STREAM = "FEATURE_PROMOTED_IN_STREAM"
 def FEATURE_NEW_PROFILE = "FEATURE_NEW_PROFILE"
 def FEATURE_FOLLOW_USER_SEARCH = "FEATURE_FOLLOW_USER_SEARCH"
 def FEATURE_NEW_PROFILE_FRAGMENTS = "FEATURE_NEW_PROFILE_FRAGMENTS"
@@ -25,7 +24,6 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
@@ -43,7 +41,6 @@ android {
     beta {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, TRUE
@@ -63,7 +60,6 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
@@ -82,7 +78,6 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, TRUE
@@ -99,7 +94,6 @@ android {
 
     release {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
@@ -118,7 +112,6 @@ android {
 
     releaseNoProguard {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_GOOGLE_CAST, TRUE
@@ -137,7 +130,6 @@ android {
 
     release_non_play_store {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PROMOTED_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEVER_ENDING_PLAY_QUEUE, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE_FRAGMENTS, TRUE

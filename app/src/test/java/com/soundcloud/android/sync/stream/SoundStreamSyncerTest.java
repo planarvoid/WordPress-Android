@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.stream;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -15,17 +15,15 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -36,9 +34,10 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SoundStreamSyncerTest {
+// Android test because of Logger
+public class SoundStreamSyncerTest extends AndroidUnitTest {
 
     private static final String NEXT_URL = "some-next-url";
     private static final String NEXT_NEXT_URL = "next-next-url";
@@ -53,7 +52,6 @@ public class SoundStreamSyncerTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private StreamSyncStorage streamSyncStorage;
-    @Mock private FeatureFlags featureFlags;
 
     private ApiStreamItem streamItem1 = ApiStreamItemFixtures.trackPost();
     private ApiStreamItem streamItem2 = ApiStreamItemFixtures.playlistPost();
@@ -67,7 +65,7 @@ public class SoundStreamSyncerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
 
-        soundStreamSyncer = new SoundStreamSyncer(apiClient, insertCommand, replaceCommand, streamSyncStorage, featureFlags);
+        soundStreamSyncer = new SoundStreamSyncer(apiClient, insertCommand, replaceCommand, streamSyncStorage);
     }
 
     @Test
@@ -78,18 +76,19 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
         verify(replaceCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1, streamItem2);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
     }
 
     @Test
     public void hardRefreshUsesStorageToReplaceStreamItemsWithPromotedContent() throws Exception {
+        final List<ApiStreamItem> streamItems = Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedTrackWithoutPromoter());
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedTrackWithoutPromoter())));
+                .thenReturn(new ModelCollection<>(streamItems));
 
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
         verify(replaceCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1);
+        assertThat(iterableArgumentCaptor.getValue()).isEqualTo(streamItems);
     }
 
     @Test
@@ -118,8 +117,8 @@ public class SoundStreamSyncerTest {
                 .thenReturn(streamWithoutLinks());
 
         final ApiSyncResult apiSyncResult = soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
-        expect(apiSyncResult.success).toBeTrue();
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.CHANGED);
+        assertThat(apiSyncResult.success).isTrue();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
 
         verify(insertCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1, streamItem2);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
     }
 
     @Test
@@ -145,8 +144,8 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
 
         final ApiSyncResult apiSyncResult = soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
-        expect(apiSyncResult.success).toBeTrue();
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.CHANGED);
+        assertThat(apiSyncResult.success).isTrue();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
     }
 
     @Test
@@ -159,8 +158,8 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
 
         final ApiSyncResult apiSyncResult = soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
-        expect(apiSyncResult.success).toBeTrue();
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.UNCHANGED);
+        assertThat(apiSyncResult.success).isTrue();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
     }
 
     @Test
@@ -172,8 +171,8 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
 
         final ApiSyncResult apiSyncResult = soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
-        expect(apiSyncResult.success).toBeTrue();
-        expect(apiSyncResult.change).toEqual(ApiSyncResult.UNCHANGED);
+        assertThat(apiSyncResult.success).isTrue();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
     }
 
     @Test
@@ -200,7 +199,7 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
 
         verify(replaceCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1, streamItem2);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
     }
 
     @Test
@@ -239,7 +238,7 @@ public class SoundStreamSyncerTest {
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
 
         verify(insertCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1, streamItem2);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
     }
 
     @Test
@@ -247,13 +246,14 @@ public class SoundStreamSyncerTest {
         when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
 
+        final List<ApiStreamItem> streamItems = Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedPlaylistWithoutPromoter());
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedPlaylistWithoutPromoter())));
+                .thenReturn(new ModelCollection<>(streamItems));
 
         soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
 
         verify(insertCommand).call(iterableArgumentCaptor.capture());
-        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1);
+        assertThat(iterableArgumentCaptor.getValue()).isEqualTo(streamItems);
     }
 
     @Test
