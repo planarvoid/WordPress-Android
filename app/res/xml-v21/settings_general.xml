@@ -18,32 +18,34 @@
             android:title="@string/pref_autoplay_related"
             android:order="3" />
 
-        <Preference
-            android:key="@string/key_logout"
-            android:summary="@string/pref_revoke_desc"
-            android:title="@string/pref_revoke_access"
-            android:order="4" />
-
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_analytics_enabled"
-            android:summary="@string/pref_analytics_desc"
-            android:title="@string/pref_analytics"
-            android:order="5" />
-
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_report_crashes"
-            android:summary="@string/pref_crashlogs_desc"
-            android:title="@string/pref_crashlogs"
-            android:order="6" />
-
         <SwitchPreference
             android:key="@string/key_sync_wifi_only"
             android:title="@string/pref_sync_wifi_only"
             android:summary="@string/pref_sync_wifi_only_description"
             android:defaultValue="false"
-            android:order="7" />
+            android:order="4" />
+
+        <Preference
+            android:key="@string/key_logout"
+            android:summary="@string/pref_revoke_desc"
+            android:title="@string/pref_revoke_access"
+            android:order="5" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_privacy">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_analytics_enabled"
+            android:summary="@string/pref_analytics_desc"
+            android:title="@string/pref_analytics" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_report_crashes"
+            android:summary="@string/pref_crashlogs_desc"
+            android:title="@string/pref_crashlogs" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_connection_and_data">
