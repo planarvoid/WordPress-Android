@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -81,11 +80,6 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> imp
         if (tagsListener != null) {
             tagsListener.onTagSelected(tag);
         }
-    }
-
-    @Override
-    protected void onItemClicked(View view, int position) {
-        //TODO: make it not abstract on android-kit since there is no-op here.
     }
 
     @Override
