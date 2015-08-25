@@ -142,6 +142,17 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     }
 
     @Test
+    public void currentDownloadDisplayIsLimitedByTotalDownloadsWhenLastItemCompletes() {
+        notificationController.onPendingRequests(createQueue(1));
+        reset(notificationBuilder);
+
+        notificationController.onDownloadSuccess(successfulDownloadState);
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 1));
+    }
+
+    @Test
     public void onDownloadProgressUpdatesTotalProgress() {
         notificationController.onPendingRequests(createQueue(3));
         reset(notificationBuilder);
