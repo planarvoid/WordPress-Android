@@ -80,10 +80,29 @@ def parseQueryForResultResponse(response) {
   response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name)) }
 }
 
+def copyApkToServer(local_file_path) {
+    def remote_filename = UUID.randomUUID().toString() + ".apk"
+    def remote_filepath = "/tmp/mobile-testrunner/" + remote_filename
+    def remote_host = "$project.ext.mobileTestRunnerUser@$project.ext.mobileTestRunnerHost"
+
+    def cmd = ['scp', local_file_path, "$remote_host:$remote_filepath"]
+
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+        throw new GradleException("copyToServer failed: ($cmd) exitValue: $exitValue")
+    }
+
+    remote_filepath
+}
+
 def createExecution(String label) {
-  def applicationPackage = new Package(name: project.ext.applicationId, location: "data/SoundCloudWithFailTest.apk")
-  def testPackage = new Package(name: project.ext.testApplicationId, location: "data/SoundCloudTestsWithFailTest.apk")
-  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: "data/SoundCloudTools.apk")]
+  def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
+
+  def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer("${project.buildDir}/outputs/apk/app-prod-debug-androidTest-unaligned.apk"))
+
+  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: "${project.buildDir}/outputs/apk/androidnetworkmanager-29.apk")]
 
   def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 

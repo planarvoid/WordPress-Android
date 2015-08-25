@@ -34,7 +34,8 @@ allprojects {
 
     androidNetorkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
 
-    mobileTestRunnerHost = 'localhost'
+    mobileTestRunnerUser = "mobile"
+    mobileTestRunnerHost = 'chaos-slave.mobile.s-cloud.net'
     mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
   }
   repositories {
