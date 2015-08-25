@@ -42,7 +42,7 @@ ext {
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
-          comscore                    : "com.comscore:comscore:2.1407.28",
+          comscore                    : "com.comscore:comscore:3.1502.26",
           adjustAndroid               : "com.adjust.sdk:adjust-android:3.6.1",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.0@aar",
           localytics                  : "com.localytics:android-localytics:2.71",
