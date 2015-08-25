@@ -146,6 +146,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         } else {
             hideAllOfflineContentOptions(menu);
         }
+        if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemImpression());
+        }
     }
 
     private void configureOfflineOptions(PopupMenuWrapper menu, Optional<Boolean> maybeMarkedForOffline) {
@@ -214,10 +217,6 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             playlist.update(details.getSourceSet());
             updateLikeActionTitle(menu, playlist.isLiked());
             configureOfflineOptions(menu, playlist.isMarkedForOffline());
-
-            if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemImpression());
-            }
         }
     }
 }
