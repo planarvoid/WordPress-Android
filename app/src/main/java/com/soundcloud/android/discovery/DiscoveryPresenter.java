@@ -13,7 +13,6 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
@@ -28,8 +27,6 @@ import java.util.List;
 
 public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
 
-    final @LightCycle DiscoveryView discoveryView;
-
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -41,14 +38,12 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> imp
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryOperations discoveryOperations,
-                       DiscoveryView discoveryView,
                        DiscoveryAdapter adapter,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackOperations playbackOperations,
                        Navigator navigator) {
         super(swipeRefreshAttacher, Options.cards());
         this.discoveryOperations = discoveryOperations;
-        this.discoveryView = discoveryView;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackOperations = playbackOperations;

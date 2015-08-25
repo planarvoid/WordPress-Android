@@ -24,6 +24,8 @@ public class DiscoveryFragment extends LightCycleSupportFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        View view = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        view.setBackgroundColor(this.getResources().getColor(R.color.card_list_background));
+        return view;
     }
 }
