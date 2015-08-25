@@ -20,6 +20,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.stations.ShowAllStationsActivity;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -134,6 +135,12 @@ public class Navigator {
 
     public void openRecommendation(Context context, long localSeedId) {
         context.startActivity(createRecommendationIntent(context, localSeedId));
+    }
+
+    public void openRecentStations(Context context) {
+        final Intent intent = new Intent(context, ShowAllStationsActivity.class);
+        intent.putExtra(ShowAllStationsActivity.TYPE, ShowAllStationsActivity.RECENT);
+        context.startActivity(intent);
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {

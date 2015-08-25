@@ -11,6 +11,8 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.StationsListScreen;
+import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -84,6 +86,10 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen.startStationFromFirstTrack().pressBackToCollapse();
         solo.goBack();
 
-        assertTrue(menuScreen.open().clickStations().findStation(trackTitle).isVisible());
+        final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
+
+        assertEquals(recentStations.getFirstStation().getTitle(), trackTitle);
+        final StationsListScreen stationsListScreen = recentStations.clickViewAll();
+        assertEquals(stationsListScreen.getFirstStation().getTitle(), trackTitle);
     }
 }

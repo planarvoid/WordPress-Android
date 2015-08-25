@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.Navigator;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -18,10 +19,18 @@ import java.util.List;
 class StationsHomeRenderer implements CellRenderer<StationBucket> {
 
     private final StationRenderer stationRenderer;
+    private final Navigator navigator;
+    private final View.OnClickListener onViewAllClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            navigator.openRecentStations(view.getContext());
+        }
+    };;
 
     @Inject
-    public StationsHomeRenderer(StationRenderer stationRenderer) {
+    public StationsHomeRenderer(StationRenderer stationRenderer, Navigator navigator) {
         this.stationRenderer = stationRenderer;
+        this.navigator = navigator;
     }
 
     @Override
@@ -38,9 +47,10 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     }
 
     @Override
-    public void bindItemView(int i, View parent, final List<StationBucket> buckets) {
+    public void bindItemView(int i, final View parent, final List<StationBucket> buckets) {
         final StationBucket stationBucket = buckets.get(i);
-        ((TextView) parent.findViewById(R.id.title)).setText(stationBucket.getTitle());
+        ButterKnife.<TextView>findById(parent, R.id.title).setText(stationBucket.getTitle());
+        parent.findViewById(R.id.view_all).setOnClickListener(onViewAllClick);
         bindStationsPreview(parent, stationBucket);
     }
 

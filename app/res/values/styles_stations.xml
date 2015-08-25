@@ -27,7 +27,7 @@
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingBottom">4dp</item>
         <item name="android:paddingRight">10dp</item>
-        <item name="android:layout_marginRight">18dp</item>
+        <item name="android:layout_marginRight">26dp</item>
         <item name="android:textColor">@color/stations_bucket_action_text</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">13sp</item>
@@ -65,5 +65,14 @@
     <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">
         <item name="android:layout_marginBottom">13dp</item>
         <item name="android:layout_marginRight">-6dp</item>
+    </style>
+
+    <style name="Stations.ListContainer">
+        <item name="android:background">@color/stations_home_background</item>
+    </style>
+
+    <style name="Stations.List">
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:paddingTop">8dp</item>
     </style>
 </resources>
