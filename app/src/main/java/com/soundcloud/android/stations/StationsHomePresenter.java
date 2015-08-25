@@ -8,6 +8,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import rx.Observable;
+import rx.functions.Func1;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -22,6 +23,12 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
     private final Resources resources;
     private final StationsOperations operations;
     private final StationsHomeAdapter adapter;
+    private final Func1<List<Station>, Boolean> hasStations = new Func1<List<Station>, Boolean>() {
+        @Override
+        public Boolean call(List<Station> stations) {
+            return !stations.isEmpty();
+        }
+    };
 
     @Inject
     public StationsHomePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -72,6 +79,7 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
                 .recentStations()
                 .take(maxNumberOfStations())
                 .toList()
+                .filter(hasStations)
                 .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_title)));
     }
 
