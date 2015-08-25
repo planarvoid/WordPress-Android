@@ -69,11 +69,13 @@ class DownloadNotificationController {
         progressNotification = notificationBuilderProvider.get();
 
         if (currentDownload == null){
-            return updateProgressNotification(pendingQueue.getFirst(), new ProgressNotificationData(previousDownloads.size() + 1,
-                    totalDownloads, calculateAdjustedProgress((int) completedBytes, totalBytesToDownload)));
+            return updateProgressNotification(pendingQueue.getFirst(), new ProgressNotificationData(
+                    calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
+                    calculateAdjustedProgress((int) completedBytes, totalBytesToDownload)));
         } else {
-            return updateProgressNotification(currentDownload.request, new ProgressNotificationData(previousDownloads.size() + 1,
-                    totalDownloads, calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload)));
+            return updateProgressNotification(currentDownload.request, new ProgressNotificationData(
+                    calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
+                    calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload)));
         }
     }
 
@@ -171,7 +173,8 @@ class DownloadNotificationController {
     }
 
     private void updateProgressNotificationIfChanged(DownloadState currentDownload) {
-        ProgressNotificationData newProgressNotificationData = new ProgressNotificationData(previousDownloads.size() + 1, totalDownloads,
+        ProgressNotificationData newProgressNotificationData = new ProgressNotificationData(
+                calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
                 calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload));
 
         // this logic is here to throttle notifications spamming, and only update when the notification changed.
@@ -184,6 +187,10 @@ class DownloadNotificationController {
 
     private int calculateAdjustedProgress(float downloadedBytes, int totalBytesToDownload) {
         return (int) (PROGRESS_MAX * downloadedBytes / totalBytesToDownload);
+    }
+
+    private int calculateCurrentDownload(int downloaded, int total) {
+        return Math.min(downloaded + 1, total);
     }
 
     private Notification updateProgressNotification(DownloadRequest request, ProgressNotificationData notificationData) {
@@ -239,8 +246,7 @@ class DownloadNotificationController {
         private final int downloadProgress;
 
         private ProgressNotificationData(int currentDownload, int totalDownloads, int downloadProgress) {
-            // We display the current download as completed + 1, so display total as current when last download completes
-            this.currentDownload = Math.min(currentDownload, totalDownloads);
+            this.currentDownload = currentDownload;
             this.totalDownloads = totalDownloads;
             this.downloadProgress = downloadProgress;
         }
