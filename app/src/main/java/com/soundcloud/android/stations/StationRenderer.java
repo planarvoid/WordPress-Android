@@ -18,11 +18,15 @@ import java.util.List;
 class StationRenderer implements CellRenderer<Station> {
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private final StartStationPresenter startStationPresenter;
 
     @Inject
-    public StationRenderer(ImageOperations imageOperations, Resources resources) {
+    public StationRenderer(ImageOperations imageOperations,
+                           Resources resources,
+                           StartStationPresenter startStationPresenter) {
         this.imageOperations = imageOperations;
         this.resources = resources;
+        this.startStationPresenter = startStationPresenter;
     }
 
     @Override
@@ -36,6 +40,7 @@ class StationRenderer implements CellRenderer<Station> {
         final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
         final TextView title = (TextView) view.findViewById(R.id.title);
 
+        view.setOnClickListener(startStation(station));
         title.setText(station.getTitle());
 
         imageOperations.displayInAdapterView(
@@ -43,6 +48,15 @@ class StationRenderer implements CellRenderer<Station> {
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );
+    }
+
+    private View.OnClickListener startStation(final Station station) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startStationPresenter.startStation(view.getContext(), station.getUrn());
+            }
+        };
     }
 
 }
