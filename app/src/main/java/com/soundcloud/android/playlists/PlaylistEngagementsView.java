@@ -36,10 +36,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @InjectView(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
-    public PlaylistEngagementsView(Context context, Resources resources,
-                                   PopupMenuWrapper.Factory popupMenuWrapperFactory, DownloadableHeaderView downloadableHeaderView) {
+    public PlaylistEngagementsView(Context context, PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                                   DownloadableHeaderView downloadableHeaderView) {
         this.context = context;
-        this.resources = resources;
+        this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadableHeaderView = downloadableHeaderView;
     }
@@ -56,7 +56,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadableHeaderView.onViewCreated(engagementsView);
     }
 
-    void show(OfflineState state) {
+    void showOfflineState(OfflineState state) {
         downloadableHeaderView.show(state);
     }
 
@@ -68,6 +68,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @OnClick(R.id.playlist_details_overflow_button)
     void onOverflowButtonClicked() {
         popupMenuWrapper.show();
+        if (popupMenuWrapper.findItem(R.id.upsell_offline_content).isVisible()) {
+            listener.onUpsellImpression();
+        }
     }
 
     public void onDestroyView() {
@@ -205,6 +208,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         void onToggleRepost(boolean isReposted, boolean showResultToast);
         void onShare();
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
+        void onUpsellImpression();
         void onUpsell(Context context);
         void onPlayShuffled();
     }

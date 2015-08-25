@@ -429,7 +429,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.downloadRemoved(Collections.singletonList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).show(OfflineState.NO_OFFLINE);
+        verify(engagementsView).showOfflineState(OfflineState.NO_OFFLINE);
     }
 
     @Test
@@ -440,7 +440,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.downloadRequested(false, Collections.singletonList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).show(OfflineState.REQUESTED);
+        verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
 
     @Test
@@ -453,7 +453,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .build();
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
 
-        verify(engagementsView).show(OfflineState.DOWNLOADING);
+        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
     }
 
     @Test
@@ -464,7 +464,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.downloaded(false, Collections.singletonList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).show(OfflineState.DOWNLOADED);
+        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
     }
 
     @Test
@@ -473,7 +473,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                 CurrentDownloadEvent.downloaded(false, Collections.singletonList(Urn.forPlaylist(999999L))));
 
-        verify(engagementsView, never()).show(OfflineState.DOWNLOADED);
+        verify(engagementsView, never()).showOfflineState(OfflineState.DOWNLOADED);
     }
 
     @Test
@@ -482,7 +482,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).show(OfflineState.NO_OFFLINE);
+        verify(engagementsView).showOfflineState(OfflineState.NO_OFFLINE);
     }
 
     @Test
@@ -491,7 +491,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).show(OfflineState.REQUESTED);
+        verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
 
     @Test
@@ -500,7 +500,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADING);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).show(OfflineState.DOWNLOADING);
+        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
     }
 
     @Test
@@ -509,7 +509,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).show(OfflineState.DOWNLOADED);
+        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
     }
 
     @Test

@@ -213,7 +213,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression());
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
@@ -229,6 +228,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                 ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
                 : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
         fireAndForget(observable);
+    }
+
+    @Override
+    public void onUpsellImpression() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression());
     }
 
     @Override
@@ -343,7 +347,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
-            playlistEngagementsView.show(state);
+            playlistEngagementsView.showOfflineState(state);
         }
     }
 
@@ -351,7 +355,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         @Override
         public void onNext(PropertySet entityChanges) {
             if (!entityChanges.get(Collection.IS_MARKED_FOR_OFFLINE)) {
-                playlistEngagementsView.show(OfflineState.NO_OFFLINE);
+                playlistEngagementsView.showOfflineState(OfflineState.NO_OFFLINE);
             }
         }
     }
