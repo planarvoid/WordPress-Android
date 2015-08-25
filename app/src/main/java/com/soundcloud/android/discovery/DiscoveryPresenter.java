@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
+class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
 
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;

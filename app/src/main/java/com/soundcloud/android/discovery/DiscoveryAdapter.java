@@ -10,20 +10,20 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder> {
+class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder> {
 
-    public static final int RECOMMENDATION_SEED_TYPE = ViewTypes.DEFAULT_VIEW_TYPE;
-    public static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
+    static final int RECOMMENDATION_SEED_TYPE = ViewTypes.DEFAULT_VIEW_TYPE;
+    static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
 
     private final RecommendationItemRenderer trackRecommendationRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
 
-    public interface DiscoveryItemListener extends
+    interface DiscoveryItemListener extends
             RecommendationItemRenderer.OnRecommendationClickListener, PlaylistTagsPresenter.Listener {
     }
 
     @Inject
-    public DiscoveryAdapter(RecommendationItemRenderer trackRecommendationRenderer, PlaylistTagRenderer playlistTagRenderer) {
+    DiscoveryAdapter(RecommendationItemRenderer trackRecommendationRenderer, PlaylistTagRenderer playlistTagRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, trackRecommendationRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer));
         this.trackRecommendationRenderer = trackRecommendationRenderer;
@@ -49,7 +49,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Discove
         return new DiscoveryViewHolder(itemView);
     }
 
-    public static class DiscoveryViewHolder extends RecyclerView.ViewHolder {
+    static class DiscoveryViewHolder extends RecyclerView.ViewHolder {
         public DiscoveryViewHolder(View itemView) {
             super(itemView);
         }

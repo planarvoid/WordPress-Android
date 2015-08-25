@@ -9,7 +9,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
-public class RecommendedTrackMapper extends RxResultMapper<PropertySet> {
+class RecommendedTrackMapper extends RxResultMapper<PropertySet> {
 
     @Override
     public PropertySet map(CursorReader cursorReader) {

@@ -1,18 +1,18 @@
 package com.soundcloud.android.discovery;
 
-public abstract class DiscoveryItem {
+abstract class DiscoveryItem {
 
-    public enum Kind {
+    enum Kind {
         TrackRecommendationItem, PlaylistTagsItem
     }
 
     private final Kind kind;
 
-    protected DiscoveryItem(Kind kind) {
+    DiscoveryItem(Kind kind) {
         this.kind = kind;
     }
 
-    public Kind getKind() {
+    Kind getKind() {
         return kind;
     }
 }

@@ -24,7 +24,7 @@ public class RecommendedTracksFragment extends LightCycleSupportFragment {
         setRetainInstance(true);
     }
 
-    public static RecommendedTracksFragment create(long localSeedId) {
+    static RecommendedTracksFragment create(long localSeedId) {
         final Bundle bundle = new Bundle();
         bundle.putLong(EXTRA_LOCAL_SEED_ID, localSeedId);
         RecommendedTracksFragment fragment = new RecommendedTracksFragment();
