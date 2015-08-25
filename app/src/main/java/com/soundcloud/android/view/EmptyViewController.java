@@ -36,17 +36,7 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
         emptyView.setStatus(emptyViewStatus);
     }
 
-    public <O extends Observable<?>> void connect(final ReactiveComponent<O> reactiveComponent, O activeObservable) {
-        emptyView.setOnRetryListener(new EmptyView.RetryListener() {
-            @Override
-            public void onEmptyViewRetry() {
-                updateEmptyViewStatus(EmptyView.Status.WAITING);
-                final O retryObservable = reactiveComponent.buildObservable();
-                subscription = retryObservable.subscribe(new EmptyViewSubscriber());
-                reactiveComponent.connectObservable(retryObservable);
-            }
-        });
-
+    public <O extends Observable<?>> void connect(O activeObservable) {
         subscription = activeObservable.subscribe(new EmptyViewSubscriber());
     }
 

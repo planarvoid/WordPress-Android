@@ -9,4 +9,6 @@
 
     <dimen name="rec_upload_button_dimension">60dp</dimen>
     <dimen name="rec_record_button_dimension">60dp</dimen>
+
+    <dimen name="profile_image_dimen">@dimen/list_item_image_dimension</dimen>
 </resources>

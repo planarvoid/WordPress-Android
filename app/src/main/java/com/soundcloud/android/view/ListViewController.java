@@ -78,7 +78,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
     }
 
     public <O extends Observable<?>> void connect(final ReactiveListComponent<O> listComponent, O observable) {
-        emptyViewController.connect(listComponent, observable);
+        emptyViewController.connect(observable);
         absListView.setOnItemClickListener(listComponent);
     }
 

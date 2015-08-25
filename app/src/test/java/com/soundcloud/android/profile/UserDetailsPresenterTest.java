@@ -31,7 +31,6 @@ import android.view.View;
 public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
-    private static final int EXPANDED_HEIGHT = 15;
     private static final String DESCRIPTION = "desciption";
     private static final String WEBSITE_NAME = "website-name";
     private static final String WEBSITE_URL = "website-url";
@@ -62,7 +61,6 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
-        when(resources.getDimensionPixelSize(R.dimen.profile_header_expanded_height)).thenReturn(EXPANDED_HEIGHT);
         when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>empty());
     }
 

@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserDetailsFragment extends LightCycleSupportFragment {
+public class UserDetailsFragment extends ScrollableProfileFragment {
 
     @Inject UserDetailsView userDetailsView;
     @Inject UserProfileOperations profileOperations;
@@ -42,5 +41,12 @@ public class UserDetailsFragment extends LightCycleSupportFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.user_info_view, container, false);
+    }
+
+    @Override
+    public View[] getRefreshableViews() {
+        final View view = getView();
+        return new View[]{view.findViewById(android.R.id.empty),
+                            view.findViewById(R.id.user_details_holder)};
     }
 }
