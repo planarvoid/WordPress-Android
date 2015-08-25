@@ -1,5 +1,7 @@
 package com.soundcloud.android.presentation;
 
+import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
+
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -7,17 +9,16 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-import android.content.Entity;
-
 import java.util.Date;
 
-public abstract class PlayableItem implements ListItem {
+public abstract class PlayableItem implements StreamItem {
 
     protected final PropertySet source;
 
@@ -57,6 +58,11 @@ public abstract class PlayableItem implements ListItem {
         return this;
     }
 
+    @Override
+    public Kind getKind() {
+        return PLAYABLE;
+    }
+
     public String getTitle() {
         return source.getOrElse(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
     }
@@ -87,10 +93,6 @@ public abstract class PlayableItem implements ListItem {
 
     public Date getCreatedAt() {
         return source.get(PlayableProperty.CREATED_AT);
-    }
-
-    public boolean hasAdUrn() {
-        return source.contains(PromotedItemProperty.AD_URN);
     }
 
     public PropertySet getPropertySet() {

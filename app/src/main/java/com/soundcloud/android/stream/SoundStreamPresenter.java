@@ -14,7 +14,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -23,7 +22,6 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -37,11 +35,11 @@ import android.view.View;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
+public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> {
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final MixedPlayableRecyclerItemAdapter adapter;
+    private final SoundStreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
@@ -53,7 +51,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         MixedPlayableRecyclerItemAdapter adapter,
+                         SoundStreamAdapter adapter,
                          ImagePauseOnScrollListener imagePauseOnScrollListener,
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
@@ -80,7 +78,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<StreamItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
@@ -88,7 +86,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onRefreshBinding() {
+    protected CollectionBinding<StreamItem> onRefreshBinding() {
         return CollectionBinding.from(streamOperations.updatedStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())

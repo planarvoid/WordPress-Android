@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
+
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -58,4 +60,8 @@ public class PromotedTrackItem extends TrackItem implements PromotedListItem {
         return source.get(PromotedItemProperty.TRACK_PLAYED_URLS);
     }
 
+    @Override
+    public Kind getKind() {
+        return PROMOTED;
+    }
 }
