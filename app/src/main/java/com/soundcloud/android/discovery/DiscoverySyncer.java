@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
-class RecommendationsSync {
+class DiscoverySyncer {
 
     private static final String KEY_LAST_SYNC_TIME = "last_recommendations_sync_time";
     private static final long CACHE_EXPIRATION_TIME = TimeUnit.DAYS.toMillis(1);
@@ -40,9 +40,9 @@ class RecommendationsSync {
     };
 
     @Inject
-    RecommendationsSync(SyncInitiator syncInitiator,
-                        @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
-                        DateProvider dateProvider) {
+    DiscoverySyncer(SyncInitiator syncInitiator,
+                    @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
+                    DateProvider dateProvider) {
         this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;

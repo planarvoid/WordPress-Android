@@ -42,18 +42,18 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private DiscoveryOperations operations;
 
-    @Mock private RecommendationsSync recommendationsSync;
+    @Mock private DiscoverySyncer discoverySyncer;
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
 
     @Before
     public void setUp() throws Exception {
-        operations = new DiscoveryOperations(recommendationsSync, recommendationsStorage,
+        operations = new DiscoveryOperations(discoverySyncer, recommendationsStorage,
                 playlistDiscoveryOperations, scheduler);
 
         // setup happy path
         when(recommendationsStorage.seedTracks()).thenReturn(Observable.just(Arrays.asList(createSeedItem())));
-        when(recommendationsSync.syncRecommendations()).thenReturn(syncSubject);
+        when(discoverySyncer.syncRecommendations()).thenReturn(syncSubject);
         when(playlistDiscoveryOperations.popularPlaylistTags()).thenReturn(Observable.just(POPULAR_TAGS));
         when(playlistDiscoveryOperations.recentPlaylistTags()).thenReturn(Observable.just(RECENT_TAGS));
     }
@@ -76,7 +76,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistDiscoTagsWhenRecommendationsSyncErrors() {
-        when(recommendationsSync.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
+        when(discoverySyncer.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
 
         operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
 
