@@ -103,7 +103,7 @@ class SoundStreamOperations {
             PlayableItem first = getFirstPromotedItem(streamItems);
 
             if (first != null) {
-                markPromotedItemAsStaleCommand.call(first.getPropertySet());
+                markPromotedItemAsStaleCommand.call((PromotedListItem) first);
                 publishTrackingEvent((PromotedListItem) first);
             }
         }

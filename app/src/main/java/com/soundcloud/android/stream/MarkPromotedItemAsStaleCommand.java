@@ -4,6 +4,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.PromotedItemProperty;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;
@@ -19,7 +20,7 @@ import javax.inject.Inject;
  * @see RemoveStalePromotedItemsCommand
  * @see SoundStreamOperations#promotedImpressionAction
  */
-public class MarkPromotedItemAsStaleCommand extends DefaultWriteStorageCommand<PropertySet, WriteResult> {
+public class MarkPromotedItemAsStaleCommand extends DefaultWriteStorageCommand<PromotedListItem, WriteResult> {
 
     @Inject
     protected MarkPromotedItemAsStaleCommand(PropellerDatabase propeller) {
@@ -27,10 +28,10 @@ public class MarkPromotedItemAsStaleCommand extends DefaultWriteStorageCommand<P
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase database, PropertySet item) {
+    protected WriteResult write(PropellerDatabase database, PromotedListItem item) {
         ContentValues values = new ContentValues();
         values.put(TableColumns.PromotedTracks.CREATED_AT, 0L);
-        Where where = filter().whereEq(TableColumns.PromotedTracks.AD_URN, item.get(PromotedItemProperty.AD_URN));
+        Where where = filter().whereEq(TableColumns.PromotedTracks.AD_URN, item.getAdUrn());
         return database.update(Table.PromotedTracks, values, where);
     }
 }

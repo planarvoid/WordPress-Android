@@ -13,8 +13,8 @@ import javax.inject.Inject;
 
 public class SoundStreamAdapter extends PagingRecyclerItemAdapter<StreamItem, SoundStreamAdapter.SoundStreamViewHolder> {
 
-    @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
-    @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
+    @VisibleForTesting private static final int TRACK_ITEM_TYPE = 0;
+    @VisibleForTesting private static final int PLAYLIST_ITEM_TYPE = 1;
 
     private final TrackItemRenderer trackRenderer;
 
