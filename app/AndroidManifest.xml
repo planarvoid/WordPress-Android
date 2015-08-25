@@ -81,27 +81,57 @@
         <!-- activities -->
         <activity android:name=".deeplinks.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
 
-            <intent-filter android:priority="1">
+            <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="soundcloud.com" android:scheme="http"/>
+            </intent-filter>
+
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="soundcloud.com" android:scheme="https"/>
+            </intent-filter>
+
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="snd.sc" android:scheme="http"/>
+            </intent-filter>
+
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="snd.sc" android:scheme="https"/>
+            </intent-filter>
+
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="m.soundcloud.com" android:scheme="http"/>
+            </intent-filter>
+
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="m.soundcloud.com" android:scheme="https"/>
             </intent-filter>
 
             <!-- keep this separate, if combined with above, Android accepts ALL urls -->
-            <intent-filter android:priority="1">
+            <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:host="*" android:scheme="soundcloud"/>
             </intent-filter>
 
-            <intent-filter android:priority="1">
+            <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -179,13 +209,6 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter android:priority="10">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="soundcloud.com" android:path="/people" android:scheme="http"/>
-                <data android:host="soundcloud.com" android:path="/people" android:scheme="https"/>
             </intent-filter>
         </activity>
 
