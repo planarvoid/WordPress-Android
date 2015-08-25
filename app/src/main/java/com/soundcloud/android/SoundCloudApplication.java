@@ -199,8 +199,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
             Fabric.with(this, new Crashlytics());
-            ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
         }
+        ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
     }
 
     private void setupCurrentUserAccount() {
