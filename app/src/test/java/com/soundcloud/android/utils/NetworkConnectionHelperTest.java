@@ -1,16 +1,16 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static junit.framework.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class NetworkConnectionHelperTest {
 
     private NetworkConnectionHelper networkConnectionHelper;
@@ -41,150 +41,150 @@ public class NetworkConnectionHelperTest {
     @Test
     public void returnsWifiWhenNetworkInfoTypeIsWifi() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.WIFI);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.WIFI);
     }
 
     @Test
-    public void returnsUnknownConnectionTypeWhenActiveNetworkInfoIsNull() throws Exception {
+    public void returnsOfflineConnectionTypeWhenActiveNetworkInfoIsNull() throws Exception {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.UNKNOWN);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.OFFLINE);
     }
 
     @Test
     public void returnsWifiWhenNetworkInfoTypeIsWiMax() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIMAX);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.WIFI);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.WIFI);
     }
 
     @Test
     public void returnsTwoGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsGprs() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_GPRS);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.TWO_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.TWO_G);
     }
 
     @Test
     public void returnsTwoGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEdge() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_EDGE);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.TWO_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.TWO_G);
     }
 
     @Test
     public void returnsTwoGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsCdma() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_CDMA);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.TWO_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.TWO_G);
     }
 
     @Test
     public void returnsTwoGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIs1xRTT() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_1xRTT);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.TWO_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.TWO_G);
     }
 
     @Test
     public void returnsTwoGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsIden() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_IDEN);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.TWO_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.TWO_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEvdo0() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_EVDO_0);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEvdoA() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_EVDO_A);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEvdoB() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_EVDO_B);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsHsdpa() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_HSDPA);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsHsupa() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_HSUPA);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsHspa() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_HSPA);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsHspap() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_HSPAP);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEhrpd() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_EHRPD);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.THREE_G);
     }
 
     @Test
     public void returnsFourGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsLTE() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(telephonyManager.getNetworkType()).thenReturn(TelephonyManager.NETWORK_TYPE_LTE);
-        expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.FOUR_G);
+        assertThat(networkConnectionHelper.getCurrentConnectionType()).isSameAs(ConnectionType.FOUR_G);
     }
 
     @Test
     public void shouldReturnFalseWhenCheckingConnectivityAndNetworkInfoIsNull() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
-        expect(networkConnectionHelper.isNetworkConnected()).toBeFalse();
+        assertThat(networkConnectionHelper.isNetworkConnected()).isFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenCheckingConnectivityAndNetworkIsNotConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(false);
-        expect(networkConnectionHelper.isNetworkConnected()).toBeFalse();
+        assertThat(networkConnectionHelper.isNetworkConnected()).isFalse();
     }
 
     @Test
     public void shouldReturnTrueWhenCheckingConnectivityAndNetworkIsConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
-        expect(networkConnectionHelper.isNetworkConnected()).toBeTrue();
+        assertThat(networkConnectionHelper.isNetworkConnected()).isTrue();
     }
 
     @Test
     public void shouldReturnFalseWhenCheckingWifiConnectivityAndNetworkInfoIsNull() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
-        expect(networkConnectionHelper.isWifiConnected()).toBeFalse();
+        assertThat(networkConnectionHelper.isWifiConnected()).isFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenCheckingWifiConnectivityAndItIsNotConnected() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnected()).thenReturn(false);
-        expect(networkConnectionHelper.isWifiConnected()).toBeFalse();
+        assertThat(networkConnectionHelper.isWifiConnected()).isFalse();
     }
 
     @Test
@@ -192,7 +192,7 @@ public class NetworkConnectionHelperTest {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(networkInfo.isConnected()).thenReturn(true);
-        expect(networkConnectionHelper.isWifiConnected()).toBeFalse();
+        assertThat(networkConnectionHelper.isWifiConnected()).isFalse();
     }
 
     @Test
@@ -200,7 +200,7 @@ public class NetworkConnectionHelperTest {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         when(networkInfo.isConnected()).thenReturn(true);
-        expect(networkConnectionHelper.isWifiConnected()).toBeTrue();
+        assertThat(networkConnectionHelper.isWifiConnected()).isTrue();
     }
 
     @Test
@@ -208,7 +208,7 @@ public class NetworkConnectionHelperTest {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIMAX);
         when(networkInfo.isConnected()).thenReturn(true);
-        expect(networkConnectionHelper.isWifiConnected()).toBeTrue();
+        assertThat(networkConnectionHelper.isWifiConnected()).isTrue();
     }
 
     @Test

@@ -9,6 +9,8 @@ import org.junit.Test;
 
 public class EventLoggerEventDataTest extends AndroidUnitTest {
 
+    private static final int CLIENT_ID = 12;
+
     @Test
     public void implementsEqualsContract() throws Exception {
         EqualsVerifier.forClass(EventLoggerEventData.class)
@@ -18,7 +20,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsParamWithValueToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", "client", "1234", "4321", "123");
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 
         data.clickName("clicky");
 
@@ -27,7 +29,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void excludesEmptyParamsFromPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", "client", "1234", "4321", "123");
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 
         data.adUrn(null);
         data.clickObject("");

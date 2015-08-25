@@ -1,6 +1,6 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -18,27 +18,25 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 import rx.Observable;
-import rx.Subscription;
+import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -46,8 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SearchResultsFragmentTest {
+public class SearchResultsFragmentTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(3L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(4L);
@@ -59,15 +56,17 @@ public class SearchResultsFragmentTest {
 
     @Mock private SearchOperations operations;
     @Mock private SearchOperations.SearchResultPager pager;
-    @Mock private Subscription subscription;
     @Mock private ListViewController listViewController;
     @Mock private SearchResultsAdapter adapter;
     @Mock private Navigator navigator;
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
 
+    private PublishSubject subject = PublishSubject.create();
+
     @Before
     public void setUp() {
+        when(listViewController.getEmptyView()).thenReturn(new EmptyView(context()));
         setupSearchOperations();
 
         fragment = createFragment(SearchOperations.TYPE_ALL, false);
@@ -79,9 +78,8 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldUnsubscribeFromSourceObservableInOnDestroy() {
-        fragment.onCreate(null);
         fragment.onDestroy();
-        verify(subscription).unsubscribe();
+        assertThat(subject.hasObservers()).isFalse();
     }
 
     @Test
@@ -102,14 +100,14 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
-        expect(event.getAttributes().get("type")).toEqual("track");
-        expect(event.getAttributes().get("context")).toEqual("everything");
-        expect(event.getAttributes().get("page_name")).toEqual("search:everything");
-        expect(event.getAttributes().get("click_name")).toEqual("play");
-        expect(event.getAttributes().get("click_object")).toEqual("soundcloud:tracks:1");
-        expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
-        expect(event.getAttributes().get("click_position")).toEqual("0");
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
+        assertThat(event.getAttributes().get("type")).isEqualTo("track");
+        assertThat(event.getAttributes().get("context")).isEqualTo("everything");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:everything");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.getClickPosition()).isEqualTo(0);
     }
 
     @Test
@@ -121,14 +119,14 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
-        expect(event.getAttributes().get("type")).toEqual("track");
-        expect(event.getAttributes().get("context")).toEqual("tracks");
-        expect(event.getAttributes().get("page_name")).toEqual("search:tracks");
-        expect(event.getAttributes().get("click_name")).toEqual("play");
-        expect(event.getAttributes().get("click_object")).toEqual("soundcloud:tracks:1");
-        expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
-        expect(event.getAttributes().get("click_position")).toEqual("0");
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
+        assertThat(event.getAttributes().get("type")).isEqualTo("track");
+        assertThat(event.getAttributes().get("context")).isEqualTo("tracks");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:tracks");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.getClickPosition()).isEqualTo(0);
     }
 
     @Test
@@ -142,14 +140,14 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 1, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
-        expect(event.getAttributes().get("type")).toEqual("playlist");
-        expect(event.getAttributes().get("context")).toEqual("playlists");
-        expect(event.getAttributes().get("page_name")).toEqual("search:playlists");
-        expect(event.getAttributes().get("click_name")).toEqual("open_playlist");
-        expect(event.getAttributes().get("click_object")).toEqual("soundcloud:playlists:4");
-        expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
-        expect(event.getAttributes().get("click_position")).toEqual("1");
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
+        assertThat(event.getAttributes().get("type")).isEqualTo("playlist");
+        assertThat(event.getAttributes().get("context")).isEqualTo("playlists");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:playlists");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("open_playlist");
+        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:playlists:4");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.getClickPosition()).isEqualTo(1);
     }
 
     @Test
@@ -164,14 +162,14 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
-        expect(event.getAttributes().get("type")).toEqual("user");
-        expect(event.getAttributes().get("context")).toEqual("people");
-        expect(event.getAttributes().get("page_name")).toEqual("search:people");
-        expect(event.getAttributes().get("click_name")).toEqual("open_profile");
-        expect(event.getAttributes().get("click_object")).toEqual("soundcloud:users:5");
-        expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
-        expect(event.getAttributes().get("click_position")).toEqual("0");
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
+        assertThat(event.getAttributes().get("type")).isEqualTo("user");
+        assertThat(event.getAttributes().get("context")).isEqualTo("people");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:people");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("open_profile");
+        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:users:5");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.getClickPosition()).isEqualTo(0);
     }
 
     @Test
@@ -188,10 +186,10 @@ public class SearchResultsFragmentTest {
         fragment.onCreate(null);
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
 
-        expect(event.getKind()).toEqual(SearchEvent.KIND_SUBMIT);
-        expect(event.getAttributes().get("click_name")).toEqual("search");
-        expect(event.getAttributes().get("page_name")).toEqual("search:everything");
-        expect(event.getAttributes().get("query_urn")).toEqual("soundcloud:search:123");
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_SUBMIT);
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("search");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:everything");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
     }
 
     @Test
@@ -210,13 +208,10 @@ public class SearchResultsFragmentTest {
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
-
     private SearchResultsFragment createFragment(int searchType, boolean fromSearch) {
         SearchResultsFragment fragment = new SearchResultsFragment(
                 operations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(),
                 eventBus, pager, navigator, clickListenerFactory);
-
-        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
 
         Bundle bundle = new Bundle();
         bundle.putInt(SearchResultsFragment.EXTRA_TYPE, searchType);
@@ -225,6 +220,9 @@ public class SearchResultsFragmentTest {
             bundle.putBoolean(SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, true);
         }
         fragment.setArguments(bundle);
+
+        SupportFragmentTestUtil.startFragment(fragment);
+
         return fragment;
     }
 
@@ -238,11 +236,9 @@ public class SearchResultsFragmentTest {
     }
 
     private void setupSearchOperations() {
-        final Observable<SearchResult> searchResult =
-                TestObservables.withSubscription(subscription, Observable.<SearchResult>never());
-        when(operations.searchResult(eq("query"), anyInt())).thenReturn(searchResult);
+        when(operations.searchResult(eq("query"), anyInt())).thenReturn(subject);
         when(operations.pager(anyInt())).thenReturn(pager);
-        when(pager.page(searchResult)).thenReturn(searchResult);
+        when(pager.page(subject)).thenReturn(subject);
         when(pager.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
     }
 }

@@ -136,7 +136,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimeStamp());
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
         assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 

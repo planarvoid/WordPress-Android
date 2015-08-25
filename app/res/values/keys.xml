@@ -6,7 +6,7 @@
     <string name="google_api_key">984739005367</string>
 
     <!-- http://soundcloud.com/apps/android -->
-    <string name='app_id'>3152</string>
+    <integer name='app_id'>3152</integer>
 
     <!-- production fb sc app id -->
     <string name='production_facebook_app_id'>19507961798</string>

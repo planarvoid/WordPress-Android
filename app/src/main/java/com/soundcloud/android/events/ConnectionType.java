@@ -5,6 +5,7 @@ public enum ConnectionType {
     THREE_G("3G"),
     FOUR_G("4g"),
     WIFI("wifi"),
+    OFFLINE("offline"),
     UNKNOWN("unknown");
     private final String value;
 

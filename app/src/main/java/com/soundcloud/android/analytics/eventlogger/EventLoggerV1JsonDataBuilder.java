@@ -6,13 +6,13 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import android.content.res.Resources;
 
@@ -23,21 +23,21 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String AUDIO_EVENT = "audio";
     private static final String BOOGALOO_VERSION = "v1.0.0";
 
-    protected final String appId;
-    protected final DeviceHelper deviceHelper;
-    protected final ExperimentOperations experimentOperations;
-    protected final AccountOperations accountOperations;
+    private final int appId;
+    private final DeviceHelper deviceHelper;
+    private final NetworkConnectionHelper connectionHelper;
+    private final AccountOperations accountOperations;
     private final FeatureOperations featureOperations;
     private final JsonTransformer jsonTransformer;
 
     @Inject
-    public EventLoggerV1JsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
-                                        DeviceHelper deviceHelper, AccountOperations accountOperations,
+    public EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
+                                        NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
                                         JsonTransformer jsonTransformer, FeatureOperations featureOperations) {
+        this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
-        this.appId = resources.getString(R.string.app_id);
-        this.experimentOperations = experimentOperations;
+        this.appId = resources.getInteger(R.integer.app_id);
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
     }
@@ -59,7 +59,6 @@ public class EventLoggerV1JsonDataBuilder {
                 .trigger(getTrigger(event.getTrackSourceInfo()))
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
-                .connectionType(event.get(PlaybackSessionEvent.CONNECTION_TYPE))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
@@ -80,7 +79,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
         if (trackSourceInfo.isFromPlaylist()) {
             data.inPlaylist(trackSourceInfo.getPlaylistUrn());
-            data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
+            data.playlistPosition(trackSourceInfo.getPlaylistPosition());
         }
 
         if (trackSourceInfo.hasReposter()){
@@ -90,7 +89,7 @@ public class EventLoggerV1JsonDataBuilder {
         if (trackSourceInfo.isFromSearchQuery()) {
             SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
             data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
-            data.queryPosition(String.valueOf(searchQuerySourceInfo.getUpdatedResultPosition(urn)));
+            data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
         return data;
     }
@@ -108,7 +107,8 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        return new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), String.valueOf(timestamp));
+        return new EventLoggerEventDataV1(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(),
+                timestamp, connectionHelper.getCurrentConnectionType().getValue());
     }
 
     private String getAnonymousId() {

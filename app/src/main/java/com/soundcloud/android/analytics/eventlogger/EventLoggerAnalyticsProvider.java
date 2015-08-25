@@ -161,7 +161,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilderV0.get().build(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
     @Override
