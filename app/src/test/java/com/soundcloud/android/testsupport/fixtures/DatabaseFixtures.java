@@ -63,6 +63,15 @@ public class DatabaseFixtures {
         insertPolicy(track);
     }
 
+    public void insertFollowing(Urn followedUrn, int position){
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.POSITION, position);
+        insertInto(Table.UserAssociations, cv);
+    }
+
     public void insertFollowing(Urn followedUrn) {
         insertFollowing(followedUrn, System.currentTimeMillis());
     }
@@ -72,6 +81,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, follwedAt);
+        cv.put(TableColumns.UserAssociations.POSITION, 0);
         insertInto(Table.UserAssociations, cv);
     }
 
@@ -89,6 +99,16 @@ public class DatabaseFixtures {
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, userUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, followedAt);
+        cv.put(TableColumns.UserAssociations.POSITION, 0);
+        insertInto(Table.UserAssociations, cv);
+    }
+
+    public void insertFollower(Urn userUrn, int position) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWER);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, userUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.POSITION, position);
         insertInto(Table.UserAssociations, cv);
     }
 

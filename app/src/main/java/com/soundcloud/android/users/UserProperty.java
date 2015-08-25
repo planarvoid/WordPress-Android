@@ -3,7 +3,7 @@ package com.soundcloud.android.users;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.java.collections.Property;
 
-public final class UserProperty extends EntityProperty{
+public final class UserProperty extends EntityProperty {
 
     public static final Property<String> USERNAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> COUNTRY = Property.of(UserProperty.class, String.class);

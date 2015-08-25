@@ -104,4 +104,19 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
+    public void testFollowingsClickOpensProfilePage() {
+        profileScreen.touchFollowingsTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        assertTrue(profileScreen.clickFollowing(0).isVisible());
+    }
+
+    public void testFollowingsLoadsNextPage() {
+        profileScreen.touchFollowingsTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        int followingsBefore = profileScreen.getCurrentRecyclerViewItemCount();
+        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
+        assertThat(followingsBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+    }
 }

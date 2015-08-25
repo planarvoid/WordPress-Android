@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -188,6 +189,16 @@ public abstract class TestPropertySets {
                 PlaylistProperty.LIKES_COUNT.bind(2),
                 PlaylistProperty.IS_PRIVATE.bind(false),
                 PostProperty.CREATED_AT.bind(new Date()));
+    }
+
+    public static PropertySet expectedFollowingForFollowingsScreen(long position) {
+        return PropertySet.from(
+                UserProperty.URN.bind(Urn.forUser(123L)),
+                UserProperty.USERNAME.bind("avieciie"),
+                UserProperty.COUNTRY.bind("country"),
+                UserProperty.FOLLOWERS_COUNT.bind(2),
+                UserAssociationProperty.POSITION.bind(position),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(true));
     }
 
     public static PropertySet expectedPostedPlaylistForPostsScreen() {
