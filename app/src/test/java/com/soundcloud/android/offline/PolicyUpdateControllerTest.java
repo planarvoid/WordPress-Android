@@ -14,9 +14,9 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -123,33 +123,24 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate30DaysAgo() {
+        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
+
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online30DaysAgo));
 
         controller.onResume(null);
 
-        assertThat(wasServiceStarted()).isTrue();
+        assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void deletesOfflineContentWhenLastUpdate33DaysAgo() {
+        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online33DaysAgo));
 
         controller.onResume(null);
 
-        assertThat(wasServiceStarted()).isTrue();
-    }
-
-    private boolean wasServiceStarted() {
-        final Intent intent = captureStartServiceIntent();
-        return intent != null &&
-                intent.getAction().equals(OfflineContentService.ACTION_START) &&
-                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
-    }
-
-    private Intent captureStartServiceIntent() {
-        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
-        verify(context).startService(captor.capture());
-
-        return captor.getValue();
+        assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
     }
 }

@@ -12,6 +12,7 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.StreamScreen;
@@ -25,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private static final Urn PLAYLIST = Urn.forPlaylist(213L);
-    private static final Urn TRACK = Urn.forTrack(123L);
+    private static final Urn PLAYLIST = Urn.forPlaylist(100132741L);
+    private static final Urn TRACK = Urn.forTrack(49173281L);
     private final OfflineContentHelper offlineContentHelper;
     private Context context;
     private NetworkManagerClient networkManagerClient;
@@ -79,7 +80,29 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         return new StreamScreen(testDriver);
     }
 
-    public void testDisplaysGoBackOnline() throws Exception {
+    public void testRemovesOfflinePlaylistAfter30DaysOffline() {
+        networkManagerClient.switchWifiOff();
+        resetPolicyUpdateCheckTime(context);
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(30, TimeUnit.DAYS));
+        enableOfflineContent(context);
+
+        final StreamScreen streamScreen = startMainActivity();
+        streamScreen.getGoBackOnlineDialog().clickContinue();
+
+        assertThat(streamScreen.getGoBackOnlineDialog(), not(visible()));
+
+        // playlist should not be offline anymore
+        ViewElement makeAvailableOfflineItem = startMainActivity()
+                .openMenu()
+                .clickPlaylists()
+                .getPlaylistAtPosition(0)
+                .clickOverflow()
+                .getMakeAvailableOfflineItem();
+
+        assertTrue(makeAvailableOfflineItem.isVisible());
+    }
+
+    public void testDisplaysGoBackOnline() {
         networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
@@ -91,7 +114,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         assertThat(streamScreen.getGoBackOnlineDialog(), not(visible()));
     }
 
-    public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() throws Exception {
+    public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() {
         networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
@@ -100,7 +123,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
     }
 
-    public void testDisplaysGoBackOnlineOnlyOnceADay() throws Exception {
+    public void testDisplaysGoBackOnlineOnlyOnceADay() {
         networkManagerClient.switchWifiOff();
         setPolicyUpdateCheckTime(context, System.currentTimeMillis());
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
@@ -109,7 +132,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
     }
 
-    public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() throws Exception {
+    public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() {
         networkManagerClient.switchWifiOn();
         // FIXME : This is temporary. Remove this as soon as we fix the network manger
         // notifying the wifi is up even though it is not connected yet.
@@ -121,7 +144,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
     }
 
-    public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() throws Exception {
+    public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() {
         networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(26, TimeUnit.DAYS));
