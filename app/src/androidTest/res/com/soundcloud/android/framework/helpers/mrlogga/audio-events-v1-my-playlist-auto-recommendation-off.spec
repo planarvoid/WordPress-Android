@@ -15,7 +15,7 @@ expected_events:
     in_playlist: soundcloud:playlists:116114846
     user: soundcloud:users:50749473
     playlist_position: '2'
-    playhead_position: '0'
+    playhead_position: '[0-9]+'
     track_length: '142301'
     protocol: hls
     ts: '[0-9]+'
