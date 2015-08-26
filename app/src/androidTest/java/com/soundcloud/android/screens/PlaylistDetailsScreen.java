@@ -104,6 +104,13 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
+
+    public PlaylistDetailsScreen scrollToPosition(int position) {
+        testDriver.scrollListToLine(position);
+        return this;
+    }
+
+
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         return scrollToFirstTrackItem()
                 .trackItemElements()
@@ -116,6 +123,25 @@ public class PlaylistDetailsScreen extends Screen {
                 .trackItemElements()
                 .get(trackItemElements().size() - 1)
                 .clickOverflowButton();
+    }
+
+    public TrackItemElement getTrack(int position) {
+        scrollToPosition(position);
+        return findTrackWithTitle(trackItemElements().get(position).getTitle());
+    }
+
+    private TrackItemElement findTrackWithTitle(String title) {
+        final List<TrackItemElement> tracks = getTracks();
+        for (TrackItemElement track : tracks) {
+            if (track.getTitle().equals(title)) {
+                return track;
+            }
+        }
+        return new TrackItemElement(testDriver, new EmptyViewElement("Get track with title: " + title));
+    }
+
+    private TrackItemElement getTrackLlistElementAt(int i) {
+        return new TrackItemElement(testDriver, tracksListElement().getItemAt(i));
     }
 
     @Override

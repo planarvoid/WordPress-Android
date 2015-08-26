@@ -13,6 +13,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -93,30 +94,34 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), trackTitle);
     }
 
-
     public void testStartStationFromBucket() throws Exception {
-        final String firstTrackTitle = startTwoRadiosAndReturnFirstStationName();
+        final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
         solo.goBack();
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
-        recentStations.findStation(With.text(firstTrackTitle)).click();
+        recentStations.findStation(With.text(currentStationName)).click();
     }
 
     public void testStartStationFromViewAllStations() throws Exception {
-        final String firstTrackTitle = startTwoRadiosAndReturnFirstStationName();
+        final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
         solo.goBack();
         final ViewAllStationsScreen viewAllStationsScreen = menuScreen.open().clickStations().getRecentStationsBucket().clickViewAll();
 
-        viewAllStationsScreen.findStation(With.text(firstTrackTitle)).click();
+        viewAllStationsScreen.findStation(With.text(currentStationName)).click();
     }
 
-    private String startTwoRadiosAndReturnFirstStationName() {
-        final String firstStationTitle = playlistDetailsScreen.getTracks().get(0).getTitle();
-        final VisualPlayerElement playerElement = playlistDetailsScreen.startStationFromFirstTrack();
-        playerElement.pressBackToCollapse();
-        playlistDetailsScreen.getTracks().get(1).clickOverflowButton().clickStartStation().pressBackToCollapse();
-        return firstStationTitle;
+    private String startFiveRadiosAndReturnTheStationName() {
+        playlistDetailsScreen.getTrack(0).clickOverflowButton().clickStartStation().pressBackToCollapse();
+        playlistDetailsScreen.getTrack(1).clickOverflowButton().clickStartStation().pressBackToCollapse();
+        playlistDetailsScreen.getTrack(2).clickOverflowButton().clickStartStation().pressBackToCollapse();
+        playlistDetailsScreen.getTrack(3).clickOverflowButton().clickStartStation().pressBackToCollapse();
+
+        final TrackItemElement track = playlistDetailsScreen.getTrack(4);
+        final String title = track.getTitle();
+
+        track.clickOverflowButton().clickStartStation().pressBackToCollapse();
+        return title;
     }
 }
