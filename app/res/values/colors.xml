@@ -126,7 +126,6 @@
 
     <!-- Stations -->
     <color name="stations_home_background">#e5e5e5</color>
-    <color name="stations_item_background">#f4f4f4</color>
     <color name="stations_bucket_action_background">#828282</color>
     <color name="stations_bucket_action_text">#e5e5e5</color>
 </resources>
