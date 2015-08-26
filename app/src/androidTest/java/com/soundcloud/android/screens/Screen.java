@@ -13,6 +13,7 @@ import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 
@@ -45,7 +46,7 @@ public abstract class Screen {
     }
 
     public EmptyViewElement emptyView(){
-       return new EmptyViewElement(testDriver, With.id(R.id.ak_emptyview_holder));
+       return new EmptyViewElement(testDriver, With.className(EmptyView.class.getName()));
     }
 
     public ViewElement errorView(){
