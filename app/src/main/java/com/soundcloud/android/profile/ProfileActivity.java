@@ -1,9 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdPlayerController;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.view.Menu;
@@ -14,8 +13,7 @@ public class ProfileActivity extends ScActivity {
 
     public static final String EXTRA_USER_URN = "userUrn";
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ProfilePresenter profilePresenter;
 
     @Override

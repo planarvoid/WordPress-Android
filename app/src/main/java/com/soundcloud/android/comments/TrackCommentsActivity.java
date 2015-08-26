@@ -2,16 +2,15 @@ package com.soundcloud.android.comments;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -30,8 +29,7 @@ public class TrackCommentsActivity extends ScActivity {
 
     public static final String EXTRA_COMMENTED_TRACK = "extra";
 
-    @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject @LightCycle SlidingPlayerController playerController;
+    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject FeatureFlags featureFlags;

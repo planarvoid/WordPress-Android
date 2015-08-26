@@ -1,9 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdPlayerController;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -12,8 +11,7 @@ import javax.inject.Inject;
 
 public class ExploreTracksCategoryActivity extends ScActivity {
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
