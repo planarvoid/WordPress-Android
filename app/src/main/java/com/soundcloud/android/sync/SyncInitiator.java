@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Looper;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SyncInitiator {
@@ -128,6 +129,18 @@ public class SyncInitiator {
                 .setData(Content.ME_SOUND_STREAM.uri));
     }
 
+    public Observable<Boolean> refreshFollowings() {
+        final Uri uri = SyncContent.MyFollowings.content.uri;
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestFollowingsSync(
+                        ApiSyncService.ACTION_HARD_REFRESH,
+                        new LegacyResultReceiverAdapter(subscriber, uri));
+            }
+        }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
     public Observable<Boolean> refreshPosts() {
         final Uri uri = SyncContent.MySounds.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -162,6 +175,14 @@ public class SyncInitiator {
                         new LegacyResultReceiverAdapter(subscriber, uri));
             }
         }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
+    private void requestFollowingsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_FOLLOWING.uri));
     }
 
     private void requestPostsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
@@ -212,6 +233,20 @@ public class SyncInitiator {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_PLAYLISTS)
                 .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(playlists)));
+    }
+
+    public Observable<SyncResult> syncUsers(final List<Urn> userUrns) {
+        return Observable
+                .create(new Observable.OnSubscribe<SyncResult>() {
+                    @Override
+                    public void call(Subscriber<? super SyncResult> subscriber) {
+                        context.startService(new Intent(context, ApiSyncService.class)
+                                .setAction(SyncActions.SYNC_USERS)
+                                .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns))
+                                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                        new ResultReceiverAdapter(subscriber, Looper.getMainLooper())));
+                    }
+                });
     }
 
     private Observable<SyncResult> requestSyncObservable(final String syncAction) {
@@ -283,13 +318,13 @@ public class SyncInitiator {
     public Observable<SyncResult> syncPlaylist(final Urn playlistUrn) {
         if (playlistUrn.getNumericId() < 0) {
             return Observable.create(new Observable.OnSubscribe<Boolean>() {
-                        @Override
-                        public void call(Subscriber<? super Boolean> subscriber) {
-                            final Intent intent = getSyncLocalPlaylistsIntent().putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                    new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
-                            context.startService(intent);
-                        }
-                    }).map(LEGACY_RESULT_TO_SYNC_RESULT);
+                @Override
+                public void call(Subscriber<? super Boolean> subscriber) {
+                    final Intent intent = getSyncLocalPlaylistsIntent().putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                            new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
+                    context.startService(intent);
+                }
+            }).map(LEGACY_RESULT_TO_SYNC_RESULT);
         } else {
             return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
         }
@@ -316,7 +351,7 @@ public class SyncInitiator {
         return new Action1<Boolean>() {
             @Override
             public void call(Boolean changed) {
-                if (changed){
+                if (changed) {
                     syncStateManager.resetSyncMisses(uri);
                 }
             }
@@ -327,7 +362,7 @@ public class SyncInitiator {
         return new Action1<SyncResult>() {
             @Override
             public void call(SyncResult result) {
-                if (result.wasChanged()){
+                if (result.wasChanged()) {
                     syncStateManager.resetSyncMisses(uri);
                 }
             }

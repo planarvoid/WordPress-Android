@@ -33,6 +33,10 @@ public class ProfileScreen extends Screen {
         return visualPlayerElement;
     }
 
+    public ProfileScreen clickFollowing(int index) {
+        return getUsers().get(0).click();
+    }
+
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver

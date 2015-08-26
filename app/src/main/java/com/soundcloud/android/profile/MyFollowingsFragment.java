@@ -16,21 +16,21 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class MyLikesFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class MyFollowingsFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
-    @Inject @LightCycle MyLikesPresenter presenter;
+    @Inject @LightCycle MyFollowingsPresenter presenter;
 
-    public static MyLikesFragment create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static MyFollowingsFragment create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(ProfileArguments.SCREEN_KEY, screen);
         bundle.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
 
-        MyLikesFragment fragment = new MyLikesFragment();
+        MyFollowingsFragment fragment = new MyFollowingsFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
 
-    public MyLikesFragment() {
+    public MyFollowingsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

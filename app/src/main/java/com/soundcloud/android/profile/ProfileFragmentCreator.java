@@ -38,6 +38,8 @@ class ProfileFragmentCreator {
                     return MyPlaylistsFragment.create(screen, searchQuerySource);
                 case ME_LIKES:
                     return MyLikesFragment.create(screen, searchQuerySource);
+                case ME_FOLLOWINGS:
+                    return MyFollowingsFragment.create(screen, searchQuerySource);
                 case USER_SOUNDS:
                     return UserPostsFragment.create(userUrn, screen, searchQuerySource);
                 case USER_PLAYLISTS:

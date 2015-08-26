@@ -2,8 +2,9 @@ package com.soundcloud.android.users;
 
 import static com.soundcloud.android.storage.TableColumns.SoundView.CREATED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
-import static com.soundcloud.propeller.query.Query.Order.DESC;
+import static com.soundcloud.propeller.query.Query.Order.ASC;
 
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -33,23 +34,35 @@ public class UserAssociationStorage {
         this.propellerRx = propellerRx;
     }
 
-    public Observable<List<PropertySet>> loadFollowers(int limit, long fromTimestamp){
-        final Query query = buildFollowersQuery(limit, fromTimestamp);
+    public Observable<List<PropertySet>> loadFollowers(int limit, long fromPosition) {
+        final Query query = buildFollowersQuery(limit, fromPosition);
         return propellerRx.query(query).map(new FollowersMapper()).toList();
     }
 
-    public Observable<List<PropertySet>> loadFollowings(int limit, long fromTimestamp){
-        final Query query = buildFollowingsQuery(limit, fromTimestamp);
+    public Observable<List<PropertySet>> loadFollowings(int limit, long fromPosition) {
+        final Query query = buildFollowingsQuery(limit, fromPosition);
         return propellerRx.query(query).map(new FollowingsMapper()).toList();
     }
 
-    protected Query buildFollowersQuery(int limit, long fromTimestamp) {
+    public Observable<List<Urn>> loadFollowingsUrns(int limit, long fromPosition) {
+        Query query = Query.from(Table.UserAssociations)
+                .select(field(UserAssociations.TARGET_ID).as(BaseColumns._ID))
+                .whereEq(Table.UserAssociations.field(UserAssociations.ASSOCIATION_TYPE), UserAssociations.TYPE_FOLLOWING)
+                .whereGt(Table.UserAssociations.field(UserAssociations.POSITION), fromPosition)
+                .order(Table.UserAssociations.field(UserAssociations.POSITION), ASC)
+                .limit(limit);
+
+        return propellerRx.query(query).map(new UserUrnMapper()).toList();
+    }
+
+    protected Query buildFollowersQuery(int limit, long fromPosition) {
         return Query.from(Table.Users)
                 .select(
                         field(Users._ID),
                         field(Users.USERNAME),
                         field(Users.COUNTRY),
                         field(Users.FOLLOWERS_COUNT),
+                        Table.UserAssociations.field(UserAssociations.POSITION),
                         FOLLOWINGS_ALIAS + "." + UserAssociations.ASSOCIATION_TYPE)
                 .innerJoin(Table.UserAssociations.name(),
                         Filter.filter()
@@ -59,25 +72,33 @@ public class UserAssociationStorage {
                         Filter.filter()
                                 .whereEq(FOLLOWINGS_ALIAS + "." + UserAssociations.TARGET_ID, Table.Users.field(TableColumns.Users._ID))
                                 .whereEq(FOLLOWINGS_ALIAS + "." + UserAssociations.ASSOCIATION_TYPE, UserAssociations.TYPE_FOLLOWING))
-                .whereLt(Table.UserAssociations.field(UserAssociations.CREATED_AT), fromTimestamp)
-                .order(Table.UserAssociations.field(UserAssociations.CREATED_AT), DESC)
+                .whereGt(Table.UserAssociations.field(UserAssociations.POSITION), fromPosition)
+                .order(Table.UserAssociations.field(UserAssociations.POSITION), ASC)
                 .limit(limit);
     }
 
-    protected Query buildFollowingsQuery(int limit, long fromTimestamp) {
+    protected Query buildFollowingsQuery(int limit, long fromPosition) {
         return Query.from(Table.Users)
                 .select(
                         field(Users._ID),
                         field(Users.USERNAME),
                         field(Users.COUNTRY),
-                        field(Users.FOLLOWERS_COUNT))
+                        field(Users.FOLLOWERS_COUNT),
+                        field(UserAssociations.POSITION))
                 .innerJoin(Table.UserAssociations.name(),
                         Filter.filter()
                                 .whereEq(Table.UserAssociations.field(UserAssociations.TARGET_ID), Table.Users.field(TableColumns.Users._ID))
                                 .whereEq(Table.UserAssociations.field(UserAssociations.ASSOCIATION_TYPE), UserAssociations.TYPE_FOLLOWING))
-                .whereLt(Table.UserAssociations.field(UserAssociations.CREATED_AT), fromTimestamp)
-                .order(Table.UserAssociations.field(CREATED_AT), DESC)
+                .whereGt(Table.UserAssociations.field(UserAssociations.POSITION), fromPosition)
+                .order(Table.UserAssociations.field(UserAssociations.POSITION), ASC)
                 .limit(limit);
+    }
+
+    private class UserUrnMapper extends RxResultMapper<Urn> {
+        @Override
+        public Urn map(CursorReader reader) {
+            return Urn.forUser(reader.getLong(BaseColumns._ID));
+        }
     }
 
     private class FollowersMapper extends UserAssociationMapper {
@@ -105,8 +126,11 @@ public class UserAssociationStorage {
             final PropertySet propertySet = PropertySet.create(reader.getColumnCount() + 1);
             propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(BaseColumns._ID)));
             propertySet.put(UserProperty.USERNAME, reader.getString(Users.USERNAME));
-            propertySet.put(UserProperty.COUNTRY, reader.getString(Users.COUNTRY));
+            if (reader.isNotNull(Users.COUNTRY)) {
+                propertySet.put(UserProperty.COUNTRY, reader.getString(Users.COUNTRY));
+            }
             propertySet.put(UserProperty.FOLLOWERS_COUNT, reader.getInt(Users.FOLLOWERS_COUNT));
+            propertySet.put(UserAssociationProperty.POSITION, reader.getLong(UserAssociations.POSITION));
             return propertySet;
         }
     }

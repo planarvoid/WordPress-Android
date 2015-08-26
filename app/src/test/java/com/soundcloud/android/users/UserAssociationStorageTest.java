@@ -1,6 +1,7 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -22,6 +23,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     private UserAssociationStorage storage;
 
     private TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+    private TestSubscriber<List<Urn>> urnSubscriber = new TestSubscriber<>();
+
     private PropertySet user1;
     private PropertySet user2;
     private PropertySet user3;
@@ -34,10 +37,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final ApiUser apiUser2 = testFixtures().insertUser();
         final ApiUser apiUser3 = testFixtures().insertUser();
 
-        testFixtures().insertFollower(apiUser1.getUrn(), FOLLOW_DATE_1.getTime());
-        testFixtures().insertFollower(apiUser2.getUrn(), FOLLOW_DATE_2.getTime());
-        testFixtures().insertFollowing(apiUser2.getUrn(), FOLLOW_DATE_2.getTime());
-        testFixtures().insertFollowing(apiUser3.getUrn(), FOLLOW_DATE_3.getTime());
+        testFixtures().insertFollower(apiUser1.getUrn(), 1);
+        testFixtures().insertFollower(apiUser2.getUrn(), 2);
+        testFixtures().insertFollowing(apiUser2.getUrn(), 2);
+        testFixtures().insertFollowing(apiUser3.getUrn(), 3);
 
         user1 = apiUserToResultSet(apiUser1);
         user2 = apiUserToResultSet(apiUser2);
@@ -46,54 +49,91 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowersLoadsAllFollowers() {
-        storage.loadFollowers(3, Long.MAX_VALUE).subscribe(subscriber);
+        storage.loadFollowers(3, 0).subscribe(subscriber);
 
         subscriber.assertValues(
                 Arrays.asList(
-                        user2.put(UserProperty.IS_FOLLOWED_BY_ME, true),
                         user1.put(UserProperty.IS_FOLLOWED_BY_ME, false)
+                                .put(UserAssociationProperty.POSITION, 1L),
+                        user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                                .put(UserAssociationProperty.POSITION, 2L)
                 )
         );
     }
 
     @Test
     public void loadFollowersAdheresToLimit() {
-        storage.loadFollowers(1, Long.MAX_VALUE).subscribe(subscriber);
+        storage.loadFollowers(1, 0).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)));
+        subscriber.assertValues(Collections.singletonList(
+                user1.put(UserProperty.IS_FOLLOWED_BY_ME, false)
+                        .put(UserAssociationProperty.POSITION, 1L)));
     }
 
     @Test
-    public void loadFollowersAdheresToTimestamp() {
-        storage.loadFollowers(2, FOLLOW_DATE_2.getTime()).subscribe(subscriber);
+    public void loadFollowersAdheresToPosition() {
+        storage.loadFollowers(2, 1).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(user1.put(UserProperty.IS_FOLLOWED_BY_ME, false)));
+        subscriber.assertValues(Collections.singletonList(
+                user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        .put(UserAssociationProperty.POSITION, 2L)));
     }
 
     @Test
     public void loadFollowingsLoadsAllFollowings() {
-        storage.loadFollowings(3, Long.MAX_VALUE).subscribe(subscriber);
+        storage.loadFollowings(3, 0).subscribe(subscriber);
 
         subscriber.assertValues(
                 Arrays.asList(
-                        user3.put(UserProperty.IS_FOLLOWED_BY_ME, true),
                         user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                                .put(UserAssociationProperty.POSITION, 2L),
+                        user3.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                                .put(UserAssociationProperty.POSITION, 3L)
                 )
         );
     }
 
     @Test
     public void loadFollowingsAdheresToLimit() {
-        storage.loadFollowings(1, Long.MAX_VALUE).subscribe(subscriber);
+        storage.loadFollowings(1, 0).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(user3.put(UserProperty.IS_FOLLOWED_BY_ME, true)));
+        subscriber.assertValues(Collections.singletonList(
+                user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        .put(UserAssociationProperty.POSITION, 2L)));
     }
 
     @Test
-    public void loadFollowingsAdheresToTimestamp() {
-        storage.loadFollowings(2, FOLLOW_DATE_3.getTime()).subscribe(subscriber);
+    public void loadFollowingsAdheresToPosition() {
+        storage.loadFollowings(2, 2).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)));
+        subscriber.assertValues(Collections.singletonList(
+                user3.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        .put(UserAssociationProperty.POSITION, 3L)));
+    }
+
+
+    @Test
+    public void loadFollowingsUrnsLoadsAllFollowings() {
+        storage.loadFollowingsUrns(3, 0).subscribe(urnSubscriber);
+
+        urnSubscriber.assertValues(
+                Arrays.asList(
+                        user2.get(UserProperty.URN),
+                        user3.get(UserProperty.URN)
+                )
+        );
+    }
+
+    @Test
+    public void loadFollowingsUrnsAdheresToLimit() {
+        storage.loadFollowingsUrns(1, 0).subscribe(urnSubscriber);
+        urnSubscriber.assertValues(Collections.singletonList(user2.get(UserProperty.URN)));
+    }
+
+    @Test
+    public void loadFollowingsUrnsAdheresToPosition() {
+        storage.loadFollowingsUrns(2, 2).subscribe(urnSubscriber);
+        urnSubscriber.assertValues(Collections.singletonList(user3.get(UserProperty.URN)));
     }
 
     private PropertySet apiUserToResultSet(ApiUser apiUser1) {
