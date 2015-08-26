@@ -13,8 +13,8 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,13 +46,11 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     private UpgradePresenter controller;
 
     private TestObserver testObserver;
-    private TestEventBus eventBus;
 
     @Before
     public void setUp() {
         testObserver = new TestObserver();
-        eventBus = new TestEventBus();
-        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView, eventBus);
+        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView, new TestEventBus());
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -281,6 +279,20 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         listenerCaptor.getValue().startPurchase();
 
         verify(upgradeView).disableBuyButton();
+    }
+
+    @Test
+    public void reEnablesBuyButtonIfPurchaseStartFails() {
+        ProductDetails details = setupExpectedProductDetails();
+        Exception exception = new Exception();
+        when(paymentOperations.purchase(details.getId())).thenReturn(Observable.<String>error(exception));
+        controller.onCreate(activity, null);
+
+        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
+        listenerCaptor.getValue().startPurchase();
+
+        verify(paymentErrorPresenter).onError(exception);
+        verify(upgradeView).enableBuyButton();
     }
 
     @Test

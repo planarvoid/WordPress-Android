@@ -154,6 +154,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         public void onError(Throwable e) {
             super.onError(e);
             paymentErrorPresenter.onError(e);
+            upgradeView.enableBuyButton();
         }
     }
 
