@@ -72,7 +72,6 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(fragmentView.getResources()).thenReturn(resources);
         when(resources.getDrawable(R.drawable.divider_list_grey)).thenReturn(divider);
         when(recyclerView.getResources()).thenReturn(resources);
-        when(resources.getDimensionPixelSize(R.dimen.profile_header_expanded_height)).thenReturn(50);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);

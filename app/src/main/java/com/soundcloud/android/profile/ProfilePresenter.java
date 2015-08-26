@@ -8,8 +8,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ProfileScrollHelper;
 import com.soundcloud.android.view.SlidingTabLayout;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -21,8 +24,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
 
+    final @LightCycle ProfileScrollHelper scrollHelper;
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
@@ -41,15 +45,19 @@ class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     };
 
     @Inject
-    public ProfilePresenter(ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
+    public ProfilePresenter(ProfileScrollHelper scrollHelper,
+                            ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
                             UserProfileOperations profileOperations, EventBus eventBus) {
+        this.scrollHelper = scrollHelper;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
+        LightCycleBinder.bind(this);
     }
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
+
         super.onCreate(activity, bundle);
 
         user = activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
@@ -57,7 +65,7 @@ class ProfilePresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         headerPresenter = profileHeaderPresenterFactory.create(activity, user);
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
-        pager.setAdapter(new ProfilePagerAdapter(activity, user));
+        pager.setAdapter(new ProfilePagerAdapter(activity, user, scrollHelper));
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 

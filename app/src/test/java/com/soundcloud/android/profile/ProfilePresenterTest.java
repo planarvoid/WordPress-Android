@@ -15,6 +15,7 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.utils.ProfileScrollHelper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.java.collections.PropertySet;
@@ -52,6 +53,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private ViewPager viewPager;
     @Mock private Resources resources;
     @Mock private FragmentManager fragmentManager;
+    @Mock private ProfileScrollHelper profileScrollHelper;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -77,7 +79,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
 
-        profilePresenter = new ProfilePresenter(profileHeaderPresenterFactory,
+        profilePresenter = new ProfilePresenter(profileScrollHelper, profileHeaderPresenterFactory,
                 profileOperations, eventBus);
     }
 

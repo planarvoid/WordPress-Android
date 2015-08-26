@@ -75,8 +75,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         DetachableResultReceiver.Receiver,
         LocalCollection.OnChangeListener,
         CollectionTask.Callback,
-        AbsListView.OnScrollListener,
-        EmptyView.RetryListener {
+        AbsListView.OnScrollListener {
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final int CONNECTIVITY_MSG = 0;
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -223,7 +222,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         emptyView = createEmptyView();
         emptyView.setStatus(emptyViewStatus);
-        emptyView.setOnRetryListener(this);
         listView.setEmptyView(emptyView);
 
         final LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -248,11 +246,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         adapter.onViewCreated();
-    }
-
-    @Override
-    public void onEmptyViewRetry() {
-        refresh(true);
     }
 
     @Override

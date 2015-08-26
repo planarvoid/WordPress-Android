@@ -102,8 +102,8 @@
     <style name="Profile.Tabs" parent="TabsBase" />
 
     <style name="Profile.HeaderImage">
-        <item name="android:layout_width">120dp</item>
-        <item name="android:layout_height">120dp</item>
+        <item name="android:layout_width">@dimen/profile_image_dimen</item>
+        <item name="android:layout_height">@dimen/profile_image_dimen</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
@@ -117,7 +117,7 @@
     <style name="TextAppearance.Profile" />
 
     <style name="TextAppearance.Profile.Username">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/primary</item>

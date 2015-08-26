@@ -3,11 +3,13 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.ProfileScrollHelper;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
 
 class ProfilePagerAdapter extends FragmentPagerAdapter {
 
@@ -22,13 +24,32 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     private final Urn userUrn;
     private final Resources resources;
+    private final ProfileScrollHelper activtyScrollHelper;
 
     ProfilePagerAdapter(FragmentActivity activity,
-                        Urn userUrn) {
+                        Urn userUrn, ProfileScrollHelper activtyScrollHelper) {
 
         super(activity.getSupportFragmentManager());
+        this.activtyScrollHelper = activtyScrollHelper;
         this.resources = activity.getResources();
         this.userUrn = userUrn;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        final Fragment item = (Fragment) super.instantiateItem(container, position);
+        if (item instanceof ProfileScreen){
+            activtyScrollHelper.addProfileCollection((ProfileScreen) item);
+        }
+        return item;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        if (object instanceof ProfileScreen){
+            activtyScrollHelper.removeProfileScreen((ProfileScreen) object);
+        }
+        super.destroyItem(container, position, object);
     }
 
     @Override

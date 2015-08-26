@@ -95,7 +95,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        emptyViewController.connect(this, allTagsObservable);
+        emptyViewController.connect(allTagsObservable);
 
         ListenableScrollView scrollView = (ListenableScrollView) view.findViewById(R.id.playlist_tags_scroll_container);
         scrollView.setOnScrollListener(this);
