@@ -71,7 +71,7 @@ public class Navigator {
 
     public void openProfile(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(createProfileIntent(context, user, screen)
-                .putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
     public PendingIntent openProfileFromNotification(Context context, Urn user) {

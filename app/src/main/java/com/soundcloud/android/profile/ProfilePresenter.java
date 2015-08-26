@@ -3,6 +3,8 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeaderPresenterFactory;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -30,6 +32,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
+    private final AccountOperations accountOperations;
 
     private ViewPager pager;
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -47,11 +50,13 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
     @Inject
     public ProfilePresenter(ProfileScrollHelper scrollHelper,
                             ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
-                            UserProfileOperations profileOperations, EventBus eventBus) {
+                            UserProfileOperations profileOperations, EventBus eventBus,
+                            AccountOperations accountOperations) {
         this.scrollHelper = scrollHelper;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
+        this.accountOperations = accountOperations;
         LightCycleBinder.bind(this);
     }
 
@@ -65,7 +70,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         headerPresenter = profileHeaderPresenterFactory.create(activity, user);
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
-        pager.setAdapter(new ProfilePagerAdapter(activity, user, scrollHelper));
+        pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
+                (SearchQuerySourceInfo) activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
+
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 

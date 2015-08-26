@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -54,6 +55,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private FragmentManager fragmentManager;
     @Mock private ProfileScrollHelper profileScrollHelper;
+    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -80,7 +82,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
 
         profilePresenter = new ProfilePresenter(profileScrollHelper, profileHeaderPresenterFactory,
-                profileOperations, eventBus);
+                profileOperations, eventBus, accountOperations);
     }
 
     @Test

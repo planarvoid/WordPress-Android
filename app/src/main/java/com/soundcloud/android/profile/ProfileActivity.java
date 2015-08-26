@@ -13,6 +13,7 @@ import javax.inject.Inject;
 public class ProfileActivity extends ScActivity {
 
     public static final String EXTRA_USER_URN = "userUrn";
+    public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
 
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;

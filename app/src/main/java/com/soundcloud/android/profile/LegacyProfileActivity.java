@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static android.text.TextUtils.isEmpty;
+import static com.soundcloud.android.profile.ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
@@ -67,7 +68,7 @@ public class LegacyProfileActivity extends ScActivity implements
 
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_USER = "user";
-    public static final String EXTRA_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
+
     private final BroadcastReceiver recordListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -304,8 +305,8 @@ public class LegacyProfileActivity extends ScActivity implements
             loadYou();
         }
 
-        if (intent.hasExtra(EXTRA_QUERY_SOURCE_INFO)) {
-            searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
+        if (intent.hasExtra(EXTRA_SEARCH_QUERY_SOURCE_INFO)) {
+            searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_SEARCH_QUERY_SOURCE_INFO);
         }
 
         if (!isLoggedInUser()) {

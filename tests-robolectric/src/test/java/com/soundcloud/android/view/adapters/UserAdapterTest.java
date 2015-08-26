@@ -10,18 +10,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +26,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import android.content.Intent;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
@@ -95,18 +91,6 @@ public class UserAdapterTest {
         verify(userRenderer, times(2)).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
         UserItem userItem = itemCaptor.getAllValues().get(1).get(0);
         expect(userItem.getEntityUrn()).toEqual(user2.getUrn());
-    }
-
-    @Test
-    public void itemClickStartsProfileActivityWithUserArgument() throws CreateModelException {
-        PublicApiUser user = createUser();
-        adapter.addItems(Arrays.<PublicApiResource>asList(user));
-
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
-
-        Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
-        expect(intent.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getName());
-        expect(intent.getParcelableExtra(LegacyProfileActivity.EXTRA_USER)).toBe(user);
     }
 
     @Test

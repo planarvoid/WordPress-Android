@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ProfileScrollHelper;
 
@@ -25,12 +26,16 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     private final Urn userUrn;
     private final Resources resources;
     private final ProfileScrollHelper activtyScrollHelper;
+    private final boolean isLoggedInUser;
+    private final SearchQuerySourceInfo searchQuerySourceInfo;
 
     ProfilePagerAdapter(FragmentActivity activity,
-                        Urn userUrn, ProfileScrollHelper activtyScrollHelper) {
+                        Urn userUrn, boolean isLoggedInUser, ProfileScrollHelper activtyScrollHelper, SearchQuerySourceInfo searchQuerySourceInfo) {
 
         super(activity.getSupportFragmentManager());
         this.activtyScrollHelper = activtyScrollHelper;
+        this.isLoggedInUser = isLoggedInUser;
+        this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.resources = activity.getResources();
         this.userUrn = userUrn;
     }
@@ -59,19 +64,23 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
                 return UserDetailsFragment.create(userUrn);
 
             case TAB_POSTS:
-                return UserPostsFragment.create(userUrn, Screen.USER_POSTS, null /* TODO : SearchQueryInfo */);
+                return isLoggedInUser ? MyPostsFragment.create(Screen.YOUR_POSTS, searchQuerySourceInfo) :
+                        UserPostsFragment.create(userUrn, Screen.USER_POSTS, searchQuerySourceInfo);
 
             case TAB_PLAYLISTS:
-                return UserPlaylistsFragment.create(userUrn, Screen.USER_PLAYLISTS, null /* TODO : SearchQueryInfo */);
+                return isLoggedInUser ? MyPlaylistsFragment.create(Screen.YOUR_PLAYLISTS, searchQuerySourceInfo) :
+                        UserPlaylistsFragment.create(userUrn, Screen.USER_PLAYLISTS, searchQuerySourceInfo);
 
             case TAB_LIKES:
-                return UserLikesFragment.create(userUrn, Screen.USER_LIKES, null /* TODO : SearchQueryInfo */);
+                return isLoggedInUser ? MyLikesFragment.create(Screen.YOUR_LIKES, searchQuerySourceInfo) :
+                        UserLikesFragment.create(userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
 
             case TAB_FOLLOWINGS:
-                return UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, null /* TODO : SearchQueryInfo */);
+                return isLoggedInUser ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo) :
+                        UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, searchQuerySourceInfo);
 
             case TAB_FOLLOWERS:
-                return UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, null /* TODO : SearchQueryInfo */);
+                return UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
 
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);

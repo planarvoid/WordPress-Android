@@ -19,6 +19,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -124,7 +125,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
-                .intentExtraIsNotNull(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO)
+                .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.DEEPLINK)
                 .opensActivity(LegacyProfileActivity.class);
     }

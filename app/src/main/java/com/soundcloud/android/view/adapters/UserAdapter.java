@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -13,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.UserHolder;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -22,7 +22,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
@@ -40,6 +39,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     @Inject UserItemRenderer itemRenderer;
     @Inject FollowingOperations followingOperations;
+    @Inject Navigator navigator;
 
     private final List<UserItem> users = new ArrayList<>(Consts.LIST_PAGE_SIZE);
 
@@ -117,10 +117,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(
-                new Intent(context, LegacyProfileActivity.class)
-                        .putExtra(LegacyProfileActivity.EXTRA_USER, getUser(getItem(position)))
-                        .putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+        navigator.openProfile(context, getUser(getItem(position)).getUrn(), screen, searchQuerySourceInfo);
         return ItemClickResults.LEAVING;
     }
 
