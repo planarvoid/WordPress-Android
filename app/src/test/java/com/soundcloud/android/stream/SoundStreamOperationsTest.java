@@ -9,15 +9,20 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -42,7 +47,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
     @Mock private SoundStreamStorage soundStreamStorage;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private Observer<List<PropertySet>> observer;
+    @Mock private Observer<List<StreamItem>> observer;
     @Mock private ContentStats contentStats;
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
@@ -110,7 +115,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(items);
+        inOrder.verify(observer).onNext(streamItemsFromPropertySets(items));
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -129,7 +134,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
+        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -148,7 +153,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
+        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -159,7 +164,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
 
-        operations.pagingFunction().call(items);
+        operations.pagingFunction().call(streamItemsFromPropertySets(items));
 
         verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
     }
@@ -170,18 +175,19 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final List<PropertySet> firstPage = createItems(PAGE_SIZE, 123L);
         // 2nd page is blank on first attempt, then filled with items from backfill
         final List<PropertySet> secondPage = createItems(PAGE_SIZE, 456L);
+
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(secondPage));
         // returning true means new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
-        operations.pagingFunction().call(firstPage).subscribe(observer);
+        operations.pagingFunction().call(streamItemsFromPropertySets(firstPage)).subscribe(observer);
 
         InOrder inOrder = inOrder(observer, syncInitiator, soundStreamStorage);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
-        inOrder.verify(observer).onNext(secondPage);
+        inOrder.verify(observer).onNext(streamItemsFromPropertySets(secondPage));
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -190,18 +196,19 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     public void shouldStopPaginationIfBackfillSyncReportsNoNewItemsSynced() {
         // 1st page is full page of items
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        final List<StreamItem> streamItems = streamItemsFromPropertySets(items);
         // 2nd page is blank, will trigger backfill
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty());
         // returning false means no new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
 
-        operations.pagingFunction().call(items).subscribe(observer);
+        operations.pagingFunction().call(streamItems).subscribe(observer);
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
-        inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
+        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -211,6 +218,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         when(syncInitiator.refreshSoundStream())
                 .thenReturn(Observable.just(true));
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        final List<StreamItem> streamItems = streamItemsFromPropertySets(items);
+
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
@@ -219,9 +228,19 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(syncInitiator).refreshSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(items);
+        inOrder.verify(observer).onNext(streamItems);
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
+    }
+
+    private List<StreamItem> streamItemsFromPropertySets(List<PropertySet> items) {
+        List<StreamItem> streamItems = new ArrayList<>(items.size());
+
+        for (PropertySet item : items) {
+            streamItems.add(PlayableItem.from(item));
+        }
+
+        return streamItems;
     }
 
     @Test
@@ -233,7 +252,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(syncInitiator).refreshSoundStream();
-        inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
+        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -261,6 +280,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
+        final List<StreamItem> streamItemsWithPromoted = streamItemsFromPropertySets(itemsWithPromoted);
+
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(itemsWithPromoted));
         when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
@@ -269,7 +290,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        verify(markPromotedItemAsStaleCommand).call(promotedTrackProperties);
+        verify(markPromotedItemAsStaleCommand).call((PromotedListItem) streamItemsWithPromoted.get(0));
     }
 
     @Test
@@ -278,13 +299,15 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(true));
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         items.add(0, promotedTrackProperties);
+
+        final List<StreamItem> streamItemsWithPromoted = streamItemsFromPropertySets(items);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
         operations.updatedStreamItems().subscribe(observer);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        verify(markPromotedItemAsStaleCommand).call(promotedTrackProperties);
+        verify(markPromotedItemAsStaleCommand).call((PromotedListItem) streamItemsWithPromoted.get(0));
     }
 
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {

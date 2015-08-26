@@ -1,11 +1,12 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
-public interface PromotedListItem extends ListItem {
+public interface PromotedListItem extends StreamItem {
 
     String getAdUrn();
 

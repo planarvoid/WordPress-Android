@@ -6,6 +6,7 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryMatchers;
@@ -31,7 +32,9 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
 
         PropertySet track = PropertySet.create();
         track.put(PromotedItemProperty.AD_URN, adUrn);
-        command.call(track);
+        PromotedTrackItem promotedItem = PromotedTrackItem.from(track);
+
+        command.call(promotedItem);
 
         Query query = from(Table.PromotedTracks.name())
                 .whereEq(TableColumns.PromotedTracks.AD_URN, adUrn)
