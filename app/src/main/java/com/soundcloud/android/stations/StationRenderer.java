@@ -6,6 +6,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.res.Resources;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ class StationRenderer implements CellRenderer<Station> {
         final TextView title = (TextView) view.findViewById(R.id.title);
 
         view.setOnClickListener(startStation(station));
+        ((CardView) view).setPreventCornerOverlap(false);
         title.setText(station.getTitle());
 
         imageOperations.displayInAdapterView(

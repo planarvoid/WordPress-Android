@@ -43,19 +43,28 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     private void initRecyclerViewForStationsPreview(RecyclerView recyclerView) {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new WrapContentGridLayoutManager(recyclerView.getContext()));
-        recyclerView.setAdapter(new StationsPreviewAdapter(stationRenderer));
+        recyclerView.setAdapter(new StationsBucketAdapter(stationRenderer));
     }
 
     @Override
     public void bindItemView(int i, final View parent, final List<StationBucket> buckets) {
         final StationBucket stationBucket = buckets.get(i);
         ButterKnife.<TextView>findById(parent, R.id.title).setText(stationBucket.getTitle());
-        parent.findViewById(R.id.view_all).setOnClickListener(onViewAllClick);
+        bindShowAllView(parent.findViewById(R.id.view_all), stationBucket);
         bindStationsPreview(parent, stationBucket);
     }
 
+    private void bindShowAllView(View view, StationBucket bucket) {
+        if (bucket.getStations().size() > bucket.getBucketSize()) {
+            view.setVisibility(View.VISIBLE);
+            view.setOnClickListener(onViewAllClick);
+        } else {
+            view.setVisibility(View.GONE);
+        }
+    }
+
     private void bindStationsPreview(View view, StationBucket stationBucket) {
-        final StationsPreviewAdapter adapter = ((StationsPreviewAdapter) findRecyclerView(view).getAdapter());
+        final StationsBucketAdapter adapter = ((StationsBucketAdapter) findRecyclerView(view).getAdapter());
         adapter.setStationBucket(stationBucket);
         adapter.notifyDataSetChanged();
     }
@@ -64,11 +73,11 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
         return ButterKnife.findById(view, R.id.ak_recycler_view);
     }
 
-    private static class StationsPreviewAdapter extends RecyclerView.Adapter<StationsPreviewAdapter.StationViewHolder> {
+    private static class StationsBucketAdapter extends RecyclerView.Adapter<StationsBucketAdapter.StationViewHolder> {
         private final StationRenderer stationRenderer;
         private StationBucket stationBucket;
 
-        StationsPreviewAdapter(StationRenderer stationRenderer) {
+        StationsBucketAdapter(StationRenderer stationRenderer) {
             this.stationRenderer = stationRenderer;
         }
 
@@ -88,7 +97,7 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
 
         @Override
         public int getItemCount() {
-            return stationBucket.getStations().size();
+            return Math.min(stationBucket.getBucketSize(), stationBucket.getStations().size());
         }
 
         public static class StationViewHolder extends RecyclerView.ViewHolder {

@@ -75,15 +75,16 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
     }
 
     private Observable<StationBucket> recent() {
+        final int maxStationsPerBucket = maxStationsPerBucket();
+
         return operations
                 .recentStations()
-                .take(maxNumberOfStations())
                 .toList()
                 .filter(hasStations)
-                .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_title)));
+                .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_title), maxStationsPerBucket));
     }
 
-    private int maxNumberOfStations() {
+    private int maxStationsPerBucket() {
         return resources.getInteger(R.integer.stations_grid_span_count) * resources.getInteger(R.integer.stations_home_bucket_max_row_count);
     }
 
