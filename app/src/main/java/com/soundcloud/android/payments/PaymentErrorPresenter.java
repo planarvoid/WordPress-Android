@@ -10,6 +10,7 @@ class PaymentErrorPresenter {
 
     private static final String ERROR_KEY_ALREADY_SUBSCRIBED = "already_subscribed";
     private static final String ERROR_KEY_WRONG_USER = "wrong_user";
+    private static final String ERROR_KEY_UNCONFIRMED_EMAIL = "unconfirmed_email";
 
     private PaymentErrorView errorView;
 
@@ -50,6 +51,9 @@ class PaymentErrorPresenter {
                 break;
             case ERROR_KEY_WRONG_USER:
                 errorView.showWrongUser();
+                break;
+            case ERROR_KEY_UNCONFIRMED_EMAIL:
+                errorView.showUnconfirmedEmail();
                 break;
             default:
                 errorView.showConnectionError();

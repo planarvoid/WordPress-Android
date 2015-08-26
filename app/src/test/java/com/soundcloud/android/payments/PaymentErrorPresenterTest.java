@@ -44,6 +44,12 @@ public class PaymentErrorPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void badRequestFromUnconfirmedEmailShowsCorrectError() {
+        paymentErrorPresenter.onError(ApiRequestException.badRequest(apiRequest, apiResponse, "unconfirmed_email"));
+        verify(errorPresenter).showUnconfirmedEmail();
+    }
+
+    @Test
     public void notFoundShowsStaleCheckout() {
         paymentErrorPresenter.onError(ApiRequestException.notFound(apiRequest, apiResponse));
         verify(errorPresenter).showStaleCheckout();

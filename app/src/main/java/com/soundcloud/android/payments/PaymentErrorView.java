@@ -6,6 +6,7 @@ import com.soundcloud.android.payments.error.AlreadySubscribedDialog;
 import com.soundcloud.android.payments.error.BillingUnavailableDialog;
 import com.soundcloud.android.payments.error.ConnectionErrorDialog;
 import com.soundcloud.android.payments.error.StaleCheckoutDialog;
+import com.soundcloud.android.payments.error.UnconfirmedEmailDialog;
 import com.soundcloud.android.payments.error.VerifyIssueDialog;
 import com.soundcloud.android.payments.error.WrongUserDialog;
 
@@ -60,6 +61,10 @@ class PaymentErrorView {
 
     public void showWrongUser() {
         WrongUserDialog.show(fragmentManager);
+    }
+
+    public void showUnconfirmedEmail() {
+        UnconfirmedEmailDialog.show(fragmentManager);
     }
 
     public void showConnectionError() {
