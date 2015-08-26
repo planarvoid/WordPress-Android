@@ -8,6 +8,7 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
@@ -36,6 +37,7 @@ class AccountCleanupAction implements Action0 {
     private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     private final ClearTableCommand clearTableCommand;
+    private final StationsOperations stationsOperations;
 
     @Inject
     AccountCleanupAction(SyncStateManager syncStateManager,
@@ -44,7 +46,7 @@ class AccountCleanupAction implements Action0 {
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
-                         ClearTableCommand clearTableCommand) {
+                         ClearTableCommand clearTableCommand, StationsOperations stationsOperations) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
@@ -57,6 +59,7 @@ class AccountCleanupAction implements Action0 {
         this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
         this.clearTableCommand = clearTableCommand;
+        this.stationsOperations = stationsOperations;
     }
 
     @Override
@@ -74,6 +77,7 @@ class AccountCleanupAction implements Action0 {
         streamSyncStorage.clear();
         planStorage.clear();
         soundRecorder.reset();
+        stationsOperations.clearData();
         FollowingOperations.clearState();
     }
 

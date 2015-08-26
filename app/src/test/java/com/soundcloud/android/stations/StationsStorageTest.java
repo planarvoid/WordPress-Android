@@ -17,7 +17,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new StationsStorage(propellerRx(), dateProvider);
+        storage = new StationsStorage(propeller(), propellerRx(), dateProvider);
     }
 
     @Test

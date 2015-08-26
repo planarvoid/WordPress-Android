@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
@@ -47,14 +48,22 @@ class StationsStorage {
             return station(new Urn(cursorReader.getString(Stations.STATION_URN)));
         }
     };
-    
+
+    private final PropellerDatabase propellerDatabase;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
 
     @Inject
-    public StationsStorage(PropellerRx propellerRx, DateProvider dateProvider) {
+    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, DateProvider dateProvider) {
+        this.propellerDatabase = propellerDatabase;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
+    }
+
+    void clear() {
+        propellerDatabase.delete(Stations.TABLE);
+        propellerDatabase.delete(RecentStations.TABLE);
+        propellerDatabase.delete(StationsPlayQueues.TABLE);
     }
 
     Observable<Station> recentStations() {
