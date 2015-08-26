@@ -7,8 +7,12 @@ ext {
   releaseName = System.env.containsKey('RELEASE_NAME') ? System.env.RELEASE_NAME : '' //'' signals local build
   buildNumber = System.env.containsKey('BUILD_NUMBER') ? System.env.BUILD_NUMBER : '0' // '0' signals local build
   buildType   = System.env.containsKey('BUILD_TYPE') ? System.env.BUILD_TYPE : 'debug' // 'debug' signals local build
+  buildFlavor = System.env.containsKey('JENKINS_URL') ? 'prod' : 'dev' // 'prod' signals CI build; 'dev' signals local build
   gitBranch   = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
-  apkPath     = "${project.buildDir}/outputs/apk/soundcloud-android-${versionName}-${buildType}.apk" // only used by renameApk task for CI
+
+  apkPath               = "$project.buildDir/outputs/apk/soundcloud-android-$versionName-${buildType}.apk" // only used by renameApk task (for CI)
+  testApkPath           = "$project.buildDir/outputs/apk/app-$buildFlavor-$buildType-androidTest-unaligned.apk"
+  networkManagerApkPath = "$project.buildDir/outputs/apk/androidnetworkmanager-${rootProject.ext.networkManager}.apk"
 
   buildSrcDir = 'buildsystem'
 }

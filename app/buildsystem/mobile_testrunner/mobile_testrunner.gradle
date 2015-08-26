@@ -100,9 +100,9 @@ def copyApkToServer(local_file_path) {
 def createExecution(String label) {
   def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
 
-  def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer("${project.buildDir}/outputs/apk/app-prod-debug-androidTest-unaligned.apk"))
+  def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
 
-  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: "${project.buildDir}/outputs/apk/androidnetworkmanager-29.apk")]
+  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
 
   def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 
@@ -148,8 +148,16 @@ def failBuildIfNecessary(TestResult[] retrievedResults) {
   }
 }
 
-task lollipop << {
-  def run = execute(createExecution("Lollipop"))
+def runTestsForLabel(String label) {
+  def run = execute(createExecution(label))
   def results = getAndShowResultsForRun(run)
   failBuildIfNecessary(results)
+}
+
+task lollipop << {
+  runTestsForLabel("Lollipop")
+}
+
+task kitkat << {
+  runTestsForLabel("KitKat")
 }
