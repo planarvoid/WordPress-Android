@@ -20,14 +20,14 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-public class RecommendationsStorage {
+class RecommendationsStorage {
 
     private static final String RECOMMENDATIONS_SOUND_VIEW = "RecommendationsSoundView";
 
     private final PropellerRx propellerRx;
 
     @Inject
-    public RecommendationsStorage(PropellerRx propellerRx) {
+    RecommendationsStorage(PropellerRx propellerRx) {
         this.propellerRx = propellerRx;
     }
 

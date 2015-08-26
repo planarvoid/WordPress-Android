@@ -11,12 +11,12 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
+class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
 
     private final PlaylistTagsPresenter playlistTagsPresenter;
 
     @Inject
-    public PlaylistTagRenderer(PlaylistTagsPresenter playlistTagsPresenter) {
+    PlaylistTagRenderer(PlaylistTagsPresenter playlistTagsPresenter) {
         this.playlistTagsPresenter = playlistTagsPresenter;
     }
 
@@ -37,7 +37,7 @@ public class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> 
         playlistTagsPresenter.displayPopularTags(itemView, discoveryItems.get(position).getPopularTags());
     }
 
-    public void setOnTagClickListener(PlaylistTagsPresenter.Listener itemListener) {
+    void setOnTagClickListener(PlaylistTagsPresenter.Listener itemListener) {
         playlistTagsPresenter.setListener(itemListener);
     }
 }

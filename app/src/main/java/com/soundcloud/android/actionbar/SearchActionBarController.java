@@ -135,6 +135,12 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
         }
     }
 
+    public void setFocusable(boolean focusable) {
+        if (isInitialised()) {
+            searchView.setFocusable(focusable);
+        }
+    }
+
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater, final AppCompatActivity activity) {
         inflater.inflate(R.menu.search, menu);
         initSearchView(activity, menu);

@@ -30,7 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
+class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
     static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 

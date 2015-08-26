@@ -8,13 +8,13 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 
 class RecommendationMapper extends RxResultMapper<PropertySet> {
 
-    public static final String SEED_LOCAL_ID = "seed_local_id";
-    public static final String SEED_TITLE = "seed_title";
+    static final String SEED_LOCAL_ID = "seed_local_id";
+    static final String SEED_TITLE = "seed_title";
 
-    public static final String RECOMMENDATION_TITLE = "recommendation_title";
-    public static final String RECOMMENDATION_USERNAME = "recommendation_username";
-    public static final String RECOMMENDATION_ID = "recommendation_id";
-    public static final String RECOMMENDATION_COUNT = "recommendations_count";
+    static final String RECOMMENDATION_TITLE = "recommendation_title";
+    static final String RECOMMENDATION_USERNAME = "recommendation_username";
+    static final String RECOMMENDATION_ID = "recommendation_id";
+    static final String RECOMMENDATION_COUNT = "recommendations_count";
 
     @Override
     public PropertySet map(CursorReader cursorReader) {

@@ -23,9 +23,9 @@ import android.content.SharedPreferences;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RecommendationsSyncTest {
+public class DiscoverySyncerTest {
 
-    private RecommendationsSync syncer;
+    private DiscoverySyncer syncer;
 
     @Mock private SyncInitiator syncInitiator;
     @Mock private SharedPreferences sharedPreferences;
@@ -33,7 +33,7 @@ public class RecommendationsSyncTest {
 
     @Before
     public void setUp() {
-        syncer = new RecommendationsSync(syncInitiator, sharedPreferences, dateProvider);
+        syncer = new DiscoverySyncer(syncInitiator, sharedPreferences, dateProvider);
     }
 
     @Test

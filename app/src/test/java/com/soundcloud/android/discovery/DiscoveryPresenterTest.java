@@ -47,7 +47,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     private static final Urn RECOMMENDED_TRACK_URN = Urn.forTrack(3L);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private DiscoveryView discoveryView;
     @Mock private View view;
     @Mock private Fragment fragment;
     @Mock private RecyclerView recyclerView;
@@ -71,7 +70,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         this.presenter = new DiscoveryPresenter(swipeRefreshAttacher, discoveryOperations,
-                discoveryView, adapter, expandPlayerSubscriberProvider, playbackOperations, navigator);
+                adapter, expandPlayerSubscriberProvider, playbackOperations, navigator);
 
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);

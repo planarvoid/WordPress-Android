@@ -20,7 +20,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
+class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
     interface OnRecommendationClickListener {
         void onRecommendationReasonClicked(RecommendationItem recommendationItem);
@@ -36,7 +36,7 @@ public class RecommendationItemRenderer implements CellRenderer<RecommendationIt
     private OnRecommendationClickListener onRecommendationClickListener;
 
     @Inject
-    public RecommendationItemRenderer(Resources resources, ImageOperations imageOperations) {
+    RecommendationItemRenderer(Resources resources, ImageOperations imageOperations) {
         this.resources = resources;
         this.imageOperations = imageOperations;
     }

@@ -42,25 +42,25 @@ class DiscoveryOperations {
                 }
             };
 
-    private final RecommendationsSync syncer;
+    private final DiscoverySyncer discoverySyncer;
     private final RecommendationsStorage recommendationsStorage;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final Scheduler scheduler;
 
     @Inject
-    DiscoveryOperations(RecommendationsSync recommendationsSyncer,
+    DiscoveryOperations(DiscoverySyncer discoverySyncer,
                         RecommendationsStorage recommendationsStorage,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
 
-        this.syncer = recommendationsSyncer;
+        this.discoverySyncer = discoverySyncer;
         this.recommendationsStorage = recommendationsStorage;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
         this.scheduler = scheduler;
     }
 
     private Observable<List<DiscoveryItem>> recommendations() {
-        return syncer.syncRecommendations()
+        return discoverySyncer.syncRecommendations()
                 .flatMap(toRecommendations)
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
