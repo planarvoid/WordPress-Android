@@ -11,7 +11,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.StationsListScreen;
+import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -89,7 +89,34 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
         assertEquals(recentStations.getFirstStation().getTitle(), trackTitle);
-        final StationsListScreen stationsListScreen = recentStations.clickViewAll();
-        assertEquals(stationsListScreen.getFirstStation().getTitle(), trackTitle);
+        final ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
+        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), trackTitle);
+    }
+
+
+    public void testStartStationFromBucket() throws Exception {
+        final String firstTrackTitle = startTwoRadiosAndReturnFirstStationName();
+
+        solo.goBack();
+        final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
+
+        recentStations.findStation(With.text(firstTrackTitle)).click();
+    }
+
+    public void testStartStationFromViewAllStations() throws Exception {
+        final String firstTrackTitle = startTwoRadiosAndReturnFirstStationName();
+
+        solo.goBack();
+        final ViewAllStationsScreen viewAllStationsScreen = menuScreen.open().clickStations().getRecentStationsBucket().clickViewAll();
+
+        viewAllStationsScreen.findStation(With.text(firstTrackTitle)).click();
+    }
+
+    private String startTwoRadiosAndReturnFirstStationName() {
+        final String firstStationTitle = playlistDetailsScreen.getTracks().get(0).getTitle();
+        final VisualPlayerElement playerElement = playlistDetailsScreen.startStationFromFirstTrack();
+        playerElement.pressBackToCollapse();
+        playlistDetailsScreen.getTracks().get(1).clickOverflowButton().clickStartStation().pressBackToCollapse();
+        return firstStationTitle;
     }
 }
