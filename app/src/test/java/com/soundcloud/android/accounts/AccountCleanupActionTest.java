@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
@@ -49,13 +50,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private ClearTableCommand clearTableCommand;
     @Mock private StreamSyncStorage streamSyncStorage;
     @Mock private PlanStorage planStorage;
+    @Mock private StationsOperations stationsOperations;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, streamSyncStorage, planStorage,
-                removeLocalPlaylistsCommand, clearTableCommand);
+                removeLocalPlaylistsCommand, clearTableCommand, stationsOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -157,6 +159,13 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldRemoveLocalPlaylists() throws PropellerWriteException {
         action.call();
         verify(removeLocalPlaylistsCommand).call(null);
+    }
+
+
+    @Test
+    public void shouldRemoveStationsStorage() {
+        action.call();
+        verify(stationsOperations).clearData();
     }
 
 }

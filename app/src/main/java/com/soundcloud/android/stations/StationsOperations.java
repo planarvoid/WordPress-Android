@@ -15,7 +15,6 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
 public class StationsOperations {
     private final StationsStorage stationsStorage;
@@ -99,6 +98,10 @@ public class StationsOperations {
         return stationsStorage
                 .recentStations()
                 .subscribeOn(scheduler);
+    }
+
+    public void clearData() {
+        stationsStorage.clear();
     }
 
 }
