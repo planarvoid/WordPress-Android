@@ -82,16 +82,15 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
-        final String trackTitle = playlistDetailsScreen.getTracks().get(0).getTitle();
+        final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
-        playlistDetailsScreen.startStationFromFirstTrack().pressBackToCollapse();
         solo.goBack();
 
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
-        assertEquals(recentStations.getFirstStation().getTitle(), trackTitle);
+        assertEquals(recentStations.getFirstStation().getTitle(), currentStationName);
         final ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
-        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), trackTitle);
+        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), currentStationName);
     }
 
     public void testStartStationFromBucket() throws Exception {
