@@ -7,22 +7,24 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
+import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -34,6 +36,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
     private final MyProfileOperations profileOperations;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
+    private final NextFollowingOperations followingOperations;
 
     private final Func1<List<PropertySet>, List<UserItem>> pageTransformer = new Func1<List<PropertySet>, List<UserItem>>() {
         @Override
@@ -50,17 +53,19 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     private final Navigator navigator;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private Screen screen;
+    private CompositeSubscription updateFollowingsSubscription;
 
 
     @Inject
     MyFollowingsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                           ImagePauseOnScrollListener imagePauseOnScrollListener,
                           UserRecyclerItemAdapter adapter,
-                          MyProfileOperations profileOperations, Navigator navigator) {
+                          MyProfileOperations profileOperations, NextFollowingOperations followingOperations, Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.profileOperations = profileOperations;
+        this.followingOperations = followingOperations;
         this.navigator = navigator;
     }
 
@@ -71,7 +76,25 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
         screen = (Screen) fragment.getArguments().getSerializable(SCREEN_KEY);
         searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
 
+        updateFollowingsSubscription = new CompositeSubscription(
+
+                followingOperations.onUserFollowed()
+                        .map(UserItem.fromPropertySet())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PrependItemToListSubscriber<>(adapter)),
+
+                followingOperations.onUserUnfollowed()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RemoveEntityListSubscriber(adapter))
+        );
+
         getBinding().connect();
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        updateFollowingsSubscription.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     @Override

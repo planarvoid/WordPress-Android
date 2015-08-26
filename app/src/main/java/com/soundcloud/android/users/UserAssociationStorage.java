@@ -1,10 +1,8 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.storage.TableColumns.SoundView.CREATED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -19,6 +17,7 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -43,6 +42,12 @@ public class UserAssociationStorage {
         final Query query = buildFollowingsQuery(limit, fromPosition);
         return propellerRx.query(query).map(new FollowingsMapper()).toList();
     }
+
+    public Observable<PropertySet> loadFollowing(Urn urn) {
+        final Query query = buildFollowingsBaseQuery().whereEq(UserAssociations.TARGET_ID, urn.getNumericId());
+        return propellerRx.query(query).map(new FollowingsMapper());
+    }
+
 
     public Observable<List<Urn>> loadFollowingsUrns(int limit, long fromPosition) {
         Query query = Query.from(Table.UserAssociations)
@@ -78,6 +83,14 @@ public class UserAssociationStorage {
     }
 
     protected Query buildFollowingsQuery(int limit, long fromPosition) {
+        return buildFollowingsBaseQuery()
+                .whereGt(Table.UserAssociations.field(UserAssociations.POSITION), fromPosition)
+                .order(Table.UserAssociations.field(UserAssociations.POSITION), ASC)
+                .limit(limit);
+    }
+
+    @NonNull
+    private Query buildFollowingsBaseQuery() {
         return Query.from(Table.Users)
                 .select(
                         field(Users._ID),
@@ -87,11 +100,8 @@ public class UserAssociationStorage {
                         field(UserAssociations.POSITION))
                 .innerJoin(Table.UserAssociations.name(),
                         Filter.filter()
-                                .whereEq(Table.UserAssociations.field(UserAssociations.TARGET_ID), Table.Users.field(TableColumns.Users._ID))
-                                .whereEq(Table.UserAssociations.field(UserAssociations.ASSOCIATION_TYPE), UserAssociations.TYPE_FOLLOWING))
-                .whereGt(Table.UserAssociations.field(UserAssociations.POSITION), fromPosition)
-                .order(Table.UserAssociations.field(UserAssociations.POSITION), ASC)
-                .limit(limit);
+                                .whereEq(Table.UserAssociations.field(UserAssociations.TARGET_ID), Table.Users.field(Users._ID))
+                                .whereEq(Table.UserAssociations.field(UserAssociations.ASSOCIATION_TYPE), UserAssociations.TYPE_FOLLOWING));
     }
 
     private class UserUrnMapper extends RxResultMapper<Urn> {

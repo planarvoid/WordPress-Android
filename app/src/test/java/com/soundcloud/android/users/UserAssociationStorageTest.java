@@ -1,6 +1,7 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -10,41 +11,36 @@ import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class UserAssociationStorageTest extends StorageIntegrationTest {
-
-    private static final Date FOLLOW_DATE_1 = new Date(10000);
-    private static final Date FOLLOW_DATE_2 = new Date(20000);
-    private static final Date FOLLOW_DATE_3 = new Date(30000);
 
     private UserAssociationStorage storage;
 
     private TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
     private TestSubscriber<List<Urn>> urnSubscriber = new TestSubscriber<>();
 
-    private PropertySet user1;
-    private PropertySet user2;
-    private PropertySet user3;
+    private PropertySet follower;
+    private PropertySet followingAndFollower;
+    private PropertySet following;
 
     @Before
     public void setUp() throws Exception {
         storage = new UserAssociationStorage(propellerRx());
 
-        final ApiUser apiUser1 = testFixtures().insertUser();
-        final ApiUser apiUser2 = testFixtures().insertUser();
-        final ApiUser apiUser3 = testFixtures().insertUser();
+        final ApiUser apiFollower = testFixtures().insertUser();
+        final ApiUser apiFollowingAndFollower = testFixtures().insertUser();
+        final ApiUser apiFollowing = testFixtures().insertUser();
 
-        testFixtures().insertFollower(apiUser1.getUrn(), 1);
-        testFixtures().insertFollower(apiUser2.getUrn(), 2);
-        testFixtures().insertFollowing(apiUser2.getUrn(), 2);
-        testFixtures().insertFollowing(apiUser3.getUrn(), 3);
+        testFixtures().insertFollower(apiFollower.getUrn(), 1);
+        testFixtures().insertFollower(apiFollowingAndFollower.getUrn(), 2);
+        testFixtures().insertFollowing(apiFollowingAndFollower.getUrn(), 2);
+        testFixtures().insertFollowing(apiFollowing.getUrn(), 3);
 
-        user1 = apiUserToResultSet(apiUser1);
-        user2 = apiUserToResultSet(apiUser2);
-        user3 = apiUserToResultSet(apiUser3);
+        follower = apiUserToResultSet(apiFollower);
+        followingAndFollower = apiUserToResultSet(apiFollowingAndFollower);
+        following = apiUserToResultSet(apiFollowing);
     }
 
     @Test
@@ -53,9 +49,9 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(
                 Arrays.asList(
-                        user1.put(UserProperty.IS_FOLLOWED_BY_ME, false)
+                        follower.put(UserProperty.IS_FOLLOWED_BY_ME, false)
                                 .put(UserAssociationProperty.POSITION, 1L),
-                        user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                                 .put(UserAssociationProperty.POSITION, 2L)
                 )
         );
@@ -66,7 +62,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.loadFollowers(1, 0).subscribe(subscriber);
 
         subscriber.assertValues(Collections.singletonList(
-                user1.put(UserProperty.IS_FOLLOWED_BY_ME, false)
+                follower.put(UserProperty.IS_FOLLOWED_BY_ME, false)
                         .put(UserAssociationProperty.POSITION, 1L)));
     }
 
@@ -75,8 +71,19 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.loadFollowers(2, 1).subscribe(subscriber);
 
         subscriber.assertValues(Collections.singletonList(
-                user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 2L)));
+    }
+
+    @Test
+    public void loadFollowingLoadsSingleFollowing() {
+        final TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+        storage.loadFollowing(following.get(EntityProperty.URN)).subscribe(subscriber);
+
+        subscriber.assertValues(
+                following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        .put(UserAssociationProperty.POSITION, 3L)
+        );
     }
 
     @Test
@@ -85,9 +92,9 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(
                 Arrays.asList(
-                        user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                                 .put(UserAssociationProperty.POSITION, 2L),
-                        user3.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                        following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                                 .put(UserAssociationProperty.POSITION, 3L)
                 )
         );
@@ -98,7 +105,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.loadFollowings(1, 0).subscribe(subscriber);
 
         subscriber.assertValues(Collections.singletonList(
-                user2.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 2L)));
     }
 
@@ -107,7 +114,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.loadFollowings(2, 2).subscribe(subscriber);
 
         subscriber.assertValues(Collections.singletonList(
-                user3.put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 3L)));
     }
 
@@ -118,8 +125,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         urnSubscriber.assertValues(
                 Arrays.asList(
-                        user2.get(UserProperty.URN),
-                        user3.get(UserProperty.URN)
+                        followingAndFollower.get(UserProperty.URN),
+                        following.get(UserProperty.URN)
                 )
         );
     }
@@ -127,13 +134,13 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     @Test
     public void loadFollowingsUrnsAdheresToLimit() {
         storage.loadFollowingsUrns(1, 0).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(Collections.singletonList(user2.get(UserProperty.URN)));
+        urnSubscriber.assertValues(Collections.singletonList(followingAndFollower.get(UserProperty.URN)));
     }
 
     @Test
     public void loadFollowingsUrnsAdheresToPosition() {
         storage.loadFollowingsUrns(2, 2).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(Collections.singletonList(user3.get(UserProperty.URN)));
+        urnSubscriber.assertValues(Collections.singletonList(following.get(UserProperty.URN)));
     }
 
     private PropertySet apiUserToResultSet(ApiUser apiUser1) {

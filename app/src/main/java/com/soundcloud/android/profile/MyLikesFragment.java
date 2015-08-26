@@ -7,7 +7,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class MyLikesFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class MyLikesFragment extends ScrollableProfileFragment implements RefreshableScreen {
 
     @Inject @LightCycle MyLikesPresenter presenter;
 

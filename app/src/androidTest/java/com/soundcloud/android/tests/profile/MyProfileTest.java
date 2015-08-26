@@ -108,7 +108,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchFollowingsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        assertTrue(profileScreen.clickFollowing(0).isVisible());
+        assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
 
     public void testFollowingsLoadsNextPage() {

@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import rx.functions.Func1;
 
 public class UserItem implements ListItem {
 
@@ -11,6 +12,15 @@ public class UserItem implements ListItem {
 
     public static UserItem from(PropertySet source) {
         return new UserItem(source);
+    }
+
+    public static Func1<PropertySet, UserItem> fromPropertySet() {
+        return new Func1<PropertySet, UserItem>() {
+            @Override
+            public UserItem call(PropertySet bindings) {
+                return UserItem.from(bindings);
+            }
+        };
     }
 
     UserItem(PropertySet source) {
