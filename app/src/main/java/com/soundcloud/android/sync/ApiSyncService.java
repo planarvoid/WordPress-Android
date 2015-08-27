@@ -25,6 +25,7 @@ public class ApiSyncService extends Service {
     public static final String ACTION_PUSH          = "com.soundcloud.android.sync.action.PUSH";
     public static final String ACTION_HARD_REFRESH  = "com.soundcloud.android.sync.action.HARD_REFRESH";
 
+    public static final String EXTRA_TYPE            = "com.soundcloud.android.sync.extra.TYPE";
     public static final String EXTRA_SYNC_URIS       = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
     public static final String EXTRA_SYNC_RESULT     = "com.soundcloud.android.sync.extra.SYNC_RESULT";
@@ -82,7 +83,6 @@ public class ApiSyncService extends Service {
     }
 
     void enqueueRequest(SyncRequest syncRequest) {
-
         syncRequests.add(syncRequest);
         for (SyncJob syncJob : syncRequest.getPendingJobs()) {
             if (!runningJobs.contains(syncJob)) {

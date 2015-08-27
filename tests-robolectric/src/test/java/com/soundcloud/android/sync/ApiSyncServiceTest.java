@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
@@ -19,6 +19,7 @@ import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +47,7 @@ public class ApiSyncServiceTest {
     private ContentResolver resolver;
     private SyncStateManager syncStateManager;
     private LegacySyncJob.Factory collectionSyncRequestFactory;
+    private SyncRequestFactory syncRequestFactory;
 
     @Mock private ApiSyncerFactory apiSyncerFactory;
     @Mock private LikesSyncer<ApiTrack> trackLikesSyncer;
@@ -53,6 +55,7 @@ public class ApiSyncServiceTest {
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private RecommendationsSyncer recommendationsSyncer;
+    @Mock private StationsSyncRequestFactory stationsSyncRequestFactory;
 
     @Before
     public void before() {
@@ -68,6 +71,7 @@ public class ApiSyncServiceTest {
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
                 lazyOf(recommendationsSyncer),
+                stationsSyncRequestFactory,
                 new TestEventBus());
     }
 
@@ -115,7 +119,7 @@ public class ApiSyncServiceTest {
 
     @Test
     public void shouldNotEnqueueSameIntentTwice() throws Exception {
-        final Intent syncIntent = new Intent(ApiSyncService.ACTION_PUSH);
+        final Intent syncIntent = new Intent(ApiSyncService.ACTION_PUSH, null);
         syncIntent.setData(Content.ME_FOLLOWINGS.uri);
 
         ApiSyncService svc = new ApiSyncService();
@@ -128,14 +132,14 @@ public class ApiSyncServiceTest {
     public void doesNotQueueTrackLikesJobOnTopOfMyLikesJob() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         svc.enqueueRequest(syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri)));
-        svc.enqueueRequest(syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)));
+        svc.enqueueRequest(syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES, null)));
         expect(svc.pendingJobs.size()).toBe(1);
     }
 
     @Test
     public void queuesMyLikesJobEvenIfTrackLikesJobAlreadyInQueue() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        svc.enqueueRequest(syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)));
+        svc.enqueueRequest(syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES, null)));
         expect(svc.pendingJobs.size()).toBe(1);
         svc.enqueueRequest(syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri)));
         expect(svc.pendingJobs.size()).toBe(2);
@@ -146,7 +150,7 @@ public class ApiSyncServiceTest {
     public void shouldHandleComplexQueueSituation() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        Intent intent = new Intent(Intent.ACTION_SYNC);
+        Intent intent = new Intent(Intent.ACTION_SYNC, null);
         ArrayList<Uri> urisToSync = new ArrayList<>();
         urisToSync.add(Content.ME_SOUNDS.uri);
         urisToSync.add(Content.ME_LIKES.uri);
@@ -157,7 +161,7 @@ public class ApiSyncServiceTest {
         SyncRequestFactory syncRequestFactory = new SyncRequestFactory(
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 null, null, entitySyncRequestFactory, singlePlaylistSyncerFactory,
-                lazyOf(recommendationsSyncer), new TestEventBus()
+                lazyOf(recommendationsSyncer), stationsSyncRequestFactory, new TestEventBus()
         );
         SyncRequest request1 = syncRequestFactory.create(intent);
         SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true));
@@ -250,5 +254,4 @@ public class ApiSyncServiceTest {
         svc.onStart(new Intent(action, content.uri), 1);
     }
 
-    private SyncRequestFactory syncRequestFactory;
 }

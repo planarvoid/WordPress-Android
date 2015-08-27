@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationsSyncInitiator;
+import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
@@ -24,6 +26,7 @@ class SyncRequestFactory {
     private final EntitySyncRequestFactory entitySyncRequestFactory;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final Lazy<RecommendationsSyncer> lazyRecommendationSyncer;
+    private final StationsSyncRequestFactory stationsSyncRequestFactory;
     private final EventBus eventBus;
 
     @Inject
@@ -33,6 +36,7 @@ class SyncRequestFactory {
                        EntitySyncRequestFactory entitySyncRequestFactory,
                        SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                        Lazy<RecommendationsSyncer> lazyRecommendationSyncer,
+                       StationsSyncRequestFactory stationsSyncRequestFactory,
                        EventBus eventBus) {
         this.syncIntentFactory = syncIntentFactory;
         this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
@@ -40,11 +44,29 @@ class SyncRequestFactory {
         this.entitySyncRequestFactory = entitySyncRequestFactory;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.lazyRecommendationSyncer = lazyRecommendationSyncer;
+        this.stationsSyncRequestFactory = stationsSyncRequestFactory;
         this.eventBus = eventBus;
     }
 
-    public SyncRequest create(Intent intent) {
+    SyncRequest create(Intent intent) {
+        if (intent.hasExtra(ApiSyncService.EXTRA_TYPE)) {
+            return createRequest(intent);
+        } else {
+            return createLegacyRequest(intent);
+        }
+    }
 
+    private SyncRequest createRequest(Intent intent) {
+        final String type = intent.getStringExtra(ApiSyncService.EXTRA_TYPE);
+        switch (type) {
+            case StationsSyncInitiator.TYPE:
+                return stationsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
+            default:
+                throw new IllegalArgumentException("Unknown type. " + type);
+        }
+    }
+
+    private SyncRequest createLegacyRequest(Intent intent) {
         if (SyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncTrackLikesJob.get(), intent.getAction(),
                     true, getReceiverFromIntent(intent), eventBus);

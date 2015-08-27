@@ -23,11 +23,9 @@ import android.os.Bundle;
 import android.os.Looper;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SyncInitiator {
-
     private final Action0 requestSystemSyncAction = new Action0() {
         @Override
         public void call() {
@@ -52,7 +50,6 @@ public class SyncInitiator {
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
     }
-
 
     public Action0 requestSystemSyncAction() {
         return requestSystemSyncAction;
@@ -104,7 +101,7 @@ public class SyncInitiator {
     }
 
     public Observable<SyncResult> syncRecommendations() {
-        return requestSyncObservable(SyncActions.SYNC_RECOMMENDATIONS);
+        return legacyRequestSyncObservable(SyncActions.SYNC_RECOMMENDATIONS);
     }
 
     public Observable<SyncResult> syncUser(final Urn userUrn) {
@@ -210,17 +207,17 @@ public class SyncInitiator {
     }
 
     public Observable<SyncResult> syncTrackLikes() {
-        return requestSyncObservable(SyncActions.SYNC_TRACK_LIKES)
+        return legacyRequestSyncObservable(SyncActions.SYNC_TRACK_LIKES)
                 .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
     }
 
     public Observable<SyncResult> syncPlaylistLikes() {
-        return requestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES)
+        return legacyRequestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES)
                 .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
     }
 
     public Observable<SyncResult> syncPlaylistPosts() {
-        return requestSyncObservable(SyncActions.SYNC_PLAYLISTS);
+        return legacyRequestSyncObservable(SyncActions.SYNC_PLAYLISTS);
     }
 
     public void requestTracksSync(List<PropertySet> tracks) {
@@ -236,50 +233,42 @@ public class SyncInitiator {
     }
 
     public Observable<SyncResult> syncUsers(final List<Urn> userUrns) {
+        return requestSyncResultObservable(new Intent(context, ApiSyncService.class)
+                .setAction(SyncActions.SYNC_USERS)
+                .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns)));
+    }
+
+    protected Observable<SyncResult> requestSyncObservable(final String type, final String action) {
+        return requestSyncResultObservable(createIntent(action).putExtra(ApiSyncService.EXTRA_TYPE, type));
+    }
+
+    private Observable<SyncResult> requestSyncResultObservable(final Intent intent) {
         return Observable
                 .create(new Observable.OnSubscribe<SyncResult>() {
                     @Override
                     public void call(Subscriber<? super SyncResult> subscriber) {
-                        context.startService(new Intent(context, ApiSyncService.class)
-                                .setAction(SyncActions.SYNC_USERS)
-                                .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns))
-                                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                        new ResultReceiverAdapter(subscriber, Looper.getMainLooper())));
+                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
+                        context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                     }
                 });
     }
 
-    private Observable<SyncResult> requestSyncObservable(final String syncAction) {
-        return Observable
-                .create(new Observable.OnSubscribe<SyncResult>() {
-                    @Override
-                    public void call(Subscriber<? super SyncResult> subscriber) {
-                        requestSync(syncAction, new ResultReceiverAdapter(subscriber, Looper.getMainLooper()));
-                    }
-                });
+    private Intent createIntent(String action) {
+        return new Intent(context, ApiSyncService.class).setAction(action);
     }
 
-    private Observable<SyncResult> requestSyncObservable(final String syncAction, final Urn urn) {
-        return Observable
-                .create(new Observable.OnSubscribe<SyncResult>() {
-                    @Override
-                    public void call(Subscriber<? super SyncResult> subscriber) {
-                        requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber, Looper.getMainLooper()));
-                    }
-                });
+    private Intent createIntent(String action, Urn urn) {
+        return createIntent(action).putExtra(SyncExtras.URN, urn);
     }
 
-    private void requestSync(String action, ResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
+    @Deprecated
+    private Observable<SyncResult> legacyRequestSyncObservable(final String action) {
+        return requestSyncResultObservable(createIntent(action));
     }
 
-    private void requestSync(String action, Urn urn, ResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(SyncExtras.URN, urn)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
+    @Deprecated
+    private Observable<SyncResult> legacyRequestSyncObservable(final String action, final Urn urn) {
+        return requestSyncResultObservable(createIntent(action, urn));
     }
 
     /**
@@ -326,7 +315,7 @@ public class SyncInitiator {
                 }
             }).map(LEGACY_RESULT_TO_SYNC_RESULT);
         } else {
-            return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
+            return legacyRequestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
         }
     }
 

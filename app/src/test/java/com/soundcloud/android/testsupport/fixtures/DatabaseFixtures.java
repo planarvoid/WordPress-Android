@@ -112,10 +112,26 @@ public class DatabaseFixtures {
         insertInto(Table.UserAssociations, cv);
     }
 
-    public void insertRecentlyPlayedStation(Urn stationUrn, int startedAt) {
+    public void insertRecentlyPlayedStationAtPosition(Urn stationUrn, long position) {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(RecentStations.STATION_URN, stationUrn.toString());
-        cv.put(RecentStations.STARTED_AT, startedAt);
+        cv.put(RecentStations.POSITION, position);
+        cv.put(RecentStations.UPDATED_LOCALLY_AT, null);
+        insertInto(RecentStations.TABLE, cv.get());
+    }
+
+    public void insertRecentlyPlayedUnsyncedStation(Urn stationUrn, long time) {
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(RecentStations.STATION_URN, stationUrn.toString());
+        cv.put(RecentStations.POSITION, null);
+        cv.put(RecentStations.UPDATED_LOCALLY_AT, time);
+        insertInto(RecentStations.TABLE, cv.get());
+    }
+
+    public void insertLocallyPlayedRecentStation(Urn stationUrn, long time) {
+        ContentValuesBuilder cv = ContentValuesBuilder.values();
+        cv.put(RecentStations.STATION_URN, stationUrn.toString());
+        cv.put(RecentStations.UPDATED_LOCALLY_AT, time);
         insertInto(RecentStations.TABLE, cv.get());
     }
 
