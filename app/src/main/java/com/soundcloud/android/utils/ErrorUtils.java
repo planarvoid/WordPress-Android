@@ -12,7 +12,6 @@ import com.soundcloud.android.view.EmptyView;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.exceptions.OnErrorFailedException;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -26,7 +25,6 @@ import java.util.Map;
 public final class ErrorUtils {
 
     public static final String ERROR_CONTEXT_TAG = "error-context";
-    private static final String OOM_TREND_LABEL = "OOM Trend";
 
     private ErrorUtils() {
         // not to be instantiated.
@@ -72,28 +70,6 @@ public final class ErrorUtils {
         } else {
             t.printStackTrace();
         }
-    }
-
-    /*
-     * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
-     */
-    public static void setupUncaughtExceptionHandler(final MemoryReporter memoryReporter) {
-        final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                if (isCausedByOutOfMemory(e)) {
-                    memoryReporter.reportOomStats();
-                    crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError(OOM_TREND_LABEL));
-                } else if (e.getCause() instanceof OnErrorFailedException) {
-                    // This is to remove clutter from exceptions that are caught and redirected on RxJava worker threads.
-                    // See ScheduledAction.java. It should give us cleaner stack traces containing just the root cause.
-                    crashlyticsHandler.uncaughtException(thread, findRootCause(e));
-                } else {
-                    crashlyticsHandler.uncaughtException(thread, e);
-                }
-            }
-        });
     }
 
     // This is aimed to be a temporary fix.
@@ -181,7 +157,7 @@ public final class ErrorUtils {
     }
 
     @VisibleForTesting
-    static boolean isCausedByOutOfMemory(Throwable uncaught) {
+    public static boolean isCausedByOutOfMemory(Throwable uncaught) {
         Throwable throwable = uncaught;
         while (throwable != null) {
             if (throwable instanceof OutOfMemoryError) {
@@ -193,7 +169,7 @@ public final class ErrorUtils {
     }
 
     @Nullable
-    static Throwable findRootCause(@Nullable Throwable throwable) {
+    public static Throwable findRootCause(@Nullable Throwable throwable) {
         if (throwable == null) {
             return null;
         } else {
