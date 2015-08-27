@@ -84,9 +84,9 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         assertThat(onNextEvents).hasSize(1);
 
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
-        assertThat(discoveryItems).hasSize(1);
+        assertThat(discoveryItems).hasSize(2);
 
-        assertPlaylistDiscoItem(discoveryItems.get(0), POPULAR_TAGS, RECENT_TAGS);
+        assertPlaylistDiscoItem(discoveryItems.get(1), POPULAR_TAGS, RECENT_TAGS);
     }
 
     @Test
@@ -188,6 +188,21 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         assertThat(recommendedTracks.size()).isEqualTo(2);
         assertThat(recommendedTracks.contains(recommendedTrackUrnOne));
         assertThat(recommendedTracks.contains(recommendedTrackUrnTwo));
+    }
+
+    @Test
+    public void loadsRecommendationsFromStorageWhenRecommendationsSyncErrors() {
+        when(discoverySyncer.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
+
+        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+
+        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
+        assertThat(onNextEvents).hasSize(1);
+
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        assertThat(discoveryItems).hasSize(2);
+
+        assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
