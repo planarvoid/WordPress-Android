@@ -77,17 +77,10 @@ public class OfflineContentOperations {
         @Override
         public Observable<OfflineState> call(Boolean enabled) {
             if (enabled) {
-                return tracksStorage.pendingLikedTracksUrns().flatMap(toOfflineState);
+                return tracksStorage.getLikesOfflineState();
             } else {
                 return Observable.just(OfflineState.NO_OFFLINE);
             }
-        }
-    };
-
-    private final Func1<List<Urn>, Observable<OfflineState>> toOfflineState = new Func1<List<Urn>, Observable<OfflineState>>() {
-        @Override
-        public Observable<OfflineState> call(List<Urn> urns) {
-            return getDownloadState(urns);
         }
     };
 
@@ -209,12 +202,5 @@ public class OfflineContentOperations {
         return offlineContentStorage.isOfflineLikesEnabled()
                 .flatMap(PENDING_LIKES_TO_OFFLINE_STATE)
                 .subscribeOn(scheduler);
-    }
-
-    private Observable<OfflineState> getDownloadState(List<Urn> urns) {
-        if (urns.isEmpty()) {
-            return Observable.just(OfflineState.DOWNLOADED);
-        }
-        return Observable.just(OfflineState.REQUESTED);
     }
 }

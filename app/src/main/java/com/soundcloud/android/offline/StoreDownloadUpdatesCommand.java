@@ -99,6 +99,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
                     .put(REQUESTED_AT, dateProvider.getCurrentTime())
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, null)
+                    .put(UNAVAILABLE_AT, null)
                     .get());
         }
         return contentValues;

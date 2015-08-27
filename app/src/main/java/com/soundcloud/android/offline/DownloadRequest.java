@@ -5,7 +5,9 @@ import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class DownloadRequest {
     public final Urn track;
@@ -21,7 +23,7 @@ public final class DownloadRequest {
         private final String waveformUrl;
         private final boolean syncable;
 
-        private List<Urn> playlists = new ArrayList<>();
+        private Set<Urn> playlists = new HashSet<>();
         private boolean inLikes = false;
 
         public Builder(Urn track, long duration, String waveformUrl, boolean syncable) {
@@ -46,7 +48,7 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, duration, waveformUrl, syncable, inLikes, playlists);
+            return new DownloadRequest(track, duration, waveformUrl, syncable, inLikes, new ArrayList<>(playlists));
         }
     }
 

@@ -11,6 +11,7 @@ import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineFilters;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
@@ -98,12 +99,26 @@ public class PlaylistStorage {
                         exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
                         exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),
                         exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
+                        exists(hasOfflineTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_OFFLINE_TRACKS),
                         exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
-                )
+                        )
                 .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
+    }
+
+    private Query hasOfflineTracks(Urn playlistUrn) {
+        final Where joinConditions = filter()
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
+        return Query
+                .from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.qualifiedName())
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
+                .innerJoin(SoundView.name(), joinConditions)
+                .whereEq(SoundView.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
+                .where(OfflineFilters.OFFLINE_TRACK_FILTER);
     }
 
     private Query pendingPlaylistTracksUrns(Urn playlistUrn) {
@@ -116,10 +131,7 @@ public class PlaylistStorage {
                 .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
                 .innerJoin(SoundView.name(), joinConditions)
                 .whereEq(SoundView.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
-                .whereNull(TrackDownloads.REMOVED_AT)
-                .whereNull(TrackDownloads.DOWNLOADED_AT)
-                .whereNull(TrackDownloads.UNAVAILABLE_AT)
-                .whereNotNull(TrackDownloads.REQUESTED_AT);
+                .where(OfflineFilters.REQUESTED_DOWNLOAD_FILTER);
     }
 
     private Query likeQuery(Urn playlistUrn) {

@@ -93,6 +93,18 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     @Test
+    public void returnsDownloadedTrackAsCreatorOptOutAfterPolicyChange() {
+        final List<DownloadRequest> expectedRequest = new ArrayList<>(1);
+        expectedRequest.add(new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build());
+        actualDownloadedTracks(TRACK_URN_1);
+
+        OfflineContentUpdates updates = command.call(expectedRequest);
+
+        assertThat(updates.creatorOptOutRequests).contains(expectedRequest.get(0));
+        assertThat(updates.newRemovedTracks).isEmpty();
+    }
+
+    @Test
     public void returnsNewAndExistingDownloadsWithNoRemovals() {
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);

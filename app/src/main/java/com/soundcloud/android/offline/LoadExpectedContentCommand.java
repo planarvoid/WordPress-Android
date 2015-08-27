@@ -3,7 +3,6 @@ package com.soundcloud.android.offline;
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.offline.DownloadRequest.Builder;
 import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
@@ -18,6 +17,8 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
+import static com.soundcloud.android.storage.Tables.OfflineContent;
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
@@ -40,11 +41,11 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
+    private final static String DISTINCT_KEYWORD = "DISTINCT ";
 
     private final PropellerDatabase database;
 
@@ -68,9 +69,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     @NonNull
     private List<OfflineRequestData> queryRequestedTracks() {
-        final List<OfflineRequestData> requestsData = new LinkedList<>();
-        requestsData.addAll(tracksFromOfflinePlaylists());
-
+        final List<OfflineRequestData> requestsData = tracksFromOfflinePlaylists();
         if (isOfflineLikedTracksEnabled()) {
             requestsData.addAll(tracksFromLikes());
         }
@@ -95,6 +94,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     }
 
     private List<OfflineRequestData> tracksFromLikes() {
+        final boolean hasSyncableLikedTracks = querySyncableLikedTracks();
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(
                         Sounds.field(_ID),
@@ -110,7 +110,20 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
                 .order(Likes.field(TableColumns.Likes.CREATED_AT), DESC);
 
-        return database.query(likesToDownload).toList(new LikedTrackMapper());
+        return database.query(likesToDownload).toList(new LikedTrackMapper(hasSyncableLikedTracks));
+    }
+
+    private boolean querySyncableLikedTracks() {
+        final Query query = Query.apply(exists(Query.from(Sounds.name())
+                .innerJoin(TrackPolicies.name(),
+                        Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
+                .innerJoin(Table.Likes.name(),
+                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
+                .where(isDownloadable())
+                .whereEq(TableColumns.TrackPolicies.SYNCABLE, 1)
+                .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
+                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))));
+        return database.query(query).first(scalar(Boolean.class));
     }
 
     private boolean isOfflineLikedTracksEnabled() {
@@ -126,8 +139,8 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     }
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
-
         final List<Long> playlistIds = database.query(orderedPlaylistQuery()).toList(scalar(Long.class));
+        final List<Long> syncablePlaylists = database.query(playlistsWithSyncableTracks(playlistIds)).toList(scalar(Long.class));
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
                 .select(
@@ -147,7 +160,21 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                 .order(PlaylistTracks.field(PLAYLIST_ID), DESC)
                 .order(PlaylistTracks.field(POSITION), ASC);
 
-        return database.query(playlistTracksToDownload).toList(new PlaylistTrackMapper());
+        return database.query(playlistTracksToDownload).toList(new PlaylistTrackMapper(syncablePlaylists));
+    }
+
+    private Query playlistsWithSyncableTracks(List<Long> playlistIds) {
+        return Query.from(PlaylistTracks.name())
+                .select(DISTINCT_KEYWORD + PlaylistTracks.field(PLAYLIST_ID))
+                .innerJoin(Sounds.name(), filter()
+                        .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
+                        .whereIn(PLAYLIST_ID, playlistIds))
+                .innerJoin(TrackPolicies.name(),
+                        PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
+                        TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
+                .where(isDownloadable())
+                .whereEq(TableColumns.TrackPolicies.SYNCABLE, 1)
+                .whereNull(PlaylistTracks.field(REMOVED_AT));
     }
 
     private Query orderedPlaylistQuery() {
@@ -164,49 +191,68 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         private final Urn track;
         private final long duration;
         private final String waveformUrl;
-        private final Urn playlist;
-        private final boolean isInLikes;
         private final boolean syncable;
+        private final boolean isInLikes;
+        private final Urn playlist;
 
-        public OfflineRequestData(long trackId, long duration, String waveformUrl, long playlistId, boolean syncable) {
-            this.duration = duration;
-            this.waveformUrl = waveformUrl;
-            this.track = Urn.forTrack(trackId);
-            this.playlist = Urn.forPlaylist(playlistId);
-            this.syncable = syncable;
-            this.isInLikes = false;
+        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, Urn playlist) {
+            this(trackId, duration, waveformUrl, syncable, false, playlist);
         }
 
-        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable) {
+        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, boolean inLikes) {
+            this(trackId, duration, waveformUrl, syncable, inLikes, Urn.NOT_SET);
+        }
+
+        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, boolean inLikes, Urn playlist) {
             this.duration = duration;
             this.waveformUrl = waveformUrl;
             this.track = Urn.forTrack(trackId);
-            this.playlist = Urn.NOT_SET;
             this.syncable = syncable;
-            this.isInLikes = true;
+            this.isInLikes = inLikes;
+            this.playlist = playlist;
         }
     }
 
     private static class PlaylistTrackMapper implements ResultMapper<OfflineRequestData> {
+        private final List<Long> syncablePlaylists;
+
+        private PlaylistTrackMapper(List<Long> syncablePlaylists) {
+            this.syncablePlaylists = syncablePlaylists;
+        }
+
         @Override
         public OfflineRequestData map(CursorReader reader) {
+            Urn includeInPlaylist = reader.getBoolean(SYNCABLE)
+                    || !syncablePlaylists.contains(reader.getLong(PLAYLIST_ID))
+                    ? Urn.forPlaylist(reader.getLong(PLAYLIST_ID)) : Urn.NOT_SET;
+
             return new OfflineRequestData(
                     reader.getLong(_ID),
                     reader.getLong(DURATION),
                     reader.getString(WAVEFORM_URL),
-                    reader.getLong(PLAYLIST_ID),
-                    reader.getBoolean(SYNCABLE));
+                    reader.getBoolean(SYNCABLE),
+                    // do not include creator opt out in playlist unless there are no syncable tracks
+                    includeInPlaylist);
         }
     }
 
     private static class LikedTrackMapper implements ResultMapper<OfflineRequestData> {
+        private final boolean hasSyncableTracks;
+
+        private LikedTrackMapper(boolean hasSyncableTracks) {
+            this.hasSyncableTracks = hasSyncableTracks;
+        }
+
         @Override
         public OfflineRequestData map(CursorReader reader) {
+
             return new OfflineRequestData(
                     reader.getLong(_ID),
                     reader.getLong(DURATION),
                     reader.getString(WAVEFORM_URL),
-                    reader.getBoolean(SYNCABLE));
+                    reader.getBoolean(SYNCABLE),
+                    // do not include creator opt out in likes collection unless there are no syncable tracks
+                    reader.getBoolean(SYNCABLE) || !hasSyncableTracks ? true : false);
         }
     }
 

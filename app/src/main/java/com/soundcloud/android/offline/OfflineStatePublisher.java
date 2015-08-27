@@ -1,5 +1,8 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.utils.CollectionUtils.subtract;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -13,6 +16,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 class OfflineStatePublisher {
@@ -20,9 +24,15 @@ class OfflineStatePublisher {
     private final String TAG = OfflineStatePublisher.class.getSimpleName();
     private final EventBus eventBus;
 
+    private OfflineContentUpdates updates;
+
     @Inject
     public OfflineStatePublisher(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    public void setUpdates(OfflineContentUpdates updates) {
+        this.updates = updates;
     }
 
     void publishDownloadSuccessfulEvents(DownloadQueue queue, DownloadState result) {
@@ -40,10 +50,10 @@ class OfflineStatePublisher {
         publishCollectionsDownloadedForCancelledTrack(queue, result);
     }
 
-    void publishNotDownloadableStateChanges(DownloadQueue queue, OfflineContentUpdates requests, Urn currentDownload) {
-        publishDownloadedTracksRemoved(requests, currentDownload);
-        publishTracksAlreadyDownloaded(requests);
-        publishCreatorOptOut(requests);
+    void publishNotDownloadableStateChanges(DownloadQueue queue, Urn currentDownload) {
+        publishDownloadedTracksRemoved(currentDownload);
+        publishTracksAlreadyDownloaded();
+        publishCreatorOptOut();
 
         if (!queue.getRequests().isEmpty()) {
             Log.d(TAG, "downloadRequestRemoved");
@@ -51,10 +61,10 @@ class OfflineStatePublisher {
         }
     }
 
-    private void publishCreatorOptOut(OfflineContentUpdates requests) {
-        if (!requests.creatorOptOutRequests.isEmpty()) {
+    private void publishCreatorOptOut() {
+        if (!updates.creatorOptOutRequests.isEmpty()) {
             Log.d(TAG, "creatorOptOut");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(requests.creatorOptOutRequests));
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(updates.creatorOptOutRequests));
         }
     }
 
@@ -74,16 +84,16 @@ class OfflineStatePublisher {
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.idle());
     }
 
-    private void publishTracksAlreadyDownloaded(OfflineContentUpdates requests) {
-        if (!requests.newRestoredRequests.isEmpty()) {
+    private void publishTracksAlreadyDownloaded() {
+        if (!updates.newRestoredRequests.isEmpty()) {
             Log.d(TAG, "downloaded");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(requests.newRestoredRequests));
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(updates.newRestoredRequests));
         }
     }
 
-    private void publishDownloadedTracksRemoved(OfflineContentUpdates requests, final Urn urn) {
-        if (!requests.newRemovedTracks.isEmpty()) {
-            final Collection<Urn> removed = MoreCollections.filter(requests.newRemovedTracks, notCurrentDownload(urn));
+    private void publishDownloadedTracksRemoved(final Urn urn) {
+        if (!updates.newRemovedTracks.isEmpty()) {
+            final Collection<Urn> removed = MoreCollections.filter(updates.newRemovedTracks, notCurrentDownload(urn));
             if (!removed.isEmpty()) {
                 Log.d(TAG, "downloadRemoved");
                 eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
@@ -103,12 +113,12 @@ class OfflineStatePublisher {
 
     private void publishTrackDownloaded(DownloadQueue queue, DownloadState result) {
         final List<Urn> completed = queue.getDownloaded(result);
-        final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
+        final boolean isAllLikesCompleted = queue.isAllLikedTracksDownloaded(result);
 
-        if (hasChanges(completed, isLikedTrackCompleted)) {
+        if (hasChanges(completed, isAllLikesCompleted)) {
             Log.d(TAG, "downloaded");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                    CurrentDownloadEvent.downloaded(isLikedTrackCompleted, completed));
+                    CurrentDownloadEvent.downloaded(isAllLikesCompleted, completed));
         }
     }
 
