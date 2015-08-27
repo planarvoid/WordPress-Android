@@ -173,5 +173,5 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldRemoveStationsStorage() {
         action.call();
         verify(stationsOperations).clearData();
-    }    
+    }
 }

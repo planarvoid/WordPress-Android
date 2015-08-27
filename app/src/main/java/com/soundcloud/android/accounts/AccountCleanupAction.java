@@ -85,7 +85,7 @@ class AccountCleanupAction implements Action0 {
         FollowingOperations.clearState();
     }
 
-    private void clearCollections()  {
+    private void clearCollections() {
         try {
             clearTableCommand.call(Table.Likes);
             clearTableCommand.call(Table.Posts);
