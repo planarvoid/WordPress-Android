@@ -8,7 +8,12 @@ def executeCurlCommand(cmd, defaultReturnValue) {
     System.err.println("executeCurlCommand($cmd) exitValue: $exitValue")
     return defaultReturnValue
   }
-  new JsonSlurper().parseText(p.text)
+  def text = p.text
+  if (null == text) {
+    System.err.println("executeCurlCommand($cmd) text was null")
+    return defaultReturnValue
+  }
+  new JsonSlurper().parseText(text)
 }
 
 def executePostWithData(url, json, defaultReturnValue) {

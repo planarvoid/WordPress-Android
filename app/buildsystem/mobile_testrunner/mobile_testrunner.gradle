@@ -97,7 +97,7 @@ def copyApkToServer(local_file_path) {
     remote_filepath
 }
 
-def createExecution(String label) {
+def createExecution(Test[] tests, String label) {
   def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
 
   def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
@@ -106,8 +106,6 @@ def createExecution(String label) {
 
   def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 
-  def tests = [new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
-               new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")]
   def runConfiguration = new RunConfiguration(label: label, test_runner: project.ext.testInstrumentationRunner, tests: tests)
 
   new Execution(session: session, run_configuration: runConfiguration)
@@ -148,16 +146,25 @@ def failBuildIfNecessary(TestResult[] retrievedResults) {
   }
 }
 
-def runTestsForLabel(String label) {
-  def run = execute(createExecution(label))
+def runTestsForLabel(Test[] tests, String label) {
+  def run = execute(createExecution(tests, label))
   def results = getAndShowResultsForRun(run)
   failBuildIfNecessary(results)
 }
 
-task lollipop << {
-  runTestsForLabel("Lollipop")
+task testRunLollipopTests << {
+  def tests = [
+          new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
+          new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")
+  ] as Test[]
+
+  runTestsForLabel(tests, "Lollipop")
 }
 
-task kitkat << {
-  runTestsForLabel("KitKat")
+task runLollipopTests << {
+  runTestsForLabel([], "Lollipop")
+}
+
+task runKitkatTests << {
+  runTestsForLabel([], "KitKat")
 }
