@@ -1,11 +1,15 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.util.List;
+
 public class RecyclerViewElement {
+    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 10;
 
     protected final Han testDriver;
     private final RecyclerView recyclerView;
@@ -40,8 +44,35 @@ public class RecyclerViewElement {
     }
 
     public RecyclerViewElement scrollToBottomOfPage() {
-        testDriver.scrollToPosition(recyclerView, getItemCount()-1);
+        testDriver.scrollToPosition(recyclerView, getItemCount() - 1);
         return this;
+    }
+
+    public ViewElement getItemWithChild(With with, With child) {
+        scrollToItem(child);
+        final List<ViewElement> items = testDriver.findElements(with);
+
+        for (ViewElement item : items) {
+            if (item.findElement(child).isVisible()) {
+                return item;
+            }
+        }
+
+        return new EmptyViewElement("Unable to find an item with the given child");
+    }
+
+    protected ViewElement scrollToItem(With with) {
+        int tries = 0;
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof EmptyViewElement) {
+            tries++;
+            testDriver.scrollDown();
+            if (tries > MAX_SCROLLS_TO_FIND_ITEM) {
+                return new EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
     }
 
     public RecyclerView.Adapter getAdapter() {

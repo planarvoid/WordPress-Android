@@ -1,6 +1,5 @@
 package com.soundcloud.android.testsupport;
 
-import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
@@ -13,12 +12,15 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.stations.ApiStation;
+import com.soundcloud.android.stations.ApiStationMetadata;
+import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.OfflineContent;
-import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
+import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -125,7 +127,8 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Users.FOLLOWERS_COUNT, numberOfFollowers)), counts(1));
     }
 
-    public void assertStationInserted(StationRecord station) {
+
+    public void assertStationMetadataInserted(ApiStationMetadata station) {
         assertThat(
                 select(
                         from(Stations.TABLE)
@@ -137,13 +140,21 @@ public class DatabaseAssertions {
                 ),
                 counts(1)
         );
+    }
+
+    public void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(
                 select(from(StationsPlayQueues.TABLE)
                                 .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                                .whereIn(StationsPlayQueues.TRACK_URN, transform(station.getTracks().getCollection(), toUrn))
+                                .whereIn(StationsPlayQueues.TRACK_URN, station.getTracks())
                 ),
-                counts(station.getTracks().getCollection().size())
+                counts(station.getTracks().size())
         );
+    }
+
+    public void assertStationInserted(ApiStation station) {
+        assertStationMetadataInserted(station.getMetadata());
+        assertStationPlayQueueInserted(station);
     }
 
     public void assertStationIsUnique(Urn station) {
@@ -153,7 +164,7 @@ public class DatabaseAssertions {
         );
     }
 
-    public void assertStationPosition(Urn station, int position) {
+    public void assertStationPlayQueuePosition(Urn station, int position) {
         assertThat(
                 select(
                         from(Stations.TABLE)
@@ -174,10 +185,27 @@ public class DatabaseAssertions {
 
     public void assertRecentStationsContains(Urn stationUrn, long currentTime, int expectedCount) {
         assertThat(
-                select(from(RecentStations.TABLE)
-                        .whereEq(RecentStations.STATION_URN, stationUrn.toString())
-                        .whereEq(RecentStations.UPDATED_LOCALLY_AT, currentTime)),
+                select(from(StationsCollections.TABLE)
+                        .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                        .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
+                        .whereEq(StationsCollections.UPDATED_LOCALLY_AT, currentTime)),
                 counts(expectedCount)
+        );
+    }
+
+    public void assertRecentStationsAtPosition(Urn stationUrn, long position) {
+        assertThat(
+                select(from(StationsCollections.TABLE)
+                        .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                        .whereEq(StationsCollections.POSITION, position)),
+                counts(1)
+        );
+    }
+
+    public void assertNoRecentStations() {
+        assertThat(
+                select(from(StationsCollections.TABLE)),
+                counts(0)
         );
     }
 

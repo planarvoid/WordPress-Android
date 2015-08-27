@@ -33,7 +33,7 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldUpdateWhenStationAlreadyExists() {
         final Urn stationUrn = station.getUrn();
-        StationRecord upsert = StationFixtures.getApiStation(stationUrn);
+        ApiStation upsert = StationFixtures.getApiStation(stationUrn);
 
         command.call(station);
         command.call(upsert);

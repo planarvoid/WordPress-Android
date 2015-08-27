@@ -543,12 +543,6 @@
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
 
-    <!-- __STATIONS -->
-    <string name="side_menu_stations">Stations</string>
-    <string name="track_station_type">Track station</string>
-    <string name="recent_stations_title">Recently played stations</string>
-    <string name="station_bucket_action_text">View all</string>
-
     <!-- __COLLECTION -->
     <string name="side_menu_collections">Collections</string>
     <string name="collections_playlists_header"><![CDATA[PLAYLISTS & RELEASES]]></string>

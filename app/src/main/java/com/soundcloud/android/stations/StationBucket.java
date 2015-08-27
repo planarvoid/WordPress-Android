@@ -8,11 +8,13 @@ import java.util.List;
 class StationBucket {
 
     private final String title;
+    private final int collectionType;
     private final int bucketSize;
     private final List<Station> stations;
 
-    public StationBucket(String title, int bucketSize, List<Station> stations) {
+    public StationBucket(String title, final int collectionType, int bucketSize, List<Station> stations) {
         this.title = title;
+        this.collectionType = collectionType;
         this.bucketSize = bucketSize;
         this.stations = Collections.unmodifiableList(stations);
     }
@@ -25,15 +27,19 @@ class StationBucket {
         return title;
     }
 
+    public int getCollectionType() {
+        return collectionType;
+    }
+
     public int getBucketSize() {
         return bucketSize;
     }
 
-    public static Func1<List<Station>, StationBucket> fromStations(final String name, final int bucketSize) {
+    public static Func1<List<Station>, StationBucket> fromStations(final String name, final int collectionType, final int bucketSize) {
         return new Func1<List<Station>, StationBucket>() {
             @Override
             public StationBucket call(List<Station> stations) {
-                return new StationBucket(name, bucketSize, stations);
+                return new StationBucket(name, collectionType, bucketSize, stations);
             }
         };
     }

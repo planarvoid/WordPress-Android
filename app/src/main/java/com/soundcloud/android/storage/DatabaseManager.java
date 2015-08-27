@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 54;
+    public static final int DATABASE_VERSION = 55;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -46,9 +46,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.PlayQueue.SQL);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
-            db.execSQL(Tables.RecentStations.SQL);
+            db.execSQL(LegacyTables.RecentStations.SQL);
             db.execSQL(Tables.TrackDownloads.SQL);
             db.execSQL(Tables.OfflineContent.SQL);
+            db.execSQL(Tables.StationsCollections.SQL);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -125,6 +126,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 54:
                             success = upgradeTo54(db, oldVersion);
+                            break;
+                        case 55:
+                            success = upgradeTo55(db, oldVersion);
                             break;
                         default:
                             break;
@@ -367,7 +371,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
-            db.execSQL(Tables.RecentStations.SQL);
+            db.execSQL(LegacyTables.RecentStations.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 50);
@@ -426,12 +430,26 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo54(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.RecentStations.TABLE.name(), db);
-            db.execSQL(Tables.RecentStations.SQL);
+            SchemaMigrationHelper.dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+            db.execSQL(LegacyTables.RecentStations.SQL);
             return true;
 
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 54);
+        }
+        return false;
+    }
+
+    /**
+     * Rename RecentStations to StationsCollections and add the COLLECTION_TYPE column
+     */
+    private static boolean upgradeTo55(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+            db.execSQL(Tables.StationsCollections.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 55);
         }
         return false;
     }

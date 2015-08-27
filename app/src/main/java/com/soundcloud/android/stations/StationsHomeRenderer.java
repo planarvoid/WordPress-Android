@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.Navigator;
 import butterknife.ButterKnife;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
@@ -20,12 +20,6 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
 
     private final StationRenderer stationRenderer;
     private final Navigator navigator;
-    private final View.OnClickListener onViewAllClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            navigator.openRecentStations(view.getContext());
-        }
-    };;
 
     @Inject
     public StationsHomeRenderer(StationRenderer stationRenderer, Navigator navigator) {
@@ -57,7 +51,7 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     private void bindShowAllView(View view, StationBucket bucket) {
         if (bucket.getStations().size() > bucket.getBucketSize()) {
             view.setVisibility(View.VISIBLE);
-            view.setOnClickListener(onViewAllClick);
+            view.setOnClickListener(onViewAllClick(bucket.getCollectionType()));
         } else {
             view.setVisibility(View.GONE);
         }
@@ -71,6 +65,15 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
 
     private RecyclerView findRecyclerView(View view) {
         return ButterKnife.findById(view, R.id.ak_recycler_view);
+    }
+
+    private View.OnClickListener onViewAllClick(final int type) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                navigator.openViewAllStations(view.getContext(), type);
+            }
+        };
     }
 
     private static class StationsBucketAdapter extends RecyclerView.Adapter<StationsBucketAdapter.StationViewHolder> {

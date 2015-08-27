@@ -1,13 +1,9 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.Scheduler;
@@ -28,19 +24,19 @@ public class StationsOperations {
     private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
         @Override
         public void call(ApiStation apiStation) {
-            storeTracksCommand.call(apiStation.getTracks());
+            storeTracksCommand.call(apiStation.getTrackRecords());
         }
     };
 
-    private static final Func1<ApiStation, Station> toStation = new Func1<ApiStation, Station>() {
-        private static final int START_POSITION = 0;
+    private static final Func1<Station, Boolean> HAS_TRACKS = new Func1<Station, Boolean>() {
+        @Override
+        public Boolean call(Station station) {
+            return station.getTracks().size() > 0;
+        }
+    };
 
-        private final Function<TrackRecord, Urn> toUrns = new Function<TrackRecord, Urn>() {
-            @Override
-            public Urn apply(TrackRecord track) {
-                return track.getUrn();
-            }
-        };
+    private static final Func1<ApiStation, Station> TO_STATION = new Func1<ApiStation, Station>() {
+        private static final int START_POSITION = 0;
 
         @Override
         public Station call(ApiStation station) {
@@ -48,16 +44,10 @@ public class StationsOperations {
                     station.getUrn(),
                     station.getTitle(),
                     station.getType(),
-                    transform(station.getTracks().getCollection(), toUrns),
+                    station.getTracks(),
+                    station.getPermalink(),
                     START_POSITION
             );
-        }
-    };
-
-    private final Func1<SyncResult, Observable<Station>> toRecentStations = new Func1<SyncResult, Observable<Station>>() {
-        @Override
-        public Observable<Station> call(SyncResult ignored) {
-            return recentStations();
         }
     };
 
@@ -79,7 +69,7 @@ public class StationsOperations {
     public Observable<Station> station(Urn stationUrn) {
         return Observable
                 .concat(
-                        stationsStorage.station(stationUrn),
+                        stationsStorage.station(stationUrn).filter(HAS_TRACKS),
                         fetchStation(stationUrn)
                 )
                 .first()
@@ -98,7 +88,7 @@ public class StationsOperations {
                 .fetchStation(stationUrn)
                 .doOnNext(storeTracks)
                 .doOnNext(storeStationCommand.toAction())
-                .map(toStation);
+                .map(TO_STATION);
     }
 
     Observable<ChangeResult> saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
@@ -107,16 +97,14 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<Station> recentStations() {
+    Observable<Station> stations(int type) {
         return stationsStorage
-                .recentStations()
+                .getStationsCollection(type)
                 .subscribeOn(scheduler);
     }
 
-    Observable<Station> updateRecentStations() {
-        return syncInitiator
-                .syncRecentStations()
-                .flatMap(toRecentStations);
+    Observable<SyncResult> sync() {
+        return syncInitiator.syncRecentStations();
     }
 
     public void clearData() {

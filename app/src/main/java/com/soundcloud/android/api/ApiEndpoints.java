@@ -67,6 +67,7 @@ public enum ApiEndpoints {
 
     // stations
     STATION("/stations/%s/station_and_tracks"),
+    STATIONS("/stations"),
 
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
