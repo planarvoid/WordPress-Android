@@ -78,7 +78,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void clearRecommendationData() {
+    public void clearRecommendationsData() {
         final List<ApiRecommendation> apiRecommendations = RecommendationsFixtures.createApiRecommendationsWithLikedReason(1);
 
         command.call(apiRecommendations);
