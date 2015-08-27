@@ -3,17 +3,16 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.SearchActionBarController;
-import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.lightcycle.LightCycle;
@@ -36,8 +35,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     private static final String INTENT_URL_QUERY_PARAM = "q";
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
 
     @Inject PlaybackOperations playbackOperations;

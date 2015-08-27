@@ -8,7 +8,6 @@ import static rx.android.app.AppObservable.bindActivity;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.campaigns.InAppCampaignController;
@@ -23,7 +22,6 @@ import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -69,8 +67,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 

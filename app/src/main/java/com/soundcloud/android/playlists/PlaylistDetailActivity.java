@@ -2,15 +2,14 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +30,7 @@ public class PlaylistDetailActivity extends ScActivity {
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
 
     @Deprecated // Use Navigator
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {

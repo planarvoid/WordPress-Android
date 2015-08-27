@@ -2,9 +2,8 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdPlayerController;
+import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -16,8 +15,7 @@ public class RecommendedTracksActivity extends ScActivity {
 
     public static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle PlayerController playerController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
