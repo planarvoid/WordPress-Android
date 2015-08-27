@@ -77,9 +77,9 @@ public final class ErrorUtils {
     /*
      * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
      */
-    public static Thread.UncaughtExceptionHandler setupUncaughtExceptionHandler(final MemoryReporter memoryReporter) {
+    public static void setupUncaughtExceptionHandler(final MemoryReporter memoryReporter) {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
-        final Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
                 if (isCausedByOutOfMemory(e)) {
@@ -93,9 +93,7 @@ public final class ErrorUtils {
                     crashlyticsHandler.uncaughtException(thread, e);
                 }
             }
-        };
-        Thread.setDefaultUncaughtExceptionHandler(handler);
-        return handler;
+        });
     }
 
     // This is aimed to be a temporary fix.
