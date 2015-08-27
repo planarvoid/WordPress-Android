@@ -21,15 +21,6 @@ class DiscoveryOperations {
     private static final Observable<List<DiscoveryItem>> ON_ERROR_EMPTY_ITEM_LIST =
             Observable.just(Collections.<DiscoveryItem>emptyList());
 
-    private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
-            new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
-                @Override
-                public Observable<List<DiscoveryItem>> call(Boolean ignore) {
-                    //we always retrieve recommendations from local storage
-                    return recommendationsFromStorage();
-                }
-            };
-
     private static final Func1<List<PropertySet>, List<DiscoveryItem>> TO_RECOMMENDATIONS =
             new Func1<List<PropertySet>, List<DiscoveryItem>>() {
                 @Override
@@ -42,8 +33,50 @@ class DiscoveryOperations {
                 }
             };
 
+    private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
+            new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
+                @Override
+                public Observable<List<DiscoveryItem>> call(Boolean ignore) {
+                    //we always retrieve recommendations from local storage
+                    return recommendationsFromStorage();
+                }
+            };
+
+    private final Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>> toDiscoveryItemsList =
+            new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
+                @Override
+                public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
+                    List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size());
+                    combined.addAll(recommendations);
+                    combined.addAll(playlistTags);
+                    return combined;
+                }
+            };
+
+    private final Func2<List<String>, List<String>, List<DiscoveryItem>> tagsToDiscoveryItemList =
+            new Func2<List<String>, List<String>, List<DiscoveryItem>>() {
+        @Override
+        public List<DiscoveryItem> call(List<String> popular, List<String> recent) {
+            return Collections.<DiscoveryItem>singletonList(new PlaylistDiscoveryItem(popular, recent));
+        }
+    };
+
+    private Func2<List<Urn>, List<Urn>, List<Urn>> toPlaylist(final RecommendationItem recommendationItem) {
+        return new Func2<List<Urn>, List<Urn>, List<Urn>>() {
+            @Override
+            public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
+                List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
+                playList.addAll(previousTracks);
+                playList.add(recommendationItem.getSeedTrackUrn());
+                playList.addAll(subsequentTracks);
+                return playList;
+            }
+        };
+    }
+
     private final DiscoverySyncer discoverySyncer;
     private final RecommendationsStorage recommendationsStorage;
+
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final Scheduler scheduler;
 
@@ -62,33 +95,30 @@ class DiscoveryOperations {
     private Observable<List<DiscoveryItem>> recommendations() {
         return discoverySyncer.syncRecommendations()
                 .flatMap(toRecommendations)
-                .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
+                .onErrorResumeNext(recommendationsFromStorage());
     }
 
     private Observable<List<DiscoveryItem>> recommendationsFromStorage() {
-        return recommendationsStorage.seedTracks().map(TO_RECOMMENDATIONS).subscribeOn(scheduler);
+        return recommendationsStorage.seedTracks()
+                .map(TO_RECOMMENDATIONS)
+                .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST)
+                .subscribeOn(scheduler);
     }
 
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
-        return playlistDiscoveryOperations.popularPlaylistTags().zipWith(playlistDiscoveryOperations.recentPlaylistTags(),
-                new Func2<List<String>, List<String>, List<DiscoveryItem>>() {
-                    @Override
-                    public List<DiscoveryItem> call(List<String> popular, List<String> recent) {
-                        return Collections.<DiscoveryItem>singletonList(new PlaylistDiscoveryItem(popular, recent));
-                    }
-                }).onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
+        return playlistDiscoveryOperations.popularPlaylistTags()
+                .zipWith(
+                        playlistDiscoveryOperations.recentPlaylistTags(),
+                        tagsToDiscoveryItemList)
+                .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
     Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
-        return recommendations().zipWith(playlistDiscovery(), new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
-            @Override
-            public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
-                List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size());
-                combined.addAll(recommendations);
-                combined.addAll(playlistTags);
-                return combined;
-            }
-        }).subscribeOn(scheduler);
+        return recommendations()
+                .zipWith(
+                        playlistDiscovery(),
+                        toDiscoveryItemsList)
+                .subscribeOn(scheduler);
     }
 
     Observable<List<Urn>> recommendedTracksWithSeed(final RecommendationItem recommendationItem) {
@@ -97,17 +127,10 @@ class DiscoveryOperations {
         //we query all previous and subsequents tracks, put the seed track in
         //its position and build the list.
         return recommendationsStorage.recommendedTracksBeforeSeed(recommendationItem.getSeedTrackLocalId())
-                .zipWith(recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),
-                        new Func2<List<Urn>, List<Urn>, List<Urn>>() {
-                            @Override
-                            public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
-                                List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
-                                playList.addAll(previousTracks);
-                                playList.add(recommendationItem.getSeedTrackUrn());
-                                playList.addAll(subsequentTracks);
-                                return playList;
-                            }
-                        }).subscribeOn(scheduler);
+                .zipWith(
+                        recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),
+                        toPlaylist(recommendationItem))
+                .subscribeOn(scheduler);
     }
 
     Observable<List<Urn>> recommendedTracks() {
