@@ -13,6 +13,7 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.OfflineContent;
@@ -187,26 +188,29 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable())
                 .whereEq(TableColumns.TrackPolicies.POLICY, track.getPolicy());
 
-        if (track.getMonetizationModel().isPresent()){
+        if (track.getMonetizationModel().isPresent()) {
             query.whereEq(TableColumns.TrackPolicies.MONETIZATION_MODEL, track.getMonetizationModel().get());
         }
-        if (track.isSubMidTier().isPresent()){
+        if (track.isSubMidTier().isPresent()) {
             query.whereEq(TableColumns.TrackPolicies.SUB_MID_TIER, track.isSubMidTier().get());
         }
-        if (track.isSubHighTier().isPresent()){
+        if (track.isSubHighTier().isPresent()) {
             query.whereEq(TableColumns.TrackPolicies.SUB_HIGH_TIER, track.isSubHighTier().get());
         }
         assertThat(select(query), counts(1));
     }
 
-    public void assetPolicyInserted(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
-        assertThat(select(from(Table.SoundView.name())
-                        .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
-                        .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                        .whereEq(TableColumns.SoundView.POLICIES_MONETIZABLE, monetizable)
-                        .whereEq(TableColumns.SoundView.POLICIES_POLICY, policy)
-                        .whereEq(TableColumns.SoundView.POLICIES_SYNCABLE, syncable)
-        ), counts(1));
+    public void assertPolicyInserted(ApiPolicyInfo apiPolicyInfo) {
+        final Query query = from(Table.TrackPolicies.name())
+                .whereEq(TableColumns.TrackPolicies.TRACK_ID, apiPolicyInfo.getUrn().getNumericId())
+                .whereEq(TableColumns.TrackPolicies.MONETIZABLE, apiPolicyInfo.isMonetizable())
+                .whereEq(TableColumns.TrackPolicies.SYNCABLE, apiPolicyInfo.isSyncable())
+                .whereEq(TableColumns.TrackPolicies.POLICY, apiPolicyInfo.getPolicy())
+                .whereEq(TableColumns.TrackPolicies.MONETIZATION_MODEL, apiPolicyInfo.getMonetizationModel())
+                .whereEq(TableColumns.TrackPolicies.SUB_MID_TIER, apiPolicyInfo.isSubMidTier())
+                .whereEq(TableColumns.TrackPolicies.SUB_HIGH_TIER, apiPolicyInfo.isSubHighTier());
+
+        assertThat(select(query), counts(1));
     }
 
     public void assertLikedTrackPendingAddition(Urn targetUrn) {
@@ -255,7 +259,6 @@ public class DatabaseAssertions {
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
         ), counts(1));
     }
-
 
     public void assertPlaylistNotStored(ApiPlaylist playlist) {
         assertThat(select(from(Table.Sounds.name())
@@ -326,7 +329,6 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
                 .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(1));
-
     }
 
     public void assertTrackRepostNotExistent(Urn urn) {

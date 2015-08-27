@@ -1,8 +1,9 @@
 package com.soundcloud.android.policies;
 
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -11,33 +12,38 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-class StorePoliciesCommand extends StoreCommand<Iterable<PolicyInfo>> {
+class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicyInfo>, TxnResult> {
+
+    private final DateProvider dateProvider;
 
     @Inject
-    public StorePoliciesCommand(PropellerDatabase database) {
+    public StorePoliciesCommand(PropellerDatabase database, DateProvider dateProvider) {
         super(database);
+        this.dateProvider = dateProvider;
     }
 
     @Override
-    protected TxnResult store() {
-        return database.runTransaction(new PropellerDatabase.Transaction() {
+    protected TxnResult write(PropellerDatabase propeller, final Iterable<ApiPolicyInfo> input) {
+        return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                for (PolicyInfo policy : input) {
+                for (ApiPolicyInfo policy : input) {
                     step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(policy)));
                 }
             }
         });
     }
 
-    private ContentValues buildPolicyContentValues(PolicyInfo policyEntry) {
+    private ContentValues buildPolicyContentValues(ApiPolicyInfo policyEntry) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getTrackUrn().getNumericId())
+                .put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getUrn().getNumericId())
                 .put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy())
                 .put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable())
                 .put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getCurrentTime())
+                .put(TableColumns.TrackPolicies.MONETIZATION_MODEL, policyEntry.getMonetizationModel())
+                .put(TableColumns.TrackPolicies.SUB_MID_TIER, policyEntry.isSubMidTier())
+                .put(TableColumns.TrackPolicies.SUB_HIGH_TIER, policyEntry.isSubHighTier())
                 .get();
     }
-
 }
