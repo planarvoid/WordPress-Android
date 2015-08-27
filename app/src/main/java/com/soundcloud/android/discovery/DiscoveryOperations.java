@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
+import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class DiscoveryOperations {
+public class DiscoveryOperations {
 
     private static final Observable<List<DiscoveryItem>> ON_ERROR_EMPTY_ITEM_LIST =
             Observable.just(Collections.<DiscoveryItem>emptyList());
@@ -76,18 +77,20 @@ class DiscoveryOperations {
 
     private final DiscoverySyncer discoverySyncer;
     private final RecommendationsStorage recommendationsStorage;
-
+    private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final Scheduler scheduler;
 
     @Inject
     DiscoveryOperations(DiscoverySyncer discoverySyncer,
                         RecommendationsStorage recommendationsStorage,
+                        StoreRecommendationsCommand storeRecommendationsCommand,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
 
         this.discoverySyncer = discoverySyncer;
         this.recommendationsStorage = recommendationsStorage;
+        this.storeRecommendationsCommand = storeRecommendationsCommand;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
         this.scheduler = scheduler;
     }
@@ -141,5 +144,11 @@ class DiscoveryOperations {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                 .map(TrackItem.fromPropertySets())
                 .subscribeOn(scheduler);
+    }
+
+    public void clearData() {
+        storeRecommendationsCommand.clearTables();
+        discoverySyncer.clearLastSyncTime();
+        playlistDiscoveryOperations.clearData();
     }
 }

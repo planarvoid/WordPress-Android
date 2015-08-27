@@ -77,6 +77,19 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
         assertSeedInserted(apiRecommendations.get(1));
     }
 
+    @Test
+    public void clearRecommendationData() {
+        final List<ApiRecommendation> apiRecommendations = RecommendationsFixtures.createApiRecommendationsWithLikedReason(1);
+
+        command.call(apiRecommendations);
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(1));
+        assertThat(select(from(Recommendations.TABLE)), counts(2));
+
+        command.clearTables();
+        assertThat(select(from(RecommendationSeeds.TABLE)), counts(0));
+        assertThat(select(from(Recommendations.TABLE)), counts(0));
+    }
+
     private void assertSeedInserted(ApiRecommendation recommendation) {
         assertThat(select(from(RecommendationSeeds.TABLE)
                 .whereEq(RecommendationSeeds.SEED_SOUND_ID, recommendation.getSeedTrack().getUrn().getNumericId())

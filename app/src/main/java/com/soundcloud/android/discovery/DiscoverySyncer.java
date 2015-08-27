@@ -56,6 +56,10 @@ class DiscoverySyncer {
         }
     }
 
+    void clearLastSyncTime() {
+        sharedPreferences.edit().clear().apply();
+    }
+
     private boolean isRecommendationsCacheExpired() {
         return (dateProvider.getCurrentTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
     }

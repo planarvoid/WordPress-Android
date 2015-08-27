@@ -1,12 +1,14 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
+import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -44,12 +46,13 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Mock private DiscoverySyncer discoverySyncer;
     @Mock private RecommendationsStorage recommendationsStorage;
+    @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
 
     @Before
     public void setUp() throws Exception {
         operations = new DiscoveryOperations(discoverySyncer, recommendationsStorage,
-                playlistDiscoveryOperations, scheduler);
+                storeRecommendationsCommand, playlistDiscoveryOperations, scheduler);
 
         // setup happy path
         when(recommendationsStorage.seedTracks()).thenReturn(Observable.just(Arrays.asList(createSeedItem())));
@@ -203,6 +206,15 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         assertThat(discoveryItems).hasSize(2);
 
         assertRecommendedTrackItem(discoveryItems.get(0));
+    }
+
+    @Test
+    public void cleanUpRecommendationsData() {
+        operations.clearData();
+
+        verify(storeRecommendationsCommand).clearTables();
+        verify(discoverySyncer).clearLastSyncTime();
+        verify(playlistDiscoveryOperations).clearData();
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {

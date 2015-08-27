@@ -6,7 +6,7 @@ import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.discovery.RemoveRecommendationsCommand;
+import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -28,6 +28,7 @@ class AccountCleanupAction implements Action0 {
 
     private final ActivitiesStorage activitiesStorage;
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
+    //TODO: PlaylistTagStorage collaborator can be removed here once recommendations feature is enabled.
     private final PlaylistTagStorage tagStorage;
     private final SoundRecorder soundRecorder;
     private final SyncStateManager syncStateManager;
@@ -37,7 +38,7 @@ class AccountCleanupAction implements Action0 {
     private final StreamSyncStorage streamSyncStorage;
     private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
-    private final RemoveRecommendationsCommand removeRecommendationsCommand;
+    private final DiscoveryOperations discoveryOperations;
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
 
@@ -48,7 +49,7 @@ class AccountCleanupAction implements Action0 {
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
-                         RemoveRecommendationsCommand removeRecommendationsCommand,
+                         DiscoveryOperations discoveryOperations,
                          ClearTableCommand clearTableCommand, StationsOperations stationsOperations) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
@@ -61,7 +62,7 @@ class AccountCleanupAction implements Action0 {
         this.streamSyncStorage = streamSyncStorage;
         this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
-        this.removeRecommendationsCommand = removeRecommendationsCommand;
+        this.discoveryOperations = discoveryOperations;
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
     }
@@ -82,6 +83,7 @@ class AccountCleanupAction implements Action0 {
         planStorage.clear();
         soundRecorder.reset();
         stationsOperations.clearData();
+        discoveryOperations.clearData();
         FollowingOperations.clearState();
     }
 
@@ -93,7 +95,6 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
             removeLocalPlaylistsCommand.call(null);
-            removeRecommendationsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);
         }

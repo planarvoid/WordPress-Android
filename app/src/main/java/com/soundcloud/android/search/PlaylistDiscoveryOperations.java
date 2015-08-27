@@ -74,6 +74,10 @@ public class PlaylistDiscoveryOperations {
         });
     }
 
+    public void clearData() {
+        tagStorage.clear();
+    }
+
     private Observable<List<String>> getCachedPlaylistTags() {
         return tagStorage.getPopularTagsAsync();
     }
