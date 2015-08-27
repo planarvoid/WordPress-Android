@@ -42,7 +42,6 @@ import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
@@ -51,6 +50,7 @@ import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
+import rx.schedulers.Schedulers;
 
 import android.accounts.Account;
 import android.app.ActivityManager;
@@ -77,7 +77,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static ScModelManager sModelManager;
 
     // These are not injected because we need them before Dagger initializes
-    private MemoryReporter memoryReporter;
+    private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
 
@@ -146,7 +146,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         adIdHelper.init();
 
-        memoryReporter.reportSystemMemoryStats();
+        uncaughtExceptionHandlerController.reportSystemMemoryStats();
 
         IOUtils.createCacheDirs();
 
@@ -189,18 +189,20 @@ public class SoundCloudApplication extends MultiDexApplication {
         applicationProperties = new ApplicationProperties(getResources());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        final MemoryReporter memoryReporter;
         if (isReportingCrashes()) {
             memoryReporter = new CrashlyticsMemoryReporter(activityManager);
         } else {
             memoryReporter = new MemoryReporter(activityManager);
         }
+        uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(Schedulers.immediate(), memoryReporter);
     }
 
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
             Fabric.with(this, new Crashlytics());
         }
-        ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
+        uncaughtExceptionHandlerController.setupUncaughtExceptionHandler();
     }
 
     private void setupCurrentUserAccount() {
@@ -329,7 +331,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Override
     public void onTrimMemory(int level) {
-        memoryReporter.reportMemoryTrim(level);
+        uncaughtExceptionHandlerController.reportMemoryTrim(level);
         super.onTrimMemory(level);
     }
 
