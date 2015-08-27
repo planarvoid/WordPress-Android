@@ -84,8 +84,6 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
-        solo.goBack();
-
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
         assertEquals(recentStations.getFirstStation().getTitle(), currentStationName);
@@ -96,31 +94,42 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     public void testStartStationFromBucket() throws Exception {
         final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
-        solo.goBack();
-        final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
+        final VisualPlayerElement player = menuScreen
+                .open()
+                .clickStations()
+                .getRecentStationsBucket()
+                .findStation(With.text(currentStationName))
+                .click();
 
-        recentStations.findStation(With.text(currentStationName)).click();
+        assertThat(player, is(visible()));
     }
 
     public void testStartStationFromViewAllStations() throws Exception {
         final String currentStationName = startFiveRadiosAndReturnTheStationName();
 
-        solo.goBack();
-        final ViewAllStationsScreen viewAllStationsScreen = menuScreen.open().clickStations().getRecentStationsBucket().clickViewAll();
+        final VisualPlayerElement player = menuScreen
+                .open()
+                .clickStations()
+                .getRecentStationsBucket()
+                .clickViewAll()
+                .findStation(With.text(currentStationName))
+                .click();
 
-        viewAllStationsScreen.findStation(With.text(currentStationName)).click();
+        assertThat(player, is(visible()));
     }
 
     private String startFiveRadiosAndReturnTheStationName() {
-        playlistDetailsScreen.getTrack(0).clickOverflowButton().clickStartStation().pressBackToCollapse();
         playlistDetailsScreen.getTrack(1).clickOverflowButton().clickStartStation().pressBackToCollapse();
         playlistDetailsScreen.getTrack(2).clickOverflowButton().clickStartStation().pressBackToCollapse();
         playlistDetailsScreen.getTrack(3).clickOverflowButton().clickStartStation().pressBackToCollapse();
+        playlistDetailsScreen.getTrack(4).clickOverflowButton().clickStartStation().pressBackToCollapse();
 
-        final TrackItemElement track = playlistDetailsScreen.getTrack(4);
+        final TrackItemElement track = playlistDetailsScreen.getTrack(5);
         final String title = track.getTitle();
 
         track.clickOverflowButton().clickStartStation().pressBackToCollapse();
+        solo.goBack();
+
         return title;
     }
 }

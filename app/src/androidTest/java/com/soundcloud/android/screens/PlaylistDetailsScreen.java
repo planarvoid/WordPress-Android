@@ -127,21 +127,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public TrackItemElement getTrack(int position) {
         scrollToPosition(position);
-        return findTrackWithTitle(trackItemElements().get(position).getTitle());
-    }
-
-    private TrackItemElement findTrackWithTitle(String title) {
-        final List<TrackItemElement> tracks = getTracks();
-        for (TrackItemElement track : tracks) {
-            if (track.getTitle().equals(title)) {
-                return track;
-            }
-        }
-        return new TrackItemElement(testDriver, new EmptyViewElement("Get track with title: " + title));
-    }
-
-    private TrackItemElement getTrackLlistElementAt(int i) {
-        return new TrackItemElement(testDriver, tracksListElement().getItemAt(i));
+        return new TrackItemElement(testDriver, tracksListElement().getItemAt(0));
     }
 
     @Override
