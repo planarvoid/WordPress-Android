@@ -25,7 +25,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void loadsLikeWithStalePolicyWhenFeatureEnabled() throws Exception {
+    public void loadsLikeWithStalePolicyWhenFeatureEnabled() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiTrack apiTrack = insertTrackAndUpdatePolicies();
 
@@ -35,7 +35,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void loadsLikeWithMissingPolicyWhenFeatureEnabled() throws Exception {
+    public void loadsLikeWithMissingPolicyWhenFeatureEnabled() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         clearTrackPolicy(apiTrack);
@@ -46,7 +46,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void ignoresLikeWithUpToDatePolicy() throws Exception {
+    public void ignoresLikeWithUpToDatePolicy() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         updatePolicyTimestamp(apiTrack, new Date());
@@ -57,7 +57,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void ignoresLikeWithRemovedAt() throws Exception {
+    public void ignoresLikeWithRemovedAt() {
         testFixtures().insertLikesMarkedForOfflineSync();
         testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(100));
 
@@ -67,7 +67,19 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void doesNotLoadOfflineLikesWhenFeatureDisabled() throws Exception {
+    public void ignoresOrphanLikes(){
+        testFixtures().insertLikesMarkedForOfflineSync();
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        // insert a track like with the same ID as the playlist to test that we are joining on tracks only
+        testFixtures().insertLike(apiPlaylist.getId(), TableColumns.Sounds.TYPE_TRACK, new Date(100));
+
+        Collection<Urn> trackLikes = command.call(null);
+
+        assertThat(trackLikes).isEmpty();
+    }
+
+    @Test
+    public void doesNotLoadOfflineLikesWhenFeatureDisabled() {
         insertTrackAndUpdatePolicies();
 
         Collection<Urn> trackLikes = command.call(null);
@@ -76,7 +88,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void doesNotLoadLikedPlaylistWhenNotMarkedAsAvailableOffline() throws Exception {
+    public void doesNotLoadLikedPlaylistWhenNotMarkedAsAvailableOffline() {
         testFixtures().insertLikesMarkedForOfflineSync();
         testFixtures().insertLikedPlaylist(new Date(100));
 
@@ -86,7 +98,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void loadOfflinePlaylistTracksWithStalePolicies() throws Exception {
+    public void loadOfflinePlaylistTracksWithStalePolicies() {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
         final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
@@ -97,7 +109,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void loadOfflinePlaylistTracksAndLikedTracksWithStalePolicies() throws Exception {
+    public void loadOfflinePlaylistTracksAndLikedTracksWithStalePolicies() {
         testFixtures().insertLikesMarkedForOfflineSync();
         final ApiTrack like = insertTrackAndUpdatePolicies();
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
