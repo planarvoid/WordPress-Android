@@ -27,6 +27,9 @@
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
 
+    <!-- if we have misnamed a locale, break the build -->
+    <issue id="LocaleFolder" severity="error"/>
+
     <!-- let's ignore rtl concerns entirely until we have an rtl language -->
     <issue id="RtlHardcoded" severity="ignore"/>
     <issue id="RtlSymmetry" severity="ignore"/>
