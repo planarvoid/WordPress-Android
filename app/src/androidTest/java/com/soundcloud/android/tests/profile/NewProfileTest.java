@@ -49,25 +49,26 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
         assertThat(screen.myspace().getText(), is(equalTo("Myspace")));
     }
 
-    public void ignore_testReflectsFollowingChanges() {
+    public void testReflectsFollowingChanges() {
         screen.touchFollowingsTab();
 
         assertTrue(screen.emptyView().isVisible());
 
-        screen = screen.touchFollowersTab().clickUserAt(0);
+        screen.touchFollowersTab().clickUserAt(0);
+
         String followerName = screen.getUserName();
         screen.clickFollowToggle();
 
         solo.goBack();
 
-        screen = new ProfileScreen(solo).touchFollowingsTab();
-        screen = screen.clickUserAt(0);
+        screen.touchFollowingsTab();
+        screen.clickUserAt(0);
         assertEquals(screen.getUserName(), followerName);
 
         screen.clickFollowToggle();
 
         solo.goBack();
-        screen = new ProfileScreen(solo).touchFollowingsTab();
+        screen.touchFollowingsTab();
         assertTrue(screen.emptyView().isVisible());
     }
 }
