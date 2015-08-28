@@ -18,10 +18,13 @@
     <issue id="MissingQuantity" severity="warning"/>
     <issue id="MissingQuantity" severity="warning"/>
 
-    <issue id="RtlHardcoded" severity="informational"/>
     <issue id="MissingTranslation" severity="informational"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
+
+    <!-- let's ignore rtl concerns entirely until we have an rtl language -->
+    <issue id="RtlHardcoded" severity="ignore"/>
+    <issue id="RtlSymmetry" severity="ignore"/>
 
     <!-- this will be rewritten by a Maven rule anyway -->
     <issue id="HardcodedDebugMode" severity="ignore"/>
