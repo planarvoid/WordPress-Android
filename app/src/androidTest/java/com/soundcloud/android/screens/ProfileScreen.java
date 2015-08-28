@@ -33,8 +33,8 @@ public class ProfileScreen extends Screen {
         return visualPlayerElement;
     }
 
-    public ProfileScreen clickFollowing(int index) {
-        return getUsers().get(0).click();
+    public ProfileScreen clickUserAt(int index) {
+        return getUsers().get(index).click();
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
@@ -146,6 +146,15 @@ public class ProfileScreen extends Screen {
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followings).toUpperCase()).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchFollowersTab() {
+        final SlidingTabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers).toUpperCase()).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
