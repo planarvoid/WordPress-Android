@@ -162,9 +162,9 @@ task testRunLollipopTests << {
 }
 
 task runLollipopTests << {
-  runTestsForLabel([], "Lollipop")
+  runTestsForLabel(null, "Lollipop")
 }
 
 task runKitkatTests << {
-  runTestsForLabel([], "KitKat")
+  runTestsForLabel(null, "KitKat")
 }
