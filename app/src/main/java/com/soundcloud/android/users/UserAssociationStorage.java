@@ -1,6 +1,6 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.model.Urn;

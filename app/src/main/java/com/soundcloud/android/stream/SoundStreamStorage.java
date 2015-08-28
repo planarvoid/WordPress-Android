@@ -6,7 +6,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
-import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;

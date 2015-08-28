@@ -32,7 +32,6 @@ dependencies {
   testCompile testingLibraries.mockito
   testCompile testingLibraries.modelCitizen
   testCompile testingLibraries.equalsVerifier
-  testCompile testingLibraries.propellerTest
 
   testCompile project(path: androidProject, configuration: 'debugCompile')
   testCompile debugVariant.javaCompile.classpath

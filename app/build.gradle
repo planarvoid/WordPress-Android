@@ -183,7 +183,6 @@ dependencies {
   testCompile unitTestLibraries.robolectricSupport
   testCompile unitTestLibraries.modelCitizen
   testCompile unitTestLibraries.equalsVerifier
-  testCompile unitTestLibraries.propellerTest
 
   /* Acceptance Tests */
   androidTestCompile(libraries.androidMultidexInstrumentation) {

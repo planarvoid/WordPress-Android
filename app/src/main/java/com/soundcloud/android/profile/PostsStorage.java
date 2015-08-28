@@ -6,7 +6,7 @@ import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.Table.Users;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
-import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
