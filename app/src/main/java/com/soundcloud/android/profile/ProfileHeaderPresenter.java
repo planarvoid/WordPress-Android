@@ -30,7 +30,7 @@ class ProfileHeaderPresenter {
     @InjectView(R.id.username) TextView username;
     @InjectView(R.id.image) ImageView image;
     @InjectView(R.id.followers_count) TextView followerCount;
-    @InjectView(R.id.follow_button) ToggleButton followButton;
+    @InjectView(R.id.toggle_btn_follow) ToggleButton followButton;
     @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Urn lastUser;

@@ -185,7 +185,7 @@ public class Han  {
         final int screenWidth = deviceSize.x;
         final int screenHeight = deviceSize.y;
 
-        drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
+        drag(screenWidth / 4, screenWidth / 4, screenHeight / 2, screenHeight / 2 + screenHeight / 4, 10);
     }
 
     public boolean isElementDisplayed(With matcher) {

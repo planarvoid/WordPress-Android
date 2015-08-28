@@ -33,7 +33,7 @@
             android:drawableStart="@drawable/stats_followers"/>
 
         <ToggleButton
-            android:id="@+id/follow_button"
+            android:id="@+id/toggle_btn_follow"
             style="@style/Profile.ToggleButton.Follow.Large"
             android:layout_marginTop="10dp"
             android:layout_toRightOf="@id/image"
