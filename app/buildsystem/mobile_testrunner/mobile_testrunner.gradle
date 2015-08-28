@@ -4,7 +4,7 @@ apply from: "$project.ext.buildSrcDir/curl.gradle"
 
 class Package { String name; String location }
 class Session { Package application_package; Package test_package; Package[] tools_packages }
-class RunConfiguration { String label; String test_runner; Test[] tests }
+class RunConfiguration { String label; String test_runner; Test[] tests; String[] only_with_annotations; String[] exclude_annotations}
 class Execution { Session session; RunConfiguration run_configuration }
 class Run { String id; Integer numTests }
 
@@ -97,18 +97,17 @@ def copyApkToServer(local_file_path) {
     remote_filepath
 }
 
-def createExecution(Test[] tests, String label) {
-  def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
+def createSession() {
+    def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
+    def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
+    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
 
-  def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
+    new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
+}
 
-  def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
-
-  def session = new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
-
-  def runConfiguration = new RunConfiguration(label: label, test_runner: project.ext.testInstrumentationRunner, tests: tests)
-
-  new Execution(session: session, run_configuration: runConfiguration)
+def createRunConfiguration(String label, String[] onlyWithAnnotations, String[] excludeAnnotations, Test[] specificTests) {
+    new RunConfiguration(label: label, test_runner: project.ext.testInstrumentationRunner,
+            only_with_annotations: onlyWithAnnotations, exclude_annotations: excludeAnnotations, tests: specificTests)
 }
 
 def execute(Execution execution) {
@@ -146,8 +145,9 @@ def failBuildIfNecessary(TestResult[] retrievedResults) {
   }
 }
 
-def runTestsForLabel(Test[] tests, String label) {
-  def run = execute(createExecution(tests, label))
+def runTestsForLabel(String label, Test[] tests) {
+  def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
+  def run = execute(execution)
   def results = getAndShowResultsForRun(run)
   failBuildIfNecessary(results)
 }
@@ -158,13 +158,13 @@ task testRunLollipopTests << {
           new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")
   ] as Test[]
 
-  runTestsForLabel(tests, "Lollipop")
+  runTestsForLabel("Lollipop", tests)
 }
 
 task runLollipopTests << {
-  runTestsForLabel(null, "Lollipop")
+  runTestsForLabel("Lollipop", null)
 }
 
 task runKitkatTests << {
-  runTestsForLabel(null, "KitKat")
+  runTestsForLabel("KitKat", null)
 }
