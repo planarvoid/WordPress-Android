@@ -87,4 +87,11 @@
         <item name="android:dividerHeight">4dp</item>
     </style>
 
+    <!-- toolbar themes to avoid overdraw -->
+
+    <style name="Theme.SoundCloud.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+
 </resources>
