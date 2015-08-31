@@ -116,6 +116,13 @@
         <ignore path="res/drawable-large-mdpi/ic_notification_cloud.png" />
         <ignore path="res/drawable-xlarge-mdpi/ic_notification_cloud.png" />
     </issue>
+    <issue id="IconColors">
+        <ignore path="res/drawable-mdpi/notification_loading.png" />
+        <ignore path="res/drawable-hdpi/notification_loading.png" />
+        <ignore path="res/drawable-xhdpi/notification_loading.png" />
+        <ignore path="res/drawable-xxhdpi/notification_loading.png" />
+    </issue>
+    <issue id="IconDensities" severity="ignore" />
 
     <issue id="FloatMath">
         <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
