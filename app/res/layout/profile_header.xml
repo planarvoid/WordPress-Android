@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/profile_header"
+<FrameLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Profile.HeaderContainer">
 
@@ -8,7 +9,8 @@
         style="@style/Profile.HeaderInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        tools:ignore="UselessParent">
 
         <ImageView
             android:id="@+id/image"
