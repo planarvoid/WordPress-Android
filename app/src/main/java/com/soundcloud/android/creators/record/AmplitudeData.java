@@ -55,7 +55,6 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         }
         data = new float[length];
         source.readFloatArray(data);
-        source.recycle();
     }
 
     public void add(float sample) {
@@ -159,7 +158,9 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         Parcel parcel = Parcel.obtain();
         parcel.unmarshall(bytes, 0, bytes.length);
         parcel.setDataPosition(0);
-        return new AmplitudeData(parcel);
+        AmplitudeData amplitudeData = new AmplitudeData(parcel);
+        parcel.recycle();
+        return amplitudeData;
     }
 
     @Override
