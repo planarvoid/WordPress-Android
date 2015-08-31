@@ -18,12 +18,12 @@ import javax.inject.Inject;
 
 public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iterable<? extends ApiRecommendation>, WriteResult> {
 
-    private final PropellerDatabase propellerDatabase;
+    private final PropellerDatabase propeller;
 
     @Inject
     public StoreRecommendationsCommand(PropellerDatabase database) {
         super(database);
-        this.propellerDatabase = database;
+        this.propeller = database;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
     }
 
     public void clearTables() {
-        propellerDatabase.delete(Recommendations.TABLE);
-        propellerDatabase.delete(RecommendationSeeds.TABLE);
+        propeller.delete(Recommendations.TABLE);
+        propeller.delete(RecommendationSeeds.TABLE);
     }
 }
