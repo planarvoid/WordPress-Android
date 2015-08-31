@@ -1,19 +1,14 @@
 package com.soundcloud.android;
 
-import android.accounts.AccountManager;
-import android.app.NotificationManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.facebook.FacebookSdk;
+import com.google.android.gms.gcm.GcmReceiver;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
-import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -28,8 +23,6 @@ import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.storage.StorageModule;
@@ -43,23 +36,29 @@ import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.squareup.okhttp.OkHttpClient;
-
-import javax.inject.Named;
-
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import android.accounts.AccountManager;
+import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
+
+import javax.inject.Named;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
 @Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class,
-        LocalyticsPushReceiver.class, ApiSyncService.class}, library = true)
+        GcmReceiver.class, ApiSyncService.class}, library = true)
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;

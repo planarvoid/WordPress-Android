@@ -27,6 +27,7 @@ public class StorageModule {
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
     public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
+    public static final String GCM = "gcm";
 
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
@@ -37,6 +38,7 @@ public class StorageModule {
     private static final String PREFS_FEATURES = "features_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
+    private static final String PREFS_GCM = "gcm";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -47,6 +49,12 @@ public class StorageModule {
     @Named(PLAYLIST_TAGS)
     public SharedPreferences providePlaylistTagPrefs(Context context) {
         return context.getSharedPreferences(PREFS_PLAYLIST_TAGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(GCM)
+    public SharedPreferences provideGcmPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_GCM, Context.MODE_PRIVATE);
     }
 
     @Provides

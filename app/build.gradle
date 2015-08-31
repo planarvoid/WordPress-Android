@@ -47,6 +47,7 @@ apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'com.google.gms.google-services'
 
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
@@ -172,6 +173,7 @@ dependencies {
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
   compile libraries.androidPlayServicesAnalytics
+  compile libraries.androidPlayServicesGCM
 
   /* Unit tests */
   testCompile unitTestLibraries.junit

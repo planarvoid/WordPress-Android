@@ -400,14 +400,26 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
-
+        <!-- GCM -->
+        <receiver android:name=".gcm.GcmMessageReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
                 <category android:name="com.soundcloud.android"/>
             </intent-filter>
         </receiver>
+        <service
+            android:name="com.soundcloud.android.gcm.GcmInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.soundcloud.android.gcm.GcmRegistrationService"
+            android:exported="false">
+        </service>
 
         <!-- Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
