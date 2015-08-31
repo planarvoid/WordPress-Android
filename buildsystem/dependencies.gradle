@@ -16,7 +16,7 @@ ext {
   androidKitVersion = '0.26'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
-  propellerVersion = '0.48'
+  propellerVersion = '0.52'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
@@ -90,7 +90,6 @@ ext {
           mockito                         : "org.mockito:mockito-core:1.9.5",
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
-          propellerTest                   : "com.soundcloud.propeller:propeller:$propellerVersion:tests",
           androidSupportAnnotations       : "com.android.support:support-annotations:$androidSupportVersion",
   ]
 

@@ -78,6 +78,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) activity.findViewById(R.id.indicator);
         tabIndicator.setViewPager(pager);
+
+        pager.setCurrentItem(ProfilePagerAdapter.TAB_POSTS);
+
         refreshUser();
 
         userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)

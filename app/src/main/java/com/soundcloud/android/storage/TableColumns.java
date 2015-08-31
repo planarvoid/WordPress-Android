@@ -160,6 +160,7 @@ public final class TableColumns {
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_USER_ASSOCIATIONS}
      */
     public static final class UserAssociations {
+        @Deprecated // this is unnecessary as we do not store other people's likes
         public static final String OWNER_ID = "owner_id"; // the source user of the association
         public static final String TARGET_ID = "target_id";// the target user of the association
         public static final String ASSOCIATION_TYPE = "association_type"; // the type of association (e.g. Following, Follower)

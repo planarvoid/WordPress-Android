@@ -6,7 +6,7 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -20,7 +20,7 @@ import android.widget.ListView;
 import java.util.List;
 
 public class ProfileScreen extends Screen {
-    private static Class ACTIVITY = LegacyProfileActivity.class;
+    private static Class ACTIVITY = ProfileActivity.class;
 
     public ProfileScreen(Han solo) {
         super(solo);
@@ -33,8 +33,8 @@ public class ProfileScreen extends Screen {
         return visualPlayerElement;
     }
 
-    public ProfileScreen clickFollowing(int index) {
-        return getUsers().get(0).click();
+    public ProfileScreen clickUserAt(int index) {
+        return getUsers().get(index).click();
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
@@ -146,6 +146,15 @@ public class ProfileScreen extends Screen {
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followings).toUpperCase()).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchFollowersTab() {
+        final SlidingTabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers).toUpperCase()).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }

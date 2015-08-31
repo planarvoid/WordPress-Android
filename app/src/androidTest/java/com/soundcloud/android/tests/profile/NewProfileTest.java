@@ -42,11 +42,32 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
 
     public void testShowsInfo() {
         screen.touchInfoTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
         assertThat(screen.description().getText(), is(equalTo(EXPECTED_DESCRIPTION)));
         assertThat(screen.website().getText(), is(equalTo("Google")));
         assertThat(screen.discogs().getText(), is(equalTo("Discogs")));
         assertThat(screen.myspace().getText(), is(equalTo("Myspace")));
+    }
+
+    public void ignore_testReflectsFollowingChanges() {
+        screen.touchFollowingsTab();
+
+        assertTrue(screen.emptyView().isVisible());
+
+        screen = screen.touchFollowersTab().clickUserAt(0);
+        String followerName = screen.getUserName();
+        screen.clickFollowToggle();
+
+        solo.goBack();
+
+        screen = new ProfileScreen(solo).touchFollowingsTab();
+        screen = screen.clickUserAt(0);
+        assertEquals(screen.getUserName(), followerName);
+
+        screen.clickFollowToggle();
+
+        solo.goBack();
+        screen = new ProfileScreen(solo).touchFollowingsTab();
+        assertTrue(screen.emptyView().isVisible());
     }
 }

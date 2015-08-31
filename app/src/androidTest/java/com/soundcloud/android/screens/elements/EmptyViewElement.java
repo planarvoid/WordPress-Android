@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.view.EmptyView;
 
 public class EmptyViewElement extends Element {
 
@@ -23,7 +24,7 @@ public class EmptyViewElement extends Element {
     }
 
     private ViewElement emptyView(){
-        return solo.findElement(With.id(R.id.ak_emptyview_holder));
+        return solo.findElement(With.className(EmptyView.class.getName()));
     }
 
     private TextElement messageView() {

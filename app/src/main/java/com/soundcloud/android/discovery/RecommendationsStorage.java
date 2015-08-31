@@ -3,7 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
-import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;

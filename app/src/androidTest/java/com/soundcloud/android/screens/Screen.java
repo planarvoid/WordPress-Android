@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -51,11 +50,6 @@ public abstract class Screen {
 
     public ViewElement errorView(){
         return testDriver.findElement(With.id(com.soundcloud.android.R.id.ak_error_view));
-    }
-
-    public void retryFromErrorView(){
-        errorView().findElement(With.id(R.id.ak_emptyview_btn_retry)).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public ViewElement emptyConnectionErrorMessage(){

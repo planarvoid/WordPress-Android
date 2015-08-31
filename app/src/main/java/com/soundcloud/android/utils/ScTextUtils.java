@@ -356,8 +356,8 @@ public class ScTextUtils {
     }
 
     public static String toTitleCase(String word) {
-        return word.substring(0, 1).toUpperCase() +
-                word.substring(1).toLowerCase();
+        return word.substring(0, 1).toUpperCase(Locale.US) +
+                word.substring(1).toLowerCase(Locale.US);
     }
 
 }

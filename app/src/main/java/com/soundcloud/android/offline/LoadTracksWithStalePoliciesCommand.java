@@ -2,17 +2,17 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentStorage.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.Tables.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
+import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
-import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.android.storage.Tables.OfflineContent;
+import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -40,10 +40,12 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
         if (isOfflineLikesEnabled()) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
                     .where(stalePolicyCondition)).toList(new TrackUrnMapper()));
+
         }
         set.addAll(database.query(buildOfflinePlaylistTracksQuery()
                 .where(stalePolicyCondition))
                 .toList(new TrackUrnMapper()));
+
         return set;
     }
 
@@ -60,10 +62,15 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
     }
 
     static Query buildOfflineLikedTracksQuery() {
+        final Where whereTrackDataExists = filter()
+                .whereEq(Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
+                .whereEq(Likes.field(TableColumns.Likes._TYPE), Sounds.field(TableColumns.Sounds._TYPE));
+
         final String likeId = Likes.field(TableColumns.Likes._ID);
         return Query.from(Likes.name())
                 .select(
                         field(likeId).as(BaseColumns._ID))
+                .innerJoin(Sounds.name(), whereTrackDataExists)
                 .leftJoin(TrackPolicies.name(), likeId, TableColumns.TrackPolicies.TRACK_ID)
                 .whereEq(Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT));
@@ -74,11 +81,11 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, OfflineContent._ID.qualifiedName())
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
 
-        final String trackIdFromPlaylistTracks = Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
+        final String trackIdFromPlaylistTracks = PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
         return Query.from(PlaylistTracks.name())
                 .select(
                         field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
                 .innerJoin(OfflineContent.TABLE.name(), filterOfflinePlaylist)
-                .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
+                .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
     }
 }

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
     android:versionCode="259"
     android:versionName="15.08.20"
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21"/>
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21" tools:ignore="GradleOverrides"/>
 
     <supports-screens android:anyDensity="true"/>
 
@@ -44,8 +45,21 @@
       android:supportsRtl="true"
     attribute to out application tag. More details at:
       http://android-developers.blogspot.co.uk/2013/03/native-rtl-support-in-android-42.html
+
+    Note also, supportsRtl is only supported in api 17+, so UnusedAttribute needs to be
+    ignored until we upgrade to that version.
     -->
-    <application android:allowBackup="true" android:configChanges="orientation|keyboardHidden|keyboard" android:hardwareAccelerated="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:name="SoundCloudApplication" android:theme="@style/Theme.SoundCloud">
+    <application
+        android:allowBackup="true"
+        android:configChanges="orientation|keyboardHidden|keyboard"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:name="SoundCloudApplication"
+        android:theme="@style/Theme.SoundCloud"
+        tools:ignore="UnusedAttribute"
+        android:supportsRtl="false"
+        >
 
         <meta-data android:name="LOCALYTICS_NOTIFICATION_ICON" android:value="@drawable/ic_notification_localytics"/>
 

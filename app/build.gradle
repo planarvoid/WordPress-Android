@@ -24,7 +24,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
   }
   dependencies {
-    classpath 'io.fabric.tools:gradle:1.+'
+    classpath 'io.fabric.tools:gradle:1.19.2'
     classpath 'com.soundcloud.gandalf:gandalf-plugin:0.1.1'
     classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.1.1'
   }
@@ -183,7 +183,6 @@ dependencies {
   testCompile unitTestLibraries.robolectricSupport
   testCompile unitTestLibraries.modelCitizen
   testCompile unitTestLibraries.equalsVerifier
-  testCompile unitTestLibraries.propellerTest
 
   /* Acceptance Tests */
   androidTestCompile(libraries.androidMultidexInstrumentation) {

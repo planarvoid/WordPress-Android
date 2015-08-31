@@ -3,6 +3,7 @@ package com.soundcloud.android.properties;
 import com.soundcloud.android.BuildConfig;
 
 import java.util.EnumSet;
+import java.util.Locale;
 
 public enum Flag {
 
@@ -27,7 +28,7 @@ public enum Flag {
     }
 
     public String getName() {
-        return this.name().toLowerCase();
+        return this.name().toLowerCase(Locale.US);
     }
 
     public boolean getValue() {
