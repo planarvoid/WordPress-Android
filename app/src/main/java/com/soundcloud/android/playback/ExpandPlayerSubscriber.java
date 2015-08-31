@@ -15,20 +15,26 @@ import javax.inject.Inject;
 public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     public static final int EXPAND_DELAY_MILLIS = 100;
 
-    private final EventBus eventBus;
     private final PlaybackToastHelper playbackToastHelper;
+    private final Handler expandDelayHandler;
 
-    private final Handler expandDelayHandler = new Handler() {
+    private static class ExpandDelayHandler extends Handler {
+        private EventBus eventBus;
+
+        private ExpandDelayHandler(EventBus eventBus) {
+            this.eventBus = eventBus;
+        }
+
         @Override
         public void handleMessage(Message msg) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY));
         }
-    };
+    }
 
     @Inject
     public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
-        this.eventBus = eventBus;
+        this.expandDelayHandler = new ExpandDelayHandler(eventBus);
         this.playbackToastHelper = playbackToastHelper;
     }
 
