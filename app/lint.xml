@@ -31,6 +31,9 @@
     <issue id="RtlHardcoded" severity="ignore"/>
     <issue id="RtlSymmetry" severity="ignore"/>
 
+    <!-- typos shouldn't be lint's responsibility, it doesn't understand pt -->
+    <issue id="typo" severity="ignore"/>
+
     <!-- this will be rewritten by a Maven rule anyway -->
     <issue id="HardcodedDebugMode" severity="ignore"/>
 
