@@ -45,6 +45,9 @@
       android:supportsRtl="true"
     attribute to out application tag. More details at:
       http://android-developers.blogspot.co.uk/2013/03/native-rtl-support-in-android-42.html
+
+    Note also, supportsRtl is only supported in api 17+, so UnusedAttribute needs to be
+    ignored until we upgrade to that version.
     -->
     <application
         android:allowBackup="true"
@@ -54,6 +57,7 @@
         android:label="@string/app_name"
         android:name="SoundCloudApplication"
         android:theme="@style/Theme.SoundCloud"
+        tools:ignore="UnusedAttribute"
         android:supportsRtl="false"
         >
 
