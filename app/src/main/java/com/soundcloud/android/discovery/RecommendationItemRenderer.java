@@ -99,7 +99,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
     }
 
     private String getViewAllText(RecommendationItem recommendationItem) {
-        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
+        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount()).toUpperCase(Locale.getDefault());
     }
 
     private Spannable getReasonText(RecommendationItem recommendationItem) {
