@@ -128,9 +128,9 @@ public class RecordActivity extends ScActivity {
     }
 
     private void transition(Fragment fragment, String fragmentTag, boolean addToBackStack) {
-        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out, R.anim.ak_fade_in, R.anim.ak_fade_out)
-                .replace(R.id.container, fragment, fragmentTag);
+        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out, R.anim.ak_fade_in, R.anim.ak_fade_out);
+        fragmentTransaction.replace(R.id.container, fragment, fragmentTag);
 
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(null);
