@@ -184,4 +184,14 @@
     <issue id="ButtonStyle">
         <ignore path="res/layout/mr_media_route_controller_material_dialog_b.xml" />
     </issue>
+
+    <!--
+        this is where we store strings that we know don't ever need to be
+        translated, or don't need to be translated yet, because the feature
+        is still in progress
+    -->
+    <issue id="MissingTranslation">
+        <ignore path="res/values/strings_no_localisation.xml" />
+        <ignore path="res/values/strings_non_final.xml" />
+    </issue>
 </lint>
