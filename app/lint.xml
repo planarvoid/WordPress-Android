@@ -111,33 +111,10 @@
         <ignore path="res/layout-sw600dp-land/playlist_fragment.xml" />
     </issue>
 
-    <issue id="IconXmlAndPng">
-        <!-- These are basically symlinks to re-use resources -->
-        <ignore path="res/drawable-xhdpi/btn_rec_edit_default.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_edit_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_edit_selected.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_default.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_selected.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_default.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_rec_play_pause_selected.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_pause.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_pause_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_rec.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_rec_deactivated.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_rec_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_resume.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_resume_deactivated.xml"/>
-        <ignore path="res/drawable-xhdpi/btn_recording_resume_pressed.xml"/>
-        <ignore path="res/drawable-xhdpi/left_handle.xml"/>
-        <ignore path="res/drawable-large-xhdpi/left_handle.xml"/>
-        <ignore path="res/drawable-xhdpi/left_handle_down.xml"/>
-        <ignore path="res/drawable-large-xhdpi/left_handle_down.xml"/>
-        <ignore path="res/drawable-xhdpi/right_handle.xml"/>
-        <ignore path="res/drawable-large-xhdpi/right_handle.xml"/>
-        <ignore path="res/drawable-xhdpi/right_handle_down.xml"/>
-        <ignore path="res/drawable-large-xhdpi/right_handle_down.xml"/>
+    <issue id="IconDuplicatesConfig">
+        <ignore path="res/drawable-hdpi/ic_notification_cloud.png" />
+        <ignore path="res/drawable-large-mdpi/ic_notification_cloud.png" />
+        <ignore path="res/drawable-xlarge-mdpi/ic_notification_cloud.png" />
     </issue>
 
     <issue id="FloatMath">
