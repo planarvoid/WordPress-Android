@@ -174,4 +174,9 @@
         <ignore path="target/classes/com/facebook/*.class" />
         <ignore path="target/classes/com/facebook/**/*.class" />
     </issue>
+
+    <!-- this code was inherited from the cast companion library -->
+    <issue id="ButtonStyle">
+        <ignore path="res/layout/mr_media_route_controller_material_dialog_b.xml" />
+    </issue>
 </lint>
