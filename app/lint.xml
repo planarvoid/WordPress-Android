@@ -16,6 +16,7 @@
     <issue id="MissingQuantity" severity="warning"/>
 
     <issue id="MissingTranslation" severity="informational"/>
+    <issue id="OldTargetApi" severity="informational"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
 
