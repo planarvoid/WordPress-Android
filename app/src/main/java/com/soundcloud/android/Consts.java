@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.api.legacy.model.activities.Activities;
-
 import android.os.Environment;
 
 import java.io.File;
@@ -32,14 +30,12 @@ public final class Consts {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
 
-        public static final int SIGNUP_VIA_FACEBOOK = 8001;
         public static final int RECOVER_PASSWORD_CODE = 8002;
         public static final int SIGNUP_VIA_GOOGLE = 8003;
         public static final int RECOVER_FROM_PLAY_SERVICES_ERROR = 8004;
     }
 
     public static final class GeneralIntents {
-        public static final String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
         public static final String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";
     }
 
@@ -51,10 +47,7 @@ public final class Consts {
     }
 
     public static final class PrefKeys {
-
-        public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
         public static final String C2DM_DEVICE_URL = "c2dm.device_url";
-        public static final String C2DM_REG_TO_DELETE = "c2dm.to_delete";
         public static final String NOTIFICATIONS_FOLLOWERS = "notificationsFollowers";
         public static final String NOTIFICATIONS_WIFI_ONLY = "notificationsWifiOnly";
         public static final String NOTIFICATIONS_INCOMING = "notificationsIncoming";
@@ -64,8 +57,6 @@ public final class Consts {
         public static final String NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
         public static final String PLAYBACK_ERROR_REPORTING_ENABLED = "playbackErrorReportingEnabled";
         public static final String LAST_USER_SYNC = "lastUserSync";
-        public static final String LAST_EMAIL_CONFIRMATION_REMINDER = "confirmation_last_reminded";
-
         public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     }
 }
