@@ -43,10 +43,6 @@
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
 
-    <issue id="ObseleteLayoutParams">
-        <ignore path="res/layout/track_info.xml"/>
-    </issue>
-
     <!-- Sometimes NestedWeights are necessities -->
     <issue id="NestedWeights">
         <ignore path="res/layout/abs__search_view.xml"/>
