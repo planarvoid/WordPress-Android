@@ -19,6 +19,9 @@
     <issue id="OldTargetApi" severity="informational"/>
     <!-- HandlerLeaks are bad, but they can't be suppressed, so info level -->
     <issue id="HandlerLeak" severity="informational" />
+    <!-- Need to consider this fix before implementing it -->
+    <issue id="TrulyRandom" severity="informational" />
+
 
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
