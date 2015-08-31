@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.crypto.Obfuscator;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
@@ -129,6 +130,7 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
         private final SharedPreferences.Editor wrappedEditor;
 
+        @SuppressLint("CommitPrefEdits")
         public ObfuscatedEditor() {
             wrappedEditor = wrappedPrefs.edit();
         }
