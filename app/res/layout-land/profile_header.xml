@@ -20,7 +20,7 @@
             android:layout_alignTop="@id/image"
             android:layout_toRightOf="@id/image"
             android:layout_toEndOf="@id/image"
-            android:layout_toLeftOf="@+id/follow_button"
+            android:layout_toLeftOf="@+id/toggle_btn_follow"
             android:textColor="@color/list_primary" />
 
         <com.soundcloud.android.view.CustomFontTextView
