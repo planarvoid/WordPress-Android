@@ -196,4 +196,7 @@
         <ignore path="res/values/strings_no_localisation.xml" />
         <ignore path="res/values/strings_non_final.xml" />
     </issue>
+
+    <!-- transifex doesn't properly support plurals, so ignore for now -->
+    <issue id="PluralsCandidate" severity="ignore" />
 </lint>
