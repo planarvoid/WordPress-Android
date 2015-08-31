@@ -101,7 +101,6 @@ def createSession() {
     def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
     def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
     def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
-
     new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 }
 
@@ -111,10 +110,11 @@ def createRunConfiguration(String label, String[] onlyWithAnnotations, String[] 
 }
 
 def execute(Execution execution) {
+  Logger.getLogger().log("Collecting test infomration")
   def r = executeSpecificTestsForLabel(execution)
   def runId = r.id
   def numTests = r.num_tests
-  println "Executing $numTests test(s) with run id $runId"
+  Logger.getLogger().log("Executing $numTests test(s) with run id $runId")
   new Run(id: runId, numTests: numTests)
 }
 
@@ -149,8 +149,49 @@ def runTestsForLabel(String label, Test[] tests) {
   def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
   def run = execute(execution)
   def results = getAndShowResultsForRun(run)
+  Logger.getLogger().log("Finished run $run.id")
   failBuildIfNecessary(results)
 }
+
+
+class LogEntry {
+
+    private final long timestamp;
+    private final long threadId;
+    private final String message;
+    public LogEntry(String message) {
+        this.timestamp = System.currentTimeMillis()
+        this.threadId = Thread.currentThread().getId();
+        this.message = message;
+    }
+
+    public String toString() {
+        timestamp + ": " + message + " [" + threadId + "]"
+    }
+}
+
+class Logger {
+    def logLines = new ArrayList<LogEntry>()
+
+    private def Logger() {}
+
+    def log(String message) {
+        def logEntry = new LogEntry(message)
+        logLines.add(logEntry)
+        println logEntry
+    }
+
+    static def Logger logger = null
+
+    static synchronized def getLogger() {
+        if (logger == null) {
+            logger = new Logger()
+        }
+
+        logger
+    }
+}
+
 
 task testRunLollipopTests << {
   def tests = [
@@ -167,4 +208,37 @@ task runLollipopTests << {
 
 task runKitkatTests << {
   runTestsForLabel("KitKat", null)
+}
+
+task stressTestRunner << {
+    def r = new Runnable() {
+        @Override
+        void run() {
+            try{
+               runTestsForLabel("Lollipop", null)
+            } catch(GradleException e) {
+                // fail silently
+            }
+        }
+    }
+
+    def threads = []
+    10.times {
+        def t = new Thread(r)
+        t.start()
+        threads += t
+    }
+
+    threads.each { t -> t.join() }
+
+    def lines = Logger.getLogger().logLines
+
+    def durationMs = lines.last().timestamp - lines.first().timestamp
+
+    def log_filename = "result_stress_test_" + System.currentTimeMillis() + ".log"
+    def log = new File(log_filename)
+
+    log.write(lines.join("\n"))
+
+    println("Stress test duration " + durationMs / 1000 + " sec Details in " + log_filename)
 }
