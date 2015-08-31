@@ -2,7 +2,8 @@
 <FrameLayout xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profile_header"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Profile.HeaderContainer">
+    style="@style/Profile.HeaderContainer"
+    tools:ignore="MergeRootFrame">
 
     <RelativeLayout
         android:id="@+id/header_info_layout"
