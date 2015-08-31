@@ -5,6 +5,6 @@
           soundcloud:showAsAction="always|withText"
           android:title="@string/suggested_users_btn_select_all"/>
     <item android:id="@+id/menu_deselect_all"
-          soundcloud:showAsAction="always|withText"
+          soundcloud:showAsAction="ifRoom|withText"
           android:title="@string/suggested_users_btn_deselect_all"/>
 </menu>

@@ -5,7 +5,7 @@
     <item android:id="@+id/media_route_menu_item"
           android:title="@string/mr_media_route_chooser_title"
           soundcloud:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
-          soundcloud:showAsAction="always"/>
+          soundcloud:showAsAction="ifRoom"/>
 
     <item android:id="@+id/action_search"
           android:title="@string/accessibility_search"
