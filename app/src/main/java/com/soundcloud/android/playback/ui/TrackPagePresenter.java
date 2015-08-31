@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;

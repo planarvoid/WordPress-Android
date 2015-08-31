@@ -12,7 +12,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -130,9 +130,9 @@ public class PlayerWidgetController {
         }
     }
 
-    private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
         @Override
-        public void onNext(Playa.StateTransition state) {
+        public void onNext(Player.StateTransition state) {
             presenter.updatePlayState(context, state.playSessionIsActive());
         }
     }

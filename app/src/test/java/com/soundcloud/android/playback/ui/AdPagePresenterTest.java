@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Playa.PlayaState;
-import static com.soundcloud.android.playback.Playa.Reason;
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.PlayerState;
+import static com.soundcloud.android.playback.Player.Reason;
+import static com.soundcloud.android.playback.Player.StateTransition;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -155,19 +155,19 @@ public class AdPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setPlayingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new StateTransition(PlayerState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new StateTransition(PlayerState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isVisible();
     }
 

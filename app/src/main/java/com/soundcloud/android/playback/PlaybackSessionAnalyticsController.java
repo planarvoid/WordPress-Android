@@ -28,7 +28,7 @@ class PlaybackSessionAnalyticsController {
     private PropertySet lastPlayAudioAd;
 
     private TrackSourceInfo currentTrackSourceInfo;
-    private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
+    private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
     private ReplaySubject<PropertySet> trackObservable;
 
     private final Func1<PropertySet, Boolean> lastEventWasNotPlayEvent = new Func1<PropertySet, Boolean>() {
@@ -49,7 +49,7 @@ class PlaybackSessionAnalyticsController {
         this.adsOperations = adsOperations;
     }
 
-    public void onStateTransition(Playa.StateTransition stateTransition) {
+    public void onStateTransition(Player.StateTransition stateTransition) {
         final Urn currentTrack = stateTransition.getTrackUrn();
         if (!currentTrack.equals(lastStateTransition.getTrackUrn())) {
             if (lastStateTransition.isPlayerPlaying()) {
@@ -70,11 +70,11 @@ class PlaybackSessionAnalyticsController {
         lastStateTransition = stateTransition;
     }
 
-    private int stopReasonFromTransition(Playa.StateTransition stateTransition) {
+    private int stopReasonFromTransition(Player.StateTransition stateTransition) {
         if (stateTransition.isBuffering()) {
             return PlaybackSessionEvent.STOP_REASON_BUFFERING;
         } else {
-            if (stateTransition.getReason() == Playa.Reason.TRACK_COMPLETE) {
+            if (stateTransition.getReason() == Player.Reason.TRACK_COMPLETE) {
                 return playQueueManager.hasNextTrack()
                         ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
                         : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
@@ -86,7 +86,7 @@ class PlaybackSessionAnalyticsController {
         }
     }
 
-    private void publishPlayEvent(final Playa.StateTransition stateTransition) {
+    private void publishPlayEvent(final Player.StateTransition stateTransition) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         if (currentTrackSourceInfo != null) {
             trackObservable
@@ -96,7 +96,7 @@ class PlaybackSessionAnalyticsController {
         }
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionPlayEvent(final Playa.StateTransition stateTransition) {
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionPlayEvent(final Player.StateTransition stateTransition) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -148,7 +148,7 @@ class PlaybackSessionAnalyticsController {
         eventBus.publish(EventQueue.TRACKING, AdDebugEvent.adWithInvalidProgress());
     }
 
-    private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
+    private void publishStopEvent(final Player.StateTransition stateTransition, final int stopReason) {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
@@ -159,7 +159,7 @@ class PlaybackSessionAnalyticsController {
         }
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final Playa.StateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final Player.StateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -180,19 +180,19 @@ class PlaybackSessionAnalyticsController {
         };
     }
 
-    private String getPlayerType(Playa.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE);
+    private String getPlayerType(Player.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE);
     }
 
-    private String getConnectionType(Playa.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_CONNECTION_TYPE);
+    private String getConnectionType(Player.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_CONNECTION_TYPE);
     }
 
-    private String getProtocol(Playa.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
+    private String getProtocol(Player.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
     }
 
-    private boolean isLocalStoragePlayback(Playa.StateTransition stateTransition) {
-        return URLUtil.isFileUrl(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_URI));
+    private boolean isLocalStoragePlayback(Player.StateTransition stateTransition) {
+        return URLUtil.isFileUrl(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_URI));
     }
 }

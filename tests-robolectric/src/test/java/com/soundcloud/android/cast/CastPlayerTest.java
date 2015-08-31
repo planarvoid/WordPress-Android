@@ -26,7 +26,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ProgressReporter;
@@ -67,7 +67,7 @@ public class CastPlayerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
 
-    @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
+    @Captor private ArgumentCaptor<Player.StateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
 
     @Before
@@ -91,9 +91,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithPlayingStateReturnsPlayingNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.PLAYING);
+        expect(stateTransition.getReason()).toBe(Player.Reason.NONE);
     }
 
     @Test
@@ -107,9 +107,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithPausedStateReturnsIdleNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.NONE);
     }
 
     @Test
@@ -123,9 +123,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithBufferingStateReturnsBufferingNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.BUFFERING);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.BUFFERING);
+        expect(stateTransition.getReason()).toBe(Player.Reason.NONE);
     }
 
     @Test
@@ -139,9 +139,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleErrorStateReturnsIdleFailed() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.ERROR_FAILED);
     }
 
     @Test
@@ -155,9 +155,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleFinishedStateReturnsTrackComplete() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.TRACK_COMPLETE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.TRACK_COMPLETE);
     }
 
     @Test
@@ -171,9 +171,9 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleCancelledStateReturnsIdleNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.NONE);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN1);
+        expectLastStateTransitionToBe(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN1);
 
     }
 
@@ -264,7 +264,7 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN1);
+        expectLastStateTransitionToBe(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN1);
     }
 
     @Test
@@ -275,8 +275,8 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        Playa.PlayaState newState = Playa.PlayaState.BUFFERING;
-        Playa.Reason reason = Playa.Reason.NONE;
+        Player.PlayerState newState = Player.PlayerState.BUFFERING;
+        Player.Reason reason = Player.Reason.NONE;
         Urn trackUrn = TRACK_URN1;
         expectLastStateTransitionToBe(newState, reason, trackUrn);
     }
@@ -300,7 +300,7 @@ public class CastPlayerTest {
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
-        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN1);
+        expectLastStateTransitionToBe(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN1);
     }
 
     @Test
@@ -322,9 +322,9 @@ public class CastPlayerTest {
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.ERROR_FAILED);
         expect(stateTransition.getTrackUrn()).toBe(TRACK_URN1);
     }
 
@@ -381,9 +381,9 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.ERROR_FAILED);
         expect(stateTransition.getTrackUrn()).toBe(TRACK_URN1);
     }
 
@@ -419,9 +419,9 @@ public class CastPlayerTest {
     public void onDisconnectedBroadcastsIdleState() throws Exception {
         castPlayer.onDisconnected();
 
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        final Player.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(Player.PlayerState.IDLE);
+        expect(stateTransition.getReason()).toBe(Player.Reason.NONE);
     }
 
     private MediaInfo createMediaInfo(Urn urn) {
@@ -435,7 +435,7 @@ public class CastPlayerTest {
                 .build();
     }
 
-    private Playa.StateTransition captureLastStateTransition() {
+    private Player.StateTransition captureLastStateTransition() {
         return eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
@@ -449,8 +449,8 @@ public class CastPlayerTest {
         return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
     }
 
-    private void expectLastStateTransitionToBe(Playa.PlayaState newState, Playa.Reason reason, Urn trackUrn) {
-        final Playa.StateTransition stateTransition = captureLastStateTransition();
+    private void expectLastStateTransitionToBe(Player.PlayerState newState, Player.Reason reason, Urn trackUrn) {
+        final Player.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(newState);
         expect(stateTransition.getReason()).toBe(reason);
         expect(stateTransition.getTrackUrn()).toEqual(trackUrn);

@@ -58,13 +58,13 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventDoesNotPublishEventWithInvalidTrackUrn() throws Exception {
-        analyticsController.onStateTransition(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, Urn.NOT_SET));
+        analyticsController.onStateTransition(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, Urn.NOT_SET));
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
-        Playa.StateTransition playEvent = publishPlayingEvent();
+        Player.StateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -73,14 +73,14 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEventForLocalStoragePlayback() throws Exception {
-        final Playa.StateTransition startEvent = new Playa.StateTransition(
-                Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
-        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_URI, "file://some/local/uri");
+        final Player.StateTransition startEvent = new Player.StateTransition(
+                Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_URI, "file://some/local/uri");
 
         analyticsController.onStateTransition(startEvent);
 
-        Playa.StateTransition playEvent = startEvent;
+        Player.StateTransition playEvent = startEvent;
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -89,8 +89,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() throws Exception {
-        Playa.StateTransition playEvent = publishPlayingEvent();
-        Playa.StateTransition nextEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
+        Player.StateTransition playEvent = publishPlayingEvent();
+        Player.StateTransition nextEvent = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
         analyticsController.onStateTransition(nextEvent);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -98,11 +98,11 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
     }
 
-    private void expectCommonAudioEventData(Playa.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
+    private void expectCommonAudioEventData(Player.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
@@ -114,7 +114,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
-        Playa.StateTransition playEvent = publishPlayingEvent();
+        Player.StateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // track properties
@@ -133,9 +133,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.hasNextTrack()).thenReturn(true);
 
         publishPlayingEvent();
-        publishStopEvent(Playa.PlayaState.BUFFERING, Playa.Reason.NONE); // make sure intermediate events don't matter
+        publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE); // make sure intermediate events don't matter
         publishPlayingEvent();
-        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
@@ -152,7 +152,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.of(promoter), Arrays.asList("url")));
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
-        Playa.StateTransition playEvent = publishPlayingEvent();
+        Player.StateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -174,7 +174,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForBuffering() throws Exception {
         publishPlayingEvent();
-        publishStopEvent(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
+        publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_BUFFERING);
     }
@@ -182,7 +182,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForPause() throws Exception {
         publishPlayingEvent();
-        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.NONE);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.NONE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_PAUSE);
     }
@@ -191,7 +191,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     public void stateChangeEventInNonPlayingStatePublishesStopEventForTrackFinished() throws Exception {
         publishPlayingEvent();
         when(playQueueManager.hasNextTrack()).thenReturn(true);
-        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
     }
@@ -200,7 +200,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     public void stateChangeEventInNonPlayingStatePublishesStopEventForQueueFinished() throws Exception {
         publishPlayingEvent();
         when(playQueueManager.hasNextTrack()).thenReturn(false);
-        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE);
     }
@@ -208,7 +208,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForError() throws Exception {
         publishPlayingEvent();
-        publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_ERROR);
     }
@@ -251,24 +251,24 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AUDIO_AD_URN));
     }
 
-    protected Playa.StateTransition publishPlayingEvent() {
+    protected Player.StateTransition publishPlayingEvent() {
         return publishPlayingEventForTrack(TRACK_URN);
     }
 
-    protected Playa.StateTransition publishPlayingEventForTrack(Urn trackUrn) {
-        final Playa.StateTransition startEvent = new Playa.StateTransition(
-                Playa.PlayaState.PLAYING, Playa.Reason.NONE, trackUrn, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+    protected Player.StateTransition publishPlayingEventForTrack(Urn trackUrn) {
+        final Player.StateTransition startEvent = new Player.StateTransition(
+                Player.PlayerState.PLAYING, Player.Reason.NONE, trackUrn, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
 
         analyticsController.onStateTransition(startEvent);
 
         return startEvent;
     }
 
-    protected Playa.StateTransition publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {
-        final Playa.StateTransition stopEvent = new Playa.StateTransition(
+    protected Player.StateTransition publishStopEvent(Player.PlayerState newState, Player.Reason reason) {
+        final Player.StateTransition stopEvent = new Player.StateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
-        stopEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        stopEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;
     }

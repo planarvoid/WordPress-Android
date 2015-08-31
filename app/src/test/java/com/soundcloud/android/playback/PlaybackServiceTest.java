@@ -43,12 +43,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private StreamPlaya streamPlayer;
+    @Mock private StreamPlayer streamPlayer;
     @Mock private PlaybackReceiver.Factory playbackReceiverFactory;
     @Mock private PlaybackReceiver playbackReceiver;
     @Mock private IRemoteAudioManager remoteAudioManager;
     @Mock private PlayQueue playQueue;
-    @Mock private Playa.StateTransition stateTransition;
+    @Mock private Player.StateTransition stateTransition;
     @Mock private PlaybackNotificationController playbackNotificationController;
     @Mock private PlaybackSessionAnalyticsController analyticsController;
     @Mock private AdsOperations adsOperations;
@@ -158,8 +158,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+        when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
         when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
 
@@ -168,7 +168,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        Playa.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        Player.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         assertThat(broadcasted).isEqualTo(stateTransition);
     }
 
@@ -184,8 +184,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+        when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
         when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
 
@@ -203,13 +203,13 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsController, never()).onStateTransition(any(Playa.StateTransition.class));
+        verify(analyticsController, never()).onStateTransition(any(Player.StateTransition.class));
     }
 
     @Test
     public void onProgressPublishesAProgressEvent() throws Exception {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.openCurrent(track, false);
 
@@ -224,7 +224,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {
         playbackService.onCreate();
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
@@ -236,7 +236,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void openCurrentWithAudioAdCallsPlayUninterruptedOnStreamPlayer() throws Exception {
         playbackService.onCreate();
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
@@ -256,11 +256,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void callingStopSuppressesIdleNotifications() throws Exception {
         playbackService.onCreate();
 
-        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, getTrackUrn()));
         playbackService.openCurrent(track, false);
 
         playbackService.stop();
-        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, getTrackUrn()));
+        playbackService.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, getTrackUrn()));
 
         assertThat(playbackService).doesNotHaveLastForegroundNotification();
     }

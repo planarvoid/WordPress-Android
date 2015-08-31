@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;

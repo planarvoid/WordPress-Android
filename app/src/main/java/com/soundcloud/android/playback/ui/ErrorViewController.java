@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -20,7 +20,7 @@ class ErrorViewController {
 
     private View errorLayout;
 
-    @Nullable private Playa.Reason currentError;
+    @Nullable private Player.Reason currentError;
 
     public ErrorViewController(View trackView) {
         this.trackView = trackView;
@@ -32,7 +32,7 @@ class ErrorViewController {
         return currentError != null;
     }
 
-    public void showError(Playa.Reason reason) {
+    public void showError(Player.Reason reason) {
         this.currentError = reason;
         holder.waveformController.hide();
         setGone(holder.hideOnErrorViews);
@@ -50,9 +50,9 @@ class ErrorViewController {
         }
     }
 
-    private void setMessageFromReason(Playa.Reason reason) {
+    private void setMessageFromReason(Player.Reason reason) {
         final TextView message = (TextView) errorLayout.findViewById(R.id.playback_error_reason);
-        message.setText(reason == Playa.Reason.ERROR_FAILED
+        message.setText(reason == Player.Reason.ERROR_FAILED
                 ? R.string.playback_error_connection
                 : R.string.playback_error_unable_to_play);
     }

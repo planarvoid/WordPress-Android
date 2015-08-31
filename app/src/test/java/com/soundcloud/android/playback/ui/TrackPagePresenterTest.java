@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Playa.Reason;
+import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

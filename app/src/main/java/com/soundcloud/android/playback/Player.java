@@ -12,7 +12,7 @@ import java.util.EnumSet;
 
 // TODO, extract transitions/reason/error codes to their own classes
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
-public interface Playa {
+public interface Player {
 
     @Deprecated // remove this when we get rid of or simplify mediaplayer
     void play(PropertySet track);
@@ -27,7 +27,7 @@ public interface Playa {
     void stop();
     void stopForTrackTransition();
     void destroy();
-    void setListener(PlayaListener playaListener);
+    void setListener(PlayerListener playerListener);
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
 
@@ -42,7 +42,7 @@ public interface Playa {
         private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
         private static final String DURATION_EXTRA = "DURATION_EXTRA";
 
-        private final PlayaState newState;
+        private final PlayerState newState;
         private final Reason reason;
         private final PlaybackProgress progress;
         private final Urn trackUrn;
@@ -50,13 +50,13 @@ public interface Playa {
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<>(2);
 
-        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.NOT_SET);
+        public static final StateTransition DEFAULT = new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
 
-        public StateTransition(PlayaState newState, Reason reason, Urn trackUrn) {
+        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn) {
             this(newState, reason, trackUrn, 0, 0);
         }
 
-        public StateTransition(PlayaState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
+        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
@@ -71,7 +71,7 @@ public interface Playa {
             return this.trackUrn != null && this.trackUrn.equals(trackUrn);
         }
 
-        public PlayaState getNewState() {
+        public PlayerState getNewState() {
             return newState;
         }
 
@@ -88,7 +88,7 @@ public interface Playa {
         }
 
         public boolean playSessionIsActive() {
-            return newState.isPlaying() || (newState == PlayaState.IDLE && reason == Reason.TRACK_COMPLETE);
+            return newState.isPlaying() || (newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE);
         }
 
         public boolean isPlayerPlaying() {
@@ -96,7 +96,7 @@ public interface Playa {
         }
 
         public boolean isPlayerIdle() {
-            return newState == PlayaState.IDLE;
+            return newState == PlayerState.IDLE;
         }
 
         public boolean isBuffering() {
@@ -120,11 +120,11 @@ public interface Playa {
         }
 
         public boolean trackEnded() {
-            return newState == Playa.PlayaState.IDLE && reason == Reason.TRACK_COMPLETE;
+            return newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE;
         }
 
         public boolean isPaused() {
-            return newState == PlayaState.IDLE && reason == Reason.NONE;
+            return newState == PlayerState.IDLE && reason == Reason.NONE;
         }
 
         public String getExtraAttribute(int key) {
@@ -186,7 +186,7 @@ public interface Playa {
      * BUFFERING : there is intent to play, but sound is not coming out of the speakers
      * Note : there is no state for buffering with no intent to play. We should just report that as IDLE
      */
-    enum PlayaState {
+    enum PlayerState {
         BUFFERING, PLAYING, IDLE;
 
         @VisibleForTesting
@@ -236,7 +236,7 @@ public interface Playa {
         }
     }
 
-    interface PlayaListener {
+    interface PlayerListener {
         void onPlaystateChanged(StateTransition stateTransition);
         void onProgressEvent(long progress, long duration);
         // we might be able to get rid of this, if we just request focus before setting data source, however this is a change in behavior

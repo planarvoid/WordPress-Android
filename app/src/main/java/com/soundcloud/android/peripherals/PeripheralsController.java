@@ -1,6 +1,6 @@
 package com.soundcloud.android.peripherals;
 
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;

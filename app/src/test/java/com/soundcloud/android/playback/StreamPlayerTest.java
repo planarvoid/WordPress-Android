@@ -26,16 +26,16 @@ import org.mockito.Mock;
 
 import android.content.Context;
 
-public class StreamPlayaTest extends AndroidUnitTest {
+public class StreamPlayerTest extends AndroidUnitTest {
 
     private final Urn trackUrn = Urn.forTrack(1L);
 
-    private StreamPlaya streamPlayerWrapper;
+    private StreamPlayer streamPlayerWrapper;
     @Mock private Context context;
     @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private SkippyAdapter skippyAdapter;
-    @Mock private BufferingPlaya bufferingPlaya;
-    @Mock private Playa.PlayaListener playaListener;
+    @Mock private BufferingPlayer bufferingPlaya;
+    @Mock private Player.PlayerListener playerListener;
     @Mock private OfflinePlaybackOperations offlinePlaybackOps;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
@@ -49,12 +49,12 @@ public class StreamPlayaTest extends AndroidUnitTest {
 
     @After
     public void tearDown() {
-        StreamPlaya.skippyFailedToInitialize = false;
+        StreamPlayer.skippyFailedToInitialize = false;
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, offlinePlaybackOps, networkConnectionHelper);
-        streamPlayerWrapper.setListener(playaListener);
+        streamPlayerWrapper = new StreamPlayer(context, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, offlinePlaybackOps, networkConnectionHelper);
+        streamPlayerWrapper.setListener(playerListener);
     }
 
     @Test
@@ -156,8 +156,8 @@ public class StreamPlayaTest extends AndroidUnitTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.startBufferingMode(trackUrn);
 
-        final Playa.StateTransition expected = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, trackUrn);
-        verify(playaListener).onPlaystateChanged(expected);
+        final Player.StateTransition expected = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, trackUrn);
+        verify(playerListener).onPlaystateChanged(expected);
     }
 
     @Test
@@ -337,11 +337,11 @@ public class StreamPlayaTest extends AndroidUnitTest {
     @Test
     public void onPlayStateChangedPassesSuccessEventToListener() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.setListener(playaListener);
+        streamPlayerWrapper.setListener(playerListener);
 
-        final Playa.StateTransition transition = TestPlayStates.buffering();
+        final Player.StateTransition transition = TestPlayStates.buffering();
         streamPlayerWrapper.onPlaystateChanged(transition);
-        verify(playaListener).onPlaystateChanged(transition);
+        verify(playerListener).onPlaystateChanged(transition);
     }
 
     @Test
@@ -351,7 +351,7 @@ public class StreamPlayaTest extends AndroidUnitTest {
         streamPlayerWrapper.play(track);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, track.get(TrackProperty.URN)));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, track.get(TrackProperty.URN)));
         verify(mediaPlayerAdapter).play(track, 123L);
     }
 
@@ -362,7 +362,7 @@ public class StreamPlayaTest extends AndroidUnitTest {
         streamPlayerWrapper.play(track);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN, track.get(TrackProperty.URN)));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, track.get(TrackProperty.URN)));
         verify(mediaPlayerAdapter, never()).play(any(PropertySet.class), anyLong());
     }
 
@@ -373,7 +373,7 @@ public class StreamPlayaTest extends AndroidUnitTest {
         streamPlayerWrapper.play(track);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, track.get(TrackProperty.URN)));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, track.get(TrackProperty.URN)));
         verify(mediaPlayerAdapter, never()).play(any(PropertySet.class), anyLong());
     }
 
@@ -383,16 +383,16 @@ public class StreamPlayaTest extends AndroidUnitTest {
         startPlaybackOnSkippy();
         when(skippyAdapter.getProgress()).thenReturn(1L);
 
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, Urn.forTrack(123L));
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, Urn.forTrack(123L));
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
-        verify(playaListener).onPlaystateChanged(stateTransition);
+        verify(playerListener).onPlaystateChanged(stateTransition);
     }
 
     @Test
     public void requestsFocusOnListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.requestAudioFocus();
-        verify(playaListener).requestAudioFocus();
+        verify(playerListener).requestAudioFocus();
     }
 
     @Test(expected = NullPointerException.class)
@@ -405,14 +405,14 @@ public class StreamPlayaTest extends AndroidUnitTest {
     @Test
     public void getStateReturnsIdleByDefault() {
         instantiateStreamPlaya();
-        assertThat(streamPlayerWrapper.getState()).isSameAs(Playa.PlayaState.IDLE);
+        assertThat(streamPlayerWrapper.getState()).isSameAs(Player.PlayerState.IDLE);
     }
 
     @Test
     public void getStateReturnsLastState() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
-        assertThat(streamPlayerWrapper.getState()).isSameAs(Playa.PlayaState.BUFFERING);
+        assertThat(streamPlayerWrapper.getState()).isSameAs(Player.PlayerState.BUFFERING);
     }
 
     @Test
@@ -424,7 +424,7 @@ public class StreamPlayaTest extends AndroidUnitTest {
     @Test
     public void getLastStateTransitionReturnsLastTransition() {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = TestPlayStates.buffering();
+        final Player.StateTransition stateTransition = TestPlayStates.buffering();
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         assertThat(streamPlayerWrapper.getLastStateTransition()).isEqualTo(stateTransition);
     }
@@ -468,7 +468,7 @@ public class StreamPlayaTest extends AndroidUnitTest {
     private void fallBackToMediaPlayer() {
         streamPlayerWrapper.play(track);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, track.get(TrackProperty.URN)));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, track.get(TrackProperty.URN)));
     }
 
     private void startPlaybackOnSkippy() {

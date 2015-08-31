@@ -40,9 +40,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void stateListenerIgnoresDefaultEvent() {
-        final Playa.StateTransition lastTransition = TestPlayStates.playing();
+        final Player.StateTransition lastTransition = TestPlayStates.playing();
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, Playa.StateTransition.DEFAULT);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, Player.StateTransition.DEFAULT);
         assertThat(provider.isPlaying()).isTrue();
     }
 
@@ -80,35 +80,35 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForPlayStoresPlayingTrackProgress() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 1, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, 1, 456));
 
         Urn nextTrackUrn = Urn.forTrack(321);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, nextTrackUrn, 123, 456));
 
         assertThat(provider.getLastProgressForTrack(nextTrackUrn)).isEqualTo(new PlaybackProgress(123, 456));
     }
 
     private void sendIdleStateEvent() {
-        final Playa.StateTransition lastTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN);
+        final Player.StateTransition lastTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
     }
 
     @Test
     public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(0);
     }
 
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(123);
     }
 
     @Test
     public void onStateTransitionWithInvalidDurationUsesPreviousPosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 123, 456));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 456, 0));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN, 456, 0));
         verify(playQueueManager).saveCurrentProgress(123);
     }
 
@@ -116,14 +116,14 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
         when(playQueueManager.wasLastSavedTrack(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getLastSavedPosition()).thenReturn(123L);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN, 0, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN, 0, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyLong());
     }
 
     @Test
     public void onStateTransitionForWithConsecutivePlaylistEventsSavesProgressOnTrackChange() {
-        final Playa.StateTransition state1 = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(1L));
-        final Playa.StateTransition state2 = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 456);
+        final Player.StateTransition state1 = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(1L));
+        final Player.StateTransition state2 = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 456);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state1);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state2);
@@ -132,7 +132,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionShouldNotStoreCurrentProgressIfDurationIsInvalid() {
-        final Playa.StateTransition state = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 0);
+        final Player.StateTransition state = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 0);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -141,7 +141,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionShouldStoreCurrentProgressIfDurationIsValid() {
-        final Playa.StateTransition state = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 1);
+        final Player.StateTransition state = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 1);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 

@@ -61,16 +61,16 @@ public class BufferUnderrunDetectorTest {
         expect(detector.onStateTransitionEvent(idleEvent(Urn.forTrack(123L)))).toBeFalse();
     }
 
-    private Playa.StateTransition bufferingEvent(Urn track, int position) {
+    private Player.StateTransition bufferingEvent(Urn track, int position) {
         final int duration = position * 2;
-        return new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track, position, duration);
+        return new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, position, duration);
     }
 
-    private Playa.StateTransition playEvent(Urn track) {
-        return new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, track);
+    private Player.StateTransition playEvent(Urn track) {
+        return new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, track);
     }
 
-    private Playa.StateTransition idleEvent(Urn track) {
-        return new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, track);
+    private Player.StateTransition idleEvent(Urn track) {
+        return new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, track);
     }
 }

@@ -7,7 +7,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.StreamUrlBuilder;
@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
+public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
 
     private static final String TAG = "MediaPlayerAdapter";
@@ -64,7 +64,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private volatile MediaPlayer mediaPlayer;
     private double loadPercent;
     @Nullable
-    private PlayaListener playaListener;
+    private PlayerListener playerListener;
 
     private long prepareStartTimeMs;
 
@@ -135,7 +135,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
 
-            if (playaListener != null && playaListener.requestAudioFocus()) {
+            if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
                 publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
 
@@ -347,13 +347,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);
         }
 
-        if (playaListener != null) {
+        if (playerListener != null) {
             final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
             stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
-            playaListener.onPlaystateChanged(stateTransition);
+            playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition,
                     getPlaybackProtocol(),
                     PlayerType.MEDIA_PLAYER,
@@ -402,8 +402,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @Override
-    public void setListener(PlayaListener playaListener) {
-        this.playaListener = playaListener;
+    public void setListener(PlayerListener playerListener) {
+        this.playerListener = playerListener;
     }
 
     public long seek(long ms) {
@@ -467,11 +467,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void sendProgress() {
-        if (playaListener != null) {
+        if (playerListener != null) {
             long progress = getAdjustedProgress();
             final long duration = getDuration();
 
-            playaListener.onProgressEvent(progress, duration);
+            playerListener.onProgressEvent(progress, duration);
         }
     }
 
@@ -495,19 +495,19 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
-    private PlayaState getTranslatedState() {
+    private PlayerState getTranslatedState() {
         switch (internalState) {
             case PREPARING:
             case PAUSED_FOR_BUFFERING:
-                return PlayaState.BUFFERING;
+                return PlayerState.BUFFERING;
             case PLAYING:
-                return PlayaState.PLAYING;
+                return PlayerState.PLAYING;
             case ERROR:
             case COMPLETED:
             case PAUSED:
             case STOPPED:
             case ERROR_RETRYING:
-                return PlayaState.IDLE;
+                return PlayerState.IDLE;
             default:
                 throw new IllegalArgumentException("No translated state for " + internalState);
         }

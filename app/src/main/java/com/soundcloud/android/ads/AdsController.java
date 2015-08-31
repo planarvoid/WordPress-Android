@@ -9,7 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -84,9 +84,9 @@ public class AdsController {
         }
     };
 
-    private final Func1<Playa.StateTransition, Boolean> isBufferingAudioAd = new Func1<Playa.StateTransition, Boolean>() {
+    private final Func1<Player.StateTransition, Boolean> isBufferingAudioAd = new Func1<Player.StateTransition, Boolean>() {
         @Override
-        public Boolean call(Playa.StateTransition state) {
+        public Boolean call(Player.StateTransition state) {
             return state.isBuffering() && adsOperations.isCurrentTrackAudioAd();
         }
     };
@@ -98,9 +98,9 @@ public class AdsController {
         }
     };
 
-    private final Action1<Playa.StateTransition> unsubscribeFailedAdSkip = new Action1<Playa.StateTransition>() {
+    private final Action1<Player.StateTransition> unsubscribeFailedAdSkip = new Action1<Player.StateTransition>() {
         @Override
-        public void call(Playa.StateTransition stateTransition) {
+        public void call(Player.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentTrackAudioAd()) {
@@ -281,10 +281,10 @@ public class AdsController {
         }
     }
 
-    private final class SkipFailedAdSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private final class SkipFailedAdSubscriber extends DefaultSubscriber<Player.StateTransition> {
 
         @Override
-        public void onNext(final Playa.StateTransition state) {
+        public void onNext(final Player.StateTransition state) {
             skipFailedAdSubscription.unsubscribe();
             skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
                     .subscribe(new DefaultSubscriber<Long>() {
@@ -303,9 +303,9 @@ public class AdsController {
         }
     }
 
-    private class LeaveBehindSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private class LeaveBehindSubscriber extends DefaultSubscriber<Player.StateTransition> {
         @Override
-        public void onNext(Playa.StateTransition state) {
+        public void onNext(Player.StateTransition state) {
             if (adsOperations.isCurrentTrackAudioAd() && state.trackEnded()) {
                 adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, true);
             }

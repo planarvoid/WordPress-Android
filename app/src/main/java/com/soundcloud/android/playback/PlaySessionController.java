@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.Playa.PlayaState;
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.PlayerState;
+import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -267,7 +267,7 @@ public class PlaySessionController {
     }
 
     private StateTransition createPlayQueueCompleteEvent(Urn trackUrn){
-        return new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
+        return new StateTransition(PlayerState.IDLE, Player.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 
     private class RecommendationTracksSubscriber extends DefaultSubscriber<PlayQueue> {

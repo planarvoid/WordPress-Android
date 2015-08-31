@@ -2,44 +2,44 @@ package com.soundcloud.android.testsupport.fixtures;
 
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.Playa.PlayaState;
-import com.soundcloud.android.playback.Playa.Reason;
-import com.soundcloud.android.playback.Playa.StateTransition;
+import com.soundcloud.android.playback.Player.PlayerState;
+import com.soundcloud.android.playback.Player.Reason;
+import com.soundcloud.android.playback.Player.StateTransition;
 
 public class TestPlayStates {
 
     private static final Urn URN = Urn.forTrack(123L);
 
     public static StateTransition playing() {
-        return new StateTransition(PlayaState.PLAYING, Reason.NONE, URN);
+        return new StateTransition(PlayerState.PLAYING, Reason.NONE, URN);
     }
 
     public static StateTransition playing(long position, long duration) {
-        return new StateTransition(PlayaState.PLAYING, Reason.NONE, URN, position, duration);
+        return new StateTransition(PlayerState.PLAYING, Reason.NONE, URN, position, duration);
     }
 
     public static StateTransition idle() {
-        return new StateTransition(PlayaState.IDLE, Reason.NONE, URN);
+        return new StateTransition(PlayerState.IDLE, Reason.NONE, URN);
     }
 
     public static StateTransition idleDefault() {
-        return new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.NOT_SET);
+        return new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
     }
 
     public static StateTransition complete() {
-        return new StateTransition(PlayaState.IDLE, Reason.TRACK_COMPLETE, URN);
+        return new StateTransition(PlayerState.IDLE, Reason.TRACK_COMPLETE, URN);
     }
 
     public static StateTransition buffering() {
-        return new StateTransition(PlayaState.BUFFERING, Reason.NONE, URN);
+        return new StateTransition(PlayerState.BUFFERING, Reason.NONE, URN);
     }
 
     public static StateTransition buffering(long position, long duration) {
-        return new StateTransition(PlayaState.BUFFERING, Reason.NONE, URN, position, duration);
+        return new StateTransition(PlayerState.BUFFERING, Reason.NONE, URN, position, duration);
     }
 
     public static StateTransition error(Reason reason) {
-        return new StateTransition(PlayaState.IDLE, reason, URN);
+        return new StateTransition(PlayerState.IDLE, reason, URN);
     }
 
 }

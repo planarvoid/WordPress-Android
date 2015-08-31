@@ -7,10 +7,10 @@ import javax.inject.Inject;
 
 // this class is getting deleted
 @SuppressWarnings({"PMD.UncommentedEmptyMethod"})
-class BufferingPlaya implements Playa {
+class BufferingPlayer implements Player {
 
     @Inject
-    public BufferingPlaya() {
+    public BufferingPlayer() {
         // no-op
     }
 
@@ -75,7 +75,7 @@ class BufferingPlaya implements Playa {
     }
 
     @Override
-    public void setListener(PlayaListener playaListener) {
+    public void setListener(PlayerListener playerListener) {
         // no-op
     }
 

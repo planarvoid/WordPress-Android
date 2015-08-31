@@ -36,7 +36,7 @@ import java.lang.ref.WeakReference;
 
 // remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
-public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Playa.PlayaListener {
+public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Player.PlayerListener {
     public static final String TAG = "PlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     @Nullable static PlaybackService instance;
@@ -46,7 +46,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject PlayQueueManager playQueueManager;
     @Inject TrackRepository trackRepository;
     @Inject AccountOperations accountOperations;
-    @Inject StreamPlaya streamPlayer;
+    @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
     @Inject PlaybackNotificationController playbackNotificationController;
@@ -70,7 +70,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     EventBus eventBus,
                     TrackRepository trackRepository,
                     AccountOperations accountOperations,
-                    StreamPlaya streamPlaya,
+                    StreamPlayer streamPlayer,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     PlaybackNotificationController playbackNotificationController,
                     PlaybackSessionAnalyticsController analyticsController, AdsOperations adsOperations) {
@@ -78,7 +78,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
-        this.streamPlayer = streamPlaya;
+        this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
         this.playbackNotificationController = playbackNotificationController;
@@ -193,7 +193,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @Override
-    public void onPlaystateChanged(Playa.StateTransition stateTransition) {
+    public void onPlaystateChanged(Player.StateTransition stateTransition) {
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
@@ -462,7 +462,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         @Override
         public void onError(Throwable throwable) {
             Log.d(TAG, "Unable to get track information " + throwable);
-            onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
+            onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, getCurrentTrackUrn()));
         }
 
         @Override

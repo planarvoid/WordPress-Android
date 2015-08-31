@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.mediaplayer;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.Playa.PlayaState;
-import static com.soundcloud.android.playback.Playa.Reason;
+import static com.soundcloud.android.playback.Player.PlayerState;
+import static com.soundcloud.android.playback.Player.Reason;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -24,11 +24,10 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
-import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -36,6 +35,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,13 +67,13 @@ public class MediaPlayerAdapterTest {
     @Mock private MediaPlayer mediaPlayer;
     @Mock private MediaPlayerManager mediaPlayerManager;
     @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
-    @Mock private Playa.PlayaListener listener;
+    @Mock private Player.PlayerListener listener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private StreamUrlBuilder urlBuilder;
     @Mock private DateProvider dateProvider;
-    @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
+    @Captor private ArgumentCaptor<Player.StateTransition> stateCaptor;
 
     private PropertySet track;
     private long duration;
@@ -126,7 +126,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn((int) duration);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
         verifyNoMoreInteractions(listener);
     }
 
@@ -153,8 +153,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class MediaPlayerAdapterTest {
 
         verify(listener).onPlaystateChanged(stateCaptor.capture());
 
-        expect(stateCaptor.getValue().getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).toEqual(PlaybackProtocol.HTTPS.getValue());
+        expect(stateCaptor.getValue().getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).toEqual(PlaybackProtocol.HTTPS.getValue());
     }
 
     @Test
@@ -206,8 +206,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -355,8 +355,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -411,8 +411,8 @@ public class MediaPlayerAdapterTest {
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -492,7 +492,7 @@ public class MediaPlayerAdapterTest {
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
 
@@ -503,7 +503,7 @@ public class MediaPlayerAdapterTest {
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), duration, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), duration, duration)));
     }
 
     @Test
@@ -538,7 +538,7 @@ public class MediaPlayerAdapterTest {
 
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
-        verify(listener, never()).onPlaystateChanged(any(Playa.StateTransition.class));
+        verify(listener, never()).onPlaystateChanged(any(Player.StateTransition.class));
     }
 
 
@@ -547,7 +547,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -582,7 +582,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -604,7 +604,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -613,7 +613,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stopForTrackTransition();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test

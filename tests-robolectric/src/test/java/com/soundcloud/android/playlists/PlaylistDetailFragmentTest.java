@@ -28,18 +28,18 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.Playa;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -288,7 +288,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() {
         when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
+                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -300,7 +300,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() {
         when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
+                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -457,7 +457,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldSetPlayingStateWhenPlaybackStateChanges() {
         when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
+                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();

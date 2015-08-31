@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -48,7 +48,7 @@ public class ErrorViewControllerTest {
 
     @Test
     public void showErrorSetsTrackPageStates() {
-        errorViewController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Player.Reason.ERROR_FAILED);
 
         verify(waveformViewController).hide();
         expect(hideOnError).toBeGone();
@@ -56,7 +56,7 @@ public class ErrorViewControllerTest {
 
     @Test
     public void hideErrorClearsTrackPageStates() {
-        errorViewController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Player.Reason.ERROR_FAILED);
 
         errorViewController.hideError();
 
@@ -67,7 +67,7 @@ public class ErrorViewControllerTest {
 
     @Test
     public void showErrorSetsMessageForConnectionError() {
-        errorViewController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Player.Reason.ERROR_FAILED);
 
         String expected = Robolectric.application.getString(R.string.playback_error_connection);
         expect(errorLayout.findViewById(R.id.playback_error_reason)).toHaveText(expected);
@@ -75,7 +75,7 @@ public class ErrorViewControllerTest {
 
     @Test
     public void showErrorSetsMessageForGeneralError() {
-        errorViewController.showError(Playa.Reason.ERROR_NOT_FOUND);
+        errorViewController.showError(Player.Reason.ERROR_NOT_FOUND);
 
         String expected = Robolectric.application.getString(R.string.playback_error_unable_to_play);
         expect(errorLayout.findViewById(R.id.playback_error_reason)).toHaveText(expected);
@@ -83,14 +83,14 @@ public class ErrorViewControllerTest {
 
     @Test
     public void isShowingErrorIsTrueAfterShow() {
-        errorViewController.showError(Playa.Reason.ERROR_FORBIDDEN);
+        errorViewController.showError(Player.Reason.ERROR_FORBIDDEN);
 
         expect(errorViewController.isShowingError()).toBeTrue();
     }
 
     @Test
     public void isShowingErrorIsFalseAfterHide() {
-        errorViewController.showError(Playa.Reason.ERROR_FORBIDDEN);
+        errorViewController.showError(Player.Reason.ERROR_FORBIDDEN);
 
         errorViewController.hideError();
 

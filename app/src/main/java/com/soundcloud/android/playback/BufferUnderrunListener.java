@@ -36,7 +36,7 @@ public class BufferUnderrunListener {
         this.dateProvider = dateProvider;
     }
 
-    public void onPlaystateChanged(Playa.StateTransition stateTransition,
+    public void onPlaystateChanged(Player.StateTransition stateTransition,
                                    PlaybackProtocol playbackProtocol,
                                    PlayerType playerType,
                                    ConnectionType currentConnectionType) {
@@ -71,8 +71,8 @@ public class BufferUnderrunListener {
     }
 
     // This should be removed when we discover why we are getting empty player types
-    private void checkForEmptyPlayerType(Playa.StateTransition stateTransition) {
-        if (TextUtils.isEmpty(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE))) {
+    private void checkForEmptyPlayerType(Player.StateTransition stateTransition) {
+        if (TextUtils.isEmpty(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE))) {
             ErrorUtils.handleSilentException(TAG,
                     new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition.toString()));
         }
@@ -92,14 +92,14 @@ public class BufferUnderrunListener {
             // For Dagger
         }
 
-        public boolean onStateTransitionEvent(Playa.StateTransition transition) {
+        public boolean onStateTransitionEvent(Player.StateTransition transition) {
             if (isStartingPlaybackAfterSeek) {
                 isStartingPlaybackAfterSeek = transition.isBuffering();
             }
             return !isStartingPlayback(transition) && transition.isBuffering();
         }
 
-        private boolean isStartingPlayback(Playa.StateTransition transition) {
+        private boolean isStartingPlayback(Player.StateTransition transition) {
             return isStartingPlaybackAfterSeek || transition.getProgress().getPosition() == 0;
         }
 

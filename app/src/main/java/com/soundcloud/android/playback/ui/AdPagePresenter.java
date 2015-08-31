@@ -5,7 +5,7 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -124,7 +124,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
     }
 
     @Override
-    public void setPlayState(View adView, Playa.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View adView, Player.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);

@@ -23,7 +23,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -126,9 +126,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     };
 
-    private final DefaultSubscriber<Playa.StateTransition> playstateTransitionSubscriber = new DefaultSubscriber<Playa.StateTransition>() {
+    private final DefaultSubscriber<Player.StateTransition> playstateTransitionSubscriber = new DefaultSubscriber<Player.StateTransition>() {
         @Override
-        public void onNext(Playa.StateTransition event) {
+        public void onNext(Player.StateTransition event) {
             playToggle.setChecked(playQueueManager.isCurrentCollection(getPlaylistUrn())
                     && event.playSessionIsActive());
         }

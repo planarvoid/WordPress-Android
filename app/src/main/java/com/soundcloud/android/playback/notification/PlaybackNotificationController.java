@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.notification;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -148,7 +148,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         }
     }
 
-    private static class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private static class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
         private final Strategy strategy;
         private final PlaybackService playbackService;
 
@@ -158,7 +158,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         }
 
         @Override
-        public void onNext(Playa.StateTransition stateTransition) {
+        public void onNext(Player.StateTransition stateTransition) {
             if (stateTransition.playSessionIsActive()) {
                 strategy.notifyPlaying(playbackService);
             } else {

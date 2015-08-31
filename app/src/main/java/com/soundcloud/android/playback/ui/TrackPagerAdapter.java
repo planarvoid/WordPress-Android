@@ -11,7 +11,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.Playa;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -433,7 +433,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         }
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
@@ -443,7 +443,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         }
 
         @Override
-        public void onNext(Playa.StateTransition stateTransition) {
+        public void onNext(Player.StateTransition stateTransition) {
             final boolean viewPresentingCurrentTrack = trackByViews.containsKey(trackPage)
                     && stateTransition.getTrackUrn().equals(trackByViews.get(trackPage).getTrackUrn());
 

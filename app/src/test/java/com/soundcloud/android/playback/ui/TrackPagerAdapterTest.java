@@ -22,9 +22,9 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.Playa;
-import com.soundcloud.android.playback.Playa.PlayaState;
-import com.soundcloud.android.playback.Playa.Reason;
+import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.Player.PlayerState;
+import com.soundcloud.android.playback.Player.Reason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -129,7 +129,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
         adapter.onResume();
         final View currentTrackView = getPageView();
-        Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
+        Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -146,7 +146,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         final View viewForOtherTrack = getPageView(1, TRACK2_URN);
 
         Mockito.reset(trackPagePresenter);
-        Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
+        Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true, true);
@@ -241,12 +241,12 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Test
     public void creatingNewTrackViewSetThePlayState() {
         adapter.onResume();
-        Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
+        Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         View currentPageView = getPageView();
 
-        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true), eq(true));
+        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(Player.StateTransition.class), eq(true), eq(true));
     }
 
     @Test
@@ -260,7 +260,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
         View currentPageView = (View) adapter.instantiateItem(container, 3);
 
-        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true), eq(true));
+        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(Player.StateTransition.class), eq(true), eq(true));
     }
 
     @Test

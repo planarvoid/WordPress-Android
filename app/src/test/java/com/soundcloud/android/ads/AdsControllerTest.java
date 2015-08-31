@@ -1,8 +1,8 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.playback.Playa.PlayaState;
-import static com.soundcloud.android.playback.Playa.Reason;
-import static com.soundcloud.android.playback.Playa.StateTransition;
+import static com.soundcloud.android.playback.Player.PlayerState;
+import static com.soundcloud.android.playback.Player.Reason;
+import static com.soundcloud.android.playback.Player.StateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -327,7 +327,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
 
-        final StateTransition stateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE, new Urn("provider:ad:345"), 12, 1200);
+        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, new Urn("provider:ad:345"), 12, 1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
