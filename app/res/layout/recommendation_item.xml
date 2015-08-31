@@ -89,7 +89,8 @@
                     android:layout_height="@dimen/recommendations_cell_text_view_all_height"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:paddingBottom="@dimen/recommendations_cell_text_view_all_padding" />
+                    android:paddingBottom="@dimen/recommendations_cell_text_view_all_padding"
+                    android:textAllCaps="true" />
 
                 <ImageView
                     android:layout_width="wrap_content"

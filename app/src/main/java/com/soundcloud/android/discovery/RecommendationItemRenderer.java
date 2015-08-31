@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Locale;
 
 class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
@@ -98,7 +99,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
     }
 
     private String getViewAllText(RecommendationItem recommendationItem) {
-        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount()).toUpperCase();
+        return resources.getString(R.string.recommendation_view_all, recommendationItem.getRecommendationCount());
     }
 
     private Spannable getReasonText(RecommendationItem recommendationItem) {
@@ -127,9 +128,9 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
     private String getReason(RecommendationReason recommendationReason) {
         switch (recommendationReason) {
             case LIKED:
-                return resources.getString(R.string.recommendation_reason_liked).toLowerCase();
+                return resources.getString(R.string.recommendation_reason_liked).toLowerCase(Locale.getDefault());
             case LISTENED_TO:
-                return resources.getString(R.string.recommendation_reason_listened_to).toLowerCase();
+                return resources.getString(R.string.recommendation_reason_listened_to).toLowerCase(Locale.getDefault());
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + recommendationReason);
         }
