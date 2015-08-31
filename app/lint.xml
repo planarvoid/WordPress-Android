@@ -27,6 +27,12 @@
     <issue id="RtlHardcoded" severity="ignore"/>
     <issue id="RtlSymmetry" severity="ignore"/>
 
+    <!--
+        not sure how we will deal with layout problems for longer strings
+        but I don't think we can catch them with lint yet
+    -->
+    <issue id="RelativeOverlap" severity="ignore"/>
+
     <!-- typos shouldn't be lint's responsibility, it doesn't understand pt -->
     <issue id="Typos" severity="ignore"/>
 
@@ -36,6 +42,7 @@
     <!-- should re-enable when we support accessibility -->
     <issue id="ContentDescription" severity="ignore"/>
     <issue id="ClickableViewAccessibility" severity="ignore"/>
+    <issue id="LabelFor" severity="ignore"/> <!-- also only api 17+ -->
 
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
