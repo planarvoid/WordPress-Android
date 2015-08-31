@@ -35,7 +35,7 @@ public class PlaceholderGenerator {
     }
 
     public TransitionDrawable generateTransitionDrawable(String key) {
-        return ImageUtils.createTransitionDrawable(resources.getDrawable(R.drawable.placeholder), generateDrawable(key));
+        return ImageUtils.createTransitionDrawable(resources.getDrawable(R.color.gray_background), generateDrawable(key));
     }
 
     public GradientDrawable generateDrawable(String key) {

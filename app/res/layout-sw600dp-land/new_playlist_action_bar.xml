@@ -4,19 +4,7 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <com.soundcloud.android.offline.DownloadImageView
-        android:id="@+id/header_download_state"
-        style="@style/DownloadItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/collection_download_state_margin_right"/>
-
-    <TextView
-        android:id="@+id/header_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textColor="@color/white" />
+    <include layout="@layout/downloadable_header" />
 
     <ToggleButton
         android:id="@+id/toggle_like"

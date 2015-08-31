@@ -2,6 +2,7 @@
     android:id="@+id/sliding_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
@@ -21,6 +22,7 @@
             android:orientation="horizontal">
 
             <fragment
+                tools:ignore="InconsistentLayout"
                 android:id="@id/fixed_navigation_fragment_id"
                 android:name="com.soundcloud.android.main.NavigationFragment"
                 android:layout_width="0dp"

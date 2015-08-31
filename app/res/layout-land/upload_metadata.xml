@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="0dp"
+    android:layout_marginRight="0dp"
+    android:background="@color/gray_background">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_alignParentLeft="true"
+        android:layout_width="@dimen/record_progress_icon_width"
+        android:layout_height="@dimen/share_progress_icon_height"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:layout_marginTop="16dip"
+        android:layout_marginBottom="16dip"
+        android:background="@color/white"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/track_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/icon"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/dark_gray_text"
+        style="?android:textAppearanceSmall"
+        android:layout_toRightOf="@id/icon" />
+
+    <TextView
+        android:id="@+id/track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_username"
+        android:textColor="@color/black"
+        style="?android:textAppearanceSmall"
+        android:layout_toRightOf="@id/icon" />
+
+    <TextView
+        android:id="@+id/track_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/track_username"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dip"
+        android:textColor="@color/dark_gray_text"
+        style="?android:textAppearanceSmall" />
+</RelativeLayout>
+
