@@ -123,6 +123,12 @@
         <ignore path="res/drawable-xxhdpi/notification_loading.png" />
     </issue>
     <issue id="IconDensities" severity="ignore" />
+    <issue id="IconDipSize">
+        <ignore regexp="res/.*/dialog_device_management.png" />
+        <ignore regexp="res/.*/dialog_go_online_days.png" />
+        <ignore regexp="res/.*/dialog_payment_error.png" />
+        <ignore regexp="res/.*/ic_search_sound.png.png" />
+    </issue>
 
     <issue id="FloatMath">
         <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
