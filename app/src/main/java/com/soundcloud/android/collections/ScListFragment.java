@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -212,7 +213,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         setupListAdapter();
     }
 
-    @Override
+    @Override @SuppressLint("InflateParams")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 

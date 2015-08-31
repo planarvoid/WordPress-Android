@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public class UserInfoFragment extends Fragment {
         emptyViewFactory = new EmptyViewBuilder();
     }
 
-    @Override
+    @Override @SuppressLint("InflateParams")
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         userId = getArguments().getLong("userId");
         ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.legacy_user_info_view, null);

@@ -77,7 +77,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         adapter.notifyDataSetChanged();
     }
 
-    @Override
+    @Override @SuppressLint("InflateParams")
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 

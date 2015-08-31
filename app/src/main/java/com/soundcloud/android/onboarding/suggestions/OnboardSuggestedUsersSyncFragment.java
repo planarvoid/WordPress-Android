@@ -50,7 +50,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
                 .subscribe(new FollowingsSyncSubscriber());
     }
 
-    @Override
+    @Override @SuppressLint("InflateParams")
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         RelativeLayout relativeLayout = new RelativeLayout(getActivity());
         relativeLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

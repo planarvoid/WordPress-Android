@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="@dimen/ad_overlay_padding"
-                android:paddingRight="@dimen/ad_overlay_padding"
-                android:id="@+id/interstitial_close"
-                android:clickable="true"
-                android:animateLayoutChanges="true">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/ad_overlay_padding"
+    android:paddingRight="@dimen/ad_overlay_padding"
+    android:id="@+id/interstitial_close"
+    android:clickable="true"
+    android:animateLayoutChanges="true">
 
     <FrameLayout
             android:id="@+id/interstitial_header"
@@ -15,8 +16,9 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_alignParentTop="true"
+            tools:ignore="UnknownIdInLayout"
             android:layout_alignLeft="@+id/interstitial_image_holder"
-            android:layout_alignRight="@+id/interstitial_image_holder">
+            android:layout_alignRight="@id/interstitial_image_holder">
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/advertisement"
