@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.model.Urn;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,6 +13,7 @@ import android.provider.BaseColumns;
 
 import java.util.List;
 
+@SuppressLint("ParcelCreator") /* CREATOR implemented in subclasses */
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(
         value = "EQ_DOESNT_OVERRIDE_EQUALS",
         justification = "Subclasses can sufficiently use the ID/URN for equals implementation")

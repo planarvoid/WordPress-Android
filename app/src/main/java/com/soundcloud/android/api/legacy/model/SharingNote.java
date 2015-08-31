@@ -12,6 +12,18 @@ import android.text.TextUtils;
 import java.util.Date;
 
 public class SharingNote implements Parcelable {
+    public static final Creator<SharingNote> CREATOR = new Creator<SharingNote>() {
+        @Override
+        public SharingNote createFromParcel(Parcel in) {
+            return new SharingNote(in);
+        }
+
+        @Override
+        public SharingNote[] newArray(int size) {
+            return new SharingNote[size];
+        }
+    };
+
     @JsonProperty @JsonView(Views.Mini.class) public String text;
     @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
 
@@ -26,7 +38,6 @@ public class SharingNote implements Parcelable {
             created_at = new Date(createdAtTime);
         }
     }
-
 
     public boolean isEmpty() {
         return TextUtils.isEmpty(text);
