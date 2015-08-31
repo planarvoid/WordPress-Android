@@ -33,7 +33,7 @@
             android:drawableStart="@drawable/stats_followers"/>
 
         <ToggleButton
-            android:id="@+id/follow_button"
+            android:id="@+id/toggle_btn_follow"
             style="@style/Profile.ToggleButton.Follow.Large"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/username"
