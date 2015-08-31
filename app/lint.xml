@@ -32,8 +32,9 @@
     <!-- this will be rewritten by a Maven rule anyway -->
     <issue id="HardcodedDebugMode" severity="ignore"/>
 
-    <!-- should probably re-enable later once more important things are fixed -->
+    <!-- should re-enable when we support accessibility -->
     <issue id="ContentDescription" severity="ignore"/>
+    <issue id="ClickableViewAccessibility" severity="ignore"/>
 
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
