@@ -34,16 +34,7 @@ public class DiscoveryOperations {
                 }
             };
 
-    private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
-            new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
-                @Override
-                public Observable<List<DiscoveryItem>> call(Boolean ignore) {
-                    //we always retrieve recommendations from local storage
-                    return recommendationsFromStorage();
-                }
-            };
-
-    private final Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>> toDiscoveryItemsList =
+    private static final Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>> TO_DISCOVERY_ITEMS_LIST =
             new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
                 @Override
                 public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
@@ -54,15 +45,24 @@ public class DiscoveryOperations {
                 }
             };
 
-    private final Func2<List<String>, List<String>, List<DiscoveryItem>> tagsToDiscoveryItemList =
+    private static final Func2<List<String>, List<String>, List<DiscoveryItem>> TAGS_TO_DISCOVERY_ITEM_LIST =
             new Func2<List<String>, List<String>, List<DiscoveryItem>>() {
-        @Override
-        public List<DiscoveryItem> call(List<String> popular, List<String> recent) {
-            return Collections.<DiscoveryItem>singletonList(new PlaylistDiscoveryItem(popular, recent));
-        }
-    };
+                @Override
+                public List<DiscoveryItem> call(List<String> popular, List<String> recent) {
+                    return Collections.<DiscoveryItem>singletonList(new PlaylistDiscoveryItem(popular, recent));
+                }
+            };
 
-    private Func2<List<Urn>, List<Urn>, List<Urn>> toPlaylist(final RecommendationItem recommendationItem) {
+    private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
+            new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
+                @Override
+                public Observable<List<DiscoveryItem>> call(Boolean ignore) {
+                    //we always retrieve recommendations from local storage
+                    return recommendationsFromStorage();
+                }
+            };
+
+    private static Func2<List<Urn>, List<Urn>, List<Urn>> toPlaylist(final RecommendationItem recommendationItem) {
         return new Func2<List<Urn>, List<Urn>, List<Urn>>() {
             @Override
             public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
@@ -112,7 +112,7 @@ public class DiscoveryOperations {
         return playlistDiscoveryOperations.popularPlaylistTags()
                 .zipWith(
                         playlistDiscoveryOperations.recentPlaylistTags(),
-                        tagsToDiscoveryItemList)
+                        TAGS_TO_DISCOVERY_ITEM_LIST)
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
@@ -120,7 +120,7 @@ public class DiscoveryOperations {
         return recommendations()
                 .zipWith(
                         playlistDiscovery(),
-                        toDiscoveryItemsList)
+                        TO_DISCOVERY_ITEMS_LIST)
                 .subscribeOn(scheduler);
     }
 
