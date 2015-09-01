@@ -201,6 +201,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.GCM)
+    public SharedPreferences provideGcmStoragePrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.STREAM_SYNC)
     public SharedPreferences provideStreamSync() {
         return provideSharedPreferences();
