@@ -292,6 +292,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
             </intent-filter>
         </activity>
 
