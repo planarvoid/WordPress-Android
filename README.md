@@ -108,7 +108,7 @@ In your Run/Debug configuration you should have one called: `robolectric-tests` 
 
 You should also setup your default run configuration for JUnit so it looks like this:
 
-![JUnit default run config][JUnit default run config]
+![screen shot 2015-09-01 at 18 24 57](https://cloud.githubusercontent.com/assets/513206/9610004/22a788ee-50d7-11e5-8789-7ab7c50d60de.png)
 
 ## Useful Gradle commands
 
