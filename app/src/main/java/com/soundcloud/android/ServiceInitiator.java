@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.gcm.GcmRegistrationService;
 import com.soundcloud.android.playback.PlaybackService;
 
 import android.content.Context;
@@ -14,6 +15,10 @@ public class ServiceInitiator {
     @Inject
     public ServiceInitiator(Context context) {
         this.context = context;
+    }
+
+    public void startGcmService(Context context){
+        context.startService(new Intent(context, GcmRegistrationService.class));
     }
 
     public void stopPlaybackService() {

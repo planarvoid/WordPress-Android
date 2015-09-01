@@ -18,6 +18,7 @@ import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -116,7 +117,8 @@ public class SoundCloudApplication extends MultiDexApplication {
                 new LegacyModule(),
                 new FeaturesModule(),
                 new SyncModule(),
-                new PlaybackServiceModule());
+                new PlaybackServiceModule(),
+                new GcmModule());
     }
 
     @Override

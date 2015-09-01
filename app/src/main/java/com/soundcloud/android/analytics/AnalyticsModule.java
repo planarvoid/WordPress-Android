@@ -4,7 +4,6 @@ import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
-import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
@@ -16,7 +15,7 @@ import android.content.Context;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, LocalyticsPushReceiver.class})
+@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class})
 public class AnalyticsModule {
 
     public static final String TRACKING_DB = "TrackingDB";
