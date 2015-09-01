@@ -15,7 +15,6 @@ import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Test;
-import rx.exceptions.OnErrorFailedException;
 
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -94,24 +93,6 @@ public class ErrorUtilsTest extends AndroidUnitTest {
         assertThat(ErrorUtils.findRootCause(null)).isNull();
         assertThat(ErrorUtils.findRootCause(rootCause)).isSameAs(rootCause);
         assertThat(ErrorUtils.findRootCause(new Exception(new Exception(rootCause)))).isSameAs(rootCause);
-    }
-
-    @Test
-    public void shouldExtractCauseFromExceptionsRethrownByDefaultSubscriberOnWorkerThread() {
-        Thread.UncaughtExceptionHandler proxiedHandler = mock(Thread.UncaughtExceptionHandler.class);
-        Thread.setDefaultUncaughtExceptionHandler(proxiedHandler);
-
-        ErrorUtils.setupUncaughtExceptionHandler(mock(MemoryReporter.class));
-
-        Thread.UncaughtExceptionHandler decoratedHandler = Thread.getDefaultUncaughtExceptionHandler();
-        assertThat(proxiedHandler).isNotSameAs(decoratedHandler);
-
-        // this is the causal chain we see when a worker thread crashes with an exception
-        final Exception rootCause = new Exception("root cause");
-        final IllegalStateException causalChain = new IllegalStateException(new OnErrorFailedException(rootCause));
-        decoratedHandler.uncaughtException(Thread.currentThread(), causalChain);
-
-        verify(proxiedHandler).uncaughtException(Thread.currentThread(), rootCause);
     }
 
     @Test
