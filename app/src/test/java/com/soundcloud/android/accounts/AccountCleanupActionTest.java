@@ -11,6 +11,7 @@ import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -47,6 +48,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
+    @Mock private DiscoveryOperations discoveryOperations;
     @Mock private ClearTableCommand clearTableCommand;
     @Mock private StreamSyncStorage streamSyncStorage;
     @Mock private PlanStorage planStorage;
@@ -57,7 +59,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, streamSyncStorage, planStorage,
-                removeLocalPlaylistsCommand, clearTableCommand, stationsOperations);
+                removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -161,11 +163,15 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         verify(removeLocalPlaylistsCommand).call(null);
     }
 
+    @Test
+    public void shouldRemoveRecommendations() throws PropellerWriteException {
+        action.call();
+        verify(discoveryOperations).clearData();
+    }
 
     @Test
     public void shouldRemoveStationsStorage() {
         action.call();
         verify(stationsOperations).clearData();
     }
-
 }

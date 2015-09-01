@@ -9,6 +9,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -208,4 +209,11 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         verify(tagStorage).addRecentTag(eq("electronic"));
     }
 
+    @Test
+    public void clearPlaylistTagsData() {
+        operations.clearData();
+
+        verify(tagStorage).clear();
+        verifyNoMoreInteractions(tagStorage);
+    }
 }

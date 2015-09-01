@@ -18,19 +18,20 @@ import javax.inject.Inject;
 
 public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iterable<? extends ApiRecommendation>, WriteResult> {
 
+    private final PropellerDatabase propeller;
+
     @Inject
     public StoreRecommendationsCommand(PropellerDatabase database) {
         super(database);
+        this.propeller = database;
     }
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, final Iterable<? extends ApiRecommendation> input) {
+        clearTables();
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-
-                clearTables(propeller);
-
                 for (ApiRecommendation apiRecommendation : input) {
                     if (isReasonValid(apiRecommendation)) {
                         //Store seed track
@@ -47,11 +48,6 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
                         }
                     }
                 }
-            }
-
-            private void clearTables(PropellerDatabase propeller) {
-                step(propeller.delete(Recommendations.TABLE));
-                step(propeller.delete(RecommendationSeeds.TABLE));
             }
 
             //TODO: Create a way of sharing the track writing logic, with a base class (e.g. WriteTrackTransaction)
@@ -95,5 +91,10 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Iter
                 throw new IllegalArgumentException("Unhandled reason " + reason);
         }
 
+    }
+
+    public void clearTables() {
+        propeller.delete(Recommendations.TABLE);
+        propeller.delete(RecommendationSeeds.TABLE);
     }
 }
