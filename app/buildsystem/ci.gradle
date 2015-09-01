@@ -136,7 +136,7 @@ task runLegacyUnitTests(dependsOn: ':tests-robolectric:test') {
   description = 'Run legacy unit test suite based on Robolectric 1'
 }
 
-task runAppUnitTests(dependsOn: [':app:cleanTestDevDebug', ':app:testDevDebug']) {
+task runAppUnitTests(dependsOn: [':app:cleanTestDevDebugUnitTest', ':app:testDevDebugUnitTest']) {
   description = 'Run new unit test suite based on Robolectric 3'
 }
 
