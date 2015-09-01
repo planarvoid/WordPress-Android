@@ -75,7 +75,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -107,7 +107,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -137,7 +137,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -171,7 +171,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -206,7 +206,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.0.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.DURATION))
                 .track(track.get(TrackProperty.URN))

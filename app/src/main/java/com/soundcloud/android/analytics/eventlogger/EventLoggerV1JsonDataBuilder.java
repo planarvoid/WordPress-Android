@@ -21,7 +21,7 @@ import javax.inject.Inject;
 public class EventLoggerV1JsonDataBuilder {
 
     private static final String AUDIO_EVENT = "audio";
-    private static final String BOOGALOO_VERSION = "v1.0.0";
+    private static final String BOOGALOO_VERSION = "v1.4.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
