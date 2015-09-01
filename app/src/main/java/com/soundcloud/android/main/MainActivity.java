@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.collections.CollectionsFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -51,6 +52,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
     private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
     private static final String STATIONS_FRAGMENT_TAG = "stations_fragment";
+    private static final String COLLECTIONS_FRAGMENT_TAG = "collections_fragment";
     private static final NavItem NO_SELECTION = NavItem.NONE;
     private static final int DRAWER_SELECT_DELAY_MILLIS = 250;
 
@@ -268,6 +270,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             case STATIONS:
                 displayStations();
                 break;
+            case COLLECTIONS:
+                displayCollections();
+                break;
             case STREAM:
                 displayStream();
                 break;
@@ -306,6 +311,15 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (fragment == null) {
             fragment = new StationsHomeFragment();
             attachFragment(fragment, STATIONS_FRAGMENT_TAG, R.string.side_menu_stations);
+        }
+    }
+
+    private void displayCollections() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(COLLECTIONS_FRAGMENT_TAG);
+
+        if (fragment == null) {
+            fragment = new CollectionsFragment();
+            attachFragment(fragment, COLLECTIONS_FRAGMENT_TAG, R.string.side_menu_collections);
         }
     }
 

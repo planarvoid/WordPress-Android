@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
@@ -141,6 +142,10 @@ public class Navigator {
         final Intent intent = new Intent(context, ShowAllStationsActivity.class);
         intent.putExtra(ShowAllStationsActivity.TYPE, ShowAllStationsActivity.RECENT);
         context.startActivity(intent);
+    }
+
+    public void openTrackLikes(Context context) {
+        context.startActivity(new Intent(context, TrackLikesActivity.class));
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {

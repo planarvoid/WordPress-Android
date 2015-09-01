@@ -38,7 +38,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class NavigationFragment extends Fragment {
@@ -303,6 +305,7 @@ public class NavigationFragment extends Fragment {
     public enum NavItem {
         PROFILE(NO_TEXT, NO_IMAGE),
         STATIONS(R.string.side_menu_stations, NO_IMAGE),
+        COLLECTIONS(R.string.side_menu_collections, NO_IMAGE),
         STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
         EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
         LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
@@ -326,11 +329,19 @@ public class NavigationFragment extends Fragment {
     }
 
     public NavItem[] getEnabledNavItems() {
+
+        List<NavItem> navItems = new ArrayList<>();
         if (featureFlags.isEnabled(Flag.STATIONS)) {
-            return new NavItem[]{NavItem.STATIONS, NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
-        } else {
-            return new NavItem[]{NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
+            navItems.add(NavItem.STATIONS);
         }
+        if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
+            navItems.add(NavItem.COLLECTIONS);
+        }
+        navItems.add(NavItem.STREAM);
+        navItems.add(NavItem.EXPLORE);
+        navItems.add(NavItem.LIKES);
+        navItems.add(NavItem.PLAYLISTS);
+        return navItems.toArray(new NavItem[navItems.size()]);
     }
 
     /**
