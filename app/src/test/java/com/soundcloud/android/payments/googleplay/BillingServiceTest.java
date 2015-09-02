@@ -23,6 +23,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +49,10 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Mock private DeviceHelper deviceHelper;
     @Mock private ResponseProcessor responseProcessor;
     @Mock private Activity activity;
-    @Mock private IBinder iBinder;
+    @Mock private IBinder binder;
     @Mock private BillingServiceBinder billingBinder;
     @Mock private IInAppBillingService service;
+    @Mock private EventBus eventBus;
     @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<ServiceConnection> connectionCaptor;
@@ -59,8 +61,8 @@ public class BillingServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor, flags);
-        when(billingBinder.bind(iBinder)).thenReturn(service);
+        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor, eventBus, flags);
+        when(billingBinder.bind(binder)).thenReturn(service);
         when(billingBinder.canConnect()).thenReturn(true);
         when(deviceHelper.getPackageName()).thenReturn("com.package");
     }
@@ -185,7 +187,7 @@ public class BillingServiceTest extends AndroidUnitTest {
     private void onServiceConnected() {
         verify(billingBinder).connect(eq(activity), connectionCaptor.capture());
         ServiceConnection connection = connectionCaptor.getValue();
-        connection.onServiceConnected(ComponentName.unflattenFromString(""), iBinder);
+        connection.onServiceConnected(ComponentName.unflattenFromString(""), binder);
     }
 
     private void onServiceDisconnected() {

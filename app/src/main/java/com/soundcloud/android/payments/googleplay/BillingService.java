@@ -11,6 +11,8 @@ import static com.soundcloud.android.payments.googleplay.BillingUtil.log;
 import static com.soundcloud.android.payments.googleplay.BillingUtil.logBillingResponse;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -18,6 +20,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.json.JSONException;
 import rx.Observable;
 import rx.Subscriber;
@@ -45,6 +48,7 @@ public class BillingService {
     private final DeviceHelper deviceHelper;
     private final BillingServiceBinder binder;
     private final ResponseProcessor processor;
+    private final EventBus eventBus;
     private final FeatureFlags flags;
 
     private final BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
@@ -69,10 +73,12 @@ public class BillingService {
     private IInAppBillingService iabService;
 
     @Inject
-    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor, FeatureFlags flags) {
+    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor,
+                   EventBus eventBus, FeatureFlags flags) {
         this.deviceHelper = deviceHelper;
         this.binder = binder;
         this.processor = processor;
+        this.eventBus = eventBus;
         this.flags = flags;
     }
 
@@ -165,6 +171,7 @@ public class BillingService {
             }
         } catch (RemoteException | IntentSender.SendIntentException e) {
             log("Failed to send purchase Intent");
+            eventBus.publish(EventQueue.TRACKING, PaymentFailureEvent.create("BillingService.startPurchase"));
             ErrorUtils.handleSilentException(e);
         }
     }
