@@ -264,10 +264,14 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onToggleLike(boolean addLike) {
         if (playlistWithTracks != null) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
-                    Screen.PLAYLIST_DETAILS.get(),
-                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
-                    playlistWithTracks.getUrn()));
+            eventBus.publish(EventQueue.TRACKING,
+                    UIEvent.fromToggleLike(addLike,
+                            Screen.PLAYLIST_DETAILS.get(),
+                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            Screen.PLAYLIST_DETAILS.get(),
+                            playlistWithTracks.getUrn(),
+                            playlistWithTracks.getUrn(),
+                            playSessionSourceInfo.getPromotedSourceInfo()));
 
             fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
@@ -276,8 +280,14 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (playlistWithTracks != null) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
-                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistWithTracks.getUrn()));
+            eventBus.publish(EventQueue.TRACKING,
+                    UIEvent.fromToggleRepost(isReposted,
+                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            Screen.PLAYLIST_DETAILS.get(),
+                            playlistWithTracks.getUrn(),
+                            playlistWithTracks.getUrn(),
+                            playSessionSourceInfo.getPromotedSourceInfo()));
+
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)
                         .observeOn(AndroidSchedulers.mainThread())

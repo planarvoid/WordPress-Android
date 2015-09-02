@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
@@ -11,6 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
@@ -99,10 +101,10 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 handleShare(track);
                 return true;
             case R.id.repost:
-                handleRepost(track.getUrn());
+                handleRepostToggle(true, track.getUrn());
                 return true;
             case R.id.unpost:
-                handleUnpost(track.getUrn());
+                handleRepostToggle(false, track.getUrn());
                 return true;
             case R.id.info:
                 TrackInfoFragment.create(track.getUrn()).show(activity.getSupportFragmentManager(), INFO_DIALOG_TAG);
@@ -130,14 +132,18 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         }
     }
 
-    private void handleUnpost(Urn urn) {
-        fireAndForget(repostOperations.toggleRepost(urn, false));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
-    }
+    private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {
+        fireAndForget(repostOperations.toggleRepost(trackUrn, wasReposted));
 
-    private void handleRepost(Urn urn) {
-        fireAndForget(repostOperations.toggleRepost(urn, true));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
+        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(trackUrn);
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleRepost(wasReposted,
+                        playQueueManager.getScreenTag(),
+                        Screen.PLAYER_MAIN.get(),
+                        trackUrn,
+                        trackUrn,
+                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {

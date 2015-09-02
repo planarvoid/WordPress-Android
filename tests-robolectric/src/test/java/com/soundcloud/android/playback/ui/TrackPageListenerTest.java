@@ -79,8 +79,8 @@ public class TrackPageListenerTest {
 
         listener.onToggleLike(true, TRACK_URN);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "player", "context_screen", TRACK_URN);
-        expectUIEvent(expectedEvent);
+        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(uiEvent.getKind()).toEqual(UIEvent.KIND_LIKE);
     }
 
     @Test
@@ -90,8 +90,8 @@ public class TrackPageListenerTest {
 
         listener.onToggleLike(false, TRACK_URN);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(false, "player", "context_screen", TRACK_URN);
-        expectUIEvent(expectedEvent);
+        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(uiEvent.getKind()).toEqual(UIEvent.KIND_UNLIKE);
     }
 
     @Test
@@ -136,11 +136,5 @@ public class TrackPageListenerTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(navigator).openProfile(any(Context.class), eq(userUrn));
-    }
-
-    private void expectUIEvent(UIEvent expectedEvent) {
-        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
-        expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 }

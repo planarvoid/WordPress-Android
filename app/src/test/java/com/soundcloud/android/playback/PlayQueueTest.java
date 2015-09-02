@@ -26,12 +26,13 @@ public class PlayQueueTest {
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem.Builder(Urn.forTrack(2L))
             .fromSource("source2", "version2")
             .build();
+    private static final int PLAY_QUEUE_ITEM_COUNT = 2;
 
     private PlaySessionSource playSessionSource;
 
     @Before
     public void setUp() throws Exception {
-        playSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, Urn.forPlaylist(123), Urn.forUser(456));
+        playSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, Urn.forPlaylist(123), Urn.forUser(456), PLAY_QUEUE_ITEM_COUNT);
     }
 
     @Test

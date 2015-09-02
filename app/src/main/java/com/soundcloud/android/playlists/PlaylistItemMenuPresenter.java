@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -97,15 +98,32 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
     }
 
+    private PromotedSourceInfo getPromotedSourceIfExists() {
+        if (playlist instanceof PromotedPlaylistItem) {
+            return PromotedSourceInfo.fromItem((PromotedPlaylistItem) playlist);
+        }
+        return null;
+    }
+
+    private void trackLike(boolean addLike) {
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike,
+                        ScreenElement.LIST.get(),
+                        screenProvider.getLastScreenTag(),
+                        screenProvider.getLastScreenTag(),
+                        playlist.getEntityUrn(),
+                        Urn.NOT_SET,
+                        getPromotedSourceIfExists()));
+    }
+
     private void handleLike() {
         final Urn playlistUrn = playlist.getEntityUrn();
         final Boolean addLike = !playlist.isLiked();
         likeOperations.toggleLike(playlistUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(appContext, addLike));
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
-                        screenProvider.getLastScreenTag(), playlistUrn));
+
+        trackLike(addLike);
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));

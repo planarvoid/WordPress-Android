@@ -230,7 +230,7 @@ public class PlaylistDetailFragmentTest {
         TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
 
         when(controller.hasTracks()).thenReturn(true);
 
@@ -255,7 +255,7 @@ public class PlaylistDetailFragmentTest {
         when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
 
         getToggleButton(layout).performClick();
 
@@ -397,7 +397,7 @@ public class PlaylistDetailFragmentTest {
         expect(playlistWithTracks.getTracks().size()).toBeGreaterThan(0);
         createFragmentView();
 
-        verify(controller).setContent(playlistWithTracks);
+        verify(controller).setContent(playlistWithTracks, null);
     }
 
     @Test
@@ -412,8 +412,8 @@ public class PlaylistDetailFragmentTest {
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
-        inOrder.verify(controller).setContent(playlistWithTracks);
-        inOrder.verify(controller).setContent(updatedPlaylistWithTracks);
+        inOrder.verify(controller).setContent(playlistWithTracks, null);
+        inOrder.verify(controller).setContent(updatedPlaylistWithTracks, null);
     }
 
     @Test
@@ -543,7 +543,7 @@ public class PlaylistDetailFragmentTest {
     }
 
     private PlaySessionSource getPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
-        return PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        return PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
     }
 
 }

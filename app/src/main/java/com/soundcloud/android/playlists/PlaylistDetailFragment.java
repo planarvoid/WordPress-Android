@@ -370,7 +370,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private PlaySessionSource getPlaySessionSource() {
         final String originScreen = Screen.fromBundle(getArguments()).get();
-        return PlaySessionSource.forPlaylist(originScreen, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
+        final PlaySessionSource playlistSessionSource = PlaySessionSource.forPlaylist(originScreen, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        playlistSessionSource.setPromotedSourceInfo(getPromotedSourceInfo());
+        return playlistSessionSource;
     }
 
     @Override
@@ -408,7 +410,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         public void onNext(PlaylistWithTracks playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
-            controller.setContent(playlist);
+            controller.setContent(playlist, getPromotedSourceInfo());
             showContent(true);
 
             if (playOnLoad && controller.hasTracks()) {

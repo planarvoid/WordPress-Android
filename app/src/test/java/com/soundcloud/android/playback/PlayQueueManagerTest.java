@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -29,6 +30,7 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
@@ -50,6 +52,7 @@ import java.util.List;
 public class PlayQueueManagerTest extends AndroidUnitTest {
 
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(6L);
+    private static final int PLAYLIST_TRACK_COUNT = 2;
     private static final Urn USER_URN = Urn.forUser(4L);
 
     private PlayQueueManager playQueueManager;
@@ -80,7 +83,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN);
+        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         exploreSessionSource = PlaySessionSource.forExplore(Screen.EXPLORE_GENRES, "1.0");
     }
 
@@ -867,7 +870,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentPlaylistReturnsTrueIfPlaylistUrnMatchesAndCurrentTrackHasNoSource() {
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN);
+        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
@@ -877,7 +880,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void isCurrentPlaylistReturnsFalseIfPlaylistUrnMatchesAndCurrentTrackHasAlternateSource() {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.getTrackSource(0)).thenReturn("recommender");
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN);
+        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isFalse();
@@ -885,7 +888,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN);
+        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
@@ -893,10 +896,41 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN);
+        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
+    }
+
+    @Test
+    public void isTrackFromCurrentPromotedItemReturnsTrueIfTrackIsPromoted() {
+        PlaySessionSource playSessionSource = new PlaySessionSource("screen");
+        playSessionSource.setPromotedSourceInfo(new PromotedSourceInfo("dfp:ad:123", Urn.forTrack(1L), Optional.of(USER_URN), null));
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 0);
+
+        assertThat(playQueueManager.isTrackFromCurrentPromotedItem(Urn.forTrack(1L))).isTrue();
+    }
+
+    @Test
+    public void isTrackFromCurrentPromotedItemReturnsFalseIfPromotedTrackIsntFirst() {
+        PlaySessionSource playSessionSource = new PlaySessionSource("screen");
+        playSessionSource.setPromotedSourceInfo(new PromotedSourceInfo("dfp:ad:123", Urn.forTrack(2L), Optional.of(USER_URN), null));
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource), playSessionSource, 1);
+
+        assertThat(playQueueManager.isTrackFromCurrentPromotedItem(Urn.forTrack(2L))).isFalse();
+    }
+
+    @Test
+    public void isTrackFromCurrentPromotedItemReturnsTrueIfTrackIsInPromotedPlaylist() {
+        playlistSessionSource.setPromotedSourceInfo(new PromotedSourceInfo("dfp:ad:123", PLAYLIST_URN, Optional.of(USER_URN), null));
+
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playlistSessionSource), playlistSessionSource);
+
+        assertThat(playQueueManager.isTrackFromCurrentPromotedItem(Urn.forTrack(1L))).isTrue();
+        assertThat(playQueueManager.isTrackFromCurrentPromotedItem(Urn.forTrack(2L))).isTrue();
     }
 
     @Test

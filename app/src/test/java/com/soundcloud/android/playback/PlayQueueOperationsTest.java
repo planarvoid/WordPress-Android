@@ -75,7 +75,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
     }
 
     @Test

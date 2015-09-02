@@ -120,7 +120,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forwardsNonPromotedTrackClicksToClickListener() {
+    public void forwardsTrackClicksToClickListener() {
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
@@ -162,24 +162,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
         verify(itemClickListener).onPostClick(streamTracks, view, 0, clickedPlaylist);
-    }
-
-    @Test
-    public void includesPromotedSourceInfoOnPlayFromPromotedTrack() {
-        final PromotedTrackItem clickedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        final Observable<List<PropertySet>> streamTracks = Observable.just(
-                Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
-        ArgumentCaptor<PlaySessionSource> captor = ArgumentCaptor.forClass(PlaySessionSource.class);
-        when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
-        when(playbackOperations.playPosts(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
-                .thenReturn(Observable.just(PlaybackResult.success()));
-
-        presenter.onItemClicked(view, 0);
-
-        verify(playbackOperations).playPosts(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), captor.capture());
-        PlaySessionSource sessionSource = captor.getValue();
-        assertThat(sessionSource.isFromPromotedItem()).isTrue();
     }
 
     @Test

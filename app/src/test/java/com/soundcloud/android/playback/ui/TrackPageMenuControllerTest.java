@@ -147,8 +147,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         MenuItem repost = mockMenuItem(R.id.repost);
         controller.onMenuItemClick(repost, activityContext);
 
-        UIEvent expectedEvent = UIEvent.fromToggleRepost(true, "screen", track.getUrn());
-        expectUIEvent(expectedEvent);
+        UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
     }
 
     @Test
@@ -156,8 +156,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         MenuItem unpost = mockMenuItem(R.id.unpost);
         controller.onMenuItemClick(unpost, activityContext);
 
-        UIEvent expectedEvent = UIEvent.fromToggleRepost(false, "screen", track.getUrn());
-        expectUIEvent(expectedEvent);
+        UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.java.optional.Optional;
@@ -16,7 +17,7 @@ public final class PromotedTrackingEvent extends TrackingEvent {
 
     private final List<String> trackingUrls;
 
-    private PromotedTrackingEvent(@NotNull String kind, long timeStamp, String adUrn, String trackUrn,
+    private PromotedTrackingEvent(@NotNull String kind, long timeStamp, String adUrn, String itemUrn,
                                   Optional<Urn> promoterUrn, List<String> trackingUrls, String screen) {
         super(kind, timeStamp);
         this.trackingUrls = trackingUrls;
@@ -24,7 +25,7 @@ public final class PromotedTrackingEvent extends TrackingEvent {
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_PROMOTED);
         put(AdTrackingKeys.KEY_AD_URN, adUrn);
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, screen);
-        put(AdTrackingKeys.KEY_AD_TRACK_URN, trackUrn);
+        put(AdTrackingKeys.KEY_AD_TRACK_URN, itemUrn);
         if (promoterUrn.isPresent()) {
             put(AdTrackingKeys.KEY_PROMOTER_URN, promoterUrn.get().toString());
         }
@@ -55,14 +56,19 @@ public final class PromotedTrackingEvent extends TrackingEvent {
     @NotNull
     private static PromotedTrackingEvent basePromotedEvent(String kind, PromotedListItem promotedItem,
                                                            List<String> trackingUrls, String screen) {
+        return basePromotedEvent(kind, PromotedSourceInfo.fromItem(promotedItem), trackingUrls, screen);
+    }
+
+    @NotNull
+    private static PromotedTrackingEvent basePromotedEvent(String kind, PromotedSourceInfo promotedSource,
+                                                           List<String> trackingUrls, String screen) {
         return new PromotedTrackingEvent(kind,
                 System.currentTimeMillis(),
-                promotedItem.getAdUrn(),
-                promotedItem.getEntityUrn().toString(),
-                promotedItem.getPromoterUrn(),
+                promotedSource.getAdUrn(),
+                promotedSource.getPromotedItemUrn().toString(),
+                promotedSource.getPromoterUrn(),
                 trackingUrls,
                 screen
         );
     }
-
 }

@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -101,8 +102,16 @@ public class PlayerWidgetController {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
         fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(
-                addLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(), currentTrackUrn));
+        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(currentTrackUrn);
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike,
+                        Screen.WIDGET.get(),
+                        playQueueManager.getScreenTag(),
+                        Screen.WIDGET.get(),
+                        currentTrackUrn,
+                        Urn.NOT_SET,
+                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
     }
 
     /**

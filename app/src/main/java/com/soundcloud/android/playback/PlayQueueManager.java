@@ -6,6 +6,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -308,6 +309,25 @@ public class PlayQueueManager implements OriginProvider {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn(), getCollectionUrn(), getCurrentMetaData(), getCurrentPosition()));
     }
 
+    public boolean isTrackFromCurrentPromotedItem(Urn trackUrn) {
+        final TrackSourceInfo trackSourceInfo = getCurrentTrackSourceInfo();
+        if (trackSourceInfo == null) {
+            return false;
+        }
+
+        if (trackSourceInfo.isFromPromoted()) {
+            final PromotedSourceInfo promotedSourceInfo = trackSourceInfo.getPromotedSourceInfo();
+            // Track is from a promoted playlist and not a recommendation
+            if (trackSourceInfo.isFromPlaylist() && trackSourceInfo.getPlaylistPosition() < playSessionSource.getCollectionSize()) {
+                return trackSourceInfo.getPlaylistUrn().equals(promotedSourceInfo.getPromotedItemUrn());
+            } else if (isCurrentPosition(0)) { // Track is a promoted track?
+                return trackUrn.equals(promotedSourceInfo.getPromotedItemUrn());
+            }
+        }
+
+        return false;
+    }
+
     @Nullable
     public TrackSourceInfo getCurrentTrackSourceInfo() {
         if (playQueue.isEmpty()) {
@@ -320,6 +340,10 @@ public class PlayQueueManager implements OriginProvider {
 
         if (playSessionSource.isFromQuery()) {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
+        }
+
+        if (playSessionSource.isFromPromotedItem()) {
+            trackSourceInfo.setPromotedSourceInfo(playSessionSource.getPromotedSourceInfo());
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();

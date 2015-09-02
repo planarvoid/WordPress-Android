@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -13,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -21,6 +23,7 @@ import rx.Subscriber;
 import android.content.Context;
 
 import javax.inject.Inject;
+
 
 class TrackPageListener extends PageListener {
     private final PlayQueueManager playQueueManager;
@@ -41,8 +44,16 @@ class TrackPageListener extends PageListener {
     public void onToggleLike(boolean addLike, Urn trackUrn) {
         fireAndForget(likeOperations.toggleLike(trackUrn, addLike));
 
+        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(trackUrn);
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
+                UIEvent.fromToggleLike(addLike,
+                        ScreenElement.PLAYER.get(),
+                        playQueueManager.getScreenTag(),
+                        Screen.PLAYER_MAIN.get(),
+                        trackUrn,
+                        trackUrn,
+                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {
