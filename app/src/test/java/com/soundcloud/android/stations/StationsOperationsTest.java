@@ -25,6 +25,7 @@ public class StationsOperationsTest {
     @Mock Station stationFromDisk;
     @Mock StoreTracksCommand storeTracksCommand;
     @Mock StoreStationCommand storeStationCommand;
+    @Mock StationsSyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
     private StationsOperations operations;
@@ -37,6 +38,7 @@ public class StationsOperationsTest {
                 stationsApi,
                 storeTracksCommand,
                 storeStationCommand,
+                syncInitiator,
                 Schedulers.immediate()
         );
 

@@ -171,11 +171,11 @@ public class DatabaseAssertions {
         );
     }
 
-    public void assertRecentStationContains(Urn stationUrn, long currentTime, int expectedCount) {
+    public void assertRecentStationsContains(Urn stationUrn, long currentTime, int expectedCount) {
         assertThat(
                 select(from(RecentStations.TABLE)
                         .whereEq(RecentStations.STATION_URN, stationUrn.toString())
-                        .whereEq(RecentStations.STARTED_AT, currentTime)),
+                        .whereEq(RecentStations.UPDATED_LOCALLY_AT, currentTime)),
                 counts(expectedCount)
         );
     }

@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
@@ -21,6 +22,7 @@ public class StationsOperations {
     private final StationsApi stationsApi;
     private final StoreTracksCommand storeTracksCommand;
     private final StoreStationCommand storeStationCommand;
+    private final StationsSyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
@@ -39,6 +41,7 @@ public class StationsOperations {
                 return track.getUrn();
             }
         };
+
         @Override
         public Station call(ApiStation station) {
             return new Station(
@@ -51,14 +54,23 @@ public class StationsOperations {
         }
     };
 
+    private final Func1<SyncResult, Observable<Station>> toRecentStations = new Func1<SyncResult, Observable<Station>>() {
+        @Override
+        public Observable<Station> call(SyncResult ignored) {
+            return recentStations();
+        }
+    };
+
     @Inject
     public StationsOperations(StationsStorage stationsStorage,
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
+                              StationsSyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
+        this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
         this.storeTracksCommand = storeTracksCommand;
         this.storeStationCommand = storeStationCommand;
@@ -76,7 +88,8 @@ public class StationsOperations {
 
     public Observable<ChangeResult> saveRecentlyPlayedStation(Urn stationUrn) {
         return stationsStorage
-                .saveRecentlyPlayedStation(stationUrn)
+                .saveUnsyncedRecentlyPlayedStation(stationUrn)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction())
                 .subscribeOn(scheduler);
     }
 
@@ -94,10 +107,16 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Station> recentStations() {
+    Observable<Station> recentStations() {
         return stationsStorage
                 .recentStations()
                 .subscribeOn(scheduler);
+    }
+
+    Observable<Station> updateRecentStations() {
+        return syncInitiator
+                .syncRecentStations()
+                .flatMap(toRecentStations);
     }
 
     public void clearData() {

@@ -7,10 +7,12 @@ import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
@@ -42,13 +44,23 @@ class StationsStorage {
         }
     };
 
+    private static final ResultMapper<PropertySet> toRecentStationProperties = new ResultMapper<PropertySet>() {
+        @Override
+        public PropertySet map(CursorReader reader) {
+            return PropertySet.from(
+                    StationProperty.URN.bind(new Urn(reader.getString(RecentStations.STATION_URN))),
+                    StationProperty.UPDATED_LOCALLY_AT.bind(reader.getLong(RecentStations.UPDATED_LOCALLY_AT)),
+                    StationProperty.POSITION.bind(reader.getInt(RecentStations.POSITION))
+            );
+        }
+    };
+
     private final Func1<CursorReader, Observable<Station>> toStation = new Func1<CursorReader, Observable<Station>>() {
         @Override
         public Observable<Station> call(CursorReader cursorReader) {
             return station(new Urn(cursorReader.getString(Stations.STATION_URN)));
         }
     };
-
     private final PropellerDatabase propellerDatabase;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
@@ -72,10 +84,19 @@ class StationsStorage {
                 .flatMap(toStation);
     }
 
+    List<PropertySet> getRecentStationsToSync() {
+        return propellerDatabase
+                .query(Query
+                        .from(RecentStations.TABLE)
+                        .whereNotNull(RecentStations.UPDATED_LOCALLY_AT))
+                .toList(toRecentStationProperties);
+    }
+
     private Query buildRecentStationsQuery() {
         return Query
                 .from(RecentStations.TABLE)
-                .order(RecentStations.STARTED_AT, Query.Order.DESC);
+                .order(RecentStations.UPDATED_LOCALLY_AT, Query.Order.DESC)
+                .order(RecentStations.POSITION, Query.Order.ASC);
     }
 
     Observable<Station> station(Urn stationUrn) {
@@ -123,13 +144,13 @@ class StationsStorage {
         );
     }
 
-    Observable<ChangeResult> saveRecentlyPlayedStation(Urn stationUrn) {
+    Observable<ChangeResult> saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
         return propellerRx.upsert(
                 RecentStations.TABLE,
                 ContentValuesBuilder
                         .values()
                         .put(RecentStations.STATION_URN, stationUrn.toString())
-                        .put(RecentStations.STARTED_AT, dateProvider.getCurrentTime())
+                        .put(RecentStations.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
                         .get()
         );
     }

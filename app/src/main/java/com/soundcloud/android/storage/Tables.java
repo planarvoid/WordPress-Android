@@ -129,11 +129,13 @@ public interface Tables {
         public static final RecentStations TABLE = new RecentStations();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
-        public static final Column STARTED_AT = Column.create(TABLE, "started_at");
+        public static final Column POSITION = Column.create(TABLE, "position");
+        public static final Column UPDATED_LOCALLY_AT = Column.create(TABLE, "updated_locally_at");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS RecentStations (" +
                 "station_urn TEXT," +
-                "started_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
+                "position INTEGER," +
+                "updated_locally_at INTEGER," +
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
