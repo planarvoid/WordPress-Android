@@ -119,6 +119,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
                 .put(TableColumns.PromotedTracks.AD_URN, streamItem.getAdUrn().get())
+                .put(TableColumns.PromotedTracks.CREATED_AT, System.currentTimeMillis())
                 .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingItemClickedUrls()))

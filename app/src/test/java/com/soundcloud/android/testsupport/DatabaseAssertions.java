@@ -355,7 +355,8 @@ public class DatabaseAssertions {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
                                 .whereEq(TableColumns.PromotedTracks.AD_URN, promotedTrack.getAdUrn())
-                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedTrack.getPromoter().getId()),
+                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedTrack.getPromoter().getId())
+                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
                         promotedTrack)
         ), counts(1));
     }
@@ -364,7 +365,8 @@ public class DatabaseAssertions {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
                                 .whereEq(TableColumns.PromotedTracks.AD_URN, promotedPlaylist.getAdUrn())
-                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedPlaylist.getPromoter().getId()),
+                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedPlaylist.getPromoter().getId())
+                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
                         promotedPlaylist)
         ), counts(1));
     }
@@ -373,7 +375,8 @@ public class DatabaseAssertions {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
                                 .whereEq(TableColumns.PromotedTracks.AD_URN, promotedTrack.getAdUrn())
-                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID),
+                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID)
+                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
                         promotedTrack)
         ), counts(1));
     }
@@ -382,7 +385,8 @@ public class DatabaseAssertions {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
                                 .whereEq(TableColumns.PromotedTracks.AD_URN, promotedPlaylist.getAdUrn())
-                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID),
+                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID)
+                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
                         promotedPlaylist)
         ), counts(1));
     }
