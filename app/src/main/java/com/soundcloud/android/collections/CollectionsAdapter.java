@@ -8,7 +8,12 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class CollectionsAdapter extends PagingRecyclerItemAdapter<CollectionsItem, RecyclerItemAdapter.ViewHolder> {
+public class CollectionsAdapter extends PagingRecyclerItemAdapter<CollectionsItem, RecyclerItemAdapter.ViewHolder> implements CollectionPlaylistHeaderRenderer.OnSettingsClickListener {
+
+    private Listener listener;
+    interface Listener {
+        void onPlaylistSettingsClicked(View view);
+    }
 
     @Inject
     public CollectionsAdapter(CollectionsLikedTracksRenderer likedTracksRenderer,
@@ -17,6 +22,19 @@ public class CollectionsAdapter extends PagingRecyclerItemAdapter<CollectionsIte
         super(new CellRendererBinding<>(CollectionsItem.TYPE_LIKES, likedTracksRenderer),
                 new CellRendererBinding<>(CollectionsItem.TYPE_PLAYLIST_HEADER, headerRenderer),
                 new CellRendererBinding<>(CollectionsItem.TYPE_PLAYLIST_ITEM, playlistRenderer));
+
+        headerRenderer.setOnSettingsClickListener(this);
+    }
+
+    @Override
+    public void onSettingsClicked(View view) {
+        if (listener != null) {
+            listener.onPlaylistSettingsClicked(view);
+        }
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override

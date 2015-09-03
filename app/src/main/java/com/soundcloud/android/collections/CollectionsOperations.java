@@ -8,6 +8,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
@@ -29,15 +30,34 @@ import java.util.List;
 
 class CollectionsOperations {
 
-    public static final Comparator<PropertySet> POSTED_AND_LIKED_COMPARATOR = new Comparator<PropertySet>() {
+    private static final Func1<List<PropertySet>, List<PropertySet>> SORT_BY_CREATION = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
-        public int compare(PropertySet lhs, PropertySet rhs) {
-            // flipped as we want reverse chronological order
-            return getAssociationDate(rhs).compareTo(getAssociationDate(lhs));
-        }
+        public List<PropertySet> call(List<PropertySet> propertySets) {
+            Collections.sort(propertySets, new Comparator<PropertySet>() {
+                @Override
+                public int compare(PropertySet lhs, PropertySet rhs) {
+                    // flipped as we want reverse chronological order
+                    return getAssociationDate(rhs).compareTo(getAssociationDate(lhs));
+                }
 
-        private Date getAssociationDate(PropertySet propertySet) {
-            return propertySet.contains(LikeProperty.CREATED_AT) ? propertySet.get(LikeProperty.CREATED_AT) : propertySet.get(PostProperty.CREATED_AT);
+                private Date getAssociationDate(PropertySet propertySet) {
+                    return propertySet.contains(LikeProperty.CREATED_AT) ? propertySet.get(LikeProperty.CREATED_AT) : propertySet.get(PostProperty.CREATED_AT);
+                }
+            });
+            return propertySets;
+        }
+    };
+
+    private static final Func1<List<PropertySet>, List<PropertySet>> SORT_BY_TITLE = new Func1<List<PropertySet>, List<PropertySet>>() {
+        @Override
+        public List<PropertySet> call(List<PropertySet> propertySets) {
+            Collections.sort(propertySets, new Comparator<PropertySet>() {
+                @Override
+                public int compare(PropertySet lhs, PropertySet rhs) {
+                    return lhs.get(PlaylistProperty.TITLE).compareTo(rhs.get(PlaylistProperty.TITLE));
+                }
+            });
+            return propertySets;
         }
     };
 
@@ -57,7 +77,6 @@ class CollectionsOperations {
             List<PropertySet> all = new ArrayList<>(postedPlaylists.size() + likedPlaylists.size());
             all.addAll(postedPlaylists);
             all.addAll(likedPlaylists);
-            Collections.sort(all, POSTED_AND_LIKED_COMPARATOR);
             return all;
         }
     };
@@ -82,38 +101,56 @@ class CollectionsOperations {
         this.syncInitiator = syncInitiator;
     }
 
-    Observable<MyCollections> collections() {
+    Observable<MyCollections> collections(final CollectionsOptions options) {
         return syncStateStorage.hasSyncedCollectionsBefore()
                 .flatMap(new Func1<Boolean, Observable<MyCollections>>() {
                     @Override
                     public Observable<MyCollections> call(Boolean hasSynced) {
-                        return hasSynced ? collectionsFromStorage() : updatedCollections();
+                        return hasSynced ? collectionsFromStorage(options) : updatedCollections(options);
                     }
                 }).subscribeOn(scheduler);
     }
 
-    Observable<MyCollections> updatedCollections() {
+    Observable<MyCollections> updatedCollections(final CollectionsOptions options) {
         return syncInitiator.refreshCollections()
                 .flatMap(new Func1<Boolean, Observable<MyCollections>>() {
                     @Override
                     public Observable<MyCollections> call(Boolean ignored) {
-                        return collectionsFromStorage();
+                        return collectionsFromStorage(options);
                     }
                 });
     }
 
     @NonNull
-    private Observable<MyCollections> collectionsFromStorage() {
-        return postedAndLikedPlaylists().zipWith(loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler),
-                COMBINE_LIKES_AND_PLAYLISTS);
+    private Observable<MyCollections> collectionsFromStorage(CollectionsOptions options) {
+        return collectionsPlaylists(options)
+                .zipWith(loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler),
+                        COMBINE_LIKES_AND_PLAYLISTS);
     }
 
-    private Observable<List<PlaylistItem>> postedAndLikedPlaylists() {
-        final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
-        final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
-        return loadPostedPlaylists.zipWith(loadLikedPlaylists, COMBINE_POSTED_AND_LIKED)
+    private Observable<List<PlaylistItem>> collectionsPlaylists(CollectionsOptions options) {
+        return unsortedPlaylists(options)
+                .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
                 .map(PlaylistItem.fromPropertySets())
                 .subscribeOn(scheduler);
+    }
+
+    private Observable<List<PropertySet>> unsortedPlaylists(CollectionsOptions options) {
+        final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
+        final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
+
+        if (options.showPosts() && options.showLikes()) {
+            return loadPostedPlaylists.zipWith(loadLikedPlaylists, COMBINE_POSTED_AND_LIKED);
+
+        } else if (options.showLikes()) {
+            return loadLikedPlaylists;
+
+        }else if (options.showPosts()) {
+            return loadPostedPlaylists;
+
+        } else {
+            return Observable.just(Collections.<PropertySet>emptyList());
+        }
     }
 
 }

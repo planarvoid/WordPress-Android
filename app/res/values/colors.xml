@@ -5,7 +5,17 @@
     <color name="white">#ffffff</color>
 
     <color name="sc_orange">#ff5500</color>
-    
+
+    <color name="orange_toggle_on">@color/sc_orange</color>
+    <color name="orange_toggle_on_ripple">#e24b03</color>
+    <color name="orange_toggle_on_text">#FFF</color>
+    <color name="orange_toggle_off">#e5e5e5</color>
+    <color name="orange_toggle_off_ripple">#c9c9c9</color>
+    <color name="orange_toggle_off_text">#888</color>
+
+    <color name="orange_radio_on_text">@color/sc_orange</color>
+    <color name="orange_radio_off_text">#777777</color>
+
     <!-- List items -->
     <!-- Legacy cells -->
     <color name="list_text_value">@color/black</color>
@@ -131,4 +141,6 @@
 
     <!-- Collections -->
     <color name="collections_home_background">#e5e5e5</color>
+    <color name="collections_options_dialog_header">#b3b3b3</color>
+
 </resources>

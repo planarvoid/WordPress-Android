@@ -1,5 +1,6 @@
 package com.soundcloud.android.collections;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -19,6 +20,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollectionsOperations collectionsOperations;
+    @Mock private CollectionsPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionsAdapter adapter;
     @Mock private Fragment fragment;
 
@@ -26,8 +28,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, adapter, resources(), eventBus);
-        when(collectionsOperations.collections()).thenReturn(Observable.<MyCollections>empty());
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, adapter, optionsPresenter, resources(), eventBus);
+        when(collectionsOperations.collections(any(CollectionsOptions.class))).thenReturn(Observable.<MyCollections>empty());
     }
 
     @Test
