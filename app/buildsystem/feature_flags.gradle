@@ -70,12 +70,12 @@ android {
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
-      buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
+      buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
     }
 
     end2end {
