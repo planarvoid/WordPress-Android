@@ -38,8 +38,14 @@ public class LocalyticsOnboardingEventHandler {
             case OnboardingEvent.SIGNUP_ERROR:
                 sendEvent(Onboarding.SIGNUP_ERROR, attributes);
                 break;
+            case OnboardingEvent.CONFIRM_TERMS:
+            case OnboardingEvent.USER_INFO:
+            case OnboardingEvent.EMAIL_MARKETING:
+            case OnboardingEvent.DEVICE_CONFLICT:
+                // ignore
+                break;
             default:
-                throw new IllegalArgumentException("Onboarding Event type is invalid");
+                throw new IllegalArgumentException("Onboarding Event type is invalid. " + sourceEventType);
         }
     }
 
