@@ -5,15 +5,114 @@
     Until this translation issue on Transifex is fixed, we will keep this file.
     When it is fixed, we should move these plurals back to the strings.xml file.-->
   <!--__NOTIFICATIONS-->
+  <plurals name="dashboard_notifications_activity_ticker_repost">
+    <item quantity="other">%d postingan ulang baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_activity">
+    <item quantity="other">%d aktivitas baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_comment">
+    <item quantity="other">%d berbagai komentar baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_like">
+    <item quantity="other">%d suka baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_activity">
+    <item quantity="other">%d aktivitas baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_comment">
+    <item quantity="other">%d berbagai komentar baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_like">
+    <item quantity="other">%d suka baru</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_repost">
+    <item quantity="other">%d postingan ulang baru</item>
+  </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_ticker">
+    <item quantity="other">%s berbagai lagu baru</item>
+  </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
+  <plurals name="dashboard_notifications_title">
+    <item quantity="other">%s berbagai lagu baru</item>
+  </plurals>
   <!--__ACCESSIBILITY-->
+  <plurals name="accessibility_stats_likes">
+    <item quantity="other">%d Suka</item>
+  </plurals>
   <!--__PLAYER-->
+  <plurals name="trackinfo_comments">
+    <item quantity="other">%d berbagai komentar baru tentang lagu ini</item>
+  </plurals>
   <!--__PLAYLIST CREATION-->
+  <plurals name="number_of_sounds">
+    <item quantity="other">%d lagu-lagu</item>
+  </plurals>
   <!--__PROFILE-->
+  <plurals name="number_of_followers">
+    <item quantity="other">%d para pengikut</item>
+  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="followers_message">
+    <item quantity="other">Diikuti oleh %s orang</item>
+  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
+  <plurals name="following_message">
+    <item quantity="other">Diikuti oleh Anda dan %s orang lain</item>
+  </plurals>
+  <plurals name="number_of_liked_tracks_you_liked">
+    <item quantity="other">Anda suka %d lagu-lagu</item>
+  </plurals>
   <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
+  <plurals name="number_of_others">
+    <item quantity="other">dan %d lain</item>
+  </plurals>
   <!--__TIME-->
+  <plurals name="elapsed_days">
+    <item quantity="other">%d hari</item>
+  </plurals>
+  <plurals name="elapsed_days_ago">
+    <item quantity="other">%d hari yang lalu</item>
+  </plurals>
+  <plurals name="elapsed_hours">
+    <item quantity="other">%d jam</item>
+  </plurals>
+  <plurals name="elapsed_hours_ago">
+    <item quantity="other">%d jam yang lalu</item>
+  </plurals>
+  <plurals name="elapsed_minutes">
+    <item quantity="other">%d menit</item>
+  </plurals>
+  <plurals name="elapsed_minutes_ago">
+    <item quantity="other">%d menit yang lalu</item>
+  </plurals>
+  <plurals name="elapsed_months">
+    <item quantity="other">%d bulan</item>
+  </plurals>
+  <plurals name="elapsed_months_ago">
+    <item quantity="other">%d bulan yang lalu</item>
+  </plurals>
+  <plurals name="elapsed_seconds">
+    <item quantity="other">%d detik</item>
+  </plurals>
+  <plurals name="elapsed_seconds_ago">
+    <item quantity="other">%d detik yang lalu</item>
+  </plurals>
+  <plurals name="elapsed_years">
+    <item quantity="other">%d tahun</item>
+  </plurals>
+  <plurals name="elapsed_years_ago">
+    <item quantity="other">%d tahun yang lalu</item>
+  </plurals>
   <!--__OFFLINE_SYNC-->
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="other">%1$d dari %2$d lagu-lagu</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="other">Anda punya %d hari untuk kembali online</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="other">Perangkat Anda perlu online setidaknya setiap 30 hari sekali untuk verifikasi langganan Anda. Saat ini Anda punya %d agar perangkat ini tetap tersambung dengan langganan Anda, jika tidak, konten offline Anda tidak akan bisa diakses.</item>
+  </plurals>
 </resources>
