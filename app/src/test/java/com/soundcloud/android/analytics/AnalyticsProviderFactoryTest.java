@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
-import com.soundcloud.android.analytics.crashlytics.CrashlyticsAnalyticsProvider;
+import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
@@ -37,13 +37,13 @@ public class AnalyticsProviderFactoryTest {
     @Mock private PromotedAnalyticsProvider promotedProvider;
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
-    @Mock private CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
+    @Mock private FabricAnalyticsProvider fabricAnalyticsProvider;
 
     @Before
     public void setUp() throws Exception {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, crashlyticsAnalyticsProvider);
+                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class AnalyticsProviderFactoryTest {
                 promotedProvider,
                 localyticsProvider,
                 adjustAnalyticsProvider,
-                crashlyticsAnalyticsProvider,
+                fabricAnalyticsProvider,
                 comScoreProvider);
     }
 
@@ -80,7 +80,7 @@ public class AnalyticsProviderFactoryTest {
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
                 eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider,
-                null, crashlyticsAnalyticsProvider);
+                null, fabricAnalyticsProvider);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
@@ -90,7 +90,7 @@ public class AnalyticsProviderFactoryTest {
                 promotedProvider,
                 localyticsProvider,
                 adjustAnalyticsProvider,
-                crashlyticsAnalyticsProvider);
+                fabricAnalyticsProvider);
     }
 
     @Test

@@ -1,6 +1,9 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PaymentFailureEvent;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.v4.app.FragmentActivity;
 
@@ -13,10 +16,12 @@ class PaymentErrorPresenter {
     private static final String ERROR_KEY_UNCONFIRMED_EMAIL = "unconfirmed_email";
 
     private PaymentErrorView errorView;
+    private EventBus eventBus;
 
     @Inject
-    PaymentErrorPresenter(PaymentErrorView errorView) {
+    PaymentErrorPresenter(PaymentErrorView errorView, EventBus eventBus) {
         this.errorView = errorView;
+        this.eventBus = eventBus;
     }
 
     public void setActivity(FragmentActivity activity) {
@@ -28,6 +33,7 @@ class PaymentErrorPresenter {
             handleApiException((ApiRequestException) e);
         } else {
             errorView.showUnknownError();
+            trackFailure("Unknown");
         }
     }
 
@@ -38,9 +44,10 @@ class PaymentErrorPresenter {
                 break;
             case NOT_FOUND:
                 errorView.showStaleCheckout();
+                trackFailure("Stale checkout");
                 break;
             default:
-                errorView.showConnectionError();
+                showConnectionError();
         }
     }
 
@@ -48,15 +55,18 @@ class PaymentErrorPresenter {
         switch (e.errorKey()) {
             case ERROR_KEY_ALREADY_SUBSCRIBED:
                 errorView.showAlreadySubscribed();
+                trackFailure("Already subscribed");
                 break;
             case ERROR_KEY_WRONG_USER:
                 errorView.showWrongUser();
+                trackFailure("Wrong user");
                 break;
             case ERROR_KEY_UNCONFIRMED_EMAIL:
                 errorView.showUnconfirmedEmail();
+                trackFailure("Unconfirmed email");
                 break;
             default:
-                errorView.showConnectionError();
+                showConnectionError();
         }
     }
 
@@ -64,20 +74,27 @@ class PaymentErrorPresenter {
         errorView.showCancelled();
     }
 
-    public void showBillingUnavailable() {
-        errorView.showBillingUnavailable();
-    }
-
     public void showConnectionError() {
         errorView.showConnectionError();
     }
 
+    public void showBillingUnavailable() {
+        errorView.showBillingUnavailable();
+        trackFailure("Billing unavailable");
+    }
+
     public void showVerifyFail() {
         errorView.showVerifyFail();
+        trackFailure("Verify fail");
     }
 
     public void showVerifyTimeout() {
         errorView.showVerifyTimeout();
+        trackFailure("Verify timeout");
+    }
+
+    private void trackFailure(String reason) {
+        eventBus.publish(EventQueue.TRACKING, PaymentFailureEvent.create(reason));
     }
 
 }

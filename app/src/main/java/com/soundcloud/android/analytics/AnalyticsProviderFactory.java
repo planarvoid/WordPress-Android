@@ -3,7 +3,7 @@ package com.soundcloud.android.analytics;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
-import com.soundcloud.android.analytics.crashlytics.CrashlyticsAnalyticsProvider;
+import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
@@ -31,7 +31,7 @@ public class AnalyticsProviderFactory {
     private final LocalyticsAnalyticsProvider localyticsAnalyticsProvider;
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
-    private final CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
+    private final FabricAnalyticsProvider fabricAnalyticsProvider;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
 
@@ -46,7 +46,7 @@ public class AnalyticsProviderFactory {
                                     PromotedAnalyticsProvider promotedProvider,
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
-                                    CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider) {
+                                    FabricAnalyticsProvider fabricAnalyticsProvider) {
         this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.analyticsProperties = analyticsProperties;
@@ -56,7 +56,7 @@ public class AnalyticsProviderFactory {
         this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.promotedAnalyticsProvider = promotedProvider;
-        this.crashlyticsAnalyticsProvider = crashlyticsAnalyticsProvider;
+        this.fabricAnalyticsProvider = fabricAnalyticsProvider;
     }
 
     public List<AnalyticsProvider> getProviders() {
@@ -90,7 +90,7 @@ public class AnalyticsProviderFactory {
     private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(localyticsAnalyticsProvider);
         providers.add(adjustAnalyticsProvider);
-        providers.add(crashlyticsAnalyticsProvider);
+        providers.add(fabricAnalyticsProvider);
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
