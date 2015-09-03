@@ -23,6 +23,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
+import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
@@ -89,6 +90,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
     @Inject PlaySessionStateProvider playSessionStateProvider;
+    @Inject PlayPublisher playPublisher;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject SkippyFactory skippyFactory;
@@ -167,6 +169,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+
+        if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)) {
+            playPublisher.subscribe();
+        }
 
         if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
             castSessionController.startListening();

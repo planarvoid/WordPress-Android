@@ -79,6 +79,9 @@ public enum ApiEndpoints {
     TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
 
+    // public API
+    PLAY_PUBLISH("/tpub"),
+
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
     RESOLVE("/resolve"),
