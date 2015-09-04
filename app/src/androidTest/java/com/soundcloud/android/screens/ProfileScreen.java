@@ -1,11 +1,13 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
@@ -20,7 +22,6 @@ import android.widget.ListView;
 import java.util.List;
 
 public class ProfileScreen extends Screen {
-    private static Class ACTIVITY = ProfileActivity.class;
 
     public ProfileScreen(Han solo) {
         super(solo);
@@ -185,7 +186,7 @@ public class ProfileScreen extends Screen {
 
     @Override
     protected Class getActivity() {
-        return ACTIVITY;
+        return BuildConfig.FEATURE_NEW_PROFILE ? ProfileActivity.class : LegacyProfileActivity.class;
     }
 
     public String getUserName() {
