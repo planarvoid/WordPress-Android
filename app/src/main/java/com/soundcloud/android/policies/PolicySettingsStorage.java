@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class PolicySettingsStorage {
-    private static final String LAST_POLICY_UPDATE_TIME = "last_policy_update";
+    private static final String LAST_POLICY_UPDATE_TIME = "last_policy_update_time";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
 
     private final SharedPreferences sharedPreferences;

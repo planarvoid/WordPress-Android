@@ -187,6 +187,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
             policyUpdateScheduler.scheduleDailyPolicyUpdates();
         }
+
         configurationFeatureController.subscribe();
         facebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();

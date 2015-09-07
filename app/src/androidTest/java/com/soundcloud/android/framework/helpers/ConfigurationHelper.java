@@ -21,8 +21,8 @@ public class ConfigurationHelper {
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
-    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_check_time";
-    private static final String LAST_POLICY_UPDATE_TIME= "last_policy_update";
+    private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
+    private static final String LAST_POLICY_UPDATE_TIME= "last_policy_update_time";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -111,18 +111,15 @@ public class ConfigurationHelper {
     public static void resetPolicyUpdateAndCheckTime(Context context) {
         getPolicySettingsPreferences(context)
                 .edit()
-                .remove(LAST_POLICY_UPDATE_CHECK)
-                .commit();
-        getPolicySettingsPreferences(context)
-                .edit()
+                .remove(LAST_POLICY_CHECK_TIME)
                 .remove(LAST_POLICY_UPDATE_TIME)
-                .commit();
+                .apply();
     }
 
     public static void setPolicyCheckTime(Context context, long time) {
         getPolicySettingsPreferences(context)
                 .edit()
-                .putLong(LAST_POLICY_UPDATE_CHECK, time)
+                .putLong(LAST_POLICY_CHECK_TIME, time)
                 .commit();
     }
 

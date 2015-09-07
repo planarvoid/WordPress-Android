@@ -548,8 +548,6 @@
     <string name="track_station_type">Track station</string>
     <string name="recent_stations_title">Recently played stations</string>
     <string name="station_bucket_action_text">View all</string>
-    <string name="dev_drawer_action_policy_sync_key">policy_sync</string>
-    <string name="dev_drawer_action_policy_sync_title">Force sync policies</string>
 
     <!-- __COLLECTION -->
     <string name="side_menu_collections">Collections</string>

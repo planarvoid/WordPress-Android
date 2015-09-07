@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PolicyUpdateScheduler {
 
-    static final int REQUEST_ID = R.id.policy_pdate_request_id;
+    static final int REQUEST_ID = R.id.policy_update_request_id;
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     static final long POLICY_UPDATE_DELAY = TimeUnit.HOURS.toMillis(24);
 

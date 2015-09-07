@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.apache.maven.model.Model;
@@ -35,7 +36,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Mock private FetchPoliciesCommand fetchPoliciesCommand;
     @Mock private StorePoliciesCommand storePoliciesCommand;
     @Mock private LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
-    @Mock private WriteResult writeResult;
+    @Mock private TxnResult writeResult;
 
     private final List<Urn> tracks = Collections.singletonList(TRACK_URN);
     private ApiPolicyInfo apiPolicyInfo = ModelFixtures.apiPolicyInfo(TRACK_URN);
@@ -96,23 +97,23 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void updateTrackPoliciesFetchesAndStorePoliciesForLoadedTracks() throws Exception {
         List<Urn> tracks = Arrays.asList(TRACK_URN, TRACK_URN2);
-        Collection<PolicyInfo> policies = newArrayList(
-                new PolicyInfo(TRACK_URN, true, PolicyInfo.MONETIZE, false),
-                new PolicyInfo(TRACK_URN2, false, PolicyInfo.ALLOW, false));
+        Collection<ApiPolicyInfo> policies = Arrays.asList(
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
+        );
 
         when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
         when(fetchPoliciesCommand.call()).thenReturn(policies);
         when(writeResult.success()).thenReturn(true);
-        when(storePoliciesCommand.call()).thenReturn(writeResult);
+        when(storePoliciesCommand.call(policies)).thenReturn(writeResult);
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).containsAll(tracks);
-        assertThat(storePoliciesCommand.getInput()).containsAll(policies);
         assertThat(fetchPoliciesCommand.getInput()).containsAll(tracks);
 
         verify(loadTracksForPolicyUpdateCommand).call(null);
         verify(fetchPoliciesCommand).call();
-        verify(storePoliciesCommand).call();
+        verify(storePoliciesCommand).call(policies);
     }
 
     @Test
@@ -123,10 +124,6 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).isEmpty();
-    }
-
-    private Collection<PolicyInfo> createNotMonetizablePolicy(Urn trackUrn) {
-        return Collections.singletonList(new PolicyInfo(trackUrn, false, PolicyInfo.ALLOW, false));
     }
 
     private Collection<ApiPolicyInfo> createNotMonetizablePolicy(Urn trackUrn) {
