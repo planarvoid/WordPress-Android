@@ -8,11 +8,15 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func1;
 import rx.functions.Func2;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -41,9 +45,11 @@ class CollectionsOperations {
     static final int PLAYLIST_LIMIT = 1000; //arbitrarily high, we don't want to worry about paging
 
     private final Scheduler scheduler;
+    private final SyncStateStorage syncStateStorage;
     private final PlaylistPostStorage playlistPostStorage;
     private final PlaylistLikesStorage playlistLikesStorage;
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
+    private final SyncInitiator syncInitiator;
 
     private static Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>> COMBINE_POSTED_AND_LIKED = new Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -65,16 +71,39 @@ class CollectionsOperations {
 
     @Inject
     CollectionsOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                          PlaylistPostStorage playlistPostStorage,
+                          SyncStateStorage syncStateStorage, PlaylistPostStorage playlistPostStorage,
                           PlaylistLikesStorage playlistLikesStorage,
-                          LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand) {
+                          LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand, SyncInitiator syncInitiator) {
         this.scheduler = scheduler;
+        this.syncStateStorage = syncStateStorage;
         this.playlistPostStorage = playlistPostStorage;
         this.playlistLikesStorage = playlistLikesStorage;
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
+        this.syncInitiator = syncInitiator;
     }
 
     Observable<MyCollections> collections() {
+        return syncStateStorage.hasSyncedCollectionsBefore()
+                .flatMap(new Func1<Boolean, Observable<MyCollections>>() {
+                    @Override
+                    public Observable<MyCollections> call(Boolean hasSynced) {
+                        return hasSynced ? collectionsFromStorage() : updatedCollections();
+                    }
+                }).subscribeOn(scheduler);
+    }
+
+    Observable<MyCollections> updatedCollections() {
+        return syncInitiator.refreshCollections()
+                .flatMap(new Func1<Boolean, Observable<MyCollections>>() {
+                    @Override
+                    public Observable<MyCollections> call(Boolean ignored) {
+                        return collectionsFromStorage();
+                    }
+                });
+    }
+
+    @NonNull
+    private Observable<MyCollections> collectionsFromStorage() {
         return postedAndLikedPlaylists().zipWith(loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler),
                 COMBINE_LIKES_AND_PLAYLISTS);
     }

@@ -18,25 +18,73 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
     @Test
     public void hasSyncedBeforeIsTrueWithSuccessfulSyncDataStored() {
-        testFixtures().insertSuccessfulSync(SyncContent.MyLikes, 123L);
+        testFixtures().insertSuccessfulSync(SyncContent.MySounds, 123L);
 
-        storage.hasSyncedBefore(SyncContent.MyLikes).subscribe(subscriber);
+        storage.hasSyncedMyPostsBefore().subscribe(subscriber);
 
         subscriber.assertValues(true);
     }
 
     @Test
     public void hasSyncedBeforeIsFalseWithNoSuccessfulSyncStored() {
-        testFixtures().insertSyncAttempt(SyncContent.MyLikes, 123L);
+        testFixtures().insertSyncAttempt(SyncContent.MySounds, 123L);
 
-        storage.hasSyncedBefore(SyncContent.MyLikes).subscribe(subscriber);
+        storage.hasSyncedMyPostsBefore().subscribe(subscriber);
 
         subscriber.assertValues(false);
     }
 
     @Test
     public void hasSyncedBeforeIsFalseWithNoSyncDataStored() {
-        storage.hasSyncedBefore(SyncContent.MyLikes).subscribe(subscriber);
+        storage.hasSyncedMyPostsBefore().subscribe(subscriber);
+
+        subscriber.assertValues(false);
+    }
+
+    @Test
+    public void hasSyncedCollectionsBeforeIsTrueWithSuccessfulSyncDataStored() {
+        testFixtures().insertSuccessfulSync(SyncContent.MyLikes, 123L);
+        testFixtures().insertSuccessfulSync(SyncContent.MyPlaylists, 123L);
+
+        storage.hasSyncedCollectionsBefore().subscribe(subscriber);
+
+        subscriber.assertValues(true);
+    }
+
+    @Test
+    public void hasSyncedCollectionsBeforeIsFalseWithNoSuccessfulLikesSyncStored() {
+        testFixtures().insertSyncAttempt(SyncContent.MyLikes, 123L);
+        testFixtures().insertSuccessfulSync(SyncContent.MyPlaylists, 123L);
+
+        storage.hasSyncedCollectionsBefore().subscribe(subscriber);
+
+        subscriber.assertValues(false);
+    }
+
+    @Test
+    public void hasSyncedCollectionsBeforeIsFalseWithNoLikesSyncStored() {
+        testFixtures().insertSuccessfulSync(SyncContent.MyPlaylists, 123L);
+
+        storage.hasSyncedCollectionsBefore().subscribe(subscriber);
+
+        subscriber.assertValues(false);
+    }
+
+    @Test
+    public void hasSyncedCollectionsBeforeIsFalseWithNoSuccessfulPlaylistsSyncDataStored() {
+        testFixtures().insertSuccessfulSync(SyncContent.MyLikes, 123L);
+        testFixtures().insertSyncAttempt(SyncContent.MyPlaylists, 123L);
+
+        storage.hasSyncedCollectionsBefore().subscribe(subscriber);
+
+        subscriber.assertValues(false);
+    }
+
+    @Test
+    public void hasSyncedCollectionsBeforeIsFalseWithNoPlaylistsSyncDataStored() {
+        testFixtures().insertSuccessfulSync(SyncContent.MyLikes, 123L);
+
+        storage.hasSyncedCollectionsBefore().subscribe(subscriber);
 
         subscriber.assertValues(false);
     }
