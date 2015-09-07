@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 public class SyncInitiatorTest extends AndroidUnitTest {
@@ -238,11 +239,37 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     }
 
 
-    private void sendSyncChangedLegacyToUri(Uri uri) {
+    @Test
+    public void refreshCollectionsSendsCollectionSyncIntent() {
+        initiator.refreshCollections().subscribe(legacySyncSubscriber);
+
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
+        assertThat(intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS)).isEqualTo(Arrays.asList(SyncContent.MyLikes.content.uri,
+                SyncContent.MyPlaylists.content.uri));
+    }
+
+    @Test
+    public void refreshCollectionsResetsSyncMissesOnAllCollections() {
+        initiator.refreshCollections().subscribe(legacySyncSubscriber);
+        final Uri[] uris = new Uri[] {Content.ME_PLAYLISTS.uri, Content.ME_LIKES.uri};
+
+        sendSyncChangedLegacyToUri(uris);
+
+        for (Uri uri : uris) {
+            verify(syncStateManager).resetSyncMisses(uri);
+        }
+    }
+
+
+    private void sendSyncChangedLegacyToUri(Uri... uris) {
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();
-        resultData.putBoolean(uri.toString(), true);
+        for (Uri uri : uris) {
+            resultData.putBoolean(uri.toString(), true);
+        }
         resultReceiver.send(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
     }
 

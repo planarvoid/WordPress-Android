@@ -14,12 +14,12 @@ import android.os.ResultReceiver;
 class LegacyResultReceiverAdapter extends ResultReceiver {
 
     private final Subscriber<? super Boolean> subscriber;
-    final Uri contentUri;
+    final Uri[] contentUris;
 
-    public LegacyResultReceiverAdapter(Subscriber<? super Boolean> subscriber, Uri contentUri) {
+    public LegacyResultReceiverAdapter(Subscriber<? super Boolean> subscriber, Uri... contentUris) {
         super(new Handler(Looper.getMainLooper()));
         this.subscriber = subscriber;
-        this.contentUri = contentUri;
+        this.contentUris = contentUris;
     }
 
     @Override
@@ -27,7 +27,7 @@ class LegacyResultReceiverAdapter extends ResultReceiver {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_APPEND_FINISHED:
-                final boolean dataUpdated = resultData.getBoolean(contentUri.toString());
+                final boolean dataUpdated = checkForUpdates(resultData);
                 subscriber.onNext(dataUpdated);
                 subscriber.onCompleted();
                 break;
@@ -38,5 +38,14 @@ class LegacyResultReceiverAdapter extends ResultReceiver {
             default:
                 throw new IllegalStateException("Unexpected sync state: " + resultCode);
         }
+    }
+
+    private boolean checkForUpdates(Bundle resultData) {
+        for (Uri uri : contentUris) {
+            if (resultData.getBoolean(uri.toString())){
+                return true;
+            }
+        }
+        return false;
     }
 }

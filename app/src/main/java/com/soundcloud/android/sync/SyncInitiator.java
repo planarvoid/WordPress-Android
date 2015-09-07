@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.Looper;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SyncInitiator {
@@ -162,6 +164,19 @@ public class SyncInitiator {
         }).doOnNext(resetSyncMissesLegacy(uri));
     }
 
+    public Observable<Boolean> refreshCollections() {
+        final Uri[] collectionUris = {SyncContent.MyLikes.content.uri,
+                SyncContent.MyPlaylists.content.uri};
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestCollectionsSync(
+                        ApiSyncService.ACTION_HARD_REFRESH,
+                        new LegacyResultReceiverAdapter(subscriber, collectionUris));
+            }
+        }).doOnNext(resetSyncMissesLegacy(collectionUris));
+    }
+
     public Observable<Boolean> refreshPostedPlaylists() {
         final Uri uri = SyncContent.MyPlaylists.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -196,6 +211,17 @@ public class SyncInitiator {
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_LIKES.uri));
+    }
+
+    private void requestCollectionsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
+        ArrayList<Uri> urisToSync = new ArrayList<>(Arrays.asList(SyncContent.MyLikes.content.uri,
+                SyncContent.MyPlaylists.content.uri));
+
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync));
     }
 
     private void requestPostedPlaylistsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
@@ -273,7 +299,7 @@ public class SyncInitiator {
 
     /**
      * Triggers a backfill sync for the sound stream.
-     * <p/>
+     * <p>
      * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
      * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
      */
@@ -290,7 +316,7 @@ public class SyncInitiator {
         context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(resultReceiver.contentUri)
+                .setData(Content.ME_SOUND_STREAM.uri)
                 .setAction(ApiSyncService.ACTION_APPEND));
     }
 
@@ -324,24 +350,24 @@ public class SyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 final Uri contentUri = Content.TRACKS.forId(trackUrn.getNumericId());
-                requestTrackSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
+                LegacyResultReceiverAdapter resultReceiver = new LegacyResultReceiverAdapter(subscriber, contentUri);
+                context.startService(new Intent(context, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                        .setData(contentUri));
             }
         });
     }
 
-    private void requestTrackSync(LegacyResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(resultReceiver.contentUri));
-    }
-
-    private Action1<Boolean> resetSyncMissesLegacy(final Uri uri) {
+    private Action1<Boolean> resetSyncMissesLegacy(final Uri... uris) {
         return new Action1<Boolean>() {
             @Override
             public void call(Boolean changed) {
                 if (changed) {
-                    syncStateManager.resetSyncMisses(uri);
+                    for (Uri uri : uris) {
+                        syncStateManager.resetSyncMisses(uri);
+                    }
+
                 }
             }
         };

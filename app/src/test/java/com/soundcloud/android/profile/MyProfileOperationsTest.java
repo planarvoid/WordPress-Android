@@ -11,7 +11,6 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -77,7 +76,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void postedPlaylistsReturnsPostedPlaylistsFromStorageIfSyncedBefore() {
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(true));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
 
         operations.pagedPostItems().subscribe(subscriber);
@@ -89,7 +88,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void postedPlaylistsReturnsEmptyPostsFromStorageIfSyncedBefore() {
         final List<PropertySet> emptyList = Collections.emptyList();
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(true));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(emptyList));
 
         operations.pagedPostItems().subscribe(subscriber);
@@ -101,7 +100,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void postedPlaylistsSyncsAndLoadPostsIfNeverSyncedBefore() {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(false));
+        when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(false));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
@@ -113,7 +112,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadEmptyPostsResultsIfNeverSyncedBefore() throws Exception {
         final List<PropertySet> emptyList = Collections.emptyList();
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(false));
+        when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(false));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(emptyList));
         when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
@@ -127,7 +126,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
         final List<PropertySet> secondPage = createPageOfPostedTracks(1);
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MySounds)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(true));
         when(postStorage.loadPosts(PAGE_SIZE, time)).thenReturn(Observable.just(secondPage));
 
         operations.postsPagingFunction().call(firstPage).subscribe(subscriber);

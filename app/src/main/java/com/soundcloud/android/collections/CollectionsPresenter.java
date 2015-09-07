@@ -92,6 +92,13 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     }
 
     @Override
+    protected CollectionBinding<CollectionsItem> onRefreshBinding() {
+        return CollectionBinding.from(collectionsOperations.updatedCollections(), TO_COLLECTIONS_ITEMS)
+                .withAdapter(adapter)
+                .build();
+    }
+
+    @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
