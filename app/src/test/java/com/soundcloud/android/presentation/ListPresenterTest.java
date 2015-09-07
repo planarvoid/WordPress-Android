@@ -278,11 +278,11 @@ public class ListPresenterTest extends AndroidUnitTest {
 
     @Test
     public void pullToRefreshResubscribesViewObserversToNewBindingIfRefreshSuccessful() {
-        createPresenterWithBinding(defaultBinding(),
-                defaultBinding(), testSubscriber);
+        final CollectionBinding<String> collectionBinding = defaultBinding();
+        createPresenterWithBinding(collectionBinding, collectionBinding, testSubscriber);
 
-        triggerPullToRefresh();
         final List<String> listContent = Collections.singletonList("items");
+        triggerPullToRefresh();
         source.onNext(listContent);
 
         testSubscriber.assertReceivedOnNext(Collections.<Iterable<String>>singletonList(listContent));
