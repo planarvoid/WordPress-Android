@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,19 +9,18 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowContentResolver;
 import rx.Subscriber;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
@@ -35,8 +33,7 @@ import android.os.ResultReceiver;
 
 import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SyncInitiatorTest {
+public class SyncInitiatorTest extends AndroidUnitTest {
 
     private SyncInitiator initiator;
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
@@ -49,47 +46,47 @@ public class SyncInitiatorTest {
 
     @Before
     public void setup() {
-        initiator = new SyncInitiator(Robolectric.application, accountOperations, syncStateManager);
+        initiator = new SyncInitiator(context(), accountOperations, syncStateManager);
     }
 
     @Test
     public void shouldCreateSyncIntentForPushingFollowingsForValidAccount() throws Exception {
         Account account = new Account("soundcloud", "account");
         when(accountOperations.getSoundCloudAccount()).thenReturn(account);
-        expect(initiator.pushFollowingsToApi()).toBeTrue();
+        assertThat(initiator.pushFollowingsToApi()).isTrue();
 
-        Status syncStatus = ShadowContentResolver.getStatus(account, ScContentProvider.AUTHORITY);
-        expect(syncStatus.syncRequests).toBe(1);
-        expect(syncStatus.syncExtras.getBoolean(SyncAdapterService.EXTRA_SYNC_PUSH)).toBeTrue();
-        expect(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).toEqual(Content.ME_FOLLOWINGS.uri.toString());
+        ShadowContentResolver.Status syncStatus = ShadowContentResolver.getStatus(account, ScContentProvider.AUTHORITY);
+        assertThat(syncStatus.syncRequests).isEqualTo(1);
+        assertThat(syncStatus.syncExtras.getBoolean(SyncAdapterService.EXTRA_SYNC_PUSH)).isTrue();
+        assertThat(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).isEqualTo(Content.ME_FOLLOWINGS.uri.toString());
     }
 
     @Test
     public void shouldReturnFalseWhenPushingFollowingsWithInvalidAccount() throws Exception {
-        expect(initiator.pushFollowingsToApi()).toBeFalse();
+        assertThat(initiator.pushFollowingsToApi()).isFalse();
     }
 
     @Test
     public void shouldCreateIntentForRefreshingTheSoundStream() {
         initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(Content.ME_SOUND_STREAM.uri);
-        expect(intent.getAction()).toBe(ApiSyncService.ACTION_HARD_REFRESH);
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isEqualTo(Content.ME_SOUND_STREAM.uri);
+        assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
     public void shouldCreateIntentForInitialSoundStream() {
         initiator.initialSoundStream().subscribe(legacySyncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(Content.ME_SOUND_STREAM.uri);
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isSameAs(Content.ME_SOUND_STREAM.uri);
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
@@ -104,23 +101,23 @@ public class SyncInitiatorTest {
     public void shouldCreateIntentForSyncingOlderSoundStreamItems() {
         initiator.backfillSoundStream().subscribe(legacySyncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(Content.ME_SOUND_STREAM.uri);
-        expect(intent.getAction()).toEqual(ApiSyncService.ACTION_APPEND);
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isSameAs(Content.ME_SOUND_STREAM.uri);
+        assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_APPEND);
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
     public void shouldCreateIntentForSyncingLocalPlaylists() throws Exception {
         initiator.syncLocalPlaylists();
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(Content.ME_PLAYLISTS.uri);
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeNull();
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isSameAs(Content.ME_PLAYLISTS.uri);
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isNull();
     }
 
     @Test
@@ -136,11 +133,11 @@ public class SyncInitiatorTest {
         final Urn playlistUrn = Urn.forPlaylist(1L);
         initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST);
-        expect(intent.getParcelableExtra(SyncExtras.URN)).toEqual(playlistUrn);
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST);
+        assertThat(intent.getParcelableExtra(SyncExtras.URN)).isEqualTo(playlistUrn);
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
@@ -148,48 +145,48 @@ public class SyncInitiatorTest {
         final Urn playlistUrn = Urn.forPlaylist(-1L);
         initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toBe(Content.ME_PLAYLISTS.uri);
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isSameAs(Content.ME_PLAYLISTS.uri);
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
 
         final LegacyResultReceiverAdapter resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();
         resultData.putBoolean(Content.ME_PLAYLISTS.uri.toString(), true);
         resultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        expect(syncSubscriber.getOnNextEvents()).toContainExactly(SyncResult.success(SyncActions.SYNC_PLAYLIST, true));
+        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncResult.success(SyncActions.SYNC_PLAYLIST, true));
     }
 
     @Test
     public void shouldCreateIntentForSyncingSingleTrack() throws Exception {
         initiator.syncTrack(Urn.forTrack(1L)).subscribe(legacySyncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getData()).toEqual(Content.TRACKS.forQuery(String.valueOf(1L)));
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isEqualTo(Content.TRACKS.forQuery(String.valueOf(1L)));
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
     public void syncTrackLikesShouldRequestTrackLikesSync() throws Exception {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACK_LIKES);
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_TRACK_LIKES);
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 
     @Test
     public void syncRecommendationsShouldRequestRecommendationsSync() throws Exception {
         initiator.syncRecommendations().subscribe(syncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_RECOMMENDATIONS);
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_RECOMMENDATIONS);
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 
     @Test
@@ -204,10 +201,10 @@ public class SyncInitiatorTest {
     public void syncPlaylistLikesShouldRequestPlaylistLikesSync() throws Exception {
         initiator.syncPlaylistLikes().subscribe(syncSubscriber);
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST_LIKES);
-        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST_LIKES);
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 
     @Test
@@ -223,10 +220,10 @@ public class SyncInitiatorTest {
         final PropertySet propertySet = TestPropertySets.fromApiTrack();
         initiator.requestTracksSync(Collections.singletonList(propertySet));
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACKS);
-        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(TrackProperty.URN));
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_TRACKS);
+        assertThat(intent.getParcelableArrayListExtra(SyncExtras.URNS)).containsExactly(propertySet.get(TrackProperty.URN));
     }
 
     @Test
@@ -234,15 +231,15 @@ public class SyncInitiatorTest {
         final PropertySet propertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         initiator.requestPlaylistSync(Collections.singletonList(propertySet));
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
-        expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLISTS);
-        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(PlaylistProperty.URN));
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLISTS);
+        assertThat(intent.getParcelableArrayListExtra(SyncExtras.URNS)).containsExactly(propertySet.get(PlaylistProperty.URN));
     }
 
 
     private void sendSyncChangedLegacyToUri(Uri uri) {
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();
         resultData.putBoolean(uri.toString(), true);
@@ -250,7 +247,7 @@ public class SyncInitiatorTest {
     }
 
     private void sendSyncChangedToUri(Uri uri) {
-        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();
         resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, SyncResult.success("action", true));
