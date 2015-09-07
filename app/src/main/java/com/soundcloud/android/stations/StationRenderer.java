@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -38,18 +39,33 @@ class StationRenderer implements CellRenderer<Station> {
     @Override
     public void bindItemView(int position, View view, List<Station> stations) {
         final Station station = stations.get(position);
-        final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
-        final TextView title = (TextView) view.findViewById(R.id.title);
+        final ImageView artwork = ButterKnife.findById(view, R.id.artwork);
+        final TextView title = ButterKnife.findById(view, R.id.title);
+        final TextView type = ButterKnife.findById(view, R.id.type);
 
         view.setOnClickListener(startStation(station));
         ((CardView) view).setPreventCornerOverlap(false);
         title.setText(station.getTitle());
+        type.setText(getHumanReadableType(station.getType()));
 
         imageOperations.displayInAdapterView(
                 station.getUrn(),
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );
+    }
+
+    private String getHumanReadableType(String type) {
+        switch (type) {
+            case StationTypes.TRACK:
+                return resources.getString(R.string.station_type_track);
+            case StationTypes.GENRE:
+                return resources.getString(R.string.station_type_genre);
+            case StationTypes.CURATOR:
+                return resources.getString(R.string.station_type_curator);
+            default:
+                throw new IllegalArgumentException("Unknown station type: " + type);
+        }
     }
 
     private View.OnClickListener startStation(final Station station) {
@@ -60,5 +76,4 @@ class StationRenderer implements CellRenderer<Station> {
             }
         };
     }
-
 }

@@ -1,24 +1,31 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
-public class Station {
+public class Station implements StationRecord {
     private final String type;
-    // TODO : should it be a play queue ?
     private final List<Urn> tracks;
     private final int startPosition;
     private final Urn urn;
     private final String title;
+    private final String permalink;
 
-    public Station(Urn urn, String title, String type, List<Urn> tracks, Integer startPosition) {
+    public Station(Urn urn, String title, String type, List<Urn> tracks, String permalink, Integer startPosition) {
         this.type = type;
         this.tracks = tracks;
         this.urn = urn;
         this.startPosition = startPosition;
         this.title = title;
+        this.permalink = permalink;
+    }
+
+    @Override
+    public List<Urn> getTracks() {
+        return tracks;
     }
 
     public Urn getUrn() {
@@ -29,12 +36,13 @@ public class Station {
         return title;
     }
 
-    public String getType() {
-        return type;
+    @Override
+    public String getPermalink() {
+        return permalink;
     }
 
-    public List<Urn> getTracks() {
-        return tracks;
+    public String getType() {
+        return type;
     }
 
     public int getStartPosition() {

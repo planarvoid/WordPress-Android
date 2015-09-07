@@ -1,23 +1,32 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
+import com.soundcloud.android.utils.DateProvider;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 class StationsSyncer implements Callable<Boolean> {
-    private final StationsStorage storage;
+    private final StationsApi api;
+    private final WriteStationsCollectionsCommand writeCollectionsCommand;
+    private final DateProvider dateProvider;
 
     @Inject
-    public StationsSyncer(StationsStorage storage) {
-        this.storage = storage;
+    public StationsSyncer(StationsApi api,
+                          WriteStationsCollectionsCommand writeCollectionsCommand,
+                          DateProvider dateProvider) {
+        this.api = api;
+        this.writeCollectionsCommand = writeCollectionsCommand;
+        this.dateProvider = dateProvider;
     }
 
     @Override
     public Boolean call() throws Exception {
-        final List<PropertySet> stations = storage.getRecentStationsToSync();
-        // TODO : Currently blocked by the backend. Stay tuned.
-        return false;
+        final long syncStartTime = dateProvider.getCurrentTime();
+        final SyncCollectionsMetadata collections = new SyncCollectionsMetadata(
+                syncStartTime,
+                api.fetchStationsCollections());
+
+        return writeCollectionsCommand.call(collections);
     }
 }

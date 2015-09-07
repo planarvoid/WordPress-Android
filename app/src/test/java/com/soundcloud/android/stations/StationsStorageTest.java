@@ -49,7 +49,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
         storage.saveLastPlayedTrackPosition(station, position).subscribe();
 
-        databaseAssertions().assertStationPosition(station, position);
+        databaseAssertions().assertStationPlayQueuePosition(station, position);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         testFixtures().insertRecentlyPlayedStationAtPosition(thirdStation.getUrn(), 1);
 
         final TestSubscriber<Station> subscriber = new TestSubscriber<>();
-        storage.recentStations().subscribe(subscriber);
+        storage.getStationsCollection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
 
         subscriber.assertValues(
                 StationFixtures.getStation(secondStation),

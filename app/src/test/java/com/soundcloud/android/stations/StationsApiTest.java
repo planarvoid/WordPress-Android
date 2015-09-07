@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.model.Urn;
@@ -18,6 +19,7 @@ import java.util.Collections;
 
 public class StationsApiTest extends AndroidUnitTest {
     @Mock ApiClientRx apiClientRx;
+    @Mock ApiClient apiClient;
 
     private final Urn stationUrn = Urn.forTrackStation(123L);
     private StationsApi api;
@@ -25,7 +27,7 @@ public class StationsApiTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        api = new StationsApi(apiClientRx);
+        api = new StationsApi(apiClientRx, apiClient);
 
         apiStation = StationFixtures.getApiStation();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiStation.class))).thenReturn(Observable.just(apiStation));

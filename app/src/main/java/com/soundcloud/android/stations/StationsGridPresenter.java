@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -22,7 +21,6 @@ import java.util.List;
 
 public class StationsGridPresenter extends RecyclerViewPresenter<Station> {
     private static final String COLLECTION_TYPE_KEY = "type";
-    static final int RECENT_STATIONS = 1;
 
     private final StationsOperations operations;
     private final StationDetailsAdapter adapter;
@@ -52,20 +50,13 @@ public class StationsGridPresenter extends RecyclerViewPresenter<Station> {
     }
 
     private Observable<List<Station>> stationsSource(Bundle bundle) {
-        final int collectionType = getCollectionType(bundle);
-        switch (collectionType) {
-            case RECENT_STATIONS:
-                return operations
-                        .recentStations()
-                        .take(resources.getInteger(R.integer.stations_list_max_recent_stations))
-                        .toList();
-            default:
-                throw new IllegalArgumentException("Unknown stations collection type. " + collectionType);
-        }
+        return operations.stations(getCollectionType(bundle))
+                .take(resources.getInteger(R.integer.stations_list_max_recent_stations))
+                .toList();
     }
 
     private int getCollectionType(Bundle bundle) {
-        return bundle.getInt(COLLECTION_TYPE_KEY, Consts.NOT_SET);
+        return bundle.getInt(COLLECTION_TYPE_KEY);
     }
 
     @Override

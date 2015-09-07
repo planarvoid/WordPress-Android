@@ -5,7 +5,6 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -29,15 +28,15 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.upsert(Stations.TABLE, buildContentValues(station)));
+                step(propeller.upsert(Stations.TABLE, buildStationContentValues(station)));
                 step(deletePlayQueue(propeller, station));
                 addPlayQueue(propeller);
             }
 
             private void addPlayQueue(PropellerDatabase propeller) {
-                final List<? extends TrackRecord> tracks = station.getTracks().getCollection();
+                final List<Urn> tracks = station.getTracks();
                 for (int position = 0; position < tracks.size(); position++) {
-                    step(propeller.upsert(StationsPlayQueues.TABLE, buildContentValues(station, tracks.get(position).getUrn(), position)));
+                    step(propeller.upsert(StationsPlayQueues.TABLE, buildContentValues(station, tracks.get(position), position)));
                 }
             }
         });
@@ -54,9 +53,9 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .put(StationsPlayQueues.TRACK_URN, trackUrn.toString())
                 .put(StationsPlayQueues.POSITION, trackPosition)
                 .get();
-}
+    }
 
-    static ContentValues buildContentValues(StationRecord station) {
+    private ContentValues buildStationContentValues(StationRecord station) {
         return ContentValuesBuilder
                 .values()
                 .put(Stations.STATION_URN, station.getUrn().toString())

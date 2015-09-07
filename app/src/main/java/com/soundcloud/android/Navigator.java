@@ -138,9 +138,9 @@ public class Navigator {
         context.startActivity(createRecommendationIntent(context, localSeedId));
     }
 
-    public void openRecentStations(Context context) {
+    public void openViewAllStations(Context context, int collectionType) {
         final Intent intent = new Intent(context, ShowAllStationsActivity.class);
-        intent.putExtra(ShowAllStationsActivity.TYPE, ShowAllStationsActivity.RECENT);
+        intent.putExtra(ShowAllStationsActivity.COLLECTION_TYPE, collectionType);
         context.startActivity(intent);
     }
 

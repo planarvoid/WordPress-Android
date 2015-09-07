@@ -35,6 +35,9 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS);
 
+        // TODO: Sync Stations upon login. Then remove this line!
+        menuScreen.open().clickStations().pullToRefresh();
+
         playlistDetailsScreen = menuScreen
                 .open()
                 .clickPlaylists()
@@ -82,49 +85,44 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
-        final String currentStationName = startFiveRadiosAndReturnTheStationName();
+        final String stationTitle = startStationAndReturnTitle();
 
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
-        assertEquals(recentStations.getFirstStation().getTitle(), currentStationName);
+        assertEquals(recentStations.getFirstStation().getTitle(), stationTitle);
         final ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
-        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), currentStationName);
+        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), stationTitle);
     }
 
     public void testStartStationFromBucket() throws Exception {
-        final String currentStationName = startFiveRadiosAndReturnTheStationName();
+        final String stationTitle = startStationAndReturnTitle();
 
         final VisualPlayerElement player = menuScreen
                 .open()
                 .clickStations()
                 .getRecentStationsBucket()
-                .findStation(With.text(currentStationName))
+                .findStation(With.text(stationTitle))
                 .click();
 
         assertThat(player, is(visible()));
     }
 
     public void testStartStationFromViewAllStations() throws Exception {
-        final String currentStationName = startFiveRadiosAndReturnTheStationName();
+        final String stationTitle = startStationAndReturnTitle();
 
         final VisualPlayerElement player = menuScreen
                 .open()
                 .clickStations()
                 .getRecentStationsBucket()
                 .clickViewAll()
-                .findStation(With.text(currentStationName))
+                .findStation(With.text(stationTitle))
                 .click();
 
         assertThat(player, is(visible()));
     }
 
-    private String startFiveRadiosAndReturnTheStationName() {
-        playlistDetailsScreen.getTrack(1).clickOverflowButton().clickStartStation().pressBackToCollapse();
-        playlistDetailsScreen.getTrack(2).clickOverflowButton().clickStartStation().pressBackToCollapse();
-        playlistDetailsScreen.getTrack(3).clickOverflowButton().clickStartStation().pressBackToCollapse();
-        playlistDetailsScreen.getTrack(4).clickOverflowButton().clickStartStation().pressBackToCollapse();
-
-        final TrackItemElement track = playlistDetailsScreen.getTrack(5);
+    private String startStationAndReturnTitle() {
+        final TrackItemElement track = playlistDetailsScreen.getTrack(1);
         final String title = track.getTitle();
 
         track.clickOverflowButton().clickStartStation().pressBackToCollapse();

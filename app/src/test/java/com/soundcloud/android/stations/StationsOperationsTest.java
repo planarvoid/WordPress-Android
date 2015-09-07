@@ -22,13 +22,13 @@ import java.util.Collections;
 public class StationsOperationsTest {
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
-    @Mock Station stationFromDisk;
     @Mock StoreTracksCommand storeTracksCommand;
     @Mock StoreStationCommand storeStationCommand;
     @Mock StationsSyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
     private StationsOperations operations;
+    private Station stationFromDisk;
     private ApiStation apiStation;
 
     @Before
@@ -42,7 +42,9 @@ public class StationsOperationsTest {
                 Schedulers.immediate()
         );
 
+        stationFromDisk = StationFixtures.getStation(Urn.forTrackStation(123L));
         apiStation = StationFixtures.getApiStation();
+
         when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));
         when(stationsApi.fetchStation(station)).thenReturn(Observable.just(apiStation));
     }
@@ -73,7 +75,7 @@ public class StationsOperationsTest {
         final TestSubscriber<Object> subscriber  = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
-        verify(storeTracksCommand).call(apiStation.getTracks());
+        verify(storeTracksCommand).call(apiStation.getTrackRecords());
         verify(storeStationCommand).call(apiStation);
     }
 }

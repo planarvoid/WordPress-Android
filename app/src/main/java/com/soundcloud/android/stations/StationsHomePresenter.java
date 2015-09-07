@@ -5,6 +5,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import rx.Observable;
@@ -20,6 +21,13 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
+    private final Func1<SyncResult, Observable<List<StationBucket>>> toBuckets = new Func1<SyncResult, Observable<List<StationBucket>>>() {
+        @Override
+        public Observable<List<StationBucket>> call(SyncResult ignored) {
+            return buckets();
+        }
+    };
+
     private final Resources resources;
     private final StationsOperations operations;
     private final StationsHomeAdapter adapter;
@@ -64,24 +72,27 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
     @Override
     protected CollectionBinding<StationBucket> onRefreshBinding() {
         return CollectionBinding
-                .from(buckets())
+                .from(operations.sync().flatMap(toBuckets))
                 .withAdapter(adapter)
                 .build();
     }
 
     private Observable<List<StationBucket>> buckets() {
-        // TODO : Load saved, ... and concat
-        return Observable.concat(recent(), recent()).toList();
+        return Observable.concat(
+                bucket(StationsCollectionsTypes.SAVED, resources.getString(R.string.stations_collection_title_saved_stations)),
+                bucket(StationsCollectionsTypes.RECENT, resources.getString(R.string.stations_collection_title_recently_played_stations)),
+                bucket(StationsCollectionsTypes.TRACK_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_track_recommendations)),
+                bucket(StationsCollectionsTypes.GENRE_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_genre_recommendations)),
+                bucket(StationsCollectionsTypes.CURATOR_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_curator_recommendations)))
+                .toList();
     }
 
-    private Observable<StationBucket> recent() {
-        final int maxStationsPerBucket = maxStationsPerBucket();
-
+    private Observable<StationBucket> bucket(int type, String title) {
         return operations
-                .recentStations()
+                .stations(type)
                 .toList()
                 .filter(hasStations)
-                .map(StationBucket.fromStations(resources.getString(R.string.recent_stations_title), maxStationsPerBucket));
+                .map(StationBucket.fromStations(title, type, maxStationsPerBucket()));
     }
 
     private int maxStationsPerBucket() {

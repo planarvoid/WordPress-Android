@@ -88,4 +88,16 @@
     <string name="upsell_nav_title">Upgrade SoundCloud</string>
     <string name="upsell_nav_body">Listen Offline &amp; Ad Free</string>
     <string name="upsell_track_item">Available on SoundCloud CS</string>
+
+    <!-- __STATIONS -->
+    <string name="side_menu_stations">Stations</string>
+    <string name="station_type_track">Track station</string>
+    <string name="station_type_genre">Genre station</string>
+    <string name="station_type_curator">Curator station</string>
+    <string name="stations_collection_title_saved_stations">Your stations</string>
+    <string name="stations_collection_title_recently_played_stations">Recently played stations</string>
+    <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
+    <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
+    <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
+    <string name="station_bucket_action_text">View all</string>
 </resources>
