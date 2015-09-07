@@ -49,17 +49,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getPolicyUpdateCheckTimeReturns0ByDefault() {
-        assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(0L);
-    }
-
-    @Test
-    public void getReturnsSetPolicyUpdateCheckTime() {
-        storage.setPolicyUpdateCheckTime(123456789L);
-        assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(123456789L);
-    }
-
-    @Test
     public void offlineContentFlagIsNotSetByDefault() {
         assertThat(storage.hasOfflineContent()).isFalse();
     }
@@ -78,5 +67,4 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
         assertThat(storage.isWifiOnlyEnabled()).isTrue();
     }
-
 }

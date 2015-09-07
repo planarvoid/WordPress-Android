@@ -20,7 +20,9 @@ public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
-    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
+    private static final String PREFS_POLICY_SETTINGS = "policy_settings";
+    private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
+    private static final String LAST_POLICY_UPDATE_TIME= "last_policy_update_time";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -94,7 +96,7 @@ public class ConfigurationHelper {
     }
 
     private static PlanStorage getPlanStorage(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
         return new PlanStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
     }
 
@@ -102,18 +104,29 @@ public class ConfigurationHelper {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
-    public static void resetPolicyUpdateCheckTime(Context context) {
-        getOfflineSettingsPreferences(context)
+    private static SharedPreferences getPolicySettingsPreferences(Context context){
+        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    public static void resetPolicyUpdateAndCheckTime(Context context) {
+        getPolicySettingsPreferences(context)
                 .edit()
-                .remove(LAST_POLICY_UPDATE_CHECK)
+                .remove(LAST_POLICY_CHECK_TIME)
+                .remove(LAST_POLICY_UPDATE_TIME)
+                .apply();
+    }
+
+    public static void setPolicyCheckTime(Context context, long time) {
+        getPolicySettingsPreferences(context)
+                .edit()
+                .putLong(LAST_POLICY_CHECK_TIME, time)
                 .commit();
     }
 
-    public static void setPolicyUpdateCheckTime(Context context, long time) {
-        getOfflineSettingsPreferences(context)
+    public static void setPolicyUpdateTime(Context context, long time) {
+        getPolicySettingsPreferences(context)
                 .edit()
-                .putLong(LAST_POLICY_UPDATE_CHECK, time)
+                .putLong(LAST_POLICY_UPDATE_TIME, time)
                 .commit();
     }
-
 }

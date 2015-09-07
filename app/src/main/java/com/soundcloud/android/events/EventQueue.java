@@ -30,6 +30,8 @@ public final class EventQueue {
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class).onError(ON_ERROR).get();
     public static final Queue<CurrentDownloadEvent> CURRENT_DOWNLOAD = Queue.of(CurrentDownloadEvent.class).onError(ON_ERROR).replay(CurrentDownloadEvent.idle()).get();
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();
+    public static final Queue<PolicyUpdateEvent> POLICY_UPDATES = Queue.of(PolicyUpdateEvent.class).onError(ON_ERROR).get();
+
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).onError(ON_ERROR).get();

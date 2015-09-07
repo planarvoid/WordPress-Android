@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline;
+package com.soundcloud.android.policies;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.ImageAlertDialog;

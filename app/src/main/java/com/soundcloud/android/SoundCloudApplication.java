@@ -21,6 +21,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
+import com.soundcloud.android.policies.PolicyUpdateScheduler;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -68,11 +69,11 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
-    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
+    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static SoundCloudApplication instance;
 
     @Deprecated
-    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
+    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
     // These are not injected because we need them before Dagger initializes
@@ -102,6 +103,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject FacebookSdk facebookSdk;
+    @Inject PolicyUpdateScheduler policyUpdateScheduler;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -182,6 +184,10 @@ public class SoundCloudApplication extends MultiDexApplication {
             stationsController.subscribe();
         }
 
+        if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
+            policyUpdateScheduler.scheduleDailyPolicyUpdates();
+        }
+
         configurationFeatureController.subscribe();
         facebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
@@ -222,7 +228,8 @@ public class SoundCloudApplication extends MultiDexApplication {
             });
             // delete old cache dir
             AndroidUtils.doOnce(this, "delete.old.cache.dir", new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
                 }
             });
@@ -284,7 +291,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     /**
      * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
      * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
-     *
+     * <p/>
      * Alternatively, sync sets lazily where needed.
      */
     private void requestSetsSync() {
@@ -296,8 +303,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     @NotNull
-    public static SoundCloudApplication fromContext(@NotNull Context c){
-        if (c.getApplicationContext() instanceof  SoundCloudApplication) {
+    public static SoundCloudApplication fromContext(@NotNull Context c) {
+        if (c.getApplicationContext() instanceof SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
         } else {
             throw new RuntimeException("can't obtain app from context");

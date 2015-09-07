@@ -30,4 +30,7 @@
     <string name="dev_drawer_action_reset_flags_key">reset_flags</string>
     <string name="dev_drawer_action_reset_flags_title">Restore Defaults</string>
 
+    <string name="dev_drawer_action_policy_sync_key">policy_sync</string>
+    <string name="dev_drawer_action_policy_sync_title">Force sync policies</string>
+
 </resources>

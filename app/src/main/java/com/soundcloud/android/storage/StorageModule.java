@@ -26,6 +26,7 @@ public class StorageModule {
     public static final String OFFLINE_SETTINGS = "OfflineSettings";
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
+    public static final String POLICY_SETTINGS = "Policies";
     public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
     public static final String GCM = "gcm";
 
@@ -36,6 +37,7 @@ public class StorageModule {
     private static final String PREFS_DEVICE_KEYS = "device_keys";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FEATURES = "features_settings";
+    private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
     private static final String PREFS_GCM = "gcm";
@@ -79,6 +81,12 @@ public class StorageModule {
     @Named(OFFLINE_SETTINGS)
     public SharedPreferences provideOfflinePrefs(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(POLICY_SETTINGS)
+    public SharedPreferences providePolicyPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides @Singleton
