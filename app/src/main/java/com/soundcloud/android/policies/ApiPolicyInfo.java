@@ -18,10 +18,10 @@ public abstract class ApiPolicyInfo {
     public static final String SNIP = "SNIP";
 
     @JsonCreator
-    public static ApiPolicyInfo newPolicyInfo(@JsonProperty("urn") String trackUrn, @JsonProperty("monetizable") boolean monetizable,
-                      @JsonProperty("policy") String policy, @JsonProperty("syncable") boolean syncable,
-                      @JsonProperty("monetization_model") String monetizationModel,
-                      @JsonProperty("sub_mid_tier") boolean subMidTier, @JsonProperty("sub_high_tier") boolean subHighTier) {
+    public static ApiPolicyInfo create(@JsonProperty("urn") String trackUrn, @JsonProperty("monetizable") boolean monetizable,
+                                       @JsonProperty("policy") String policy, @JsonProperty("syncable") boolean syncable,
+                                       @JsonProperty("monetization_model") String monetizationModel,
+                                       @JsonProperty("sub_mid_tier") boolean subMidTier, @JsonProperty("sub_high_tier") boolean subHighTier) {
             return new AutoValue_ApiPolicyInfo(new Urn(trackUrn), monetizable, policy, syncable, monetizationModel, subMidTier, subHighTier);
     }
 

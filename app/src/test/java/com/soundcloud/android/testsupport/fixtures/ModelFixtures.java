@@ -161,6 +161,6 @@ public class ModelFixtures {
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
-        return ApiPolicyInfo.newPolicyInfo(trackUrn.toString(), monetizable, policy, syncable, "model", true, true);
+        return ApiPolicyInfo.create(trackUrn.toString(), monetizable, policy, syncable, "model", true, true);
     }
 }
