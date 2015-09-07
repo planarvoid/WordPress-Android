@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-class LoadTracksForPolicyUpdateCommand extends Command<Void, List<Urn>>{
+class LoadTracksForPolicyUpdateCommand extends Command<Void, List<Urn>> {
 
     private final PropellerDatabase propeller;
 
@@ -61,8 +61,7 @@ class LoadTracksForPolicyUpdateCommand extends Command<Void, List<Urn>>{
     }
 
     private List<Urn> loadPlaylistTracks() {
-        final String trackIdFromPlaylistTracks = PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
-        Query query =  Query.from(PlaylistTracks.name())
+        final Query query = Query.from(PlaylistTracks.name())
                 .select(field(PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID)).as(BaseColumns._ID))
                 .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT));
 

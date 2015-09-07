@@ -110,7 +110,7 @@ public class OfflineServiceInitiator {
                 .merge(getOfflinePlaylistChangedEvents(),
                         getOfflineLikesChangedEvents(),
                         getSyncOverWifiStateChanged(),
-                        getPolicyUpdated()
+                        policyUpdates()
                 );
     }
 
@@ -140,7 +140,7 @@ public class OfflineServiceInitiator {
                 .flatMap(syncPlaylistIfNecessary);
     }
 
-    private Observable<PolicyUpdateEvent> getPolicyUpdated() {
+    private Observable<PolicyUpdateEvent> policyUpdates() {
         return eventBus.queue(EventQueue.POLICY_UPDATES);
     }
 

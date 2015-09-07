@@ -11,11 +11,11 @@ public class AlarmManagerReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(OfflineContentService.ACTION_START)) {
+        if(OfflineContentService.ACTION_START.equals(intent.getAction())) {
             Log.d(OfflineContentService.TAG, "Offline Content Start Receiver notified. Starting service.");
             OfflineContentService.start(context);
 
-        } else if (intent.getAction().equals(PolicyUpdateService.ACTION_START)) {
+        } else if (PolicyUpdateService.ACTION_START.equals(intent.getAction())) {
             Log.d(PolicyUpdateService.TAG, "Policy Update Start Receiver notified. Starting service.");
             PolicyUpdateService.start(context);
         }
