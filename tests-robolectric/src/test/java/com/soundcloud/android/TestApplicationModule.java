@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
+import com.soundcloud.android.policies.PolicyUpdateScheduler;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.storage.StorageModule;
@@ -172,13 +173,13 @@ public class TestApplicationModule {
 
     @Provides
     @Named(StorageModule.DEVICE_MANAGEMENT)
-    public SharedPreferences provideDeviceManagementPrefs(){
+    public SharedPreferences provideDeviceManagementPrefs() {
         return provideSharedPreferences();
     }
 
     @Provides
     @Named(StorageModule.DEVICE_KEYS)
-    public SharedPreferences provideKeyPrefs(){
+    public SharedPreferences provideKeyPrefs() {
         return provideSharedPreferences();
     }
 
@@ -307,7 +308,13 @@ public class TestApplicationModule {
     }
 
     @Provides
-    FacebookSdk facebookSdk() { return new FacebookSdk(); }
+    FacebookSdk facebookSdk() {
+        return new FacebookSdk();
+    }
 
+    @Provides
+    PolicyUpdateScheduler providePolicyUpdateScheduler() {
+        return mock(PolicyUpdateScheduler.class);
+    }
 }
 
