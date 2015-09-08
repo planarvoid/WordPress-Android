@@ -7,12 +7,13 @@
     android:background="@android:color/white"
     android:foreground="?android:attr/selectableItemBackground">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/collection_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_margin="16dp"
+        android:padding="16dp"
+        android:clipToPadding="false"
         tools:ignore="UselessParent">
 
         <com.soundcloud.android.view.SquareImageView
@@ -21,17 +22,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <com.soundcloud.android.offline.DownloadImageView
+            android:id="@+id/item_download_state"
+            style="@style/DownloadItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/artwork"
+            android:layout_alignRight="@id/artwork"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/download_progress_indicator_margin"
+            android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
+
         <TextView
             android:id="@+id/title"
             style="@style/Collections.ItemTitle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_marginRight="16dp"/>
 
         <TextView
             android:id="@+id/creator"
             style="@style/Collections.Creator"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_marginRight="16dp"/>
 
-    </LinearLayout>
+    </RelativeLayout>
+
+    <ImageView android:id="@+id/overflow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/ListItemOverflowButton"
+        android:layout_gravity="bottom|end"/>
+
 </FrameLayout>

@@ -1,13 +1,18 @@
 package com.soundcloud.android.collections;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -44,22 +49,30 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final CollectionsOperations collectionsOperations;
     private final CollectionsAdapter adapter;
     private final Resources resources;
+    private final EventBus eventBus;
+    private CompositeSubscription eventSubscriptions;
 
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
                          CollectionsAdapter adapter,
-                         Resources resources) {
+                         Resources resources, EventBus eventBus) {
         super(swipeRefreshAttacher, Options.cards());
         this.collectionsOperations = collectionsOperations;
         this.adapter = adapter;
         this.resources = resources;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+
+        eventSubscriptions = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter))
+        );
     }
 
     @Override
@@ -72,6 +85,12 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setBackgroundColor(view.getResources().getColor(R.color.collections_home_background));
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        eventSubscriptions.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     @NonNull
