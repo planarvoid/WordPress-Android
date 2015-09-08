@@ -313,7 +313,7 @@ public class NavigationFragment extends Fragment {
         UPSELL(NO_TEXT, NO_IMAGE),
         NONE(NO_TEXT, NO_IMAGE);
 
-        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STATIONS, STREAM, EXPLORE, LIKES, PLAYLISTS);
+        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STATIONS, STREAM, EXPLORE, LIKES, PLAYLISTS, COLLECTIONS);
 
         private final int textId;
         private final int imageId;
@@ -334,13 +334,14 @@ public class NavigationFragment extends Fragment {
         if (featureFlags.isEnabled(Flag.STATIONS)) {
             navItems.add(NavItem.STATIONS);
         }
-        if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
-            navItems.add(NavItem.COLLECTIONS);
-        }
         navItems.add(NavItem.STREAM);
         navItems.add(NavItem.EXPLORE);
-        navItems.add(NavItem.LIKES);
-        navItems.add(NavItem.PLAYLISTS);
+        if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
+            navItems.add(NavItem.COLLECTIONS);
+        } else {
+            navItems.add(NavItem.LIKES);
+            navItems.add(NavItem.PLAYLISTS);
+        }
         return navItems.toArray(new NavItem[navItems.size()]);
     }
 
