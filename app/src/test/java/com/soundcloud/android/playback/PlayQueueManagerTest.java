@@ -269,7 +269,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource, 1);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        assertThat(trackSourceInfo.getPlaylistUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(trackSourceInfo.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
         assertThat(trackSourceInfo.getPlaylistPosition()).isEqualTo(1);
     }
 

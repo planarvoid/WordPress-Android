@@ -92,7 +92,7 @@ public class EventLoggerV1JsonDataBuilder {
             data.sourceVersion(trackSourceInfo.getSourceVersion());
         }
         if (trackSourceInfo.isFromPlaylist()) {
-            data.inPlaylist(trackSourceInfo.getPlaylistUrn());
+            data.inPlaylist(trackSourceInfo.getCollectionUrn());
             data.playlistPosition(trackSourceInfo.getPlaylistPosition());
         }
 

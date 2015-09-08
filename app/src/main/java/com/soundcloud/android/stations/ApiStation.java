@@ -4,6 +4,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.StationRecord;
@@ -65,6 +66,11 @@ public final class ApiStation implements StationRecord {
 
     public String getPermalink() {
         return metadata.getPermalink();
+    }
+
+    @Override
+    public int getPreviousPosition() {
+        return Consts.NOT_SET;
     }
 
     @Override

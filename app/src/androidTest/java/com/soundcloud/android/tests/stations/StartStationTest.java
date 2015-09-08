@@ -74,6 +74,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         final String expectedTitle = player.getTrackTitle();
         player.swipePrevious();
+        waiter.waitForPlaybackToBePlaying();
         player.pressBackToCollapse();
 
         // Start a new play queue
@@ -82,6 +83,11 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         final String resumedTrackTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
         assertEquals(expectedTitle, resumedTrackTitle);
+
+        // If you play the same station, it should simply expand the player without changing tracks
+        player.pressBackToCollapse();
+        final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
+        assertEquals(resumedTrackTitle, resumeCurrentlyPlayingStationTitle);
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {

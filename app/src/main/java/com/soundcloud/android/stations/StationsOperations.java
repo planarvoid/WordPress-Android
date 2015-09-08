@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncResult;
@@ -36,7 +37,6 @@ public class StationsOperations {
     };
 
     private static final Func1<ApiStation, Station> TO_STATION = new Func1<ApiStation, Station>() {
-        private static final int START_POSITION = 0;
 
         @Override
         public Station call(ApiStation station) {
@@ -46,7 +46,7 @@ public class StationsOperations {
                     station.getType(),
                     station.getTracks(),
                     station.getPermalink(),
-                    START_POSITION
+                    Consts.NOT_SET
             );
         }
     };

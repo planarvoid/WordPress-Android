@@ -160,7 +160,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             eventAttributes.put("percent_listened", getPercentListenedBucket(eventData, duration));
 
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
-                eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistUrn().getNumericId()));
+                eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getCollectionUrn().getNumericId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
             } else {
                 eventAttributes.put("set_owner", "none");

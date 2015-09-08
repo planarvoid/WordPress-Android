@@ -319,7 +319,7 @@ public class PlayQueueManager implements OriginProvider {
             final PromotedSourceInfo promotedSourceInfo = trackSourceInfo.getPromotedSourceInfo();
             // Track is from a promoted playlist and not a recommendation
             if (trackSourceInfo.isFromPlaylist() && trackSourceInfo.getPlaylistPosition() < playSessionSource.getCollectionSize()) {
-                return trackSourceInfo.getPlaylistUrn().equals(promotedSourceInfo.getPromotedItemUrn());
+                return trackSourceInfo.getCollectionUrn().equals(promotedSourceInfo.getPromotedItemUrn());
             } else if (isCurrentPosition(0)) { // Track is a promoted track?
                 return trackUrn.equals(promotedSourceInfo.getPromotedItemUrn());
             }
