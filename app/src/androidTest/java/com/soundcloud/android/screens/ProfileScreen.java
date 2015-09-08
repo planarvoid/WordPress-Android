@@ -153,6 +153,8 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen touchFollowersTab() {
         final SlidingTabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers).toUpperCase()).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;

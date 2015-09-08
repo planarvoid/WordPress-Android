@@ -7,7 +7,6 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 
-import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
@@ -68,7 +67,7 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     private String getClickPoint() {
-        return String.format("%.02f, %.02f", view.getX() + view.getWidth() / 2, view.getY() + view.getHeight() / 2);
+        return String.format("%.02f, %.02f", view.getX() + view.getWidth()/2, view.getY() + view.getHeight()/2);
     }
 
     @Override
@@ -162,23 +161,20 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    /* package */ View getView() {
-        return view;
-    }
+    /* package */ View getView() { return view; }
 
     @Override
-    /* package */ Han getTestDriver() {
-        return testDriver;
-    }
+    /* package */ Han getTestDriver() { return testDriver; }
 
     private boolean isShown() {
         return view.isShown();
     }
 
     private boolean isOnScreen() {
-        final Rect screenRect = getScreenRect();
-        final Rect viewRect = getViewRect();
-        return Rect.intersects(viewRect, screenRect) || screenRect.contains(viewRect);
+        return getLocation()[0] >= 0 &&
+                getLocation()[0] <= getScreenWidth() &&
+                getLocation()[1] >= 0 &&
+                getLocation()[1] <= getScreenHeight();
     }
 
     private int[] getLocation() {
@@ -187,19 +183,9 @@ public final class DefaultViewElement extends ViewElement {
         return locationOnScreen;
     }
 
-    private Rect getViewRect() {
-        Rect viewRect = new Rect();
-        view.getGlobalVisibleRect(viewRect);
-        return viewRect;
-    }
-
     //TODO: Move this to Device class
     private int getScreenWidth() {
         return getDisplay().getWidth();
-    }
-
-    private Rect getScreenRect() {
-        return new Rect(0, 0, getScreenWidth(), getScreenHeight());
     }
 
     private int getScreenHeight() {
