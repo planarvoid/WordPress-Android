@@ -36,7 +36,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                     List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 2);
 
                     // prepend likes row + playlist header
-                    collectionsItems.add(CollectionsItem.fromLikes(myCollections.getLikesCount()));
+                    collectionsItems.add(CollectionsItem.fromLikes(myCollections.getLikes()));
                     collectionsItems.add(CollectionsItem.fromPlaylistHeader());
 
                     for (PlaylistItem playlistItem : playlistItems) {

@@ -11,7 +11,8 @@
 
     <com.soundcloud.android.view.CheckableImageView android:id="@+id/nav_item_image"
                                                     android:layout_width="28dp"
-                                                    android:layout_height="wrap_content"
+                                                    android:layout_height="28dp"
+                                                    android:scaleType="centerInside"
                                                     android:layout_marginRight="12dp"/>
 
     <TextView android:id="@+id/nav_item_text"

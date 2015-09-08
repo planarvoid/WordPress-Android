@@ -11,21 +11,19 @@
     <style name="Collections.YourLikedTracks" parent="ListItemText.PrimaryText">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginLeft">0dp</item>
     </style>
 
-    <style name="Collections.YourLikedTracksCount" parent="ListItemText.PrimaryText">
-        <item name="android:textSize">16sp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:gravity">right</item>
+    <style name="Collections.LikedTrackArtwork">
+        <item name="android:scaleType">centerCrop</item>
     </style>
 
     <style name="Collections.PlaylistHeader" parent="ListItemText.PrimaryText">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingMultiplier">1</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_marginLeft">16dp</item>
@@ -35,7 +33,7 @@
     <style name="Collections.ItemTitle" parent="ListItemText.PrimaryText">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingMultiplier">1</item>
         <item name="android:layout_marginLeft">0dp</item>
         <item name="android:layout_marginTop">8dp</item>
@@ -43,7 +41,7 @@
 
     <style name="Collections.Creator" parent="ListItemText.SecondaryText">
         <item name="android:layout_marginTop">2dp</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:layout_marginLeft">0dp</item>
     </style>
 

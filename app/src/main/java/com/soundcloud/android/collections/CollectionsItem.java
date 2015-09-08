@@ -5,6 +5,8 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 
+import java.util.List;
+
 public class CollectionsItem implements ListItem {
 
     static final int TYPE_LIKES = 0;
@@ -12,25 +14,25 @@ public class CollectionsItem implements ListItem {
     static final int TYPE_PLAYLIST_ITEM = 2;
 
     private final int type;
-    private final int likesCount;
+    private final List<Urn> likes;
     private final PlaylistItem playlistItem;
 
-    private CollectionsItem(int type, int likesCount, PlaylistItem playlistItem) {
+    private CollectionsItem(int type, List<Urn> likes, PlaylistItem playlistItem) {
         this.type = type;
-        this.likesCount = likesCount;
+        this.likes = likes;
         this.playlistItem = playlistItem;
     }
 
-    public static CollectionsItem fromLikes(int likesCount) {
-        return new CollectionsItem(CollectionsItem.TYPE_LIKES, likesCount, null);
+    public static CollectionsItem fromLikes(List<Urn> likes) {
+        return new CollectionsItem(CollectionsItem.TYPE_LIKES, likes, null);
     }
 
     public static CollectionsItem fromPlaylistHeader() {
-        return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_HEADER, 0, null);
+        return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_HEADER, null, null);
     }
 
     public static CollectionsItem fromPlaylistItem(PlaylistItem playlistItem) {
-        return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_ITEM, 0, playlistItem);
+        return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_ITEM, null, playlistItem);
     }
 
     public int getType() {
@@ -41,8 +43,8 @@ public class CollectionsItem implements ListItem {
         return playlistItem;
     }
 
-    public int getLikesCount() {
-        return likesCount;
+    public List<Urn> getLikes() {
+        return likes;
     }
 
     public boolean isPlaylistItem() {
