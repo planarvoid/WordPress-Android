@@ -86,7 +86,8 @@ class ApiAudioAd implements PropertySetSource {
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
-                AdProperty.AUDIO_AD_URN.bind(urn),
+                AdProperty.AD_URN.bind(urn),
+                AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
                 AdProperty.COMPANION_URN.bind(visualAd.urn),
                 AdProperty.ARTWORK.bind(Uri.parse(visualAd.imageUrl)),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.clickthroughUrl)),
@@ -96,11 +97,11 @@ class ApiAudioAd implements PropertySetSource {
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.pressedBackgroundColor),
                 AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.displayProperties.focusedTextColor),
                 AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.focusedBackgroundColor),
-                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
-                AdProperty.AUDIO_AD_FINISH_URLS.bind(trackingFinishUrls),
-                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(visualAd.trackingClickUrls),
-                AdProperty.AUDIO_AD_SKIP_URLS.bind(trackingSkipUrls),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.trackingImpressionUrls));
+                AdProperty.AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
+                AdProperty.AD_FINISH_URLS.bind(trackingFinishUrls),
+                AdProperty.AD_CLICKTHROUGH_URLS.bind(visualAd.trackingClickUrls),
+                AdProperty.AD_SKIP_URLS.bind(trackingSkipUrls),
+                AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.trackingImpressionUrls));
     }
 
     @Override

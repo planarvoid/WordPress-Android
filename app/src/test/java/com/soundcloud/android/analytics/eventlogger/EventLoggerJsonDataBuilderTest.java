@@ -119,7 +119,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(UIEvent.fromSkipAudioAdClick(audioAd, audioAdTrackUrn, LOGGED_IN_USER, trackSourceInfo, TIMESTAMP));
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .pageName(Screen.SIDE_MENU_LIKES.get())
                 .clickName("ad::skip")
                 .clickObject(audioAdTrackUrn.toString())
@@ -229,7 +229,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", stopEvent.getTimestamp())
                 .pageName(stopEvent.getTrackSourceInfo().getOriginScreen())
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .clickName("ad::finish")
                 .clickObject(stopEvent.getTrackUrn().toString())
                 .monetizedObject(monetizedTrackUrn.toString())
@@ -246,7 +246,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .impressionName("audio_ad_impression")
                 .impressionObject(audioAdTrack.get(TrackProperty.URN).toString())
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
@@ -501,7 +501,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad"));
     }
@@ -533,7 +533,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")

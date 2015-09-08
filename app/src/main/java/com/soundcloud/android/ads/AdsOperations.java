@@ -36,7 +36,7 @@ public class AdsOperations {
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
         @Override
         public boolean apply(PropertySet input) {
-            return input.contains(AdProperty.AUDIO_AD_URN);
+            return input.contains(AdProperty.AD_URN);
         }
     };
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
@@ -154,10 +154,10 @@ public class AdsOperations {
     }
 
     public boolean isNextTrackAudioAd() {
-        if (playQueueManager.hasNextTrack()) {
-            return getMonetizableTrackMetaData().contains(AdProperty.AUDIO_AD_URN);
-        }
-        return false;
+       return playQueueManager.hasNextTrack() &&
+               getMonetizableTrackMetaData().contains(AdProperty.AD_URN) &&
+               getMonetizableTrackMetaData().contains(AdProperty.AD_TYPE) &&
+               getMonetizableTrackMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
     public boolean isCurrentTrackAudioAd() {
@@ -166,7 +166,9 @@ public class AdsOperations {
 
     public boolean isAudioAdAtPosition(int position) {
         return !playQueueManager.isQueueEmpty() && position < playQueueManager.getQueueSize() &&
-                playQueueManager.getMetaDataAt(position).contains(AdProperty.AUDIO_AD_URN);
+                playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN) &&
+                playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_TYPE) &&
+                playQueueManager.getMetaDataAt(position).get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
     public void clearAllAds() {
