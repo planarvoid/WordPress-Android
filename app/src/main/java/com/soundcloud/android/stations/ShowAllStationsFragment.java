@@ -14,13 +14,13 @@ import javax.inject.Inject;
 
 public class ShowAllStationsFragment extends LightCycleSupportFragment {
 
-    @Inject @LightCycle StationsGridPresenter presenter;
+    @Inject @LightCycle ShowAllStationsPresenter presenter;
 
     public static ShowAllStationsFragment create(int collectionType) {
         final ShowAllStationsFragment fragment = new ShowAllStationsFragment();
         final Bundle bundle = new Bundle();
 
-        bundle.putAll(StationsGridPresenter.createBundle(collectionType));
+        bundle.putAll(ShowAllStationsPresenter.createBundle(collectionType));
         fragment.setArguments(bundle);
         return fragment;
     }

@@ -62,6 +62,10 @@
         <item name="android:textSize">13sp</item>
     </style>
 
+    <style name="Stations.ItemNowPlaying" parent="Stations.ItemType">
+        <item name="android:textColor">@color/sc_orange</item>
+    </style>
+
     <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">
         <item name="android:layout_marginBottom">13dp</item>
         <item name="android:layout_marginRight">-6dp</item>

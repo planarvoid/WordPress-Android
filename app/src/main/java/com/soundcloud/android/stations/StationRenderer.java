@@ -17,7 +17,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class StationRenderer implements CellRenderer<Station> {
+class StationRenderer implements CellRenderer<StationViewModel> {
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final StartStationPresenter startStationPresenter;
@@ -37,16 +37,26 @@ class StationRenderer implements CellRenderer<Station> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<Station> stations) {
-        final Station station = stations.get(position);
+    public void bindItemView(int position, View view, List<StationViewModel> stations) {
+        final StationViewModel stationViewModel = stations.get(position);
+        final Station station = stationViewModel.getStation();
         final ImageView artwork = ButterKnife.findById(view, R.id.artwork);
         final TextView title = ButterKnife.findById(view, R.id.title);
         final TextView type = ButterKnife.findById(view, R.id.type);
+        final TextView nowPlaying = ButterKnife.findById(view, R.id.now_playing);
 
         view.setOnClickListener(startStation(station));
         ((CardView) view).setPreventCornerOverlap(false);
         title.setText(station.getTitle());
-        type.setText(getHumanReadableType(station.getType()));
+
+        if (stationViewModel.isPlaying()) {
+            type.setVisibility(View.GONE);
+            nowPlaying.setVisibility(View.VISIBLE);
+        } else {
+            nowPlaying.setVisibility(View.GONE);
+            type.setText(getHumanReadableType(station.getType()));
+            type.setVisibility(View.VISIBLE);
+        }
 
         imageOperations.displayInAdapterView(
                 station.getUrn(),

@@ -10,17 +10,17 @@ class StationBucket {
     private final String title;
     private final int collectionType;
     private final int bucketSize;
-    private final List<Station> stations;
+    private final List<StationViewModel> stationViewModels;
 
-    public StationBucket(String title, final int collectionType, int bucketSize, List<Station> stations) {
+    public StationBucket(String title, final int collectionType, int bucketSize, List<StationViewModel> stationViewModels) {
         this.title = title;
         this.collectionType = collectionType;
         this.bucketSize = bucketSize;
-        this.stations = Collections.unmodifiableList(stations);
+        this.stationViewModels = Collections.unmodifiableList(stationViewModels);
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public List<StationViewModel> getStationViewModels() {
+        return stationViewModels;
     }
 
     public String getTitle() {
@@ -35,11 +35,11 @@ class StationBucket {
         return bucketSize;
     }
 
-    public static Func1<List<Station>, StationBucket> fromStations(final String name, final int collectionType, final int bucketSize) {
-        return new Func1<List<Station>, StationBucket>() {
+    public static Func1<List<StationViewModel>, StationBucket> fromStationViewModels(final String name, final int collectionType, final int bucketSize) {
+        return new Func1<List<StationViewModel>, StationBucket>() {
             @Override
-            public StationBucket call(List<Station> stations) {
-                return new StationBucket(name, collectionType, bucketSize, stations);
+            public StationBucket call(List<StationViewModel> stationViewModels) {
+                return new StationBucket(name, collectionType, bucketSize, stationViewModels);
             }
         };
     }
