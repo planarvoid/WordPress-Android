@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.PlaybackServiceModule;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
+import com.soundcloud.android.policies.PolicyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -59,7 +60,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
@@ -145,7 +145,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         Log.d(TAG, applicationProperties.toString());
 
         if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
-            setupStrictMode();
             Log.i(TAG, DeviceHelper.getBuildInfo());
         }
 
@@ -315,18 +314,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     // a valid AccountOps instance
     public void setAccountOperations(AccountOperations operations) {
         accountOperations = operations;
-    }
-
-    private static void setupStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
-
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
     }
 
     @Override
