@@ -59,7 +59,7 @@ ext {
 
           // UI libraries
           slidingUpPanel              : "com.sothree.slidinguppanel:library:2.0.2-SC@aar",
-          androidCrop                 : "com.soundcloud.android:android-crop:1.0.0@aar",
+          androidCrop                 : "com.soundcloud.android:android-crop:1.0.1@aar",
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                 : "com.jakewharton:butterknife:5.1.2",
@@ -79,7 +79,6 @@ ext {
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
           androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion@aar",
           androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion@aar"
-
   ]
 
   unitTestLibraries = [
