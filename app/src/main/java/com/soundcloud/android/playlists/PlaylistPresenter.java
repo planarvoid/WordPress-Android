@@ -49,5 +49,12 @@ class PlaylistPresenter {
         titleView.setText(item.getTitle());
         usernameView.setText(item.getCreatorName());
         imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);
+        resetPlaylistPrivateIcon(item);
+    }
+
+    private void resetPlaylistPrivateIcon(PlaylistWithTracks item) {
+        if (!item.isPrivate()) {
+            titleView.setCompoundDrawables(null, null, null, null);
+        }
     }
 }
