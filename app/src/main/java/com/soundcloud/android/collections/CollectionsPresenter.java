@@ -28,7 +28,7 @@ import java.util.List;
 
 public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener {
 
-    public static final Func1<MyCollections, Iterable<CollectionsItem>> TO_COLLECTIONS_ITEMS =
+    private final Func1<MyCollections, Iterable<CollectionsItem>> toCollectionsItems =
             new Func1<MyCollections, Iterable<CollectionsItem>>() {
                 @Override
                 public List<CollectionsItem> call(MyCollections myCollections) {
@@ -42,19 +42,27 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                     for (PlaylistItem playlistItem : playlistItems) {
                         collectionsItems.add(CollectionsItem.fromPlaylistItem(playlistItem));
                     }
+
+                    // TODO. We should test this once we know the rules
+                    if (isCurrentlyFiltered()) {
+                        collectionsItems.add(CollectionsItem.fromKillFilter());
+                    } else if (playlistItems.isEmpty()) {
+                        collectionsItems.add(CollectionsItem.fromEmptyPlaylists());
+                    }
+
                     return collectionsItems;
                 }
             };
 
     private final CollectionsOperations collectionsOperations;
+
     private final CollectionsAdapter adapter;
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
-
     private CompositeSubscription eventSubscriptions;
-    private CollectionsOptions currentOptions = CollectionsOptions.builder().build();
 
+    private CollectionsOptions currentOptions = CollectionsOptions.builder().build();
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
@@ -106,6 +114,11 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     }
 
     @Override
+    public void onRemoveFilterClicked() {
+        onOptionsUpdated(CollectionsOptions.builder().build());
+    }
+
+    @Override
     public void onOptionsUpdated(CollectionsOptions options) {
         currentOptions = options;
         adapter.clear();
@@ -124,14 +137,14 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
-        return CollectionBinding.from(collectionsOperations.collections(currentOptions), TO_COLLECTIONS_ITEMS)
+        return CollectionBinding.from(collectionsOperations.collections(currentOptions), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
     protected CollectionBinding<CollectionsItem> onRefreshBinding() {
-        return CollectionBinding.from(collectionsOperations.updatedCollections(currentOptions), TO_COLLECTIONS_ITEMS)
+        return CollectionBinding.from(collectionsOperations.updatedCollections(currentOptions), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
@@ -139,5 +152,10 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    private boolean isCurrentlyFiltered() {
+        return (currentOptions.showLikes() && !currentOptions.showPosts())
+                || !currentOptions.showLikes() && currentOptions.showPosts();
     }
 }

@@ -29,6 +29,16 @@
         <item name="android:layout_marginLeft">16dp</item>
     </style>
 
+    <style name="Collections.PlaylistKillFilterText" parent="ListItemText.PrimaryText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/collections_kill_filter_text_color</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginLeft">32dp</item>
+        <item name="android:layout_marginRight">32dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
     <style name="Collections.ItemTitle" parent="ListItemText.PrimaryText">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>

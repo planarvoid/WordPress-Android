@@ -8,8 +8,8 @@ public abstract class CollectionsOptions {
     static Builder builder() {
         return new AutoValue_CollectionsOptions
                 .Builder()
-                .showPosts(true)
-                .showLikes(true)
+                .showPosts(false)
+                .showLikes(false)
                 .showOfflineOnly(false)
                 .sortByTitle(false);
     }
