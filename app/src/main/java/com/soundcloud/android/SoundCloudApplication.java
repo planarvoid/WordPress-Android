@@ -171,13 +171,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+        castSessionController.startListening();
 
         if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)) {
             playPublisher.subscribe();
-        }
-
-        if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
-            castSessionController.startListening();
         }
 
         if (featureFlags.isEnabled(Flag.STATIONS)) {

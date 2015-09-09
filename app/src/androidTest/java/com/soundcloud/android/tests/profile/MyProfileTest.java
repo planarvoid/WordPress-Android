@@ -28,7 +28,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.NEW_PROFILE_FRAGMENTS, Flag.EVENTLOGGER_AUDIO_V1);
+        setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
 
         menuScreen = new MenuScreen(solo);
