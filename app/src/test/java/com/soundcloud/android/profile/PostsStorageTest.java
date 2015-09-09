@@ -198,6 +198,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 TrackProperty.TITLE,
                 TrackProperty.CREATOR_NAME,
                 TrackProperty.LIKES_COUNT,
+                TrackProperty.PLAY_COUNT,
                 TrackProperty.DURATION,
                 TrackProperty.IS_PRIVATE
         ).put(PostProperty.CREATED_AT, track.getCreatedAt())
