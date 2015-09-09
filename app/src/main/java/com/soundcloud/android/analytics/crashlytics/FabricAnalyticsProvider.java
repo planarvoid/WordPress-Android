@@ -6,6 +6,7 @@ import com.crashlytics.android.answers.CustomEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EncryptionErrorEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -33,22 +34,28 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void flush() {}
+    public void flush() {
+    }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {}
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
 
     @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {}
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+    }
 
     @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {}
+    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
+    }
 
     @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {}
+    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
+    }
 
     @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {}
+    public void handleOnboardingEvent(OnboardingEvent event) {
+    }
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
@@ -75,17 +82,29 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
     private void trackWithAnswers(TrackingEvent event) {
         if (event instanceof PaymentFailureEvent) {
             trackPaymentFailure((PaymentFailureEvent) event);
+        } else if (event instanceof EncryptionErrorEvent) {
+            trackEncryptionError((EncryptionErrorEvent) event);
         }
+    }
+
+    private void trackEncryptionError(EncryptionErrorEvent event) {
+        Answers.getInstance().logCustom(
+                new CustomEvent("Encryption error")
+                        .putCustomAttribute("Kind", event.getKind())
+                        .putCustomAttribute("ErrorMessage", event.getMessage())
+                        .putCustomAttribute("DetailMessage", event.getDetailMessage())
+        );
     }
 
     private void trackPaymentFailure(PaymentFailureEvent event) {
         Answers.getInstance().logCustom(
                 new CustomEvent("Payment failure")
-                        .putCustomAttribute("Reason", event.get(event.getReason()))
+                        .putCustomAttribute("Reason", event.getReason())
         );
     }
 
     @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {}
+    public void handleUserSessionEvent(UserSessionEvent event) {
+    }
 
 }

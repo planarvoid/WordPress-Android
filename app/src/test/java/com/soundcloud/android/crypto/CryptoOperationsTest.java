@@ -2,25 +2,29 @@ package com.soundcloud.android.crypto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EncryptionErrorEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.schedulers.Schedulers;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CryptoOperationsTest {
+public class CryptoOperationsTest extends AndroidUnitTest {
 
     private CryptoOperations operations;
 
@@ -29,13 +33,16 @@ public class CryptoOperationsTest {
     @Mock private OutputStream outputStream;
     @Mock private Encryptor encryptor;
     @Mock private DeviceSecret deviceSecret;
+    @Mock private KeyGeneratorWrapper keyGenerator;
     @Mock private Encryptor.EncryptionProgressListener listener;
 
+    private TestEventBus eventBus;
     private final static String KEY_NAME = "some key";
 
     @Before
     public void setUp() throws Exception {
-        operations = new CryptoOperations(storage, encryptor, Schedulers.immediate());
+        eventBus = new TestEventBus();
+        operations = new CryptoOperations(storage, keyGenerator, encryptor, eventBus, Schedulers.immediate());
         when(storage.contains(KEY_NAME)).thenReturn(true);
         when(storage.get(KEY_NAME)).thenReturn(deviceSecret);
     }
@@ -111,6 +118,37 @@ public class CryptoOperationsTest {
         InOrder inOrder = inOrder(storage);
         inOrder.verify(storage).contains(CryptoOperations.DEVICE_KEY);
         inOrder.verify(storage).put(any(DeviceSecret.class));
-     }
+    }
+
+    @Test
+    public void encryptStreamSendsEncryptionErrorEventWhenEncryptionFailed() throws Exception {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(true);
+        when(storage.get(CryptoOperations.DEVICE_KEY)).thenReturn(deviceSecret);
+        doThrow(new EncryptionException("Sample enc exception"))
+                .when(encryptor).encrypt(inputStream, outputStream, deviceSecret, listener);
+
+        try {
+            operations.encryptStream(inputStream, outputStream, listener);
+        } catch (EncryptionException e) {
+            // expected exception
+        }
+
+        EncryptionErrorEvent event = (EncryptionErrorEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getMessage()).isEqualTo("Sample enc exception");
+        assertThat(event.getKind()).isEqualTo(EncryptionErrorEvent.KIND_ENCRYPTION_ERROR);
+    }
+
+    @Test
+    public void generateKeySendsEncryptionErrorWhenKeyGenerationFailed() throws NoSuchAlgorithmException {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(false);
+        when(keyGenerator.generateKey(any(SecureRandom.class)))
+                .thenThrow(new NoSuchAlgorithmException("Expected Exception"));
+
+        operations.generateAndStoreDeviceKeyIfNeeded();
+
+        EncryptionErrorEvent event = (EncryptionErrorEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getDetailMessage()).isEqualTo("Expected Exception");
+        assertThat(event.getKind().equals(EncryptionErrorEvent.KIND_KEY_GENERATION));
+    }
 
 }
