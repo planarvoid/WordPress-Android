@@ -23,8 +23,7 @@ public class CollectionsPlaylistOptionsPresenter {
     }
 
     public void showOptions(Context context, final Listener listener, CollectionsOptions initialOptions) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        final View dialoglayout = inflater.inflate(R.layout.dialog_collections_options, null);
+        final View dialoglayout = View.inflate(context, R.layout.dialog_collections_options, null);
 
         final ToggleButton showLikes = (ToggleButton) dialoglayout.findViewById(R.id.show_likes);
         final ToggleButton showPosts = (ToggleButton) dialoglayout.findViewById(R.id.show_posts);
