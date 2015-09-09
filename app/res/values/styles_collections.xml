@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Collections" />
 
@@ -49,6 +49,25 @@
 
     <style name="Collections.ListContainer">
         <item name="android:background">@color/collections_home_background</item>
+    </style>
+
+    <style name="Collections.OptionsToggle">
+        <item name="android:background">@drawable/orange_toggle</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:stateListAnimator" tools:targetApi="21">@null</item>
+        <item name="android:minWidth">150dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@drawable/orange_toggle_text</item>
+    </style>
+
+    <style name="Collections.RadioButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:textColor">@drawable/orange_radio_text</item>
     </style>
 
 </resources>

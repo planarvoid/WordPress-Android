@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> {
+public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener {
 
     public static final Func1<MyCollections, Iterable<CollectionsItem>> TO_COLLECTIONS_ITEMS =
             new Func1<MyCollections, Iterable<CollectionsItem>>() {
@@ -48,20 +48,27 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     private final CollectionsOperations collectionsOperations;
     private final CollectionsAdapter adapter;
+    private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
+
     private CompositeSubscription eventSubscriptions;
+    private CollectionsOptions currentOptions = CollectionsOptions.builder().build();
 
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
                          CollectionsAdapter adapter,
-                         Resources resources, EventBus eventBus) {
+                         CollectionsPlaylistOptionsPresenter optionsPresenter,
+                         Resources resources,
+                         EventBus eventBus) {
         super(swipeRefreshAttacher, Options.cards());
         this.collectionsOperations = collectionsOperations;
         this.adapter = adapter;
+        this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
+        adapter.setListener(this);
     }
 
     @Override
@@ -93,6 +100,18 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         super.onDestroy(fragment);
     }
 
+    @Override
+    public void onPlaylistSettingsClicked(View view) {
+        optionsPresenter.showOptions(view.getContext(), this, currentOptions);
+    }
+
+    @Override
+    public void onOptionsUpdated(CollectionsOptions options) {
+        currentOptions = options;
+        adapter.clear();
+        retryWith(onBuildBinding(null));
+    }
+
     @NonNull
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {
         return new GridLayoutManager.SpanSizeLookup(){
@@ -105,14 +124,14 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
-        return CollectionBinding.from(collectionsOperations.collections(), TO_COLLECTIONS_ITEMS)
+        return CollectionBinding.from(collectionsOperations.collections(currentOptions), TO_COLLECTIONS_ITEMS)
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
     protected CollectionBinding<CollectionsItem> onRefreshBinding() {
-        return CollectionBinding.from(collectionsOperations.updatedCollections(), TO_COLLECTIONS_ITEMS)
+        return CollectionBinding.from(collectionsOperations.updatedCollections(currentOptions), TO_COLLECTIONS_ITEMS)
                 .withAdapter(adapter)
                 .build();
     }
