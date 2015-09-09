@@ -139,17 +139,13 @@ class CollectionsOperations {
         final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
         final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
 
-        if (options.showPosts() && options.showLikes()) {
-            return loadPostedPlaylists.zipWith(loadLikedPlaylists, COMBINE_POSTED_AND_LIKED);
-
-        } else if (options.showLikes()) {
+        if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;
 
-        }else if (options.showPosts()) {
+        } else if (options.showPosts() && !options.showLikes()) {
             return loadPostedPlaylists;
-
         } else {
-            return Observable.just(Collections.<PropertySet>emptyList());
+            return loadPostedPlaylists.zipWith(loadLikedPlaylists, COMBINE_POSTED_AND_LIKED);
         }
     }
 

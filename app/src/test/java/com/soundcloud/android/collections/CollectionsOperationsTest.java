@@ -106,6 +106,21 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void collectionsWithoutFiltersReturnsPostedAndLikedPlaylistsSortedByCreationDate() throws Exception {
+        final CollectionsOptions options = CollectionsOptions.builder().showPosts(false).showLikes(false).build();
+        operations.collections(options).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
+                PlaylistItem.from(likedPlaylist2),
+                PlaylistItem.from(postedPlaylist2),
+                PlaylistItem.from(likedPlaylist1),
+                PlaylistItem.from(postedPlaylist1)
+        ));
+    }
+
+    @Test
     public void collectionsReturnsPostedAndLikedPlaylistsSortedByTitle() throws Exception {
         final CollectionsOptions options = CollectionsOptions.builder().showPosts(true).showLikes(true)
                 .sortByTitle(true).build();
