@@ -26,7 +26,6 @@ import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -90,7 +89,6 @@ public class LegacyProfileActivity extends ScActivity implements
     private ToggleButton toggleFollow;
     private ImageView userImage;
     private FetchUserTask loadUserTask;
-    private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
@@ -143,8 +141,6 @@ public class LegacyProfileActivity extends ScActivity implements
         }
 
         if (user != null) {
-            userInfoFragment = UserInfoFragment.newInstance(user.getId());
-
             if (isLoggedInUser()) {
                 toggleFollow.setVisibility(View.GONE);
             } else {
@@ -233,12 +229,10 @@ public class LegacyProfileActivity extends ScActivity implements
 
         // TODO: move to a *Operations class to decouple from storage layer
         fireAndForget(userStorage.storeAsync(this.user));
-        userInfoFragment.onSuccess(this.user);
     }
 
     @Override
     public void onError(Object context) {
-        userInfoFragment.onError();
     }
 
     public PublicApiUser getUser() {
@@ -473,11 +467,7 @@ public class LegacyProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details) {
-                if (featureFlags.isEnabled(Flag.NEW_PROFILE_FRAGMENTS)) {
-                    return UserDetailsFragment.create(user.getUrn());
-                } else {
-                    return userInfoFragment;
-                }
+                return UserDetailsFragment.create(user.getUrn());
 
             } else {
                 // don't ask me why the user could be null here. No time for this dead code - JS
