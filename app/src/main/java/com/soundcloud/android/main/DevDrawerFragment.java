@@ -2,7 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.policies.PolicyUpdateService;
+import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -84,7 +84,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        PolicyUpdateService.start(getActivity().getApplicationContext());
+                        DailyUpdateService.start(getActivity().getApplicationContext());
                         return true;
                     }
                 });

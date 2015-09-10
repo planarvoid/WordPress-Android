@@ -1,7 +1,7 @@
 package com.soundcloud.android.policies;
 
-import static com.soundcloud.android.policies.PolicyUpdateService.ACTION_START;
-import static com.soundcloud.android.policies.PolicyUpdateService.TAG;
+import static com.soundcloud.android.policies.DailyUpdateService.ACTION_START;
+import static com.soundcloud.android.policies.DailyUpdateService.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
@@ -16,7 +16,7 @@ import android.content.Intent;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class PolicyUpdateScheduler {
+public class DailyUpdateScheduler {
 
     static final int REQUEST_ID = R.id.policy_update_request_id;
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
@@ -28,8 +28,8 @@ public class PolicyUpdateScheduler {
     private final PendingIntentFactory pendingIntentFactory;
 
     @Inject
-    public PolicyUpdateScheduler(Context context, AlarmManager alarmManager, DateProvider dateProvider,
-                                 PendingIntentFactory pendingIntentFactory) {
+    public DailyUpdateScheduler(Context context, AlarmManager alarmManager, DateProvider dateProvider,
+                                PendingIntentFactory pendingIntentFactory) {
         this.context = context;
         this.alarmManager = alarmManager;
         this.dateProvider = dateProvider;

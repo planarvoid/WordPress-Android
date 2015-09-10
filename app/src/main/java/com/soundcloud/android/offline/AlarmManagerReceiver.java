@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.policies.PolicyUpdateService;
+import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.utils.Log;
 
 import android.content.BroadcastReceiver;
@@ -15,9 +15,9 @@ public class AlarmManagerReceiver extends BroadcastReceiver {
             Log.d(OfflineContentService.TAG, "Offline Content Start Receiver notified. Starting service.");
             OfflineContentService.start(context);
 
-        } else if (PolicyUpdateService.ACTION_START.equals(intent.getAction())) {
-            Log.d(PolicyUpdateService.TAG, "Policy Update Start Receiver notified. Starting service.");
-            PolicyUpdateService.start(context);
+        } else if (DailyUpdateService.ACTION_START.equals(intent.getAction())) {
+            Log.d(DailyUpdateService.TAG, "Policy Update Start Receiver notified. Starting service.");
+            DailyUpdateService.start(context);
         }
     }
 }

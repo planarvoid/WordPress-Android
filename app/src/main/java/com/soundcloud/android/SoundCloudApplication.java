@@ -21,7 +21,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
-import com.soundcloud.android.policies.PolicyUpdateScheduler;
+import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -103,7 +103,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject FacebookSdk facebookSdk;
-    @Inject PolicyUpdateScheduler policyUpdateScheduler;
+    @Inject DailyUpdateScheduler dailyUpdateScheduler;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -185,7 +185,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
-            policyUpdateScheduler.scheduleDailyPolicyUpdates();
+            dailyUpdateScheduler.scheduleDailyPolicyUpdates();
         }
 
         configurationFeatureController.subscribe();
