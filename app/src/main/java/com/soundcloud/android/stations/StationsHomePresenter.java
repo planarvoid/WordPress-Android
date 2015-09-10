@@ -1,6 +1,8 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -8,19 +10,20 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleBinder;
 import rx.Observable;
 import rx.functions.Func1;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
+class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
     private final Func1<SyncResult, Observable<List<StationBucket>>> toBuckets = new Func1<SyncResult, Observable<List<StationBucket>>>() {
         @Override
         public Observable<List<StationBucket>> call(SyncResult ignored) {
@@ -28,25 +31,34 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
         }
     };
 
-    private final Resources resources;
-    private final StationsOperations operations;
-    private final StationsHomeAdapter adapter;
-    private final Func1<List<Station>, Boolean> hasStations = new Func1<List<Station>, Boolean>() {
+    private final Func1<List<StationViewModel>, Boolean> hasStations = new Func1<List<StationViewModel>, Boolean>() {
         @Override
-        public Boolean call(List<Station> stations) {
+        public Boolean call(List<StationViewModel> stations) {
             return !stations.isEmpty();
         }
     };
+
+    private final Resources resources;
+    private final StationsOperations operations;
+    private final StationsHomeAdapter adapter;
+    @LightCycle final StationsNowPlayingController stationsNowPlayingController;
+    private final PlayQueueManager playQueueManager;
 
     @Inject
     public StationsHomePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                  Resources resources,
                                  StationsOperations operations,
-                                 StationsHomeAdapter adapter) {
+                                 StationsHomeAdapter adapter,
+                                 StationsNowPlayingController stationsNowPlayingController,
+                                 PlayQueueManager playQueueManager) {
         super(swipeRefreshAttacher, Options.cards());
         this.resources = resources;
         this.operations = operations;
         this.adapter = adapter;
+        this.stationsNowPlayingController = stationsNowPlayingController;
+        this.playQueueManager = playQueueManager;
+        this.stationsNowPlayingController.setAdapter(adapter);
+        LightCycleBinder.bind(this);
     }
 
     @Override
@@ -88,11 +100,23 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
     }
 
     private Observable<StationBucket> bucket(int type, String title) {
+        final Func1<Station, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
+
         return operations
                 .stations(type)
+                .map(toViewModel)
                 .toList()
                 .filter(hasStations)
-                .map(StationBucket.fromStations(title, type, maxStationsPerBucket()));
+                .map(StationBucket.fromStationViewModels(title, type, maxStationsPerBucket()));
+    }
+
+    private Func1<Station, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
+        return new Func1<Station, StationViewModel>() {
+            @Override
+            public StationViewModel call(Station station) {
+                return new StationViewModel(station, currentlyPlayingCollection.equals(station.getUrn()));
+            }
+        };
     }
 
     private int maxStationsPerBucket() {
@@ -109,28 +133,34 @@ public class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> 
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    static class StationsHomeAdapter extends RecyclerItemAdapter<StationBucket, StationsHomeAdapter.StationViewHolder> {
+    static class StationsHomeAdapter extends RecyclerItemAdapter<StationBucket, StationsViewHolder> implements StationsNowPlayingController.StationsNowPlayingAdapter {
+
+        public static final int STATION_BUCKET_TYPE = 0;
 
         @Inject
-        public StationsHomeAdapter(StationsHomeRenderer renderer) {
+        public StationsHomeAdapter(StationsBucketRenderer renderer) {
             super(renderer);
         }
 
         @Override
-        protected StationViewHolder createViewHolder(View view) {
-            return new StationViewHolder(view);
+        public void updateNowPlaying(Urn currentlyPlayingCollectionUrn) {
+            for (StationBucket stationBucket : getItems()) {
+                for (StationViewModel stationViewModel : stationBucket.getStationViewModels()) {
+                    stationViewModel.setIsPlaying(stationViewModel.getStation().getUrn().equals(currentlyPlayingCollectionUrn));
+                }
+            }
+
+            notifyDataSetChanged();
+        }
+
+        @Override
+        protected StationsViewHolder createViewHolder(View view) {
+            return new StationsViewHolder(view);
         }
 
         @Override
         public int getBasicItemViewType(int i) {
-            return 0;
-        }
-
-        public class StationViewHolder extends RecyclerView.ViewHolder {
-
-            public StationViewHolder(View itemView) {
-                super(itemView);
-            }
+            return STATION_BUCKET_TYPE;
         }
     }
 }

@@ -3,6 +3,7 @@ package com.soundcloud.android.stations;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -16,15 +17,19 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class StationsHomeRenderer implements CellRenderer<StationBucket> {
+class StationsBucketRenderer implements CellRenderer<StationBucket> {
 
     private final StationRenderer stationRenderer;
     private final Navigator navigator;
+    private final PlayQueueManager playQueueManager;
 
     @Inject
-    public StationsHomeRenderer(StationRenderer stationRenderer, Navigator navigator) {
+    public StationsBucketRenderer(StationRenderer stationRenderer,
+                                  Navigator navigator,
+                                  PlayQueueManager playQueueManager) {
         this.stationRenderer = stationRenderer;
         this.navigator = navigator;
+        this.playQueueManager = playQueueManager;
     }
 
     @Override
@@ -37,7 +42,7 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     private void initRecyclerViewForStationsPreview(RecyclerView recyclerView) {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new WrapContentGridLayoutManager(recyclerView.getContext()));
-        recyclerView.setAdapter(new StationsBucketAdapter(stationRenderer));
+        recyclerView.setAdapter(new StationsAdapter(stationRenderer));
     }
 
     @Override
@@ -49,7 +54,7 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     }
 
     private void bindShowAllView(View view, StationBucket bucket) {
-        if (bucket.getStations().size() > bucket.getBucketSize()) {
+        if (bucket.getStationViewModels().size() > bucket.getBucketSize()) {
             view.setVisibility(View.VISIBLE);
             view.setOnClickListener(onViewAllClick(bucket.getCollectionType()));
         } else {
@@ -58,8 +63,14 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
     }
 
     private void bindStationsPreview(View view, StationBucket stationBucket) {
-        final StationsBucketAdapter adapter = ((StationsBucketAdapter) findRecyclerView(view).getAdapter());
-        adapter.setStationBucket(stationBucket);
+        final StationsAdapter adapter = ((StationsAdapter) findRecyclerView(view).getAdapter());
+        final List<StationViewModel> stationViewModels = stationBucket.getStationViewModels();
+
+        adapter.clear();
+        for (int i = 0; i < stationViewModels.size() && i < stationBucket.getBucketSize(); i++) {
+            adapter.addItem(stationViewModels.get(i));
+        }
+
         adapter.notifyDataSetChanged();
     }
 
@@ -74,40 +85,6 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
                 navigator.openViewAllStations(view.getContext(), type);
             }
         };
-    }
-
-    private static class StationsBucketAdapter extends RecyclerView.Adapter<StationsBucketAdapter.StationViewHolder> {
-        private final StationRenderer stationRenderer;
-        private StationBucket stationBucket;
-
-        StationsBucketAdapter(StationRenderer stationRenderer) {
-            this.stationRenderer = stationRenderer;
-        }
-
-        public void setStationBucket(StationBucket stationBucket) {
-            this.stationBucket = stationBucket;
-        }
-
-        @Override
-        public StationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new StationViewHolder(stationRenderer.createItemView(parent));
-        }
-
-        @Override
-        public void onBindViewHolder(StationViewHolder holder, int position) {
-            stationRenderer.bindItemView(position, holder.itemView, stationBucket.getStations());
-        }
-
-        @Override
-        public int getItemCount() {
-            return Math.min(stationBucket.getBucketSize(), stationBucket.getStations().size());
-        }
-
-        public static class StationViewHolder extends RecyclerView.ViewHolder {
-            public StationViewHolder(View itemView) {
-                super(itemView);
-            }
-        }
     }
 
     /**
@@ -160,4 +137,5 @@ class StationsHomeRenderer implements CellRenderer<StationBucket> {
             child.measure(widthSpec, heightSpec);
         }
     }
+
 }
