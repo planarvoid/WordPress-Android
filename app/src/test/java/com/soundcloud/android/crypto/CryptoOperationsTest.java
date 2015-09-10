@@ -8,7 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EncryptionErrorEvent;
+import com.soundcloud.android.events.EncryptionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -19,6 +19,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.schedulers.Schedulers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -133,9 +134,9 @@ public class CryptoOperationsTest extends AndroidUnitTest {
             // expected exception
         }
 
-        EncryptionErrorEvent event = (EncryptionErrorEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getMessage()).isEqualTo("Sample enc exception");
-        assertThat(event.getKind()).isEqualTo(EncryptionErrorEvent.KIND_ENCRYPTION_ERROR);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        EncryptionEvent event = (EncryptionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(EncryptionEvent.KIND_ENCRYPTION_ERROR);
     }
 
     @Test
@@ -146,9 +147,21 @@ public class CryptoOperationsTest extends AndroidUnitTest {
 
         operations.generateAndStoreDeviceKeyIfNeeded();
 
-        EncryptionErrorEvent event = (EncryptionErrorEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getDetailMessage()).isEqualTo("Expected Exception");
-        assertThat(event.getKind().equals(EncryptionErrorEvent.KIND_KEY_GENERATION));
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        EncryptionEvent event = (EncryptionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind().equals(EncryptionEvent.KIND_KEY_GENERATION_ERROR));
+    }
+
+    @Test
+    public void encryptStreamSendsSuccessfulEncryptionEvent() throws IOException, EncryptionException {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(true);
+        when(storage.get(CryptoOperations.DEVICE_KEY)).thenReturn(deviceSecret);
+
+        operations.encryptStream(inputStream, outputStream, listener);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        EncryptionEvent event = (EncryptionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind().equals(EncryptionEvent.KIND_SUCCESSUFULL_ENCRYPTION));
     }
 
 }

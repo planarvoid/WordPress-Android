@@ -4,21 +4,17 @@ import static com.soundcloud.android.crypto.KeyGeneratorWrapper.GENERATED_KEY_SI
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.events.EncryptionErrorEvent;
+import com.soundcloud.android.events.EncryptionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 
-import javax.crypto.KeyGenerator;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,8 +72,10 @@ public class CryptoOperations {
         try {
             final DeviceSecret secret = checkAndGetDeviceKey();
             encryptor.encrypt(stream, outputStream, secret, listener);
+            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionSuccess());
         } catch (EncryptionException e) {
-            eventBus.publish(EventQueue.TRACKING, EncryptionErrorEvent.fromEncryption(e.getMessage(), e.getCause()));
+            ErrorUtils.handleSilentException("Encryption error", e);
+            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionError());
             throw e;
         }
     }
@@ -107,8 +105,9 @@ public class CryptoOperations {
             final DeviceSecret key = new DeviceSecret(DEVICE_KEY, keyGenerator.generateKey(secureRandom), iv);
             storage.put(key);
         } catch (NoSuchAlgorithmException e) {
+            ErrorUtils.handleSilentException("Key generation error", e);
             eventBus.publish(EventQueue.TRACKING,
-                    EncryptionErrorEvent.fromKeyGeneration("No provider found to generate key", e));
+                    EncryptionEvent.fromKeyGenerationError());
         }
     }
 }

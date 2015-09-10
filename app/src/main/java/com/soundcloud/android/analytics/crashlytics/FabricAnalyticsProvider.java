@@ -6,7 +6,7 @@ import com.crashlytics.android.answers.CustomEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EncryptionErrorEvent;
+import com.soundcloud.android.events.EncryptionEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -82,17 +82,15 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
     private void trackWithAnswers(TrackingEvent event) {
         if (event instanceof PaymentFailureEvent) {
             trackPaymentFailure((PaymentFailureEvent) event);
-        } else if (event instanceof EncryptionErrorEvent) {
-            trackEncryptionError((EncryptionErrorEvent) event);
+        } else if (event instanceof EncryptionEvent) {
+            trackEncryptionError((EncryptionEvent) event);
         }
     }
 
-    private void trackEncryptionError(EncryptionErrorEvent event) {
+    private void trackEncryptionError(EncryptionEvent event) {
         Answers.getInstance().logCustom(
-                new CustomEvent("Encryption error")
+                new CustomEvent("Encryption test")
                         .putCustomAttribute("Kind", event.getKind())
-                        .putCustomAttribute("ErrorMessage", event.getMessage())
-                        .putCustomAttribute("DetailMessage", event.getDetailMessage())
         );
     }
 
