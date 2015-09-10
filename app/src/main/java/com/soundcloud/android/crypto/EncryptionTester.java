@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.strings.Charsets;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -44,7 +45,7 @@ public class EncryptionTester {
     }
 
     private void encryptSampleData() {
-        final InputStream plainTextInput = new ByteArrayInputStream("Plain Test".getBytes());
+        final InputStream plainTextInput = new ByteArrayInputStream("Plain Test".getBytes(Charsets.UTF_8));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
         try {
             cryptoOperations.encryptStream(plainTextInput, encryptedOutput, null);
