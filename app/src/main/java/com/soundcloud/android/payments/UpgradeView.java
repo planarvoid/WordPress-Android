@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.util.AnimUtils;
 
@@ -16,10 +16,10 @@ class UpgradeView  {
 
     private final Resources resources;
 
-    @InjectView(R.id.upgrade_header) View upgradeHeader;
-    @InjectView(R.id.success_header) View successHeader;
-    @InjectView(R.id.upgrade_buy) Button buyButton;
-    @InjectView(R.id.upgrade_loading) View loading;
+    @Bind(R.id.upgrade_header) View upgradeHeader;
+    @Bind(R.id.success_header) View successHeader;
+    @Bind(R.id.upgrade_buy) Button buyButton;
+    @Bind(R.id.upgrade_loading) View loading;
 
     interface Listener {
         void startPurchase();
@@ -31,7 +31,7 @@ class UpgradeView  {
     }
 
     void setupContentView(AppCompatActivity activity, Listener listener) {
-        ButterKnife.inject(this, activity.findViewById(android.R.id.content));
+        ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         setListener(listener);
     }
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -48,14 +48,14 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     private Subscription subscription;
     private UploadMonitorFragment uploadMonitorFragment;
 
-    @InjectView(R.id.track) TextView trackTitle;
-    @InjectView(R.id.track_username) TextView trackUsername;
-    @InjectView(R.id.track_duration) TextView trackDuration;
-    @InjectView(R.id.icon) ImageView icon;
-    @InjectView(R.id.upload_status_text) TextView uploadStatusText;
-    @InjectView(R.id.upload_progress) CircularProgressBar uploadProgress;
-    @InjectView(R.id.btn_action) ImageButton actionButton;
-    @InjectView(R.id.btn_cancel) Button cancelButton;
+    @Bind(R.id.track) TextView trackTitle;
+    @Bind(R.id.track_username) TextView trackUsername;
+    @Bind(R.id.track_duration) TextView trackDuration;
+    @Bind(R.id.icon) ImageView icon;
+    @Bind(R.id.upload_status_text) TextView uploadStatusText;
+    @Bind(R.id.upload_progress) CircularProgressBar uploadProgress;
+    @Bind(R.id.btn_action) ImageButton actionButton;
+    @Bind(R.id.btn_cancel) Button cancelButton;
 
     @Inject
     public UploadMonitorPresenter(EventBus eventBus,
@@ -79,7 +79,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         setCircularShape(actionButton, R.dimen.rec_upload_button_dimension);
         setCircularShape(uploadProgress, R.dimen.rec_upload_progress_dimension);

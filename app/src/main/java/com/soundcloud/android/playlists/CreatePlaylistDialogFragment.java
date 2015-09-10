@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -41,9 +41,9 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Inject ApplicationProperties properties;
     @Inject FeatureOperations featureOperations;
 
-    @InjectView(android.R.id.edit) EditText input;
-    @InjectView(R.id.chk_private) CheckBox privacy;
-    @InjectView(R.id.chk_offline) CheckBox offline;
+    @Bind(android.R.id.edit) EditText input;
+    @Bind(R.id.chk_private) CheckBox privacy;
+    @Bind(R.id.chk_offline) CheckBox offline;
 
     public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackId, invokerScreen, contextScreen));
@@ -70,7 +70,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_create_new_playlist, null);
-        ButterKnife.inject(this, dialogView);
+        ButterKnife.bind(this, dialogView);
         setChecksVisibility();
 
         return new AlertDialog.Builder(getActivity())

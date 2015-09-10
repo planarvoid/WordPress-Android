@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.offline.OfflineState;
@@ -20,8 +20,8 @@ class TrackLikesHeaderView {
     private final Resources resources;
     private final DownloadableHeaderView downloadableHeaderView;
 
-    @InjectView(R.id.shuffle_btn) Button shuffleButton;
-    @InjectView(R.id.overflow_button) View overflowMenuButton;
+    @Bind(R.id.shuffle_btn) Button shuffleButton;
+    @Bind(R.id.overflow_button) View overflowMenuButton;
 
     private int trackCount;
 
@@ -39,11 +39,12 @@ class TrackLikesHeaderView {
     void onViewCreated(View view) {
         headerView = view.findViewById(R.id.track_likes_header);
         downloadableHeaderView.onViewCreated(headerView);
-        ButterKnife.inject(this, headerView);
+        ButterKnife.bind(this, headerView);
     }
 
     void onDestroyView() {
-        ButterKnife.reset(this);
+        downloadableHeaderView.onDestroyView();
+        ButterKnife.unbind(this);
         headerView = null;
     }
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.settings;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 
@@ -19,13 +19,13 @@ public final class OfflineStoragePreference extends Preference {
 
     private static final double ONE_GIGABYTE = 1024 * 1024 * 1024;
 
-    @InjectView(R.id.offline_storage_usage_bars) UsageBarView usageBarView;
-    @InjectView(R.id.offline_storage_limit_seek_bar) SeekBar storageLimitSeekBar;
-    @InjectView(R.id.offline_storage_limit) TextView storageLimitTextView;
-    @InjectView(R.id.offline_storage_free) TextView storageFreeTextView;
-    @InjectView(R.id.offline_storage_legend_other) TextView storageOtherLabelTextView;
-    @InjectView(R.id.offline_storage_legend_used) TextView storageUsedLabelTextView;
-    @InjectView(R.id.offline_storage_legend_limit) TextView storageLimitLabelTextView;
+    @Bind(R.id.offline_storage_usage_bars) UsageBarView usageBarView;
+    @Bind(R.id.offline_storage_limit_seek_bar) SeekBar storageLimitSeekBar;
+    @Bind(R.id.offline_storage_limit) TextView storageLimitTextView;
+    @Bind(R.id.offline_storage_free) TextView storageFreeTextView;
+    @Bind(R.id.offline_storage_legend_other) TextView storageOtherLabelTextView;
+    @Bind(R.id.offline_storage_legend_used) TextView storageUsedLabelTextView;
+    @Bind(R.id.offline_storage_legend_limit) TextView storageLimitLabelTextView;
 
     private OnPreferenceChangeListener onStorageLimitChangeListener;
     private OfflineUsage offlineUsage;
@@ -81,7 +81,7 @@ public final class OfflineStoragePreference extends Preference {
     @Override
     protected View onCreateView(ViewGroup parent) {
         View view = super.onCreateView(parent);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         storageLimitSeekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
         updateAndRefresh();
         return view;

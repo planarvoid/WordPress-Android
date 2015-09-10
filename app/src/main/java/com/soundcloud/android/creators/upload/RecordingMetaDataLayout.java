@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 import com.soundcloud.android.R;
@@ -32,8 +32,8 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     private Drawable placeholder;
     private Activity activity;
 
-    @InjectView(R.id.title) EditText titleText;
-    @InjectView(R.id.artwork) ImageView artwork;
+    @Bind(R.id.title) EditText titleText;
+    @Bind(R.id.artwork) ImageView artwork;
 
     @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaDataLayout(Context context) {
@@ -56,7 +56,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.metadata, this);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         if (!isInEditMode()) {
             IOUtils.mkdirs(Recording.IMAGE_DIR);

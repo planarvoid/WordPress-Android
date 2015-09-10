@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import com.soundcloud.android.R;
@@ -22,8 +22,8 @@ import javax.inject.Inject;
 
 public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
 
-    @InjectView(R.id.verify_age_input) EditText yearInput;
-    @InjectView(R.id.verify_button) Button submitButton;
+    @Bind(R.id.verify_age_input) EditText yearInput;
+    @Bind(R.id.verify_button) Button submitButton;
 
     private final UpdateAgeCommand updateAgeCommand;
     private final FollowingOperations followingOperations;
@@ -42,7 +42,7 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
         this.activity = activity;
         activity.setContentView(R.layout.verify_age);
 
-        ButterKnife.inject(this, activity);
+        ButterKnife.bind(this, activity);
 
         userToFollowUrn = activity.getIntent().getParcelableExtra(VerifyAgeActivity.EXTRA_USER_TO_FOLLOW_URN);
 

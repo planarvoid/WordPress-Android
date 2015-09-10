@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import com.soundcloud.android.R;
@@ -27,9 +27,9 @@ public class LoginLayout extends AuthLayout {
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
     @NotNull private LoginHandler loginHandler; // null at creation but must be set before using
 
-    @InjectView(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
-    @InjectView(R.id.txt_password) EditText passwordField;
-    @InjectView(R.id.btn_login) Button loginButton;
+    @Bind(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
+    @Bind(R.id.txt_password) EditText passwordField;
+    @Bind(R.id.btn_login) Button loginButton;
 
     public LoginLayout(Context context) {
         super(context);
@@ -77,7 +77,7 @@ public class LoginLayout extends AuthLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 getContext(), R.layout.onboard_email_dropdown_item, AndroidUtils.listEmails(getContext()));

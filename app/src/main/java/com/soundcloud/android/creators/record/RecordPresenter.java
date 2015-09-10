@@ -8,11 +8,10 @@ import static com.soundcloud.android.creators.record.RecordFragment.CreateState.
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.PLAYBACK;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.RECORD;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
-import butterknife.Optional;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -56,23 +55,23 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     public static final String RECORD_STATE_KEY = "createCurrentCreateState";
 
-    @InjectView(R.id.gauge_holder) ViewGroup gaugeHolder;
-    @InjectView(R.id.chronometer) ChronometerView chrono;
-    @InjectView(R.id.btn_action) ImageButton actionButton;
-    @InjectView(R.id.action_text) TextView actionText;
+    @Bind(R.id.gauge_holder) ViewGroup gaugeHolder;
+    @Bind(R.id.chronometer) ChronometerView chrono;
+    @Bind(R.id.btn_action) ImageButton actionButton;
+    @Bind(R.id.action_text) TextView actionText;
 
     // play mode
-    @InjectView(R.id.btn_next) View next;
-    @InjectView(R.id.btn_delete) View delete;
-    @InjectView(R.id.btn_play) ImageButton playButton;
-    @InjectView(R.id.btn_edit) ImageButton editButton;
+    @Bind(R.id.btn_next) View next;
+    @Bind(R.id.btn_delete) View delete;
+    @Bind(R.id.btn_play) ImageButton playButton;
+    @Bind(R.id.btn_edit) ImageButton editButton;
 
     // edit mode
-    @InjectView(R.id.btn_revert) View revert;
-    @InjectView(R.id.btn_apply) View apply;
-    @InjectView(R.id.toggle_fade) SwitchCompat toggleFade;
-    @InjectView(R.id.edit_controls) @Optional ViewGroup editControls;
-    @InjectView(R.id.btn_play_edit) ImageButton playEditButton;
+    @Bind(R.id.btn_revert) View revert;
+    @Bind(R.id.btn_apply) View apply;
+    @Bind(R.id.toggle_fade) SwitchCompat toggleFade;
+    @Bind(R.id.edit_controls) @Nullable ViewGroup editControls;
+    @Bind(R.id.btn_play_edit) ImageButton playEditButton;
 
     private final RecordingOperations recordingOperations;
     private final ViewHelper viewHelper;
@@ -185,7 +184,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         visibilities = new HashMap<>();
 

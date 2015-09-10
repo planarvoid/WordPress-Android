@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -41,12 +41,12 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     private final ViewHelper viewHelper;
     private PlaceholderGenerator placeholderGenerator;
 
-    @InjectView(R.id.rdo_privacy) RadioGroup rdoPrivacy;
-    @InjectView(R.id.rdo_private) RadioButton rdoPrivate;
-    @InjectView(R.id.rdo_public) RadioButton rdoPublic;
-    @InjectView(R.id.txt_record_options) TextView txtRecordOptions;
-    @InjectView(R.id.metadata_layout) RecordingMetaDataLayout recordingMetadata;
-    @InjectView(R.id.btn_action) ImageButton actionButton;
+    @Bind(R.id.rdo_privacy) RadioGroup rdoPrivacy;
+    @Bind(R.id.rdo_private) RadioButton rdoPrivate;
+    @Bind(R.id.rdo_public) RadioButton rdoPublic;
+    @Bind(R.id.txt_record_options) TextView txtRecordOptions;
+    @Bind(R.id.metadata_layout) RecordingMetaDataLayout recordingMetadata;
+    @Bind(R.id.btn_action) ImageButton actionButton;
 
     @Inject
     public MetadataPresenter(SoundRecorder recorder, PlaceholderGenerator placeholderGenerator, ViewHelper viewHelper) {
@@ -108,7 +108,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         final int orangeButtonDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_upload_button_dimension);
         viewHelper.setCircularButtonOutline(actionButton, orangeButtonDimension);
