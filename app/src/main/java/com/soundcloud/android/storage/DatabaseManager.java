@@ -1,5 +1,7 @@
 package com.soundcloud.android.storage;
 
+import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
+
 import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.Context;
@@ -40,7 +42,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate(" + db + ")");
 
         try {
-            // new tables
+            // new tables ! remember to drop in onRecreate!
             db.execSQL(Tables.Recommendations.SQL);
             db.execSQL(Tables.RecommendationSeeds.SQL);
             db.execSQL(Tables.PlayQueue.SQL);
@@ -58,6 +60,26 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void onRecreateDb(SQLiteDatabase db) {
+        Log.d(TAG, "onRecreate(" + db + ")");
+
+        dropTable(Tables.Recommendations.TABLE.name(), db);
+        dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
+        dropTable(Tables.PlayQueue.TABLE.name(), db);
+        dropTable(Tables.Stations.TABLE.name(), db);
+        dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+        dropTable(Tables.StationsCollections.TABLE.name(), db);
+        dropTable(Tables.TrackDownloads.TABLE.name(), db);
+        dropTable(Tables.OfflineContent.TABLE.name(), db);
+        dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+
+        // legacy tables
+        for (Table t : Table.values()) {
+            SchemaMigrationHelper.drop(t, db);
+        }
+        onCreate(db);
     }
 
     @Override
@@ -150,15 +172,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             onRecreateDb(db);
         }
-    }
-
-    public void onRecreateDb(SQLiteDatabase db) {
-        Log.d(TAG, "onRecreate(" + db + ")");
-
-        for (Table t : Table.values()) {
-            SchemaMigrationHelper.drop(t, db);
-        }
-        onCreate(db);
     }
 
     /**
@@ -338,7 +351,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(Tables.PlayQueue.TABLE.name(), db);
             db.execSQL(Tables.PlayQueue.SQL);
             return true;
 
@@ -367,8 +380,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo50(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.Stations.TABLE.name(), db);
-            SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            dropTable(Tables.Stations.TABLE.name(), db);
+            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
             db.execSQL(LegacyTables.RecentStations.SQL);
@@ -384,7 +397,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo51(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(Tables.PlayQueue.TABLE.name(), db);
             db.execSQL(Tables.PlayQueue.SQL);
             return true;
 
@@ -399,7 +412,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo52(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.StationsPlayQueues.SQL);
             return true;
 
@@ -414,7 +427,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo53(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(Tables.Stations.TABLE.name(), db);
+            dropTable(Tables.Stations.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
             return true;
 
@@ -430,7 +443,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo54(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+            dropTable(LegacyTables.RecentStations.TABLE.name(), db);
             db.execSQL(LegacyTables.RecentStations.SQL);
             return true;
 
