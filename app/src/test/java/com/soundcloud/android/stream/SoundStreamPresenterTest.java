@@ -4,14 +4,19 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.StreamNotificationEvent;
+import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
+import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -43,6 +48,7 @@ import rx.observers.TestSubscriber;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -70,6 +76,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private EmptyView emptyView;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
+    @Mock private Navigator navigator;
+    @Mock private FragmentActivity activity;
+    @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestSubscriber<PlaybackResult> testSubscriber = new TestSubscriber<>();
@@ -79,7 +88,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null)).thenReturn(itemClickListener);
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imagePauseOnScrollListener,
-                swipeRefreshAttacher, expandPlayerSubscriberProvider, eventBus, itemClickListenerFactory);
+                swipeRefreshAttacher, expandPlayerSubscriberProvider, eventBus, itemClickListenerFactory,
+                facebookInvitesDialogPresenter);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
@@ -87,6 +97,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(view.getResources()).thenReturn(resources);
+        when(fragment.getActivity()).thenReturn(activity);
     }
 
     @Test
@@ -242,4 +253,57 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
+    @Test
+    public void shouldPublishTrackingEventOnFacebookInvitesButtonClick() {
+        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        presenter.onCreate(fragment, null);
+        when(adapter.getItem(0)).thenReturn(item);
+
+        presenter.onFacebookInvitesInviteButtonClicked(0);
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+    }
+
+    @Test
+    public void shouldOpenFacebookInvitesDialogOnFacebookInvitesButtonClick() {
+        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        when(adapter.getItem(0)).thenReturn(item);
+        presenter.onCreate(fragment, null);
+
+        presenter.onFacebookInvitesInviteButtonClicked(0);
+
+        verify(facebookInvitesDialogPresenter).show(activity);
+    }
+
+    @Test
+    public void shouldPublishTrackingEventOnFacebookCloseButtonClick() {
+        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        when(adapter.getItem(0)).thenReturn(item);
+
+        presenter.onFacebookInvitesCloseButtonClicked(0);
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+    }
+
+    @Test
+    public void shouldNotOpenFacebookInvitesDialogOnFacebookInvitesCloseButtonClick() {
+        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        when(adapter.getItem(0)).thenReturn(item);
+        presenter.onCreate(fragment, null);
+
+        presenter.onFacebookInvitesCloseButtonClicked(0);
+
+        verify(facebookInvitesDialogPresenter, never()).show(activity);
+    }
+
+    @Test
+    public void shouldNotDoAnythingWhenClickingOnFacebookInvitesNotification() {
+        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        when(adapter.getItem(0)).thenReturn(item);
+
+        presenter.onItemClicked(view, 0);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verify(facebookInvitesDialogPresenter, never()).show(activity);
+    }
 }

@@ -161,6 +161,7 @@ dependencies {
   compile libraries.butterKnife
   compile libraries.castCompanionLibrary
   compile libraries.undoBar
+  compile libraries.circleImageView
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

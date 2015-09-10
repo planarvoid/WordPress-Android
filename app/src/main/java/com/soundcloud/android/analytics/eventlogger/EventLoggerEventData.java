@@ -4,6 +4,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTI
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_TARGET;
@@ -15,6 +16,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERRO
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
@@ -103,6 +105,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData clickCategory(String clickCategory) {
+        addToPayload(CLICK_CATEGORY, clickCategory);
+        return this;
+    }
+
     public EventLoggerEventData externalMedia(String externalMedia) {
         addToPayload(EXTERNAL_MEDIA, externalMedia);
         return this;
@@ -125,6 +132,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData impressionObject(String impressionObject) {
         addToPayload(IMPRESSION_OBJECT, impressionObject);
+        return this;
+    }
+
+    public EventLoggerEventData impressionCategory(String impressionCategory) {
+        addToPayload(IMPRESSION_CATEGORY, impressionCategory);
         return this;
     }
 

@@ -543,4 +543,9 @@
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
 
+    <!-- __FACEBOOK INVITES -->
+    <string name="facebook_invites_title">Invite friends to SoundCloud</string>
+    <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
+    <string name="facebook_invites_button">Invite friends</string>
+
 </resources>

@@ -29,7 +29,7 @@ public class StorageModule {
     public static final String POLICY_SETTINGS = "Policies";
     public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
     public static final String GCM = "gcm";
-
+    public static final String FACEBOOK_INVITES = "FacebookInvites";
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -41,6 +41,7 @@ public class StorageModule {
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
     private static final String PREFS_GCM = "gcm";
+    private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -105,6 +106,12 @@ public class StorageModule {
     @Named(RECOMMENDATIONS_SYNC)
     public SharedPreferences provideRecommendationsSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_RECOMMENDATIONS_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(FACEBOOK_INVITES)
+    public SharedPreferences provideFacebookInvitesPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_FACEBOOK_INVITES, Context.MODE_PRIVATE);
     }
 
     @Provides
