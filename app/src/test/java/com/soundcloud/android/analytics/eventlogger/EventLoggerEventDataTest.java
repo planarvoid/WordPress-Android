@@ -19,6 +19,29 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     }
 
     @Test
+    public void addsClientIdAsString() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        assertThat(data.payload.get(EventLoggerParam.CLIENT_ID)).isEqualTo(String.valueOf(CLIENT_ID));
+    }
+
+    @Test
+    public void addsTimestampAsString() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        assertThat(data.payload.get(EventLoggerParam.TIMESTAMP)).isEqualTo(String.valueOf(12345));
+    }
+
+    @Test
+    public void addsLocalStoragePlaybackAsString() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.localStoragePlayback(true);
+
+        assertThat(data.payload.get(EventLoggerParam.LOCAL_STORAGE_PLAYBACK)).isEqualTo(String.valueOf(true));
+    }
+
+    @Test
     public void addsParamWithValueToPayload() {
         EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 

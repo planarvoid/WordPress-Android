@@ -11,6 +11,11 @@ final class EventLoggerEventDataV1 extends EventLoggerEventData {
     }
 
     @Override
+    protected void addToPayload(String key, boolean value) {
+        payload.put(key, value);
+    }
+
+    @Override
     protected void addToPayload(String key, int value) {
         payload.put(key, value);
     }
