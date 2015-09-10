@@ -554,7 +554,7 @@
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_offline">Offline</string>
     <string name="collections_options_toggle_created">Created</string>
-    <string name="collections_options_toggle_likes">Likes</string>
+    <string name="collections_options_toggle_likes">Liked</string>
     <string name="collections_options_dialog_sort_by_creation">Date created</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
 

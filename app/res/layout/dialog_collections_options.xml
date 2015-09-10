@@ -24,12 +24,6 @@
         android:orientation="horizontal">
 
         <ToggleButton
-            android:id="@+id/show_offline_only"
-            style="@style/Collections.OptionsToggle"
-            android:textOff="@string/collections_options_toggle_offline"
-            android:textOn="@string/collections_options_toggle_offline" />
-
-        <ToggleButton
             android:id="@+id/show_posts"
             style="@style/Collections.OptionsToggle"
             android:textOff="@string/collections_options_toggle_created"

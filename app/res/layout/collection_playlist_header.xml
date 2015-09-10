@@ -2,24 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
     android:layout_marginTop="16dp"
-    android:background="@android:color/white">
+    android:orientation="vertical">
 
-    <TextView
-        style="@style/Collections.PlaylistHeader"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/collections_playlists_header" />
+    <View style="@style/Divider.Horizontal" />
 
-    <ImageButton
-        android:id="@+id/btn_collections_playlist_options"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_collections_options"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="16dp"/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@android:color/white">
+
+        <TextView
+            style="@style/Collections.PlaylistHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/collections_playlists_header" />
+
+        <ImageButton
+            android:id="@+id/btn_collections_playlist_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_collections_options" />
+
+    </LinearLayout>
+
 
 </LinearLayout>

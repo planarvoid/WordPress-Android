@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.ToggleButton;
@@ -27,12 +26,10 @@ public class CollectionsPlaylistOptionsPresenter {
 
         final ToggleButton showLikes = (ToggleButton) dialoglayout.findViewById(R.id.show_likes);
         final ToggleButton showPosts = (ToggleButton) dialoglayout.findViewById(R.id.show_posts);
-        final ToggleButton showOfflineOnly = (ToggleButton) dialoglayout.findViewById(R.id.show_offline_only);
         final RadioButton sortByTitle = (RadioButton) dialoglayout.findViewById(R.id.sort_by_title);
 
         showLikes.setChecked(initialOptions.showLikes());
         showPosts.setChecked(initialOptions.showPosts());
-        showOfflineOnly.setChecked(initialOptions.showOfflineOnly());
         sortByTitle.setChecked(initialOptions.sortByTitle());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -43,7 +40,6 @@ public class CollectionsPlaylistOptionsPresenter {
                 final CollectionsOptions collectionsOptions = AutoValue_CollectionsOptions.builder()
                         .showLikes(showLikes.isChecked())
                         .showPosts(showPosts.isChecked())
-                        .showOfflineOnly(showOfflineOnly.isChecked())
                         .sortByTitle(sortByTitle.isChecked()).build();
                 listener.onOptionsUpdated(collectionsOptions);
             }

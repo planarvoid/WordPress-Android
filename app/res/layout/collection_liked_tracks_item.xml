@@ -4,12 +4,15 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:foreground="?android:attr/selectableItemBackground"
+        android:orientation="vertical"
         tools:ignore="UselessParent">
+
+        <View style="@style/Divider.Horizontal"/>
 
         <LinearLayout
             android:id="@+id/holder"
@@ -34,5 +37,8 @@
                 android:text="@string/collections_your_liked_tracks" />
 
         </LinearLayout>
-    </FrameLayout>
+
+        <View style="@style/Divider.Horizontal"/>
+
+    </LinearLayout>
 </FrameLayout>
