@@ -21,7 +21,7 @@ public final class SchemaMigrationHelper {
         if (Log.isLoggable(Table.TAG, Log.DEBUG)) {
             Log.d(Table.TAG, "dropping " + table.name());
         }
-        if (table.view){
+        if (table.view) {
             db.execSQL("DROP VIEW IF EXISTS " + table.name());
         } else {
             dropTable(table.name(), db);
