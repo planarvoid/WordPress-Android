@@ -299,16 +299,16 @@ class EventLoggerEventData {
         return this;
     }
 
-    private void addToPayload(String key, boolean value) {
-        payload.put(key, value);
+    protected void addToPayload(String key, boolean value) {
+        addToPayload(key, String.valueOf(value));
     }
 
     protected void addToPayload(String key, int value) {
-        payload.put(key, value);
+        addToPayload(key, String.valueOf(value));
     }
 
     protected void addToPayload(String key, long value) {
-        payload.put(key, value);
+        addToPayload(key, String.valueOf(value));
     }
 
     protected void addToPayload(String key, String value) {
