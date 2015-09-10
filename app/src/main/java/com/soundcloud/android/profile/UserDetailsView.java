@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -21,11 +21,12 @@ class UserDetailsView {
     private static final String MYSPACE_PATH = "http://www.myspace.com/%s";
 
     @Inject ProfileEmptyViewHelper profileEmptyViewHelper;
-    @InjectView(R.id.description) TextView descriptionText;
-    @InjectView(R.id.website) TextView websiteText;
-    @InjectView(R.id.discogs_name) TextView discogsText;
-    @InjectView(R.id.myspace_name) TextView myspaceText;
-    @InjectView(android.R.id.empty) EmptyView emptyView;
+    
+    @Bind(R.id.description) TextView descriptionText;
+    @Bind(R.id.website) TextView websiteText;
+    @Bind(R.id.discogs_name) TextView discogsText;
+    @Bind(R.id.myspace_name) TextView myspaceText;
+    @Bind(android.R.id.empty) EmptyView emptyView;
 
     private UserDetailsListener listener;
     private Urn userUrn;
@@ -44,11 +45,11 @@ class UserDetailsView {
     }
 
     public void setView(View view){
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
     }
 
     public void clearViews(){
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     void showEmptyView(EmptyView.Status status){

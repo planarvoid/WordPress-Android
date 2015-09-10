@@ -62,7 +62,7 @@ ext {
           androidCrop                 : "com.soundcloud.android:android-crop:1.0.1@aar",
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
-          butterKnife                 : "com.jakewharton:butterknife:5.1.2",
+          butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.2.1-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 

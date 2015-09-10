@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
@@ -25,13 +25,13 @@ class ProfileHeaderPresenter {
 
     private final ImageOperations imageOperations;
 
-    @InjectView(R.id.header_info_layout) View headerInfoLayout;
-    @InjectView(R.id.indicator) View tabs;
-    @InjectView(R.id.username) TextView username;
-    @InjectView(R.id.image) ImageView image;
-    @InjectView(R.id.followers_count) TextView followerCount;
-    @InjectView(R.id.toggle_btn_follow) ToggleButton followButton;
-    @InjectView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
+    @Bind(R.id.header_info_layout) View headerInfoLayout;
+    @Bind(R.id.indicator) View tabs;
+    @Bind(R.id.username) TextView username;
+    @Bind(R.id.image) ImageView image;
+    @Bind(R.id.followers_count) TextView followerCount;
+    @Bind(R.id.toggle_btn_follow) ToggleButton followButton;
+    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Urn lastUser;
 
@@ -40,7 +40,7 @@ class ProfileHeaderPresenter {
                                   final NextFollowingOperations followingOperations) {
         this.imageOperations = imageOperations;
 
-        ButterKnife.inject(this, profileActivity);
+        ButterKnife.bind(this, profileActivity);
 
         if (accountOperations.isLoggedInUser(user)){
             followButton.setVisibility(View.GONE);

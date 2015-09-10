@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import static rx.android.app.AppObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -161,10 +161,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     static class MyPlaylistsAdapter extends ListItemAdapter<AddTrackToPlaylistItem> {
 
-        @InjectView(R.id.title) TextView titleView;
-        @InjectView(R.id.trackCount) TextView trackCountView;
-        @InjectView(R.id.icon_private) ImageView privateIcon;
-        @InjectView(R.id.icon_offline) ImageView offlineIcon;
+        @Bind(R.id.title) TextView titleView;
+        @Bind(R.id.trackCount) TextView trackCountView;
+        @Bind(R.id.icon_private) ImageView privateIcon;
+        @Bind(R.id.icon_offline) ImageView offlineIcon;
 
         private final Context context;
         private final FeatureOperations featureOperations;
@@ -197,7 +197,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             if (convertView == null) {
                 convertView = View.inflate(context, R.layout.add_to_playlist_list_item, null);
             }
-            ButterKnife.inject(this, convertView);
+            ButterKnife.bind(this, convertView);
 
             final AddTrackToPlaylistItem item = getItem(position);
 

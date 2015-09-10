@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import butterknife.OnTextChanged;
@@ -46,13 +46,13 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
 
     @NotNull private SignUpBasicsHandler signUpHandler; // null at creation, but must be populated before using
 
-    @InjectView(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
-    @InjectView(R.id.txt_choose_a_password) EditText passwordField;
-    @InjectView(R.id.btn_signup) Button signUpButton;
-    @InjectView(R.id.txt_enter_age) EditText ageEditText;
-    @InjectView(R.id.txt_choose_gender) TextView genderOptionTextView;
-    @InjectView(R.id.after_enter_gender_vr) View customGenderDivider;
-    @InjectView(R.id.txt_enter_custom_gender) EditText customGenderEditText;
+    @Bind(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
+    @Bind(R.id.txt_choose_a_password) EditText passwordField;
+    @Bind(R.id.btn_signup) Button signUpButton;
+    @Bind(R.id.txt_enter_age) EditText ageEditText;
+    @Bind(R.id.txt_choose_gender) TextView genderOptionTextView;
+    @Bind(R.id.after_enter_gender_vr) View customGenderDivider;
+    @Bind(R.id.txt_enter_custom_gender) EditText customGenderEditText;
 
     private boolean emailValid, passwordValid;
     private Drawable validDrawable, placeholderDrawable;
@@ -106,7 +106,7 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         setupValidDrawables();
         setupPasswordField();
