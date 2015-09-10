@@ -100,4 +100,19 @@
     <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
     <string name="station_bucket_action_text">View all</string>
+
+    <!-- __COLLECTION -->
+    <string name="side_menu_collections">Collections</string>
+    <string name="collections_playlists_header">Playlists</string>
+    <string name="collections_your_liked_tracks">Liked tracks</string>
+
+    <!-- __TRACK_LIKES -->
+    <string name="track_likes_title">Track Likes</string>
+    <string name="collections_options_header_filters">Filters</string>
+    <string name="collections_options_header_sorting">Sorting</string>
+    <string name="collections_options_toggle_created">Created</string>
+    <string name="collections_options_toggle_likes">Liked</string>
+    <string name="collections_options_dialog_sort_by_creation">Date created</string>
+    <string name="collections_options_dialog_sort_by_title">Title</string>
+
 </resources>
