@@ -39,6 +39,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
 
     private TestSubscriber<MyCollections> subscriber = new TestSubscriber<>();
+    private List<Urn> likesUrns = Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L));
 
     private PropertySet postedPlaylist1;
     private PropertySet postedPlaylist2;
@@ -48,8 +49,9 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new CollectionsOperations(Schedulers.immediate(), syncStateStorage, playlistPostStorage, playlistLikeStorage, loadLikedTrackUrnsCommand, syncInitiator);
+
         when(loadLikedTrackUrnsCommand.toObservable())
-                .thenReturn(Observable.just(Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L))));
+                .thenReturn(Observable.just(likesUrns));
         when(syncStateStorage.hasSyncedCollectionsBefore()).thenReturn(Observable.just(true));
 
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
@@ -70,7 +72,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(postedPlaylist2),
                 PlaylistItem.from(postedPlaylist1)
@@ -83,7 +85,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(likedPlaylist2),
                 PlaylistItem.from(likedPlaylist1)
@@ -96,7 +98,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(likedPlaylist2),
                 PlaylistItem.from(postedPlaylist2),
@@ -127,7 +129,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(postedPlaylist1),
                 PlaylistItem.from(postedPlaylist2),
@@ -151,7 +153,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         subject.onNext(true);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(likedPlaylist2),
                 PlaylistItem.from(postedPlaylist2),
@@ -173,7 +175,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         subject.onNext(true);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikesCount()).isEqualTo(2);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
         assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(likedPlaylist2),
                 PlaylistItem.from(postedPlaylist2),

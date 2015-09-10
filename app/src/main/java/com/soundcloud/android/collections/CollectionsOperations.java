@@ -84,7 +84,7 @@ class CollectionsOperations {
     private static Func2<List<PlaylistItem>, List<Urn>, MyCollections> COMBINE_LIKES_AND_PLAYLISTS = new Func2<List<PlaylistItem>, List<Urn>, MyCollections>() {
         @Override
         public MyCollections call(List<PlaylistItem> playlistItems, List<Urn> urns) {
-            return new MyCollections(urns.size(), playlistItems);
+            return new MyCollections(urns, playlistItems);
         }
     };
 
