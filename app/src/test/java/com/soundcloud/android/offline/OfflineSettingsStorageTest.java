@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -58,6 +60,15 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
         storage.setHasOfflineContent(true);
 
         assertThat(storage.hasOfflineContent()).isTrue();
+    }
+
+    @Test
+    public void savesEncryptionTestRunValue() {
+        assertFalse(storage.hasRunEncryptionTest());
+
+        storage.setEncryptionTestRun();
+
+        assertTrue(storage.hasRunEncryptionTest());
     }
 
     @Test

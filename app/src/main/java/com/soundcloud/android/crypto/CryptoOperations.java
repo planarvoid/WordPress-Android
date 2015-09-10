@@ -1,16 +1,18 @@
 package com.soundcloud.android.crypto;
 
+import static com.soundcloud.android.crypto.KeyGeneratorWrapper.GENERATED_KEY_SIZE;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.events.EncryptionEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 
-import javax.crypto.KeyGenerator;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
@@ -23,19 +25,20 @@ public class CryptoOperations {
 
     private static final String TAG = "CryptoOps";
 
-    private static final int KEY_SIZE = 128;
-    private static final String ALGORITHM = "AES";
-    private static final int GENERATED_KEY_SIZE = 16;
-
     protected static final String DEVICE_KEY = "device_key";
 
     private final KeyStorage storage;
+    private final KeyGeneratorWrapper keyGenerator;
     private final Encryptor encryptor;
     private final SecureRandom secureRandom;
+    private final EventBus eventBus;
     private final Scheduler storageScheduler;
 
     @Inject
-    public CryptoOperations(KeyStorage storage, Encryptor encryptor, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    public CryptoOperations(KeyStorage storage, KeyGeneratorWrapper keyGenerator, Encryptor encryptor, EventBus eventBus,
+                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.keyGenerator = keyGenerator;
+        this.eventBus = eventBus;
         this.secureRandom = new SecureRandom();
         this.encryptor = encryptor;
         this.storage = storage;
@@ -66,8 +69,15 @@ public class CryptoOperations {
     }
 
     public void encryptStream(InputStream stream, OutputStream outputStream, Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
-        final DeviceSecret secret = checkAndGetDeviceKey();
-        encryptor.encrypt(stream, outputStream, secret, listener);
+        try {
+            final DeviceSecret secret = checkAndGetDeviceKey();
+            encryptor.encrypt(stream, outputStream, secret, listener);
+            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionSuccess());
+        } catch (EncryptionException e) {
+            ErrorUtils.handleSilentException("Encryption error", e);
+            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionError());
+            throw e;
+        }
     }
 
     public void cancelEncryption() {
@@ -89,19 +99,15 @@ public class CryptoOperations {
 
     private void generateAndStoreDeviceKey() {
         try {
-            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-            keyGen.init(KEY_SIZE, secureRandom);
-
             byte[] iv = new byte[GENERATED_KEY_SIZE];
             secureRandom.nextBytes(iv);
 
-            final DeviceSecret key = new DeviceSecret(DEVICE_KEY, keyGen.generateKey().getEncoded(), iv);
+            final DeviceSecret key = new DeviceSecret(DEVICE_KEY, keyGenerator.generateKey(secureRandom), iv);
             storage.put(key);
-
         } catch (NoSuchAlgorithmException e) {
-            Log.d(TAG, "No provider found to generate key");
-            ErrorUtils.handleSilentException(e);
+            ErrorUtils.handleSilentException("Key generation error", e);
+            eventBus.publish(EventQueue.TRACKING,
+                    EncryptionEvent.fromKeyGenerationError());
         }
     }
-
 }

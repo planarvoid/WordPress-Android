@@ -18,6 +18,7 @@ import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.EncryptionTester;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -104,6 +105,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject StationsController stationsController;
     @Inject FacebookSdk facebookSdk;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
+    @Inject EncryptionTester encryptionTester;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -192,6 +194,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void generateDeviceKey() {
         cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
+        encryptionTester.runEncryptionTest();
     }
 
     private void initializePreInjectionObjects() {
