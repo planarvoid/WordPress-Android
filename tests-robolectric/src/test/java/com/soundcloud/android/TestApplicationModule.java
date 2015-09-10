@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
-import com.soundcloud.android.policies.PolicyUpdateScheduler;
+import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.storage.StorageModule;
@@ -313,8 +313,8 @@ public class TestApplicationModule {
     }
 
     @Provides
-    PolicyUpdateScheduler providePolicyUpdateScheduler() {
-        return mock(PolicyUpdateScheduler.class);
+    DailyUpdateScheduler providePolicyUpdateScheduler() {
+        return mock(DailyUpdateScheduler.class);
     }
 }
 

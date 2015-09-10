@@ -1,6 +1,8 @@
 package com.soundcloud.android.policies;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.ads.AdIdHelper;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
@@ -17,27 +19,32 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PolicyUpdateService extends IntentService {
+public class DailyUpdateService extends IntentService {
 
     public static final String ACTION_START = "action_start_update";
-    public static final String TAG = "PolicyUpdate";
+    public static final String TAG = "DailyUpdate";
 
     @Inject PolicyOperations policyOperations;
     @Inject PolicySettingsStorage policySettingsStorage;
+    @Inject ConfigurationOperations configurationOperations;
+    @Inject AdIdHelper adIdHelper;
     @Inject DateProvider dateProvider;
     @Inject EventBus eventBus;
 
-    public PolicyUpdateService() {
-        super("PolicyUpdateService");
+    public DailyUpdateService() {
+        super(TAG);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    PolicyUpdateService(PolicyOperations policyOperations, PolicySettingsStorage policySettingsStorage,
-                        DateProvider dateProvider, EventBus eventBus){
-        super("PolicyUpdateService");
+    DailyUpdateService(PolicyOperations policyOperations, PolicySettingsStorage policySettingsStorage,
+                       ConfigurationOperations configurationOperations, AdIdHelper adIdHelper,
+                       DateProvider dateProvider, EventBus eventBus) {
+        super(TAG);
         this.policyOperations = policyOperations;
         this.policySettingsStorage = policySettingsStorage;
+        this.configurationOperations = configurationOperations;
+        this.adIdHelper = adIdHelper;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
     }
@@ -47,15 +54,22 @@ public class PolicyUpdateService extends IntentService {
     }
 
     private static Intent createIntent(Context context, String action) {
-        final Intent intent = new Intent(context, PolicyUpdateService.class);
+        final Intent intent = new Intent(context, DailyUpdateService.class);
         intent.setAction(action);
         return intent;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
+        if (ACTION_START.equals(intent.getAction())) {
+            updateTrackPolicies();
+            configurationOperations.update();
+            adIdHelper.init();
+        }
+    }
 
+    private void updateTrackPolicies() {
+        final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
         if (!updatedTracks.isEmpty()) {
             Log.d(TAG, "Successfull policy update");
             policySettingsStorage.setPolicyUpdateTime(dateProvider.getCurrentTime());

@@ -145,7 +145,7 @@ public class ConfigurationOperations {
         }
     }
 
-    public void saveConfiguration(Configuration configuration) {
+    private void saveConfiguration(Configuration configuration) {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
             featureOperations.updateFeatures(configuration.features);

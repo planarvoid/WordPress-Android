@@ -71,7 +71,7 @@ public class PolicyOperations {
             final WriteResult result = storePoliciesCommand.call(policyInfos);
             return result.success() ? urns : Collections.<Urn>emptyList();
         } catch (Exception ex) {
-            Log.e(PolicyUpdateService.TAG, "Failed to update policies", ex);
+            Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
             return Collections.emptyList();
         }
     }

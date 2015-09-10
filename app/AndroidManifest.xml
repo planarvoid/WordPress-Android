@@ -328,7 +328,7 @@
         <service android:name=".creators.record.SoundRecorderService"/>
         <service android:exported="false" android:name=".playback.PlaybackService"/>
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
-        <service android:exported="false" android:name=".policies.PolicyUpdateService"/>
+        <service android:exported="false" android:name=".policies.DailyUpdateService"/>
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
