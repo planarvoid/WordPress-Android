@@ -72,7 +72,7 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
-    public boolean encryptionTestRun() {
+    public boolean hasRunEncryptionTest() {
         return sharedPreferences.getBoolean(ENCRYPTION_TEST_DONE, false);
     }
 

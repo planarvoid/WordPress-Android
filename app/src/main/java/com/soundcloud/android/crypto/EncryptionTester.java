@@ -34,7 +34,9 @@ public class EncryptionTester {
     }
 
     public void runEncryptionTest() {
-        if (!offlineSettings.encryptionTestRun()) {
+        if (!offlineSettings.hasRunEncryptionTest()) {
+            offlineSettings.setEncryptionTestRun();
+
             fireAndForget(Observable.create(new Observable.OnSubscribe<Object>() {
                 @Override
                 public void call(Subscriber<? super Object> subscriber) {
@@ -51,8 +53,6 @@ public class EncryptionTester {
             cryptoOperations.encryptStream(plainTextInput, encryptedOutput, null);
         } catch (Exception exception) {
             Log.d(TAG, "Test encryption failed: " + exception.getMessage());
-        } finally {
-            offlineSettings.setEncryptionTestRun();
         }
     }
 }
