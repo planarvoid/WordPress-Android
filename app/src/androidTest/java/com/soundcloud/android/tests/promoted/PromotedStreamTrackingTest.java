@@ -7,6 +7,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
@@ -25,6 +26,12 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
     @Override
     protected void logInHelper() {
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        ConfigurationHelper.disableFacebookInvitesNotification(getInstrumentation().getTargetContext());
+        super.setUp();
     }
 
     // TODO: https://github.com/soundcloud/SoundCloud-Android/issues/3202

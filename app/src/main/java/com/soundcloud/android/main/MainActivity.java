@@ -28,6 +28,7 @@ import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsHomeFragment;
+import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -74,6 +75,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
+    @Inject @LightCycle FacebookInvitesController facebookInvitesController;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

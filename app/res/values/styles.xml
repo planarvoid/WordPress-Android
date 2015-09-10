@@ -178,4 +178,79 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
+    <!-- List item Notifications -->
+
+    <style name="ListItemNotificationLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">24dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ListItemNotificationButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundColorStateList">@color/clickable_orange_background</item>
+    </style>
+
+    <style name="ListItemNotificationCloseButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:background">@null</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:src">@drawable/ic_close_grey600_18dp</item>
+    </style>
+
+    <style name="ListItemNotificationCenteredText" parent="TextAppearance.AppCompat.Large">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="ListItemNotificationTitle" parent="ListItemNotificationCenteredText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="ListItemNotificationDescription" parent="ListItemNotificationCenteredText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/dialog_subtext</item>
+        <item name="android:maxWidth">280dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <!-- Facebook Invites List Item Notifications -->
+
+    <style name="FacebookInvitesFriends">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="FacebookInvitesFriendImage">
+        <item name="android:layout_width">42dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="border_color">@color/white</item>
+        <item name="border_width">2dp</item>
+    </style>
+
+    <style name="FacebookInvitesFriendImageOverlap" parent="FacebookInvitesFriendImage">
+        <item name="android:layout_marginLeft">-16dp</item>
+    </style>
+
 </resources>

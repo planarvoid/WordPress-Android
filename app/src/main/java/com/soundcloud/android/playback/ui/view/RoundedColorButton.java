@@ -1,12 +1,15 @@
 package com.soundcloud.android.playback.ui.view;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.Button;
 
@@ -26,19 +29,20 @@ public class RoundedColorButton extends Button {
 
     public RoundedColorButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context, attrs);
     }
 
     public RoundedColorButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
+        init(context, attrs);
     }
 
-    private void init() {
+    private void init(Context context, AttributeSet attrs) {
         backgroundPaint = new Paint();
         backgroundPaint.setAntiAlias(true);
         roundingPx = ViewUtils.dpToPx(getContext(), ROUNDING_DP);
         rectangle = new RectF(0.0f, 0.0f, 0.0f, 0.0f);
+        setCustomAttributes(context, attrs);
     }
 
     public void setBackground(ColorStateList backgroundColorStateList) {
@@ -47,7 +51,7 @@ public class RoundedColorButton extends Button {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         if (backgroundColorStateList != null) {
             drawBackground(canvas);
         }
@@ -63,4 +67,13 @@ public class RoundedColorButton extends Button {
         canvas.drawRoundRect(rectangle, roundingPx, roundingPx, backgroundPaint);
     }
 
+    private void setCustomAttributes(Context context, AttributeSet attrs) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.RoundedColorButton, 0, 0);
+
+        try {
+            backgroundColorStateList = a.getColorStateList(R.styleable.RoundedColorButton_backgroundColorStateList);
+        } finally {
+            a.recycle();
+        }
+    }
 }

@@ -113,4 +113,11 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://source.android.com" />
     </Preference>
+    <Preference
+        android:title="CircleImageView"
+        android:summary="© Henning Dodenhof - Apache License 2.0">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://github.com/hdodenhof/CircleImageView" />
+    </Preference>
 </PreferenceScreen>
