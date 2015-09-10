@@ -11,7 +11,7 @@ public class AlarmManagerReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(OfflineContentService.ACTION_START.equals(intent.getAction())) {
+        if (OfflineContentService.ACTION_START.equals(intent.getAction())) {
             Log.d(OfflineContentService.TAG, "Offline Content Start Receiver notified. Starting service.");
             OfflineContentService.start(context);
 

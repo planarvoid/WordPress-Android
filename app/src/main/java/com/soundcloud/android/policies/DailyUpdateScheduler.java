@@ -36,7 +36,7 @@ public class DailyUpdateScheduler {
         this.pendingIntentFactory = pendingIntentFactory;
     }
 
-    public void scheduleDailyPolicyUpdates() {
+    public void schedule() {
         if (!isNextUpdateAlreadyScheduled()) {
             Log.d(TAG, "Scheduling new policy update");
             final PendingIntent intent = pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);

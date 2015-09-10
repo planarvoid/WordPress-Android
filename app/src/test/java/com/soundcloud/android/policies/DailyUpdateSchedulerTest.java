@@ -41,7 +41,7 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
         when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_NO_CREATE)).thenReturn(null);
         when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)).thenReturn(intent);
 
-        scheduler.scheduleDailyPolicyUpdates();;
+        scheduler.schedule();;
 
         verify(pendingIntentFactory).getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
         verify(alarmManager).setInexactRepeating(DailyUpdateScheduler.ALARM_TYPE, currentTime,
@@ -52,7 +52,7 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
     public void scheduleDailyPolicyUpdatesDoesNothingIfAlreadyScheduled() {
         when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_NO_CREATE)).thenReturn(intent);
 
-        scheduler.scheduleDailyPolicyUpdates();
+        scheduler.schedule();
 
         verifyZeroInteractions(alarmManager);
     }

@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.content.Intent;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +46,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     public void publishesPolicyUpdateEventAfterSuccessfulPolicyUpdate() {
         when(policyOperations.updateTrackPolicies()).thenReturn(tracks);
 
-        dailyUpdateService.onHandleIntent(null);
+        dailyUpdateService.onHandleIntent(startIntent());
 
         assertThat(eventBus.eventsOn(EventQueue.POLICY_UPDATES)).hasSize(1);
         assertThat(eventBus.eventsOn(EventQueue.POLICY_UPDATES).get(0).getTracks()).containsAll(tracks);
@@ -55,7 +57,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
         when(dateProvider.getCurrentTime()).thenReturn(1000L);
         when(policyOperations.updateTrackPolicies()).thenReturn(tracks);
 
-        dailyUpdateService.onHandleIntent(null);
+        dailyUpdateService.onHandleIntent(startIntent());
 
         verify(policySettingsStorage).setPolicyUpdateTime(dateProvider.getCurrentTime());
     }
@@ -64,7 +66,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     public void doesNotStoreNotSendEventsWhenPolicyUpdateFailed() {
         when(policyOperations.updateTrackPolicies()).thenReturn(Collections.<Urn>emptyList());
 
-        dailyUpdateService.onHandleIntent(null);
+        dailyUpdateService.onHandleIntent(startIntent());
 
         verify(policySettingsStorage, never()).setPolicyUpdateTime(anyLong());
         eventBus.verifyNoEventsOn(EventQueue.POLICY_UPDATES);
@@ -72,16 +74,22 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Test
     public void updatesConfiguration() {
-        dailyUpdateService.onHandleIntent(null);
+        dailyUpdateService.onHandleIntent(startIntent());
 
         verify(configurationOperations).update();
     }
 
     @Test
     public void updatesAdId() {
-        dailyUpdateService.onHandleIntent(null);
+        dailyUpdateService.onHandleIntent(startIntent());
 
         verify(adIdHelper).init();
+    }
+
+    private static Intent startIntent() {
+        final Intent intent = new Intent(context(), DailyUpdateService.class);
+        intent.setAction(DailyUpdateService.ACTION_START);
+        return intent;
     }
 
 }

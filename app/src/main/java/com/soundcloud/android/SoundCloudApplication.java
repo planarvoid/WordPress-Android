@@ -185,7 +185,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
-            dailyUpdateScheduler.scheduleDailyPolicyUpdates();
+            dailyUpdateScheduler.schedule();
         }
 
         configurationFeatureController.subscribe();
