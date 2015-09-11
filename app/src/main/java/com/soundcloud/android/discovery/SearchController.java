@@ -1,11 +1,9 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.strings.Strings;
 
-import android.content.Context;
 import android.widget.AutoCompleteTextView;
 
 import javax.inject.Inject;
@@ -14,17 +12,14 @@ import javax.inject.Singleton;
 @Singleton
 class SearchController {
 
-    private final Context context;
-    private final PublicApi publicApi;
+    private final SuggestionsAdapter suggestionsAdapter;
 
-    private SuggestionsAdapter suggestionsAdapter;
     private SearchCallback searchCallback;
     private AutoCompleteTextView searchView;
 
     @Inject
-    SearchController(Context context, PublicApi publicCloudAPI) {
-        this.context = context;
-        this.publicApi = publicCloudAPI;
+    SearchController(SuggestionsAdapter suggestionsAdapter) {
+        this.suggestionsAdapter = suggestionsAdapter;
     }
 
     public void bindSearchView(AutoCompleteTextView searchView, SearchCallback searchCallback) {
@@ -36,7 +31,6 @@ class SearchController {
     }
 
     private void initSearchView() {
-        suggestionsAdapter = new SuggestionsAdapter(context, publicApi, context.getContentResolver());
         searchView.setAdapter(suggestionsAdapter);
     }
 
@@ -52,7 +46,7 @@ class SearchController {
     }
 
     private void performTagSearch(final String query) {
-        String tag = query.replaceAll("^#+", ""); // Replaces the first occurrences of #
+        String tag = query.replaceAll("^#+", "");
         if (!Strings.isNullOrEmpty(tag)) {
             searchCallback.performTagSearch(tag);
         }

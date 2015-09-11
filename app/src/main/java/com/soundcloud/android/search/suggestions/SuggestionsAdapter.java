@@ -51,6 +51,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions localSuggestions = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
+    @Inject
     public SuggestionsAdapter(Context context, PublicApi api, ContentResolver contentResolver) {
         super(context, null, 0);
         this.contentResolver = contentResolver;
