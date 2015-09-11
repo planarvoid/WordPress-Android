@@ -20,6 +20,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -67,6 +68,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -74,7 +76,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
         PlaySessionController controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
-                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences);
+                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences, networkConnectionHelper);
         controller.subscribe();
 
         track = expectedTrackForPlayer();
@@ -189,8 +191,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStateTransitionToAdvanceTrackIfTrackEndedWithNotFoundErrorAndNotUserTriggered() {
+    public void onStateTransitionDoesNotAdvanceTrackIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithNoConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void onStateTransitionToAdvanceTrackIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithConnection() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
         verify(playQueueManager).autoNextTrack();
         verify(playbackOperations).playCurrent();
@@ -204,8 +214,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStateTransitionToAdvanceTrackIfTrackEndedWithForbiddenErrorAndNotUserTriggered() {
+    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWithForbiddenErrorAndNotUserTriggeredAndNoInternet() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void onStateTransitionToAdvanceTrackIfTrackEndedWithForbiddenErrorAndNotUserTriggeredWithConnection() {
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
         verify(playQueueManager).autoNextTrack();
         verify(playbackOperations).playCurrent();

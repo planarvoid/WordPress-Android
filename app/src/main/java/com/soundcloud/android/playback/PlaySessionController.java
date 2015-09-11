@@ -17,6 +17,7 @@ import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -52,6 +53,7 @@ public class PlaySessionController {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
     private final SharedPreferences sharedPreferences;
+    private final NetworkConnectionHelper connectionHelper;
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
@@ -76,7 +78,8 @@ public class PlaySessionController {
                                  ImageOperations imageOperations,
                                  PlaySessionStateProvider playSessionStateProvider,
                                  CastConnectionHelper castConnectionHelper,
-                                 SharedPreferences sharedPreferences) {
+                                 SharedPreferences sharedPreferences,
+                                 NetworkConnectionHelper connectionHelper) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
@@ -84,6 +87,7 @@ public class PlaySessionController {
         this.trackRepository = trackRepository;
         this.playQueueOperations = playQueueOperations;
         this.sharedPreferences = sharedPreferences;
+        this.connectionHelper = connectionHelper;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -121,7 +125,8 @@ public class PlaySessionController {
     private boolean unrecoverableErrorDuringAutoplay(StateTransition stateTransition) {
         final TrackSourceInfo currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         return stateTransition.wasError() && !stateTransition.wasGeneralFailure() &&
-                currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered();
+                currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered()
+                && connectionHelper.isNetworkConnected();
     }
 
     private void tryToSkipTrack(StateTransition stateTransition) {
