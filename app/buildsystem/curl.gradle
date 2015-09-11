@@ -22,7 +22,7 @@ def executePostWithData(url, json, defaultReturnValue) {
 }
 
 def executeGet(url, defaultReturnValue) {
-  def cmd = ['curl', 'i', '-X', 'GET', url]
+  def cmd = ['curl', 'i', '-X', 'GET', '-m', '10', url]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
