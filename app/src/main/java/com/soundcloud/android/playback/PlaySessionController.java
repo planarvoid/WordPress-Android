@@ -114,10 +114,24 @@ public class PlaySessionController {
 
         if (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
                 && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition))) {
+            logInvalidSkipping(stateTransition);
             
             tryToSkipTrack(stateTransition);
             if (!stateTransition.playSessionIsActive()) {
                 playbackOperations.playCurrent();
+            }
+        }
+    }
+
+    private void logInvalidSkipping(StateTransition stateTransition) {
+        final PlaybackProgress progress = stateTransition.getProgress();
+        if (stateTransition.trackEnded()) {
+            if (progress.getDuration() != progress.getPosition()) {
+                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Track ended prematurely"));
+            }
+        } else {
+            if (progress.getPosition() > 0) {
+                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Skipping on track error too late"));
             }
         }
     }
