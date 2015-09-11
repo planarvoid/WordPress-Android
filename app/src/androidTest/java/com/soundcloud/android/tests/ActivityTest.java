@@ -66,7 +66,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         beforeStartActivity();
         logIn();
         getActivity();
-        solo.setPortraitOrientation();
 
         super.setUp(); // do not move, this has to run after the above
     }

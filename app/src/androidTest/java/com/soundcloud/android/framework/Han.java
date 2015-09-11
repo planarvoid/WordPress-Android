@@ -99,14 +99,6 @@ public class Han  {
         findElement(With.text(text)).click();
     }
 
-    public void setLandscapeOrientation() {
-        solo.setActivityOrientation(Solo.LANDSCAPE);
-    }
-
-    public void setPortraitOrientation() {
-        solo.setActivityOrientation(Solo.PORTRAIT);
-    }
-
     public void clearTextInWebElement(By by) {
         solo.clearTextInWebElement(by);
     }
