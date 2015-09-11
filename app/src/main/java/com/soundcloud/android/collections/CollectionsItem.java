@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
@@ -72,5 +73,24 @@ public class CollectionsItem implements ListItem {
     @Override
     public Urn getEntityUrn() {
         return type == TYPE_PLAYLIST_ITEM ? playlistItem.getEntityUrn() : Urn.NOT_SET;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CollectionsItem)) {
+            return false;
+        }
+        CollectionsItem that = (CollectionsItem) o;
+        return MoreObjects.equal(type, that.type) &&
+                MoreObjects.equal(likes, that.likes) &&
+                MoreObjects.equal(playlistItem, that.playlistItem);
+    }
+
+    @Override
+    public final int hashCode() {
+        return MoreObjects.hashCode(type, likes, playlistItem);
     }
 }
