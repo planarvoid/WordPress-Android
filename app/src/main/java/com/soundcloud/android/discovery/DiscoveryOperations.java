@@ -38,7 +38,8 @@ public class DiscoveryOperations {
             new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
                 @Override
                 public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
-                    List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size());
+                    List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size() + 1);
+                    combined.add(new SearchItem());
                     combined.addAll(recommendations);
                     combined.addAll(playlistTags);
                     return combined;
