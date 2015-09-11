@@ -142,5 +142,6 @@
     <!-- Collections -->
     <color name="collections_home_background">#e5e5e5</color>
     <color name="collections_options_dialog_header">#b3b3b3</color>
+    <color name="collections_kill_filter_text_color">#ccc</color>
 
 </resources>

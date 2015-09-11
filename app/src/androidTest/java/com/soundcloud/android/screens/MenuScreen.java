@@ -45,6 +45,10 @@ public class MenuScreen {
         return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_explore)));
     }
 
+    protected ViewElement collectionsMenuItem() {
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_collections)));
+    }
+
     protected ViewElement likesMenuItem() {
         return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_likes)));
     }
@@ -103,6 +107,12 @@ public class MenuScreen {
         exploreMenuItem().click();
         waiter.waitForDrawerToClose();
         return new ExploreScreen(testDriver);
+    }
+
+    public CollectionsScreen clickCollections() {
+        collectionsMenuItem().click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return new CollectionsScreen(testDriver);
     }
 
     public TrackLikesScreen clickLikes() {

@@ -61,7 +61,7 @@ public class RecyclerViewElement {
         return new EmptyViewElement("Unable to find an item with the given child");
     }
 
-    protected ViewElement scrollToItem(With with) {
+    public ViewElement scrollToItem(With with) {
         int tries = 0;
         ViewElement result = testDriver.findElement(with);
         while (result instanceof EmptyViewElement) {

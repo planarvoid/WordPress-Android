@@ -12,6 +12,8 @@ public class CollectionsItem implements ListItem {
     static final int TYPE_LIKES = 0;
     static final int TYPE_PLAYLIST_HEADER = 1;
     static final int TYPE_PLAYLIST_ITEM = 2;
+    static final int TYPE_REMOVE_FILTER = 3;
+    static final int TYPE_EMPTY_PLAYLISTS = 4;
 
     private final int type;
     private final List<Urn> likes;
@@ -29,6 +31,14 @@ public class CollectionsItem implements ListItem {
 
     public static CollectionsItem fromPlaylistHeader() {
         return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_HEADER, null, null);
+    }
+
+    public static CollectionsItem fromKillFilter() {
+        return new CollectionsItem(CollectionsItem.TYPE_REMOVE_FILTER, null, null);
+    }
+
+    public static CollectionsItem fromEmptyPlaylists() {
+        return new CollectionsItem(CollectionsItem.TYPE_EMPTY_PLAYLISTS, null, null);
     }
 
     public static CollectionsItem fromPlaylistItem(PlaylistItem playlistItem) {

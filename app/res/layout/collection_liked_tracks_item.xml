@@ -34,6 +34,7 @@
                 android:width="0dp"
                 android:drawableLeft="@drawable/collections_likes_icon"
                 android:drawablePadding="8dp"
+                android:gravity="center_vertical"
                 android:text="@string/collections_your_liked_tracks" />
 
         </LinearLayout>

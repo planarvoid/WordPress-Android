@@ -34,7 +34,7 @@ public class CollectionsPlaylistOptionsPresenter {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(dialoglayout);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final CollectionsOptions collectionsOptions = AutoValue_CollectionsOptions.builder()
