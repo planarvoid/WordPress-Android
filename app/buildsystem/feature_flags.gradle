@@ -28,6 +28,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_FACEBOOK_INVITES, TRUE
+      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -35,7 +36,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
-      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
     }
 
     beta {
@@ -65,13 +65,13 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_FACEBOOK_INVITES, TRUE
+      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
-      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
     }
 
     end2end {
