@@ -29,6 +29,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        setRequiredEnabledFeatures(Flag.PLAY_RELATED_TRACKS);
 
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
