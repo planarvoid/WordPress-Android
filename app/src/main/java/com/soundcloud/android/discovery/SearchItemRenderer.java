@@ -1,5 +1,7 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
@@ -13,7 +15,13 @@ import java.util.List;
 
 class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.SearchCallback {
 
+    interface OnSearchListener {
+        void onSearchTextPerformed(String query);
+    }
+
     private final SearchController searchController;
+
+    private OnSearchListener onSearchListener;
 
     @Inject
     public SearchItemRenderer(SearchController searchController) {
@@ -31,18 +39,15 @@ class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.S
         searchController.bindSearchView(searchView, this);
     }
 
+    void setOnSearchListener(OnSearchListener onSearchListener) {
+        checkNotNull(onSearchListener);
+        this.onSearchListener = onSearchListener;
+    }
+
     @Override
     public void performTextSearch(String query) {
-//        addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
-    }
-
-    @Override
-    public void performTagSearch(String tag) {
-//        addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
-    }
-
-    @Override
-    public void exitSearchMode() {
-//        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (onSearchListener != null) {
+            onSearchListener.onSearchTextPerformed(query);
+        }
     }
 }

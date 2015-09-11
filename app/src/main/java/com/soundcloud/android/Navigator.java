@@ -144,6 +144,10 @@ public class Navigator {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
     }
 
+    public void openSearchResults(String query) {
+        //TODO: implement
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);

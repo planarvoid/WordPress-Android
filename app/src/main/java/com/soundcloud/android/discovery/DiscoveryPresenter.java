@@ -106,6 +106,11 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
         navigator.openRecommendation(context, recommendationItem.getSeedTrackLocalId());
     }
 
+    @Override
+    public void onSearchTextPerformed(String query) {
+        navigator.openSearchResults(query);
+    }
+
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
