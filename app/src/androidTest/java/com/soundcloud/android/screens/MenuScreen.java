@@ -46,7 +46,7 @@ public class MenuScreen {
     }
 
     protected ViewElement collectionsMenuItem() {
-        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_collections)));
+        return menuContainer().findElement(With.text(testDriver.getString(R.string.side_menu_collection)));
     }
 
     protected ViewElement likesMenuItem() {

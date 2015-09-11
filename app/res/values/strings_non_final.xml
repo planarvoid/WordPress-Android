@@ -102,7 +102,7 @@
     <string name="station_bucket_action_text">View all</string>
 
     <!-- __COLLECTION -->
-    <string name="side_menu_collections">Collections</string>
+    <string name="side_menu_collection">Collection</string>
     <string name="collections_playlists_header">Playlists</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Track Likes</string>

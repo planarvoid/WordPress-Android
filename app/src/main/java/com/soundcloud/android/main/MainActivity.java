@@ -321,7 +321,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
         if (fragment == null) {
             fragment = new CollectionsFragment();
-            attachFragment(fragment, COLLECTIONS_FRAGMENT_TAG, R.string.side_menu_collections);
+            attachFragment(fragment, COLLECTIONS_FRAGMENT_TAG, R.string.side_menu_collection);
         }
     }
 
