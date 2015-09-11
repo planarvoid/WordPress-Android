@@ -17,8 +17,6 @@
         style="@style/BlackOverlayText.RegularSubtext.Clickable"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginTop="32dp"
-        android:drawableLeft="@drawable/ic_private_playlist_lock"
-        android:drawablePadding="4dp"
         android:enabled="false"
         android:singleLine="true"
         android:visibility="invisible" />
@@ -31,6 +29,16 @@
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_marginTop="4dp"
         android:visibility="invisible" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/title_private"
+        style="@style/BlackOverlayText.Regular"
+        android:drawableLeft="@drawable/ic_private_playlist"
+        android:layout_below="@id/username"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_marginTop="4dp"
+        android:visibility="gone" />
 
     <ToggleButton
         android:id="@+id/toggle_play_pause"

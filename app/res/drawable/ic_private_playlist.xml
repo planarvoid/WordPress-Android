@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <inset android:drawable="@drawable/ic_private_playlist_lock"
+            android:insetRight="@dimen/playlist_header_drawable_padding_right"
+            android:insetTop="@dimen/playlist_header_drawable_padding_top"
+            android:insetLeft="@dimen/playlist_header_drawable_padding_left"/>
+    </item>
+</selector>

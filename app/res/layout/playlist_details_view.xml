@@ -28,7 +28,7 @@
         android:enabled="false"
         android:visibility="invisible" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title"
         style="@style/BlackOverlayText.Regular"
         android:layout_alignBottom="@id/artwork_container"
@@ -36,10 +36,19 @@
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_marginTop="4dp"
-        android:drawableLeft="@drawable/ic_private_playlist_lock"
-        android:drawablePadding="@dimen/playlist_header_drawable_padding"
-        android:singleLine="true"
         android:visibility="invisible" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/title_private"
+        style="@style/BlackOverlayText.Regular"
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_marginBottom="@dimen/playlist_header_padding"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_marginTop="4dp"
+        android:drawableLeft="@drawable/ic_private_playlist"
+        android:singleLine="true"
+        android:visibility="gone" />
 
     <View
         android:id="@+id/artwork_divider"

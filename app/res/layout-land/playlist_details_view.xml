@@ -34,12 +34,21 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title"
         style="@style/PlaylistTitle"
-        android:drawableLeft="@drawable/ic_private_playlist_lock"
-        android:drawablePadding="@dimen/playlist_header_drawable_padding"
         android:layout_below="@id/username"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
-        android:layout_toRightOf="@id/artwork_container" />
+        android:layout_toRightOf="@id/artwork_container"
+        android:visibility="invisible"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/title_private"
+        style="@style/PlaylistTitle"
+        android:drawableLeft="@drawable/ic_private_playlist"
+        android:layout_below="@id/username"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_toRightOf="@id/artwork_container"
+        android:visibility="gone"/>
 
     <FrameLayout
         android:id="@+id/playlist_action_bar_holder"
