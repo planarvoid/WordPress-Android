@@ -17,6 +17,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +29,8 @@ import java.util.List;
 
 public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener {
 
-    private final Func1<MyCollections, Iterable<CollectionsItem>> toCollectionsItems =
+    @VisibleForTesting
+    final Func1<MyCollections, Iterable<CollectionsItem>> toCollectionsItems =
             new Func1<MyCollections, Iterable<CollectionsItem>>() {
                 @Override
                 public List<CollectionsItem> call(MyCollections myCollections) {
@@ -55,28 +57,32 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
             };
 
     private final CollectionsOperations collectionsOperations;
-
+    private final CollectionsOptionsStorage collectionsOptionsStorage;
     private final CollectionsAdapter adapter;
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
     private CompositeSubscription eventSubscriptions;
 
-    private CollectionsOptions currentOptions = CollectionsOptions.builder().build();
+    private CollectionsOptions currentOptions;
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
+                         CollectionsOptionsStorage collectionsOptionsStorage,
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
                          EventBus eventBus) {
         super(swipeRefreshAttacher, Options.cards());
         this.collectionsOperations = collectionsOperations;
+        this.collectionsOptionsStorage = collectionsOptionsStorage;
         this.adapter = adapter;
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
         adapter.setListener(this);
+        currentOptions = collectionsOptionsStorage.getLastOrDefault();
+
     }
 
     @Override
@@ -120,6 +126,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     public void onOptionsUpdated(CollectionsOptions options) {
+        collectionsOptionsStorage.store(options);
         currentOptions = options;
         adapter.clear();
         retryWith(onBuildBinding(null));
