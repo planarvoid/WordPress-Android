@@ -43,6 +43,7 @@ android {
     beta {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_FACEBOOK_INVITES, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -56,7 +57,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
-      buildConfigField BOOLEAN, FEATURE_FACEBOOK_INVITES, FALSE
     }
 
     debug {
