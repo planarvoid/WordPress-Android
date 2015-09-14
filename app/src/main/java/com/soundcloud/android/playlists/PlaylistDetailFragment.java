@@ -39,6 +39,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.rx.eventbus.EventBus;
+import org.w3c.dom.Text;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -311,7 +312,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playlistPresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
+        playlistPresenter
+                .setTitleView((TextView) detailsView.findViewById(R.id.title))
+                .setPrivateTitleView((TextView) detailsView.findViewById(R.id.title_private))
                 .setUsernameView((TextView) detailsView.findViewById(R.id.username))
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
                         ApiImageSize.getFullImageSize(getActivity().getResources()));
