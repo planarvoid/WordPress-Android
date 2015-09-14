@@ -31,6 +31,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList());
     }
 
+    public static PlayQueue fromTrackUrn(Urn track, PlaySessionSource playSessionSource) {
+        return new PlayQueue(playQueueItemsFromIds(Collections.singletonList(track), playSessionSource));
+    }
+
     public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         return new PlayQueue(playQueueItemsFromIds(trackUrns, playSessionSource));
     }
