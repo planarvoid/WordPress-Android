@@ -7,7 +7,8 @@ import dagger.Module;
         injects = {
                 DiscoveryFragment.class,
                 RecommendedTracksActivity.class,
-                RecommendedTracksFragment.class
+                RecommendedTracksFragment.class,
+                SearchResultsActivity.class
         })
 public class DiscoveryModule {
 }
