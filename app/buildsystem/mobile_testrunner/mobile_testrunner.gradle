@@ -128,8 +128,10 @@ def copyApkToServer(local_file_path) {
     p.waitFor()
     def exitValue = p.exitValue()
     if (exitValue != 0) {
-        throw new GradleException("copyToServer failed: ($cmd) exitValue: $exitValue")
+        throw new Exception("copyToServer failed: ($cmd) exitValue: $exitValue")
     }
+
+    println("Copied " + local_file_path + " to " + remote_filepath)
 
     remote_filepath
 }
@@ -137,7 +139,7 @@ def copyApkToServer(local_file_path) {
 def createSession() {
     def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
     def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
-    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
+    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: copyApkToServer(project.ext.networkManagerApkPath))]
     new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 }
 
@@ -240,7 +242,6 @@ class Logger {
     }
 }
 
-
 task testRunLollipopTests << {
   def tests = [
           new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
@@ -263,9 +264,9 @@ task stressTestRunner << {
         @Override
         void run() {
             try{
-               runTestsForLabel("Lollipop", null)
+               runTestsForLabel("KitKat", null)
             } catch(GradleException e) {
-                // fail silently
+                println(e)
             }
         }
     }
