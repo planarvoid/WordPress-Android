@@ -5,7 +5,6 @@
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string-array name="feedback_general">
         <item>@string/feedback_playback_issue</item>
-        <item>@string/feedback_other_issue</item>
     </string-array>
     <string-array name="feedback_sign_in">
         <item>@string/feedback_sign_in_issue</item>
