@@ -107,8 +107,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     @Override
-    public void onSearchTextPerformed(String query) {
-        navigator.openSearchResults(query);
+    public void onSearchTextPerformed(Context context, String query) {
+        navigator.openSearchResults(context, query);
     }
 
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {

@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import java.util.List;
 class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.SearchCallback {
 
     interface OnSearchListener {
-        void onSearchTextPerformed(String query);
+        void onSearchTextPerformed(Context context, String query);
     }
 
     private final SearchController searchController;
@@ -45,9 +46,9 @@ class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.S
     }
 
     @Override
-    public void performTextSearch(String query) {
+    public void performTextSearch(Context context, String query) {
         if (onSearchListener != null) {
-            onSearchListener.onSearchTextPerformed(query);
+            onSearchListener.onSearchTextPerformed(context, query);
         }
     }
 }

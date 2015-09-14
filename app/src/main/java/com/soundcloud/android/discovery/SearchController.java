@@ -4,6 +4,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -15,7 +16,7 @@ import javax.inject.Singleton;
 class SearchController {
 
     interface SearchCallback {
-        void performTextSearch(String query);
+        void performTextSearch(Context context, String query);
     }
 
     private final SuggestionsAdapter suggestionsAdapter;
@@ -43,7 +44,7 @@ class SearchController {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (suggestionsAdapter.isSearchItem(position)) {
                     if (searchCallback != null) {
-                        searchCallback.performTextSearch(searchView.getText().toString().trim());
+                        searchCallback.performTextSearch(searchView.getContext(), searchView.getText().toString().trim());
                         searchView.setAdapter(null);
                     }
                 }
