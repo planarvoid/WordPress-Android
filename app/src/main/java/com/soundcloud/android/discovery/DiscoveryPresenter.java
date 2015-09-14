@@ -4,6 +4,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -19,6 +20,7 @@ import rx.Observable;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -98,7 +100,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     @Override
     public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
         playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendedTracks());
-
     }
 
     @Override
@@ -111,8 +112,22 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
         navigator.openSearchResults(context, query);
     }
 
+    @Override
+    public void onLaunchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
+        if (urn.isTrack()) {
+            playSearchSuggestedTrack(urn, searchQuerySourceInfo);
+        } else {
+            navigator.launchSearchSuggestion(context, urn, searchQuerySourceInfo, itemUri);
+        }
+    }
+
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    private void playSearchSuggestedTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 }

@@ -2,9 +2,12 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -17,6 +20,8 @@ class SearchController {
 
     interface SearchCallback {
         void performTextSearch(Context context, String query);
+
+        void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri);
     }
 
     private final SuggestionsAdapter suggestionsAdapter;
@@ -43,12 +48,25 @@ class SearchController {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (suggestionsAdapter.isSearchItem(position)) {
-                    if (searchCallback != null) {
-                        searchCallback.performTextSearch(searchView.getContext(), searchView.getText().toString().trim());
-                        searchView.setAdapter(null);
-                    }
+                    searchCallback.performTextSearch(searchView.getContext(), searchView.getText().toString().trim());
+                } else {
+                    final SearchQuerySourceInfo searchQuerySourceInfo = getQuerySourceInfo(position);
+                    final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
+                    searchCallback.launchSearchSuggestion(searchView.getContext(), suggestionsAdapter.getUrn(position),
+                            searchQuerySourceInfo, itemUri);
                 }
             }
         });
+    }
+
+    private SearchQuerySourceInfo getQuerySourceInfo(int position) {
+        SearchQuerySourceInfo searchQuerySourceInfo = null;
+        Urn queryUrn = suggestionsAdapter.getQueryUrn(position);
+        if (!queryUrn.equals(Urn.NOT_SET)) {
+            searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn,
+                    suggestionsAdapter.getQueryPosition(position),
+                    suggestionsAdapter.getUrn(position));
+        }
+        return searchQuerySourceInfo;
     }
 }

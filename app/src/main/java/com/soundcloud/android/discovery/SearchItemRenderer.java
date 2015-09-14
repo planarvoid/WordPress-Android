@@ -3,9 +3,12 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,8 @@ class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.S
 
     interface OnSearchListener {
         void onSearchTextPerformed(Context context, String query);
+
+        void onLaunchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri);
     }
 
     private final SearchController searchController;
@@ -49,6 +54,13 @@ class SearchItemRenderer implements CellRenderer<SearchItem>, SearchController.S
     public void performTextSearch(Context context, String query) {
         if (onSearchListener != null) {
             onSearchListener.onSearchTextPerformed(context, query);
+        }
+    }
+
+    @Override
+    public void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
+        if (onSearchListener != null) {
+            onSearchListener.onLaunchSearchSuggestion(context, urn, searchQuerySourceInfo, itemUri);
         }
     }
 }

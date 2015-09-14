@@ -149,6 +149,15 @@ public class Navigator {
         context.startActivity(createSearchResultsIntent(context, query));
     }
 
+    public void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        if (urn.isUser()) {
+            intent.putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+        }
+        Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
+        context.startActivity(intent.setData(itemUri));
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
