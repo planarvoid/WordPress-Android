@@ -10,7 +10,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
@@ -38,7 +38,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
 
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject FeatureFlags featureFlags;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {

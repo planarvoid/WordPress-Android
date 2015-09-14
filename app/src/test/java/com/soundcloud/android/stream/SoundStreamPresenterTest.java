@@ -1,9 +1,6 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,9 +16,6 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -43,7 +37,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.observers.TestSubscriber;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
@@ -51,7 +44,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +54,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Mock private Resources resources;
     @Mock private SoundStreamOperations streamOperations;
-    @Mock private PlaybackOperations playbackOperations;
     @Mock private SoundStreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
@@ -80,14 +71,12 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
 
     private TestEventBus eventBus = new TestEventBus();
-    private TestSubscriber<PlaybackResult> testSubscriber = new TestSubscriber<>();
-    private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
 
     @Before
     public void setUp() throws Exception {
         when(itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null)).thenReturn(itemClickListener);
-        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imagePauseOnScrollListener,
-                swipeRefreshAttacher, expandPlayerSubscriberProvider, eventBus, itemClickListenerFactory,
+        presenter = new SoundStreamPresenter(streamOperations, adapter, imagePauseOnScrollListener,
+                swipeRefreshAttacher, eventBus, itemClickListenerFactory,
                 facebookInvitesDialogPresenter);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
@@ -151,8 +140,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
-        when(playbackOperations.playPosts(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
-                .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onItemClicked(view, 0);
 

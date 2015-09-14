@@ -11,7 +11,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -34,7 +34,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     @Mock private TrackLikeOperations likeOperations;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private FeatureOperations featureOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
     @Captor private ArgumentCaptor<Observable<List<Urn>>> playedTracksCaptor;
@@ -49,7 +49,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new OfflinePlaybackOperations(featureOperations, connectionHelper,
-                playbackOperations, likeOperations, playlistOperations, trackDownloadsStorage,
+                playbackInitiator, likeOperations, playlistOperations, trackDownloadsStorage,
                 Schedulers.immediate());
     }
 
@@ -100,12 +100,12 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     public void shouldPlayAllLikedTracksWhenNoOfflinePlayQueueCreated() {
         when(likeOperations.likedTrackUrns()).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(playbackOperations.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
+        when(playbackInitiator.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikes(trackUrns.get(0), 0, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
 
         operations.playLikes(trackUrns.get(0), 0, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracks(trackUrns, trackUrns.get(0), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(trackUrns, trackUrns.get(0), 0, playSessionSource);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(trackDownloadsStorage.likesUrns()).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
+        when(playbackInitiator.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
@@ -151,7 +151,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     public void shouldPlayAllLikedTracksShuffledWhenNoOfflinePlayQueueCreated() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(likeOperations.likedTrackUrns()).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
+        when(playbackInitiator.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
@@ -164,7 +164,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(trackDownloadsStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
+        when(playbackInitiator.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
@@ -176,7 +176,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     public void shouldPlayAllPlaylistTracksShuffledWhenNoOfflinePlayQueueCreated() {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
+        when(playbackInitiator.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
@@ -188,12 +188,12 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     public void shouldPlayAllPlaylistTracksWhenNoOfflinePlayQueueCreated() {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(playbackOperations.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
+        when(playbackInitiator.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylist(playlistUrn, trackUrns.get(0), 0, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
 
         operations.playPlaylist(playlistUrn, trackUrns.get(0), 0, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracks(trackUrns, trackUrns.get(0), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(trackUrns, trackUrns.get(0), 0, playSessionSource);
     }
 
     @Test

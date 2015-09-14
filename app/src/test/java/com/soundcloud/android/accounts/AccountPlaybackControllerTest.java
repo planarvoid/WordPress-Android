@@ -4,26 +4,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.ServiceInitiator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AccountPlaybackControllerTest {
     @Mock private AccountOperations accountOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private ServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
 
     private AccountPlaybackController lightCycle;
 
     @Before
     public void setUp() throws Exception {
-       lightCycle = new AccountPlaybackController(accountOperations, playbackOperations);
+       lightCycle = new AccountPlaybackController(accountOperations, serviceInitiator);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class AccountPlaybackControllerTest {
 
         lightCycle.onResume(activity);
 
-        verifyNoMoreInteractions(playbackOperations);
+        verifyNoMoreInteractions(serviceInitiator);
         verifyNoMoreInteractions(activity);
     }
 
@@ -42,7 +42,7 @@ public class AccountPlaybackControllerTest {
 
         lightCycle.onResume(activity);
 
-        verify(playbackOperations).resetService();
+        verify(serviceInitiator).resetPlaybackService();
     }
 
     @Test

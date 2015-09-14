@@ -148,26 +148,23 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
-        return playNewQueue(
+    Observable<PlaybackResult> reloadCurrentQueue() {
+        return setNewQueue(
                 getCurrentQueueUrnsWithoutAds(),
                 playQueueManager.getCurrentTrackUrn(),
-                withProgressPosition,
                 playQueueManager.getCurrentPlaySessionSource());
     }
 
-    public Observable<PlaybackResult> playNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
-                                                   final Urn initialTrackUrnCandidate,
-                                                   final long withProgressPosition,
-                                                   final PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
+                                                  final Urn initialTrackUrnCandidate,
+                                                  final PlaySessionSource playSessionSource) {
         return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, withProgressPosition, playSessionSource))
+                .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
                 .doOnError(reportPlaybackError(initialTrackUrnCandidate));
     }
 
     private Func1<LocalPlayQueue, Observable<PlaybackResult>> playNewLocalQueueOnRemote(final Urn initialTrackUrnCandidate,
-                                                                                        final long withProgressPosition,
                                                                                         final PlaySessionSource playSessionSource) {
         return new Func1<LocalPlayQueue, Observable<PlaybackResult>>() {
             @Override
@@ -177,7 +174,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                 } else {
                     reportStateChange(new StateTransition(PlayerState.BUFFERING, Reason.NONE, localPlayQueue.currentTrackUrn));
                     setNewPlayQueue(localPlayQueue, playSessionSource);
-                    playLocalQueueOnRemote(localPlayQueue, withProgressPosition);
                     return Observable.just(PlaybackResult.success());
                 }
             }
@@ -190,6 +186,10 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     public void playCurrent() {
+        playCurrent(0L);
+    }
+
+    public void playCurrent(long position) {
         Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
@@ -197,19 +197,22 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             reportStateChange(new StateTransition(PlayerState.BUFFERING, Reason.NONE, currentTrackUrn));
             playCurrentSubscription.unsubscribe();
             playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
-                    .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn));
+                    .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
         }
     }
 
     private class PlayCurrentLocalQueueOnRemote extends DefaultSubscriber<LocalPlayQueue> {
         private final Urn currentTrackUrn;
-        private PlayCurrentLocalQueueOnRemote(Urn currentTrackUrn) {
+        private final long position;
+
+        private PlayCurrentLocalQueueOnRemote(Urn currentTrackUrn, long position) {
             this.currentTrackUrn = currentTrackUrn;
+            this.position = position;
         }
 
         @Override
         public void onNext(LocalPlayQueue localPlayQueue) {
-            playLocalQueueOnRemote(localPlayQueue, 0L);
+            playLocalQueueOnRemote(localPlayQueue, position);
         }
 
         @Override

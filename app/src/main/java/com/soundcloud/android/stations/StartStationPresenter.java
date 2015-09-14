@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
@@ -28,13 +28,13 @@ public class StartStationPresenter {
         public Observable<PlaybackResult> call(Station station) {
             checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
             final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn());
-            return playbackOperations.playStation(station.getUrn(), station.getTracks(), playSessionSource, station.getPreviousPosition());
+            return playbackInitiator.playStation(station.getUrn(), station.getTracks(), playSessionSource, station.getPreviousPosition());
         }
     };
 
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StationsOperations stationsOperations;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
     private final PlaybackToastHelper playbackToastHelper;
     private final ScreenProvider screenProvider;
@@ -44,13 +44,13 @@ public class StartStationPresenter {
     public StartStationPresenter(
             DelayedLoadingDialogPresenter.Builder dialogBuilder,
             StationsOperations stationsOperations,
-            PlaybackOperations playbackOperations,
+            PlaybackInitiator playbackInitiator,
             EventBus eventBus,
             PlaybackToastHelper playbackToastHelper,
             ScreenProvider screenProvider) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
         this.playbackToastHelper = playbackToastHelper;
         this.screenProvider = screenProvider;

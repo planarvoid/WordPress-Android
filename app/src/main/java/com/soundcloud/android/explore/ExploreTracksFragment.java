@@ -8,7 +8,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackItem;
@@ -42,7 +42,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     private String trackingTag;
 
     @Inject PagingListItemAdapter<TrackItem> adapter;
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject ExploreTracksOperations operations;
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject @LightCycle ListViewController listViewController;
@@ -67,13 +67,13 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     ExploreTracksFragment(PagingListItemAdapter<TrackItem> adapter,
-                          PlaybackOperations playbackOperations,
+                          PlaybackInitiator playbackInitiator,
                           ExploreTracksOperations operations,
                           PullToRefreshController pullToRefreshController,
                           ListViewController listViewController,
                           Provider<ExpandPlayerSubscriber> subscriberProvider) {
         this.adapter = adapter;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.operations = operations;
         this.pullToRefreshController = pullToRefreshController;
         this.listViewController = listViewController;
@@ -142,7 +142,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         final TrackItem track = adapter.getItem(position);
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         final PlaySessionSource playSessionSource = PlaySessionSource.forExplore(screenTagExtra, trackingTag);
-        playbackOperations
+        playbackInitiator
                 .playTrackWithRecommendationsLegacy(track.getEntityUrn(), playSessionSource)
                 .subscribe(subscriberProvider.get());
     }

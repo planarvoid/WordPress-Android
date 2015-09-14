@@ -11,7 +11,7 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
 
     public void ignore_testServicePlayIntent() {
         ComponentName name =
-                getInstrumentation().getTargetContext().startService(new Intent(PlaybackService.Actions.PLAY_ACTION,
+                getInstrumentation().getTargetContext().startService(new Intent(PlaybackService.Action.RESUME,
                         Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks")));
 
         assertNotNull(name);
@@ -20,10 +20,10 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
 
     public void ignore_testActionIntents() {
         for (String action : new String[]{
-                PlaybackService.Actions.TOGGLEPLAYBACK_ACTION,
-                PlaybackService.Actions.PAUSE_ACTION,
-                PlaybackService.Actions.RESET_ALL,
-                PlaybackService.Actions.STOP_ACTION,
+                PlaybackService.Action.TOGGLE_PLAYBACK,
+                PlaybackService.Action.PAUSE,
+                PlaybackService.Action.RESET_ALL,
+                PlaybackService.Action.STOP,
         }) {
             ComponentName name = getInstrumentation().getTargetContext().startService(new Intent(action));
             assertNotNull("action "+action+" not resolved", name);

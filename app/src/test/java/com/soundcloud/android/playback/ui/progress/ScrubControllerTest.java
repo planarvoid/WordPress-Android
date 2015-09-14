@@ -7,12 +7,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -20,13 +19,12 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ScrubControllerTest {
+public class ScrubControllerTest extends AndroidUnitTest {
 
     private ScrubController scrubController;
 
     @Mock private ListenableHorizontalScrollView scrollView;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private ProgressHelper progressHelper;
     @Mock private ScrubController.OnScrubListener scrubListener;
     @Mock private SeekHandler.Factory seekHandlerFactory;
@@ -43,7 +41,7 @@ public class ScrubControllerTest {
 
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
 
-        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory);
+        scrubController = new ScrubController(scrollView, playSessionController, seekHandlerFactory);
         scrubController.setDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);
@@ -146,7 +144,7 @@ public class ScrubControllerTest {
     public void onActionUpSeeksWithPendingSeek() {
         scrubController.setPendingSeek(.3f);
         touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_UP, 0,0,0));
-        verify(playbackOperations).seek(30);
+        verify(playSessionController).seek(30);
     }
 
     @Test
@@ -181,19 +179,19 @@ public class ScrubControllerTest {
         when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);
 
         touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_UP, 0,0,0));
-        verify(playbackOperations, never()).seek(anyLong());
+        verify(playSessionController, never()).seek(anyLong());
     }
 
     @Test
     public void onActionUpDoesNotSeekWithNoPendingSeek() {
         touchListener.onTouch(scrollView, MotionEvent.obtain(0,0,MotionEvent.ACTION_UP, 0,0,0));
-        verify(playbackOperations, never()).seek(anyLong());
+        verify(playSessionController, never()).seek(anyLong());
     }
 
     @Test
     public void finshSeekSeeks() {
         scrubController.finishSeek(.3F);
-        verify(playbackOperations).seek(30);
+        verify(playSessionController).seek(30);
     }
 
     @Test

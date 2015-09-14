@@ -8,8 +8,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -30,12 +30,12 @@ class AdPageListener extends PageListener {
     @Inject
     public AdPageListener(Context context,
                           PlaySessionStateProvider playSessionStateProvider,
-                          PlaybackOperations playbackOperations,
+                          PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus, AdsOperations adsOperations,
                           AccountOperations accountOperations,
                           WhyAdsDialogPresenter whyAdsPresenter) {
-        super(playbackOperations, playSessionStateProvider, eventBus);
+        super(playSessionController, playSessionStateProvider, eventBus);
         this.context = context;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
@@ -44,17 +44,17 @@ class AdPageListener extends PageListener {
     }
 
     public void onNext() {
-        playbackOperations.nextTrack();
+        playSessionController.nextTrack();
         eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onPrevious() {
-        playbackOperations.previousTrack();
+        playSessionController.previousTrack();
         eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onSkipAd() {
-        playbackOperations.nextTrack();
+        playSessionController.nextTrack();
         eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skipAd());
     }
 

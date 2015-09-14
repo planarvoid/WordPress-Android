@@ -258,7 +258,7 @@ public class AccountOperations {
     // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency
     private void resetPlaybackService() {
         Intent intent = new Intent(context, PlaybackService.class);
-        intent.setAction(PlaybackService.Actions.RESET_ALL);
+        intent.setAction(PlaybackService.Action.RESET_ALL);
         context.startService(intent);
     }
 

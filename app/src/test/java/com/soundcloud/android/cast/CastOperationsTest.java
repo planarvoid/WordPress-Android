@@ -1,7 +1,7 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
@@ -12,7 +12,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.Transi
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -22,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -35,8 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class CastOperationsTest {
+public class CastOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
@@ -73,7 +71,7 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueue(TRACK1, playQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, playQueueTracks);
     }
 
@@ -87,7 +85,7 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, filteredPlayQueueTracks);
     }
 
@@ -100,7 +98,7 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, expectedFilteredPlayQueueTracks);
     }
@@ -116,7 +114,7 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, filteredPlayQueueTracks);
     }
 
@@ -130,7 +128,7 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, expectedFilteredPlayQueueTracks);
     }
@@ -143,8 +141,8 @@ public class CastOperationsTest {
 
         castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).isEmpty()).toBeTrue();
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).isEmpty()).isTrue();
     }
 
     @Test
@@ -153,8 +151,8 @@ public class CastOperationsTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        expect(remotePlayQueue.getTrackList()).toBeEmpty();
-        expect(remotePlayQueue.getCurrentTrackUrn()).toEqual(Urn.NOT_SET);
+        assertThat(remotePlayQueue.getTrackList()).isEmpty();
+        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
@@ -163,8 +161,8 @@ public class CastOperationsTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        expect(remotePlayQueue.getTrackList()).toBeEmpty();
-        expect(remotePlayQueue.getCurrentTrackUrn()).toEqual(Urn.NOT_SET);
+        assertThat(remotePlayQueue.getTrackList()).isEmpty();
+        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
@@ -174,8 +172,8 @@ public class CastOperationsTest {
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 
-        expect(remotePlayQueue.getTrackList()).toEqual(PLAY_QUEUE);
-        expect(remotePlayQueue.getCurrentTrackUrn()).toEqual(TRACK2);
+        assertThat(remotePlayQueue.getTrackList()).isEqualTo(PLAY_QUEUE);
+        assertThat(remotePlayQueue.getCurrentTrackUrn()).isEqualTo(TRACK2);
     }
 
     private MediaInfo createMediaInfo(List<Urn> playQueue, Urn currentTrack) throws JSONException {
@@ -212,20 +210,20 @@ public class CastOperationsTest {
     private void expectLocalPlayQueue(LocalPlayQueue localPlayQueue,
                                       PropertySet currentTrack,
                                       List<Urn> playQueueTracks) throws JSONException {
-        expect(localPlayQueue.currentTrackUrn).toEqual(currentTrack.get(TrackProperty.URN));
-        expect(localPlayQueue.playQueueTrackUrns).toEqual(playQueueTracks);
-        expect(localPlayQueue.playQueueTracksJSON.get("play_queue").toString())
-                .toEqual(new JSONArray(CollectionUtils.urnsToStrings(playQueueTracks)).toString());
+        assertThat(localPlayQueue.currentTrackUrn).isEqualTo(currentTrack.get(TrackProperty.URN));
+        assertThat(localPlayQueue.playQueueTrackUrns).isEqualTo(playQueueTracks);
+        assertThat(localPlayQueue.playQueueTracksJSON.get("play_queue").toString())
+                .isEqualTo(new JSONArray(CollectionUtils.urnsToStrings(playQueueTracks)).toString());
 
         MediaInfo mediaInfo = localPlayQueue.mediaInfo;
-        expect(mediaInfo.getContentType()).toEqual("audio/mpeg");
-        expect(mediaInfo.getStreamType()).toEqual(MediaInfo.STREAM_TYPE_BUFFERED);
+        assertThat(mediaInfo.getContentType()).isEqualTo("audio/mpeg");
+        assertThat(mediaInfo.getStreamType()).isEqualTo(MediaInfo.STREAM_TYPE_BUFFERED);
 
         MediaMetadata metadata = mediaInfo.getMetadata();
-        expect(metadata.getMediaType()).toEqual(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        expect(metadata.getString(MediaMetadata.KEY_TITLE)).toEqual(currentTrack.get(TrackProperty.TITLE));
-        expect(metadata.getString(MediaMetadata.KEY_ARTIST)).toEqual(currentTrack.get(TrackProperty.CREATOR_NAME));
-        expect(metadata.getString("urn")).toEqual(currentTrack.get(TrackProperty.URN).toString());
-        expect(metadata.getImages().get(0).getUrl().toString()).toEqual(IMAGE_URL);
+        assertThat(metadata.getMediaType()).isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+        assertThat(metadata.getString(MediaMetadata.KEY_TITLE)).isEqualTo(currentTrack.get(TrackProperty.TITLE));
+        assertThat(metadata.getString(MediaMetadata.KEY_ARTIST)).isEqualTo(currentTrack.get(TrackProperty.CREATOR_NAME));
+        assertThat(metadata.getString("urn")).isEqualTo(currentTrack.get(TrackProperty.URN).toString());
+        assertThat(metadata.getImages().get(0).getUrl().toString()).isEqualTo(IMAGE_URL);
     }
 }

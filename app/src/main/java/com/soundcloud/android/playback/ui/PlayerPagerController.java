@@ -9,7 +9,7 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -37,7 +37,7 @@ class PlayerPagerController {
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
-    private final PlaybackOperations playbackOperations;
+    private final PlaySessionController playSessionController;
     private final PlayerPresenter presenter;
     private final AdsOperations adsOperations;
 
@@ -56,7 +56,7 @@ class PlayerPagerController {
     private final Handler changeTracksHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            playbackOperations.setPlayQueuePosition(getDisplayedPositionInPlayQueue());
+            playSessionController.setPlayQueuePosition(getDisplayedPositionInPlayQueue());
         }
     };
 
@@ -111,14 +111,14 @@ class PlayerPagerController {
 
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
-                                 PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
+                                 PlayQueueManager playQueueManager, PlaySessionController playSessionController,
                                  Provider<PlayQueueDataSource> playQueueDataSwitcherProvider,
                                  PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
-        this.playbackOperations = playbackOperations;
+        this.playSessionController = playSessionController;
         this.playQueueDataSwitcherProvider = playQueueDataSwitcherProvider;
         this.playerPagerScrollListener = playerPagerScrollListener;
         this.adsOperations = adsOperations;

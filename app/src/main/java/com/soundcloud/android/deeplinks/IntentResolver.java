@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
@@ -13,7 +14,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -29,7 +30,8 @@ import javax.inject.Inject;
 public class IntentResolver {
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
-    private final PlaybackOperations playbackOperations;
+    private final ServiceInitiator serviceInitiator;
+    private final PlaybackInitiator playbackInitiator;
     private final PlayQueueManager playQueueManager;
     private final ReferrerResolver referrerResolver;
     private final EventBus eventBus;
@@ -38,14 +40,16 @@ public class IntentResolver {
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
                    AccountOperations accountOperations,
-                   PlaybackOperations playbackOperations,
+                   ServiceInitiator serviceInitiator,
+                   PlaybackInitiator playbackInitiator,
                    PlayQueueManager playQueueManager,
                    ReferrerResolver referrerResolver,
                    EventBus eventBus,
                    Navigator navigator) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
-        this.playbackOperations = playbackOperations;
+        this.serviceInitiator = serviceInitiator;
+        this.playbackInitiator = playbackInitiator;
         this.playQueueManager = playQueueManager;
         this.referrerResolver = referrerResolver;
         this.eventBus = eventBus;
@@ -134,8 +138,8 @@ public class IntentResolver {
 
     private boolean shouldLoadRelated(Referrer referrer) {
         return isCrawler(referrer)
-                ? PlaybackOperations.WITHOUT_RELATED
-                : PlaybackOperations.WITH_RELATED;
+                ? PlaybackInitiator.WITHOUT_RELATED
+                : PlaybackInitiator.WITH_RELATED;
     }
 
     private void showHomeScreen(Context context, Referrer referrer) {
@@ -182,7 +186,7 @@ public class IntentResolver {
         Urn urn = resource.getUrn();
 
         if (urn.isTrack()) {
-            fireAndForget(playbackOperations.startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, shouldLoadRelated(referrer)));
+            fireAndForget(playbackInitiator.startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, shouldLoadRelated(referrer)));
             navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
         } else if (urn.isUser()) {
             navigator.openProfile(context, urn, Screen.DEEPLINK);
@@ -230,7 +234,7 @@ public class IntentResolver {
 
     private void loginCrawler() {
         accountOperations.loginCrawlerUser();
-        playbackOperations.resetService();
+        serviceInitiator.resetPlaybackService();
         playQueueManager.clearAll(); // do not leave previous played tracks visible for crawlers
     }
 

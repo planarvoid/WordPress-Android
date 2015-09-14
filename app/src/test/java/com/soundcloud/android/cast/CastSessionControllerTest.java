@@ -4,7 +4,6 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,13 +12,13 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -49,7 +48,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
     private CastSessionController castSessionController;
 
     @Mock private CastOperations castOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private ServiceInitiator serviceInitiator;
     @Mock private CastPlayer castPlayer;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private VideoCastManager videoCastManager;
@@ -63,7 +62,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
     @Before
     public void setUp() throws Exception {
         castSessionController = new CastSessionController(castOperations,
-                playbackOperations,
+                serviceInitiator,
                 castPlayer,
                 playQueueManager,
                 videoCastManager,
@@ -85,18 +84,18 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
 
         callOnConnectedToReceiverApp();
 
-        verify(castPlayer, never()).reloadAndPlayCurrentQueue(anyInt());
+        verify(castPlayer, never()).reloadCurrentQueue();
     }
 
     @Test
     public void onConnectedToReceiverAppStopsPlaybackService() throws Exception {
         castSessionController.startListening();
         when(playSessionStateProvider.getLastProgressForTrack(any(Urn.class))).thenReturn(PlaybackProgress.empty());
-        when(castPlayer.reloadAndPlayCurrentQueue(anyLong())).thenReturn(Observable.<PlaybackResult>empty());
+        when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.<PlaybackResult>empty());
 
         callOnConnectedToReceiverApp();
 
-        verify(playbackOperations).stopService();
+        verify(serviceInitiator).stopPlaybackService();
     }
 
     @Test
@@ -104,7 +103,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
         castSessionController.startListening();
         PlaybackResult playbackResult = PlaybackResult.success();
         when(playSessionStateProvider.getLastProgressForTrack(URN)).thenReturn(new PlaybackProgress(123L, 456L));
-        when(castPlayer.reloadAndPlayCurrentQueue(123L)).thenReturn(Observable.just(playbackResult));
+        when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
 

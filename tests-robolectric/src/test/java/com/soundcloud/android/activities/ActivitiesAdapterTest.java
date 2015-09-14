@@ -21,7 +21,7 @@ import com.soundcloud.android.api.legacy.model.activities.TrackRepostActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.api.legacy.model.activities.UserMentionActivity;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -41,8 +41,9 @@ import java.util.Date;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ActivitiesAdapterTest {
+
     @Mock private ImageOperations imageOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ActivityItemRenderer itemRenderer;
     @Mock private EventBus eventBus;
 

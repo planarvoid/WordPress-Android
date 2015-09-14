@@ -27,8 +27,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.Player;
@@ -79,7 +79,7 @@ public class PlaylistDetailFragmentTest {
 
     @Mock private PlaylistDetailsController.Provider controllerProvider;
     @Mock private PlaylistDetailsController controller;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
@@ -97,7 +97,7 @@ public class PlaylistDetailFragmentTest {
     public void setUp() {
         fragment = new PlaylistDetailFragment(
                 controllerProvider,
-                playbackOperations,
+                playSessionController,
                 offlinePlaybackOperations,
                 playlistOperations,
                 eventBus,
@@ -220,7 +220,7 @@ public class PlaylistDetailFragmentTest {
         when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
         when(controller.getAdapter()).thenReturn(adapter);
         createFragmentView();
-        verifyNoMoreInteractions(playbackOperations);
+        verifyNoMoreInteractions(playSessionController);
     }
 
     @Test
@@ -269,12 +269,12 @@ public class PlaylistDetailFragmentTest {
 
         getToggleButton(layout).performClick();
 
-        verify(playbackOperations).togglePlayback();
+        verify(playSessionController).togglePlayback();
     }
 
     @Test
     public void shouldUncheckPlayToggleOnTogglePlayStateWhenSkippingIsDisabled() {
-        when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
+        when(playSessionController.shouldDisableSkipping()).thenReturn(true);
         when(adapter.getItem(0)).thenReturn(ModelFixtures.create(TrackItem.class));
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);

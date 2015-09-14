@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -48,7 +48,7 @@ public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
     private static final int TRACK_VIEW_TYPE = 0;
     private static final int PLAYLIST_VIEW_TYPE = 1;
 
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject TrackItemRenderer trackRenderer;
     @Inject PlaylistItemRenderer playlistRenderer;
     @Inject EventBus eventBus;
@@ -62,10 +62,10 @@ public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    SoundAdapter(Uri uri, PlaybackOperations playbackOperations, TrackItemRenderer trackRenderer,
+    SoundAdapter(Uri uri, PlaybackInitiator playbackInitiator, TrackItemRenderer trackRenderer,
                  PlaylistItemRenderer playlistRenderer, EventBus eventBus, Provider<ExpandPlayerSubscriber> subscriberProvider) {
         super(uri);
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.trackRenderer = trackRenderer;
         this.playlistRenderer = playlistRenderer;
         this.eventBus = eventBus;
@@ -161,7 +161,7 @@ public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
         final int adjustedPosition = filterPlayables(data.subList(0, position)).size();
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playbackOperations
+        playbackInitiator
                 .playTracks(trackUrns, adjustedPosition, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
@@ -172,7 +172,7 @@ public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
         Urn initialTrack = trackUrns.get(adjustedPosition);
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        playbackOperations
+        playbackInitiator
                 .playTracksFromUri(streamUri, adjustedPosition, initialTrack, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }

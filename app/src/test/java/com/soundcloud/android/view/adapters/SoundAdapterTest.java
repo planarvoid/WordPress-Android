@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -21,27 +21,26 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowApplication;
 import rx.Observable;
 
 import android.content.Intent;
@@ -49,17 +48,17 @@ import android.net.Uri;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SoundAdapterTest {
+public class SoundAdapterTest extends AndroidUnitTest {
 
     private SoundAdapter adapter;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;
@@ -68,8 +67,8 @@ public class SoundAdapterTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
-        adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
+        when(playbackInitiator.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
+        adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackInitiator,
                 trackRenderer, playlistRenderer, eventBus, TestSubscribers.expandPlayerSubscriber());
     }
 
@@ -114,11 +113,11 @@ public class SoundAdapterTest {
 
         verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         TrackItem convertedTrack = (TrackItem) itemCaptor.getValue().get(0);
-        expect(convertedTrack.getEntityUrn()).toEqual(track.getUrn());
-        expect(convertedTrack.getTitle()).toEqual(track.getTitle());
-        expect(convertedTrack.getDuration()).toEqual((long) track.duration);
-        expect(convertedTrack.getCreatorName()).toEqual(track.getUser().getUsername());
-        expect(convertedTrack.isPrivate()).toEqual(track.isPrivate());
+        assertThat(convertedTrack.getEntityUrn()).isEqualTo(track.getUrn());
+        assertThat(convertedTrack.getTitle()).isEqualTo(track.getTitle());
+        assertThat(convertedTrack.getDuration()).isEqualTo((long) track.duration);
+        assertThat(convertedTrack.getCreatorName()).isEqualTo(track.getUser().getUsername());
+        assertThat(convertedTrack.isPrivate()).isEqualTo(track.isPrivate());
     }
 
     @Test
@@ -134,17 +133,17 @@ public class SoundAdapterTest {
 
         verify(trackRenderer, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem convertedTrack = itemCaptor.getAllValues().get(1).get(0);
-        expect(convertedTrack.getEntityUrn()).toEqual(track2.getUrn());
+        assertThat(convertedTrack.getEntityUrn()).isEqualTo(track2.getUrn());
     }
 
     @Test
     public void shouldHandleItemClick() throws CreateModelException {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        adapter.addItems(Arrays.<PublicApiResource>asList(track));
+        adapter.addItems(Collections.<PublicApiResource>singletonList(track));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
+        adapter.handleListItemClick(context(), 0, 1L, Screen.YOUR_LIKES, null);
 
-        verify(playbackOperations).playTracksFromUri(
+        verify(playbackInitiator).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(track.getUrn()),
@@ -154,15 +153,15 @@ public class SoundAdapterTest {
     @Test
     public void opensPlaylistActivityWhenPlaylistItemIsClicked() throws CreateModelException {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        adapter.addItems(Arrays.<PublicApiResource>asList(playlist));
+        adapter.addItems(Collections.<PublicApiResource>singletonList(playlist));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
+        adapter.handleListItemClick(context(), 0, 1L, Screen.YOUR_LIKES, null);
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        final ShadowApplication application = Shadows.shadowOf(context()).getShadowApplication();
         Intent startedActivity = application.getNextStartedActivity();
-        expect(startedActivity).not.toBeNull();
-        expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist.getUrn());
+        assertThat(startedActivity).isNotNull();
+        assertThat(startedActivity.getAction()).isEqualTo(Actions.PLAYLIST);
+        assertThat(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).isEqualTo(playlist.getUrn());
     }
 
     @Test
@@ -193,7 +192,7 @@ public class SoundAdapterTest {
         adapter.bindRow(0, itemView);
 
         verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
-        expect(itemCaptor.getValue().get(0).isLiked()).toBeTrue();
+        assertThat(itemCaptor.getValue().get(0).isLiked()).isTrue();
     }
 
     @Test

@@ -17,7 +17,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -43,7 +43,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     private final ActivitiesStorage activitiesStorage;
 
     @Inject ImageOperations imageOperations;
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject ActivityItemRenderer itemRenderer;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
@@ -55,11 +55,11 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @VisibleForTesting
-    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemRenderer itemRenderer) {
+    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackInitiator playbackInitiator, ActivityItemRenderer itemRenderer) {
         super(uri);
         this.activitiesStorage = new ActivitiesStorage();
         this.imageOperations = imageOperations;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.itemRenderer = itemRenderer;
     }
 
@@ -190,7 +190,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
             int adjustedPosition = filterPlayables(data.subList(0, position)).size();
             Urn initialTrack = trackUrns.get(adjustedPosition);
-            playbackOperations
+            playbackInitiator
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -16,28 +16,25 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Context;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackPageListenerTest {
+public class TrackPageListenerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private FeatureFlags featureFlags;
@@ -50,7 +47,7 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations, playQueueManager, playSessionStateProvider, eventBus,
+        listener = new TrackPageListener(playSessionController, playQueueManager, playSessionStateProvider, eventBus,
                 likeOperations, navigator);
     }
 
@@ -80,7 +77,7 @@ public class TrackPageListenerTest {
         listener.onToggleLike(true, TRACK_URN);
 
         TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toEqual(UIEvent.KIND_LIKE);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
     }
 
     @Test
@@ -91,27 +88,27 @@ public class TrackPageListenerTest {
         listener.onToggleLike(false, TRACK_URN);
 
         TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getKind()).toEqual(UIEvent.KIND_UNLIKE);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
     }
 
     @Test
     public void onGotoUserEmitsEventToClosePlayer() {
         Urn userUrn = Urn.forUser(42L);
 
-        listener.onGotoUser(Robolectric.application, userUrn);
+        listener.onGotoUser(context(), userUrn);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        expect(event.isCollapse()).toBeTrue();
+        assertThat(event.isCollapse()).isTrue();
     }
 
     @Test
     public void onGotoUserEmitsUIEventClosePlayer() {
-        listener.onGotoUser(Robolectric.application, Urn.forUser(42L));
+        listener.onGotoUser(context(), Urn.forUser(42L));
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
@@ -119,7 +116,7 @@ public class TrackPageListenerTest {
         listener.onScrub(ScrubController.SCRUB_STATE_SCRUBBING);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
@@ -132,7 +129,7 @@ public class TrackPageListenerTest {
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
         Urn userUrn = Urn.forUser(42L);
 
-        listener.onGotoUser(Robolectric.application, userUrn);
+        listener.onGotoUser(context(), userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(navigator).openProfile(any(Context.class), eq(userUrn));

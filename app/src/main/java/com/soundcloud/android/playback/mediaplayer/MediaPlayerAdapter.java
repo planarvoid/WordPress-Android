@@ -11,10 +11,9 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +52,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
-    private PropertySet track;
+    private Urn track = Urn.NOT_SET;
+    private long expectedDuration = POS_NOT_SET;
+    private String currentStreamUrl = ScTextUtils.EMPTY_STRING;
     private int connectionRetries = 0;
 
     private boolean waitingForSeek;
@@ -88,12 +89,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void play(PropertySet track) {
-        play(track, POS_NOT_SET);
+    public void play(Urn track, long duration) {
+        play(track, POS_NOT_SET, duration);
     }
 
     @Override
-    public void play(PropertySet track, long fromPos) {
+    public void play(Urn track, long fromPos, long duration) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -102,6 +103,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         this.track = track;
+        this.expectedDuration = duration;
         waitingForSeek = false;
         resumePos = fromPos;
         seekPos = POS_NOT_SET;
@@ -110,7 +112,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            mediaPlayer.setDataSource(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN)));
+            currentStreamUrl = urlBuilder.buildHttpStreamUrl(track);
+            mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             handleMediaPlayerError(mediaPlayer, resumePos);
@@ -118,13 +121,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void playUninterrupted(PropertySet track) {
+    public void playUninterrupted(Urn track, long duration) {
         // Not implemented for MediaPlayer
-        play(track);
+        play(track, duration);
     }
 
     @Override
-    public void playOffline(PropertySet track, long fromPos) {
+    public void playOffline(Urn track, long fromPos, long duration) {
         throw new IllegalStateException("MediaPlayer cannot play offline content!!");
     }
 
@@ -137,7 +140,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
+                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -188,7 +191,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             if (connectionRetries++ < MAX_CONNECT_RETRIES) {
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
-                play(track, resumePosition);
+                play(track, resumePosition, expectedDuration);
             } else {
                 Log.d(TAG, "stream disconnected, giving up");
                 setInternalState(PlaybackState.ERROR);
@@ -348,7 +351,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration, dateProvider);
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, duration, dateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
@@ -360,10 +363,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                     networkConnectionHelper.getCurrentConnectionType()
             );
         }
-    }
-
-    private Urn getTrackUrn() {
-        return track == null ? Urn.NOT_SET : track.get(TrackProperty.URN);
     }
 
     boolean isInErrorState() {
@@ -479,9 +478,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         long duration = getDuration();
         long progress = getProgress();
 
-        // Media player reports progress > duration refs #2035
+        // Media player reports progress > expectedDuration refs #2035
         if (progress > duration) {
-            Log.d(TAG, "Progress > duration: " + progress + " > " + duration);
+            Log.d(TAG, "Progress > expectedDuration: " + progress + " > " + duration);
             return duration;
         }
         return progress;
@@ -491,7 +490,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getDuration();
         } else {
-            return track == null ? POS_NOT_SET : track.get(TrackProperty.DURATION);
+            return expectedDuration;
         }
     }
 

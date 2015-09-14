@@ -15,7 +15,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -47,7 +47,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     private MixedItemClickListener listener;
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private AdapterView adapterView;
     @Mock private View view;
@@ -61,7 +61,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        listener = new MixedItemClickListener(playbackOperations, InjectionSupport.providerOf(expandPlayerSubscriber),
+        listener = new MixedItemClickListener(playbackInitiator, InjectionSupport.providerOf(expandPlayerSubscriber),
                 featureOperations, navigator,
                 screen, searchQuerySourceInfo);
 
@@ -82,7 +82,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         final List<Urn> trackList = Arrays.asList(track1.getEntityUrn(), track2.getEntityUrn());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onItemClick(items, view, 3);
 
@@ -100,9 +100,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final Observable<List<PropertySet>> trackList = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
 
-        when(playbackOperations.playPosts(eq(trackList), eq(promotedTrack.getEntityUrn()), eq(0), not(eq(playSessionSource))))
+        when(playbackInitiator.playPosts(eq(trackList), eq(promotedTrack.getEntityUrn()), eq(0), not(eq(playSessionSource))))
                 .thenThrow(new IllegalArgumentException());
-        when(playbackOperations.playPosts(trackList, promotedTrack.getEntityUrn(), 0, playSessionSource))
+        when(playbackInitiator.playPosts(trackList, promotedTrack.getEntityUrn(), 0, playSessionSource))
                 .thenReturn(Observable.just(playbackResult));
 
         listener.onPostClick(trackList, view, 0, promotedTrack);
@@ -144,7 +144,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         final List<Urn> trackList = Arrays.asList(track1.getEntityUrn(), track2.getEntityUrn());
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onItemClick(items, view, 3);
 
@@ -199,7 +199,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem track1 = ModelFixtures.create(TrackItem.class);
         final Observable<List<Urn>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playTracks(tracklist, track1.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playTracks(tracklist, track1.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onItemClick(tracklist, view, 1, track1);
 
@@ -221,7 +221,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem midTierTrack = new TrackItem(TestPropertySets.midTierTrack());
         final Observable<List<Urn>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playTracks(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playTracks(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onItemClick(Observable.<List<Urn>>empty(), view, 1, midTierTrack);
 
@@ -253,7 +253,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem track1 = ModelFixtures.create(TrackItem.class);
         final Observable<List<PropertySet>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playPosts(tracklist, track1.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playPosts(tracklist, track1.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onPostClick(tracklist, view, 1, track1);
 
@@ -275,7 +275,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         final TrackItem midTierTrack = new TrackItem(TestPropertySets.midTierTrack());
         final Observable<List<PropertySet>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackOperations.playPosts(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
+        when(playbackInitiator.playPosts(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
         listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, midTierTrack);
 
