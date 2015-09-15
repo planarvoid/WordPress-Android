@@ -14,6 +14,10 @@ public class TestDateProvider extends CurrentDateProvider {
         timeInMillis = System.currentTimeMillis();
     }
 
+    public TestDateProvider(Date date) {
+        timeInMillis = date.getTime();
+    }
+
     @Override
     public Date getDate() {
         return new Date(timeInMillis);
@@ -26,5 +30,9 @@ public class TestDateProvider extends CurrentDateProvider {
 
     public void advanceBy(long time, TimeUnit timeUnit) {
         timeInMillis += timeUnit.toMillis(time);
+    }
+
+    public void setTime(long time, TimeUnit unit) {
+        this.timeInMillis = unit.toMillis(time);
     }
 }

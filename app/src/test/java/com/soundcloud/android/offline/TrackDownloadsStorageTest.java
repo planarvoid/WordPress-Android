@@ -1,16 +1,14 @@
 package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import rx.observers.TestObserver;
 
 import java.util.Date;
@@ -22,13 +20,14 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     private static final DownloadRequest request = new DownloadRequest(TRACK_1, 12345L, "http://wav");
-    @Mock private CurrentDateProvider dateProvider;
 
     private TrackDownloadsStorage storage;
     private TestObserver<List<Urn>> observer;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setup() {
+        dateProvider = new TestDateProvider();
         storage = new TrackDownloadsStorage(propeller(), propellerRx(), dateProvider);
         observer = new TestObserver<>();
     }
@@ -114,11 +113,9 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void getTracksToRemoveReturnsTrackPendingRemovalSinceAtLeast3Minutes() {
-        final Date now = new Date();
-        final long fourMinutesAgo = now.getTime() - TimeUnit.MINUTES.toMillis(4);
-        when(dateProvider.getTime()).thenReturn(now.getTime());
+        final long fourMinutesAgo = dateProvider.getTime() - TimeUnit.MINUTES.toMillis(4);
 
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, now.getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, dateProvider.getTime());
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_2, fourMinutesAgo);
 
         storage.getTracksToRemove().subscribe(observer);
@@ -149,13 +146,11 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void markTrackAsUnavailable() throws Exception {
-        final Date now = new Date();
-        when(dateProvider.getTime()).thenReturn(now.getTime());
         testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
 
         storage.markTrackAsUnavailable(TRACK_1);
 
-        databaseAssertions().assertTrackIsUnavailable(TRACK_1, now.getTime());
+        databaseAssertions().assertTrackIsUnavailable(TRACK_1, dateProvider.getTime());
     }
 
     @Test

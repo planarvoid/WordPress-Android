@@ -1,19 +1,16 @@
 package com.soundcloud.android.offline;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,24 +25,21 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
     private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
 
-    @Mock private CurrentDateProvider dateProvider;
 
     private LoadOfflineContentUpdatesCommand command;
-    private Date now;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() {
-        now = new Date();
-        when(dateProvider.getDate()).thenReturn(now);
-        when(dateProvider.getTime()).thenReturn(now.getTime());
+        dateProvider = new TestDateProvider();
         command = new LoadOfflineContentUpdatesCommand(propeller(), dateProvider);
     }
 
     @Test
     public void returnsPendingRemovalAsTrackToRestoreWhenItIsRequested() {
         actualDownloadedTracks(TRACK_URN_2);
-        actualPendingRemovals(TRACK_URN_1, now.getTime());
-        actualPendingRemovals(TRACK_URN_2, now.getTime());
+        actualPendingRemovals(TRACK_URN_1, dateProvider.getTime());
+        actualPendingRemovals(TRACK_URN_2, dateProvider.getTime());
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
@@ -58,7 +52,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
     @Test
     public void doesNotReturnPendingRemovalsRemovedAfter3Minutes() {
-        actualPendingRemovals(TRACK_URN_1, now.getTime() - TimeUnit.MINUTES.toMillis(4));
+        actualPendingRemovals(TRACK_URN_1, dateProvider.getTime() - TimeUnit.MINUTES.toMillis(4));
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);

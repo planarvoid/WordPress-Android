@@ -13,8 +13,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +32,6 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PolicySettingsStorage policySettingsStorage;
-    @Mock private CurrentDateProvider dateProvider;
     @Mock private GoBackOnlineDialogPresenter goOnlinePresenter;
     @Mock private NetworkConnectionHelper connectionHelper;
 
@@ -42,12 +41,14 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
     private long online27DaysAgo;
     private long online30DaysAgo;
     private long online33DaysAgo;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
         now = System.currentTimeMillis();
         yesterday = now - TimeUnit.DAYS.toMillis(1);
         tomorrow = now + TimeUnit.DAYS.toMillis(1);
+        dateProvider = new TestDateProvider(now);
         controller = new PolicyUpdateController(
                 featureOperations,
                 offlineContentOperations,
@@ -58,7 +59,6 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(dateProvider.getTime()).thenReturn(now);
         when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
@@ -87,10 +87,10 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void checksPoliciesUpdateTimeEveryDay() {
-        when(dateProvider.getTime()).thenReturn(yesterday);
+        dateProvider.setTime(yesterday, TimeUnit.MILLISECONDS);
         controller.onResume(null);
 
-        when(dateProvider.getTime()).thenReturn(tomorrow);
+        dateProvider.setTime(tomorrow, TimeUnit.MILLISECONDS);
         controller.onResume(null);
 
         verify(policySettingsStorage, times(2)).getPolicyUpdateTime();
