@@ -26,8 +26,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     private PlaySessionStateProvider provider;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private PlayQueueManager playQueueManager;
+    @Mock private PlayQueueManager playQueueManager;
 
     @Before
     public void setUp() throws Exception {
@@ -85,7 +84,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         Urn nextTrackUrn = Urn.forTrack(321);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, nextTrackUrn, 123, 456));
 
-        assertThat(provider.getLastProgressForTrack(nextTrackUrn)).isEqualTo(new PlaybackProgress(123, 456));
+        final PlaybackProgress lastProgressForTrack = provider.getLastProgressForTrack(nextTrackUrn);
+        assertThat(lastProgressForTrack.getPosition()).isEqualTo(123);
+        assertThat(lastProgressForTrack.getDuration()).isEqualTo(456);
     }
 
     private void sendIdleStateEvent() {

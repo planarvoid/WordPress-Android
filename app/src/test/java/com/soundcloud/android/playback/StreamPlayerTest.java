@@ -418,7 +418,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void getLastStateTransitionReturnsIdleNothingByDefault() {
         instantiateStreamPlaya();
-        assertThat(streamPlayerWrapper.getLastStateTransition()).isEqualTo(TestPlayStates.idleDefault());
+        assertThat(streamPlayerWrapper.getLastStateTransition().getNewState()).isEqualTo(Player.PlayerState.IDLE);
     }
 
     @Test

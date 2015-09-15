@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,6 +31,8 @@ import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
@@ -67,6 +68,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+    @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -178,7 +180,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
-        verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
+
+        verify(waveformViewController).showPlayingState(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
     }
 
     @Test
@@ -191,7 +196,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
-        verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
+
+        verify(waveformViewController).showPlayingState(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
     }
 
     @Test
@@ -210,7 +218,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateWithOtherTrackResetProgress() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
 
-        verify(waveformViewController).setProgress(PlaybackProgress.empty());
+        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
     }
 
     @Test
@@ -222,14 +232,19 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
-        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20)));
+
+        verify(artworkController).showIdleState(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
     }
 
     @Test
     public void bufferingStateWithOtherTrackResetProgress() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
-        verify(waveformViewController).setProgress(PlaybackProgress.empty());
+        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
     }
 
     @Test

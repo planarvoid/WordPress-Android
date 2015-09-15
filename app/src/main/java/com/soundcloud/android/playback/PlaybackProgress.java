@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import android.os.SystemClock;
-
 public class PlaybackProgress {
     final long position;
     final long duration;
@@ -15,7 +13,7 @@ public class PlaybackProgress {
     public PlaybackProgress(long position, long duration) {
         this.position = position;
         this.duration = duration;
-        this.createdAt = SystemClock.uptimeMillis();
+        this.createdAt = System.currentTimeMillis();
     }
 
     public boolean isEmpty() {
@@ -47,7 +45,7 @@ public class PlaybackProgress {
     }
 
     public long getTimeSinceCreation() {
-        return SystemClock.uptimeMillis() - createdAt;
+        return System.currentTimeMillis() - createdAt;
     }
 
     @Override
