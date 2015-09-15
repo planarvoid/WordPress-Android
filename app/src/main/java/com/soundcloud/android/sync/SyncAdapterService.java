@@ -137,12 +137,8 @@ public class SyncAdapterService extends Service {
         }
 
         // for first sync set all last seen flags to "now"
-        if (ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM) <= 0) {
-            final long now = System.currentTimeMillis();
-            ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, now);
-            ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, now);
-            ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
-        }
+        setContentStatsIfNeverSeen(app, Content.ME_SOUND_STREAM);
+        setContentStatsIfNeverSeen(app, Content.ME_ACTIVITIES);
 
         final SyncStateManager syncStateManager = new SyncStateManager(app);
 
@@ -163,6 +159,13 @@ public class SyncAdapterService extends Service {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private static void setContentStatsIfNeverSeen(SoundCloudApplication app, Content content) {
+        if (ContentStats.getLastSeen(app, content) <= 0) {
+            ContentStats.setLastSeen(app, content, System.currentTimeMillis());
+            ContentStats.setLastNotified(app, content, System.currentTimeMillis());
         }
     }
 
