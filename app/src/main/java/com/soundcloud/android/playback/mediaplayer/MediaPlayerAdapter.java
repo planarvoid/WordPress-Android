@@ -7,13 +7,12 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -50,7 +49,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final StreamUrlBuilder urlBuilder;
-    private final DateProvider dateProvider;
+    private final CurrentDateProvider dateProvider;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
@@ -349,7 +348,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration, dateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
