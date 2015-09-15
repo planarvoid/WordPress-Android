@@ -11,7 +11,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -77,7 +76,6 @@ public class LegacyProfileActivity extends ScActivity implements
     protected SlidingTabLayout indicator;
     /* package */ @Nullable PublicApiUser user;
     @Inject ImageOperations imageOperations;
-    @Inject PublicApi oldCloudAPI;
     @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
     @Inject FeatureFlags featureFlags;

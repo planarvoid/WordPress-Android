@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -91,10 +90,8 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
 
     // Fields used by app
-    @JsonIgnore public List<PublicApiComment> comments;
     @JsonIgnore public int local_user_playback_count;
     @JsonIgnore public boolean local_cached;
-    @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public int last_playback_error = -1;
 
     public PublicApiTrack(ApiTrack suggestion) {
@@ -415,10 +412,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @Override
     public Uri getBulkInsertUri() {
         return Content.TRACKS.uri;
-    }
-
-    public void setAppFields(PublicApiTrack t) {
-        comments = t.comments;
     }
 
     public boolean isCompleteTrack() {
