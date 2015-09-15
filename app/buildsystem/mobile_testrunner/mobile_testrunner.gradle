@@ -198,9 +198,19 @@ def failBuildIfNecessary(TestResult[] retrievedResults) {
 def runTestsForLabel(String label, Test[] tests) {
   def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
   def run = execute(execution)
+  createHtmlReportForRun(run.id)
   def results = getAndShowResultsForRun(run)
   Logger.getLogger().log("Finished run $run.id")
   failBuildIfNecessary(results)
+}
+
+def createHtmlReportForRun(runIdentifier) {
+    def html_template = new File(project.projectDir, "buildsystem/mobile_testrunner/html_report_redirect_template.html").text
+    def engine = new groovy.text.SimpleTemplateEngine()
+    def template = engine.createTemplate(html_template).make(["runIdentifier": runIdentifier])
+    def dir = new File(project.rootDir, "results")
+    dir.mkdirs()
+    new File(dir.absolutePath, "index.html") << template.toString()
 }
 
 
