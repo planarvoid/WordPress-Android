@@ -40,7 +40,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final SparseArray<Section> listPositionsToSections;
     private final FollowingOperations followingOperations;
-    private final DefaultSubscriber<Void> mNotifyWhenDoneObserver = new DefaultSubscriber<Void>() {
+    private final DefaultSubscriber<Void> notifyWhenDoneObserver = new DefaultSubscriber<Void>() {
         @Override
         public void onCompleted() {
             notifyDataSetChanged();
@@ -201,7 +201,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                     final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
                     toggleFollowings = followingOperations.removeFollowingsBySuggestedUsers(followedUsers);
                 }
-                toggleFollowings.observeOn(AndroidSchedulers.mainThread()).subscribe(mNotifyWhenDoneObserver);
+                toggleFollowings.observeOn(AndroidSchedulers.mainThread()).subscribe(notifyWhenDoneObserver);
             }
         });
         return viewHolder;
