@@ -6,11 +6,10 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListPresenter;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -29,7 +28,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
+public class PlaylistLikesPresenter extends RecyclerViewPresenter<PlaylistItem> {
 
     private final PlaylistLikeOperations likeOperations;
     private final PlaylistLikesAdapter adapter;
@@ -39,13 +38,12 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     private CompositeSubscription viewLifeCycle;
 
     @Inject
-    public PlaylistLikesPresenter(ImageOperations imageOperations,
-                                  SwipeRefreshAttacher swipeRefreshAttacher,
+    public PlaylistLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                   PlaylistLikeOperations likeOperations,
                                   PlaylistLikesAdapter adapter,
                                   EventBus eventBus,
                                   Navigator navigator) {
-        super(imageOperations, swipeRefreshAttacher);
+        super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.adapter = adapter;
         this.eventBus = eventBus;
