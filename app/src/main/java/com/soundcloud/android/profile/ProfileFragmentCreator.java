@@ -2,14 +2,9 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.view.EmptyViewBuilder;
-import org.jetbrains.annotations.NotNull;
 
-import android.content.Context;
-import android.net.Uri;
 import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
@@ -24,7 +19,7 @@ class ProfileFragmentCreator {
         // for DI
     }
 
-    Fragment create(Context context, Content content, Urn userUrn, String userName, Uri contentUri, Screen screen, SearchQuerySourceInfo searchQuerySource) {
+    Fragment create(Content content, Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySource) {
         switch (content) {
             case ME_SOUNDS:
                 return MyPostsFragment.create(screen, searchQuerySource);
@@ -43,17 +38,10 @@ class ProfileFragmentCreator {
             case USER_FOLLOWINGS:
                 return UserFollowingsFragment.create(userUrn, screen, searchQuerySource);
             case USER_FOLLOWERS:
+            case ME_FOLLOWERS:
                 return UserFollowersFragment.create(userUrn, screen, searchQuerySource);
             default:
-                return createScListFragment(context, contentUri, screen, userName, searchQuerySource);
+                throw new IllegalArgumentException("Content type not recognized " + content);
         }
     }
-
-    @NotNull
-    private Fragment createScListFragment(Context context, Uri contentUri, Screen screen, String username, SearchQuerySourceInfo searchQuerySource) {
-        ScListFragment listFragment = ScListFragment.newInstance(contentUri, username, screen, searchQuerySource);
-        listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(context, contentUri, username));
-        return listFragment;
-    }
-
 }
