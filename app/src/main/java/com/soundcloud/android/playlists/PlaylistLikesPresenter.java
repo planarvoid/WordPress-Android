@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
@@ -33,6 +34,7 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     private final PlaylistLikeOperations likeOperations;
     private final PlaylistLikesAdapter adapter;
     private final EventBus eventBus;
+    private final Navigator navigator;
 
     private CompositeSubscription viewLifeCycle;
 
@@ -41,11 +43,13 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
                                   SwipeRefreshAttacher swipeRefreshAttacher,
                                   PlaylistLikeOperations likeOperations,
                                   PlaylistLikesAdapter adapter,
-                                  EventBus eventBus) {
+                                  EventBus eventBus,
+                                  Navigator navigator) {
         super(imageOperations, swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.adapter = adapter;
         this.eventBus = eventBus;
+        this.navigator = navigator;
     }
 
     @Override
@@ -103,7 +107,7 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     @Override
     public void onItemClicked(View view, int position) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
-        PlaylistDetailActivity.start(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
+        navigator.openPlaylist(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
     }
 
     @Override
