@@ -15,14 +15,20 @@ import com.soundcloud.android.associations.LoadFollowingCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.rx.Pager.PagingFunction;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
 import rx.Scheduler;
@@ -52,6 +58,25 @@ class SearchOperations {
                     return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(), propertySetSources.getQueryUrn());
                 }
             };
+
+    static final Func1<SearchResult, List<ListItem>> TO_SEARCH_ITEM_LIST = new Func1<SearchResult, List<ListItem>>() {
+        @Override
+        public List<ListItem> call(SearchResult searchResult) {
+            final List<PropertySet> sourceSets = searchResult.getItems();
+            final List<ListItem> items = new ArrayList<>(sourceSets.size());
+            for (PropertySet source : sourceSets) {
+                final Urn urn = source.get(EntityProperty.URN);
+                if (urn.isTrack()) {
+                    items.add(TrackItem.from(source));
+                } else if (urn.isPlaylist()) {
+                    items.add(PlaylistItem.from(source));
+                } else if (urn.isUser()) {
+                    items.add(UserItem.from(source));
+                }
+            }
+            return items;
+        }
+    };
 
     private final ApiClientRx apiClientRx;
     private final StorePlaylistsCommand storePlaylistsCommand;
@@ -111,8 +136,17 @@ class SearchOperations {
         return new SearchResultPager(searchType);
     }
 
+    Observable<List<ListItem>> searchResultList(String query, int searchType) {
+        return  searchResult(query, searchType).map(TO_SEARCH_ITEM_LIST);
+    }
+
     Observable<SearchResult> searchResult(String query, int searchType) {
         return getSearchStrategy(searchType).searchResult(query);
+    }
+
+    PagingFunction<List<ListItem>> pagingFunction() {
+        //TODO: Fernando implement this
+        return null;
     }
 
     private Observable<SearchResult> nextResultPage(Link link, int searchType) {
