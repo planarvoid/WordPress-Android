@@ -207,8 +207,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
             initializeAndHideView(editButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
             initializeView(actionText, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK);
         } else {
-            initializeAndHideView(playButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, PLAYBACK);
-            initializeAndHideView(editButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, PLAYBACK);
+            initializeAndHideView(playButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
+            initializeAndHideView(editButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
             initializeAndHideView(actionText, View.GONE);
         }
 
