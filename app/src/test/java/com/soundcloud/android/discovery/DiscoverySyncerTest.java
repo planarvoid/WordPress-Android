@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class DiscoverySyncerTest {
 
     @Mock private SyncInitiator syncInitiator;
     @Mock private SharedPreferences sharedPreferences;
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
 
     @Before
     public void setUp() {
@@ -60,7 +60,7 @@ public class DiscoverySyncerTest {
     }
 
     private void mockRecommendationsSyncDate(long currentTime, long elapsedTimeSinceLastSyncMillis) {
-        when(dateProvider.getCurrentTime()).thenReturn(currentTime);
+        when(dateProvider.getTime()).thenReturn(currentTime);
         when(sharedPreferences.getLong(anyString(), anyLong())).thenReturn(elapsedTimeSinceLastSyncMillis);
     }
 }

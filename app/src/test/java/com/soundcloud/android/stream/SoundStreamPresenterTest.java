@@ -40,7 +40,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
@@ -95,7 +94,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
-        when(dateProvider.getCurrentTime()).thenReturn(100L);
+        when(dateProvider.getTime()).thenReturn(100L);
         when(view.getResources()).thenReturn(resources);
         when(fragment.getActivity()).thenReturn(activity);
     }

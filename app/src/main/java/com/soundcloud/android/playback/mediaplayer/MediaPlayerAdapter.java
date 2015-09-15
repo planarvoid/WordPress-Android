@@ -12,6 +12,7 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -74,7 +75,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                               NetworkConnectionHelper networkConnectionHelper,
                               AccountOperations accountOperations,
                               BufferUnderrunListener bufferUnderrunListener,
-                              StreamUrlBuilder urlBuilder, DateProvider dateProvider) {
+                              StreamUrlBuilder urlBuilder, CurrentDateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -107,7 +108,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         seekPos = POS_NOT_SET;
 
         setInternalState(PlaybackState.PREPARING);
-        prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
+        prepareStartTimeMs = dateProvider.getDate().getTime();
 
         try {
             mediaPlayer.setDataSource(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN)));
@@ -137,7 +138,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
+                publishTimeToPlayEvent(dateProvider.getDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
 
                 if (resumePos > 0) {
                     seek(resumePos, true);

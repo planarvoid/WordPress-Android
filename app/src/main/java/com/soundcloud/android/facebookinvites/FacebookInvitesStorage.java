@@ -2,6 +2,7 @@ package com.soundcloud.android.facebookinvites;
 
 
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 
 import android.content.SharedPreferences;
@@ -21,7 +22,7 @@ public class FacebookInvitesStorage {
 
     @Inject
     public FacebookInvitesStorage(@Named(StorageModule.FACEBOOK_INVITES) SharedPreferences sharedPreferences,
-                                  DateProvider dateProvider) {
+                                  CurrentDateProvider dateProvider) {
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
     }
@@ -90,7 +91,7 @@ public class FacebookInvitesStorage {
     }
 
     private long millisSince(String key) {
-        return dateProvider.getCurrentTime() - getTimestamp(key);
+        return dateProvider.getTime() - getTimestamp(key);
     }
 
     private void setTimestamp(String key, long ts) {
@@ -100,6 +101,6 @@ public class FacebookInvitesStorage {
     }
 
     private void setCurrentTimestamp(String key) {
-        setTimestamp(key, dateProvider.getCurrentTime());
+        setTimestamp(key, dateProvider.getTime());
     }
 }

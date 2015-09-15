@@ -3,7 +3,7 @@ package com.soundcloud.android.stations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProviderStub;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegrationTest {
-    private final DateProviderStub dateProvider = new DateProviderStub();
+    private final TestDateProvider dateProvider = new TestDateProvider();
     private WriteStationsCollectionsCommand command;
 
     @Before
@@ -33,8 +33,8 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
         final ApiStationMetadata stationZero = remoteContent.getRecents().get(0);
         final ApiStationMetadata stationOne = remoteContent.getRecents().get(1);
 
-        testFixtures().insertRecentlyPlayedUnsyncedStation(stationZero.getUrn(), dateProvider.getCurrentTime() - 2);
-        testFixtures().insertRecentlyPlayedUnsyncedStation(stationOne.getUrn(), dateProvider.getCurrentTime() - 1);
+        testFixtures().insertRecentlyPlayedUnsyncedStation(stationZero.getUrn(), dateProvider.getTime() - 2);
+        testFixtures().insertRecentlyPlayedUnsyncedStation(stationOne.getUrn(), dateProvider.getTime() - 1);
 
         command.call(buildSyncMetadata(remoteContent));
 
@@ -69,7 +69,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
         );
 
         final ApiStationMetadata localStation = testFixtures().insertStation().getMetadata();
-        testFixtures().insertRecentlyPlayedUnsyncedStation(localStation.getUrn(), dateProvider.getCurrentTime() - 1);
+        testFixtures().insertRecentlyPlayedUnsyncedStation(localStation.getUrn(), dateProvider.getTime() - 1);
 
         command.call(buildSyncMetadata(remoteContent));
 
@@ -89,7 +89,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
 
 
         final ApiStationMetadata localStation = testFixtures().insertStation().getMetadata();
-        final long time = dateProvider.getCurrentTime() + 1;
+        final long time = dateProvider.getTime() + 1;
         testFixtures().insertRecentlyPlayedUnsyncedStation(localStation.getUrn(), time);
 
         command.call(buildSyncMetadata(remoteContent));
@@ -111,9 +111,9 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
         final ApiStationMetadata stationZero = remoteContent.getRecents().get(0);
         final ApiStationMetadata stationOne = remoteContent.getRecents().get(1);
 
-        final long stationZeroUpdatedAt = dateProvider.getCurrentTime() + 1;
+        final long stationZeroUpdatedAt = dateProvider.getTime() + 1;
         testFixtures().insertRecentlyPlayedUnsyncedStation(stationZero.getUrn(), stationZeroUpdatedAt);
-        testFixtures().insertRecentlyPlayedUnsyncedStation(stationOne.getUrn(), dateProvider.getCurrentTime() - 1);
+        testFixtures().insertRecentlyPlayedUnsyncedStation(stationOne.getUrn(), dateProvider.getTime() - 1);
 
         command.call(buildSyncMetadata(remoteContent));
 
@@ -125,7 +125,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
 
     private SyncCollectionsMetadata buildSyncMetadata(ApiStationsCollections remoteContent) {
         return new SyncCollectionsMetadata(
-                dateProvider.getCurrentTime(),
+                dateProvider.getTime(),
                 remoteContent
         );
     }

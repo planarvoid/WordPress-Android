@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
@@ -68,7 +69,7 @@ class StationsStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, DateProvider dateProvider) {
+    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
         this.propellerDatabase = propellerDatabase;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
@@ -144,7 +145,7 @@ class StationsStorage {
                         .values()
                         .put(StationsCollections.STATION_URN, stationUrn.toString())
                         .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
+                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getTime())
                         .get()
         );
     }

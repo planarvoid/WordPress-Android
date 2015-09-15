@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -31,7 +32,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
     public PolicyUpdateController(FeatureOperations featureOperations,
                                   OfflineContentOperations offlineContentOperations,
                                   PolicySettingsStorage policySettingsStorage,
-                                  DateProvider dateProvider,
+                                  CurrentDateProvider dateProvider,
                                   GoBackOnlineDialogPresenter goBackOnlineDialogPresenter,
                                   NetworkConnectionHelper connectionHelper) {
         this.featureOperations = featureOperations;
@@ -52,7 +53,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
                 if (shouldNotifyUser(lastPolicyUpdate)) {
                     goBackOnlineDialogPresenter.show(activity, lastPolicyUpdate);
-                    policySettingsStorage.setLastPolicyCheckTime(dateProvider.getCurrentTime());
+                    policySettingsStorage.setLastPolicyCheckTime(dateProvider.getTime());
 
                     if (shouldDeleteOfflineContent(lastPolicyUpdate)) {
                         Log.d(TAG, "No policy update in last 30 days");
@@ -65,7 +66,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
     private boolean shouldCheckPolicyUpdates() {
         long lastShownTimeStamp = policySettingsStorage.getLastPolicyCheckTime();
-        final long timeElapsed = dateProvider.getCurrentTime() - lastShownTimeStamp;
+        final long timeElapsed = dateProvider.getTime() - lastShownTimeStamp;
         return TimeUnit.MILLISECONDS.toDays(timeElapsed) > 0;
     }
 
@@ -73,14 +74,14 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
         // this is required because policy updates are scheduled by alarm manager,
         // user can be already online but the policy update hasn't run yets
         if (!connectionHelper.isNetworkConnected()) {
-            final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
+            final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - lastUpdate);
             return daysElapsed >= OFFLINE_DAYS_WARNING_THRESHOLD;
         }
         return false;
     }
 
     private boolean shouldDeleteOfflineContent(Long lastUpdate) {
-        final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
+        final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - lastUpdate);
         return daysElapsed >= OFFLINE_DAYS_ERROR_THRESHOLD;
     }
 }

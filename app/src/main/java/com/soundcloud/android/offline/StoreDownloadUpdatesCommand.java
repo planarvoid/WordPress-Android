@@ -9,6 +9,7 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_A
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -26,7 +27,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
     private final DateProvider dateProvider;
 
     @Inject
-    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller, DateProvider dateProvider) {
+    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         super(propeller);
         this.dateProvider = dateProvider;
     }
@@ -55,7 +56,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(creatorOptOut.size());
         for (DownloadRequest optOuts : creatorOptOut) {
             contentValues.add(ContentValuesBuilder.values(3)
-                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
+                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getTime())
                     .put(TrackDownloads.REQUESTED_AT, null)
                     .put(TrackDownloads._ID, optOuts.track.getNumericId())
                     .get());
@@ -69,7 +70,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             contentValues.add(ContentValuesBuilder
                     .values(2)
                     .put(TrackDownloads._ID, track.getNumericId())
-                    .put(TrackDownloads.REMOVED_AT, dateProvider.getCurrentTime())
+                    .put(TrackDownloads.REMOVED_AT, dateProvider.getTime())
                     .get());
         }
         return contentValues;
@@ -83,7 +84,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
                     .put(_ID, request.track.getNumericId())
                     .put(UNAVAILABLE_AT, null)
                     .put(REMOVED_AT, null)
-                    .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
+                    .put(DOWNLOADED_AT, dateProvider.getTime())
                     .get());
         }
         return contentValues;
@@ -95,7 +96,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             contentValues.add(ContentValuesBuilder
                     .values()
                     .put(_ID, request.track.getNumericId())
-                    .put(REQUESTED_AT, dateProvider.getCurrentTime())
+                    .put(REQUESTED_AT, dateProvider.getTime())
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, null)
                     .get());

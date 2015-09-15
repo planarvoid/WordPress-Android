@@ -5,6 +5,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -28,7 +29,7 @@ public class RemoveStalePromotedItemsCommand extends WriteStorageCommand<Void, W
     private List<Long> removeItems = Collections.emptyList();
 
     @Inject
-    protected RemoveStalePromotedItemsCommand(PropellerDatabase propeller, DateProvider dateProvider) {
+    protected RemoveStalePromotedItemsCommand(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         super(propeller);
         this.dateProvider = dateProvider;
     }
@@ -38,7 +39,7 @@ public class RemoveStalePromotedItemsCommand extends WriteStorageCommand<Void, W
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase db) {
-                final long staleItemCutoff = dateProvider.getCurrentTime() - STALE_TIME_MILLIS;
+                final long staleItemCutoff = dateProvider.getTime() - STALE_TIME_MILLIS;
                 final Where whereClause = filter().whereLt(TableColumns.PromotedTracks.CREATED_AT, staleItemCutoff);
                 removeItems = db.query(Query.from(Table.PromotedTracks.name())
                         .select(TableColumns.PromotedTracks._ID)

@@ -5,6 +5,7 @@ import static com.soundcloud.android.policies.DailyUpdateService.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 
@@ -28,7 +29,7 @@ public class DailyUpdateScheduler {
     private final PendingIntentFactory pendingIntentFactory;
 
     @Inject
-    public DailyUpdateScheduler(Context context, AlarmManager alarmManager, DateProvider dateProvider,
+    public DailyUpdateScheduler(Context context, AlarmManager alarmManager, CurrentDateProvider dateProvider,
                                 PendingIntentFactory pendingIntentFactory) {
         this.context = context;
         this.alarmManager = alarmManager;
@@ -40,7 +41,7 @@ public class DailyUpdateScheduler {
         if (!isNextUpdateAlreadyScheduled()) {
             Log.d(TAG, "Scheduling new policy update");
             final PendingIntent intent = pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.setInexactRepeating(ALARM_TYPE, dateProvider.getCurrentTime(), POLICY_UPDATE_DELAY, intent);
+            alarmManager.setInexactRepeating(ALARM_TYPE, dateProvider.getTime(), POLICY_UPDATE_DELAY, intent);
         }
     }
 

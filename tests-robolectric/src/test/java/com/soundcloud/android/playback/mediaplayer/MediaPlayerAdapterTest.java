@@ -96,7 +96,7 @@ public class MediaPlayerAdapterTest {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
         when(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN))).thenReturn(STREAM_URL);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date());
+        when(dateProvider.getDate()).thenReturn(new Date());
 
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
         mediaPlayerAdapter.setListener(listener);
@@ -171,9 +171,9 @@ public class MediaPlayerAdapterTest {
     @Test
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
+        when(dateProvider.getDate()).thenReturn(new Date(0));
         mediaPlayerAdapter.play(track, 123L);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
+        when(dateProvider.getDate()).thenReturn(new Date(1000));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);

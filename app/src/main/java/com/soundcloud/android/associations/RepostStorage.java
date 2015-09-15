@@ -7,6 +7,7 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
@@ -23,7 +24,7 @@ class RepostStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    RepostStorage(PropellerDatabase propeller, DateProvider dateProvider) {
+    RepostStorage(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
         this.dateProvider = dateProvider;
     }
@@ -37,7 +38,7 @@ class RepostStorage {
                 values.put(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
                         ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST);
                 values.put(TableColumns.Posts.TARGET_ID, urn.getNumericId());
-                values.put(TableColumns.Posts.CREATED_AT, dateProvider.getCurrentDate().getTime());
+                values.put(TableColumns.Posts.CREATED_AT, dateProvider.getDate().getTime());
                 return propeller.insert(Table.Posts, values);
             }
         };

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProviderStub;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class StationsStorageTest extends StorageIntegrationTest {
-    private final DateProviderStub dateProvider = new DateProviderStub();
+    private final TestDateProvider dateProvider = new TestDateProvider();
     private StationsStorage storage;
     private TestSubscriber<Station> subscriber = new TestSubscriber<>();
     private final Urn stationUrn = Urn.forTrackStation(123L);
@@ -56,7 +56,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
     public void shouldSaveRecentlyPlayedStation() {
         storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
 
-        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
+        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getTime(), 1);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
 
         databaseAssertions().assertRecentStationsContains(stationUrn, previousStartedAt, 0);
-        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
+        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getTime(), 1);
     }
 
     @Test

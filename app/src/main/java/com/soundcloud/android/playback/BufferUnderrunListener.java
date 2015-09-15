@@ -5,6 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -29,7 +30,7 @@ public class BufferUnderrunListener {
     public BufferUnderrunListener(Detector detector,
                                   EventBus eventBus,
                                   UninterruptedPlaytimeStorage uninterruptedPlaytimeStorage,
-                                  DateProvider dateProvider) {
+                                  CurrentDateProvider dateProvider) {
         this.detector = detector;
         this.eventBus = eventBus;
         this.uninterruptedPlaytimeStorage = uninterruptedPlaytimeStorage;
@@ -44,7 +45,7 @@ public class BufferUnderrunListener {
         boolean isBufferUnderrun = detector.onStateTransitionEvent(stateTransition);
         if (stateTransition.isPlayerPlaying()) {
             if (enteringPlayingStateTime == null) {
-                enteringPlayingStateTime = dateProvider.getCurrentDate();
+                enteringPlayingStateTime = dateProvider.getDate();
             }
         } else if (enteringPlayingStateTime != null) {
             long uninterruptedPlayTime = uninterruptedPlaytimeStorage.getPlayTime(playerType);
@@ -60,7 +61,7 @@ public class BufferUnderrunListener {
     }
 
     private long incrementPlaytime(long uninterruptedPlayTime) {
-        return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
+        return uninterruptedPlayTime + (dateProvider.getDate().getTime() - enteringPlayingStateTime.getTime());
     }
 
     private void emitUninterruptedPlaytimeEvent(Urn track, PlaybackProtocol playbackProtocol, PlayerType playerType, ConnectionType currentConnectionType, long uninterruptedPlayTime) {

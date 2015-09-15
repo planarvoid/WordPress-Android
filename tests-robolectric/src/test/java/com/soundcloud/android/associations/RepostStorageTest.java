@@ -27,7 +27,7 @@ public class RepostStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         repostStorage = new RepostStorage(propeller(), dateProvider);
-        when(dateProvider.getCurrentDate()).thenReturn(CREATED_AT);
+        when(dateProvider.getDate()).thenReturn(CREATED_AT);
     }
 
     @Test

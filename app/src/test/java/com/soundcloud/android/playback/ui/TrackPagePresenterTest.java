@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
@@ -73,6 +75,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private TrackPagePresenter presenter;
     private View trackView;
     private ViewGroup container;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -87,6 +90,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         trackView = presenter.createItemView(container, skipListener);
+        dateProvider = new TestDateProvider();
     }
 
     @Test
@@ -179,11 +183,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
 
-        verify(waveformViewController).showPlayingState(progressArgumentCaptor.capture());
-        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
-        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
+        verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test
@@ -195,11 +197,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
 
-        verify(waveformViewController).showPlayingState(progressArgumentCaptor.capture());
-        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
-        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
+        verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test
@@ -233,9 +233,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
 
-        verify(artworkController).showIdleState(progressArgumentCaptor.capture());
-        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
-        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
+        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test

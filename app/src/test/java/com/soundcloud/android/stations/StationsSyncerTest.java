@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
-import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.DateProviderStub;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,14 +24,14 @@ import java.util.List;
 public class StationsSyncerTest {
 
     private StationsSyncer syncer;
-    private DateProvider dateProvider;
+    private CurrentDateProvider dateProvider;
     @Mock private WriteStationsCollectionsCommand command;
     @Mock private StationsApi api;
     @Captor private ArgumentCaptor<SyncCollectionsMetadata> captor;
 
     @Before
     public void setUp() {
-        dateProvider = new DateProviderStub(System.currentTimeMillis());
+        dateProvider = new TestDateProvider(System.currentTimeMillis());
         syncer = new StationsSyncer(api, command, dateProvider);
     }
 
@@ -51,7 +51,7 @@ public class StationsSyncerTest {
 
         syncer.call();
 
-        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
+        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getTime(), remoteContent);
         verify(command).call(eq(metadata));
     }
 

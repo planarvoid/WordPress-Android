@@ -6,19 +6,18 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class StorePoliciesCommandTest extends StorageIntegrationTest {
 
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
 
     private StorePoliciesCommand storePoliciesCommand;
 

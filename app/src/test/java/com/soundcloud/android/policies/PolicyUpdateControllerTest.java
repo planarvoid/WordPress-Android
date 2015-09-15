@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +13,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PolicySettingsStorage policySettingsStorage;
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
     @Mock private GoBackOnlineDialogPresenter goOnlinePresenter;
     @Mock private NetworkConnectionHelper connectionHelper;
 
@@ -59,7 +58,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(dateProvider.getCurrentTime()).thenReturn(now);
+        when(dateProvider.getTime()).thenReturn(now);
         when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
@@ -88,10 +87,10 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void checksPoliciesUpdateTimeEveryDay() {
-        when(dateProvider.getCurrentTime()).thenReturn(yesterday);
+        when(dateProvider.getTime()).thenReturn(yesterday);
         controller.onResume(null);
 
-        when(dateProvider.getCurrentTime()).thenReturn(tomorrow);
+        when(dateProvider.getTime()).thenReturn(tomorrow);
         controller.onResume(null);
 
         verify(policySettingsStorage, times(2)).getPolicyUpdateTime();

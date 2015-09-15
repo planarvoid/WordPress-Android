@@ -11,7 +11,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
     @Mock private AccountOperations accountOperations;
 
     private static final Date ADDED_AT = new Date();
@@ -35,7 +35,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     public void setUp() throws Exception {
         playlistTracksStorage = new PlaylistTracksStorage(propellerRx(), dateProvider, accountOperations);
 
-        when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
+        when(dateProvider.getDate()).thenReturn(ADDED_AT);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));
     }
 
@@ -86,7 +86,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack = testFixtures().insertTrack();
-        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getCurrentDate().getTime());
+        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getDate().getTime());
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testSubscriber);
 

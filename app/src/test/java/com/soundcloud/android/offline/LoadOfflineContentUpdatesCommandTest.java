@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
     private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
 
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
 
     private LoadOfflineContentUpdatesCommand command;
     private Date now;
@@ -36,8 +36,8 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     @Before
     public void setUp() {
         now = new Date();
-        when(dateProvider.getCurrentDate()).thenReturn(now);
-        when(dateProvider.getCurrentTime()).thenReturn(now.getTime());
+        when(dateProvider.getDate()).thenReturn(now);
+        when(dateProvider.getTime()).thenReturn(now.getTime());
         command = new LoadOfflineContentUpdatesCommand(propeller(), dateProvider);
     }
 

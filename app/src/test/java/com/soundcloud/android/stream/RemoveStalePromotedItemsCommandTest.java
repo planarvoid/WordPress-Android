@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.propeller.test.matchers.QueryMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
 
     private RemoveStalePromotedItemsCommand command;
 
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
 
     private final long now = System.currentTimeMillis();
 
@@ -29,7 +29,7 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
     @Test
     public void removesStalePromotedTrackAndReportsChange() throws Exception {
         testFixtures().insertPromotedTrackMetadata(123, now);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
+        when(dateProvider.getTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
 
         assertThat(command.call(null)).containsExactly(123L);
         expectPromotedTrackItemCountToBe(0);
@@ -38,7 +38,7 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
     @Test
     public void removesStalePromotedTrackFromStreamAndReportsChange() throws Exception {
         testFixtures().insertPromotedStreamTrack(testFixtures().insertTrack(), now, 123L);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
+        when(dateProvider.getTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1);
 
         assertThat(command.call(null)).containsExactly(123L);
         expectStreamItemCountToBe(0);
@@ -47,7 +47,7 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
     @Test
     public void doesNotRemovesNotStalePromotedTrackAndReportsNoChange() throws Exception {
         testFixtures().insertPromotedTrackMetadata(123, now);
-        when(dateProvider.getCurrentTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS);
+        when(dateProvider.getTime()).thenReturn(now + RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS);
 
         assertThat(command.call(null)).isEmpty();
         expectPromotedTrackItemCountToBe(1);

@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import rx.Observable;
 import rx.functions.Action1;
@@ -42,7 +43,7 @@ class DiscoverySyncer {
     @Inject
     DiscoverySyncer(SyncInitiator syncInitiator,
                     @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
-                    DateProvider dateProvider) {
+                    CurrentDateProvider dateProvider) {
         this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
@@ -61,7 +62,7 @@ class DiscoverySyncer {
     }
 
     private boolean isRecommendationsCacheExpired() {
-        return (dateProvider.getCurrentTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
+        return (dateProvider.getTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
     }
 
     private long getLastSyncTime() {
@@ -70,7 +71,7 @@ class DiscoverySyncer {
 
     private void updateLastSyncTime() {
         final SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(KEY_LAST_SYNC_TIME, dateProvider.getCurrentTime());
+        editor.putLong(KEY_LAST_SYNC_TIME, dateProvider.getTime());
         editor.apply();
     }
 }

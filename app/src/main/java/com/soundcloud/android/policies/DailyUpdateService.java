@@ -6,7 +6,7 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -28,7 +28,7 @@ public class DailyUpdateService extends IntentService {
     @Inject PolicySettingsStorage policySettingsStorage;
     @Inject ConfigurationManager configurationManager;
     @Inject AdIdHelper adIdHelper;
-    @Inject DateProvider dateProvider;
+    @Inject CurrentDateProvider dateProvider;
     @Inject EventBus eventBus;
 
     public DailyUpdateService() {
@@ -39,7 +39,7 @@ public class DailyUpdateService extends IntentService {
     @VisibleForTesting
     DailyUpdateService(PolicyOperations policyOperations, PolicySettingsStorage policySettingsStorage,
                        ConfigurationManager configurationManager, AdIdHelper adIdHelper,
-                       DateProvider dateProvider, EventBus eventBus) {
+                       CurrentDateProvider dateProvider, EventBus eventBus) {
         super(TAG);
         this.policyOperations = policyOperations;
         this.policySettingsStorage = policySettingsStorage;
@@ -72,10 +72,10 @@ public class DailyUpdateService extends IntentService {
         final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
         if (!updatedTracks.isEmpty()) {
             Log.d(TAG, "Successfull policy update");
-            policySettingsStorage.setPolicyUpdateTime(dateProvider.getCurrentTime());
+            policySettingsStorage.setPolicyUpdateTime(dateProvider.getTime());
             eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(updatedTracks));
         } else {
-            long policyUpdateInDays = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - policySettingsStorage.getPolicyUpdateTime());
+            long policyUpdateInDays = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - policySettingsStorage.getPolicyUpdateTime());
             Log.d(TAG, "Last successful policy update was " + policyUpdateInDays + " days ago");
         }
     }

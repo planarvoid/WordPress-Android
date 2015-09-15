@@ -13,7 +13,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
     private PlayPublisher playPublisher;
 
     @Mock private GcmStorage gcmStorage;
-    @Mock private DateProvider dateProvider;
+    @Mock private CurrentDateProvider dateProvider;
     @Mock private ApiClientRx apiClient;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -38,7 +38,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
         playPublisher.subscribe();
 
         when(gcmStorage.getToken()).thenReturn("token");
-        when(dateProvider.getCurrentTime()).thenReturn(123L);
+        when(dateProvider.getTime()).thenReturn(123L);
     }
 
     @Test

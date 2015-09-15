@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 
@@ -57,10 +59,18 @@ public interface Player {
         }
 
         public StateTransition(PlayerState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
+            this(newState, reason, trackUrn, currentProgress, duration, new CurrentDateProvider());
+        }
+
+        public StateTransition(PlayerState newState,
+                               Reason reason, Urn trackUrn,
+                               long currentProgress,
+                               long duration,
+                               CurrentDateProvider dateProvider) {
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
-            progress = new PlaybackProgress(currentProgress, duration);
+            this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
         }
 
         public Urn getTrackUrn() {

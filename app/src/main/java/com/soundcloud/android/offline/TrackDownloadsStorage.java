@@ -18,6 +18,7 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -41,7 +42,7 @@ class TrackDownloadsStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, DateProvider dateProvider) {
+    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
@@ -109,7 +110,7 @@ class TrackDownloadsStorage {
     }
 
     Observable<List<Urn>> getTracksToRemove() {
-        final long removalDelayedTimestamp = dateProvider.getCurrentTime() - DELAY_BEFORE_REMOVAL;
+        final long removalDelayedTimestamp = dateProvider.getTime() - DELAY_BEFORE_REMOVAL;
         return propellerRx.query(Query.from(TrackDownloads.TABLE)
                 .select(_ID)
                 .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
@@ -138,7 +139,7 @@ class TrackDownloadsStorage {
 
     public WriteResult markTrackAsUnavailable(Urn track) {
         final ContentValues contentValues = ContentValuesBuilder.values(1)
-                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime()).get();
+                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getTime()).get();
 
         return propeller.update(TrackDownloads.TABLE, contentValues,
                 filter().whereEq(_ID, track.getNumericId()));

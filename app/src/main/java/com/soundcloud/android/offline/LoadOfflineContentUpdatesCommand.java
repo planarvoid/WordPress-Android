@@ -12,6 +12,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
@@ -40,7 +41,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     };
 
     @Inject
-    public LoadOfflineContentUpdatesCommand(PropellerDatabase propellerDatabase, DateProvider dateProvider) {
+    public LoadOfflineContentUpdatesCommand(PropellerDatabase propellerDatabase, CurrentDateProvider dateProvider) {
         this.propellerDatabase = propellerDatabase;
         this.dateProvider = dateProvider;
     }
@@ -106,7 +107,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private List<Urn> getPendingRemovals() {
-        final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
+        final long pendingRemovalThreshold = dateProvider.getDate().getTime() - PENDING_REMOVAL_DELAY;
 
         final Query query = Query
                 .from(TrackDownloads.TABLE)

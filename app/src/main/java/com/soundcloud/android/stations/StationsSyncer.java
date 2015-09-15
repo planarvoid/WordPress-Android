@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 
 import javax.inject.Inject;
@@ -14,7 +15,7 @@ class StationsSyncer implements Callable<Boolean> {
     @Inject
     public StationsSyncer(StationsApi api,
                           WriteStationsCollectionsCommand writeCollectionsCommand,
-                          DateProvider dateProvider) {
+                          CurrentDateProvider dateProvider) {
         this.api = api;
         this.writeCollectionsCommand = writeCollectionsCommand;
         this.dateProvider = dateProvider;
@@ -22,7 +23,7 @@ class StationsSyncer implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        final long syncStartTime = dateProvider.getCurrentTime();
+        final long syncStartTime = dateProvider.getTime();
         final SyncCollectionsMetadata collections = new SyncCollectionsMetadata(
                 syncStartTime,
                 api.fetchStationsCollections());

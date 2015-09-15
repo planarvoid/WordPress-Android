@@ -137,7 +137,7 @@ public class BufferUnderrunListenerTest {
         Player.StateTransition stateTransition = new Player.StateTransition(newState, Player.Reason.NONE, track);
         stateTransition.addExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
-        when(dateProvider.getCurrentDate()).thenReturn(transitionTime);
+        when(dateProvider.getDate()).thenReturn(transitionTime);
         listener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);
     }
 
