@@ -132,7 +132,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     @Test
     public void showPlayingStateCallsShowExpandedOnWaveform() {
         waveformViewController.showPlayingState(playbackProgress);
-        verify(waveformView).showExpandedWaveform();
+        verify(waveformView).showIdleLinesAtWaveformPositions();
     }
 
     @Test
@@ -146,7 +146,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     @Test
     public void showBufferingStateCallsShowExpandedOnWaveform() {
         waveformViewController.showBufferingState();
-        verify(waveformView).showExpandedWaveform();
+        verify(waveformView).showIdleLinesAtWaveformPositions();
     }
 
     @Test
@@ -203,13 +203,6 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void setProgressCallsShowIdleLinesAtWaveformPositionWhenPlaystateNotActive() {
         waveformViewController.setProgress(playbackProgress);
         verify(waveformView).showIdleLinesAtWaveformPositions();
-    }
-
-    @Test
-    public void setProgressDoesNotCallShowIdleLinesAtWaveformPositionWhenPlaystateActive() {
-        waveformViewController.showBufferingState();
-        waveformViewController.setProgress(playbackProgress);
-        verify(waveformView, never()).showIdleLinesAtWaveformPositions();
     }
 
     @Test
@@ -278,7 +271,8 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onForeground();
         waveformViewController.setWaveform(Observable.just(waveformData), true);
 
-        verify(waveformView, times(2)).showExpandedWaveform(); // once for playing, once after loading
+        verify(waveformView).showIdleLinesAtWaveformPositions(); // on state change
+        verify(waveformView).showExpandedWaveform(); // on waveform loaded
     }
 
     @Test
