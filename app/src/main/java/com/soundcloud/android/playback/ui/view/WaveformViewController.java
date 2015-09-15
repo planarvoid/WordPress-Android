@@ -57,6 +57,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private int adjustedWidth;
     private boolean suppressProgress;
+    private boolean isWaveformLoaded;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
     private Player.PlayerState currentState = IDLE;
@@ -159,15 +160,23 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void showPlayingState(PlaybackProgress progress) {
         currentState = PLAYING;
-        waveformView.showExpandedWaveform();
+        showWaveform();
         if (!suppressProgress) {
             startProgressAnimations(progress);
         }
     }
 
+    private void showWaveform() {
+        if (isWaveformLoaded) {
+            waveformView.showExpandedWaveform();
+        } else {
+            waveformView.showIdleLinesAtWaveformPositions();
+        }
+    }
+
     public void showBufferingState() {
         currentState = BUFFERING;
-        waveformView.showExpandedWaveform();
+        showWaveform();
         cancelProgressAnimations();
     }
 
@@ -255,6 +264,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private class WaveformSubscriber extends DefaultSubscriber<WaveformData> {
         @Override
         public void onNext(WaveformData waveformData) {
+            isWaveformLoaded = true;
             waveformView.setWaveformData(waveformData, adjustedWidth);
             if (currentState != IDLE) {
                 waveformView.showExpandedWaveform();
