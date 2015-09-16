@@ -1,5 +1,8 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchOperations.*;
+
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -12,12 +15,14 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -51,6 +56,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     private final SearchOperations searchOperations;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final SearchResultsAdapter adapter;
+    private final MixedItemClickListener.Factory clickListenerFactory;
 
     private int searchType;
     private String searchQuery;
@@ -59,11 +65,12 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                            SearchOperations searchOperations,
                            Provider<ExpandPlayerSubscriber> subscriberProvider,
-                           SearchResultsAdapter adapter) {
+                           SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory) {
         super(swipeRefreshAttacher, Options.list());
         this.searchOperations = searchOperations;
         this.subscriberProvider = subscriberProvider;
         this.adapter = adapter;
+        this.clickListenerFactory = clickListenerFactory;
     }
 
     @Override
@@ -95,5 +102,25 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    @Override
+    protected void onItemClicked(View view, int position) {
+        clickListenerFactory.create(getTrackingScreen(searchType), null).onItemClick(adapter.getItems(), view, position);
+    }
+
+    private Screen getTrackingScreen(int searchType) {
+        switch (searchType) {
+            case TYPE_ALL:
+                return Screen.SEARCH_EVERYTHING;
+            case TYPE_TRACKS:
+                return Screen.SEARCH_TRACKS;
+            case TYPE_PLAYLISTS:
+                return Screen.SEARCH_PLAYLISTS;
+            case TYPE_USERS:
+                return Screen.SEARCH_USERS;
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
     }
 }
