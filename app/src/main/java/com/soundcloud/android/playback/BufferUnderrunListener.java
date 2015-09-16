@@ -45,7 +45,7 @@ public class BufferUnderrunListener {
         boolean isBufferUnderrun = detector.onStateTransitionEvent(stateTransition);
         if (stateTransition.isPlayerPlaying()) {
             if (enteringPlayingStateTime == null) {
-                enteringPlayingStateTime = dateProvider.getDate();
+                enteringPlayingStateTime = dateProvider.getCurrentDate();
             }
         } else if (enteringPlayingStateTime != null) {
             long uninterruptedPlayTime = uninterruptedPlaytimeStorage.getPlayTime(playerType);
@@ -61,7 +61,7 @@ public class BufferUnderrunListener {
     }
 
     private long incrementPlaytime(long uninterruptedPlayTime) {
-        return uninterruptedPlayTime + (dateProvider.getDate().getTime() - enteringPlayingStateTime.getTime());
+        return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
     }
 
     private void emitUninterruptedPlaytimeEvent(Urn track, PlaybackProtocol playbackProtocol, PlayerType playerType, ConnectionType currentConnectionType, long uninterruptedPlayTime) {

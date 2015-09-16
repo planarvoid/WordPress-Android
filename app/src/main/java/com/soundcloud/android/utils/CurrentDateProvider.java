@@ -10,12 +10,12 @@ public class CurrentDateProvider implements DateProvider {
     }
 
     @Override
-    public Date getDate(){
+    public Date getCurrentDate(){
         return new Date();
     }
 
     @Override
-    public long getTime() {
+    public long getCurrentTime() {
         return System.currentTimeMillis();
     }
 }

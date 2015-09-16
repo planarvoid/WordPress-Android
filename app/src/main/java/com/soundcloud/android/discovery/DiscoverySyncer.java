@@ -62,7 +62,7 @@ class DiscoverySyncer {
     }
 
     private boolean isRecommendationsCacheExpired() {
-        return (dateProvider.getTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
+        return (dateProvider.getCurrentTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
     }
 
     private long getLastSyncTime() {
@@ -71,7 +71,7 @@ class DiscoverySyncer {
 
     private void updateLastSyncTime() {
         final SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(KEY_LAST_SYNC_TIME, dateProvider.getTime());
+        editor.putLong(KEY_LAST_SYNC_TIME, dateProvider.getCurrentTime());
         editor.apply();
     }
 }

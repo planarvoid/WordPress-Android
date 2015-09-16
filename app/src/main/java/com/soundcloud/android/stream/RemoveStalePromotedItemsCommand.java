@@ -39,7 +39,7 @@ public class RemoveStalePromotedItemsCommand extends WriteStorageCommand<Void, W
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase db) {
-                final long staleItemCutoff = dateProvider.getTime() - STALE_TIME_MILLIS;
+                final long staleItemCutoff = dateProvider.getCurrentTime() - STALE_TIME_MILLIS;
                 final Where whereClause = filter().whereLt(TableColumns.PromotedTracks.CREATED_AT, staleItemCutoff);
                 removeItems = db.query(Query.from(Table.PromotedTracks.name())
                         .select(TableColumns.PromotedTracks._ID)

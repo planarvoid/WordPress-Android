@@ -23,7 +23,7 @@ class StationsSyncer implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        final long syncStartTime = dateProvider.getTime();
+        final long syncStartTime = dateProvider.getCurrentTime();
         final SyncCollectionsMetadata collections = new SyncCollectionsMetadata(
                 syncStartTime,
                 api.fetchStationsCollections());

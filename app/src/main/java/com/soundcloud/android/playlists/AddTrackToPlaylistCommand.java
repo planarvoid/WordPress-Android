@@ -56,7 +56,7 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
                 .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
                 .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                 .put(TableColumns.PlaylistTracks.POSITION, position)
-                .put(TableColumns.PlaylistTracks.ADDED_AT, dateProvider.getDate().getTime())
+                .put(TableColumns.PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
                 .get();
     }
 

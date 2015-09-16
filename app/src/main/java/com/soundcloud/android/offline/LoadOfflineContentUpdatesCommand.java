@@ -107,7 +107,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     private List<Urn> getPendingRemovals() {
-        final long pendingRemovalThreshold = dateProvider.getDate().getTime() - PENDING_REMOVAL_DELAY;
+        final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
 
         final Query query = Query
                 .from(TrackDownloads.TABLE)

@@ -26,7 +26,7 @@ public class AddTrackToPlaylistCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new AddTrackToPlaylistCommand(propeller(), dateProvider);
-        when(dateProvider.getDate()).thenReturn(ADDED_AT);
+        when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
     }
 
     @Test

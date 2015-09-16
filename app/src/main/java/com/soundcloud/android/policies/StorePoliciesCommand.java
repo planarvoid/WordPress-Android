@@ -41,7 +41,7 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
                 .put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy())
                 .put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable())
                 .put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getTime())
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getCurrentTime())
                 .put(TableColumns.TrackPolicies.MONETIZATION_MODEL, policyEntry.getMonetizationModel())
                 .put(TableColumns.TrackPolicies.SUB_MID_TIER, policyEntry.isSubMidTier())
                 .put(TableColumns.TrackPolicies.SUB_HIGH_TIER, policyEntry.isSubHighTier())

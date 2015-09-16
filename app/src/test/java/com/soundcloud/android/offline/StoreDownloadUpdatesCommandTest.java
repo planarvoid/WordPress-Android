@@ -3,7 +3,6 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +82,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
         command.call(offlineContentUpdates);
 
-        databaseAssertions().assertTrackIsUnavailable(TRACK, dateProvider.getTime());
+        databaseAssertions().assertTrackIsUnavailable(TRACK, dateProvider.getCurrentTime());
     }
 
 }

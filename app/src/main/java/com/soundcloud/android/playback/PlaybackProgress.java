@@ -21,7 +21,7 @@ public class PlaybackProgress {
         this.position = position;
         this.duration = duration;
         this.dateProvider = dateProvider;
-        this.createdAt = dateProvider.getTime();
+        this.createdAt = dateProvider.getCurrentTime();
     }
 
     public PlaybackProgress(long position, long duration) {
@@ -57,7 +57,7 @@ public class PlaybackProgress {
     }
 
     public long getTimeSinceCreation() {
-        return dateProvider.getTime() - createdAt;
+        return dateProvider.getCurrentTime() - createdAt;
     }
 
     @Override

@@ -91,7 +91,7 @@ public class FacebookInvitesStorage {
     }
 
     private long millisSince(String key) {
-        return dateProvider.getTime() - getTimestamp(key);
+        return dateProvider.getCurrentTime() - getTimestamp(key);
     }
 
     private void setTimestamp(String key, long ts) {
@@ -101,6 +101,6 @@ public class FacebookInvitesStorage {
     }
 
     private void setCurrentTimestamp(String key) {
-        setTimestamp(key, dateProvider.getTime());
+        setTimestamp(key, dateProvider.getCurrentTime());
     }
 }

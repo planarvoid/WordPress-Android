@@ -38,8 +38,8 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     @Test
     public void returnsPendingRemovalAsTrackToRestoreWhenItIsRequested() {
         actualDownloadedTracks(TRACK_URN_2);
-        actualPendingRemovals(TRACK_URN_1, dateProvider.getTime());
-        actualPendingRemovals(TRACK_URN_2, dateProvider.getTime());
+        actualPendingRemovals(TRACK_URN_1, dateProvider.getCurrentTime());
+        actualPendingRemovals(TRACK_URN_2, dateProvider.getCurrentTime());
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
@@ -52,7 +52,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
     @Test
     public void doesNotReturnPendingRemovalsRemovedAfter3Minutes() {
-        actualPendingRemovals(TRACK_URN_1, dateProvider.getTime() - TimeUnit.MINUTES.toMillis(4));
+        actualPendingRemovals(TRACK_URN_1, dateProvider.getCurrentTime() - TimeUnit.MINUTES.toMillis(4));
 
         final List<DownloadRequest> expectedRequests = Collections.singletonList(downloadRequest);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);

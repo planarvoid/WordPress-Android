@@ -53,7 +53,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
                 if (shouldNotifyUser(lastPolicyUpdate)) {
                     goBackOnlineDialogPresenter.show(activity, lastPolicyUpdate);
-                    policySettingsStorage.setLastPolicyCheckTime(dateProvider.getTime());
+                    policySettingsStorage.setLastPolicyCheckTime(dateProvider.getCurrentTime());
 
                     if (shouldDeleteOfflineContent(lastPolicyUpdate)) {
                         Log.d(TAG, "No policy update in last 30 days");
@@ -66,7 +66,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
     private boolean shouldCheckPolicyUpdates() {
         long lastShownTimeStamp = policySettingsStorage.getLastPolicyCheckTime();
-        final long timeElapsed = dateProvider.getTime() - lastShownTimeStamp;
+        final long timeElapsed = dateProvider.getCurrentTime() - lastShownTimeStamp;
         return TimeUnit.MILLISECONDS.toDays(timeElapsed) > 0;
     }
 
@@ -74,14 +74,14 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
         // this is required because policy updates are scheduled by alarm manager,
         // user can be already online but the policy update hasn't run yets
         if (!connectionHelper.isNetworkConnected()) {
-            final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - lastUpdate);
+            final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
             return daysElapsed >= OFFLINE_DAYS_WARNING_THRESHOLD;
         }
         return false;
     }
 
     private boolean shouldDeleteOfflineContent(Long lastUpdate) {
-        final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - lastUpdate);
+        final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
         return daysElapsed >= OFFLINE_DAYS_ERROR_THRESHOLD;
     }
 }

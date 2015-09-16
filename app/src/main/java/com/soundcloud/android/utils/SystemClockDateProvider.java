@@ -12,12 +12,12 @@ public class SystemClockDateProvider implements DateProvider {
     }
 
     @Override
-    public Date getDate() {
+    public Date getCurrentDate() {
         return new Date(SystemClock.uptimeMillis());
     }
 
     @Override
-    public long getTime() {
+    public long getCurrentTime() {
         return SystemClock.uptimeMillis();
     }
 }

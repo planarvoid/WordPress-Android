@@ -85,7 +85,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final TestSubscriber<List<AddTrackToPlaylistItem>> testSubscriber = new TestSubscriber<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack = testFixtures().insertTrack();
-        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getDate().getTime());
+        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getCurrentDate().getTime());
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testSubscriber);
 

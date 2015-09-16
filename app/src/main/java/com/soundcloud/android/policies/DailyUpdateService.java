@@ -72,10 +72,10 @@ public class DailyUpdateService extends IntentService {
         final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
         if (!updatedTracks.isEmpty()) {
             Log.d(TAG, "Successfull policy update");
-            policySettingsStorage.setPolicyUpdateTime(dateProvider.getTime());
+            policySettingsStorage.setPolicyUpdateTime(dateProvider.getCurrentTime());
             eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(updatedTracks));
         } else {
-            long policyUpdateInDays = TimeUnit.MILLISECONDS.toDays(dateProvider.getTime() - policySettingsStorage.getPolicyUpdateTime());
+            long policyUpdateInDays = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - policySettingsStorage.getPolicyUpdateTime());
             Log.d(TAG, "Last successful policy update was " + policyUpdateInDays + " days ago");
         }
     }

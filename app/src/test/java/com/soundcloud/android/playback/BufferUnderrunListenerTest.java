@@ -135,7 +135,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         Player.StateTransition stateTransition = new Player.StateTransition(newState, Player.Reason.NONE, track);
         stateTransition.addExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
-        when(dateProvider.getDate()).thenReturn(transitionTime);
+        when(dateProvider.getCurrentDate()).thenReturn(transitionTime);
         listener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);
     }
 

@@ -48,7 +48,7 @@ class WaveformStorage {
                 .put(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId())
                 .put(TableColumns.Waveforms.MAX_AMPLITUDE, data.maxAmplitude)
                 .put(TableColumns.Waveforms.SAMPLES, serializer.serialize(data.samples))
-                .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getTime())
+                .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getCurrentTime())
                 .get();
     }
 

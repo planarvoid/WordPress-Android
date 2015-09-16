@@ -51,7 +51,7 @@ public class StationsSyncerTest {
 
         syncer.call();
 
-        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getTime(), remoteContent);
+        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
         verify(command).call(eq(metadata));
     }
 

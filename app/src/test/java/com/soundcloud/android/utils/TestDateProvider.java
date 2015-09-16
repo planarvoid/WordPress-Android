@@ -19,12 +19,12 @@ public class TestDateProvider extends CurrentDateProvider {
     }
 
     @Override
-    public Date getDate() {
+    public Date getCurrentDate() {
         return new Date(timeInMillis);
     }
 
     @Override
-    public long getTime() {
+    public long getCurrentTime() {
         return timeInMillis;
     }
 

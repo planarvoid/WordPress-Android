@@ -56,7 +56,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(creatorOptOut.size());
         for (DownloadRequest optOuts : creatorOptOut) {
             contentValues.add(ContentValuesBuilder.values(3)
-                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getTime())
+                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
                     .put(TrackDownloads.REQUESTED_AT, null)
                     .put(TrackDownloads._ID, optOuts.track.getNumericId())
                     .get());
@@ -70,7 +70,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             contentValues.add(ContentValuesBuilder
                     .values(2)
                     .put(TrackDownloads._ID, track.getNumericId())
-                    .put(TrackDownloads.REMOVED_AT, dateProvider.getTime())
+                    .put(TrackDownloads.REMOVED_AT, dateProvider.getCurrentTime())
                     .get());
         }
         return contentValues;
@@ -84,7 +84,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
                     .put(_ID, request.track.getNumericId())
                     .put(UNAVAILABLE_AT, null)
                     .put(REMOVED_AT, null)
-                    .put(DOWNLOADED_AT, dateProvider.getTime())
+                    .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
                     .get());
         }
         return contentValues;
@@ -96,7 +96,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             contentValues.add(ContentValuesBuilder
                     .values()
                     .put(_ID, request.track.getNumericId())
-                    .put(REQUESTED_AT, dateProvider.getTime())
+                    .put(REQUESTED_AT, dateProvider.getCurrentTime())
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, null)
                     .get());

@@ -145,7 +145,7 @@ class StationsStorage {
                         .values()
                         .put(StationsCollections.STATION_URN, stationUrn.toString())
                         .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getTime())
+                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
                         .get()
         );
     }

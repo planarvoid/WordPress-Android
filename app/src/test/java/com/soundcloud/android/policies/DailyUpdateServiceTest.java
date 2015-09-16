@@ -54,12 +54,12 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Test
     public void storesLastPolicyUpdateTimeAfterSucessfulPolicyUpdate() {
-        when(dateProvider.getTime()).thenReturn(1000L);
+        when(dateProvider.getCurrentTime()).thenReturn(1000L);
         when(policyOperations.updateTrackPolicies()).thenReturn(tracks);
 
         dailyUpdateService.onHandleIntent(startIntent());
 
-        verify(policySettingsStorage).setPolicyUpdateTime(dateProvider.getTime());
+        verify(policySettingsStorage).setPolicyUpdateTime(dateProvider.getCurrentTime());
     }
 
     @Test

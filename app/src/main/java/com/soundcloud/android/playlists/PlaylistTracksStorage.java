@@ -154,7 +154,7 @@ class PlaylistTracksStorage {
                 .put(PlaylistTracks.PLAYLIST_ID, playlistNumericId)
                 .put(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                 .put(PlaylistTracks.POSITION, position)
-                .put(PlaylistTracks.ADDED_AT, dateProvider.getDate().getTime())
+                .put(PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
                 .get();
     }
 

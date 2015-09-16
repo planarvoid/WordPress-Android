@@ -94,7 +94,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
-        when(dateProvider.getTime()).thenReturn(100L);
+        when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(view.getResources()).thenReturn(resources);
         when(fragment.getActivity()).thenReturn(activity);
     }

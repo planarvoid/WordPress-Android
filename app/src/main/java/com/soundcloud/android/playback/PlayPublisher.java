@@ -76,7 +76,7 @@ public class PlayPublisher {
     private Payload createPayload(Player.StateTransition stateTransition) {
         return new Payload(
                 gcmStorage.getToken(),
-                dateProvider.getTime(),
+                dateProvider.getCurrentTime(),
                 stateTransition.getTrackUrn());
     }
 

@@ -110,7 +110,7 @@ class TrackDownloadsStorage {
     }
 
     Observable<List<Urn>> getTracksToRemove() {
-        final long removalDelayedTimestamp = dateProvider.getTime() - DELAY_BEFORE_REMOVAL;
+        final long removalDelayedTimestamp = dateProvider.getCurrentTime() - DELAY_BEFORE_REMOVAL;
         return propellerRx.query(Query.from(TrackDownloads.TABLE)
                 .select(_ID)
                 .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
@@ -139,7 +139,7 @@ class TrackDownloadsStorage {
 
     public WriteResult markTrackAsUnavailable(Urn track) {
         final ContentValues contentValues = ContentValuesBuilder.values(1)
-                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getTime()).get();
+                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime()).get();
 
         return propeller.update(TrackDownloads.TABLE, contentValues,
                 filter().whereEq(_ID, track.getNumericId()));

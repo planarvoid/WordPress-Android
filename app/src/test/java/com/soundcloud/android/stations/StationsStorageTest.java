@@ -56,7 +56,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
     public void shouldSaveRecentlyPlayedStation() {
         storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
 
-        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getTime(), 1);
+        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
 
         databaseAssertions().assertRecentStationsContains(stationUrn, previousStartedAt, 0);
-        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getTime(), 1);
+        databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
     }
 
     @Test

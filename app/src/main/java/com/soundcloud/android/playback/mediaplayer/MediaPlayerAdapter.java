@@ -107,7 +107,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         seekPos = POS_NOT_SET;
 
         setInternalState(PlaybackState.PREPARING);
-        prepareStartTimeMs = dateProvider.getDate().getTime();
+        prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
             mediaPlayer.setDataSource(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN)));
@@ -137,7 +137,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(dateProvider.getDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
+                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
 
                 if (resumePos > 0) {
                     seek(resumePos, true);

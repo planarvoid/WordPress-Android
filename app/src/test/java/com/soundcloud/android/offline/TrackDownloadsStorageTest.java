@@ -113,9 +113,9 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void getTracksToRemoveReturnsTrackPendingRemovalSinceAtLeast3Minutes() {
-        final long fourMinutesAgo = dateProvider.getTime() - TimeUnit.MINUTES.toMillis(4);
+        final long fourMinutesAgo = dateProvider.getCurrentTime() - TimeUnit.MINUTES.toMillis(4);
 
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, dateProvider.getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, dateProvider.getCurrentTime());
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_2, fourMinutesAgo);
 
         storage.getTracksToRemove().subscribe(observer);
@@ -150,7 +150,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
         storage.markTrackAsUnavailable(TRACK_1);
 
-        databaseAssertions().assertTrackIsUnavailable(TRACK_1, dateProvider.getTime());
+        databaseAssertions().assertTrackIsUnavailable(TRACK_1, dateProvider.getCurrentTime());
     }
 
     @Test
