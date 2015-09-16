@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
@@ -14,7 +14,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends RecyclerItemAdapter<ListItem, SearchResultsAdapter.SearchViewHolder> {
+class SearchResultsAdapter extends PagingRecyclerItemAdapter<ListItem, SearchResultsAdapter.SearchViewHolder> {
 
     static final int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE;
     static final int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
