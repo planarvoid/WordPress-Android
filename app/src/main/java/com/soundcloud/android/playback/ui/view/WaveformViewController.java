@@ -6,9 +6,8 @@ import static com.soundcloud.android.playback.Player.PlayerState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
-import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
@@ -18,14 +17,12 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.BitSet;
 
 public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
@@ -42,7 +39,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private final BitSet createState = new BitSet(NUM_FLAGS);
 
     private final WaveformView waveformView;
-    private final Scheduler graphicsScheduler;
     private final float waveformWidthRatio;
     private final ProgressController leftProgressController;
     private final ProgressController rightProgressController;
@@ -67,9 +63,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler) {
+                           final ScrubController.Factory scrubControllerFactory) {
         this.waveformView = waveform;
-        this.graphicsScheduler = graphicsScheduler;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
 
@@ -269,21 +264,18 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
-        private final Scheduler scheduler;
         private final ScrubController.Factory scrubControllerFactory;
 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
-                ProgressController.Factory animationControllerFactory,
-                @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler) {
+                ProgressController.Factory animationControllerFactory) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
-            this.scheduler = scheduler;
         }
 
         public WaveformViewController create(WaveformView waveformView) {
-            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory,
-                    scheduler);
+            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory
+            );
         }
     }
 

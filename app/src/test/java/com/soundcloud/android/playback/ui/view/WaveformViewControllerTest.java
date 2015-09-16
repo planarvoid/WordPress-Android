@@ -27,7 +27,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
@@ -74,8 +73,8 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
-        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
-                Schedulers.immediate()).create(waveformView);
+        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory
+        ).create(waveformView);
     }
 
     @Test
