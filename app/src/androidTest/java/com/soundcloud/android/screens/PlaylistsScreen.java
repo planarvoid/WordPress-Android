@@ -2,13 +2,13 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 
-import android.widget.ListView;
+import android.support.v7.widget.RecyclerView;
 
 public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -18,12 +18,12 @@ public class PlaylistsScreen extends Screen {
     }
 
     public PlaylistItemElement get(int index) {
-        final ListElement listElement = playlistsListOnCurrentPage();
-        return new PlaylistItemElement(testDriver, listElement.getItemAt(index));
+        final RecyclerViewElement element = playlistsListOnCurrentPage();
+        return new PlaylistItemElement(testDriver, element.getItemAt(index));
     }
 
     public boolean hasLikes() {
-        return !emptyView().isVisible() && playlistsListOnCurrentPage().getVisibleItemViewCount() > 0;
+        return !emptyView().isVisible() && playlistsListOnCurrentPage().getBoundItemCount() > 0;
     }
 
     public int getPlaylistItemCount() {
@@ -60,11 +60,11 @@ public class PlaylistsScreen extends Screen {
     }
 
     public int getLoadedTrackCount(){
-        return playlistsList().getAdapter().getCount();
+        return playlistsList().getAdapter().getItemCount();
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        playlistsList().scrollToBottom();
+        playlistsList().scrollToBottomOfPage();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -83,13 +83,13 @@ public class PlaylistsScreen extends Screen {
         return ACTIVITY;
     }
 
-    private ListElement playlistsList() {
+    private RecyclerViewElement playlistsList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+        return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
-    private ListElement playlistsListOnCurrentPage() {
-        return testDriver.findElement(With.className(ListView.class)).toListView();
+    private RecyclerViewElement playlistsListOnCurrentPage() {
+        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     private void touchTab(String tabText) {

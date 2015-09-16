@@ -1,10 +1,11 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackRecord;
+
+import java.util.List;
 
 public interface StationRecord {
-    ModelCollection<? extends TrackRecord> getTracks();
+    List<Urn> getTracks();
 
     Urn getUrn();
 

@@ -66,7 +66,8 @@ public enum ApiEndpoints {
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
 
     // stations
-    STATION("/stations/%s/meta_and_tracks"),
+    STATION("/stations/%s/station_and_tracks"),
+    STATIONS("/stations"),
 
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
@@ -78,6 +79,9 @@ public enum ApiEndpoints {
     STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
+
+    // public API
+    PLAY_PUBLISH("/tpub"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

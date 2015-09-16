@@ -38,7 +38,7 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:3.0.4@aar",
+          skippy                      : "com.soundcloud.android:skippy:4.2.8@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
@@ -53,18 +53,18 @@ ext {
           httpClientAndroid           : "org.apache.httpcomponents:httpclient-android:4.3.5",
           rxAndroid                   : "io.reactivex:rxandroid:0.25.0",
           rxJava                      : "io.reactivex:rxjava:1.0.13",
-          rxJavaComputationExpressions: "io.reactivex:rxjava-computation-expressions:0.21.0",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.2",
 
           // UI libraries
           slidingUpPanel              : "com.sothree.slidinguppanel:library:2.0.2-SC@aar",
-          androidCrop                 : "com.soundcloud.android:android-crop:1.0.0@aar",
+          androidCrop                 : "com.soundcloud.android:android-crop:1.0.1@aar",
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
-          butterKnife                 : "com.jakewharton:butterknife:5.1.2",
+          butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.2.1-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
+          circleImageView             : "de.hdodenhof:circleimageview:1.3.0",
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",
@@ -79,7 +79,6 @@ ext {
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
           androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion@aar",
           androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion@aar"
-
   ]
 
   unitTestLibraries = [

@@ -28,7 +28,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistLikesStorage {
+public class PlaylistLikesStorage {
 
     private static final LikedPlaylistMapper PLAYLIST_MAPPER = new LikedPlaylistMapper();
 
@@ -39,7 +39,7 @@ class PlaylistLikesStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<List<PropertySet>> loadLikedPlaylists(int limit, long fromTimestamp) {
+    public Observable<List<PropertySet>> loadLikedPlaylists(int limit, long fromTimestamp) {
         final Query query = playlistLikeQuery()
                 .whereLt(Table.Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)
                 .order(Likes.field(CREATED_AT), DESC)

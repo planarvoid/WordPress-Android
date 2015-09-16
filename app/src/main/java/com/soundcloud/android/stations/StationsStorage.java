@@ -3,8 +3,8 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables.RecentStations;
 import com.soundcloud.android.storage.Tables.Stations;
+import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
@@ -32,6 +32,7 @@ class StationsStorage {
                     cursorReader.getString(Stations.TITLE),
                     cursorReader.getString(Stations.TYPE),
                     Collections.<Urn>emptyList(),
+                    cursorReader.getString(Stations.PERMALINK),
                     cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
             );
         }
@@ -48,9 +49,9 @@ class StationsStorage {
         @Override
         public PropertySet map(CursorReader reader) {
             return PropertySet.from(
-                    StationProperty.URN.bind(new Urn(reader.getString(RecentStations.STATION_URN))),
-                    StationProperty.UPDATED_LOCALLY_AT.bind(reader.getLong(RecentStations.UPDATED_LOCALLY_AT)),
-                    StationProperty.POSITION.bind(reader.getInt(RecentStations.POSITION))
+                    StationProperty.URN.bind(new Urn(reader.getString(StationsCollections.STATION_URN))),
+                    StationProperty.UPDATED_LOCALLY_AT.bind(reader.getLong(StationsCollections.UPDATED_LOCALLY_AT)),
+                    StationProperty.POSITION.bind(reader.getInt(StationsCollections.POSITION))
             );
         }
     };
@@ -61,6 +62,7 @@ class StationsStorage {
             return station(new Urn(cursorReader.getString(Stations.STATION_URN)));
         }
     };
+
     private final PropellerDatabase propellerDatabase;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
@@ -72,31 +74,31 @@ class StationsStorage {
         this.dateProvider = dateProvider;
     }
 
+    public ChangeResult clearContentUpdatedBefore(long time) {
+        return propellerDatabase.delete(
+                StationsCollections.TABLE,
+                filter().whereLt(StationsCollections.UPDATED_LOCALLY_AT, time)
+        );
+    }
+
     void clear() {
         propellerDatabase.delete(Stations.TABLE);
-        propellerDatabase.delete(RecentStations.TABLE);
+        propellerDatabase.delete(StationsCollections.TABLE);
         propellerDatabase.delete(StationsPlayQueues.TABLE);
     }
 
-    Observable<Station> recentStations() {
+    Observable<Station> getStationsCollection(int type) {
         return propellerRx
-                .query(buildRecentStationsQuery())
+                .query(buildStationsQuery(type))
                 .flatMap(toStation);
     }
 
-    List<PropertySet> getRecentStationsToSync() {
-        return propellerDatabase
-                .query(Query
-                        .from(RecentStations.TABLE)
-                        .whereNotNull(RecentStations.UPDATED_LOCALLY_AT))
-                .toList(toRecentStationProperties);
-    }
-
-    private Query buildRecentStationsQuery() {
+    private Query buildStationsQuery(int collectionType) {
         return Query
-                .from(RecentStations.TABLE)
-                .order(RecentStations.UPDATED_LOCALLY_AT, Query.Order.DESC)
-                .order(RecentStations.POSITION, Query.Order.ASC);
+                .from(StationsCollections.TABLE)
+                .whereEq(StationsCollections.COLLECTION_TYPE, collectionType)
+                .order(StationsCollections.UPDATED_LOCALLY_AT, Query.Order.DESC)
+                .order(StationsCollections.POSITION, Query.Order.ASC);
     }
 
     Observable<Station> station(Urn stationUrn) {
@@ -111,6 +113,7 @@ class StationsStorage {
                                 station.getTitle(),
                                 station.getType(),
                                 tracks,
+                                station.getPermalink(),
                                 calcStartPosition(station.getStartPosition(), tracks.size())
                         );
                     }
@@ -146,12 +149,23 @@ class StationsStorage {
 
     Observable<ChangeResult> saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
         return propellerRx.upsert(
-                RecentStations.TABLE,
+                StationsCollections.TABLE,
                 ContentValuesBuilder
                         .values()
-                        .put(RecentStations.STATION_URN, stationUrn.toString())
-                        .put(RecentStations.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
+                        .put(StationsCollections.STATION_URN, stationUrn.toString())
+                        .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
+                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
                         .get()
         );
     }
+
+    List<PropertySet> getRecentStationsToSync() {
+        return propellerDatabase
+                .query(Query
+                        .from(StationsCollections.TABLE)
+                        .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
+                        .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
+                .toList(toRecentStationProperties);
+    }
+
 }

@@ -9,19 +9,20 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.events.StreamNotificationEvent;
+import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
+import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,16 +53,22 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Mock private ContentStats contentStats;
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
+    @Mock private FacebookInvitesOperations facebookInvitesOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
     private final PropertySet promotedTrackProperties = TestPropertySets.expectedPromotedTrack();
+    private final FacebookInvitesItem facebookInviteItem = new FacebookInvitesItem(Arrays.asList("url1", "url2"));
 
     @Before
     public void setUp() throws Exception {
         when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.<FacebookInvitesItem>absent()));
+
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
-                removeStalePromotedItemsCommand, markPromotedItemAsStaleCommand, eventBus, Schedulers.immediate());
+                removeStalePromotedItemsCommand, markPromotedItemAsStaleCommand, eventBus,
+                Schedulers.immediate(), facebookInvitesOperations);
     }
 
     @Test
@@ -105,7 +113,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         // 1st page comes back blank first, then as full page of items after sync
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty(), Observable.from(items));
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.from(items));
         // returning true means new items have been added to local storage
         when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
@@ -124,7 +133,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     public void whenItLoadsAnEmptyPageOfItemsOnPageOneEvenAfterAFullSyncItShouldNotSyncAgain() {
         // 1st page comes back blank first, then blank again even after syncing
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<PropertySet>empty());
         // returning true means successful sync
         when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
@@ -143,7 +153,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     public void streamIsConsideredEmptyWhenOnlyPromotedTrackIsReturnedAndDoesNotSyncAgain() {
         // 1st page comes back blank first, then includes promoted track only
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty(), Observable.just(promotedTrackProperties));
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.just(promotedTrackProperties));
         // returning true means successful sync
         when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
@@ -177,7 +188,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final List<PropertySet> secondPage = createItems(PAGE_SIZE, 456L);
 
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty(), Observable.from(secondPage));
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.from(secondPage));
         // returning true means new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
@@ -233,16 +245,6 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-    private List<StreamItem> streamItemsFromPropertySets(List<PropertySet> items) {
-        List<StreamItem> streamItems = new ArrayList<>(items.size());
-
-        for (PropertySet item : items) {
-            streamItems.add(PlayableItem.from(item));
-        }
-
-        return streamItems;
-    }
-
     @Test
     public void shouldRequestSoundStreamSyncAndCompleteWhenNoNewItemsAvailable() {
         when(syncInitiator.refreshSoundStream())
@@ -283,7 +285,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final List<StreamItem> streamItemsWithPromoted = streamItemsFromPropertySets(itemsWithPromoted);
 
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>empty(), Observable.from(itemsWithPromoted));
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.from(itemsWithPromoted));
         when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
@@ -310,6 +313,92 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         verify(markPromotedItemAsStaleCommand).call((PromotedListItem) streamItemsWithPromoted.get(0));
     }
 
+    @Test
+    public void shouldShowFacebookInvitesAsFirstItem() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(observer).onNext(itemsWithInvites(items));
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldShowFacebookInvitesAsFirstItemWithoutFriendPictures() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(observer).onNext(itemsWithInvites(items));
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldTrackFacebookInvitesShown() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+    }
+
+    @Test
+    public void shouldNotShowFacebookInvitesOnEmptyStream() {
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<PropertySet>empty());
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(observer).onNext(Collections.<StreamItem>emptyList());
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldNotShowFacebookInvitesOnPromotedOnlyStream() {
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.just(promotedTrackProperties));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(observer).onNext(Collections.<StreamItem>emptyList());
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldShowFacebookInvitesAbovePromotedItems() {
+        final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        itemsWithPromoted.add(0, promotedTrackProperties);
+
+        when(facebookInvitesOperations.loadWithPictures())
+                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.from(itemsWithPromoted));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(observer).onNext(itemsWithInvites(itemsWithPromoted));
+        verify(observer).onCompleted();
+    }
+
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
@@ -322,4 +411,19 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         return propertySets;
     }
 
+    private List<StreamItem> streamItemsFromPropertySets(List<PropertySet> items) {
+        List<StreamItem> streamItems = new ArrayList<>(items.size());
+
+        for (PropertySet item : items) {
+            streamItems.add(PlayableItem.from(item));
+        }
+
+        return streamItems;
+    }
+
+    private List<StreamItem> itemsWithInvites(List<PropertySet> items) {
+        final List<StreamItem> streamItems = streamItemsFromPropertySets(items);
+        streamItems.add(0, facebookInviteItem);
+        return streamItems;
+    }
 }

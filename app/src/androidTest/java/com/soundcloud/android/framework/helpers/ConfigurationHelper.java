@@ -6,6 +6,9 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
+import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import rx.functions.Action1;
 
@@ -20,7 +23,11 @@ public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
-    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
+    private static final String PREFS_POLICY_SETTINGS = "policy_settings";
+    private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
+    private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
+    private static final String LAST_POLICY_UPDATE_TIME= "last_policy_update_time";
+    
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -42,7 +49,7 @@ public class ConfigurationHelper {
                     }
                 }).subscribe();
     }
-    
+
     public static void disableOfflineContent(Context context) {
         getFeatureStorage(context).update(new Feature(FeatureName.OFFLINE_SYNC, false, Arrays.asList(Plan.MID_TIER)));
     }
@@ -50,6 +57,18 @@ public class ConfigurationHelper {
     public static void resetOfflineSyncState(Context context) {
         disableOfflineContent(context);
         new OfflineContentHelper().clearOfflineContent(context);
+    }
+
+    public static void forceFacebookInvitesNotification(final Context context) {
+        final FacebookInvitesStorage facebookInvitesStorage = getFacebookInvitesStorage(context);
+        facebookInvitesStorage.setTimesAppOpened(FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT - 1);
+        facebookInvitesStorage.setLastClick(0);
+        facebookInvitesStorage.resetDismissed();
+    }
+
+    public static void disableFacebookInvitesNotification(final Context context) {
+        final FacebookInvitesStorage facebookInvitesStorage = getFacebookInvitesStorage(context);
+        facebookInvitesStorage.setTimesAppOpened(0);
     }
 
     private static void enableFeature(Context context, final String name) {
@@ -89,31 +108,55 @@ public class ConfigurationHelper {
     }
 
     private static FeatureStorage getFeatureStorage(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getFeaturesPreferences(context);
         return new FeatureStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
     }
 
+    private static SharedPreferences getFeaturesPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
+    }
+
     private static PlanStorage getPlanStorage(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
         return new PlanStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
+    }
+
+    private static FacebookInvitesStorage getFacebookInvitesStorage(Context context) {
+        final SharedPreferences sharedPreferences = getFacebookInvitesPreferences(context);
+        return new FacebookInvitesStorage(sharedPreferences, new DateProvider());
+    }
+
+    private static SharedPreferences getFacebookInvitesPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_FACEBOOK_INVITES_SETTINGS, Context.MODE_PRIVATE);
     }
 
     private static SharedPreferences getOfflineSettingsPreferences(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
-    public static void resetPolicyUpdateCheckTime(Context context) {
-        getOfflineSettingsPreferences(context)
+    private static SharedPreferences getPolicySettingsPreferences(Context context){
+        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    public static void resetPolicyUpdateAndCheckTime(Context context) {
+        getPolicySettingsPreferences(context)
                 .edit()
-                .remove(LAST_POLICY_UPDATE_CHECK)
+                .remove(LAST_POLICY_CHECK_TIME)
+                .remove(LAST_POLICY_UPDATE_TIME)
+                .apply();
+    }
+
+    public static void setPolicyCheckTime(Context context, long time) {
+        getPolicySettingsPreferences(context)
+                .edit()
+                .putLong(LAST_POLICY_CHECK_TIME, time)
                 .commit();
     }
 
-    public static void setPolicyUpdateCheckTime(Context context, long time) {
-        getOfflineSettingsPreferences(context)
+    public static void setPolicyUpdateTime(Context context, long time) {
+        getPolicySettingsPreferences(context)
                 .edit()
-                .putLong(LAST_POLICY_UPDATE_CHECK, time)
+                .putLong(LAST_POLICY_UPDATE_TIME, time)
                 .commit();
     }
-
 }

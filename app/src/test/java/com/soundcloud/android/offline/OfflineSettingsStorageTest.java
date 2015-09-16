@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -49,17 +51,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getPolicyUpdateCheckTimeReturns0ByDefault() {
-        assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(0L);
-    }
-
-    @Test
-    public void getReturnsSetPolicyUpdateCheckTime() {
-        storage.setPolicyUpdateCheckTime(123456789L);
-        assertThat(storage.getPolicyUpdateCheckTime()).isEqualTo(123456789L);
-    }
-
-    @Test
     public void offlineContentFlagIsNotSetByDefault() {
         assertThat(storage.hasOfflineContent()).isFalse();
     }
@@ -72,11 +63,19 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
+    public void savesEncryptionTestRunValue() {
+        assertFalse(storage.hasRunEncryptionTest());
+
+        storage.setEncryptionTestRun();
+
+        assertTrue(storage.hasRunEncryptionTest());
+    }
+
+    @Test
     public void clearsSettingsStorage() {
         storage.setWifiOnlyEnabled(false);
         storage.clear();
 
         assertThat(storage.isWifiOnlyEnabled()).isTrue();
     }
-
 }

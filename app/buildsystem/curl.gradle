@@ -2,13 +2,15 @@ import groovy.json.JsonSlurper
 
 def executeCurlCommand(cmd, defaultReturnValue) {
   def p = cmd.execute()
-  p.waitFor()
+  OutputStream standardOut = new ByteArrayOutputStream()
+  OutputStream standardError = new ByteArrayOutputStream()
+  p.waitForProcessOutput(standardOut, standardError)
   def exitValue = p.exitValue()
   if (exitValue != 0) {
-    System.err.println("executeCurlCommand($cmd) exitValue: $exitValue")
+    System.err.print(new String(standardError.toByteArray()))
     return defaultReturnValue
   }
-  def text = p.text
+  def text = new String(standardOut.toByteArray())
   if (null == text) {
     System.err.println("executeCurlCommand($cmd) text was null")
     return defaultReturnValue
@@ -17,12 +19,12 @@ def executeCurlCommand(cmd, defaultReturnValue) {
 }
 
 def executePostWithData(url, json, defaultReturnValue) {
-  def cmd = ['curl', 'i', '-X', 'POST', url, '-d', json]
+  def cmd = ['curl', '-X', 'POST', url, '-d', json]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
 def executeGet(url, defaultReturnValue) {
-  def cmd = ['curl', 'i', '-X', 'GET', url]
+  def cmd = ['curl',  '-X', 'GET', '-m', '10', url]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 

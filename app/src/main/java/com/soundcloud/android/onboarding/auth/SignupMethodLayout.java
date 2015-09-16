@@ -26,7 +26,7 @@ public class SignupMethodLayout extends AuthLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
     }
 
     @Override

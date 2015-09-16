@@ -203,7 +203,6 @@ public class ImageOperations {
         imageLoader.displayImage(buildUrlIfNotPreviouslyMissing(urn, apiImageSize), imageAware, new ImageListenerUILAdapter(imageListener));
     }
 
-    @Deprecated // use the variants that take URNs instead
     public void display(String imageUrl, ImageView imageView) {
         imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }

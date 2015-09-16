@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -75,6 +76,15 @@ public class DevDrawerFragment extends PreferenceFragment {
                             final CheckBoxPreference chkPreference = (CheckBoxPreference) screen.findPreference(preferenceKey);
                             chkPreference.setChecked(featureFlags.resetAndGet(flag));
                         }
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_policy_sync_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        DailyUpdateService.start(getActivity().getApplicationContext());
                         return true;
                     }
                 });

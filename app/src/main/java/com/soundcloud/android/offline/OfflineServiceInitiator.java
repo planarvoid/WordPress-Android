@@ -7,6 +7,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIK
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -108,7 +109,8 @@ public class OfflineServiceInitiator {
         return Observable
                 .merge(getOfflinePlaylistChangedEvents(),
                         getOfflineLikesChangedEvents(),
-                        getSyncOverWifiStateChanged()
+                        getSyncOverWifiStateChanged(),
+                        policyUpdates()
                 );
     }
 
@@ -136,6 +138,10 @@ public class OfflineServiceInitiator {
                 .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
                 .map(EntityStateChangedEvent.TO_SINGULAR_CHANGE)
                 .flatMap(syncPlaylistIfNecessary);
+    }
+
+    private Observable<PolicyUpdateEvent> policyUpdates() {
+        return eventBus.queue(EventQueue.POLICY_UPDATES);
     }
 
     private Observable<Boolean> offlinePlaylistContentChanged() {

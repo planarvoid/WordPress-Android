@@ -28,10 +28,12 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.onboarding.suggestions.CategoryBlueprint;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUserBlueprint;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
@@ -154,4 +156,11 @@ public class ModelFixtures {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
 
+    public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn ) {
+        return apiPolicyInfo(trackUrn, true, "policy", true);
+    }
+
+    public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
+        return ApiPolicyInfo.create(trackUrn.toString(), monetizable, policy, syncable, "model", true, true);
+    }
 }

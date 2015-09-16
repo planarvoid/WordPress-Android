@@ -5,13 +5,11 @@ import static com.soundcloud.android.profile.ProfileActivity.EXTRA_SEARCH_QUERY_
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -26,7 +24,6 @@ import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -78,7 +75,6 @@ public class LegacyProfileActivity extends ScActivity implements
     protected SlidingTabLayout indicator;
     /* package */ @Nullable PublicApiUser user;
     @Inject ImageOperations imageOperations;
-    @Inject PublicApi oldCloudAPI;
     @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
     @Inject FeatureFlags featureFlags;
@@ -90,7 +86,6 @@ public class LegacyProfileActivity extends ScActivity implements
     private ToggleButton toggleFollow;
     private ImageView userImage;
     private FetchUserTask loadUserTask;
-    private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
@@ -143,8 +138,6 @@ public class LegacyProfileActivity extends ScActivity implements
         }
 
         if (user != null) {
-            userInfoFragment = UserInfoFragment.newInstance(user.getId());
-
             if (isLoggedInUser()) {
                 toggleFollow.setVisibility(View.GONE);
             } else {
@@ -233,12 +226,10 @@ public class LegacyProfileActivity extends ScActivity implements
 
         // TODO: move to a *Operations class to decouple from storage layer
         fireAndForget(userStorage.storeAsync(this.user));
-        userInfoFragment.onSuccess(this.user);
     }
 
     @Override
     public void onError(Object context) {
-        userInfoFragment.onError();
     }
 
     public PublicApiUser getUser() {
@@ -473,21 +464,14 @@ public class LegacyProfileActivity extends ScActivity implements
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
             if (currentTab == Tab.details) {
-                if (featureFlags.isEnabled(Flag.NEW_PROFILE_FRAGMENTS)) {
-                    return UserDetailsFragment.create(user.getUrn());
-                } else {
-                    return userInfoFragment;
-                }
+                return UserDetailsFragment.create(user.getUrn());
 
             } else {
                 // don't ask me why the user could be null here. No time for this dead code - JS
-                final long id = user == null ? Consts.NOT_SET : user.getId();
                 final Content content = isLoggedInUser() ? currentTab.youContent : currentTab.userContent;
                 final SearchQuerySourceInfo searchQuerySourceForTab = searchQuerySourceForTab(currentTab);
-                final Uri uri = isLoggedInUser() ? content.uri : currentTab.userContent.forId(id);
                 final Screen screen = isLoggedInUser() ? currentTab.youScreen : currentTab.userScreen;
-                final String username = user == null ? ScTextUtils.EMPTY_STRING : user.username;
-                return profileListFragmentCreator.create(LegacyProfileActivity.this, content, user.getUrn(), username, uri, screen, searchQuerySourceForTab);
+                return profileListFragmentCreator.create(content, user.getUrn(), screen, searchQuerySourceForTab);
             }
         }
 

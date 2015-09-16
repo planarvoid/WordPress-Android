@@ -26,8 +26,11 @@ public class StorageModule {
     public static final String OFFLINE_SETTINGS = "OfflineSettings";
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
+    public static final String POLICY_SETTINGS = "Policies";
     public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
     public static final String GCM = "gcm";
+    public static final String FACEBOOK_INVITES = "FacebookInvites";
+    public static final String COLLECTIONS = "collections";
 
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
@@ -36,9 +39,12 @@ public class StorageModule {
     private static final String PREFS_DEVICE_KEYS = "device_keys";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FEATURES = "features_settings";
+    private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
     private static final String PREFS_GCM = "gcm";
+    private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
+    private static final String PREFS_COLLECTIONS = "collections";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -55,6 +61,12 @@ public class StorageModule {
     @Named(GCM)
     public SharedPreferences provideGcmPrefs(Context context) {
         return context.getSharedPreferences(PREFS_GCM, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(COLLECTIONS)
+    public SharedPreferences provideCollectionsPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_COLLECTIONS, Context.MODE_PRIVATE);
     }
 
     @Provides
@@ -81,6 +93,12 @@ public class StorageModule {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
+    @Provides
+    @Named(POLICY_SETTINGS)
+    public SharedPreferences providePolicyPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
+    }
+
     @Provides @Singleton
     @Named(FEATURES)
     public SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
@@ -97,6 +115,12 @@ public class StorageModule {
     @Named(RECOMMENDATIONS_SYNC)
     public SharedPreferences provideRecommendationsSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_RECOMMENDATIONS_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(FACEBOOK_INVITES)
+    public SharedPreferences provideFacebookInvitesPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_FACEBOOK_INVITES, Context.MODE_PRIVATE);
     }
 
     @Provides

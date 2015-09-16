@@ -41,6 +41,7 @@ public class PlaySessionController {
 
     @VisibleForTesting
     static final int RECOMMENDED_LOAD_TOLERANCE = 5;
+    public static final int SKIP_REPORT_TOLERANCE = 1000;
 
     private final Resources resources;
     private final EventBus eventBus;
@@ -126,7 +127,7 @@ public class PlaySessionController {
     private void logInvalidSkipping(StateTransition stateTransition) {
         final PlaybackProgress progress = stateTransition.getProgress();
         if (stateTransition.trackEnded()) {
-            if (progress.getDuration() != progress.getPosition()) {
+            if (Math.abs(progress.getDuration() - progress.getPosition()) > SKIP_REPORT_TOLERANCE) {
                 ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Track ended prematurely"));
             }
         } else {

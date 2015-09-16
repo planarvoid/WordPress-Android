@@ -543,10 +543,9 @@
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
 
-    <!-- __STATIONS -->
-    <string name="side_menu_stations">Stations</string>
-    <string name="track_station_type">Track station</string>
-    <string name="recent_stations_title">Recently played stations</string>
-    <string name="station_bucket_action_text">View all</string>
+    <!-- __FACEBOOK INVITES -->
+    <string name="facebook_invites_title">Invite friends to SoundCloud</string>
+    <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
+    <string name="facebook_invites_button">Invite friends</string>
 
 </resources>

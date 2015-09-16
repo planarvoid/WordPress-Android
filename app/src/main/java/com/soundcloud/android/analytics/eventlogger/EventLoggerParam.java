@@ -30,6 +30,7 @@ class EventLoggerParam {
     static final String MONETIZED_OBJECT = "monetized_object";
     static final String IMPRESSION_NAME = "impression_name";
     static final String IMPRESSION_OBJECT = "impression_object";
+    static final String IMPRESSION_CATEGORY = "impression_category";
     static final String PROMOTED_BY = "promoted_by";
     // performance & error event params
     static final String LATENCY = "latency";
@@ -47,6 +48,7 @@ class EventLoggerParam {
     static final String CLICK_NAME = "click_name";
     static final String CLICK_OBJECT = "click_object";
     static final String CLICK_TARGET = "click_target";
+    static final String CLICK_CATEGORY = "click_category";
     static final String REASON = "reason";
     // search tracking
     static final String QUERY_URN = "query_urn";

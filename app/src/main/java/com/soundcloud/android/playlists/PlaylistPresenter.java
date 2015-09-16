@@ -14,7 +14,9 @@ class PlaylistPresenter {
 
     private TextView titleView;
     private TextView usernameView;
+    private TextView privateTitleView;
     private ImageView artworkView;
+    private PlaylistWithTracks playlistWithTracks;
 
     private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
@@ -28,13 +30,18 @@ class PlaylistPresenter {
         return this;
     }
 
+    public PlaylistPresenter setPrivateTitleView(TextView titleView) {
+        this.privateTitleView = titleView;
+        return this;
+    }
+
     public PlaylistPresenter setUsernameView(TextView usernameView) {
         this.usernameView = usernameView;
         return this;
     }
 
     public PlaylistPresenter setTextVisibility(int visibility) {
-        titleView.setVisibility(visibility);
+        getTitleView().setVisibility(visibility);
         usernameView.setVisibility(visibility);
         return this;
     }
@@ -46,8 +53,17 @@ class PlaylistPresenter {
     }
 
     public void setPlaylist(PlaylistWithTracks item) {
-        titleView.setText(item.getTitle());
+        playlistWithTracks = item;
+
+        getTitleView().setText(item.getTitle());
         usernameView.setText(item.getCreatorName());
         imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);
+    }
+
+    private TextView getTitleView() {
+        if (playlistWithTracks != null && playlistWithTracks.isPrivate()) {
+            return privateTitleView;
+        }
+        return titleView;
     }
 }

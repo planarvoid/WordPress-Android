@@ -228,44 +228,6 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tryToUpdateAndLoadLastPoliciesUpdateTimeFetchThePolicies() {
-        final TestObserver<Long> observer = new TestObserver<>();
-        final List<Urn> tracksWithStalePolicies = Arrays.asList(Urn.forTrack(123), Urn.forTrack(143), Urn.forTrack(222));
-
-        when(trackDownloadsStorage.getLastPolicyUpdate()).thenReturn(Observable.<Long>empty());
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(tracksWithStalePolicies));
-
-        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
-
-        verify(policyOperations).updatePolicies(tracksWithStalePolicies);
-    }
-
-    @Test
-    public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchFailed() {
-        final TestObserver<Long> observer = new TestObserver<>();
-        when(trackDownloadsStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
-
-        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(12344567L);
-        assertThat(observer.getOnCompletedEvents()).hasSize(1);
-    }
-
-    @Test
-    public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchSucceeded() {
-        final TestObserver<Long> observer = new TestObserver<>();
-        when(trackDownloadsStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
-
-        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(12344567L);
-        assertThat(observer.getOnCompletedEvents()).hasSize(1);
-    }
-
-    @Test
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
         final TestObserver<OfflineContentUpdates> observer = new TestObserver<>();
 

@@ -12,11 +12,9 @@ import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Statement;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.app.Activity;
@@ -161,30 +159,16 @@ class PaymentOperations {
     }
 
     private Observable<PurchaseStatus> pollStatus() {
-        final PollingState pollingState = new PollingState();
-        return Statement.doWhile(delayGetStatus(), pollingState.shouldContinue())
-                .doOnNext(new Action1<PurchaseStatus>() {
+        return Observable.interval(VERIFY_THROTTLE_SECONDS, TimeUnit.SECONDS, scheduler)
+                .take(4)
+                .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
                     @Override
-                    public void call(PurchaseStatus purchaseStatus) {
-                        if (purchaseStatus.isPending()) {
-                            pollingState.increment();
-                        } else {
-                            pollingState.resultObtained();
-                        }
+                    public Observable<PurchaseStatus> call(Long tick) {
+                        return getStatus();
                     }
                 })
                 .filter(IGNORE_PENDING)
-                .defaultIfEmpty(PurchaseStatus.VERIFY_TIMEOUT);
-    }
-
-    private Observable<PurchaseStatus> delayGetStatus() {
-        return Observable.timer(VERIFY_THROTTLE_SECONDS, TimeUnit.SECONDS, scheduler)
-                .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
-                    @Override
-                    public Observable<PurchaseStatus> call(Long time) {
-                        return getStatus();
-                    }
-                });
+                .firstOrDefault(PurchaseStatus.VERIFY_TIMEOUT);
     }
 
     private Observable<PurchaseStatus> getStatus() {
@@ -226,32 +210,6 @@ class PaymentOperations {
                         .forPrivateApi(API_VERSION)
                         .build();
         return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
-    }
-
-    private static class PollingState {
-
-        private static final int MAX_RETRIES = 3;
-
-        private boolean resultObtained = false;
-        private int requestCount = 0;
-
-        public Func0<Boolean> shouldContinue() {
-            return new Func0<Boolean>() {
-                @Override
-                public Boolean call() {
-                    return requestCount <= MAX_RETRIES && !resultObtained;
-                }
-            };
-        }
-
-        public void resultObtained() {
-            resultObtained = true;
-        }
-
-        public void increment() {
-            requestCount++;
-        }
-
     }
 
 }

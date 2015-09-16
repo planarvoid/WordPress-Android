@@ -14,24 +14,15 @@ import javax.inject.Inject;
 
 public class ShowAllStationsFragment extends LightCycleSupportFragment {
 
-    @Inject @LightCycle StationsGridPresenter presenter;
+    @Inject @LightCycle ShowAllStationsPresenter presenter;
 
     public static ShowAllStationsFragment create(int collectionType) {
         final ShowAllStationsFragment fragment = new ShowAllStationsFragment();
         final Bundle bundle = new Bundle();
 
-        bundle.putAll(StationsGridPresenter.createBundle(toPresenterCollectionType(collectionType)));
+        bundle.putAll(ShowAllStationsPresenter.createBundle(collectionType));
         fragment.setArguments(bundle);
         return fragment;
-    }
-
-    private static int toPresenterCollectionType(int collectionType) {
-        switch (collectionType) {
-            case ShowAllStationsActivity.RECENT:
-               return StationsGridPresenter.RECENT_STATIONS;
-            default:
-                throw new IllegalArgumentException("Unknown collection type. " + collectionType);
-        }
     }
 
     public ShowAllStationsFragment() {

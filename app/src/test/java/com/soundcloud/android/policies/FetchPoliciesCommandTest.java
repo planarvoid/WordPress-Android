@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +26,8 @@ public class FetchPoliciesCommandTest extends AndroidUnitTest {
     private FetchPoliciesCommand command;
 
     private final List<String> body = singletonList("soundcloud:playlists:1");
-    private final PolicyInfo policy = new PolicyInfo("soundcloud:playlists:1", true, "Allow", false);
-    private final ModelCollection<PolicyInfo> policies = new ModelCollection<>(singletonList(policy));
+    private final ApiPolicyInfo policy = ModelFixtures.apiPolicyInfo(Urn.forTrack(123L));
+    private final ModelCollection<ApiPolicyInfo> policies = new ModelCollection<>(singletonList(policy));
 
     @Mock private ApiClient apiClient;
 
@@ -41,7 +42,7 @@ public class FetchPoliciesCommandTest extends AndroidUnitTest {
                 isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(body)), any(TypeToken.class)))
                 .thenReturn(policies);
 
-        Collection<PolicyInfo> result = command.with(singletonList(Urn.forPlaylist(1))).call();
+        Collection<ApiPolicyInfo> result = command.with(singletonList(Urn.forPlaylist(1))).call();
 
         assertThat(result).contains(policy);
     }

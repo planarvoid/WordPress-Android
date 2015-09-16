@@ -125,23 +125,25 @@ public interface Tables {
         }
     }
 
-    class RecentStations extends BaseTable {
-        public static final RecentStations TABLE = new RecentStations();
+    class StationsCollections extends BaseTable {
+        public static final StationsCollections TABLE = new StationsCollections();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
+        public static final Column COLLECTION_TYPE = Column.create(TABLE, "collection_type");
         public static final Column POSITION = Column.create(TABLE, "position");
         public static final Column UPDATED_LOCALLY_AT = Column.create(TABLE, "updated_locally_at");
 
-        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentStations (" +
-                "station_urn TEXT," +
+        static final String SQL = "CREATE TABLE IF NOT EXISTS StationsCollections (" +
+                "station_urn TEXT NOT NULL," +
+                "collection_type INTEGER NOT NULL," +
                 "position INTEGER," +
                 "updated_locally_at INTEGER," +
-                "PRIMARY KEY(station_urn) ON CONFLICT REPLACE," +
+                "PRIMARY KEY(station_urn, collection_type) ON CONFLICT IGNORE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
-        protected RecentStations() {
-            super("RecentStations", PrimaryKey.of("station_urn"));
+        protected StationsCollections() {
+            super("StationsCollections", PrimaryKey.of("station_urn, collection_type"));
         }
     }
 

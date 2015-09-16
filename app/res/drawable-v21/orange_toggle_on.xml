@@ -1,0 +1,8 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/orange_toggle_on_ripple">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/orange_toggle_on" />
+        </shape>
+    </item>
+</ripple>

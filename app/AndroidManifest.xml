@@ -252,6 +252,8 @@
 
         <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud" />
 
+        <activity android:label="@string/track_likes_title" android:name=".likes.TrackLikesActivity" android:theme="@style/Theme.SoundCloud" />
+
         <activity android:label="@string/app_name" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
@@ -326,6 +328,7 @@
         <service android:name=".creators.record.SoundRecorderService"/>
         <service android:exported="false" android:name=".playback.PlaybackService"/>
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
+        <service android:exported="false" android:name=".policies.DailyUpdateService"/>
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
@@ -362,7 +365,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".offline.OfflineContentStartReceiver"/>
+        <receiver android:name=".offline.AlarmManagerReceiver"/>
 
         <receiver android:label="SoundCloud Player" android:name=".playback.service.PlayerAppWidgetProvider">
           <intent-filter>

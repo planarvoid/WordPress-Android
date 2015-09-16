@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.accounts.AuthenticationModule;
 import com.soundcloud.android.activities.ActivitiesModule;
+import com.soundcloud.android.collections.CollectionsModule;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.RecordModule;
 import com.soundcloud.android.creators.upload.UploadModule;
@@ -13,6 +14,7 @@ import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.payments.PaymentModule;
 import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
+import com.soundcloud.android.policies.PoliciesModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.settings.SettingsModule;
@@ -35,11 +37,13 @@ import dagger.Module;
         CommentsModule.class,
         PaymentModule.class,
         OfflineModule.class,
+        PoliciesModule.class,
         RecordModule.class,
         UploadModule.class,
         LikesModule.class,
         SettingsModule.class,
         StationsModule.class,
-        DiscoveryModule.class
+        DiscoveryModule.class,
+        CollectionsModule.class
 })
 public class FeaturesModule {}

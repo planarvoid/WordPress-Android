@@ -417,8 +417,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        if (!ConnectionType.UNKNOWN.equals(currentConnectionType)){
-            ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
+        // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
+        if (!ConnectionType.OFFLINE.equals(currentConnectionType)){
+            // Use Log as Skippy dumps can be rather large
+            ErrorUtils.handleSilentExceptionWithLog(new SkippyException(category, line, sourceFile), errorMsg);
         }
 
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(),
@@ -428,7 +430,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void onInitializationError(Throwable throwable, String message) {
-        ErrorUtils.handleSilentException(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
+        ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
         eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message,
                 getAndIncrementInitilizationErrors(), getInitializationSuccessCount()));
     }

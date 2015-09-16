@@ -38,7 +38,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class NavigationFragment extends Fragment {
@@ -302,7 +304,8 @@ public class NavigationFragment extends Fragment {
 
     public enum NavItem {
         PROFILE(NO_TEXT, NO_IMAGE),
-        STATIONS(R.string.side_menu_stations, NO_IMAGE),
+        STATIONS(R.string.side_menu_stations, R.drawable.nav_stations_states),
+        COLLECTIONS(R.string.side_menu_collection, R.drawable.nav_collections_states),
         STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
         EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
         LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
@@ -310,7 +313,7 @@ public class NavigationFragment extends Fragment {
         UPSELL(NO_TEXT, NO_IMAGE),
         NONE(NO_TEXT, NO_IMAGE);
 
-        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STATIONS, STREAM, EXPLORE, LIKES, PLAYLISTS);
+        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STATIONS, STREAM, EXPLORE, LIKES, PLAYLISTS, COLLECTIONS);
 
         private final int textId;
         private final int imageId;
@@ -326,11 +329,19 @@ public class NavigationFragment extends Fragment {
     }
 
     public NavItem[] getEnabledNavItems() {
+
+        List<NavItem> navItems = new ArrayList<>();
         if (featureFlags.isEnabled(Flag.STATIONS)) {
-            return new NavItem[]{NavItem.STATIONS, NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
-        } else {
-            return new NavItem[]{NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS};
+            navItems.add(NavItem.STATIONS);
         }
+        navItems.add(NavItem.STREAM);
+        navItems.add(NavItem.EXPLORE);
+        if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
+            navItems.add(NavItem.COLLECTIONS);
+        }
+        navItems.add(NavItem.LIKES);
+        navItems.add(NavItem.PLAYLISTS);
+        return navItems.toArray(new NavItem[navItems.size()]);
     }
 
     /**

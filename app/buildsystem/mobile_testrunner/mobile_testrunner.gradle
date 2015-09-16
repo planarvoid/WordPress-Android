@@ -6,78 +6,120 @@ class Package { String name; String location }
 class Session { Package application_package; Package test_package; Package[] tools_packages }
 class RunConfiguration { String label; String test_runner; Test[] tests; String[] only_with_annotations; String[] exclude_annotations}
 class Execution { Session session; RunConfiguration run_configuration }
-class Run { String id; Integer numTests }
 
 class Test {
-  String class_name
-  String test_name
+    String class_name
+    String test_name
+    int retries
 
-  def boolean equals(other) {
-    if (!(other instanceof Test)) {
-      return false
+    def boolean equals(other) {
+        if (!(other instanceof Test)) {
+            return false
+        }
+        def otherTest = (Test) other
+        this.class_name.equals(otherTest.class_name) && this.test_name.equals(otherTest.test_name) && this.retries.equals(otherTest.retries)
     }
-    def otherTest = (Test) other
-    this.class_name.equals(otherTest.class_name) && this.test_name.equals(otherTest.test_name)
-  }
 
-  def int hashCode() {
-    int hash = 1
-    hash = hash * 17 + (class_name == null ? 0 : class_name.hashCode())
-    hash = hash * 31 + (test_name == null ? 0 : test_name.hashCode())
-    return hash
-  }
+    def int hashCode() {
+        int hash = 1
+        hash = hash * 17 + (class_name == null ? 0 : class_name.hashCode())
+        hash = hash * 31 + (test_name == null ? 0 : test_name.hashCode())
+        hash = hash * 53 + (retries == null ? 0 : retries.hashCode())
+        return hash
+    }
+}
+
+class Run {
+    String id
+    Integer numTests
+    Integer maxRetries = 1
+
+    def boolean equals(other) {
+        if (!(other instanceof Run)) {
+            return false
+        }
+        def otherRun = (Run) other
+        this.id.equals(otherRun.id) && this.numTests.equals(otherRun.numTests) && this.maxRetries.equals(otherRun.maxRetries)
+    }
+
+    def int hashCode() {
+        int hash = 1
+        hash = hash * 17 + (id == null ? 0 : id.hashCode())
+        hash = hash * 31 + (numTests == null ? 0 : numTests.hashCode())
+        hash = hash * 53 + (maxRetries == null ? 0 : maxRetries.hashCode())
+        return hash
+    }
 }
 
 class TestResult {
-  String description
-  Integer duration
-  Boolean result
-  Test test
+    String description
+    Integer duration
+    Boolean result
+    Test test
+    Run run
 
-  def boolean equals(other) {
-    if (!(other instanceof TestResult)) {
-      return false
+    def boolean equals(other) {
+        if (!(other instanceof TestResult)) {
+            return false
+        }
+        def otherTestResult = (TestResult) other
+        this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test) && this.run.equals(otherTestResult.run)
     }
-    def otherTestResult = (TestResult) other
-    this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test)
-  }
 
-  def int hashCode() {
-    int hash = 1
-    hash = hash * 17 + (description == null ? 0 : description.hashCode())
-    hash = hash * 31 + (duration == null ? 0 : duration.hashCode())
-    hash = hash * 53 + (result == null ? 0 : result.hashCode())
-    hash = hash * 79 + (test == null ? 0 : test.hashCode())
-    return hash
-  }
-
-  def consolePrint() {
-    def red = "\u001B[31m"
-    def green = "\u001B[32m"
-    def reset = "\u001B[0m"
-    def color = result ? green : red
-    def passed = result ? "PASSED" : "FAILED"
-    println "$color$passed: $test.class_name.$test.test_name $reset"
-    if (!result) {
-      println()
-      description.split("\n").each{ println "$color \t$it $reset" }
+    def int hashCode() {
+        int hash = 1
+        hash = hash * 17 + (description == null ? 0 : description.hashCode())
+        hash = hash * 31 + (duration == null ? 0 : duration.hashCode())
+        hash = hash * 53 + (result == null ? 0 : result.hashCode())
+        hash = hash * 79 + (test == null ? 0 : test.hashCode())
+        hash = hash * 97 + (run == null ? 0 : run.hashCode())
+        return hash
     }
-  }
+
+    def consolePrint() {
+        def red = "\u001B[31m"
+        def green = "\u001B[32m"
+        def magenta = "\u001B[35m"
+        def reset = "\u001B[0m"
+        def color = green
+        def passed = "PASSED"
+        if (!result) {
+            if (test.retries < run.maxRetries) {
+                color = magenta
+                passed = "FAILED... WILL RETRY"
+            }
+            else {
+                color = red
+                passed = "FAILED"
+            }
+        }
+
+        println "$color$passed: $test.class_name.$test.test_name $reset"
+        if (!result) {
+            println()
+            description.split("\n").each{ println "$color \t$it $reset" }
+        }
+    }
 }
 
 def executeSpecificTestsForLabel(execution) {
-  def url = "$project.ext.mobileTestRunnerUrl/devices/android/tests"
-  def json_execution = JsonOutput.toJson(execution)
-  executePostWithData(url, json_execution, "")
+    def url = "$project.ext.mobileTestRunnerUrl/devices/android/tests"
+    def json_execution = JsonOutput.toJson(execution)
+    executePostWithData(url, json_execution, "")
 }
 
 def executeQueryForResult(runId) {
-  def url = "$project.ext.mobileTestRunnerUrl/results/$runId/no_grouping"
-  executeGet(url, [])
+    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/no_grouping"
+    executeGet(url, [])
+}
+
+def executeQueryForLogFiles(runId) {
+    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/log_files"
+    executeGet(url, [])
 }
 
 def parseQueryForResultResponse(response) {
-  response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name)) }
+    response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name, retries: it.test.retries), run: new Run(id: it.run.id, numTests: it.run.numTests)) }
 }
 
 def copyApkToServer(local_file_path) {
@@ -91,16 +133,30 @@ def copyApkToServer(local_file_path) {
     p.waitFor()
     def exitValue = p.exitValue()
     if (exitValue != 0) {
-        throw new GradleException("copyToServer failed: ($cmd) exitValue: $exitValue")
+        throw new Exception("copyToServer failed: ($cmd) exitValue: $exitValue")
     }
 
+    println("Copied " + local_file_path + " to " + remote_filepath)
+
     remote_filepath
+}
+
+def copyLogFileFromServer(remote_file_path, local_directory) {
+    def remote_host = "$project.ext.mobileTestRunnerUser@$project.ext.mobileTestRunnerHost"
+    def local_filepath = "$local_directory/${UUID.randomUUID()}.xml"
+    def cmd = ['scp', "$remote_host:$remote_file_path", local_filepath]
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+        throw new Exception("copyFromServer failed: ($cmd) exitValue: $exitValue")
+    }
 }
 
 def createSession() {
     def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
     def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
-    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: project.ext.networkManagerApkPath)]
+    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: copyApkToServer(project.ext.networkManagerApkPath))]
     new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 }
 
@@ -110,49 +166,80 @@ def createRunConfiguration(String label, String[] onlyWithAnnotations, String[] 
 }
 
 def execute(Execution execution) {
-  Logger.getLogger().log("Collecting test infomration")
-  def r = executeSpecificTestsForLabel(execution)
-  def runId = r.id
-  def numTests = r.num_tests
-  Logger.getLogger().log("Executing $numTests test(s) with run id $runId")
-  new Run(id: runId, numTests: numTests)
+    Logger.getLogger().log("Collecting test information")
+    def r = executeSpecificTestsForLabel(execution)
+    def runId = r.id
+    def numTests = r.num_tests
+    Logger.getLogger().log("Executing $numTests test(s) with run id $runId")
+    new Run(id: runId, numTests: numTests)
+}
+
+def int executeQueryForRemainingTests(runId) {
+    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/remaining_tests"
+    def response = executeGet(url, null)
+    if (null == response) {
+        throw new GradleException("Unable to query remaining tests for run id: $runId")
+    }
+    response.remaining_tests
+}
+
+def getAndShowNewResultsForRun(runId, retrievedResults) {
+    def result = executeQueryForResult(runId)
+    def allResults = parseQueryForResultResponse(result)
+    def newResults = allResults - retrievedResults
+    newResults.forEach{ it.consolePrint() }
+
+    (retrievedResults + allResults).unique()
 }
 
 def TestResult[] getAndShowResultsForRun(Run run) {
-  def retrievedResults = []
+    def retrievedResults = []
 
-  while( retrievedResults.size < run.numTests ) {
-    def result = executeQueryForResult(run.id)
-    def allResults = parseQueryForResultResponse(result)
-    def newResults = allResults - retrievedResults
-    retrievedResults = (retrievedResults + allResults).unique()
-
-    newResults.forEach{ it.consolePrint() }
-
-    sleep(500)
-  }
-
-  retrievedResults
+    while ( executeQueryForRemainingTests(run.id) > 0 ) {
+        retrievedResults = getAndShowNewResultsForRun(run.id, retrievedResults)
+        sleep(2000)
+    }
+    getAndShowNewResultsForRun(run.id, retrievedResults)
 }
 
 def failBuildIfNecessary(TestResult[] retrievedResults) {
-  def failedTests = retrievedResults.count{ (!it.result) }
+    def failedTests = retrievedResults.count{ (!it.result && it.test.retries == it.run.maxRetries) }
 
-  if (failedTests > 0) {
-    def red = "\u001B[31m"
-    def reset = "\u001B[0m"
-    throw new GradleException("$red$failedTests test(s) failed $reset")
-  }
+    if (failedTests > 0) {
+        def red = "\u001B[31m"
+        def reset = "\u001B[0m"
+        throw new GradleException("$red$failedTests test(s) failed $reset")
+    }
 }
 
 def runTestsForLabel(String label, Test[] tests) {
-  def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
-  def run = execute(execution)
-  def results = getAndShowResultsForRun(run)
-  Logger.getLogger().log("Finished run $run.id")
-  failBuildIfNecessary(results)
+    def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
+    def run = execute(execution)
+    createHtmlReportForRun(run.id)
+    def results = getAndShowResultsForRun(run)
+    copyLogs(run.id)
+    Logger.getLogger().log("Finished run $run.id")
+    failBuildIfNecessary(results)
 }
 
+def createHtmlReportForRun(runIdentifier) {
+    def html_template = new File(project.projectDir, "buildsystem/mobile_testrunner/html_report_redirect_template.html").text
+    def engine = new groovy.text.SimpleTemplateEngine()
+    def template = engine.createTemplate(html_template).make(["runIdentifier": runIdentifier])
+    def dir = new File(project.rootDir, "results")
+    dir.mkdirs()
+    new File(dir.absolutePath, "index.html") << template.toString()
+}
+
+def copyLogs(runId) {
+    def baseDirectory = new File(project.rootDir, "results")
+    def xmlDirectory = new File(baseDirectory, "xml")
+    xmlDirectory.mkdirs()
+    def logfiles = executeQueryForLogFiles(runId)
+    for(def logfile : logfiles) {
+        copyLogFileFromServer(logfile, xmlDirectory.absolutePath)
+    }
+}
 
 class LogEntry {
 
@@ -192,22 +279,21 @@ class Logger {
     }
 }
 
-
 task testRunLollipopTests << {
-  def tests = [
-          new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
-          new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")
-  ] as Test[]
+    def tests = [
+            new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
+            new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")
+    ] as Test[]
 
-  runTestsForLabel("Lollipop", tests)
+    runTestsForLabel("Lollipop", tests)
 }
 
 task runLollipopTests << {
-  runTestsForLabel("Lollipop", null)
+    runTestsForLabel("Lollipop", null)
 }
 
 task runKitkatTests << {
-  runTestsForLabel("KitKat", null)
+    runTestsForLabel("KitKat", null)
 }
 
 task stressTestRunner << {
@@ -215,9 +301,9 @@ task stressTestRunner << {
         @Override
         void run() {
             try{
-               runTestsForLabel("Lollipop", null)
+                runTestsForLabel("KitKat", null)
             } catch(GradleException e) {
-                // fail silently
+                println(e)
             }
         }
     }

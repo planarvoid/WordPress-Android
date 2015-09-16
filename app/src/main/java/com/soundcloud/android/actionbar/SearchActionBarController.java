@@ -93,6 +93,7 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
 
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
+        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_QUERY)) {
             query = savedInstanceState.getString(STATE_QUERY);
         }

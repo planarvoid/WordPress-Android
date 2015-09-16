@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -91,7 +92,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleMidTierTrackEvent((MidTierTrackEvent) event);
         } else if (event instanceof UpgradeTrackingEvent) {
             handleUpsellEvent((UpgradeTrackingEvent) event);
+        } else if (event instanceof StreamNotificationEvent) {
+            handleStreamNotificationEvent((StreamNotificationEvent) event);
         }
+    }
+
+    private void handleStreamNotificationEvent(StreamNotificationEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForStreamNotification(event));
     }
 
     private void handleForegroundEvent(ForegroundEvent event) {
@@ -188,7 +195,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void trackAudioSessionEvent(PlaybackSessionEvent eventData) {
-        if (featureFlags.isEnabled(Flag.EVENTLOGGER_AUDIO_V1)){
+        if (featureFlags.isEnabled(Flag.EVENTLOGGER_AUDIO_V1)) {
             trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAudioEvent(eventData));
         } else {
             trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioEvent(eventData));

@@ -13,7 +13,7 @@ import com.soundcloud.java.reflect.TypeToken;
 import javax.inject.Inject;
 import java.util.Collection;
 
-class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<PolicyInfo>, FetchPoliciesCommand> {
+class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<ApiPolicyInfo>, FetchPoliciesCommand> {
 
     private final ApiClient apiClient;
 
@@ -23,12 +23,12 @@ class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<Pol
     }
 
     @Override
-    public Collection<PolicyInfo> call() throws Exception {
+    public Collection<ApiPolicyInfo> call() throws Exception {
         final ApiRequest request =
                 ApiRequest.post(ApiEndpoints.POLICIES.path())
                 .withContent(MoreCollections.transform(input, GuavaFunctions.urnToString()))
                 .forPrivateApi(1)
                 .build();
-        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<PolicyInfo>>() {}).getCollection();
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiPolicyInfo>>() {}).getCollection();
     }
 }

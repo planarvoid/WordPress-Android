@@ -16,8 +16,8 @@ public class OfflineSettingsStorage {
 
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
-    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
     private static final String OFFLINE_CONTENT = "has_content_offline";
+    private static final String ENCRYPTION_TEST_DONE = "encryption_test_run";
 
     private final SharedPreferences sharedPreferences;
 
@@ -72,12 +72,12 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
-    void setPolicyUpdateCheckTime(long policiesCheckTime) {
-        sharedPreferences.edit().putLong(LAST_POLICY_UPDATE_CHECK, policiesCheckTime).apply();
+    public boolean hasRunEncryptionTest() {
+        return sharedPreferences.getBoolean(ENCRYPTION_TEST_DONE, false);
     }
 
-    long getPolicyUpdateCheckTime() {
-        return sharedPreferences.getLong(LAST_POLICY_UPDATE_CHECK, 0);
+    public void setEncryptionTestRun() {
+        sharedPreferences.edit().putBoolean(ENCRYPTION_TEST_DONE, true).apply();
     }
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {

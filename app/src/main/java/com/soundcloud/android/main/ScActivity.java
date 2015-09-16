@@ -9,7 +9,7 @@ import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
-import com.soundcloud.android.offline.PolicyUpdateController;
+import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;

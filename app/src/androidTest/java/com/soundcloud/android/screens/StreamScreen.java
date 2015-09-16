@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -126,6 +127,18 @@ public class StreamScreen extends Screen {
         return menuScreen.open().clickExplore();
     }
 
+
+    public FacebookInvitesItemElement getFirstFacebookInvitesNotification() {
+        return getFacebookInvitesNotifications().get(0);
+    }
+
+    public List<FacebookInvitesItemElement> getFacebookInvitesNotifications() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return Lists.transform(
+                testDriver.findElements(With.id(R.id.facebook_invites_list_item)),
+                toFacebookInvitesItemElement);
+    }
+
     private RecyclerViewElement streamList() {
         return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
@@ -142,4 +155,12 @@ public class StreamScreen extends Screen {
             return new TrackItemElement(testDriver, viewElement);
         }
     };
+
+    private final Function<ViewElement, FacebookInvitesItemElement> toFacebookInvitesItemElement = new Function<ViewElement, FacebookInvitesItemElement>() {
+        @Override
+        public FacebookInvitesItemElement apply(ViewElement viewElement) {
+            return new FacebookInvitesItemElement(testDriver, viewElement);
+        }
+    };
+
 }

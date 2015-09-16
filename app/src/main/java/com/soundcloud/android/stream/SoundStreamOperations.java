@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
 import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
 
@@ -9,6 +10,9 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.StreamNotificationEvent;
+import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
+import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -18,6 +22,7 @@ import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -25,6 +30,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -50,6 +56,7 @@ class SoundStreamOperations {
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final EventBus eventBus;
+    private final FacebookInvitesOperations facebookInvites;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
@@ -117,7 +124,8 @@ class SoundStreamOperations {
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
                           ContentStats contentStats, RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
-                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                          FacebookInvitesOperations facebookInvites) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
@@ -125,6 +133,7 @@ class SoundStreamOperations {
         this.markPromotedItemAsStaleCommand = markPromotedItemAsStaleCommand;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
+        this.facebookInvites = facebookInvites;
     }
 
     PagingFunction<List<StreamItem>> pagingFunction() {
@@ -143,7 +152,25 @@ class SoundStreamOperations {
     private Observable<List<StreamItem>> initialStreamItems(final boolean syncCompleted) {
         return removeStalePromotedItemsCommand.toObservable(null)
                 .flatMap(loadFirstPageOfStream(syncCompleted))
+                .zipWith(facebookInvites.loadWithPictures(), prependFacebookInvites())
                 .subscribeOn(scheduler);
+    }
+
+    private Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>> prependFacebookInvites() {
+        return new Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>>() {
+            @Override
+            public List<StreamItem> call(List<StreamItem> streamItems, Optional<FacebookInvitesItem> notification) {
+                if (notification.isPresent() && canAddNotification(streamItems)) {
+                    streamItems.add(0, notification.get());
+                    publishFacebookInvitesShown(notification.get());
+                }
+                return streamItems;
+            }
+        };
+    }
+
+    private boolean canAddNotification(List<StreamItem> streamItems) {
+        return streamItems.size() > 0 && getFirst(streamItems, NOTIFICATION) == null;
     }
 
     private Func1<List<Long>, Observable<List<StreamItem>>> loadFirstPageOfStream(final boolean syncCompleted) {
@@ -238,6 +265,10 @@ class SoundStreamOperations {
         if (playableItem != null) {
             contentStats.setLastSeen(Content.ME_SOUND_STREAM, playableItem.getCreatedAt().getTime());
         }
+    }
+
+    private void publishFacebookInvitesShown(FacebookInvitesItem notification) {
+        eventBus.publish(EventQueue.TRACKING, StreamNotificationEvent.forFacebookInviteShown(notification));
     }
 
     @Nullable

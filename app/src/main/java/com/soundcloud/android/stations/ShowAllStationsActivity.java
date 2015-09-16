@@ -11,8 +11,7 @@ import android.os.Bundle;
 import javax.inject.Inject;
 
 public class ShowAllStationsActivity extends ScActivity {
-    public static final String TYPE = "type";
-    public static final int RECENT = 0;
+    public static final String COLLECTION_TYPE = "type";
 
     @Inject @LightCycle PlayerController playerController;
 
@@ -24,15 +23,34 @@ public class ShowAllStationsActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setTitle(this.getString(R.string.recent_stations_title));
+        this.setTitle(getTitleFromIntent());
 
         if (savedInstanceState == null) {
             attachFragment();
         }
     }
 
+    private String getTitleFromIntent() {
+        final int type = getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET);
+
+        switch (type) {
+            case StationsCollectionsTypes.SAVED:
+                return getString(R.string.stations_collection_title_saved_stations);
+            case StationsCollectionsTypes.RECENT:
+                return getString(R.string.stations_collection_title_recently_played_stations);
+            case StationsCollectionsTypes.CURATOR_RECOMMENDATIONS:
+                return getString(R.string.stations_collection_title_curator_recommendations);
+            case StationsCollectionsTypes.GENRE_RECOMMENDATIONS:
+                return getString(R.string.stations_collection_title_genre_recommendations);
+            case StationsCollectionsTypes.TRACK_RECOMMENDATIONS:
+                return getString(R.string.stations_collection_title_track_recommendations);
+            default:
+                throw new IllegalStateException("Unknown StationsCollectionsType: " + type);
+        }
+    }
+
     private void attachFragment() {
-        ShowAllStationsFragment fragment = ShowAllStationsFragment.create(getIntent().getIntExtra(TYPE, Consts.NOT_SET));
+        ShowAllStationsFragment fragment = ShowAllStationsFragment.create(getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET));
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 }

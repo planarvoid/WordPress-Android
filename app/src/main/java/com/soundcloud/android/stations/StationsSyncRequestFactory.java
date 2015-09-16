@@ -21,10 +21,10 @@ public class StationsSyncRequestFactory {
 
     public SyncRequest create(String action, ResultReceiver resultReceiver) {
         switch (action) {
-            case Actions.ACTION_SYNC_RECENT_STATIONS:
+            case Actions.ACTION_SYNC_STATIONS:
                 return new SingleJobRequest(
                         new DefaultSyncJob(syncer),
-                        Actions.ACTION_SYNC_RECENT_STATIONS,
+                        Actions.ACTION_SYNC_STATIONS,
                         true,
                         resultReceiver,
                         eventBus
@@ -35,6 +35,6 @@ public class StationsSyncRequestFactory {
     }
 
     public static class Actions {
-        static final String ACTION_SYNC_RECENT_STATIONS = "syncRecentStations";
+        static final String ACTION_SYNC_STATIONS = "syncStations";
     }
 }

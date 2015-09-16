@@ -18,17 +18,20 @@ import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.EncryptionTester;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
+import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
+import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -56,7 +59,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
@@ -67,11 +69,11 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
-    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
+    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static SoundCloudApplication instance;
 
     @Deprecated
-    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
+    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
     // These are not injected because we need them before Dagger initializes
@@ -89,6 +91,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
     @Inject PlaySessionStateProvider playSessionStateProvider;
+    @Inject PlayPublisher playPublisher;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject SkippyFactory skippyFactory;
@@ -100,6 +103,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject FacebookSdk facebookSdk;
+    @Inject DailyUpdateScheduler dailyUpdateScheduler;
+    @Inject EncryptionTester encryptionTester;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -139,7 +144,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         Log.d(TAG, applicationProperties.toString());
 
         if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
-            setupStrictMode();
             Log.i(TAG, DeviceHelper.getBuildInfo());
         }
 
@@ -167,13 +171,18 @@ public class SoundCloudApplication extends MultiDexApplication {
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+        castSessionController.startListening();
 
-        if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
-            castSessionController.startListening();
+        if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)) {
+            playPublisher.subscribe();
         }
 
         if (featureFlags.isEnabled(Flag.STATIONS)) {
             stationsController.subscribe();
+        }
+
+        if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
+            dailyUpdateScheduler.schedule();
         }
 
         configurationFeatureController.subscribe();
@@ -183,6 +192,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void generateDeviceKey() {
         cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
+        encryptionTester.runEncryptionTest();
     }
 
     private void initializePreInjectionObjects() {
@@ -216,7 +226,8 @@ public class SoundCloudApplication extends MultiDexApplication {
             });
             // delete old cache dir
             AndroidUtils.doOnce(this, "delete.old.cache.dir", new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
                 }
             });
@@ -278,7 +289,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     /**
      * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
      * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
-     *
+     * <p/>
      * Alternatively, sync sets lazily where needed.
      */
     private void requestSetsSync() {
@@ -290,8 +301,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     @NotNull
-    public static SoundCloudApplication fromContext(@NotNull Context c){
-        if (c.getApplicationContext() instanceof  SoundCloudApplication) {
+    public static SoundCloudApplication fromContext(@NotNull Context c) {
+        if (c.getApplicationContext() instanceof SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
         } else {
             throw new RuntimeException("can't obtain app from context");
@@ -302,18 +313,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     // a valid AccountOps instance
     public void setAccountOperations(AccountOperations operations) {
         accountOperations = operations;
-    }
-
-    private static void setupStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
-
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
     }
 
     @Override

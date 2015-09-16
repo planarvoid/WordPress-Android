@@ -91,13 +91,6 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<Void, Observable<Long>> toLastPolicyUpdateDate = new Func1<Void, Observable<Long>>() {
-        @Override
-        public Observable<Long> call(Void ignored) {
-            return tracksStorage.getLastPolicyUpdate();
-        }
-    };
-
     private final Action1<List<Urn>> publishOfflineContentRemoved = new Action1<List<Urn>>() {
         @Override
         public void call(List<Urn> urns) {
@@ -190,13 +183,6 @@ public class OfflineContentOperations {
     private Action1<Boolean> publishLikesMarkedForOfflineChange(final boolean isMarkedOffline) {
         return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromLikesMarkedForOffline(isMarkedOffline));
-    }
-
-    Observable<Long> tryToUpdateAndLoadLastPoliciesUpdateTime() {
-        return updateOfflineContentStalePolicies()
-                .onErrorResumeNext(Observable.<Void>just(null))
-                .flatMap(toLastPolicyUpdateDate)
-                .subscribeOn(scheduler);
     }
 
     Observable<OfflineContentUpdates> loadOfflineContentUpdates() {

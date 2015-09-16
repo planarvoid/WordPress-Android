@@ -61,11 +61,9 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
             feedbackItem.setVisible(applicationProperties.shouldAllowFeedback());
         }
 
-        if (!deviceHelper.hasMicrophone()) {
-            final MenuItem recordItem = menu.findItem(R.id.action_record);
-            if (recordItem != null) {
-                recordItem.setVisible(false);
-            }
+        final MenuItem recordItem = menu.findItem(R.id.action_record);
+        if (recordItem != null) {
+            recordItem.setVisible(deviceHelper.hasMicrophone());
         }
     }
 

@@ -34,26 +34,27 @@ public class OfflineContentScheduler {
         this.downloadOperations = downloadOperations;
     }
 
-    public void cancelPendingRetries(){
+    public void cancelPendingRetries() {
         alarmManager.cancel(getPendingIntent(context));
         resumeOnConnectedReceiver.unregister();
     }
 
-    public void scheduleRetry(){
-        if (!downloadOperations.isValidNetwork()){
+    public void scheduleRetry() {
+        if (!downloadOperations.isValidNetwork()) {
             resumeOnConnectedReceiver.register();
         }
         scheduleDelayedRetry(System.currentTimeMillis() + RETRY_DELAY);
     }
 
     @VisibleForTesting
-    void scheduleDelayedRetry(long atTimeInMillis){
+    void scheduleDelayedRetry(long atTimeInMillis) {
         Log.d(OfflineContentService.TAG, "Scheduling retry of offline content service");
         alarmManager.set(ALARM_TYPE, atTimeInMillis, getPendingIntent(context));
     }
 
     private PendingIntent getPendingIntent(Context context) {
-        Intent intent =  new Intent(context, OfflineContentStartReceiver.class);
+        Intent intent = new Intent(context, AlarmManagerReceiver.class);
+        intent.setAction(OfflineContentService.ACTION_START);
         return PendingIntent.getBroadcast(context, REQUEST_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

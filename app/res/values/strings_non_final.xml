@@ -88,4 +88,31 @@
     <string name="upsell_nav_title">Upgrade SoundCloud</string>
     <string name="upsell_nav_body">Listen Offline &amp; Ad Free</string>
     <string name="upsell_track_item">Available on SoundCloud CS</string>
+
+    <!-- __STATIONS -->
+    <string name="side_menu_stations">Stations</string>
+    <string name="station_type_track">Track station</string>
+    <string name="station_type_genre">Genre station</string>
+    <string name="station_type_curator">Curator station</string>
+    <string name="stations_collection_title_saved_stations">Your stations</string>
+    <string name="stations_collection_title_recently_played_stations">Recently played stations</string>
+    <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
+    <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
+    <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
+    <string name="station_bucket_action_text">View all</string>
+
+    <!-- __COLLECTION -->
+    <string name="side_menu_collection">Collection</string>
+    <string name="collections_playlists_header">Playlists</string>
+    <string name="collections_your_liked_tracks">Liked tracks</string>
+    <string name="track_likes_title">Track Likes</string>
+    <string name="collections_options_header_filters">Filters</string>
+    <string name="collections_options_header_sorting">Sorting</string>
+    <string name="collections_options_toggle_created">Created</string>
+    <string name="collections_options_toggle_likes">Liked</string>
+    <string name="collections_options_dialog_sort_by_creation">Date created</string>
+    <string name="collections_options_dialog_sort_by_title">Title</string>
+    <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
+    <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
+    <string name="collections_remove_filters">Remove Filters</string>
 </resources>

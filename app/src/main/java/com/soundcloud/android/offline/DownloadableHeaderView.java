@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
@@ -13,8 +13,8 @@ import javax.inject.Inject;
 public class DownloadableHeaderView {
     private final Resources resources;
 
-    @InjectView(R.id.header_download_state) DownloadImageView downloadStateView;
-    @InjectView(R.id.header_text) TextView headerView;
+    @Bind(R.id.header_download_state) DownloadImageView downloadStateView;
+    @Bind(R.id.header_text) TextView headerView;
 
     private String headerText;
 
@@ -24,7 +24,11 @@ public class DownloadableHeaderView {
     }
 
     public void onViewCreated(View view) {
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
+    }
+
+    public void onDestroyView() {
+        ButterKnife.unbind(this);
     }
 
     public void setHeaderText(String text) {

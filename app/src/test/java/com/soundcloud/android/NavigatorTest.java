@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
@@ -221,5 +222,13 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, 88L)
                 .opensActivity(RecommendedTracksActivity.class);
+    }
+
+    @Test
+    public void opensTrackLikes() {
+        navigator.openTrackLikes(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(TrackLikesActivity.class);
     }
 }

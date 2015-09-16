@@ -9,7 +9,6 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
-import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -223,7 +222,7 @@ public class MyProfileOperations {
     }
 
     private Observable<List<PropertySet>> postedItems(final long beforeTime) {
-        return syncStateStorage.hasSyncedBefore(SyncContent.MySounds)
+        return syncStateStorage.hasSyncedMyPostsBefore()
                 .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
                     @Override
                     public Observable<List<PropertySet>> call(Boolean hasSynced) {

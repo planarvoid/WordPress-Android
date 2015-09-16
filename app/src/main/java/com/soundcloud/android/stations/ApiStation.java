@@ -1,5 +1,7 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.java.collections.Lists.transform;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -7,25 +9,42 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+
+import android.support.annotation.VisibleForTesting;
+
+import java.util.List;
 
 public final class ApiStation implements StationRecord {
 
+    private static final Function<TrackRecord, Urn> TO_URN = new Function<TrackRecord, Urn>() {
+        @Override
+        public Urn apply(TrackRecord track) {
+            return track.getUrn();
+        }
+    };
+
     private final ApiStationMetadata metadata;
-    private final ModelCollection<? extends TrackRecord> tracks;
+    private final List<? extends TrackRecord> tracks;
 
     @JsonCreator
     public ApiStation(@JsonProperty("station") ApiStationMetadata metadata, @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
         this.metadata = metadata;
-        this.tracks = tracks;
+        this.tracks = tracks.getCollection();
     }
 
-    ApiStationMetadata getMetadata() {
+    @VisibleForTesting
+    public ApiStationMetadata getMetadata() {
         return metadata;
     }
 
     @Override
-    public ModelCollection<? extends TrackRecord> getTracks() {
+    public List<Urn> getTracks() {
+        return transform(tracks, TO_URN);
+    }
+
+    public List<? extends TrackRecord> getTrackRecords() {
         return tracks;
     }
 
@@ -44,7 +63,6 @@ public final class ApiStation implements StationRecord {
         return metadata.getTitle();
     }
 
-    @Override
     public String getPermalink() {
         return metadata.getPermalink();
     }

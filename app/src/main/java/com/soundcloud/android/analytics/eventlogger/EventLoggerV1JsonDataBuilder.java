@@ -8,6 +8,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -21,6 +22,8 @@ import javax.inject.Inject;
 public class EventLoggerV1JsonDataBuilder {
 
     private static final String AUDIO_EVENT = "audio";
+    private static final String CLICK_EVENT = "click";
+    private static final String IMPRESSION_EVENT = "impression";
     private static final String BOOGALOO_VERSION = "v1.4.0";
 
     private final int appId;
@@ -44,6 +47,17 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForAudioEvent(PlaybackSessionEvent event) {
         return transform(buildAudioEvent(event));
+    }
+
+    public String buildForStreamNotification(StreamNotificationEvent event) {
+        switch (event.getKind()) {
+            case StreamNotificationEvent.KIND_CLICK:
+                return transform(buildStreamNotificationClickEvent(event));
+            case StreamNotificationEvent.KIND_IMPRESSION:
+                return transform(buildStreamNotificationImpressionEvent(event));
+            default:
+                throw new IllegalStateException("Unexpected StreamNotificationEvent type: " + event);
+        }
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
@@ -82,7 +96,7 @@ public class EventLoggerV1JsonDataBuilder {
             data.playlistPosition(trackSourceInfo.getPlaylistPosition());
         }
 
-        if (trackSourceInfo.hasReposter()){
+        if (trackSourceInfo.hasReposter()) {
             data.reposter(trackSourceInfo.getReposter());
         }
 
@@ -92,6 +106,20 @@ public class EventLoggerV1JsonDataBuilder {
             data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
         return data;
+    }
+
+    private EventLoggerEventData buildStreamNotificationImpressionEvent(StreamNotificationEvent event) {
+        return buildBaseEvent(IMPRESSION_EVENT, event)
+                .pageName(event.get(StreamNotificationEvent.KEY_PAGE_NAME))
+                .impressionCategory(event.get(StreamNotificationEvent.KEY_IMPRESSION_CATEGORY))
+                .impressionName(event.get(StreamNotificationEvent.KEY_IMPRESSION_NAME));
+    }
+
+    private EventLoggerEventData buildStreamNotificationClickEvent(StreamNotificationEvent event) {
+        return buildBaseEvent(CLICK_EVENT, event)
+                .pageName(event.get(StreamNotificationEvent.KEY_PAGE_NAME))
+                .clickCategory(event.get(StreamNotificationEvent.KEY_CLICK_CATEGORY))
+                .clickName(event.get(StreamNotificationEvent.KEY_CLICK_NAME));
     }
 
     private String transform(EventLoggerEventData data) {

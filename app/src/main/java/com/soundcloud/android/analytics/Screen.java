@@ -22,6 +22,7 @@ public enum Screen {
     SIDE_MENU_STREAM("stream:main"),
     SIDE_MENU_LIKES("collection:likes"),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
+    COLLECTIONS("collections"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
