@@ -11,7 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistLikesAdapter;
+import com.soundcloud.android.playlists.PlaylistItemAdapter;
 import com.soundcloud.android.playlists.PlaylistLikesPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -39,7 +39,7 @@ public class PlaylistLikesPresenterTest extends AndroidUnitTest {
     private PlaylistLikesPresenter presenter;
 
     @Mock private PlaylistLikeOperations likeOperations;
-    @Mock private PlaylistLikesAdapter adapter;
+    @Mock private PlaylistItemAdapter adapter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Navigator navigator;
 
