@@ -156,7 +156,6 @@ public class AdsOperations {
     public boolean isNextTrackAudioAd() {
        return playQueueManager.hasNextTrack() &&
                getMonetizableTrackMetaData().contains(AdProperty.AD_URN) &&
-               getMonetizableTrackMetaData().contains(AdProperty.AD_TYPE) &&
                getMonetizableTrackMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
@@ -167,7 +166,6 @@ public class AdsOperations {
     public boolean isAudioAdAtPosition(int position) {
         return !playQueueManager.isQueueEmpty() && position < playQueueManager.getQueueSize() &&
                 playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN) &&
-                playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_TYPE) &&
                 playQueueManager.getMetaDataAt(position).get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
