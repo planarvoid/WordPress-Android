@@ -37,6 +37,10 @@ public class RecyclerViewElement {
         return getLayoutManager().getChildCount();
     }
 
+    public ViewElement getItemAt(int index) {
+        return new DefaultViewElement(recyclerView.getChildAt(index), testDriver);
+    }
+
     public RecyclerViewElement scrollDown() {
         // scrolls partially down the screen, usually about 5 items
         testDriver.scrollDown();
