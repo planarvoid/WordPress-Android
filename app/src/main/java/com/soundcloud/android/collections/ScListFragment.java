@@ -35,8 +35,6 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.android.view.adapters.PostsAdapter;
-import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.apache.http.HttpStatus;
@@ -343,10 +341,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
     }
 
-    public void setEmptyViewFactory(EmptyViewBuilder factory) {
-        emptyViewBuilder = factory;
-    }
-
     @Nullable
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
@@ -593,25 +587,11 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case ME_ACTIVITIES:
                     adapter = new ActivitiesAdapter(contentUri);
                     break;
-                case USER_FOLLOWINGS:
-                case USER_FOLLOWERS:
-                case TRACK_LIKERS:
-                case TRACK_REPOSTERS:
-                case PLAYLIST_LIKERS:
-                case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                case ME_FOLLOWERS:
-                case ME_FOLLOWINGS:
                     adapter = new UserAdapter(contentUri);
                     break;
-                case ME_SOUNDS:
-                case USER_SOUNDS:
-                    adapter = new PostsAdapter(contentUri, getRelatedUsername());
-                    break;
-                case ME_PLAYLISTS:
-                case USER_PLAYLISTS:
                 default:
-                    adapter = new SoundAdapter(contentUri);
+                    throw new IllegalArgumentException("Unhandled content type " + content);
             }
             setListAdapter(adapter);
             configureEmptyView();

@@ -26,7 +26,7 @@ public class PlaylistLikesFragment extends LightCycleSupportFragment implements 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
+        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
     @Override
@@ -36,6 +36,6 @@ public class PlaylistLikesFragment extends LightCycleSupportFragment implements 
 
     @Override
     public View[] getRefreshableViews() {
-        return new View[]{presenter.getListView(), presenter.getEmptyView()};
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 }

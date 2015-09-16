@@ -12,10 +12,6 @@ class CollectionLoaderFactory {
             return new ActivitiesLoader();
         }
 
-        if (contentIsSyncable(parameters)) {
-            return new MyCollectionLoader();
-        }
-
         if (collectionIsLocatedRemotely(parameters)) {
             return new RemoteCollectionLoader();
         }
@@ -32,9 +28,4 @@ class CollectionLoaderFactory {
     private boolean collectionIsLocatedRemotely(CollectionParams params) {
         return params.getRequest() != null;
     }
-
-    private boolean contentIsSyncable(CollectionParams params) {
-        return params.getContent().isSyncable();
-    }
-
 }

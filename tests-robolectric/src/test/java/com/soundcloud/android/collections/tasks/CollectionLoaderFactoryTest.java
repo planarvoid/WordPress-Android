@@ -43,19 +43,8 @@ public class CollectionLoaderFactoryTest {
     }
 
     @Test
-    public void shouldCreateSyncableLoaderIfContentIsSyncable(){
-        when(collectionParams.getContent()).thenReturn(Content.ME_PLAYLISTS);
-        CollectionLoader loader = collectionLoaderFactory.createCollectionLoader(collectionParams);
-        assertThat(loader instanceof MyCollectionLoader, is(true));
-    }
-
-    @Test
     public void shouldReturnNullIfContentDoesNotMatchAnyLoader(){
         when(collectionParams.getContent()).thenReturn(Content.UNKNOWN);
        assertThat(collectionLoaderFactory.createCollectionLoader(collectionParams), is(nullValue()));
     }
-
-
-
-
 }

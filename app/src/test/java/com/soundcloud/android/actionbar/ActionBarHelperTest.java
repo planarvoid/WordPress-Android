@@ -2,7 +2,6 @@ package com.soundcloud.android.actionbar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,10 +12,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public class ActionBarHelperTest extends AndroidUnitTest {
+
     @Mock private ScActivity activity;
     @Mock private ActionBar actionBar;
     @Mock private BugReporter bugReporter;
@@ -67,23 +67,23 @@ public class ActionBarHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void hidesRecordButtonWhenNoMicrophoneIsDetected() {
+    public void showsRecordButtonIfMicrophoneIsDetected() {
+        when(deviceHelper.hasMicrophone()).thenReturn(true);
+        when(menu.findItem(R.id.action_record)).thenReturn(item);
+
+        actionBarHelper.onCreateOptionsMenu(menu, mock(MenuInflater.class));
+
+        verify(item).setVisible(true);
+    }
+
+    @Test
+    public void doesNotShowRecordButtonIfNoMicrophoneIsDetected() {
         when(deviceHelper.hasMicrophone()).thenReturn(false);
         when(menu.findItem(R.id.action_record)).thenReturn(item);
 
         actionBarHelper.onCreateOptionsMenu(menu, mock(MenuInflater.class));
 
         verify(item).setVisible(false);
-    }
-
-    @Test
-    public void doesNothideRecordButtonWhenMicrophoneIsDetected() {
-        when(deviceHelper.hasMicrophone()).thenReturn(true);
-        when(menu.findItem(R.id.action_record)).thenReturn(item);
-
-        actionBarHelper.onCreateOptionsMenu(menu, mock(MenuInflater.class));
-
-        verify(item, never()).setVisible(false);
     }
 
 }
