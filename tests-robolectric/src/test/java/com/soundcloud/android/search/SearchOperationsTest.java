@@ -259,41 +259,4 @@ public class SearchOperationsTest {
         PropertySet playlistPropSet = searchResult.getItems().get(0);
         expect(playlistPropSet).toEqual(playlist.toPropertySet().merge(playlistIsLikedStatus));
     }
-
-    @Test
-    public void shouldProvideResultPager() {
-        SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Arrays.asList(playlist));
-        SearchCollection<ApiPlaylist> lastPage = new SearchCollection<>(Arrays.asList(playlist));
-        firstPage.setLinks(Collections.singletonMap(SearchCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next")));
-
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
-                .thenReturn(Observable.<Object>just(firstPage));
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/next")), isA(TypeToken.class))).
-                thenReturn(Observable.<Object>just(lastPage));
-
-        SearchOperations.SearchResultPager pager = operations.pager(SearchOperations.TYPE_PLAYLISTS);
-        pager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(observer);
-        pager.next();
-
-        expect(observer.getOnNextEvents()).toNumber(2);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
-    }
-
-    @Test
-    public void shouldProvideResultPagerWithQuerySourceInfo() {
-        Urn queryUrn = new Urn("soundcloud:search:urn");
-        SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Arrays.asList(playlist));
-        firstPage.setQueryUrn(queryUrn.toString());
-
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
-                .thenReturn(Observable.<Object>just(firstPage));
-
-        SearchOperations.SearchResultPager pager = operations.pager(SearchOperations.TYPE_PLAYLISTS);
-        pager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(observer);
-        pager.next();
-
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
-        expect(pager.getSearchQuerySourceInfo().getQueryUrn()).toEqual(queryUrn);
-    }
 }
