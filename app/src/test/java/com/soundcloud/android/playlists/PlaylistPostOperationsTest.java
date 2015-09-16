@@ -14,6 +14,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -130,8 +131,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
-        operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
-        operations.postedPlaylistsPager().next();
+        operations.pagingFunction().call(firstPage);
 
         verify(playlistPostStorage).loadPostedPlaylists(PAGE_SIZE, time);
     }
@@ -142,10 +142,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
         when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
-        operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
-        operations.postedPlaylistsPager().next();
-
-        expectObserverOnNextEventToEqual(postedPlaylists);
+        assertThat(operations.pagingFunction().call(postedPlaylists)).isSameAs(Pager.finish());
     }
 
     @Test

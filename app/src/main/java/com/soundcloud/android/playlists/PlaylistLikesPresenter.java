@@ -31,7 +31,7 @@ import javax.inject.Inject;
 public class PlaylistLikesPresenter extends RecyclerViewPresenter<PlaylistItem> {
 
     private final PlaylistLikeOperations likeOperations;
-    private final PlaylistLikesAdapter adapter;
+    private final PlaylistItemAdapter adapter;
     private final EventBus eventBus;
     private final Navigator navigator;
 
@@ -40,7 +40,7 @@ public class PlaylistLikesPresenter extends RecyclerViewPresenter<PlaylistItem> 
     @Inject
     public PlaylistLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                   PlaylistLikeOperations likeOperations,
-                                  PlaylistLikesAdapter adapter,
+                                  PlaylistItemAdapter adapter,
                                   EventBus eventBus,
                                   Navigator navigator) {
         super(swipeRefreshAttacher);

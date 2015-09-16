@@ -1,24 +1,24 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesAdapter extends PagingRecyclerItemAdapter<PlaylistItem, RecyclerItemAdapter.ViewHolder> {
+public class PlaylistItemAdapter extends PagingRecyclerItemAdapter<PlaylistItem, RecyclerView.ViewHolder> {
 
     private static final int PLAYLIST_ITEM_VIEW_TYPE = 0;
 
     @Inject
-    public PlaylistLikesAdapter(DownloadablePlaylistItemRenderer playlistRenderer) {
+    public PlaylistItemAdapter(DownloadablePlaylistItemRenderer playlistRenderer) {
         super(playlistRenderer);
     }
 
     @Override
-    protected RecyclerItemAdapter.ViewHolder createViewHolder(View view) {
-        return new RecyclerItemAdapter.ViewHolder(view);
+    protected RecyclerView.ViewHolder createViewHolder(View view) {
+        return new PagingRecyclerItemAdapter.ViewHolder(view);
     }
 
     @Override
