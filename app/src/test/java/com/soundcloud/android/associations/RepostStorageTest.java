@@ -1,19 +1,13 @@
 package com.soundcloud.android.associations;
 
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
 public class RepostStorageTest extends StorageIntegrationTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -21,13 +15,12 @@ public class RepostStorageTest extends StorageIntegrationTest {
     private static final Date CREATED_AT = new Date();
 
     private RepostStorage repostStorage;
-
-    @Mock private DateProvider dateProvider;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
+        dateProvider = new TestDateProvider(CREATED_AT);
         repostStorage = new RepostStorage(propeller(), dateProvider);
-        when(dateProvider.getDate()).thenReturn(CREATED_AT);
     }
 
     @Test
