@@ -137,7 +137,7 @@ public final class ErrorUtils {
         }
     }
 
-    public static void handleSilentException(Throwable e, @Nullable String customLog) {
+    public static void handleSilentExceptionWithLog(Throwable e, @Nullable String customLog) {
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (ScTextUtils.isNotBlank(customLog)) {
