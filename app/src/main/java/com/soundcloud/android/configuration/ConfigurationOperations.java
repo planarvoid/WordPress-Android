@@ -35,6 +35,7 @@ public class ConfigurationOperations {
 
     private static final int POLLING_INITIAL_DELAY = 1;
     private static final int POLLING_INTERVAL_SECONDS = 2;
+    private static final int POLLING_MAX_ATTEMPTS = 3;
 
     private final Lazy<ApiClientRx> apiClientRx;
     private final Lazy<ApiClient> apiClient;
@@ -47,6 +48,13 @@ public class ConfigurationOperations {
         @Override
         public Configuration call(Object ignore, Configuration configuration) {
             return configuration;
+        }
+    };
+
+    private Func1<Long, Observable<Configuration>> toFetchConfiguration = new Func1<Long, Observable<Configuration>>() {
+        @Override
+        public Observable<Configuration> call(Long tick) {
+            return apiClientRx.get().mappedResponse(configurationRequestBuilderForGet().build(), Configuration.class);
         }
     };
 
@@ -73,13 +81,8 @@ public class ConfigurationOperations {
     Observable<Configuration> updateUntilPlanChanged() {
         final String plan = featureOperations.getPlan();
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
-                .take(3)
-                .flatMap(new Func1<Long, Observable<Configuration>>() {
-                    @Override
-                    public Observable<Configuration> call(Long tick) {
-                        return update();
-                    }
-                })
+                .take(POLLING_MAX_ATTEMPTS)
+                .flatMap(toFetchConfiguration)
                 .takeFirst(new Func1<Configuration, Boolean>() {
                     @Override
                     public Boolean call(Configuration configuration) {

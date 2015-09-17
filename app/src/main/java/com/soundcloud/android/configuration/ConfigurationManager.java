@@ -33,7 +33,9 @@ public class ConfigurationManager {
     };
 
     @Inject
-    public ConfigurationManager(ConfigurationOperations configurationOperations, OfflineContentOperations offlineContentOperations, AccountOperations accountOperations, DeviceManagementStorage deviceManagementStorage) {
+    public ConfigurationManager(ConfigurationOperations configurationOperations,
+                                OfflineContentOperations offlineContentOperations, AccountOperations accountOperations,
+                                DeviceManagementStorage deviceManagementStorage) {
         this.configurationOperations = configurationOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.accountOperations = accountOperations;
