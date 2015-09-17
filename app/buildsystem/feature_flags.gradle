@@ -101,6 +101,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
+      // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
       buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
