@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD, ElementType.TYPE})
-public @interface StationsTest {
+public @interface Ignore {
 }
