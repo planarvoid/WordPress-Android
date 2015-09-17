@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -103,7 +103,7 @@ public class EmptyViewBuilder {
                 image = R.drawable.empty_following;
                 messageText = context.getString(R.string.list_empty_user_following_message);
                 actionText = context.getString(R.string.list_empty_user_following_action);
-                action = new Intent(context, SuggestedUsersActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                action = new Intent(Actions.SEARCH);
                 break;
 
             case USER_FOLLOWINGS:
