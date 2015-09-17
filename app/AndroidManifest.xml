@@ -218,15 +218,6 @@
         <activity android:label="" android:name=".onboarding.suggestions.SuggestedUsersCategoryActivity" android:theme="@style/Theme.Onboard"/>
         <activity android:label="" android:name=".onboarding.suggestions.SuggestedUsersSyncActivity" android:theme="@style/Theme.Onboard"/>
 
-        <!-- old suggested users -->
-        <activity android:label="@string/side_menu_who_to_follow" android:name=".associations.WhoToFollowActivity">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-
         <activity android:exported="true" android:label="@string/app_name" android:name=".onboarding.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".onboarding.auth.RecoverActivity" android:theme="@style/Theme.ScAuth"/>
 

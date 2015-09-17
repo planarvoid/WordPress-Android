@@ -8,8 +8,7 @@ import javax.inject.Singleton;
 
 @Module(
         addsTo = ApplicationModule.class,
-        library = true,
-        injects = WhoToFollowActivity.class
+        library = true
 )
 public class AssociationsModule {
 

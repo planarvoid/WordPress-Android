@@ -11,9 +11,9 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, STREAM, EXPLORE, WHO_TO_FOLLOW, USER, TRACK, PLAYLIST, SEARCH, RECORD, WEB_VIEW, OTHER;
+    HOME, STREAM, EXPLORE, USER, TRACK, PLAYLIST, SEARCH, RECORD, WEB_VIEW, OTHER;
 
-    private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED = EnumSet.of(EXPLORE, WHO_TO_FOLLOW, USER, TRACK, PLAYLIST, SEARCH, RECORD);
+    private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED = EnumSet.of(EXPLORE, USER, TRACK, PLAYLIST, SEARCH, RECORD);
     private static final EnumSet<DeepLink> RESOLVE_REQUIRED = EnumSet.of(USER, TRACK, PLAYLIST);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
@@ -97,8 +97,6 @@ public enum DeepLink {
                 return STREAM;
             case "explore":
                 return EXPLORE;
-            case "people":
-                return WHO_TO_FOLLOW;
             case "search":
             case "search:people":
             case "search:sounds":
@@ -134,8 +132,6 @@ public enum DeepLink {
                 return STREAM;
             case "/explore":
                 return EXPLORE;
-            case "/people":
-                return WHO_TO_FOLLOW;
             case "/upload":
                 return RECORD;
             case "/search":

@@ -297,49 +297,6 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openRecord(context, Screen.DEEPLINK);
     }
 
-    @Test
-    public void shouldLaunchWhoToFollowForWebScheme() throws Exception {
-        setupIntentForUrl("https://soundcloud.com/people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchWhoToFollowForSoundCloudScheme() throws Exception {
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldNotLaunchWhoToFollowForLoggedOutUsers() throws Exception {
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchWhoToFollowForCrawlers() throws Exception {
-        setupReferrer(Referrer.GOOGLE_CRAWLER);
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verify(accountOperations).loginCrawlerUser();
-        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
-    }
-
     public void setupIntentForUrl(String url) {
         uri = Uri.parse(url);
         intent = new Intent().setData(uri);

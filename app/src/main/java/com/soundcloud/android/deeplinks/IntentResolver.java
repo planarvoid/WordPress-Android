@@ -79,9 +79,6 @@ public class IntentResolver {
             case SEARCH:
                 showSearchScreen(context, uri, referrer);
                 break;
-            case WHO_TO_FOLLOW:
-                showWhoToFollowScreen(context, referrer);
-                break;
             case WEB_VIEW:
                 startWebView(context, uri, referrer);
                 break;
@@ -160,11 +157,6 @@ public class IntentResolver {
     private void showRecordScreen(Context context, Referrer referrer) {
         trackForegroundEvent(referrer);
         navigator.openRecord(context, Screen.DEEPLINK);
-    }
-
-    private void showWhoToFollowScreen(Context context, Referrer referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openWhoToFollow(context, Screen.DEEPLINK);
     }
 
     private void startActivityForResource(Context context, PublicApiResource resource, Referrer referrer) {

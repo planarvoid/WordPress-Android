@@ -10,7 +10,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.SettingsScreen;
-import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -47,11 +46,6 @@ public class ToolBarElement extends Element {
     public ActivitiesScreen clickActivityOverflowButton() {
         clickOverflowButton("Activity");
         return new ActivitiesScreen(testDriver);
-    }
-
-    public WhoToFollowScreen clickWhoToFollowOverflowButton() {
-        clickOverflowButton("Who to follow");
-        return new WhoToFollowScreen(testDriver);
     }
 
     public SettingsScreen clickSettingsOverflowButton() {

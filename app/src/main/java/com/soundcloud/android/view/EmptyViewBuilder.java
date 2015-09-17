@@ -103,7 +103,7 @@ public class EmptyViewBuilder {
                 image = R.drawable.empty_following;
                 messageText = context.getString(R.string.list_empty_user_following_message);
                 actionText = context.getString(R.string.list_empty_user_following_action);
-                action = new Intent(Actions.WHO_TO_FOLLOW);
+                action = new Intent(Actions.SEARCH);
                 break;
 
             case USER_FOLLOWINGS:

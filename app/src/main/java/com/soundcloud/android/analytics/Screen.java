@@ -78,7 +78,6 @@ public enum Screen {
     PLAYLIST_REPOSTS("playlists:reposts"),
 
     // misc
-    WHO_TO_FOLLOW("who_to_follow:main"),
     ACTIVITIES("activity:main"),
 
     // explore screens
