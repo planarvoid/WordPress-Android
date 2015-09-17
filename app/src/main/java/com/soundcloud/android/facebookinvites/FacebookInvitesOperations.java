@@ -59,8 +59,7 @@ public class FacebookInvitesOperations {
     }
 
     public boolean canShow() {
-        return featureFlags.isEnabled(Flag.FACEBOOK_INVITES)
-                && canShowAfterLastClick()
+        return canShowAfterLastClick()
                 && canShowAfterLastOpen()
                 && canShowAfterLastDismisses()
                 && facebookApiHelper.canShowAppInviteDialog()
