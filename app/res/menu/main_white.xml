@@ -16,11 +16,6 @@
         soundcloud:showAsAction="always" />
 
     <item
-        android:id="@+id/action_who_to_follow"
-        android:title="@string/side_menu_who_to_follow"
-        soundcloud:showAsAction="never" />
-
-    <item
         android:id="@+id/action_activity"
         android:title="@string/side_menu_activity"
         soundcloud:showAsAction="never" />

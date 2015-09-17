@@ -28,7 +28,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     public void shouldFlagSoundCloudScheme() {
         assertDeeplink(DeepLink.HOME, "soundcloud://home");
         assertDeeplink(DeepLink.EXPLORE, "soundcloud://explore");
-        assertDeeplink(DeepLink.WHO_TO_FOLLOW, "soundcloud://people");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.TRACK, "soundcloud://sounds:123456");
         assertDeeplink(DeepLink.TRACK, "soundcloud://tracks:123456");
@@ -69,7 +68,6 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.USER.requiresResolve()).isTrue();
 
         assertThat(DeepLink.EXPLORE.requiresResolve()).isFalse();
-        assertThat(DeepLink.WHO_TO_FOLLOW.requiresResolve()).isFalse();
         assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
         assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
         assertThat(DeepLink.HOME.requiresResolve()).isFalse();
@@ -81,7 +79,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     @Test
     public void shouldRequireLoggedIn() {
         assertThat(DeepLink.EXPLORE.requiresLoggedInUser()).isTrue();
-        assertThat(DeepLink.WHO_TO_FOLLOW.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.USER.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.TRACK.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.PLAYLIST.requiresLoggedInUser()).isTrue();
