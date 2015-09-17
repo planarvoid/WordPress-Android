@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.payments.googleplay.BillingResult;
@@ -22,7 +22,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
-    private final ConfigurationOperations configurationOperations;
+    private final ConfigurationManager configurationManager;
     private final UpgradeView upgradeView;
     private final EventBus eventBus;
 
@@ -36,10 +36,10 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     @Inject
     UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                     ConfigurationOperations configurationOperations, UpgradeView upgradeView, EventBus eventBus) {
+                     ConfigurationManager configurationManager, UpgradeView upgradeView, EventBus eventBus) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
-        this.configurationOperations = configurationOperations;
+        this.configurationManager = configurationManager;
         this.upgradeView = upgradeView;
         this.eventBus = eventBus;
     }
@@ -187,7 +187,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     }
 
     private void upgradeSuccess() {
-        configurationOperations.update();
+        configurationManager.updateUntilPlanChanged();
         upgradeView.showSuccess();
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
     }

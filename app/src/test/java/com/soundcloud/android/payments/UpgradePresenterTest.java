@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
@@ -37,7 +37,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
     @Mock private UpgradeView upgradeView;
-    @Mock private ConfigurationOperations configurationOperations;
+    @Mock private ConfigurationManager configurationManager;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
@@ -50,7 +50,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         testObserver = new TestObserver();
-        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView, new TestEventBus());
+        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus());
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -114,7 +114,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         controller.onCreate(activity, null);
 
         verify(upgradeView).showSuccess();
-        verify(configurationOperations).update();
+        verify(configurationManager).updateUntilPlanChanged();
     }
 
     @Test
@@ -336,7 +336,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.success());
 
-        verify(configurationOperations).update();
+        verify(configurationManager).updateUntilPlanChanged();
     }
 
     @Test
