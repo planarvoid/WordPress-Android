@@ -1,8 +1,6 @@
 package com.soundcloud.android.stream;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -11,9 +9,8 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItemRenderer.OnFacebookInvitesClickListener;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -126,7 +123,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         if (isOnboardingSuccess) {
             emptyView.setMessageText(R.string.list_empty_stream_message);
             emptyView.setActionText(R.string.list_empty_stream_action);
-            emptyView.setButtonActions(new Intent(Actions.WHO_TO_FOLLOW));
+            emptyView.setButtonActions(new Intent(fragment.getActivity(), SuggestedUsersActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } else {
             emptyView.setMessageText(R.string.error_onboarding_fail);
         }

@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 public final class Actions {
     // public intent API (do not change)
-    public static final String WHO_TO_FOLLOW    = "com.soundcloud.android.action.WHO_TO_FOLLOW";
     public static final String YOU              = "com.soundcloud.android.action.YOU";
     public static final String YOUR_INFO        = "com.soundcloud.android.action.YOUR_INFO";
     public static final String YOUR_SOUNDS      = "com.soundcloud.android.action.YOUR_SOUNDS";

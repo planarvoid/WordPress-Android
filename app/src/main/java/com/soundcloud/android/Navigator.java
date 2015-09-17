@@ -126,10 +126,6 @@ public class Navigator {
         context.startActivity(createSearchIntent(context, uri, screen));
     }
 
-    public void openWhoToFollow(Context context, Screen screen) {
-        context.startActivity(createWhoToFollowIntent(screen));
-    }
-
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
     }
@@ -153,12 +149,6 @@ public class Navigator {
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(urn.toString()));
         intent.setFlags(FLAGS_TOP);
-        return intent;
-    }
-
-    private Intent createWhoToFollowIntent(Screen screen) {
-        Intent intent = new Intent(Actions.WHO_TO_FOLLOW).setFlags(FLAGS_TOP);
-        screen.addToIntent(intent);
         return intent;
     }
 
