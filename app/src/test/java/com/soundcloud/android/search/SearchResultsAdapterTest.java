@@ -16,7 +16,6 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,7 +37,6 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
 
     @Captor private ArgumentCaptor<List<PlaylistItem>> playlistItemCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
     private SearchResultsAdapter adapter;
 
     @Before
@@ -67,51 +65,6 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
         assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK);
         assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST);
     }
-
-//    @Test
-//    public void trackChangedForNewQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-//        final Urn playingTrack = Urn.forTrack(123L);
-//        adapter.onViewCreated(fragment, null, null);
-//
-//        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
-//
-//        verify(trackRenderer).setPlayingTrack(playingTrack);
-//    }
-
-//    @Test
-//    public void trackChangedForPositionChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-//        final Urn playingTrack = Urn.forTrack(123L);
-//        adapter.onViewCreated(fragment, null, null);
-//
-//        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
-//        verify(trackRenderer).setPlayingTrack(playingTrack);
-//    }
-
-//    @Test
-//    public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() {
-//        PropertySet unlikedPlaylist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-//        unlikedPlaylist.put(PlaylistProperty.IS_LIKED, false);
-//        adapter.addItem(dummyUserItem());
-//        adapter.addItem(dummyTrackItem());
-//        adapter.addItem(PlaylistItem.from(unlikedPlaylist));
-//        adapter.onViewCreated(fragment, null, null);
-//
-//        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-//                EntityStateChangedEvent.fromLike(unlikedPlaylist.get(PlayableProperty.URN), true, 1));
-//
-//        final int playlistPosition = 2;
-//        adapter.getView(playlistPosition, itemView, new FrameLayout(context()));
-//
-//        verify(playlistRenderer).bindItemView(eq(playlistPosition), refEq(itemView), playlistItemCaptor.capture());
-//        assertThat(playlistItemCaptor.getValue().get(playlistPosition).isLiked()).isTrue();
-//    }
-
-//    @Test
-//    public void shouldUnsubscribeFromEventBusInOnDestroyView() {
-//        adapter.onViewCreated(fragment, null, null);
-//        adapter.onDestroyView(fragment);
-//        eventBus.verifyUnsubscribed();
-//    }
 
     private UserItem dummyUserItem() {
         return UserItem.from(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
