@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdIdHelper;
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -28,7 +28,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Mock PolicyOperations policyOperations;
     @Mock PolicySettingsStorage policySettingsStorage;
-    @Mock ConfigurationOperations configurationOperations;
+    @Mock ConfigurationManager configurationManager;
     @Mock AdIdHelper adIdHelper;
     @Mock DateProvider dateProvider;
 
@@ -38,7 +38,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        dailyUpdateService = new DailyUpdateService(policyOperations, policySettingsStorage, configurationOperations,
+        dailyUpdateService = new DailyUpdateService(policyOperations, policySettingsStorage, configurationManager,
                 adIdHelper, dateProvider, eventBus);
     }
 
@@ -76,7 +76,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     public void updatesConfiguration() {
         dailyUpdateService.onHandleIntent(startIntent());
 
-        verify(configurationOperations).update();
+        verify(configurationManager).update();
     }
 
     @Test

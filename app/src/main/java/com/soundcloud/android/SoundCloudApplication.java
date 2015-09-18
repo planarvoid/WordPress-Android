@@ -16,7 +16,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionTester;
 import com.soundcloud.android.gcm.GcmModule;
@@ -86,7 +86,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ScModelManager modelManager;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
-    @Inject ConfigurationOperations configOperations;
+    @Inject ConfigurationManager configurationManager;
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
@@ -159,7 +159,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         imageOperations.initialise(this, applicationProperties);
 
         accountOperations.loadLoggedInUser();
-        configOperations.update();
+        configurationManager.update();
         setupCurrentUserAccount();
         generateDeviceKey();
 
