@@ -109,6 +109,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
+        when(playbackStrategy.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
     }
@@ -238,7 +239,6 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
-        when(playbackStrategy.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.EXPLORE_TRENDING_MUSIC.get(), playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
 
