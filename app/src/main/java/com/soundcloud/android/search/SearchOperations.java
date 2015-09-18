@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -18,6 +19,7 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -30,6 +32,8 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @SuppressFBWarnings(
@@ -46,7 +50,8 @@ class SearchOperations {
             new Func1<SearchCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
                 public SearchResult call(SearchCollection<? extends PropertySetSource> propertySetSources) {
-                    return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(), propertySetSources.getQueryUrn());
+                    return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(),
+                            propertySetSources.getQueryUrn());
                 }
             };
 
@@ -108,18 +113,8 @@ class SearchOperations {
         return getSearchStrategy(searchType).searchResult(query);
     }
 
-    PagingFunction<SearchResult> pagingFunction(final int searchType) {
-        return new PagingFunction<SearchResult>() {
-            @Override
-            public Observable<SearchResult> call(SearchResult searchResult) {
-                final Optional<Link> nextHref = searchResult.nextHref;
-                if (nextHref.isPresent()) {
-                    return nextResultPage(nextHref.get(), searchType);
-                } else {
-                    return Pager.finish();
-                }
-            }
-        };
+    SearchPagingFunction pagingFunction(final int searchType) {
+        return new SearchPagingFunction(searchType);
     }
 
     private Observable<SearchResult> nextResultPage(Link link, int searchType) {
@@ -185,8 +180,9 @@ class SearchOperations {
 
     private final class PlaylistSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiPlaylist>> typeToken = new TypeToken<SearchCollection<ApiPlaylist>>() {
-        };
+        private final TypeToken<SearchCollection<ApiPlaylist>> typeToken =
+                new TypeToken<SearchCollection<ApiPlaylist>>() {
+                };
 
         protected PlaylistSearchStrategy() {
             super(ApiEndpoints.SEARCH_PLAYLISTS.path());
@@ -223,8 +219,9 @@ class SearchOperations {
 
     private final class UniversalSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiUniversalSearchItem>> typeToken = new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
-        };
+        private final TypeToken<SearchCollection<ApiUniversalSearchItem>> typeToken =
+                new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
+                };
 
         protected UniversalSearchStrategy() {
             super(ApiEndpoints.SEARCH_ALL.path());
@@ -238,6 +235,44 @@ class SearchOperations {
                     .map(TO_SEARCH_RESULT)
                     .map(mergePlaylistLikeStatus)
                     .map(mergeFollowings);
+        }
+    }
+
+    class SearchPagingFunction implements PagingFunction<SearchResult> {
+
+        private final int searchType;
+        private final List<Urn> allUrns = new ArrayList<>();
+        private Urn queryUrn = Urn.NOT_SET;
+
+        public SearchPagingFunction(int searchType) {
+            this.searchType = searchType;
+        }
+
+        public SearchQuerySourceInfo getSearchQuerySourceInfo() {
+            return new SearchQuerySourceInfo(queryUrn);
+        }
+
+        public SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
+            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, clickPosition, clickUrn);
+            searchQuerySourceInfo.setQueryResults(allUrns);
+            return searchQuerySourceInfo;
+        }
+
+        @Override
+        public Observable<SearchResult> call(SearchResult searchResultsCollection) {
+            final Optional<Link> nextHref = searchResultsCollection.nextHref;
+
+            allUrns.addAll(CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems()));
+
+            if (searchResultsCollection.queryUrn.isPresent()) {
+                queryUrn = searchResultsCollection.queryUrn.get();
+            }
+
+            if (nextHref.isPresent()) {
+                return nextResultPage(nextHref.get(), searchType);
+            } else {
+                return Pager.finish();
+            }
         }
     }
 }
