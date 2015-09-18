@@ -224,7 +224,7 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
 
         when(playQueueManager.isCurrentTrack(station.getTracks().get(0))).thenReturn(true);
         when(playQueueManager.isCurrentCollection(stationUrn)).thenReturn(true);
-        playbackOperations.playStation(station.getTracks(), playSessionSource, 0).subscribe(observer);
+        playbackOperations.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
 
         verifyZeroInteractions(playbackStrategy);
     }
@@ -235,9 +235,9 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
         final Station station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
 
-        playbackOperations.playStation(station.getTracks(), playSessionSource, Consts.NOT_SET).subscribe(observer);
+        playbackOperations.playStation(stationUrn, station.getTracks(), playSessionSource, Consts.NOT_SET).subscribe(observer);
 
-        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
         verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
     }
 
@@ -247,9 +247,9 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
         final Station station = StationFixtures.getStation(stationUrn, 2);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
 
-        playbackOperations.playStation(station.getTracks(), playSessionSource, 0).subscribe(observer);
+        playbackOperations.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
 
-        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
         verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(1), 1, false, playSessionSource);
     }
 
@@ -259,9 +259,9 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
         final Station station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
 
-        playbackOperations.playStation(station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
+        playbackOperations.playStation(stationUrn, station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
 
-        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
         verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
     }
 

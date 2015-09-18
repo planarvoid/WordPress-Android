@@ -107,6 +107,16 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isFromStationsShouldReturnsFalseWhenTheCollectionUrnIsNotAStation() {
+        assertThat(new PlaySessionSource(Screen.ACTIVITIES).isFromStations()).isFalse();
+    }
+
+    @Test
+    public void isFromStationsShouldReturnsTrueWhenTheCollectionUrnIsAStation() {
+        assertThat(PlaySessionSource.forStation(Screen.SEARCH_MAIN, Urn.forTrackStation(123L)).isFromStations()).isTrue();
+    }
+
+    @Test
     public void playlistSessionSourceShouldBeParcelable() {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));

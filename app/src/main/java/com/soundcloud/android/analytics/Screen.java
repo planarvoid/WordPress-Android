@@ -99,7 +99,11 @@ public enum Screen {
     SUGGESTED_USERS("suggested_users"),
     VOICE_COMMAND("voice:command"), // context when we play from voice search
     DEEPLINK("deeplink"), // context provided when we intercept a track
-    NOTIFICATION("notification");
+    NOTIFICATION("notification"),
+
+    // Stations
+    STATIONS_HOME("stations:home"),
+    STATIONS_SHOW_ALL("stations:show_all");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

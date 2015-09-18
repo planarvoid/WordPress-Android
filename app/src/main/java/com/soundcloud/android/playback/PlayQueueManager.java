@@ -346,6 +346,10 @@ public class PlayQueueManager implements OriginProvider {
             trackSourceInfo.setPromotedSourceInfo(playSessionSource.getPromotedSourceInfo());
         }
 
+        if (playSessionSource.isFromStations()) {
+            trackSourceInfo.setOriginStation(playSessionSource.getCollectionUrn());
+        }
+
         final Urn collectionUrn = playSessionSource.getCollectionUrn();
         if (collectionUrn.isPlaylist()) {
             trackSourceInfo.setOriginPlaylist(collectionUrn, getCurrentPosition(), playSessionSource.getCollectionOwnerUrn());
@@ -371,6 +375,10 @@ public class PlayQueueManager implements OriginProvider {
 
     public boolean isCurrentCollection(Urn collection) {
         return getCollectionUrn().equals(collection) && (playQueue.isEmpty() || Strings.isBlank(getCurrentTrackSource()));
+    }
+
+    public boolean isCurrentCollectionOrRecommendation(Urn collection) {
+        return getCollectionUrn().equals(collection);
     }
 
     @Override

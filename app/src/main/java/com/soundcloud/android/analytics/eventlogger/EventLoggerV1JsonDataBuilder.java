@@ -105,6 +105,11 @@ public class EventLoggerV1JsonDataBuilder {
             data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
             data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
+
+        if (trackSourceInfo.isFromStation()) {
+            data.queryUrn(trackSourceInfo.getCollectionUrn().toString());
+        }
+
         return data;
     }
 

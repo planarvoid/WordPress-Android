@@ -2,6 +2,9 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.lightcycle.LightCycle;
@@ -27,6 +30,14 @@ public class ShowAllStationsActivity extends ScActivity {
 
         if (savedInstanceState == null) {
             attachFragment();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (shouldTrackScreen()) {
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STATIONS_SHOW_ALL));
         }
     }
 
