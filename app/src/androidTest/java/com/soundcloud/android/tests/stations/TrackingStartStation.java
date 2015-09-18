@@ -43,6 +43,8 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
                 .getRecentStationsBucket()
                 .getFirstStation()
                 .click();
+
+        player.waitForExpandedPlayer();
         assertTrue(player.isExpandedPlayerPlaying());
 
         player.clickArtwork();
@@ -63,6 +65,8 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
                 .clickViewAll()
                 .getFirstStation()
                 .click();
+
+        player.waitForExpandedPlayer();
         assertTrue(player.isExpandedPlayerPlaying());
         player.clickArtwork();
 
@@ -79,6 +83,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
                 .clickFirstTrackOverflowButton()
                 .clickStartStation();
 
+        player.waitForExpandedPlayer();
         assertTrue(player.isExpandedPlayerPlaying());
         player.clickArtwork();
 
