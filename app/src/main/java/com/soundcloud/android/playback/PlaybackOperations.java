@@ -114,7 +114,7 @@ public class PlaybackOperations {
                 .flatMap(startPlayback(playbackStrategyProvider.get(), startPosition, playSessionSource, false));
     }
 
-    public Observable<PlaybackResult> playStation(List<Urn> tracks, final PlaySessionSource playSessionSource, final int previousPosition) {
+    public Observable<PlaybackResult> playStation(Urn stationUrn, List<Urn> tracks, final PlaySessionSource playSessionSource, final int previousPosition) {
         // TODO : once we land the playback operations refactoring #3876
         // move this code to a proper stations builder.
         final int nextPosition;
@@ -127,11 +127,11 @@ public class PlaybackOperations {
             nextPosition = (previousPosition + 1) % tracks.size();
         }
 
-        if (!shouldChangePlayQueue(previousTrackUrn, playSessionSource)) {
+        if (isCurrentPlayQueueOrRecommendationState(previousTrackUrn, playSessionSource)) {
             return Observable.just(PlaybackResult.success());
         }
 
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(tracks, playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
         return startPlayback(playQueue, tracks.get(nextPosition), nextPosition, playSessionSource);
     }
 
@@ -240,7 +240,7 @@ public class PlaybackOperations {
     }
 
     private Observable<PlaybackResult> startPlayback(PlaybackStrategy playbackStrategy, PlayQueue playQueue, Urn initialTrack, int startPosition, boolean loadRelated, PlaySessionSource playSessionSource) {
-        if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
+        if (isCurrentPlayQueueState(initialTrack, playSessionSource)) {
             return Observable.just(PlaybackResult.success());
         } else if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
@@ -348,9 +348,16 @@ public class PlaybackOperations {
                 playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
-    private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
-        return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) ||
-                !playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn());
+    private boolean isCurrentPlayQueueState(Urn trackUrn, PlaySessionSource playSessionSource) {
+        return isCurrentTrack(trackUrn)
+                && isCurrentScreenSource(playSessionSource)
+                && playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn());
+    }
+
+    private boolean isCurrentPlayQueueOrRecommendationState(Urn trackUrn, PlaySessionSource playSessionSource) {
+        return isCurrentTrack(trackUrn)
+                && isCurrentScreenSource(playSessionSource)
+                && playQueueManager.isCurrentCollectionOrRecommendation(playSessionSource.getCollectionUrn());
     }
 
     private boolean isCurrentScreenSource(PlaySessionSource playSessionSource) {

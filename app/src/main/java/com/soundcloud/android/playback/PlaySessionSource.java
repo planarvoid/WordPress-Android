@@ -144,6 +144,10 @@ public class PlaySessionSource implements Parcelable {
         return searchQuerySourceInfo != null;
     }
 
+    public boolean isFromStations() {
+        return getCollectionUrn().isStation();
+    }
+
     public boolean isFromPromotedItem() {
         return promotedSourceInfo != null;
     }
@@ -229,7 +233,7 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public enum DiscoverySource {
-        RECOMMENDER, EXPLORE;
+        RECOMMENDER, EXPLORE, STATIONS;
 
         public String value() {
             return this.toString().toLowerCase(Locale.ENGLISH);

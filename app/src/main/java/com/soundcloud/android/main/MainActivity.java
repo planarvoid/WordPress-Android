@@ -191,6 +191,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             case PLAYLISTS:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_PLAYLISTS));
                 break;
+            case STATIONS:
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STATIONS_HOME));
+                break;
             default:
                 break; // the remaining content fragments are tracked individually
         }
