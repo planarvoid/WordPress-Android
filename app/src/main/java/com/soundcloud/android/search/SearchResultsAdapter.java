@@ -20,6 +20,8 @@ class SearchResultsAdapter extends PagingRecyclerItemAdapter<ListItem, SearchRes
     static final int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     static final int TYPE_PLAYLIST = ViewTypes.DEFAULT_VIEW_TYPE + 2;
 
+    private final TrackItemRenderer trackRenderer;
+
     @Inject
     SearchResultsAdapter(FollowableUserItemRenderer userRenderer,
                          TrackItemRenderer trackRenderer,
@@ -27,6 +29,7 @@ class SearchResultsAdapter extends PagingRecyclerItemAdapter<ListItem, SearchRes
         super(new CellRendererBinding<>(TYPE_USER, userRenderer),
                 new CellRendererBinding<>(TYPE_TRACK, trackRenderer),
                 new CellRendererBinding<>(TYPE_PLAYLIST, playlistRenderer));
+        this.trackRenderer = trackRenderer;
     }
 
     @Override
@@ -42,6 +45,10 @@ class SearchResultsAdapter extends PagingRecyclerItemAdapter<ListItem, SearchRes
         } else {
             throw new IllegalStateException("Unexpected item type in " + SearchResultsAdapter.class.getSimpleName());
         }
+    }
+
+    public TrackItemRenderer getTrackRenderer() {
+        return trackRenderer;
     }
 
     @Override
