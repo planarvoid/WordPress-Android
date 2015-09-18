@@ -142,9 +142,8 @@ def copyApkToServer(local_file_path) {
 }
 
 def copyLogFileFromServer(remote_file_path, local_directory) {
-    def remote_host = "$project.ext.mobileTestRunnerUser@$project.ext.mobileTestRunnerHost"
     def local_filepath = "$local_directory/${UUID.randomUUID()}.xml"
-    def cmd = ['scp', "$remote_host:$remote_file_path", local_filepath]
+    def cmd = ['curl', '-o', local_filepath, "$remote_file_path"]
     def p = cmd.execute()
     p.waitFor()
     def exitValue = p.exitValue()
