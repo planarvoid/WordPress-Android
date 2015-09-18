@@ -114,7 +114,7 @@ class StationsStorage {
                                 station.getType(),
                                 tracks,
                                 station.getPermalink(),
-                                calcStartPosition(station.getStartPosition(), tracks.size())
+                                station.getPreviousPosition()
                         );
                     }
                 }
@@ -127,16 +127,6 @@ class StationsStorage {
                 .select(StationsPlayQueues.TRACK_URN)
                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
-    }
-
-    // This is a temporary logic.
-    // A story is going to be played to actually fetch more tracks.
-    private Integer calcStartPosition(int lastPlayedTrackPosition, int numTracks) {
-        if (lastPlayedTrackPosition + 1 < numTracks) {
-            return lastPlayedTrackPosition + 1;
-        } else {
-            return 0;
-        }
     }
 
     Observable<ChangeResult> saveLastPlayedTrackPosition(Urn stationUrn, int position) {

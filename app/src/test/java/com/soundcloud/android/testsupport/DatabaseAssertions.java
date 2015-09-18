@@ -4,6 +4,7 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -136,7 +137,7 @@ public class DatabaseAssertions {
                                 .whereEq(Stations.TITLE, station.getTitle())
                                 .whereEq(Stations.TYPE, station.getType())
                                 .whereEq(Stations.PERMALINK, station.getPermalink())
-                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, 0)
+                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, Consts.NOT_SET)
                 ),
                 counts(1)
         );

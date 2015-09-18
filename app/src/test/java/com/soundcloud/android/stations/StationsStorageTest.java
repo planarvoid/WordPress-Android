@@ -34,7 +34,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnTheStation() {
-        ApiStation apiStation = testFixtures().insertStation(0);
+        ApiStation apiStation = testFixtures().insertStation();
 
         storage.station(apiStation.getUrn()).subscribe(subscriber);
 
@@ -71,9 +71,9 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnRecentStationsInCorrectOrder() {
-        final ApiStation firstStation = testFixtures().insertStation(0);
-        final ApiStation secondStation = testFixtures().insertStation(0);
-        final ApiStation thirdStation = testFixtures().insertStation(0);
+        final ApiStation firstStation = testFixtures().insertStation();
+        final ApiStation secondStation = testFixtures().insertStation();
+        final ApiStation thirdStation = testFixtures().insertStation();
 
         testFixtures().insertRecentlyPlayedStationAtPosition(firstStation.getUrn(), 0);
         testFixtures().insertLocallyPlayedRecentStation(secondStation.getUrn(), System.currentTimeMillis());
@@ -91,9 +91,9 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldReturnRecentStationsToSync() {
-        final ApiStation firstSyncedStation = testFixtures().insertStation(0);
-        final ApiStation secondSyncedStation = testFixtures().insertStation(0);
-        final ApiStation unsyncedStation = testFixtures().insertStation(0);
+        final ApiStation firstSyncedStation = testFixtures().insertStation();
+        final ApiStation secondSyncedStation = testFixtures().insertStation();
+        final ApiStation unsyncedStation = testFixtures().insertStation();
         final long timestamp = 1421315988L;
 
         testFixtures().insertRecentlyPlayedStationAtPosition(firstSyncedStation.getUrn(), 0);
@@ -105,7 +105,7 @@ public class StationsStorageTest extends StorageIntegrationTest {
         final PropertySet expectedProperties = PropertySet.from(
                 StationProperty.URN.bind(unsyncedStation.getUrn()),
                 StationProperty.UPDATED_LOCALLY_AT.bind(timestamp),
-                StationProperty.POSITION.bind(0)
+                StationProperty.POSITION.bind(unsyncedStation.getPreviousPosition())
         );
 
         assertThat(recentStationsToSync).containsExactly(expectedProperties);

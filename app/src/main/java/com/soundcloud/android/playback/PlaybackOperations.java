@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.stations.Stations;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -81,13 +82,13 @@ public class PlaybackOperations {
     }
 
     public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position,
-                                            PlaySessionSource playSessionSource) {
+                                                 PlaySessionSource playSessionSource) {
         final Observable<PlayQueue> playQueue = allTracks.map(urnsToPlayQueue(playSessionSource));
         return startPlayback(playQueue, initialTrack, position, playSessionSource, WITHOUT_RELATED);
     }
 
     public Observable<PlaybackResult> playPosts(Observable<List<PropertySet>> allTracks, Urn initialTrack, int position,
-                                                 PlaySessionSource playSessionSource) {
+                                                PlaySessionSource playSessionSource) {
         final Observable<PlayQueue> playQueue = allTracks.map(tracksToPlayQueue(playSessionSource));
         return startPlayback(playQueue, initialTrack, position, playSessionSource, WITHOUT_RELATED);
     }
@@ -113,13 +114,29 @@ public class PlaybackOperations {
                 .flatMap(startPlayback(playbackStrategyProvider.get(), startPosition, playSessionSource, false));
     }
 
-    public Observable<PlaybackResult> playStation(List<Urn> tracks, final PlaySessionSource playSessionSource, final int startPosition) {
+    public Observable<PlaybackResult> playStation(List<Urn> tracks, final PlaySessionSource playSessionSource, final int previousPosition) {
+        // TODO : once we land the playback operations refactoring #3876
+        // move this code to a proper stations builder.
+        final int nextPosition;
+        final Urn previousTrackUrn;
+        if (previousPosition == Stations.NEVER_PLAYED)  {
+            previousTrackUrn = Urn.NOT_SET;
+            nextPosition = 0;
+        } else {
+            previousTrackUrn = tracks.get(previousPosition);
+            nextPosition = (previousPosition + 1) % tracks.size();
+        }
+
+        if (!shouldChangePlayQueue(previousTrackUrn, playSessionSource)) {
+            return Observable.just(PlaybackResult.success());
+        }
+
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(tracks, playSessionSource);
-        return startPlayback(playQueue, playQueue.getUrn(startPosition), startPosition, playSessionSource);
+        return startPlayback(playQueue, tracks.get(nextPosition), nextPosition, playSessionSource);
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
-                                                    final PlaySessionSource playSessionSource) {
+                                                         final PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
@@ -159,7 +176,7 @@ public class PlaybackOperations {
                                                      int startPosition,
                                                      final PlaySessionSource playSessionSource,
                                                      boolean loadRelated) {
-            return startPlayback(playbackStrategyProvider.get(), playQueue, initialTrack, startPosition, loadRelated, playSessionSource);
+        return startPlayback(playbackStrategyProvider.get(), playQueue, initialTrack, startPosition, loadRelated, playSessionSource);
     }
 
     private Func1<PlayQueue, Observable<PlaybackResult>> startPlayback(final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, final boolean loadRelated) {
@@ -343,7 +360,6 @@ public class PlaybackOperations {
     private boolean isCurrentTrack(Urn trackUrn) {
         return playQueueManager.isCurrentTrack(trackUrn);
     }
-
 
 
 }

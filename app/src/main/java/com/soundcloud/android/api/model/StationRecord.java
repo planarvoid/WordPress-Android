@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import java.util.List;
 
 public interface StationRecord {
+
     List<Urn> getTracks();
 
     Urn getUrn();
@@ -14,4 +15,6 @@ public interface StationRecord {
     String getTitle();
 
     String getPermalink();
+
+    int getPreviousPosition();
 }

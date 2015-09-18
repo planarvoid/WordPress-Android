@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
@@ -27,7 +28,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.stations.Station;
+import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -35,6 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -211,6 +214,55 @@ public class PlaybackOperationsTest extends AndroidUnitTest {
 
         final PlayQueue expectedQueue = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
         verify(playbackStrategy).playNewQueue(eq(expectedQueue), any(Urn.class), anyInt(), eq(false), any(PlaySessionSource.class));
+    }
+
+    @Test
+    public void playStationResumesIfStationAlreadyStarted() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Station station = StationFixtures.getStation(stationUrn);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
+
+        when(playQueueManager.isCurrentTrack(station.getTracks().get(0))).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(stationUrn)).thenReturn(true);
+        playbackOperations.playStation(station.getTracks(), playSessionSource, 0).subscribe(observer);
+
+        verifyZeroInteractions(playbackStrategy);
+    }
+
+    @Test
+    public void playStationShouldStartFromZeroOnFirstPlay() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Station station = StationFixtures.getStation(stationUrn);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
+
+        playbackOperations.playStation(station.getTracks(), playSessionSource, Consts.NOT_SET).subscribe(observer);
+
+        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
+    }
+
+    @Test
+    public void playStationShouldStartFromTheNextTrack() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Station station = StationFixtures.getStation(stationUrn, 2);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
+
+        playbackOperations.playStation(station.getTracks(), playSessionSource, 0).subscribe(observer);
+
+        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(1), 1, false, playSessionSource);
+    }
+
+    @Test
+    public void playStationShouldRestartFromZeroWhenReachingTheEnd() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Station station = StationFixtures.getStation(stationUrn);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
+
+        playbackOperations.playStation(station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
+
+        final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(station.getTracks(), playSessionSource);
+        verify(playbackStrategy).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
     }
 
     @Test

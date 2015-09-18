@@ -27,7 +27,8 @@ public class StartStationPresenter {
         @Override
         public Observable<PlaybackResult> call(Station station) {
             checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
-            return playbackOperations.playStation(station.getTracks(), PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn()), station.getStartPosition());
+            final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn());
+            return playbackOperations.playStation(station.getTracks(), playSessionSource, station.getPreviousPosition());
         }
     };
 
