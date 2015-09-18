@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.comscore;
 
 import com.comscore.analytics.comScore;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -26,6 +27,8 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
 
     public ComScoreAnalyticsProvider(Context context) {
         comScore.setAppContext(context.getApplicationContext());
+        comScore.setCustomerC2(context.getString(R.string.comscore_c2));
+        comScore.setPublisherSecret(context.getString(R.string.comscore_secret));
         comScore.enableAutoUpdate(ONE_MINUTE, AUTO_UPDATE_IN_BACKGROUND);
     }
 
