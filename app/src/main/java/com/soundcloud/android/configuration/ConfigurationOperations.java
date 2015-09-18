@@ -51,7 +51,7 @@ public class ConfigurationOperations {
         }
     };
 
-    private Func1<Long, Observable<Configuration>> toFetchConfiguration = new Func1<Long, Observable<Configuration>>() {
+    private final Func1<Long, Observable<Configuration>> toFetchConfiguration = new Func1<Long, Observable<Configuration>>() {
         @Override
         public Observable<Configuration> call(Long tick) {
             return apiClientRx.get().mappedResponse(configurationRequestBuilderForGet().build(), Configuration.class);
