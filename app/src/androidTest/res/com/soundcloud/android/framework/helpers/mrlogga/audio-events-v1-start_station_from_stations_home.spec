@@ -5,7 +5,7 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: 5284047f4ffb4e04824a2fd1d1f0cd62
+    anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
     client_id: 3152
@@ -28,7 +28,7 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: 5284047f4ffb4e04824a2fd1d1f0cd62
+    anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
     client_id: 3152
