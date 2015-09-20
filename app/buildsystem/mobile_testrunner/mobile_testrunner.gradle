@@ -114,7 +114,7 @@ def executeQueryForResult(runId) {
 }
 
 def executeQueryForLogFiles(runId) {
-    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/log_files"
+    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/xml_report_files"
     executeGet(url, [])
 }
 
