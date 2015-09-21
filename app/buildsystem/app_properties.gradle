@@ -16,6 +16,7 @@ android {
     debug {
       resValue "string", "build_type", "debug"
       resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
+      resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "adjust_log_level", "info"
 
@@ -28,6 +29,7 @@ android {
     alpha {
       resValue "string", "build_type", "alpha"
       resValue "string", "localytics_app_key", "dd94ecf058dedd10d24cda8-dedc8f8c-0eb5-11e5-9ed9-00739d24cb30"
+      resValue "string", "com_appboy_api_key", "ee285825-b3e0-4f01-8bc9-ea372882cf0e"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "adjust_log_level", "info"
 
@@ -40,6 +42,7 @@ android {
     beta {
       resValue "string", "build_type", "beta"
       resValue "string", "localytics_app_key", "8fecc6a72fcb74ddc76e2ac-02fa3b92-08f2-11e3-120d-004a77f8b47f"
+      resValue "string", "com_appboy_api_key", "b3c3167a-d8cc-4fa6-8be3-caa52a04c566"
       resValue "string", "adjust_environment", "production"
       resValue "string", "adjust_log_level", "error"
 
@@ -52,6 +55,7 @@ android {
     end2end {
       resValue "string", "build_type", "debug"
       resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
+      resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "adjust_log_level", "info"
 
@@ -64,6 +68,7 @@ android {
     release {
       resValue "string", "build_type", "release"
       resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
+      resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "adjust_environment", "production"
       resValue "string", "adjust_log_level", "error"
 
@@ -76,6 +81,7 @@ android {
     releaseNoProguard {
       resValue "string", "build_type", "release"
       resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
+      resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "adjust_environment", "production"
       resValue "string", "adjust_log_level", "error"
 
@@ -88,6 +94,7 @@ android {
     release_non_play_store {
       resValue "string", "build_type", "release"
       resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
+      resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "adjust_environment", "production"
       resValue "string", "adjust_log_level", "error"
 

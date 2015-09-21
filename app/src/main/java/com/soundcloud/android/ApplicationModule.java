@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
+import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.ApiModule;
@@ -56,6 +57,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LruCache;
@@ -259,5 +261,14 @@ public class ApplicationModule {
     }
 
     @Provides
-    public FacebookSdk provideFacebookSdk() { return new FacebookSdk(); }
+    public FacebookSdk provideFacebookSdk() {
+        return new FacebookSdk();
+    }
+
+    @Provides
+    @Singleton
+    @Nullable
+    public Appboy provideAppboy(Context context) {
+        return Appboy.getInstance(context);
+    }
 }

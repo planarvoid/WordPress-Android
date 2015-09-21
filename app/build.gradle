@@ -163,6 +163,7 @@ dependencies {
   compile libraries.castCompanionLibrary
   compile libraries.undoBar
   compile libraries.circleImageView
+  compile libraries.appBoy
 
   /* Android ... keep order! */
   compile libraries.androidMultidex

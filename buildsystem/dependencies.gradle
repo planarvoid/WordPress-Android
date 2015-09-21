@@ -3,6 +3,7 @@ allprojects {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://appboy.github.io/appboy-android-sdk/sdk' }
   }
 }
 
@@ -46,6 +47,7 @@ ext {
           adjustAndroid               : "com.adjust.sdk:adjust-android:3.6.1",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.0@aar",
           localytics                  : "com.localytics:android-localytics:2.71",
+          appBoy                      : "com.appboy:android-sdk-ui:1.9.2",
 
           // utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",

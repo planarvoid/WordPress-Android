@@ -1,14 +1,18 @@
 package com.soundcloud.android.events;
 
 import android.app.Activity;
+import android.support.annotation.Nullable;
 
 public final class ActivityLifeCycleEvent {
 
     public static final int ON_RESUME_EVENT = 0;
     public static final int ON_CREATE_EVENT = 1;
     public static final int ON_PAUSE_EVENT = 2;
+    public static final int ON_START_EVENT = 3;
+    public static final int ON_STOP_EVENT = 4;
 
     private final Class<? extends Activity> activityClass;
+    private final Activity activity;
     private final int kind;
 
     public static ActivityLifeCycleEvent forOnCreate(Class<? extends Activity> activityClass) {
@@ -19,12 +23,27 @@ public final class ActivityLifeCycleEvent {
         return new ActivityLifeCycleEvent(ON_RESUME_EVENT, activityClass);
     }
 
+    public static ActivityLifeCycleEvent forOnStart(Activity activity) {
+        return new ActivityLifeCycleEvent(ON_START_EVENT, activity);
+    }
+
+    public static ActivityLifeCycleEvent forOnStop(Activity activity) {
+        return new ActivityLifeCycleEvent(ON_STOP_EVENT, activity);
+    }
+
     public static ActivityLifeCycleEvent forOnPause(Class<? extends Activity> activityClass) {
         return new ActivityLifeCycleEvent(ON_PAUSE_EVENT, activityClass);
     }
 
     private ActivityLifeCycleEvent(int kind, Class<? extends Activity> activityClass) {
         this.activityClass = activityClass;
+        this.activity = null;
+        this.kind = kind;
+    }
+
+    private ActivityLifeCycleEvent(int kind, Activity activity) {
+        this.activityClass = activity.getClass();
+        this.activity = activity;
         this.kind = kind;
     }
 
@@ -34,6 +53,11 @@ public final class ActivityLifeCycleEvent {
 
     public Class<? extends Activity> getActivityClass() {
         return activityClass;
+    }
+
+    @Nullable
+    public Activity getActivity() {
+        return activity;
     }
 
     @Override
@@ -49,6 +73,10 @@ public final class ActivityLifeCycleEvent {
                 return "onResume";
             case ON_PAUSE_EVENT:
                 return "onPause";
+            case ON_START_EVENT:
+                return "onStart";
+            case ON_STOP_EVENT:
+                return "onStop";
             default:
                 throw new IllegalStateException(
                         "Attempting to get name of unknown lifecycle method code: " + kind);
