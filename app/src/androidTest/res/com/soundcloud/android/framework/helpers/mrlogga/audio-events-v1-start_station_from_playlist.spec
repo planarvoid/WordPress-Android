@@ -15,9 +15,9 @@ expected_events:
     consumer_subs_plan: none
     page_name: playlists:main
     user: soundcloud:users:161646357
-    playhead_position: 0
+    playhead_position: '[0-9]+'
     track_length: '[0-9]+'
-    protocol: https
+    protocol: (https|hls)
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
@@ -40,7 +40,7 @@ expected_events:
     user: soundcloud:users:161646357
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
-    protocol: https
+    protocol: (https|hls)
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
