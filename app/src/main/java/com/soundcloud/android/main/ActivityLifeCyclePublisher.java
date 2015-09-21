@@ -25,6 +25,11 @@ public class ActivityLifeCyclePublisher extends DefaultActivityLightCycle<AppCom
     }
 
     @Override
+    public void onStart(AppCompatActivity activity) {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnStart(activity));
+    }
+
+    @Override
     public void onResume(AppCompatActivity activity) {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(activity.getClass()));
     }
@@ -33,4 +38,10 @@ public class ActivityLifeCyclePublisher extends DefaultActivityLightCycle<AppCom
     public void onPause(AppCompatActivity activity) {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity.getClass()));
     }
+
+    @Override
+    public void onStop(AppCompatActivity activity) {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnStop(activity));
+    }
+
 }
