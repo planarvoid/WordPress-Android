@@ -31,6 +31,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -160,15 +161,33 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     @Override
     public void onFacebookInvitesCloseButtonClicked(int position) {
-        publishFacebookInviteDismissed((FacebookInvitesItem) adapter.getItem(position));
-        removeFacebookInvitesNotification(position);
+        FacebookInvitesItem facebookInvitesItem = getFacebookInvitesItemAtPosition(position);
+
+        if (facebookInvitesItem != null) {
+            publishFacebookInviteDismissed(facebookInvitesItem);
+            removeFacebookInvitesNotification(position);
+        }
+    }
+
+    @Nullable
+    private FacebookInvitesItem getFacebookInvitesItemAtPosition(int position) {
+        StreamItem item = adapter.getItem(position);
+        if (item instanceof FacebookInvitesItem) {
+            return (FacebookInvitesItem) item;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void onFacebookInvitesInviteButtonClicked(int position) {
-        publishFacebookInviteClicked((FacebookInvitesItem) adapter.getItem(position));
-        facebookInvitesDialogPresenter.show(fragment.getActivity());
-        removeFacebookInvitesNotification(position);
+        FacebookInvitesItem facebookInvitesItem = getFacebookInvitesItemAtPosition(position);
+
+        if (facebookInvitesItem != null) {
+            publishFacebookInviteClicked(facebookInvitesItem);
+            facebookInvitesDialogPresenter.show(fragment.getActivity());
+            removeFacebookInvitesNotification(position);
+        }
     }
 
     private void publishFacebookInviteDismissed(FacebookInvitesItem item) {
