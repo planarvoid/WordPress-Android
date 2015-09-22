@@ -18,9 +18,6 @@
     <dimen name="list_txt_sub_size">12sp</dimen>
     <dimen name="list_txt_sub_2_size">10sp</dimen>
 
-    <dimen name="button_bar_text_size">15sp</dimen>
-    <dimen name="button_bar_button_padding">16dp</dimen>
-
     <dimen name="record_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
 
