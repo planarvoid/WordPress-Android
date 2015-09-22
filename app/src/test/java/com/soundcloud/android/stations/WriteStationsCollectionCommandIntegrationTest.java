@@ -3,7 +3,7 @@ package com.soundcloud.android.stations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProviderStub;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegrationTest {
-    private final DateProviderStub dateProvider = new DateProviderStub();
+    private final TestDateProvider dateProvider = new TestDateProvider();
     private WriteStationsCollectionsCommand command;
 
     @Before

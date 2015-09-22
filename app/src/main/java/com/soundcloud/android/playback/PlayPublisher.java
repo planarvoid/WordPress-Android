@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.objects.MoreObjects;
@@ -55,7 +56,7 @@ public class PlayPublisher {
     };
 
     @Inject
-    public PlayPublisher(GcmStorage gcmStorage, DateProvider dateProvider, EventBus eventBus,
+    public PlayPublisher(GcmStorage gcmStorage, CurrentDateProvider dateProvider, EventBus eventBus,
                          @Named(HIGH_PRIORITY) Scheduler scheduler, ApiClientRx apiClient) {
         this.gcmStorage = gcmStorage;
         this.dateProvider = dateProvider;

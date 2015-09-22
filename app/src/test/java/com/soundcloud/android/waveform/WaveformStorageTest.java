@@ -2,7 +2,7 @@ package com.soundcloud.android.waveform;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,7 +18,7 @@ public class WaveformStorageTest extends StorageIntegrationTest {
     private WaveformStorage storage;
     private TestObserver<WaveformData> testObserver;
 
-    @Mock DateProvider dateProvider;
+    @Mock CurrentDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {

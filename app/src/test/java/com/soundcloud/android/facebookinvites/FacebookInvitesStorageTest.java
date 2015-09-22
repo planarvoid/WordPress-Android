@@ -5,10 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,7 +20,6 @@ public class FacebookInvitesStorageTest extends AndroidUnitTest {
     public static final String LAST_CLICK = "last_click";
     public static final String LAST_DISMISS = "last_dismiss";
 
-    @Mock private DateProvider dateProvider;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
 
@@ -31,8 +28,7 @@ public class FacebookInvitesStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new FacebookInvitesStorage(sharedPreferences, dateProvider);
-        when(dateProvider.getCurrentTime()).thenReturn(currentTime);
+        storage = new FacebookInvitesStorage(sharedPreferences, new TestDateProvider(currentTime));
     }
 
     @Test

@@ -12,7 +12,7 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     @Mock PolicySettingsStorage policySettingsStorage;
     @Mock ConfigurationManager configurationManager;
     @Mock AdIdHelper adIdHelper;
-    @Mock DateProvider dateProvider;
+    @Mock CurrentDateProvider dateProvider;
 
     private DailyUpdateService dailyUpdateService;
     private List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));

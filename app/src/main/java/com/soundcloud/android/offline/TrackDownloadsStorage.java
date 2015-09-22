@@ -18,6 +18,7 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -41,7 +42,7 @@ class TrackDownloadsStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, DateProvider dateProvider) {
+    TrackDownloadsStorage(PropellerDatabase propeller, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;

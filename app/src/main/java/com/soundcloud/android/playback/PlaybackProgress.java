@@ -1,21 +1,31 @@
 package com.soundcloud.android.playback;
 
-import android.os.SystemClock;
+import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.SystemClockDateProvider;
+
+import android.support.annotation.VisibleForTesting;
 
 public class PlaybackProgress {
+    private final DateProvider dateProvider;
+    private final long createdAt;
+
     final long position;
     final long duration;
-
-    private final long createdAt;
 
     public static PlaybackProgress empty() {
         return new PlaybackProgress(0, 0);
     }
 
-    public PlaybackProgress(long position, long duration) {
+    @VisibleForTesting
+    public PlaybackProgress(long position, long duration, DateProvider dateProvider) {
         this.position = position;
         this.duration = duration;
-        this.createdAt = SystemClock.uptimeMillis();
+        this.dateProvider = dateProvider;
+        this.createdAt = dateProvider.getCurrentTime();
+    }
+
+    public PlaybackProgress(long position, long duration) {
+        this(position, duration, new SystemClockDateProvider());
     }
 
     public boolean isEmpty() {
@@ -47,7 +57,7 @@ public class PlaybackProgress {
     }
 
     public long getTimeSinceCreation() {
-        return SystemClock.uptimeMillis() - createdAt;
+        return dateProvider.getCurrentTime() - createdAt;
     }
 
     @Override

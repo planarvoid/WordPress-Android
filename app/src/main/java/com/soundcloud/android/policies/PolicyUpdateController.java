@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -31,7 +32,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
     public PolicyUpdateController(FeatureOperations featureOperations,
                                   OfflineContentOperations offlineContentOperations,
                                   PolicySettingsStorage policySettingsStorage,
-                                  DateProvider dateProvider,
+                                  CurrentDateProvider dateProvider,
                                   GoBackOnlineDialogPresenter goBackOnlineDialogPresenter,
                                   NetworkConnectionHelper connectionHelper) {
         this.featureOperations = featureOperations;

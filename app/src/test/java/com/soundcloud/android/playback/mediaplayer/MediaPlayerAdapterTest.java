@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.mediaplayer;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.Player.PlayerState;
 import static com.soundcloud.android.playback.Player.Reason;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -27,43 +27,38 @@ import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.annotation.Config;
 
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.PowerManager;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
-
-@RunWith(SoundCloudTestRunner.class)
-public class MediaPlayerAdapterTest {
+public class MediaPlayerAdapterTest extends AndroidUnitTest {
     private static final String ACCESS_TOKEN = "access";
     private static final Token TOKEN = new Token(ACCESS_TOKEN,"refresh");
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/http?oauth_token=access";
 
     private MediaPlayerAdapter mediaPlayerAdapter;
 
-    @Mock private Context context;
     @Mock private MediaPlayer mediaPlayer;
     @Mock private MediaPlayerManager mediaPlayerManager;
     @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
@@ -72,7 +67,7 @@ public class MediaPlayerAdapterTest {
     @Mock private AccountOperations accountOperations;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private StreamUrlBuilder urlBuilder;
-    @Mock private DateProvider dateProvider;
+    private TestDateProvider dateProvider;
     @Captor private ArgumentCaptor<Player.StateTransition> stateCaptor;
 
     private PropertySet track;
@@ -85,20 +80,18 @@ public class MediaPlayerAdapterTest {
     public void setUp() {
         track = TestPropertySets.expectedTrackForPlayer();
         duration = track.get(PlayableProperty.DURATION);
+        dateProvider = new TestDateProvider();
 
         userUrn = ModelFixtures.create(Urn.class);
-        when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(accountOperations.getSoundCloudToken()).thenReturn(TOKEN);
         when(listener.requestAudioFocus()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
-
         when(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN))).thenReturn(STREAM_URL);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date());
 
-        mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
+        mediaPlayerAdapter = new MediaPlayerAdapter(context(), mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
         mediaPlayerAdapter.setListener(listener);
     }
 
@@ -111,7 +104,7 @@ public class MediaPlayerAdapterTest {
     public void playUrlShouldCreateConfiguredMediaPlayer() {
         mediaPlayerAdapter.play(track);
         verify(mediaPlayerManager).create();
-        verify(mediaPlayer).setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
+        verify(mediaPlayer).setWakeMode(context(), PowerManager.PARTIAL_WAKE_LOCK);
         verify(mediaPlayer).setAudioStreamType(AudioManager.STREAM_MUSIC);
         verify(mediaPlayer).setOnPreparedListener(any(MediaPlayer.OnPreparedListener.class));
         verify(mediaPlayer).setOnSeekCompleteListener(any(MediaPlayer.OnSeekCompleteListener.class));
@@ -126,7 +119,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn((int) duration);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
         verifyNoMoreInteractions(listener);
     }
 
@@ -153,8 +146,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -165,25 +158,25 @@ public class MediaPlayerAdapterTest {
 
         verify(listener).onPlaystateChanged(stateCaptor.capture());
 
-        expect(stateCaptor.getValue().getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).toEqual(PlaybackProtocol.HTTPS.getValue());
+        assertThat(stateCaptor.getValue().getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).isEqualTo(PlaybackProtocol.HTTPS.getValue());
     }
 
     @Test
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
+        dateProvider.setTime(0, TimeUnit.MILLISECONDS);
         mediaPlayerAdapter.play(track, 123L);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
+        dateProvider.setTime(1000, TimeUnit.MILLISECONDS);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        expect(event.getMetricValue()).toEqual(1000L);
-        expect(event.getCdnHost()).toEqual(track.get(TrackProperty.STREAM_URL));
-        expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
-        expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
-        expect(event.getConnectionType()).toEqual(ConnectionType.TWO_G);
-        expect(event.getUserUrn()).toEqual(userUrn);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.getMetricValue()).isEqualTo(1000L);
+        assertThat(event.getCdnHost()).isEqualTo(track.get(TrackProperty.STREAM_URL));
+        assertThat(event.getPlayerType()).isEqualTo(PlayerType.MEDIA_PLAYER);
+        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HTTPS);
+        assertThat(event.getConnectionType()).isEqualTo(ConnectionType.TWO_G);
+        assertThat(event.getUserUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -206,26 +199,26 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
     public void seekShouldReturnInvalidSeekPositionWithNoMediaPlayer() {
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(-1L);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(-1L);
     }
 
     @Test
     public void seekShouldSeekOnMediaPlayerWhilePreparing() {
         mediaPlayerAdapter.play(track);
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
         verify(mediaPlayer).seekTo(123);
     }
 
     @Test
     public void seekShouldCallSeekOnMediaPlayer() {
         playUrlAndSetPrepared();
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
         verify(mediaPlayer).seekTo(123);
     }
 
@@ -233,7 +226,7 @@ public class MediaPlayerAdapterTest {
     public void seekShouldCallSeekOnMediaPlayerWithTimeOfZeroWhenPositionNotZero() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(1);
-        expect(mediaPlayerAdapter.seek(0L)).toEqual(0L);
+        assertThat(mediaPlayerAdapter.seek(0L)).isEqualTo(0L);
         verify(mediaPlayer).seekTo(0);
     }
 
@@ -246,14 +239,14 @@ public class MediaPlayerAdapterTest {
     @Test
     public void seekShouldReturnSeekPositionWhenGettingProgressWhileSeeking() {
         playUrlAndSetPrepared();
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
-        expect(mediaPlayerAdapter.getProgress()).toBe(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
     public void playUrlShouldCreateNewMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
         mediaPlayerAdapter.play(track);
         verify(mediaPlayerManager).create();
     }
@@ -261,14 +254,14 @@ public class MediaPlayerAdapterTest {
     @Test
     public void playUrlShouldReleaseOldMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
         mediaPlayerAdapter.play(track);
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
     @Test
     public void resumeShouldReturnFalseWithNoMediaPlayer() {
-        expect(mediaPlayerAdapter.resume()).toBeFalse();
+        assertThat(mediaPlayerAdapter.resume()).isFalse();
     }
 
     @Test
@@ -280,7 +273,7 @@ public class MediaPlayerAdapterTest {
     @Test
     public void resumeShouldReturnFalseIfInPreparingState() {
         mediaPlayerAdapter.play(track);
-        expect(mediaPlayerAdapter.resume()).toBeFalse();
+        assertThat(mediaPlayerAdapter.resume()).isFalse();
     }
 
     @Test
@@ -323,21 +316,21 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void seekShouldReturn0WithNoMediaPlayer() {
-        expect(mediaPlayerAdapter.getProgress()).toBe(0l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(0l);
     }
 
     @Test
     public void seekShouldReturnMediaPlayerPosition() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(999);
-        expect(mediaPlayerAdapter.getProgress()).toEqual(999l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(999l);
     }
 
     @Test
     public void seekShouldReturnSeekPositionIfWaitingForSeek() {
         playUrlAndSetPrepared();
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
-        expect(mediaPlayerAdapter.getProgress()).toBe(123l);
+        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
@@ -355,8 +348,8 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
@@ -411,15 +404,15 @@ public class MediaPlayerAdapterTest {
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
+        inOrder.verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 20000)));
     }
 
     @Test
     public void onErrorShouldReturnTrueWhenRetrying() throws IOException {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
+        assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
     }
 
     @Test
@@ -427,7 +420,7 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
-        expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
+        assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
     }
 
     @Test
@@ -436,10 +429,10 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         when(mediaPlayer.getDuration()).thenReturn((int) duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        expect(mediaPlayerAdapter.seek(456l)).toEqual(456l);
-        expect(mediaPlayerAdapter.getProgress()).toEqual(456l);
+        assertThat(mediaPlayerAdapter.seek(456l)).isEqualTo(456l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(456l);
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
-        expect(mediaPlayerAdapter.getProgress()).toEqual(123l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
@@ -476,8 +469,8 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    @Config(sdk = Build.VERSION_CODES.KITKAT)
     public void onSeekCompleteShouldPauseAndPlayMediaPlayerIfInPlayStateOnKitKat() {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.KITKAT);
         playUrlAndSetPrepared();
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
@@ -492,7 +485,7 @@ public class MediaPlayerAdapterTest {
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
 
@@ -503,7 +496,7 @@ public class MediaPlayerAdapterTest {
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), duration, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), duration, duration)));
     }
 
     @Test
@@ -547,7 +540,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -559,7 +552,7 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
         // reflects the seek position
-        expect(mediaPlayerAdapter.getSeekPosition()).toEqual(456l);
+        assertThat(mediaPlayerAdapter.getSeekPosition()).isEqualTo(456l);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
 
         // seek position cleared via handler
@@ -582,7 +575,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -604,7 +597,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -613,7 +606,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stopForTrackTransition();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+        verify(listener).onPlaystateChanged(eq(createStateTransition(PlayerState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -633,7 +626,7 @@ public class MediaPlayerAdapterTest {
         InOrder inOrder = inOrder(mediaPlayer);
         inOrder.verify(mediaPlayer).start();
         inOrder.verify(mediaPlayer).seekTo(123);
-        expect(mediaPlayerAdapter.getProgress()).toEqual(123L);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123L);
     }
 
     @Test
@@ -676,7 +669,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
-        expect(eventBus.eventsOn(EventQueue.TRACKING)).toBeEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
     }
 
     @Test
@@ -704,5 +697,9 @@ public class MediaPlayerAdapterTest {
         for (int i = 0; i < numberOfErrors; i++) {
             mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         }
+    }
+
+    private Player.StateTransition createStateTransition(PlayerState state, Reason reason, Urn trackUrn, long progress, long duration) {
+        return new Player.StateTransition(state, reason, trackUrn, progress, duration, dateProvider);
     }
 }

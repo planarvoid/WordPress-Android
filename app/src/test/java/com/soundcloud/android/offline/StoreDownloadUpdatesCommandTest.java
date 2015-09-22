@@ -2,8 +2,8 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.DateProviderStub;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import java.util.Collections;
 
 public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
-    private DateProvider dateProvider;
+    private CurrentDateProvider dateProvider;
 
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final DownloadRequest request = new DownloadRequest(TRACK, 12345L, "http://wav");
@@ -21,7 +21,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        dateProvider = new DateProviderStub();
+        dateProvider = new TestDateProvider();
         command = new StoreDownloadUpdatesCommand(propeller(), dateProvider);
     }
 

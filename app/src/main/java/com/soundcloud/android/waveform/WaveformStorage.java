@@ -3,6 +3,7 @@ package com.soundcloud.android.waveform;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -23,7 +24,7 @@ class WaveformStorage {
     private final WaveformSerializer serializer;
 
     @Inject
-    public WaveformStorage(PropellerRx propellerRx, DateProvider dateProvider, WaveformSerializer serializer) {
+    public WaveformStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider, WaveformSerializer serializer) {
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.serializer = serializer;

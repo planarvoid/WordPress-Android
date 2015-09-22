@@ -1,12 +1,11 @@
 package com.soundcloud.android.policies;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +23,6 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
 
     @Mock private AlarmManager alarmManager;
     @Mock private Context context;
-    @Mock private DateProvider dateProvider;
     @Mock private DailyUpdateScheduler.PendingIntentFactory pendingIntentFactory;
     @Mock private PendingIntent intent;
 
@@ -32,12 +30,11 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        scheduler = new DailyUpdateScheduler(context, alarmManager, dateProvider, pendingIntentFactory);
+        scheduler = new DailyUpdateScheduler(context, alarmManager, new TestDateProvider(currentTime), pendingIntentFactory);
     }
 
     @Test
     public void scheduleDailyPolicyUpdatesIfNotYetScheduled() {
-        when(dateProvider.getCurrentTime()).thenReturn(currentTime);
         when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_NO_CREATE)).thenReturn(null);
         when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)).thenReturn(intent);
 

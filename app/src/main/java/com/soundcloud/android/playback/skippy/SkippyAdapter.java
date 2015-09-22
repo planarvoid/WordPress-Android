@@ -30,6 +30,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
@@ -76,6 +77,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final SharedPreferences sharedPreferences;
     private final SecureFileStorage secureFileStorage;
     private final CryptoOperations cryptoOperations;
+    private final CurrentDateProvider dateProvider;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -86,7 +88,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
                   LockUtil lockUtil, BufferUnderrunListener bufferUnderrunListener,
-                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations) {
+                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations,
+                  CurrentDateProvider dateProvider) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
         this.bufferUnderrunListener = bufferUnderrunListener;
@@ -100,6 +103,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.connectionHelper = connectionHelper;
         this.stateHandler = stateChangeHandler;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
+        this.dateProvider = dateProvider;
     }
 
     public boolean init(Context context) {
@@ -146,7 +150,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (!playerListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION));
+            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION), dateProvider);
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             return;
@@ -291,7 +295,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final PlayerState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration, dateProvider);
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());

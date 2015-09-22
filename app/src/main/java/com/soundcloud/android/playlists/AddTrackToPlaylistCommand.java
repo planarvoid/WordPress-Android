@@ -7,6 +7,7 @@ import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -26,7 +27,7 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
     private final DateProvider dateProvider;
 
     @Inject
-    AddTrackToPlaylistCommand(PropellerDatabase propeller, DateProvider dateProvider) {
+    AddTrackToPlaylistCommand(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         super(propeller);
         this.dateProvider = dateProvider;
     }
