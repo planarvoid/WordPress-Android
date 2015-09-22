@@ -26,7 +26,9 @@ public class CollectionsNavigationTest extends ActivityTest<MainActivity> {
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.COLLECTIONS);
         super.setUp();
+    }
 
+    private void navigateToCollections() {
         menuScreen = new MenuScreen(solo);
         collectionsScreen = menuScreen.open().clickCollections();
     }
@@ -37,11 +39,13 @@ public class CollectionsNavigationTest extends ActivityTest<MainActivity> {
     }
 
     public void testGoesToPlaylistDetailsPage() {
+        navigateToCollections();
         PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen.clickOnFirstPlaylist();
         assertThat(playlistDetailsScreen.isVisible(), is(true));
     }
 
     public void testGoesToTrackLikesPage() {
+        navigateToCollections();
         CollectionsTrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
         assertThat(trackLikesScreen.isVisible(), is(true));
     }

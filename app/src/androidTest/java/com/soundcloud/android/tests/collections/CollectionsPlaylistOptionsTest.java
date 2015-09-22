@@ -27,7 +27,9 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.COLLECTIONS);
         super.setUp();
+    }
 
+    private void navigateToCollections() {
         menuScreen = new MenuScreen(solo);
         collectionsScreen = menuScreen.open().clickCollections();
     }
@@ -38,6 +40,7 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     }
 
     public void testFiltersPlaylists() {
+        navigateToCollections();
 
         int unfilteredCount = collectionsScreen.getLoadedItemCount();
 
@@ -65,6 +68,7 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     }
 
     public void testSortsPlaylists() {
+        navigateToCollections();
 
         menuScreen = new MenuScreen(solo);
         collectionsScreen = menuScreen.open().clickCollections();
@@ -83,4 +87,5 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
         assertThat(collectionsScreen.getFirstPlaylistTitle(), is(equalTo(firstPlaylistTitle)));
     }
+    
 }

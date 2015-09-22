@@ -25,7 +25,9 @@ public class CollectionsEmptyTest extends ActivityTest<MainActivity> {
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.COLLECTIONS);
         super.setUp();
+    }
 
+    private void navigateToCollections() {
         menuScreen = new MenuScreen(solo);
         collectionsScreen = menuScreen.open().clickCollections();
     }
@@ -36,10 +38,12 @@ public class CollectionsEmptyTest extends ActivityTest<MainActivity> {
     }
 
     public void testShowsEmptyPlaylistsMessage() {
+        navigateToCollections();
         assertThat(collectionsScreen.isVisible(), is(true));
     }
 
     public void testShowsEmptyTrackLikes() {
+        navigateToCollections();
         CollectionsTrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
         assertThat(trackLikesScreen.emptyView().isVisible(), is(true));
     }
