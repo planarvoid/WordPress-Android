@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
@@ -18,6 +19,7 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore
 public class StartStationTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;

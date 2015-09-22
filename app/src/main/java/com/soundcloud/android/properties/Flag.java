@@ -13,6 +13,7 @@ public enum Flag {
     NEW_PROFILE(BuildConfig.FEATURE_NEW_PROFILE),
     FOLLOW_USER_SEARCH(BuildConfig.FEATURE_FOLLOW_USER_SEARCH),
     PLAY_RELATED_TRACKS(BuildConfig.FEATURE_PLAY_RELATED_TRACKS),
+    // When removing this feature flag, make sure the ci does not exclude tests annotated with @StationsTest
     STATIONS(BuildConfig.FEATURE_STATIONS),
     SEARCH_AND_RECOMMENDATIONS(BuildConfig.FEATURE_RECOMMENDATIONS),
     EVENTLOGGER_AUDIO_V1(BuildConfig.FEATURE_EVENTLOGGER_AUDIO_V1),
