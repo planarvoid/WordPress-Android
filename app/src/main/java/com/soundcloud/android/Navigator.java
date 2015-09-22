@@ -80,7 +80,7 @@ public class Navigator {
                 NO_FLAGS,
                 createProfileIntent(context, user, Screen.NOTIFICATION)
                         .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK),
-                NO_FLAGS);
+                PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
