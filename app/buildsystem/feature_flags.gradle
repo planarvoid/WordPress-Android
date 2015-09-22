@@ -30,9 +30,9 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDATIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
-      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS, FALSE
