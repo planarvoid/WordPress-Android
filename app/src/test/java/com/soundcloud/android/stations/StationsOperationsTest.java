@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.SyncResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.Collections;
 
@@ -65,6 +67,43 @@ public class StationsOperationsTest {
         operations.station(station).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void collectionShouldReturnFromStorageIfAvailable() {
+        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
+
+        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
+                .thenReturn(Observable.just(station));
+        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
+
+        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
+
+        subscriber.assertValue(station);
+        assertThat(syncResults.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void collectionShouldTriggerSyncerIfNothingInLocalDatabase() {
+        final Observable<Station> storageStations1 = Observable.empty();
+        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
+        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final Observable<Station> storageStations2 = Observable.just(station);
+        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+
+        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
+                .thenReturn(storageStations1, storageStations2);
+        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
+
+        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
+
+        subscriber.assertNoValues();
+        syncResults.onNext(SyncResult.success("action", true));
+        syncResults.onCompleted();
+        subscriber.assertValue(station);
         subscriber.assertCompleted();
     }
 

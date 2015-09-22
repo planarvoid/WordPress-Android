@@ -1,5 +1,7 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -97,18 +99,19 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<Station> stations(int type) {
-        return stationsStorage
-                .getStationsCollection(type)
+    Observable<Station> collection(final int type) {
+        return stationsStorage.getStationsCollection(type)
+                .switchIfEmpty(sync().flatMap(continueWith(stationsStorage.getStationsCollection(type))))
                 .subscribeOn(scheduler);
     }
 
     Observable<SyncResult> sync() {
-        return syncInitiator.syncRecentStations();
+        return syncInitiator.syncRecentStations().subscribeOn(scheduler);
     }
 
     public void clearData() {
         stationsStorage.clear();
     }
+
 
 }

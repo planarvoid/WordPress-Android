@@ -23,7 +23,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     @Test
     public void shouldUpdateLocalContentWithRemoteContent() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L)),
+                Arrays.asList(Urn.forTrackStation(0L), Urn.forTrackStation(1L), Urn.forTrackStation(2L)),
                 Collections.<Urn>emptyList(),
                 Collections.<Urn>emptyList(),
                 Collections.<Urn>emptyList(),
@@ -32,9 +32,11 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
 
         final ApiStationMetadata stationZero = remoteContent.getRecents().get(0);
         final ApiStationMetadata stationOne = remoteContent.getRecents().get(1);
+        final ApiStationMetadata stationTwo = remoteContent.getRecents().get(2);
 
         testFixtures().insertRecentlyPlayedUnsyncedStation(stationZero.getUrn(), dateProvider.getCurrentTime() - 2);
         testFixtures().insertRecentlyPlayedUnsyncedStation(stationOne.getUrn(), dateProvider.getCurrentTime() - 1);
+        testFixtures().insertRecentlyPlayedStationAtPosition(stationTwo.getUrn(), 1);
 
         command.call(buildSyncMetadata(remoteContent));
 
@@ -42,6 +44,9 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
         databaseAssertions().assertStationMetadataInserted(stationOne);
         databaseAssertions().assertRecentStationsAtPosition(stationZero.getUrn(), 0);
         databaseAssertions().assertRecentStationsAtPosition(stationOne.getUrn(), 1);
+        databaseAssertions().assertRecentStationsAtPosition(stationTwo.getUrn(), 2);
+        databaseAssertions().assertLocalStationDeleted(stationZero.getUrn());
+        databaseAssertions().assertLocalStationDeleted(stationOne.getUrn());
     }
 
     @Test

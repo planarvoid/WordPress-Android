@@ -11,14 +11,17 @@ class StationsSyncer implements Callable<Boolean> {
     private final StationsApi api;
     private final WriteStationsCollectionsCommand writeCollectionsCommand;
     private final DateProvider dateProvider;
+    private final StationsStorage storage;
 
     @Inject
     public StationsSyncer(StationsApi api,
                           WriteStationsCollectionsCommand writeCollectionsCommand,
-                          CurrentDateProvider dateProvider) {
+                          CurrentDateProvider dateProvider,
+                          StationsStorage storage) {
         this.api = api;
         this.writeCollectionsCommand = writeCollectionsCommand;
         this.dateProvider = dateProvider;
+        this.storage = storage;
     }
 
     @Override
@@ -26,7 +29,7 @@ class StationsSyncer implements Callable<Boolean> {
         final long syncStartTime = dateProvider.getCurrentTime();
         final SyncCollectionsMetadata collections = new SyncCollectionsMetadata(
                 syncStartTime,
-                api.fetchStationsCollections());
+                api.syncStationsCollections(storage.getRecentStationsToSync()));
 
         return writeCollectionsCommand.call(collections);
     }

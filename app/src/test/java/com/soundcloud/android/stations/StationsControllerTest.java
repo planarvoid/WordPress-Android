@@ -3,7 +3,9 @@ package com.soundcloud.android.stations;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
@@ -57,5 +59,11 @@ public class StationsControllerTest {
     public void shouldSaveStationAsRecentlyPlayedStationsWhenPlayingAStation() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(STATION));
         verify(operations).saveRecentlyPlayedStation(STATION);
+    }
+
+    @Test
+    public void shouldTriggerSyncUponLogin() {
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(new PublicApiUser(123L, "hello")));
+        verify(operations).sync();
     }
 }
