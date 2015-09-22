@@ -34,7 +34,8 @@ public abstract class TestPropertySets {
 
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
-                AdProperty.AUDIO_AD_URN.bind("ad:audio:123"),
+                AdProperty.AD_URN.bind("ad:audio:123"),
+                AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
                 AdProperty.COMPANION_URN.bind("ad:visual:123"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
                 AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
@@ -45,11 +46,11 @@ public abstract class TestPropertySets {
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind("#222222"),
                 AdProperty.FOCUSED_TEXT_COLOR.bind("#333333"),
                 AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444"),
-                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(asList("adswizzUrl", "advertiserUrl")),
-                AdProperty.AUDIO_AD_FINISH_URLS.bind(asList("finish1", "finish2")),
-                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(asList("click1", "click2")),
-                AdProperty.AUDIO_AD_SKIP_URLS.bind(asList("skip1", "skip2")),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(asList("visual1", "visual2"))
+                AdProperty.AD_IMPRESSION_URLS.bind(asList("adswizzUrl", "advertiserUrl")),
+                AdProperty.AD_FINISH_URLS.bind(asList("finish1", "finish2")),
+                AdProperty.AD_CLICKTHROUGH_URLS.bind(asList("click1", "click2")),
+                AdProperty.AD_SKIP_URLS.bind(asList("skip1", "skip2")),
+                AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(asList("visual1", "visual2"))
         );
     }
 

@@ -102,16 +102,16 @@ public class PlaybackSessionEvent extends TrackingEvent {
     // Audio ad
     public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
         put(AdTrackingKeys.KEY_USER_URN, get(KEY_LOGGED_IN_USER_URN));
-        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AUDIO_AD_URN));
+        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN));
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, trackUrn.toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
         put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, trackUrn.toString());
-        this.adImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS);
-        this.adCompanionImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
-        this.adFinishedUrls = audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS);
+        this.adImpressionUrls = audioAd.get(AdProperty.AD_IMPRESSION_URLS);
+        this.adCompanionImpressionUrls = audioAd.get(AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS);
+        this.adFinishedUrls = audioAd.get(AdProperty.AD_FINISH_URLS);
         return this;
     }
 

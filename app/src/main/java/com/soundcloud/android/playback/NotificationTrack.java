@@ -29,7 +29,7 @@ public class NotificationTrack {
     }
 
     public boolean isAnAdvertisement() {
-        return source.contains(AdProperty.AUDIO_AD_URN);
+        return source.contains(AdProperty.AD_URN);
     }
 
     public long getDuration() {
