@@ -61,8 +61,8 @@
 
     <!-- __ACCESSIBILITY -->
     <plurals name="accessibility_stats_likes">
-        <item quantity="one">%d Like</item>
-        <item quantity="other">%d Likes</item>
+        <item quantity="one">%d like</item>
+        <item quantity="other">%d likes</item>
     </plurals>
 
     <!-- __PLAYER -->
@@ -96,8 +96,8 @@
     </plurals>
 
     <plurals name="number_of_liked_tracks_you_liked">
-        <item quantity="one">You liked %d track</item>
-        <item quantity="other">You liked %d tracks</item>
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
     </plurals>
 
     <!-- __SINGLE_LINE_COLLECTION_TEXT_VIEW -->
