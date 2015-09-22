@@ -105,7 +105,7 @@
     <string name="side_menu_collection">Collection</string>
     <string name="collections_playlists_header">Playlists</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>
-    <string name="track_likes_title">Track Likes</string>
+    <string name="track_likes_title">Liked tracks</string>
     <string name="collections_options_header_filters">Filters</string>
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_created">Created</string>
