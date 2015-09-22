@@ -338,9 +338,10 @@ public class NavigationFragment extends Fragment {
         navItems.add(NavItem.EXPLORE);
         if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
             navItems.add(NavItem.COLLECTIONS);
+        } else {
+            navItems.add(NavItem.LIKES);
+            navItems.add(NavItem.PLAYLISTS);
         }
-        navItems.add(NavItem.LIKES);
-        navItems.add(NavItem.PLAYLISTS);
         return navItems.toArray(new NavItem[navItems.size()]);
     }
 
