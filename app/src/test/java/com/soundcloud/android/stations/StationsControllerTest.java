@@ -8,12 +8,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-public class StationsControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationsControllerTest {
     private static final long TRACK_ID = 123L;
     private static final Urn TRACK_URN = Urn.forTrack(TRACK_ID);
     private static final Urn STATION = Urn.forTrackStation(TRACK_ID);

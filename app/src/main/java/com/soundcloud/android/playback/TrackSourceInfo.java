@@ -15,7 +15,7 @@ public class TrackSourceInfo {
     private String sourceVersion;
 
     private Urn reposter = Urn.NOT_SET;
-    private Urn playlistUrn = Urn.NOT_SET;
+    private Urn collectionUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
     private int playlistPosition;
 
@@ -33,9 +33,13 @@ public class TrackSourceInfo {
     }
 
     public void setOriginPlaylist(Urn playlistUrn, int position, Urn playlistOwnerUrn) {
-        this.playlistUrn = playlistUrn;
+        this.collectionUrn = playlistUrn;
         this.playlistPosition = position;
         this.playlistOwnerUrn = playlistOwnerUrn;
+    }
+
+    public void setOriginStation(Urn stationUrn) {
+        this.collectionUrn = stationUrn;
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -74,8 +78,8 @@ public class TrackSourceInfo {
         return sourceVersion;
     }
 
-    public Urn getPlaylistUrn() {
-        return playlistUrn;
+    public Urn getCollectionUrn() {
+        return collectionUrn;
     }
 
     public int getPlaylistPosition() {
@@ -91,7 +95,11 @@ public class TrackSourceInfo {
     }
 
     public boolean isFromPlaylist() {
-        return playlistUrn != Urn.NOT_SET;
+        return collectionUrn != Urn.NOT_SET && collectionUrn.isPlaylist();
+    }
+
+    public boolean isFromStation() {
+        return collectionUrn != Urn.NOT_SET && collectionUrn.isStation();
     }
 
     public boolean isFromSearchQuery() {
@@ -117,8 +125,10 @@ public class TrackSourceInfo {
         if (hasSource()) {
             toStringHelper.add("source", source).add("sourceVersion", sourceVersion);
         }
+
+        toStringHelper.add("collectionUrn", collectionUrn);
         if (isFromPlaylist()) {
-            toStringHelper.add("playlistUrn", playlistUrn)
+            toStringHelper
                     .add("playlistPos", playlistPosition)
                     .add("playlistOwnerUrn", playlistOwnerUrn);
         }
@@ -129,5 +139,4 @@ public class TrackSourceInfo {
 
         return toStringHelper.toString();
     }
-
 }

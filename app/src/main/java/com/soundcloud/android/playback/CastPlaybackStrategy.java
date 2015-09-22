@@ -39,21 +39,22 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public void playCurrent() {
+    public Observable<Void> playCurrent() {
         castPlayer.playCurrent();
+        return Observable.just(null);
     }
 
     @Override
-    public Observable<PlaybackResult> playNewQueue(final PlayQueue playQueue,
-                                                   Urn initialTrackUrn,
-                                                   int initialTrackPosition,
-                                                   boolean loadRelated,
-                                                   PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
+                                                  Urn initialTrackUrn,
+                                                  int initialTrackPosition,
+                                                  boolean loadRelated,
+                                                  PlaySessionSource playSessionSource) {
 
         // TODO: Should eventually refactor to use the playQueue instead of a list of Urn
         List<Urn> tracks = Lists.newArrayList(Iterables.transform(playQueue, toUrn));
 
-        return castPlayer.playNewQueue(tracks, initialTrackUrn, 0L, playSessionSource);
+        return castPlayer.setNewQueue(tracks, initialTrackUrn, playSessionSource);
     }
 
     @Override

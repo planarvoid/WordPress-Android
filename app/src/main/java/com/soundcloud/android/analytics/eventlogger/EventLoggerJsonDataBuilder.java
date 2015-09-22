@@ -283,7 +283,7 @@ public class EventLoggerJsonDataBuilder {
             data.sourceVersion(trackSourceInfo.getSourceVersion());
         }
         if (trackSourceInfo.isFromPlaylist()) {
-            data.playlistId(String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
+            data.playlistId(String.valueOf(trackSourceInfo.getCollectionUrn().getNumericId()));
             data.playlistPositionV0(String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 

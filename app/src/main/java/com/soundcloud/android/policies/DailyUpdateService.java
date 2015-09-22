@@ -2,11 +2,11 @@ package com.soundcloud.android.policies;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdIdHelper;
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -26,9 +26,9 @@ public class DailyUpdateService extends IntentService {
 
     @Inject PolicyOperations policyOperations;
     @Inject PolicySettingsStorage policySettingsStorage;
-    @Inject ConfigurationOperations configurationOperations;
+    @Inject ConfigurationManager configurationManager;
     @Inject AdIdHelper adIdHelper;
-    @Inject DateProvider dateProvider;
+    @Inject CurrentDateProvider dateProvider;
     @Inject EventBus eventBus;
 
     public DailyUpdateService() {
@@ -38,12 +38,12 @@ public class DailyUpdateService extends IntentService {
 
     @VisibleForTesting
     DailyUpdateService(PolicyOperations policyOperations, PolicySettingsStorage policySettingsStorage,
-                       ConfigurationOperations configurationOperations, AdIdHelper adIdHelper,
-                       DateProvider dateProvider, EventBus eventBus) {
+                       ConfigurationManager configurationManager, AdIdHelper adIdHelper,
+                       CurrentDateProvider dateProvider, EventBus eventBus) {
         super(TAG);
         this.policyOperations = policyOperations;
         this.policySettingsStorage = policySettingsStorage;
-        this.configurationOperations = configurationOperations;
+        this.configurationManager = configurationManager;
         this.adIdHelper = adIdHelper;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
@@ -63,7 +63,7 @@ public class DailyUpdateService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (ACTION_START.equals(intent.getAction())) {
             updateTrackPolicies();
-            configurationOperations.update();
+            configurationManager.update();
             adIdHelper.init();
         }
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -127,7 +128,7 @@ public class DatabaseFixtures {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(StationsCollections.STATION_URN, stationUrn.toString());
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
-        cv.put(StationsCollections.POSITION, null);
+        cv.put(StationsCollections.POSITION, Consts.NOT_SET);
         cv.put(StationsCollections.UPDATED_LOCALLY_AT, time);
         insertInto(StationsCollections.TABLE, cv.get());
     }
@@ -308,7 +309,7 @@ public class DatabaseFixtures {
     }
 
     public ApiStation insertStation() {
-        return insertStation(0);
+        return insertStation(Consts.NOT_SET);
     }
 
     public ApiStation insertStation(int lastPlayedPosition) {

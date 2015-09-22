@@ -7,7 +7,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackUtils;
 import com.soundcloud.android.playlists.PlaylistOperations;
@@ -29,7 +29,7 @@ public class OfflinePlaybackOperations {
     private final TrackLikeOperations likeOperations;
     private final PlaylistOperations playlistOperations;
     private final FeatureOperations featureOperations;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final NetworkConnectionHelper connectionHelper;
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final Scheduler scheduler;
@@ -37,14 +37,14 @@ public class OfflinePlaybackOperations {
     @Inject
     public OfflinePlaybackOperations(FeatureOperations featureOperations,
                                      NetworkConnectionHelper connectionHelper,
-                                     PlaybackOperations playbackOperations,
+                                     PlaybackInitiator playbackInitiator,
                                      TrackLikeOperations likeOperations,
                                      PlaylistOperations playlistOperations,
                                      TrackDownloadsStorage trackDownloadsStorage,
                                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.featureOperations = featureOperations;
         this.connectionHelper = connectionHelper;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.likeOperations = likeOperations;
         this.playlistOperations = playlistOperations;
         this.trackDownloadsStorage = trackDownloadsStorage;
@@ -63,7 +63,7 @@ public class OfflinePlaybackOperations {
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(playIfAvailableOffline(trackUrn, position, playSessionSource));
         }
-        return playbackOperations.playTracks(likeOperations.likedTrackUrns(), trackUrn, position, playSessionSource);
+        return playbackInitiator.playTracks(likeOperations.likedTrackUrns(), trackUrn, position, playSessionSource);
     }
 
     public Observable<PlaybackResult> playPlaylist(Urn playlistUrn, Urn initialTrack, int position, PlaySessionSource sessionSource) {
@@ -73,7 +73,7 @@ public class OfflinePlaybackOperations {
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(playIfAvailableOffline(initialTrack, position, sessionSource));
         }
-        return playbackOperations
+        return playbackInitiator
                 .playTracks(playlistOperations.trackUrnsForPlayback(playlistUrn), initialTrack, position, sessionSource);
     }
 
@@ -82,7 +82,7 @@ public class OfflinePlaybackOperations {
                 ? trackDownloadsStorage.playlistTrackUrns(playlistUrn)
                 : playlistOperations.trackUrnsForPlayback(playlistUrn);
 
-        return playbackOperations.playTracksShuffled(trackUrnsObservable.subscribeOn(scheduler), sessionSource);
+        return playbackInitiator.playTracksShuffled(trackUrnsObservable.subscribeOn(scheduler), sessionSource);
     }
 
     private Func1<List<Urn>, Observable<PlaybackResult>> playIfAvailableOffline(final Urn trackUrn, final int position, final PlaySessionSource sessionSource) {
@@ -93,7 +93,7 @@ public class OfflinePlaybackOperations {
                 if (corrected < 0) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE));
                 }
-                return playbackOperations.playTracks(urns, trackUrn, corrected, sessionSource);
+                return playbackInitiator.playTracks(urns, trackUrn, corrected, sessionSource);
             }
         };
     }
@@ -103,7 +103,7 @@ public class OfflinePlaybackOperations {
                 ? trackDownloadsStorage.likesUrns()
                 : likeOperations.likedTrackUrns();
 
-        return playbackOperations.playTracksShuffled(likedTracks.subscribeOn(scheduler), playSessionSource);
+        return playbackInitiator.playTracksShuffled(likedTracks.subscribeOn(scheduler), playSessionSource);
     }
 
     @VisibleForTesting

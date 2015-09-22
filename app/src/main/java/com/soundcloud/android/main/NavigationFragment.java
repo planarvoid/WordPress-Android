@@ -304,7 +304,7 @@ public class NavigationFragment extends Fragment {
 
     public enum NavItem {
         PROFILE(NO_TEXT, NO_IMAGE),
-        STATIONS(R.string.side_menu_stations, NO_IMAGE),
+        STATIONS(R.string.side_menu_stations, R.drawable.nav_stations_states),
         COLLECTIONS(R.string.side_menu_collection, R.drawable.nav_collections_states),
         STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
         EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
@@ -338,9 +338,10 @@ public class NavigationFragment extends Fragment {
         navItems.add(NavItem.EXPLORE);
         if (featureFlags.isEnabled(Flag.COLLECTIONS)) {
             navItems.add(NavItem.COLLECTIONS);
+        } else {
+            navItems.add(NavItem.LIKES);
+            navItems.add(NavItem.PLAYLISTS);
         }
-        navItems.add(NavItem.LIKES);
-        navItems.add(NavItem.PLAYLISTS);
         return navItems.toArray(new NavItem[navItems.size()]);
     }
 

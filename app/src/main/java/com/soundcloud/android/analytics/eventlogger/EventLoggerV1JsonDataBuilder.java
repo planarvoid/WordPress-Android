@@ -92,7 +92,7 @@ public class EventLoggerV1JsonDataBuilder {
             data.sourceVersion(trackSourceInfo.getSourceVersion());
         }
         if (trackSourceInfo.isFromPlaylist()) {
-            data.inPlaylist(trackSourceInfo.getPlaylistUrn());
+            data.inPlaylist(trackSourceInfo.getCollectionUrn());
             data.playlistPosition(trackSourceInfo.getPlaylistPosition());
         }
 
@@ -105,6 +105,11 @@ public class EventLoggerV1JsonDataBuilder {
             data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
             data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
+
+        if (trackSourceInfo.isFromStation()) {
+            data.queryUrn(trackSourceInfo.getCollectionUrn().toString());
+        }
+
         return data;
     }
 

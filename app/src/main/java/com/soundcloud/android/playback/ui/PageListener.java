@@ -4,26 +4,26 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.rx.eventbus.EventBus;
 
 public class PageListener {
 
     private final PlaySessionStateProvider playSessionStateProvider;
-    protected final PlaybackOperations playbackOperations;
+    protected final PlaySessionController playSessionController;
     protected final EventBus eventBus;
 
-    public PageListener(PlaybackOperations playbackOperations,
+    public PageListener(PlaySessionController playSessionController,
                         PlaySessionStateProvider playSessionStateProvider,
                         EventBus eventBus) {
-        this.playbackOperations = playbackOperations;
+        this.playSessionController = playSessionController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.eventBus = eventBus;
     }
 
     public void onTogglePlay() {
-        playbackOperations.togglePlayback();
+        playSessionController.togglePlayback();
         trackTogglePlay(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
@@ -38,7 +38,7 @@ public class PageListener {
     }
 
     public void onFooterTogglePlay() {
-        playbackOperations.togglePlayback();
+        playSessionController.togglePlayback();
         trackTogglePlay(PlayControlEvent.SOURCE_FOOTER_PLAYER);
     }
 

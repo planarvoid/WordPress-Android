@@ -6,15 +6,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.support.v4.app.Fragment;
 
-public class StationsNowPlayingControllerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StationsNowPlayingControllerTest {
     private static final Urn COLLECTION_URN = Urn.forTrackStation(456L);
     private static final CurrentPlayQueueTrackEvent EVENT = CurrentPlayQueueTrackEvent
             .fromNewQueue(Urn.forTrack(123L), COLLECTION_URN, 0);

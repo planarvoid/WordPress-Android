@@ -533,7 +533,8 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     private PropertySet getAudioAd() {
         return PropertySet.from(
-                AdProperty.AUDIO_AD_URN.bind(AD_URN.toString()),
+                AdProperty.AD_URN.bind(AD_URN.toString()),
+                AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
                 AdProperty.ARTWORK.bind(Uri.parse("http://artwork.com")),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN),
                 AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),

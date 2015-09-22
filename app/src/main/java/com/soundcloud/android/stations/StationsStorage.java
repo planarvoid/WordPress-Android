@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
@@ -68,7 +69,7 @@ class StationsStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, DateProvider dateProvider) {
+    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
         this.propellerDatabase = propellerDatabase;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
@@ -114,7 +115,7 @@ class StationsStorage {
                                 station.getType(),
                                 tracks,
                                 station.getPermalink(),
-                                calcStartPosition(station.getStartPosition(), tracks.size())
+                                station.getPreviousPosition()
                         );
                     }
                 }
@@ -127,16 +128,6 @@ class StationsStorage {
                 .select(StationsPlayQueues.TRACK_URN)
                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
-    }
-
-    // This is a temporary logic.
-    // A story is going to be played to actually fetch more tracks.
-    private Integer calcStartPosition(int lastPlayedTrackPosition, int numTracks) {
-        if (lastPlayedTrackPosition + 1 < numTracks) {
-            return lastPlayedTrackPosition + 1;
-        } else {
-            return 0;
-        }
     }
 
     Observable<ChangeResult> saveLastPlayedTrackPosition(Urn stationUrn, int position) {

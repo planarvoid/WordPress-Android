@@ -9,6 +9,7 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_A
 
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -26,7 +27,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
     private final DateProvider dateProvider;
 
     @Inject
-    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller, DateProvider dateProvider) {
+    protected StoreDownloadUpdatesCommand(PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         super(propeller);
         this.dateProvider = dateProvider;
     }

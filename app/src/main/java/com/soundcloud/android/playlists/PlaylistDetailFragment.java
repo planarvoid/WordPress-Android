@@ -22,10 +22,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -74,7 +74,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaySessionController playSessionController;
     @Inject OfflinePlaybackOperations offlinePlaybackOperations;
     @Inject ImageOperations imageOperations;
     @Inject @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
@@ -108,12 +108,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (playbackOperations.shouldDisableSkipping()) {
+            if (playSessionController.shouldDisableSkipping()) {
                 playToggle.setChecked(false);
             }
 
             if (playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())) {
-                playbackOperations.togglePlayback();
+                playSessionController.togglePlayback();
             } else {
                 playFromBeginning();
             }
@@ -163,7 +163,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     @VisibleForTesting
     PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
-                           PlaybackOperations playbackOperations,
+                           PlaySessionController playSessionController,
                            OfflinePlaybackOperations offlinePlaybackOperations,
                            PlaylistOperations playlistOperations,
                            EventBus eventBus,
@@ -178,7 +178,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            AccountOperations accountOperations,
                            Navigator navigator) {
         this.controllerProvider = controllerProvider;
-        this.playbackOperations = playbackOperations;
+        this.playSessionController = playSessionController;
         this.playlistOperations = playlistOperations;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.eventBus = eventBus;

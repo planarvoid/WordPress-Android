@@ -3,6 +3,7 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import autovalue.shaded.com.google.common.common.base.Objects;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Lists;
@@ -98,7 +99,7 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
                 .put(Tables.Stations.TYPE, station.getType())
                 .put(Tables.Stations.TITLE, station.getTitle())
                 .put(Tables.Stations.PERMALINK, station.getPermalink())
-                .put(Tables.Stations.LAST_PLAYED_TRACK_POSITION, 0)
+                .put(Tables.Stations.LAST_PLAYED_TRACK_POSITION, Consts.NOT_SET)
                 .get();
     }
 

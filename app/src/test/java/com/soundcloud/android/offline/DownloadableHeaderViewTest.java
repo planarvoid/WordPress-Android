@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static org.assertj.android.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,7 +20,7 @@ public class DownloadableHeaderViewTest extends AndroidUnitTest {
     private DownloadableHeaderView downloadableHeaderView;
 
     @Mock private Fragment fragment;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     private View header;
 
     @Before

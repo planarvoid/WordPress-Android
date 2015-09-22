@@ -1,11 +1,13 @@
 package com.soundcloud.android.tests.stations;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore
 public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     private StationsScreen stationsScreen;
 

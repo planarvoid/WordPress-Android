@@ -3,6 +3,7 @@ allprojects {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://appboy.github.io/appboy-android-sdk/sdk' }
   }
 }
 
@@ -38,7 +39,7 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:4.2.6@aar",
+          skippy                      : "com.soundcloud.android:skippy:4.2.8@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
@@ -46,6 +47,7 @@ ext {
           adjustAndroid               : "com.adjust.sdk:adjust-android:3.6.1",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.0@aar",
           localytics                  : "com.localytics:android-localytics:2.71",
+          appBoy                      : "com.appboy:android-sdk-ui:1.9.2",
 
           // utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
@@ -53,7 +55,6 @@ ext {
           httpClientAndroid           : "org.apache.httpcomponents:httpclient-android:4.3.5",
           rxAndroid                   : "io.reactivex:rxandroid:0.25.0",
           rxJava                      : "io.reactivex:rxjava:1.0.14",
-          rxJavaComputationExpressions: "io.reactivex:rxjava-computation-expressions:0.21.0",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.2",
 

@@ -62,7 +62,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .put(Stations.TYPE, station.getType())
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.PERMALINK, station.getPermalink())
-                .put(Stations.LAST_PLAYED_TRACK_POSITION, 0)
+                .put(Stations.LAST_PLAYED_TRACK_POSITION, station.getPreviousPosition())
                 .get();
     }
 }

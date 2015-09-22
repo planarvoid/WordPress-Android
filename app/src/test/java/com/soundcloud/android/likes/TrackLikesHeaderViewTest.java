@@ -4,7 +4,7 @@ import static org.assertj.android.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     @Mock private Fragment fragment;
     @Mock private FragmentManager fragmentManager;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
 
     @Before
     public void setUp() throws Exception {

@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
+import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
@@ -9,40 +10,46 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class AnalyticsProviderFactory {
 
-    private static final int EXPECTED_PROVIDER_COUNT = 5;
+    private static final int EXPECTED_PROVIDER_COUNT = 8;
 
     private final SharedPreferences sharedPreferences;
     private final ApplicationProperties applicationProperties;
     private final AnalyticsProperties analyticsProperties;
+    private final FeatureFlags featureFlags;
     private final EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
     private final PlayCountAnalyticsProvider playCountAnalyticsProvider;
     private final LocalyticsAnalyticsProvider localyticsAnalyticsProvider;
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
+    private final Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
     private final FabricAnalyticsProvider fabricAnalyticsProvider;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
 
-
     @Inject
     public AnalyticsProviderFactory(AnalyticsProperties analyticsProperties,
                                     ApplicationProperties applicationProperties,
                                     SharedPreferences sharedPreferences,
+                                    FeatureFlags featureFlags,
                                     EventLoggerAnalyticsProvider eventLoggerProvider,
                                     PlayCountAnalyticsProvider playCountProvider,
                                     LocalyticsAnalyticsProvider localyticsProvider,
+                                    Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider,
                                     PromotedAnalyticsProvider promotedProvider,
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
@@ -50,9 +57,11 @@ public class AnalyticsProviderFactory {
         this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.analyticsProperties = analyticsProperties;
+        this.featureFlags = featureFlags;
         this.eventLoggerAnalyticsProvider = eventLoggerProvider;
         this.playCountAnalyticsProvider = playCountProvider;
         this.localyticsAnalyticsProvider = localyticsProvider;
+        this.appboyAnalyticsProvider = appboyAnalyticsProvider;
         this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.promotedAnalyticsProvider = promotedProvider;
@@ -92,9 +101,12 @@ public class AnalyticsProviderFactory {
         providers.add(adjustAnalyticsProvider);
         providers.add(fabricAnalyticsProvider);
 
+        if (featureFlags.isEnabled(Flag.APPBOY)) {
+            providers.add(appboyAnalyticsProvider.get());
+        }
+
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
         }
     }
-
 }

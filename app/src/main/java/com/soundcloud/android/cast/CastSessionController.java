@@ -5,6 +5,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
@@ -13,14 +14,16 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.functions.Action1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,7 +35,7 @@ import java.util.List;
 public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
 
     private final CastOperations castOperations;
-    private final PlaybackOperations playbackOperations;
+    private final ServiceInitiator serviceInitiator;
     private final CastPlayer castPlayer;
     private final PlayQueueManager playQueueManager;
     private final VideoCastManager videoCastManager;
@@ -42,7 +45,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Inject
     public CastSessionController(CastOperations castOperations,
-                                 PlaybackOperations playbackOperations,
+                                 ServiceInitiator serviceInitiator,
                                  CastPlayer castPlayer,
                                  PlayQueueManager playQueueManager,
                                  VideoCastManager videoCastManager,
@@ -50,7 +53,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
                                  PlaySessionStateProvider playSessionStateProvider,
                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.castOperations = castOperations;
-        this.playbackOperations = playbackOperations;
+        this.serviceInitiator = serviceInitiator;
         this.castPlayer = castPlayer;
         this.playQueueManager = playQueueManager;
         this.videoCastManager = videoCastManager;
@@ -67,7 +70,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     @Override
     public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
         Log.d(CastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
-        playbackOperations.stopService();
+        serviceInitiator.stopPlaybackService();
         if (wasLaunched && !playQueueManager.isQueueEmpty()) {
             playLocalPlayQueueOnRemote();
         }
@@ -76,7 +79,19 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     private void playLocalPlayQueueOnRemote() {
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
         final PlaybackProgress lastProgressForTrack = playSessionStateProvider.getLastProgressForTrack(playQueueManager.getCurrentTrackUrn());
-        castPlayer.reloadAndPlayCurrentQueue(lastProgressForTrack.getPosition()).subscribe(expandPlayerSubscriber.get());
+        castPlayer.reloadCurrentQueue()
+                .doOnNext(playCurrent(lastProgressForTrack))
+                .subscribe(expandPlayerSubscriber.get());
+    }
+
+    @NonNull
+    private Action1<PlaybackResult> playCurrent(final PlaybackProgress lastProgressForTrack) {
+        return new Action1<PlaybackResult>() {
+            @Override
+            public void call(PlaybackResult playbackResult) {
+                CastSessionController.this.castPlayer.playCurrent(lastProgressForTrack.getPosition());
+            }
+        };
     }
 
     @Override

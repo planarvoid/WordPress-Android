@@ -24,13 +24,13 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,7 +55,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
     @Mock private TrackPagerAdapter adapter;
     @Mock private PlayerPresenter presenter;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private AdsOperations adsOperations;
     @Mock private View container;
     @Mock private PlayerTrackPager viewPager;
@@ -80,7 +80,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
         };
 
         controller = new PlayerPagerController(adapter, presenter, eventBus,
-                playQueueManager, playbackOperations, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
+                playQueueManager, playSessionController, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(viewPager.getContext()).thenReturn(context());
@@ -234,7 +234,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
         Robolectric.flushForegroundThreadScheduler();
-        verify(playbackOperations).setPlayQueuePosition(2);
+        verify(playSessionController).setPlayQueuePosition(2);
     }
 
     @Test
@@ -243,7 +243,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackOperations, never()).setPlayQueuePosition(anyInt());
+        verify(playSessionController, never()).setPlayQueuePosition(anyInt());
     }
 
     @Test
@@ -254,7 +254,7 @@ public class PlayerPagerControllerTest extends AndroidUnitTest {
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackOperations, never()).setPlayQueuePosition(anyInt());
+        verify(playSessionController, never()).setPlayQueuePosition(anyInt());
     }
 
     @Test

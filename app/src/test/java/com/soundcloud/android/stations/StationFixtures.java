@@ -18,7 +18,11 @@ public class StationFixtures {
     }
 
     public static ApiStation getApiStation(Urn station) {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, 1));
+        return getApiStation(station, 1);
+    }
+
+    public static ApiStation getApiStation(Urn station, int size) {
+        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, size));
         return new ApiStation(getApiStationMetadata(station), tracks);
     }
 
@@ -32,7 +36,11 @@ public class StationFixtures {
     }
 
     public static Station getStation(Urn urn) {
-        return getStation(getApiStation(urn));
+        return getStation(urn, 1);
+    }
+
+    public static Station getStation(Urn urn, int size) {
+        return getStation(getApiStation(urn, size));
     }
 
     public static Station getStation(ApiStation apiStation) {
@@ -42,7 +50,7 @@ public class StationFixtures {
                 apiStation.getType(),
                 apiStation.getTracks(),
                 apiStation.getPermalink(),
-                0
+                apiStation.getPreviousPosition()
         );
     }
 

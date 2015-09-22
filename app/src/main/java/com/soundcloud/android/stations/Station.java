@@ -9,16 +9,16 @@ import java.util.List;
 public class Station implements StationRecord {
     private final String type;
     private final List<Urn> tracks;
-    private final int startPosition;
+    private final int lastPosition;
     private final Urn urn;
     private final String title;
     private final String permalink;
 
-    public Station(Urn urn, String title, String type, List<Urn> tracks, String permalink, Integer startPosition) {
+    public Station(Urn urn, String title, String type, List<Urn> tracks, String permalink, Integer lastPosition) {
         this.type = type;
         this.tracks = tracks;
         this.urn = urn;
-        this.startPosition = startPosition;
+        this.lastPosition = lastPosition;
         this.title = title;
         this.permalink = permalink;
     }
@@ -45,8 +45,9 @@ public class Station implements StationRecord {
         return type;
     }
 
-    public int getStartPosition() {
-        return startPosition;
+    @Override
+    public int getPreviousPosition() {
+        return lastPosition;
     }
 
     @Override
@@ -63,12 +64,12 @@ public class Station implements StationRecord {
 
         return MoreObjects.equal(urn, that.urn) &&
                 MoreObjects.equal(title, that.title) &&
-                MoreObjects.equal(startPosition, that.startPosition) &&
+                MoreObjects.equal(lastPosition, that.lastPosition) &&
                 MoreObjects.equal(tracks, that.tracks);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(urn, title, startPosition, tracks);
+        return MoreObjects.hashCode(urn, title, lastPosition, tracks);
     }
 }

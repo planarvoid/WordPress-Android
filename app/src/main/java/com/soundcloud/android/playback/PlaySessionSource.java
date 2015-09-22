@@ -54,6 +54,10 @@ public class PlaySessionSource implements Parcelable {
         return source;
     }
 
+    public static PlaySessionSource forStation(Screen screen, Urn station) {
+        return forStation(screen.get(), station);
+    }
+
     public static PlaySessionSource forStation(String screen, Urn station) {
         final PlaySessionSource source = new PlaySessionSource(screen);
         source.collectionUrn = station;
@@ -138,6 +142,10 @@ public class PlaySessionSource implements Parcelable {
 
     public boolean isFromQuery() {
         return searchQuerySourceInfo != null;
+    }
+
+    public boolean isFromStations() {
+        return getCollectionUrn().isStation();
     }
 
     public boolean isFromPromotedItem() {
@@ -225,7 +233,7 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public enum DiscoverySource {
-        RECOMMENDER, EXPLORE;
+        RECOMMENDER, EXPLORE, STATIONS;
 
         public String value() {
             return this.toString().toLowerCase(Locale.ENGLISH);

@@ -10,7 +10,6 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -19,7 +18,6 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class PlaylistDetailsTest extends ActivityTest<ResolveActivity> {
-    private PlaylistsScreen playlistsScreen;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlaylistDetailsTest() {

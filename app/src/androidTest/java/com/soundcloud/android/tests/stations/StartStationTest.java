@@ -1,12 +1,14 @@
 package com.soundcloud.android.tests.stations;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
@@ -17,6 +19,7 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore
 public class StartStationTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
@@ -74,6 +77,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         final String expectedTitle = player.getTrackTitle();
         player.swipePrevious();
+        waiter.waitForPlaybackToBePlaying();
         player.pressBackToCollapse();
 
         // Start a new play queue
@@ -81,7 +85,12 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         player.pressBackToCollapse();
 
         final String resumedTrackTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
-        assertEquals(expectedTitle, resumedTrackTitle);
+        assertThat(expectedTitle, is(equalTo(resumedTrackTitle)));
+
+        // If you play the same station, it should simply expand the player without changing tracks
+        player.pressBackToCollapse();
+        final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
+        assertThat(resumedTrackTitle, is(equalTo(resumeCurrentlyPlayingStationTitle)));
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
@@ -89,9 +98,9 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
 
-        assertEquals(recentStations.getFirstStation().getTitle(), stationTitle);
-        final ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
-        assertEquals(viewAllStationsScreen.getFirstStation().getTitle(), stationTitle);
+        assertThat(recentStations.getFirstStation().getTitle(), is(equalTo(stationTitle)));
+        ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
+        assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
     }
 
     public void testStartStationFromBucket() throws Exception {

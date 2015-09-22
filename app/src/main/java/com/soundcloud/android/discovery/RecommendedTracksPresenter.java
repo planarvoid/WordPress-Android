@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -37,7 +37,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
     private final DiscoveryOperations discoveryOperations;
     private final TracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
@@ -47,12 +47,12 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
                                DiscoveryOperations discoveryOperations,
                                TracksRecyclerItemAdapter adapter,
                                Provider<ExpandPlayerSubscriber> subscriberProvider,
-                               PlaybackOperations playbackOperations, EventBus eventBus) {
+                               PlaybackInitiator playbackInitiator, EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
     }
 
@@ -98,7 +98,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
     private void playRecommendedTracks(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         final int incorrectPosition = 0; // https://github.com/soundcloud/SoundCloud-Android/issues/3705
-        playbackOperations.playTracks(playQueue, firstTrackUrn, incorrectPosition,
+        playbackInitiator.playTracks(playQueue, firstTrackUrn, incorrectPosition,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MORE)).subscribe(expandPlayerSubscriberProvider.get());
     }
 }

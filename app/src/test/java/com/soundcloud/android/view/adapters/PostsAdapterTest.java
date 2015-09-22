@@ -22,7 +22,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -60,7 +60,7 @@ public class PostsAdapterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;
@@ -69,9 +69,9 @@ public class PostsAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class)))
+        when(playbackInitiator.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
-        adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
+        adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackInitiator,
                 trackRenderer, playlistRenderer, eventBus, TestSubscribers.expandPlayerSubscriber());
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"), 0, new Urn("soundcloud:click:123"));
     }
@@ -138,7 +138,7 @@ public class PostsAdapterTest extends AndroidUnitTest {
 
         List<Urn> trackUrns = Arrays.asList(track.getUrn());
         Urn initialTrack = trackUrns.get(0);
-        verify(playbackOperations).playTracksFromUri(
+        verify(playbackInitiator).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(initialTrack),

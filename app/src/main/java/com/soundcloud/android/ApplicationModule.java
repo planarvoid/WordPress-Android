@@ -2,8 +2,10 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
+import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -17,11 +19,13 @@ import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.FallbackRemoteAudioManager;
 import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.RemoteAudioManager;
 import com.soundcloud.android.playback.notification.BigNotificationBuilder;
@@ -33,6 +37,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
@@ -56,6 +61,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LruCache;
@@ -228,11 +234,16 @@ public class ApplicationModule {
     public PlaybackStrategy providePlaybackStrategy(ServiceInitiator serviceInitiator,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
-                                                    Lazy<CastPlayer> castPlayer) {
+                                                    Lazy<CastPlayer> castPlayer,
+                                                    TrackRepository trackRepository,
+                                                    AdsOperations adsOperations,
+                                                    OfflinePlaybackOperations offlinePlaybackOperations,
+                                                    PlaySessionStateProvider playSessionStateProvider,
+                                                    EventBus eventBus) {
         if (castConnectionHelper.isCasting()) {
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
-            return new DefaultPlaybackStrategy(playQueueManager, serviceInitiator);
+            return new DefaultPlaybackStrategy(playQueueManager, serviceInitiator, trackRepository, adsOperations, offlinePlaybackOperations, playSessionStateProvider, eventBus);
         }
     }
 
@@ -259,5 +270,14 @@ public class ApplicationModule {
     }
 
     @Provides
-    public FacebookSdk provideFacebookSdk() { return new FacebookSdk(); }
+    public FacebookSdk provideFacebookSdk() {
+        return new FacebookSdk();
+    }
+
+    @Provides
+    @Singleton
+    @Nullable
+    public Appboy provideAppboy(Context context) {
+        return Appboy.getInstance(context);
+    }
 }

@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.gcm.GcmRegistrationService;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService;
 
 import android.content.Context;
@@ -22,32 +23,52 @@ public class ServiceInitiator {
     }
 
     public void stopPlaybackService() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.STOP_ACTION));
+        playerAction(PlaybackService.Action.STOP);
     }
 
     public void resetPlaybackService() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.RESET_ALL));
+        playerAction(PlaybackService.Action.RESET_ALL);
     }
 
     public void togglePlayback() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        playerAction(PlaybackService.Action.TOGGLE_PLAYBACK);
     }
 
     public void resume() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_ACTION));
+        playerAction(PlaybackService.Action.RESUME);
     }
 
     public void pause() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PAUSE_ACTION));
+        playerAction(PlaybackService.Action.PAUSE);
     }
 
-    public void playCurrent() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_CURRENT));
+    public void play(Urn track, long fromPos) {
+        startPlayback(track, fromPos, PlaybackService.Action.PLAY);
+    }
+
+    public void playOffline(Urn track, long fromPos) {
+        startPlayback(track, fromPos, PlaybackService.Action.PLAY_OFFLINE);
+    }
+
+    public void playUninterrupted(Urn track) {
+        startPlayback(track, 0L, PlaybackService.Action.PLAY_UNINTERRUPTED);
+    }
+
+    private void startPlayback(Urn track, long fromPos, String action) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(action);
+        intent.putExtra(PlaybackService.ActionExtras.URN, track);
+        intent.putExtra(PlaybackService.ActionExtras.POSITION, fromPos);
+        context.startService(intent);
+    }
+
+    private void playerAction(String action) {
+        context.startService(createExplicitServiceIntent(action));
     }
 
     public void seek(long position) {
-        Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
-        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
+        Intent intent = createExplicitServiceIntent(PlaybackService.Action.SEEK);
+        intent.putExtra(PlaybackService.ActionExtras.POSITION, position);
         context.startService(intent);
     }
 
@@ -56,4 +77,5 @@ public class ServiceInitiator {
         intent.setAction(action);
         return intent;
     }
+
 }

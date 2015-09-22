@@ -3,8 +3,8 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -12,8 +12,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -31,11 +31,11 @@ class TrackPageListener extends PageListener {
     private final Navigator navigator;
 
     @Inject
-    public TrackPageListener(PlaybackOperations playbackOperations,
+    public TrackPageListener(PlaySessionController playSessionController,
                              PlayQueueManager playQueueManager,
                              PlaySessionStateProvider playSessionStateProvider,
                              EventBus eventBus, LikeOperations likeOperations, Navigator navigator) {
-        super(playbackOperations, playSessionStateProvider, eventBus);
+        super(playSessionController, playSessionStateProvider, eventBus);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
         this.navigator = navigator;

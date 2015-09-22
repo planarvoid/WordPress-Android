@@ -1,19 +1,9 @@
 package com.soundcloud.android.utils;
 
-import javax.inject.Inject;
 import java.util.Date;
 
-public class DateProvider {
+public interface DateProvider {
+    Date getCurrentDate();
 
-    @Inject
-    public DateProvider() {
-    }
-
-    public Date getCurrentDate(){
-        return new Date();
-    }
-
-    public long getCurrentTime() {
-        return System.currentTimeMillis();
-    }
+    long getCurrentTime();
 }

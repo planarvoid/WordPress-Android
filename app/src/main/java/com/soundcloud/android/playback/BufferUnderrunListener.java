@@ -5,6 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -29,7 +30,7 @@ public class BufferUnderrunListener {
     public BufferUnderrunListener(Detector detector,
                                   EventBus eventBus,
                                   UninterruptedPlaytimeStorage uninterruptedPlaytimeStorage,
-                                  DateProvider dateProvider) {
+                                  CurrentDateProvider dateProvider) {
         this.detector = detector;
         this.eventBus = eventBus;
         this.uninterruptedPlaytimeStorage = uninterruptedPlaytimeStorage;

@@ -3,7 +3,6 @@ package com.soundcloud.android.actionbar;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
@@ -79,9 +78,6 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
                 return true;
             case R.id.action_record:
                 startActivity(activity, RecordActivity.class);
-                return true;
-            case R.id.action_who_to_follow:
-                startActivity(activity, WhoToFollowActivity.class);
                 return true;
             case R.id.action_activity:
                 startActivity(activity, ActivitiesActivity.class);

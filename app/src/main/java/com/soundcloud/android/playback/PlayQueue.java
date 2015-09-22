@@ -19,6 +19,7 @@ import java.util.List;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
+    public static final String DEFAULT_SOURCE_VERSION = "default";
     private final List<PlayQueueItem> playQueueItems;
     private final Function<PlayQueueItem, Urn> toUrn = new Function<PlayQueueItem, Urn>() {
         @Override
@@ -29,6 +30,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static PlayQueue empty() {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList());
+    }
+
+    public static PlayQueue fromTrackUrn(Urn track, PlaySessionSource playSessionSource) {
+        return new PlayQueue(playQueueItemsFromIds(Collections.singletonList(track), playSessionSource));
     }
 
     public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
@@ -123,6 +128,17 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
         return fromTrackUrnList(shuffled, playSessionSource);
+    }
+
+    public static PlayQueue fromStation(Urn stationUrn, List<Urn> tracks) {
+        List<PlayQueueItem> playQueueItems = new ArrayList<>();
+        for (Urn track : tracks) {
+            final PlayQueueItem.Builder builder = new PlayQueueItem.Builder(track)
+                    .relatedEntity(stationUrn)
+                    .fromSource(PlaySessionSource.DiscoverySource.STATIONS.value(), DEFAULT_SOURCE_VERSION);
+            playQueueItems.add(builder.build());
+        }
+        return new PlayQueue(playQueueItems);
     }
 
     public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {

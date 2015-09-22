@@ -13,7 +13,7 @@ import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
@@ -49,7 +49,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final LikeOperations likeOperations;
     private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
     private final FeatureFlags featureFlags;
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
@@ -77,7 +77,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                            LikeOperations likeOperations,
                            PlaylistOperations playlistOperations,
                            ScreenProvider screenProvider,
-                           PlaybackOperations playbackOperations,
+                           PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
                            FeatureFlags featureFlags,
                            DelayedLoadingDialogPresenter.Builder dialogBuilder,
@@ -89,7 +89,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.likeOperations = likeOperations;
         this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.playbackToastHelper = playbackToastHelper;
         this.featureFlags = featureFlags;
         this.dialogBuilder = dialogBuilder;
@@ -196,7 +196,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 .create()
                 .show(context);
 
-        relatedTracksPlaybackSubscription = playbackOperations
+        relatedTracksPlaybackSubscription = playbackInitiator
                 .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(screenProvider.getLastScreenTag()), startPosition)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));

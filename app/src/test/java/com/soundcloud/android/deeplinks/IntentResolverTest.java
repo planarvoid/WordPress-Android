@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
@@ -18,7 +19,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -39,8 +40,9 @@ import android.net.Uri;
 public class IntentResolverTest extends AndroidUnitTest {
     @Mock private ResolveOperations resolveOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private ServiceInitiator serviceInitiator;
     @Mock private ReferrerResolver referrerResolver;
     @Mock private EventBus eventBus;
     @Mock private Navigator navigator;
@@ -59,7 +61,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         setupResource(PublicApiPlaylist.class);
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(playbackOperations.startPlayback(any(PublicApiTrack.class), any(Screen.class), any(boolean.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playbackInitiator.startPlayback(any(PublicApiTrack.class), any(Screen.class), any(boolean.class))).thenReturn(Observable.<PlaybackResult>empty());
     }
 
     @Test
@@ -68,7 +70,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackOperations).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackOperations.WITH_RELATED);
+        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackInitiator.WITH_RELATED);
     }
 
     @Test
@@ -145,7 +147,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackOperations).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackOperations.WITHOUT_RELATED);
+        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackInitiator.WITHOUT_RELATED);
     }
 
     @Test
@@ -295,49 +297,6 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
         verify(navigator).openRecord(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchWhoToFollowForWebScheme() throws Exception {
-        setupIntentForUrl("https://soundcloud.com/people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchWhoToFollowForSoundCloudScheme() throws Exception {
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldNotLaunchWhoToFollowForLoggedOutUsers() throws Exception {
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openOnboarding(context, Urn.NOT_SET, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldLaunchWhoToFollowForCrawlers() throws Exception {
-        setupReferrer(Referrer.GOOGLE_CRAWLER);
-        setupIntentForUrl("soundcloud://people");
-
-        resolver.handleIntent(intent, context);
-
-        verify(accountOperations).loginCrawlerUser();
-        verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
-        verify(navigator).openWhoToFollow(context, Screen.DEEPLINK);
     }
 
     public void setupIntentForUrl(String url) {

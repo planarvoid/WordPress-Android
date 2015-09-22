@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.Intent;
@@ -15,10 +15,10 @@ import java.util.EnumSet;
 public interface Player {
 
     @Deprecated // remove this when we get rid of or simplify mediaplayer
-    void play(PropertySet track);
-    void play(PropertySet track, long fromPos);
-    void playUninterrupted(PropertySet track);
-    void playOffline(PropertySet track, long fromPos);
+    void play(Urn urn, long duration);
+    void play(Urn urn, long fromPos, long duration);
+    void playUninterrupted(Urn urn, long duration);
+    void playOffline(Urn urn, long fromPos, long duration);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);
@@ -57,10 +57,18 @@ public interface Player {
         }
 
         public StateTransition(PlayerState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
+            this(newState, reason, trackUrn, currentProgress, duration, new CurrentDateProvider());
+        }
+
+        public StateTransition(PlayerState newState,
+                               Reason reason, Urn trackUrn,
+                               long currentProgress,
+                               long duration,
+                               CurrentDateProvider dateProvider) {
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
-            progress = new PlaybackProgress(currentProgress, duration);
+            this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
         }
 
         public Urn getTrackUrn() {

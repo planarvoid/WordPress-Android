@@ -10,13 +10,9 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.collections.PropertySet;
@@ -26,11 +22,10 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -42,11 +37,7 @@ import java.util.List;
 @Singleton
 public class PlayQueueManager implements OriginProvider {
 
-    public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
-    private static final String TAG = "PlayQueueManager";
-
-    private final Context context;
 
     private final PlayQueueOperations playQueueOperations;
     private final PolicyOperations policyOperations;
@@ -56,15 +47,12 @@ public class PlayQueueManager implements OriginProvider {
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-    private Subscription playQueueSubscription = RxUtils.invalidSubscription();
     private Pair<Urn, Long> lastPlayedTrackAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
 
     @Inject
-    public PlayQueueManager(Context context,
-                            PlayQueueOperations playQueueOperations,
+    public PlayQueueManager(PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
                             PolicyOperations policyOperations) {
-        this.context = context;
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
         this.policyOperations = policyOperations;
@@ -92,7 +80,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
-        if (playQueue.isEmpty()){
+        if (playQueue.isEmpty()) {
             ErrorUtils.handleSilentException(new IllegalStateException("Setting empty play queue"),
                     "PlaySessionSource", playSessionSource.toString());
         }
@@ -100,8 +88,8 @@ public class PlayQueueManager implements OriginProvider {
 
     public void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
         final List<Urn> trackUrns = this.playQueue.getTrackUrns();
-        for (PlayQueueItem playQueueItem : playQueueItems){
-            if (!trackUrns.contains(playQueueItem.getTrackUrn())){
+        for (PlayQueueItem playQueueItem : playQueueItems) {
+            if (!trackUrns.contains(playQueueItem.getTrackUrn())) {
                 this.playQueue.addPlayQueueItem(playQueueItem);
             }
         }
@@ -236,8 +224,6 @@ public class PlayQueueManager implements OriginProvider {
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        playQueueSubscription.unsubscribe();
-
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentTrackIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
@@ -269,35 +255,31 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.shouldPersistTrackAt(currentPosition) ? currentTrackProgress : 0;
     }
 
-    public void loadPlayQueueAsync() {
-        loadPlayQueueAsync(false);
-    }
-
-    public void loadPlayQueueAsync(final boolean showPlayerAfterLoad) {
+    public Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
-            final long lastStoredPlayingTrackId = playQueueOperations.getLastStoredPlayingTrackId();
-            playQueueSubscription = playQueueObservable
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DefaultSubscriber<PlayQueue>() {
+            return playQueueObservable
+                    .doOnSubscribe(new Action0() {
                         @Override
-                        public void onNext(PlayQueue savedQueue) {
-                            if (!savedQueue.isEmpty()) {
-                                currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                                setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                                if (showPlayerAfterLoad) {
-                                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-                                }
-                            } else {
-                                Log.e(TAG, "Not setting empty playqueue on reload, last played id : " + lastStoredPlayingTrackId);
-                            }
+                        public void call() {
+                            // return so player can have the resume information while load is in progress
+                            setLastPlayedTrackAndPosition(
+                                    Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
+                                    playQueueOperations.getLastStoredSeekPosition());
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(new Action1<PlayQueue>() {
+                        @Override
+                        public void call(PlayQueue savedQueue) {
+                            currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
                         }
                     });
-            // return so player can have the resume information while load is in progress
-            setLastPlayedTrackAndPosition(Urn.forTrack(lastStoredPlayingTrackId), playQueueOperations.getLastStoredSeekPosition());
-
+        } else {
+            return Observable.empty();
         }
     }
 
@@ -319,7 +301,7 @@ public class PlayQueueManager implements OriginProvider {
             final PromotedSourceInfo promotedSourceInfo = trackSourceInfo.getPromotedSourceInfo();
             // Track is from a promoted playlist and not a recommendation
             if (trackSourceInfo.isFromPlaylist() && trackSourceInfo.getPlaylistPosition() < playSessionSource.getCollectionSize()) {
-                return trackSourceInfo.getPlaylistUrn().equals(promotedSourceInfo.getPromotedItemUrn());
+                return trackSourceInfo.getCollectionUrn().equals(promotedSourceInfo.getPromotedItemUrn());
             } else if (isCurrentPosition(0)) { // Track is a promoted track?
                 return trackUrn.equals(promotedSourceInfo.getPromotedItemUrn());
             }
@@ -344,6 +326,10 @@ public class PlayQueueManager implements OriginProvider {
 
         if (playSessionSource.isFromPromotedItem()) {
             trackSourceInfo.setPromotedSourceInfo(playSessionSource.getPromotedSourceInfo());
+        }
+
+        if (playSessionSource.isFromStations()) {
+            trackSourceInfo.setOriginStation(playSessionSource.getCollectionUrn());
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();
@@ -373,13 +359,13 @@ public class PlayQueueManager implements OriginProvider {
         return getCollectionUrn().equals(collection) && (playQueue.isEmpty() || Strings.isBlank(getCurrentTrackSource()));
     }
 
+    public boolean isCurrentCollectionOrRecommendation(Urn collection) {
+        return getCollectionUrn().equals(collection);
+    }
+
     @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
-    }
-
-    public boolean shouldReloadQueue() {
-        return playQueue.isEmpty() && playQueueSubscription == RxUtils.invalidSubscription();
     }
 
     public void clearAll() {
@@ -450,8 +436,6 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void broadcastNewPlayQueue() {
-        context.sendBroadcast(new Intent(PLAYQUEUE_CHANGED_ACTION));
-
         final Urn currentTrackUrn = getCurrentTrackUrn();
         if (!Urn.NOT_SET.equals(currentTrackUrn)) {
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));

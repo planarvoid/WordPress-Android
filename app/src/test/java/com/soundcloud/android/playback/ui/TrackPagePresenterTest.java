@@ -27,11 +27,14 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
@@ -67,10 +70,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+    @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
     private TrackPagePresenter presenter;
     private View trackView;
     private ViewGroup container;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -85,6 +90,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         trackView = presenter.createItemView(container, skipListener);
+        dateProvider = new TestDateProvider();
     }
 
     @Test
@@ -177,8 +183,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
-        verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
+
+        verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test
@@ -190,8 +197,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
-        verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
+
+        verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test
@@ -210,7 +218,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateWithOtherTrackResetProgress() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
 
-        verify(waveformViewController).setProgress(PlaybackProgress.empty());
+        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
     }
 
     @Test
@@ -222,14 +232,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
-        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20)));
+
+        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20, dateProvider)));
     }
 
     @Test
     public void bufferingStateWithOtherTrackResetProgress() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
-        verify(waveformViewController).setProgress(PlaybackProgress.empty());
+        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
     }
 
     @Test

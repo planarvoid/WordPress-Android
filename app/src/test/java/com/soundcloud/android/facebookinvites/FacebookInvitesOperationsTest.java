@@ -44,7 +44,6 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesAppOpened()).thenReturn(openCount);
         when(storage.getMillisSinceLastDismiss()).thenReturn(dismissInterval);
         when(storage.getTimesDismissed()).thenReturn(0);
-        when(featureFlags.isEnabled(Flag.FACEBOOK_INVITES)).thenReturn(true);
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(true);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
     }
@@ -59,13 +58,6 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesAppOpened()).thenReturn(openCount*7);
 
         assertThat(operations.canShow()).isTrue();
-    }
-
-    @Test
-    public void shouldNotShowWhenFeatureIsDisabled() throws Exception {
-        when(featureFlags.isEnabled(Flag.FACEBOOK_INVITES)).thenReturn(false);
-
-        assertThat(operations.canShow()).isFalse();
     }
 
     @Test

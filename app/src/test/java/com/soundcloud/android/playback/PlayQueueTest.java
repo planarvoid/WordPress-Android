@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.Station;
+import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -193,7 +195,20 @@ public class PlayQueueTest {
         assertThat(playQueue.getSourceVersion(1)).isEqualTo("v1");
         assertThat(playQueue.getRelatedEntity(0)).isEqualTo(seedTrack);
         assertThat(playQueue.getRelatedEntity(1)).isEqualTo(seedTrack);
+    }
 
+    @Test
+    public void playStationReturnsQueueWithStationPlayQueueItems() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Station station = StationFixtures.getStation(stationUrn);
+        final List<Urn> tracks = station.getTracks();
+        PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
+
+        assertThat(playQueue).hasSize(1);
+        assertThat(playQueue.getTrackUrns()).containsExactly(tracks.get(0));
+        assertThat(playQueue.getTrackSource(0)).isEqualTo("stations");
+        assertThat(playQueue.getSourceVersion(0)).isEqualTo("default");
+        assertThat(playQueue.getRelatedEntity(0)).isEqualTo(stationUrn);
     }
 
     private PlayQueue createPlayQueue(List<Urn> trackUrns, PlaySessionSource source) {

@@ -8,6 +8,7 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import rx.functions.Action1;
@@ -123,7 +124,7 @@ public class ConfigurationHelper {
 
     private static FacebookInvitesStorage getFacebookInvitesStorage(Context context) {
         final SharedPreferences sharedPreferences = getFacebookInvitesPreferences(context);
-        return new FacebookInvitesStorage(sharedPreferences, new DateProvider());
+        return new FacebookInvitesStorage(sharedPreferences, new CurrentDateProvider());
     }
 
     private static SharedPreferences getFacebookInvitesPreferences(Context context) {

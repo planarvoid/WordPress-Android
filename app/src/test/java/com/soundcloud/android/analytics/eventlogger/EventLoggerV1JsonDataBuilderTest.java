@@ -39,6 +39,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
+    private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
 
     @Mock private DeviceHelper deviceHelper;
@@ -95,6 +96,37 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsAudioEventJsonForAudioPlaybackEventForStations() throws ApiMapperException {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
+                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true);
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        trackSourceInfo.setReposter(Urn.forUser(456L));
+        trackSourceInfo.setOriginStation(STATION_URN);
+
+        jsonDataBuilder.buildForAudioEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+                .pageName(event.getTrackSourceInfo().getOriginScreen())
+                .trackLength(track.get(PlayableProperty.DURATION))
+                .track(track.get(TrackProperty.URN))
+                .trackOwner(track.get(TrackProperty.CREATOR_URN))
+                .reposter(Urn.forUser(456L))
+                .localStoragePlayback(true)
+                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                .trigger("manual")
+                .action("play")
+                .playheadPosition(12L)
+                .queryUrn(STATION_URN.toString())
+                .source("source")
+                .sourceVersion("source-version")
+                .protocol("hls")
+                .playerType("PLAYA"));
+    }
+
+    @Test
     public void createsAudioPauseEventJson() throws ApiMapperException, CreateModelException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
@@ -127,6 +159,38 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsAudioPauseEventJsonForStations() throws ApiMapperException, CreateModelException {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        trackSourceInfo.setOriginStation(STATION_URN);
+
+        final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+
+        jsonDataBuilder.buildForAudioEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+                .pageName(event.getTrackSourceInfo().getOriginScreen())
+                .trackLength(track.get(PlayableProperty.DURATION))
+                .track(track.get(TrackProperty.URN))
+                .trackOwner(track.get(TrackProperty.CREATOR_URN))
+                .localStoragePlayback(false)
+                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                .trigger("manual")
+                .action("pause")
+                .playheadPosition(123L)
+                .queryUrn(STATION_URN.toString())
+                .source("source")
+                .sourceVersion("source-version")
+                .protocol("hls")
+                .playerType("PLAYA")
+                .reason("playback_error"));
+    }
+
+    @Test
     public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
@@ -153,7 +217,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad"));
     }
@@ -188,7 +252,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .adUrn(audioAd.get(AdProperty.AD_URN))
                 .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")

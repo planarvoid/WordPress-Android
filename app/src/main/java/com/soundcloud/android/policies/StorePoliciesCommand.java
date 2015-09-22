@@ -3,6 +3,7 @@ package com.soundcloud.android.policies;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -17,7 +18,7 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
     private final DateProvider dateProvider;
 
     @Inject
-    public StorePoliciesCommand(PropellerDatabase database, DateProvider dateProvider) {
+    public StorePoliciesCommand(PropellerDatabase database, CurrentDateProvider dateProvider) {
         super(database);
         this.dateProvider = dateProvider;
     }

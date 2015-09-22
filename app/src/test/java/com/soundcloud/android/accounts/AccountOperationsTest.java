@@ -388,7 +388,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
         Intent nextService = Shadows.shadowOf(context()).getShadowApplication().getNextStartedService();
 
-        Assertions.assertThat(nextService).containsAction(PlaybackService.Actions.RESET_ALL);
+        Assertions.assertThat(nextService).containsAction(PlaybackService.Action.RESET_ALL);
     }
 
     @Test

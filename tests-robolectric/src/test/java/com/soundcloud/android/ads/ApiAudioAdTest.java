@@ -38,7 +38,7 @@ public class ApiAudioAdTest {
         final PropertySet audioAdProperties = audioAd.toPropertySet();
         final PropertySet leaveBehindProperties = audioAd.getLeaveBehind().toPropertySet();
 
-        expect(audioAdProperties.get(AdProperty.AUDIO_AD_URN)).toEqual("adswizz:ads:263");
+        expect(audioAdProperties.get(AdProperty.AD_URN)).toEqual("adswizz:ads:263");
         expect(audioAdProperties.get(AdProperty.COMPANION_URN)).toEqual("adswizz:ads:954");
         expect(leaveBehindProperties.get(LeaveBehindProperty.LEAVE_BEHIND_URN)).toEqual("adswizz:ads:1105");
     }
@@ -49,7 +49,8 @@ public class ApiAudioAdTest {
 
         final PropertySet propertySet = audioAd.toPropertySet();
 
-        expect(propertySet.contains(AdProperty.AUDIO_AD_URN)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_URN)).toBeTrue();
+        expect(propertySet.get(AdProperty.AD_TYPE)).toEqual(AdProperty.AD_TYPE_AUDIO);
         expect(propertySet.contains(AdProperty.COMPANION_URN)).toBeTrue();
         expect(propertySet.contains(AdProperty.ARTWORK)).toBeTrue();
         expect(propertySet.contains(AdProperty.CLICK_THROUGH_LINK)).toBeTrue();
@@ -61,10 +62,10 @@ public class ApiAudioAdTest {
         expect(propertySet.contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
 
         // tracking urls for promoted
-        expect(propertySet.contains(AdProperty.AUDIO_AD_IMPRESSION_URLS)).toBeTrue();
-        expect(propertySet.contains(AdProperty.AUDIO_AD_FINISH_URLS)).toBeTrue();
-        expect(propertySet.contains(AdProperty.AUDIO_AD_CLICKTHROUGH_URLS)).toBeTrue();
-        expect(propertySet.contains(AdProperty.AUDIO_AD_SKIP_URLS)).toBeTrue();
-        expect(propertySet.contains(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_IMPRESSION_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_FINISH_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_CLICKTHROUGH_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_SKIP_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS)).toBeTrue();
     }
 }

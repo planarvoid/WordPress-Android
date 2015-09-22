@@ -21,7 +21,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -201,7 +201,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject FacebookSdk facebookSdk;
     @Inject CallbackManager facebookCallbackManager;
     @Inject LoginManager facebookLoginManager;
-    @Inject ConfigurationOperations configurationOperations;
+    @Inject ConfigurationManager configurationManager;
     @Inject ApplicationProperties applicationProperties;
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
@@ -215,7 +215,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @VisibleForTesting
-    OnboardActivity(ConfigurationOperations configurationOperations,
+    OnboardActivity(ConfigurationManager configurationManager,
                     BugReporter bugReporter,
                     EventBus eventBus,
                     TokenInformationGenerator tokenUtils,
@@ -223,7 +223,7 @@ public class OnboardActivity extends FragmentActivity
                     FacebookSdk facebookSdk,
                     LoginManager facebookLoginManager,
                     CallbackManager facebookCallbackManager) {
-        this.configurationOperations = configurationOperations;
+        this.configurationManager = configurationManager;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
         this.tokenUtils = tokenUtils;
@@ -266,9 +266,9 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void checkForDeviceConflict() {
-        if (configurationOperations.shouldDisplayDeviceConflict()) {
+        if (configurationManager.shouldDisplayDeviceConflict()) {
             showDeviceConflictLogoutDialog();
-            configurationOperations.clearDeviceConflict();
+            configurationManager.clearDeviceConflict();
         }
     }
 

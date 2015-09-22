@@ -12,7 +12,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.provider.Content;
@@ -45,7 +45,7 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
 
     private final String relatedUsername;
 
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject TrackItemRenderer trackRenderer;
     @Inject PlaylistItemRenderer playlistPresenter;
     @Inject EventBus eventBus;
@@ -60,11 +60,11 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    PostsAdapter(Uri uri, String relatedUsername, PlaybackOperations playbackOperations, TrackItemRenderer trackRenderer,
+    PostsAdapter(Uri uri, String relatedUsername, PlaybackInitiator playbackInitiator, TrackItemRenderer trackRenderer,
                  PlaylistItemRenderer playlistRenderer, EventBus eventBus, Provider<ExpandPlayerSubscriber> subscriberProvider) {
         super(uri);
         this.relatedUsername = relatedUsername;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.trackRenderer = trackRenderer;
         this.playlistPresenter = playlistRenderer;
         this.eventBus = eventBus;
@@ -138,7 +138,7 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
-        playbackOperations
+        playbackInitiator
                 .playTracks(trackUrns, adjustedPosition, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
@@ -151,7 +151,7 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
 
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
-        playbackOperations
+        playbackInitiator
                 .playTracksFromUri(streamUri, adjustedPosition, initialTrack, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
 import org.junit.Before;
@@ -16,7 +16,7 @@ public class WaveformStorageTest extends StorageIntegrationTest {
     private final Urn track = Urn.forTrack(123L);
     private final WaveformData waveformData = new WaveformData(12, new int[]{23, 123, 123});
 
-    @Mock DateProvider dateProvider;
+    @Mock CurrentDateProvider dateProvider;
 
     private WaveformStorage storage;
 

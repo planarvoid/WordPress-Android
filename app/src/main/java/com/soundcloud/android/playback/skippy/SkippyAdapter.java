@@ -22,21 +22,19 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.skippy.Skippy;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +74,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final SharedPreferences sharedPreferences;
     private final SecureFileStorage secureFileStorage;
     private final CryptoOperations cryptoOperations;
+    private final CurrentDateProvider dateProvider;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -86,7 +85,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
                   LockUtil lockUtil, BufferUnderrunListener bufferUnderrunListener,
-                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations) {
+                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations,
+                  CurrentDateProvider dateProvider) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
         this.bufferUnderrunListener = bufferUnderrunListener;
@@ -100,6 +100,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.connectionHelper = connectionHelper;
         this.stateHandler = stateChangeHandler;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
+        this.dateProvider = dateProvider;
     }
 
     public boolean init(Context context) {
@@ -112,27 +113,27 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void play(PropertySet track) {
-        play(track, POSITION_START);
+    public void play(Urn track, long duration) {
+        play(track, POSITION_START, duration);
     }
 
     @Override
-    public void play(PropertySet track, long fromPos) {
-        play(track, fromPos, PLAY_TYPE_DEFAULT);
+    public void play(Urn track, long fromPos, long duration) {
+        play(track, duration, fromPos, PLAY_TYPE_DEFAULT);
     }
 
     @Override
-    public void playUninterrupted(PropertySet track) {
-        play(track, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
+    public void playUninterrupted(Urn track, long duration) {
+        play(track, duration, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
     }
 
     @Override
-    public void playOffline(PropertySet track, long fromPos) {
-        play(track, fromPos, PLAY_TYPE_OFFLINE);
+    public void playOffline(Urn track, long fromPos, long duration) {
+        play(track, duration, fromPos, PLAY_TYPE_OFFLINE);
     }
 
-    private void play(PropertySet track, long fromPos, int playType) {
-        currentTrackUrn = track.get(TrackProperty.URN);
+    private void play(Urn track, long duration, long fromPos, int playType) {
+        currentTrackUrn = track;
 
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
@@ -146,7 +147,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (!playerListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION));
+            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, duration, dateProvider);
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             return;
@@ -291,7 +292,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final PlayerState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration, dateProvider);
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
@@ -417,8 +418,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        if (!ConnectionType.UNKNOWN.equals(currentConnectionType)){
-            ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
+        // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
+        if (!ConnectionType.OFFLINE.equals(currentConnectionType)){
+            // Use Log as Skippy dumps can be rather large
+            ErrorUtils.handleSilentExceptionWithLog(new SkippyException(category, line, sourceFile), errorMsg);
         }
 
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(),
@@ -428,7 +431,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void onInitializationError(Throwable throwable, String message) {
-        ErrorUtils.handleSilentException(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
+        ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
         eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message,
                 getAndIncrementInitilizationErrors(), getInitializationSuccessCount()));
     }
@@ -505,8 +508,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         @Override
         public StackTraceElement[] getStackTrace() {
-            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(errorCategory, ScTextUtils.EMPTY_STRING, sourceFile, line)};
-            return stack;
+            return new StackTraceElement[]{new StackTraceElement(errorCategory, ScTextUtils.EMPTY_STRING, sourceFile, line)};
         }
     }
 

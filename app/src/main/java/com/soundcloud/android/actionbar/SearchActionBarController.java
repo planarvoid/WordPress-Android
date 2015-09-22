@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
@@ -46,7 +46,7 @@ import java.lang.reflect.Field;
 public class SearchActionBarController extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final String STATE_QUERY = "query";
     private final PublicApi publicApi;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
@@ -78,11 +78,11 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
 
     @Inject
     SearchActionBarController(PublicApi publicCloudAPI,
-                              PlaybackOperations playbackOperations,
+                              PlaybackInitiator playbackInitiator,
                               EventBus eventBus,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.publicApi = publicCloudAPI;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
@@ -210,7 +210,7 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
     }
 
     private void playTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
+        playbackInitiator.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
                 .subscribe(expandPlayerSubscriberProvider.get());
         clearFocus();
         searchView.setSuggestionsAdapter(null);

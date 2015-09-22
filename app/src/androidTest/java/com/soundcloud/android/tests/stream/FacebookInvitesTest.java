@@ -23,7 +23,6 @@ public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> 
 
     @Override
     protected void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.FACEBOOK_INVITES);
         ConfigurationHelper.forceFacebookInvitesNotification(getInstrumentation().getTargetContext());
         super.setUp();
     }

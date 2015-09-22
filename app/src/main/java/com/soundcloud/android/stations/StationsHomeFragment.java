@@ -6,6 +6,7 @@ import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 public class StationsHomeFragment extends LightCycleSupportFragment implements RefreshableScreen {
     @Inject @LightCycle StationsHomePresenter stationsHomePresenter;
+    @Inject EventBus eventBus;
 
     public StationsHomeFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -26,7 +28,6 @@ public class StationsHomeFragment extends LightCycleSupportFragment implements R
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.stations_fragment, container, false);
     }
-
 
     @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {

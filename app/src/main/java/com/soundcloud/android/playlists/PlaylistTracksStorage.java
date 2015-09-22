@@ -24,6 +24,7 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -49,7 +50,7 @@ class PlaylistTracksStorage {
     private final AccountOperations accountOperations;
 
     @Inject
-    PlaylistTracksStorage(PropellerRx propellerRx, DateProvider dateProvider, AccountOperations accountOperations) {
+    PlaylistTracksStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider, AccountOperations accountOperations) {
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
