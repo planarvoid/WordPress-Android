@@ -10,8 +10,6 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItemRenderer.OnFacebookInvitesClickListener;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -34,15 +32,12 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements OnFacebookInvitesClickListener {
 
     private final SoundStreamOperations streamOperations;
-    private final PlaybackOperations playbackOperations;
     private final SoundStreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
@@ -53,20 +48,16 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
-                         PlaybackOperations playbackOperations,
                          SoundStreamAdapter adapter,
                          ImagePauseOnScrollListener imagePauseOnScrollListener,
                          SwipeRefreshAttacher swipeRefreshAttacher,
-                         Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          FacebookInvitesDialogPresenter facebookInvitesDialogPresenter) {
         super(swipeRefreshAttacher);
         this.streamOperations = streamOperations;
-        this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
-        this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
         this.itemClickListener = itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null);

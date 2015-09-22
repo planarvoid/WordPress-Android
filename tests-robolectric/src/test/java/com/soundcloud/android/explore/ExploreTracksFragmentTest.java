@@ -12,16 +12,16 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.ListViewController;
-import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class ExploreTracksFragmentTest {
     private FragmentActivity activity = new FragmentActivity();
 
     @Mock private PagingListItemAdapter<TrackItem> adapter;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ImageOperations imageOperations;
     @Mock private ExploreTracksOperations exploreTracksOperations;
     @Mock private PullToRefreshController pullToRefreshController;
@@ -58,9 +58,9 @@ public class ExploreTracksFragmentTest {
         Observable<SuggestedTracksCollection> observable = withSubscription(subscription, just(new SuggestedTracksCollection()));
         when(exploreTracksOperations.pager()).thenReturn(TestPager.<SuggestedTracksCollection>pagerWithSinglePage());
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
-        when(playbackOperations.playTrackWithRecommendationsLegacy(any(Urn.class), any(PlaySessionSource.class)))
+        when(playbackInitiator.playTrackWithRecommendationsLegacy(any(Urn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
-        fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
+        fragment = new ExploreTracksFragment(adapter, playbackInitiator, exploreTracksOperations,
                 pullToRefreshController, listViewController, TestSubscribers.expandPlayerSubscriber());
         fragmentArgs.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, ExploreGenre.POPULAR_AUDIO_CATEGORY);
         fragmentArgs.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, "screen");
@@ -113,7 +113,7 @@ public class ExploreTracksFragmentTest {
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
-        verify(playbackOperations).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
+        verify(playbackInitiator).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ExploreTracksFragmentTest {
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forExplore("screen", "1.0");
-        verify(playbackOperations).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
+        verify(playbackInitiator).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
     }
 
     private View createFragmentView() {

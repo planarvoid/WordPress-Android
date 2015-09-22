@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,19 +9,17 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PageListenerTest {
+public class PageListenerTest extends AndroidUnitTest {
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -30,7 +28,7 @@ public class PageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new PageListener(playbackOperations,
+        listener = new PageListener(playSessionController,
                 playSessionStateProvider, eventBus);
     }
 
@@ -41,7 +39,7 @@ public class PageListenerTest {
         listener.onFooterTogglePlay();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
     @Test
@@ -51,13 +49,13 @@ public class PageListenerTest {
         listener.onFooterTogglePlay();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
     @Test
     public void onToggleFooterPlayTogglesPlaybackViaPlaybackOperations() {
         listener.onFooterTogglePlay();
-        verify(playbackOperations).togglePlayback();
+        verify(playSessionController).togglePlayback();
     }
 
     @Test
@@ -67,7 +65,7 @@ public class PageListenerTest {
         listener.onTogglePlay();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
@@ -77,13 +75,13 @@ public class PageListenerTest {
         listener.onTogglePlay();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
+        assertThat(event).isEqualTo(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
     public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
         listener.onTogglePlay();
-        verify(playbackOperations).togglePlayback();
+        verify(playSessionController).togglePlayback();
     }
 
     @Test
@@ -92,8 +90,8 @@ public class PageListenerTest {
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test
@@ -101,7 +99,7 @@ public class PageListenerTest {
         listener.onFooterTap();
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        expect(event.isExpand()).toBeTrue();
+        assertThat(event.isExpand()).isTrue();
     }
 
     @Test
@@ -109,7 +107,7 @@ public class PageListenerTest {
         listener.onPlayerClose();
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        expect(event.isCollapse()).toBeTrue();
+        assertThat(event.isCollapse()).isTrue();
     }
 
     @Test
@@ -118,8 +116,8 @@ public class PageListenerTest {
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
 }

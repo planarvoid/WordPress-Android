@@ -14,7 +14,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -57,7 +57,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private TracksRecyclerItemAdapter adapter;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Bundle bundle;
     @Mock private TrackItemRenderer trackItemRenderer;
 
@@ -72,7 +72,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         this.presenter = new RecommendedTracksPresenter(swipeRefreshAttacher, discoveryOperations,
-                adapter, expandPlayerSubscriberProvider, playbackOperations, eventBus);
+                adapter, expandPlayerSubscriberProvider, playbackInitiator, eventBus);
 
         when(fragment.getArguments()).thenReturn(bundle);
         when(bundle.getLong(RecommendedTracksPresenter.EXTRA_LOCAL_SEED_ID)).thenReturn(SEED_ID);
@@ -101,7 +101,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         when(discoveryOperations.recommendedTracks()).thenReturn(playQueue);
 
         final PlaybackResult successResult = PlaybackResult.success();
-        when(playbackOperations.playTracks(eq(playQueue), eq(RECOMMENDED_ENTITY_2), eq(0), any(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(eq(playQueue), eq(RECOMMENDED_ENTITY_2), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.just(successResult));
 
         presenter.onItemClicked(view, 1);

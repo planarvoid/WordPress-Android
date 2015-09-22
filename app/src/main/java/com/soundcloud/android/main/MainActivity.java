@@ -20,15 +20,15 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.explore.ExploreFragment;
+import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
-import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsHomeFragment;
-import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -67,7 +67,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Inject UserRepository userRepository;
     @Inject FeatureFlags featureFlags;
-    @Inject PlayQueueManager playQueueManager;
+    @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
 
@@ -84,6 +84,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         navigationFragment.initState(savedInstanceState);
 
         if (savedInstanceState == null) {
+            playSessionController.reloadQueueAndShowPlayerIfEmpty();
             restoreTitle();
             if (accountOperations.isUserLoggedIn()) {
                 handleLoggedInUser();
@@ -98,10 +99,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
 
         castConnectionHelper.reconnectSessionIfPossible();
-
-        if (playQueueManager.shouldReloadQueue()) {
-            playQueueManager.loadPlayQueueAsync(true);
-        }
     }
 
     private void restoreTitle() {

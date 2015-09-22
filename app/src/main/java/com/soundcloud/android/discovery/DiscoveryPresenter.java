@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -31,7 +31,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
 
     @Nullable private PlaylistTagsPresenter.Listener tagsListener;
@@ -41,13 +41,13 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
                        DiscoveryOperations discoveryOperations,
                        DiscoveryAdapter adapter,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       PlaybackOperations playbackOperations,
+                       PlaybackInitiator playbackInitiator,
                        Navigator navigator) {
         super(swipeRefreshAttacher, Options.cards());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.navigator = navigator;
     }
 
@@ -107,7 +107,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
-        playbackOperations.playTracks(playQueue, firstTrackUrn, 0,
+        playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
     }
 }

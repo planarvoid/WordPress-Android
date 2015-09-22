@@ -13,7 +13,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
@@ -54,7 +54,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private DiscoveryAdapter adapter;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
 
     private DiscoveryPresenter presenter;
@@ -70,7 +70,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         this.presenter = new DiscoveryPresenter(swipeRefreshAttacher, discoveryOperations,
-                adapter, expandPlayerSubscriberProvider, playbackOperations, navigator);
+                adapter, expandPlayerSubscriberProvider, playbackInitiator, navigator);
 
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -121,7 +121,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
         recommendedTracksForSeed.onNext(Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK_URN));
 
-        when(playbackOperations.playTracks(eq(recommendedTracksForSeed), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(eq(recommendedTracksForSeed), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onCreate(fragment, null);
@@ -140,7 +140,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
         recommendedTracks.onNext(Collections.singletonList(RECOMMENDED_TRACK_URN));
 
-        when(playbackOperations.playTracks(eq(recommendedTracks), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(eq(recommendedTracks), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onCreate(fragment, null);

@@ -10,12 +10,12 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ public class SearchActionBarControllerTest {
     @Mock private ActionBar actionBar;
     @Mock private PublicApi cloudAPI;
     @Mock private SearchCallback callback;
-    @Mock private PlaybackOperations playbackOps;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private BugReporter bugReporter;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -38,7 +38,7 @@ public class SearchActionBarControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        actionBarController = new SearchActionBarController(cloudAPI, playbackOps, eventBus,
+        actionBarController = new SearchActionBarController(cloudAPI, playbackInitiator, eventBus,
                 TestSubscribers.expandPlayerSubscriber());
         actionBarController.setSearchCallback(callback);
     }

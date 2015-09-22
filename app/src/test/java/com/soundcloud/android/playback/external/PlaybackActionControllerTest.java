@@ -1,40 +1,40 @@
 package com.soundcloud.android.playback.external;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackActionControllerTest {
+public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     private PlaybackActionController controller;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionController playSessionController;
+    @Mock private ServiceInitiator serviceInitiator;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setup() {
-        controller = new PlaybackActionController(playbackOperations, playSessionStateProvider, eventBus);
+        controller = new PlaybackActionController(playSessionController, serviceInitiator, playSessionStateProvider, eventBus);
     }
 
     @Test
     public void shouldGoToPreviousTrackWhenPreviousPlaybackAction() throws Exception {
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
-        verify(playbackOperations).previousTrack();
+        verify(playSessionController).previousTrack();
     }
 
     @Test
@@ -42,22 +42,22 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("prev");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("prev");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
     public void shouldGoToNextTrackWhenNextPlaybackActionIsHandled() {
         controller.handleAction(PlaybackAction.NEXT, "source");
 
-        verify(playbackOperations).nextTrack();
+        verify(playSessionController).nextTrack();
     }
 
     @Test
     public void closeActionCallsStopServiceOnPlaybackOperations() {
         controller.handleAction(PlaybackAction.CLOSE, "source");
 
-        verify(playbackOperations).stopService();
+        verify(serviceInitiator).stopPlaybackService();
     }
 
     @Test
@@ -65,8 +65,8 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.CLOSE, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("close");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("close");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
@@ -74,15 +74,15 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.NEXT, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("skip");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("skip");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
     public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() {
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        verify(playbackOperations).togglePlayback();
+        verify(playSessionController).togglePlayback();
     }
 
     @Test
@@ -91,8 +91,8 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("play");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("play");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
@@ -101,14 +101,14 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("pause");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("pause");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
     public void shouldPlayWhenPlayActionIsHandled() {
         controller.handleAction(PlaybackAction.PLAY, "source");
-        verify(playbackOperations).play();
+        verify(playSessionController).play();
     }
 
     @Test
@@ -116,14 +116,14 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.PLAY, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("play");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("play");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
     public void shouldPauseWhenPauseActionIsHandled() {
         controller.handleAction(PlaybackAction.PAUSE, "source");
-        verify(playbackOperations).pause();
+        verify(playSessionController).pause();
     }
 
     @Test
@@ -131,8 +131,8 @@ public class PlaybackActionControllerTest {
         controller.handleAction(PlaybackAction.PAUSE, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getAttributes().get("action")).toEqual("pause");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        assertThat(event.getAttributes().get("action")).isEqualTo("pause");
+        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
 }

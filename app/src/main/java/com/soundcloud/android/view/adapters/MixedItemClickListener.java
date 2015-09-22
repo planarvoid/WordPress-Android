@@ -8,7 +8,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -26,20 +26,20 @@ import java.util.List;
 
 public class MixedItemClickListener {
 
-    private final PlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final Navigator navigator;
     private final Screen screen;
     private final SearchQuerySourceInfo searchQuerySourceInfo;
     private final FeatureOperations featureOperations;
 
-    public MixedItemClickListener(PlaybackOperations playbackOperations,
+    public MixedItemClickListener(PlaybackInitiator playbackInitiator,
                                   Provider<ExpandPlayerSubscriber> subscriberProvider,
                                   FeatureOperations featureOperations,
                                   Navigator navigator,
                                   Screen screen,
                                   SearchQuerySourceInfo searchQuerySourceInfo) {
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.subscriberProvider = subscriberProvider;
         this.navigator = navigator;
         this.screen = screen;
@@ -55,7 +55,7 @@ public class MixedItemClickListener {
             } else {
                 final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
                 playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-                playbackOperations
+                playbackInitiator
                         .playTracks(playables, item.getEntityUrn(), position, playSessionSource)
                         .subscribe(subscriberProvider.get());
             }
@@ -75,7 +75,7 @@ public class MixedItemClickListener {
                 if (clickedItem instanceof PromotedTrackItem) {
                     playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((PromotedTrackItem) clickedItem));
                 }
-                playbackOperations
+                playbackInitiator
                         .playPosts(playables, item.getEntityUrn(), position, playSessionSource)
                         .subscribe(subscriberProvider.get());
             }
@@ -117,7 +117,7 @@ public class MixedItemClickListener {
             final int adjustedPosition = filterTracks(playables.subList(0, position)).size();
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-            playbackOperations
+            playbackInitiator
                     .playTracks(trackUrns, adjustedPosition, playSessionSource)
                     .subscribe(subscriberProvider.get());
         }
@@ -139,24 +139,24 @@ public class MixedItemClickListener {
 
     public static class Factory {
 
-        private final PlaybackOperations playbackOperations;
+        private final PlaybackInitiator playbackInitiator;
         private final Provider<ExpandPlayerSubscriber> subscriberProvider;
         private final FeatureOperations featureOperations;
         private final Navigator navigator;
 
         @Inject
-        public Factory(PlaybackOperations playbackOperations,
+        public Factory(PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        FeatureOperations featureOperations,
                        Navigator navigator) {
-            this.playbackOperations = playbackOperations;
+            this.playbackInitiator = playbackInitiator;
             this.subscriberProvider = subscriberProvider;
             this.featureOperations = featureOperations;
             this.navigator = navigator;
         }
 
         public MixedItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-            return new MixedItemClickListener(playbackOperations, subscriberProvider, featureOperations, navigator, screen, searchQuerySourceInfo);
+            return new MixedItemClickListener(playbackInitiator, subscriberProvider, featureOperations, navigator, screen, searchQuerySourceInfo);
         }
     }
 }

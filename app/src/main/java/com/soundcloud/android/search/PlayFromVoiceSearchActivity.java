@@ -8,7 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -38,7 +38,7 @@ public class PlayFromVoiceSearchActivity extends Activity {
     private static final String ANDROID_INTENT_EXTRA_GENRE = "android.intent.extra.genre";
 
     @Inject SearchOperations searchOperations;
-    @Inject PlaybackOperations playbackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject Random random;
     @Inject EventBus eventBus;
     @Inject PlaybackToastHelper playbackToastHelper;
@@ -48,7 +48,7 @@ public class PlayFromVoiceSearchActivity extends Activity {
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<PropertySet> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
-            return playbackOperations.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
+            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
         }
     };
 
@@ -65,9 +65,9 @@ public class PlayFromVoiceSearchActivity extends Activity {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    public PlayFromVoiceSearchActivity(SearchOperations searchOperations, PlaybackOperations playbackOperations, Random random) {
+    public PlayFromVoiceSearchActivity(SearchOperations searchOperations, PlaybackInitiator playbackInitiator, Random random) {
         this.searchOperations = searchOperations;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.random = random;
     }
 

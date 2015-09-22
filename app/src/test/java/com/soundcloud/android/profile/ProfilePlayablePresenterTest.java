@@ -10,7 +10,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
@@ -40,7 +40,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     private ProfilePlayablePresenter presenter;
 
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ImageOperations imageOperations;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;

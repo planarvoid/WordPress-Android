@@ -16,13 +16,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,9 +33,9 @@ import android.media.AudioManager;
 
 public class PlaybackServiceTest extends AndroidUnitTest {
 
-    public static final int DURATION = 1000;
+    private static final PropertySet TRACK_PROPERTIES = TestPropertySets.expectedTrackForPlayer();
     private PlaybackService playbackService;
-    private PropertySet track;
+    private Urn track = Urn.forTrack(123L);
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private ApplicationProperties applicationProperties;
@@ -59,7 +59,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
                 accountOperations, streamPlayer,
                 playbackReceiverFactory, InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController, analyticsController, adsOperations);
 
-        track = TestPropertySets.expectedTrackForPlayer();
+        when(trackRepository.track(track)).thenReturn(Observable.just(TRACK_PROPERTIES));
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
     }
@@ -73,38 +73,31 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.TOGGLE_PLAYBACK);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForPauseAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.PAUSE_ACTION);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.PAUSE);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForSeek() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.SEEK);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.SEEK);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForResetAllAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.RESET_ALL);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.RESET_ALL);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForStopAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Actions.STOP_ACTION);
-    }
-
-    @Test
-    public void onCreateRegistersPlaybackReceiverToListenForPlayQueueChangedAction() throws Exception {
-        playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
-
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.STOP);
     }
 
     @Test
@@ -157,14 +150,13 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
-        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onCreate();
-        playbackService.openCurrent(track, false);
+        playbackService.play(track, 0);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -174,7 +166,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedDoesNotPublishStateTransitionWithDifferentUrnThanCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -183,14 +175,13 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
-        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onCreate();
-        playbackService.openCurrent(track, false);
+        playbackService.play(track, 0);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -199,7 +190,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void doesNotForwardPlayerStateTransitionToAnalyticsControllerWithDifferentUrnThenCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -208,15 +199,14 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onProgressPublishesAProgressEvent() throws Exception {
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         playbackService.onCreate();
-        playbackService.openCurrent(track, false);
+        playbackService.play(track, 0);
 
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        assertThat(broadcasted.getTrackUrn()).isEqualTo(getTrackUrn());
+        assertThat(broadcasted.getTrackUrn()).isEqualTo(track);
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
         assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }
@@ -225,12 +215,10 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
-        playbackService.openCurrent(track, false);
+        playbackService.play(track, 0);
 
-        verify(streamPlayer).play(track);
+        verify(streamPlayer).play(track, 0, TRACK_PROPERTIES.get(TrackProperty.DURATION));
     }
 
     @Test
@@ -239,11 +227,10 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
 
-        playbackService.openCurrent();
+        playbackService.playUninterrupted(track);
 
-        verify(streamPlayer).playUninterrupted(track);
+        verify(streamPlayer).playUninterrupted(track, TRACK_PROPERTIES.get(TrackProperty.DURATION));
     }
 
     @Test
@@ -256,16 +243,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void callingStopSuppressesIdleNotifications() throws Exception {
         playbackService.onCreate();
 
-        when(streamPlayer.getLastStateTransition()).thenReturn(new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, getTrackUrn()));
-        playbackService.openCurrent(track, false);
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track));
+        playbackService.play(track, 0);
 
         playbackService.stop();
-        playbackService.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, getTrackUrn()));
+        playbackService.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, track));
 
         assertThat(playbackService).doesNotHaveLastForegroundNotification();
-    }
-
-    private Urn getTrackUrn() {
-        return track.get(TrackProperty.URN);
     }
 }

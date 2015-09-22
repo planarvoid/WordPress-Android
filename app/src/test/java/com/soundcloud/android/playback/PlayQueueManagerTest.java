@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -24,25 +23,23 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.observers.TestSubscriber;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
@@ -58,7 +55,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     private PlayQueueManager playQueueManager;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private Context context;
     @Mock private PlayQueue playQueue;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
@@ -72,7 +68,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Before
     public void before() throws CreateModelException {
-        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, policyOperations);
+        playQueueManager = new PlayQueueManager(playQueueOperations, eventBus, policyOperations);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -320,12 +316,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
         assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isNull();
-    }
-
-    @Test
-    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayQueue() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        expectBroadcastNewPlayQueue();
     }
 
     @Test
@@ -743,7 +733,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
-        playQueueManager.loadPlayQueueAsync();
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
         assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(456))).isTrue();
         assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(400L);
     }
@@ -768,8 +758,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
-
-        playQueueManager.loadPlayQueueAsync();
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
     }
@@ -781,43 +770,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
-        playQueueManager.loadPlayQueueAsync();
+        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
 
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
-    }
-
-    @Test
-    public void loadPlayQueueAsyncFiresShowPlayerEventIfFlagSet() {
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource);
-
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
-        when(playQueueOperations.getLastStoredPlaySessionSource()).thenReturn(playlistSessionSource);
-        playQueueManager.loadPlayQueueAsync(true);
-
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
-    }
-
-    @Test
-    public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty() {
-        assertThat(playQueueManager.shouldReloadQueue()).isTrue();
-    }
-
-    @Test
-    public void shouldReloadShouldBeFalseWithNonEmptyQueue() {
-        when(playQueue.isEmpty()).thenReturn(false);
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        assertThat(playQueueManager.shouldReloadQueue()).isFalse();
-    }
-
-    @Test
-    public void shouldReloadShouldBeFalseIfAlreadyReloadingWithEmptyQueue() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>never());
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
-        playQueueManager.loadPlayQueueAsync();
-        assertThat(playQueueManager.shouldReloadQueue()).isFalse();
     }
 
     @Test
@@ -945,17 +900,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.getUrn(0)).thenReturn(Urn.forTrack(123L));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(456))).isFalse();
-    }
-
-    private void expectBroadcastNewPlayQueue() {
-        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
-        verify(context).sendBroadcast(captor.capture());
-        assertThat(captor.getValue().getAction()).isEqualTo(PlayQueueManager.PLAYQUEUE_CHANGED_ACTION);
-    }
-
-    private void expectBroadcastPlayQueueUpdate() {
-        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
-        verify(context, atLeastOnce()).sendBroadcast(captor.capture());
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {

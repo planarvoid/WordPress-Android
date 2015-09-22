@@ -2,8 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.Intent;
@@ -17,10 +15,10 @@ import java.util.EnumSet;
 public interface Player {
 
     @Deprecated // remove this when we get rid of or simplify mediaplayer
-    void play(PropertySet track);
-    void play(PropertySet track, long fromPos);
-    void playUninterrupted(PropertySet track);
-    void playOffline(PropertySet track, long fromPos);
+    void play(Urn urn, long duration);
+    void play(Urn urn, long fromPos, long duration);
+    void playUninterrupted(Urn urn, long duration);
+    void playOffline(Urn urn, long fromPos, long duration);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);
