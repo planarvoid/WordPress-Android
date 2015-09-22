@@ -7,31 +7,32 @@
 
     <View style="@style/Divider.Horizontal" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:background="@android:color/white">
+        android:background="@color/white"
+        android:paddingTop="16dp">
 
         <TextView
             style="@style/Collections.PlaylistHeader"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/collections_playlists_header" />
+            android:text="@string/collections_playlists_header"
+            android:paddingBottom="8dp"
+            android:layout_alignParentBottom="true" />
 
         <ImageButton
             android:id="@+id/btn_collections_playlist_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/ic_collections_options" />
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:src="@drawable/ic_collections_options"
+            android:layout_alignParentRight="true" />
 
-    </LinearLayout>
-
+    </RelativeLayout>
 
 </LinearLayout>
