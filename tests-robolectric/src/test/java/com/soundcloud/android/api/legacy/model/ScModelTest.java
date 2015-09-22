@@ -2,7 +2,6 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,7 @@ public class ScModelTest {
 
     @Test
     public void shouldReturnIdNotSetIfNoUrnSet() {
-        expect((int) new SuggestedUser().getId()).toEqual(ScModel.NOT_SET);
+        expect((int) new ScModel().getId()).toEqual(ScModel.NOT_SET);
     }
 
     @Test

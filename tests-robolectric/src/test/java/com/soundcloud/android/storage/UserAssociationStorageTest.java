@@ -15,7 +15,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.collections.tasks.RemoteCollectionLoaderTest;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -61,17 +60,6 @@ public class UserAssociationStorageTest {
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         expect(userAssociation.getToken()).toBeNull();
-    }
-
-    @Test
-    public void shouldMarkFollowingAndStoreToken() throws Exception {
-        SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
-
-        storage.followSuggestedUser(suggestedUser).subscribe();
-
-        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, suggestedUser.getId());
-        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-        expect(userAssociation.getToken()).toEqual(suggestedUser.getToken());
     }
 
     @Test
@@ -144,20 +132,6 @@ public class UserAssociationStorageTest {
         for (PublicApiUser user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
                     .toBe(UserAssociation.LocalState.PENDING_ADDITION);
-        }
-    }
-
-    @Test
-    public void shouldBulkInsertFollowingsFromSuggestedUsers() throws Exception {
-        final List<SuggestedUser> suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
-
-        storage.followSuggestedUserList(suggestedUsers).subscribe();
-
-        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
-        for (SuggestedUser suggestedUser : suggestedUsers) {
-            final UserAssociation userAssociationByTargetId = TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, suggestedUser.getId());
-            expect(userAssociationByTargetId.getLocalSyncState()).toBe(UserAssociation.LocalState.PENDING_ADDITION);
-            expect(userAssociationByTargetId.getToken()).not.toBeNull();
         }
     }
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -208,17 +207,6 @@ public class PublicApiUserTest {
         u.followers_count = 1;
         expect(u.removeAFollower()).toBeTrue();
         expect(u.followers_count).toEqual(0);
-    }
-
-    @Test
-    public void shouldCreateUserFromSuggestedUser() throws CreateModelException {
-        SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
-        PublicApiUser user = new PublicApiUser(suggestedUser);
-        expect(user.getId()).toEqual(suggestedUser.getId());
-        expect(user.getUrn()).toEqual(suggestedUser.getUrn());
-        expect(user.getUsername()).toEqual(suggestedUser.getUsername());
-        expect(user.getCity()).toEqual(suggestedUser.getCity());
-        expect(user.getCountry()).toEqual(suggestedUser.getCountry());
     }
 
     @Test

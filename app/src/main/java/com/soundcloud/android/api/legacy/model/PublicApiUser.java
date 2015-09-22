@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -89,13 +88,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
 
     public PublicApiUser(String urn) {
         super(urn);
-    }
-
-    public PublicApiUser(SuggestedUser suggestedUser) {
-        setUrn(suggestedUser.getUrn().toString());
-        username = suggestedUser.getUsername();
-        city = suggestedUser.getCity();
-        country = suggestedUser.getCountry();
     }
 
     public PublicApiUser(long id, String permalink) {

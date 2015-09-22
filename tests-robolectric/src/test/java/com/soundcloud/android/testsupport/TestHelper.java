@@ -17,16 +17,12 @@ import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.onboarding.suggestions.Category;
-import com.soundcloud.android.onboarding.suggestions.CategoryGroup;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.functions.Function;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
@@ -212,13 +208,6 @@ public class TestHelper {
 
     public static int bulkInsertToUserAssociationsAsRemovals(List<? extends PublicApiResource> resources, Uri collectionUri) {
         return bulkInsertToUserAssociations(resources, collectionUri, null, new Date(), null);
-    }
-
-    public static CategoryGroup buildCategoryGroup(String key, int categoryCount) throws CreateModelException {
-        CategoryGroup categoryGroup = new CategoryGroup();
-        categoryGroup.setKey(key);
-        categoryGroup.setCategories(ModelFixtures.create(Category.class, categoryCount));
-        return categoryGroup;
     }
 
     private static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri,

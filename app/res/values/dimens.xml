@@ -57,8 +57,6 @@
     <dimen name="signup_label_padding">4dp</dimen>
     <dimen name="signup_done_drawable_padding">7dp</dimen>
 
-    <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
-
     <dimen name="grid_view_spacing_inside_horizontal">16dp</dimen>
     <dimen name="grid_view_spacing_inside_vertical">16dp</dimen>
     <dimen name="gridview_padding_left_right">16dp</dimen>

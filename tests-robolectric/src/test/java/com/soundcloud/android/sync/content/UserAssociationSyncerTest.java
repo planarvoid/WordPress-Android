@@ -10,7 +10,6 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
@@ -25,7 +24,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -60,7 +58,6 @@ public class UserAssociationSyncerTest {
     @Mock private ContentResolver resolver;
     @Mock private LegacyUserAssociationStorage userAssociationStorage;
     @Mock private UserAssociation mockUserAssociation;
-    @Mock private SuggestedUsersOperations suggestedUsersOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private UserAssociation userAssociation;
     @Mock private PublicApiUser user;
@@ -294,7 +291,6 @@ public class UserAssociationSyncerTest {
     public void shouldNotBulkFollowIfNoUserAssociations() throws IOException {
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(false);
         userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
-        verifyZeroInteractions(suggestedUsersOperations);
     }
 
     @Test

@@ -30,8 +30,6 @@ import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
-import com.soundcloud.android.onboarding.suggestions.CategoryBlueprint;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUserBlueprint;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.sync.likes.ApiLike;
@@ -60,8 +58,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiUserBlueprint.class);
             modelFactory.registerBlueprint(PublicApiTrackBlueprint.class);
             modelFactory.registerBlueprint(RecordingBlueprint.class);
-            modelFactory.registerBlueprint(CategoryBlueprint.class);
-            modelFactory.registerBlueprint(SuggestedUserBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackStatsBlueprint.class);
