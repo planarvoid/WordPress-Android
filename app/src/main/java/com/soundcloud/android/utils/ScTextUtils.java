@@ -38,23 +38,7 @@ public class ScTextUtils {
     public static final String EMPTY_STRING = "";
     public static final String SPACE_SEPARATOR = " ";
 
-    private ScTextUtils() {
-    }
-
-    @Deprecated // use Strings.isBlank
-    public static boolean isBlank(@Nullable String string) {
-        return Strings.isBlank(string);
-    }
-
-    @Deprecated // use Strings.isNotBlank
-    public static boolean isNotBlank(@Nullable String string) {
-        return Strings.isNotBlank(string);
-    }
-
-    @Deprecated // use Strings.safeToString
-    public static String safeToString(@Nullable Object object) {
-        return Strings.safeToString(object);
-    }
+    private ScTextUtils() {}
 
     /**
      * Prefer this method over Guava's Longs.tryParse and Java's parseLong, since the former will fail on 2.2 devices
@@ -248,10 +232,6 @@ public class ScTextUtils {
 
     public static String formatFollowersMessage(Resources r, int followers) {
         return r.getQuantityString(R.plurals.followers_message, followers, formatNumber(r, followers));
-    }
-
-    public static boolean isNotBlank(CharSequence sequence) {
-        return sequence != null && Strings.isNotBlank(sequence.toString());
     }
 
     public static class ClickSpan extends ClickableSpan {

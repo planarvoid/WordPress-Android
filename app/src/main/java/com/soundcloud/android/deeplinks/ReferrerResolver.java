@@ -3,7 +3,7 @@ package com.soundcloud.android.deeplinks;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -64,7 +64,7 @@ class ReferrerResolver {
     }
 
     private boolean isOriginIntent(Intent intent) {
-        return ScTextUtils.isNotBlank(getOrigin(intent));
+        return Strings.isNotBlank(getOrigin(intent));
     }
 
     private Referrer referrerFromOrigin(Intent intent) {

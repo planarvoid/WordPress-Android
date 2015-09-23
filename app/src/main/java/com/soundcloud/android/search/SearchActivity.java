@@ -14,7 +14,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.app.SearchManager;
@@ -166,7 +166,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
 
         return uri != null
                 && (uri.getHost().equals(INTENT_URL_HOST) || Urn.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
-                && ScTextUtils.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
+                && Strings.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
     private void handleUri(final Intent intent) {

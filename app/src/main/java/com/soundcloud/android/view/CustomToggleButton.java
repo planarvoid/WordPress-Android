@@ -1,6 +1,6 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.utils.ScTextUtils.safeToString;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -23,7 +23,7 @@ public class CustomToggleButton extends ToggleButton {
 
         @Override
         public void draw(Canvas canvas) {
-            final String   text    = isChecked() ? safeToString(getTextOn()) : safeToString(getTextOff());
+            final String   text    = isChecked() ? Strings.safeToString(getTextOn()) : Strings.safeToString(getTextOff());
             final Paint    paint   = getPaint();
             final Drawable icon    = getCompoundDrawables()[0];
             final int      padding = getCompoundDrawablePadding();

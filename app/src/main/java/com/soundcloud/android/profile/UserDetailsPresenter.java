@@ -5,9 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Observable;
 import rx.Subscription;
@@ -127,7 +127,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     private void setupDescription(ProfileUser user) {
-        if (ScTextUtils.isNotBlank(user.getDescription())) {
+        if (Strings.isNotBlank(user.getDescription())) {
             userDetailsView.showDescription(user.getDescription());
         } else {
             userDetailsView.hideDescription();
@@ -136,7 +136,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
     private void setupWebsite(final ProfileUser user) {
         final String websiteUrl = user.getWebsiteUrl();
-        if (ScTextUtils.isNotBlank(websiteUrl)) {
+        if (Strings.isNotBlank(websiteUrl)) {
             userDetailsView.showWebsite(websiteUrl, user.getWebsiteName());
         } else {
             userDetailsView.hideWebsite();
@@ -144,7 +144,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     private void setupDiscogs(final ProfileUser user) {
-        if (ScTextUtils.isNotBlank(user.getDiscogsName())) {
+        if (Strings.isNotBlank(user.getDiscogsName())) {
             userDetailsView.showDiscogs(user.getDiscogsName());
         } else {
             userDetailsView.hideDiscogs();
@@ -152,7 +152,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     private void setupMyspace(final ProfileUser user) {
-        if (ScTextUtils.isNotBlank(user.getMyspaceName())) {
+        if (Strings.isNotBlank(user.getMyspaceName())) {
             userDetailsView.showMyspace(user.getMyspaceName());
         } else {
             userDetailsView.hideMyspace();

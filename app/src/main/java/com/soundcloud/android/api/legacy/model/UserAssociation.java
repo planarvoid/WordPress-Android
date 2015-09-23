@@ -5,9 +5,9 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -199,7 +199,7 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     public boolean hasToken() {
-        return ScTextUtils.isNotBlank(token);
+        return Strings.isNotBlank(token);
     }
 
     @Override

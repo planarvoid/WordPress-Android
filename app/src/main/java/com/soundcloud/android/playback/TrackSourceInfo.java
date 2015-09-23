@@ -3,8 +3,8 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 
 public class TrackSourceInfo {
 
@@ -91,7 +91,7 @@ public class TrackSourceInfo {
     }
 
     public boolean hasSource() {
-        return ScTextUtils.isNotBlank(source);
+        return Strings.isNotBlank(source);
     }
 
     public boolean isFromPlaylist() {

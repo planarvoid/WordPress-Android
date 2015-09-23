@@ -18,10 +18,10 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
@@ -342,7 +342,7 @@ public class ImageOperations {
      * Adjust urls to use insecure protocol. Will result in more cache hits
      */
     private String adjustUrl(String url) {
-        if (ScTextUtils.isNotBlank(url)) {
+        if (Strings.isNotBlank(url)) {
             Matcher matcher = PATTERN.matcher(url);
             if (matcher.find() && matcher.groupCount() == 1) {
                 return String.format(URL_BASE, matcher.group(1));

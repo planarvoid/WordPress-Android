@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,7 +146,7 @@ public class EmptyViewBuilder {
 
     private String getTextForUser(Context context, int userBasedText, @Nullable String username) {
         return context.getString(userBasedText,
-                ScTextUtils.isBlank(username) ? context.getString(R.string.this_user) : username
+                Strings.isBlank(username) ? context.getString(R.string.this_user) : username
         );
     }
 }

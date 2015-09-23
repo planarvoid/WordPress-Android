@@ -160,26 +160,6 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStringIsWhitespaceOnly(){
-        assertThat(ScTextUtils.isBlank("  ")).isTrue();
-    }
-
-    @Test
-    public void shouldReturnTrueIfStringIsEmpty(){
-        assertThat(ScTextUtils.isBlank("")).isTrue();
-    }
-
-    @Test
-    public void shouldReturnTrueIfStringIsNull(){
-        assertThat(ScTextUtils.isBlank(null)).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfStringHasCharacters(){
-        assertThat(ScTextUtils.isBlank("  a ")).isFalse();
-    }
-
-    @Test
     public void shouldReturnLongWhenParsingValidLongString() {
         assertThat(ScTextUtils.safeParseLong("1")).isEqualTo(1L);
         assertThat(ScTextUtils.safeParseLong(Long.toString(Long.MIN_VALUE))).isEqualTo(Long.MIN_VALUE);

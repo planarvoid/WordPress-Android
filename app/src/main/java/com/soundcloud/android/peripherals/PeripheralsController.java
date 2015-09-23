@@ -11,6 +11,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -56,7 +57,7 @@ public class PeripheralsController {
     }
 
     private String getSafeClippedString(String string, int maxLength) {
-        if (ScTextUtils.isBlank(string)) {
+        if (Strings.isBlank(string)) {
             return ScTextUtils.EMPTY_STRING;
         } else {
             return ScTextUtils.getClippedString(string, maxLength);

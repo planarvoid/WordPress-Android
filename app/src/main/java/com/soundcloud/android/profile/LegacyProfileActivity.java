@@ -32,6 +32,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -264,7 +265,7 @@ public class LegacyProfileActivity extends ScActivity implements
         setFollowersMessage();
 
         if (location != null) {
-            if (ScTextUtils.isBlank(user.getLocation())) {
+            if (Strings.isBlank(user.getLocation())) {
                 location.setVisibility(View.GONE);
             } else {
                 location.setVisibility(View.VISIBLE);

@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.strings.Strings;
 
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
@@ -77,7 +78,7 @@ class UserDetailsView {
     }
 
     void showWebsite(final String websiteUrl, String websiteName) {
-        websiteText.setText(ScTextUtils.isBlank(websiteName) ? websiteUrl : websiteName);
+        websiteText.setText(Strings.isBlank(websiteName) ? websiteUrl : websiteName);
         websiteText.setVisibility(View.VISIBLE);
         websiteText.setOnClickListener(new View.OnClickListener() {
             @Override

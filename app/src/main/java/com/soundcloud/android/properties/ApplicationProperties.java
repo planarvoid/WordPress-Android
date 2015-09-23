@@ -4,8 +4,8 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.os.Build;
@@ -66,7 +66,7 @@ public class ApplicationProperties {
     public ApplicationProperties(Resources resources) {
         checkNotNull(resources, "Resources should not be null");
         String buildType = resources.getString(R.string.build_type);
-        checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
+        checkArgument(Strings.isNotBlank(buildType), "Build type not found in application package resources");
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
         VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
         GOOGLE_PLUS_ENABLED = resources.getBoolean(R.bool.google_plus_enabled);

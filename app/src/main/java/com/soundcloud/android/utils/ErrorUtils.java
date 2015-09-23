@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.strings.Strings;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,7 +141,7 @@ public final class ErrorUtils {
     public static void handleSilentExceptionWithLog(Throwable e, @Nullable String customLog) {
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
-            if (ScTextUtils.isNotBlank(customLog)) {
+            if (Strings.isNotBlank(customLog)) {
                 BufferedReader rdr = new BufferedReader(new StringReader(customLog));
                 try {
                     for (String line = rdr.readLine(); line != null; line = rdr.readLine()) {

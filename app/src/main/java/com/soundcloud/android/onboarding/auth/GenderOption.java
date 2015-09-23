@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 public enum GenderOption {
@@ -25,7 +25,7 @@ public enum GenderOption {
 
     @Nullable
     public String getApiValue(@Nullable String customGender) {
-        if (this == CUSTOM && ScTextUtils.isNotBlank(customGender)) {
+        if (this == CUSTOM && Strings.isNotBlank(customGender)) {
             return customGender;
         }
         return apiKey;

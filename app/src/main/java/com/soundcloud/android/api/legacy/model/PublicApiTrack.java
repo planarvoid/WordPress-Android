@@ -20,6 +20,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -246,7 +247,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
     @Nullable
     public String getGenreOrTag() {
-        if (ScTextUtils.isNotBlank(genre)) {
+        if (Strings.isNotBlank(genre)) {
             return genre;
         } else {
             List<String> tags = humanTags();

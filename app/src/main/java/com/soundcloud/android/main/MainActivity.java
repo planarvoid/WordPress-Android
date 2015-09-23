@@ -2,7 +2,6 @@ package com.soundcloud.android.main;
 
 import static com.soundcloud.android.main.NavigationFragment.NavItem;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
-import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.app.AppObservable.bindActivity;
 
 import com.soundcloud.android.Navigator;
@@ -32,6 +31,7 @@ import com.soundcloud.android.stations.StationsHomeFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 import rx.subscriptions.CompositeSubscription;
 
@@ -102,7 +102,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void restoreTitle() {
-        lastTitle = isNotBlank(lastTitle) ? lastTitle : getTitle();
+        lastTitle = Strings.isNotBlank(lastTitle) ? lastTitle : getTitle();
     }
 
     private void setupEmailOptIn() {
@@ -143,7 +143,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         refreshStream = intent.getBooleanExtra(EXTRA_REFRESH_STREAM, false);
 
         final boolean setFragmentViaIntent = navigationFragment.handleIntent(intent);
-        if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
+        if (setFragmentViaIntent && Strings.isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
             lastTitle = getSupportActionBar().getTitle();
         }
