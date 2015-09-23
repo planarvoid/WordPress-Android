@@ -216,19 +216,8 @@
   <string name="dashboard_notifications_activity_message_comment_two">Comentarios de %1$s y %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Comentarios de %1$s, %2$s y otros</string>
   <!--__ONBOARDING-->
-  <string name="suggested_users_genres_large_title">Elige sus categorías favoritas</string>
-  <string name="suggested_users_genres_sub_title">Sigue a las personas en tendencia en la comunidad SoundCloud.</string>
-  <string name="suggested_users_section_facebook">Facebook</string>
-  <string name="suggested_users_section_music">Música</string>
-  <string name="suggested_users_section_audio">Audio</string>
-  <string name="suggested_users_section_empty">No se encontraron resultados.</string>
-  <string name="suggested_users_section_error">No se encontraron resultados. Toque para volver a intentarlo.</string>
-  <string name="suggested_users_btn_select_all">Seleccionar todo</string>
-  <string name="suggested_users_btn_deselect_all">Deseleccionar todo</string>
-  <string name="problem_connecting_to_SoundCloud">Hay un problema de conexión con\nSoundCloud.</string>
   <string name="and_conjunction">%1$s y %2$s</string>
   <string name="try_again">Inténtalo de nuevo</string>
-  <string name="finish">Finalizar</string>
   <string name="error_onboarding_fail">Todavía estamos trabajando en llenar tu Stream. ¡Vamos a seguir intentándolo hasta que funcione! Mientras tanto, puedes buscar y descubrir otro tipo de música y audio.</string>
   <string name="age">Edad</string>
   <string name="enter_age_hint">Introduce tu edad</string>

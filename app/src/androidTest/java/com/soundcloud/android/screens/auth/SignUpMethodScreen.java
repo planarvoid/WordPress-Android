@@ -34,11 +34,6 @@ public class SignUpMethodScreen extends Screen {
         waiter.waitForElement(R.id.btn_skip);
     }
 
-    public SuggestedUsersScreen waitForSuggestedUsers() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return new SuggestedUsersScreen(testDriver);
-    }
-
     private ViewElement acceptTermsButton() {
         return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }

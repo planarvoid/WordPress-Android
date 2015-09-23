@@ -6,7 +6,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
@@ -122,22 +121,6 @@ public class LegacyUserAssociationStorage {
 
     }
 
-    public Observable<Void> followSuggestedUser(final SuggestedUser suggestedUser) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> userAssociationObserver) {
-                UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
-                if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
-                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser))
-                            .markForAddition(suggestedUser.getToken());
-                    followingsDAO.create(following);
-                }
-                userAssociationObserver.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-
-    }
-
     /**
      * Add the users passed in as followings. This will not take into account the current status of the logged in
      * user's association, but will just create or update the current status
@@ -155,31 +138,6 @@ public class LegacyUserAssociationStorage {
                 }
                 followingsDAO.createCollection(userAssociations);
                 RxUtils.emitIterable(userAssociationObserver, userAssociations);
-                userAssociationObserver.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-
-    }
-
-    /**
-     * Add the Suggested Users passed in as followings. This will also pass the Suggested User token to the constructor
-     * of the User Association. This will not take into account the current status of the logged in
-     * user's association, but will just create or update the current status
-     *
-     * @param suggestedUsers
-     * @return
-     */
-    public Observable<Void> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<>(suggestedUsers.size());
-                for (SuggestedUser suggestedUser : suggestedUsers) {
-                    userAssociations.add(new UserAssociation(
-                            UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser)
-                    ).markForAddition(suggestedUser.getToken()));
-                }
-                followingsDAO.createCollection(userAssociations);
                 userAssociationObserver.onCompleted();
             }
         }).subscribeOn(scheduler);

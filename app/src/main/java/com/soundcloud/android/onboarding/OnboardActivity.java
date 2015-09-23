@@ -47,8 +47,6 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.LegacyUserStorage;
@@ -592,9 +590,10 @@ public class OnboardActivity extends FragmentActivity
                     .putExtra(SignupVia.EXTRA, via.name));
 
             if (wasSignup || wasAuthorizedViaSignupScreen()) {
-                startActivity(new Intent(this, SuggestedUsersActivity.class)
-                        .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, showFacebookSuggestions)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                Intent intent = new Intent(this, MainActivity.class)
+                        .putExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             } else {
                 if (Urn.NOT_SET.equals(resourceUrn)) {
                     startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

@@ -1,7 +1,12 @@
 package com.soundcloud.android.tests.auth.signup;
 
 import static com.soundcloud.android.framework.TestUser.Facebook;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.screens.EmailOptInScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
@@ -17,7 +22,7 @@ public class ByFacebookTest extends SignUpTest {
         super.setUp();
     }
 
-    public void testUserFollowSingleSuccess() throws Exception {
+    public void testUserSuccess() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();
 
         signUpMethodScreen.clickFacebookButton();
@@ -29,14 +34,10 @@ public class ByFacebookTest extends SignUpTest {
         fbWebViewScreen.typeEmail(Facebook.getEmail());
         fbWebViewScreen.submit();
 
-        suggestedUsersScreen = signUpMethodScreen.waitForSuggestedUsers();
-        assertTrue(suggestedUsersScreen.hasContent());
-        assertTrue(suggestedUsersScreen.hasMusicSection());
-        assertTrue(suggestedUsersScreen.hasAudioSection());
-        assertTrue(suggestedUsersScreen.hasFacebookSection());
+        final EmailOptInScreen optInScreen = new EmailOptInScreen(solo);
+        assertThat(optInScreen, is(visible()));
 
-        suggestedUsersCategoryScreen = suggestedUsersScreen.goToFacebook();
-        assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
-        suggestedUsersCategoryScreen.deselectAll();
+        final StreamScreen streamScreen = optInScreen.clickNo();
+        assertThat(streamScreen, is(visible()));
     }
 }

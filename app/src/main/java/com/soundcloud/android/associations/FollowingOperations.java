@@ -1,7 +1,6 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.ApplicationModule;
@@ -18,7 +17,6 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
@@ -26,7 +24,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -41,7 +38,6 @@ import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -89,28 +85,9 @@ public class FollowingOperations {
         return legacyUserAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
 
-    Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
-        updateLocalStatus(true, suggestedUser.getId());
-        return legacyUserAssociationStorage.followSuggestedUser(suggestedUser);
-    }
-
     public Observable<Boolean> removeFollowing(final PublicApiUser user) {
         updateLocalStatus(false, user.getId());
         return legacyUserAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
-    }
-
-    public Observable<Void> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
-        updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-        return legacyUserAssociationStorage.followSuggestedUserList(suggestedUsers);
-    }
-
-    public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        return removeFollowings(transform(suggestedUsers, new Function<SuggestedUser, PublicApiUser>() {
-            @Override
-            public PublicApiUser apply(SuggestedUser input) {
-                return new PublicApiUser(input);
-            }
-        }));
     }
 
     public Observable<Boolean> toggleFollowing(PublicApiUser user) {
@@ -118,14 +95,6 @@ public class FollowingOperations {
             return removeFollowing(user);
         } else {
             return addFollowing(user);
-        }
-    }
-
-    public Observable<Void> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
-        if (followStatus.isFollowing(suggestedUser.getUrn())) {
-            return removeFollowingsBySuggestedUsers(Arrays.asList(suggestedUser));
-        } else {
-            return addFollowingBySuggestedUser(suggestedUser);
         }
     }
 

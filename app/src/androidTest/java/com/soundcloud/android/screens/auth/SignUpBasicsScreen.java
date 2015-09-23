@@ -8,6 +8,7 @@ import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.Screen;
 
 public class SignUpBasicsScreen extends Screen {
@@ -115,14 +116,9 @@ public class SignUpBasicsScreen extends Screen {
         testDriver.findElement(With.text(testDriver.getString(R.string.contact_support))).click();
     }
 
-    public SignUpBasicsScreen skipSignUpDetails() {
+    public EmailOptInScreen skipSignUpDetails() {
         skipButton().click();
-        return this;
-    }
-
-    public SuggestedUsersScreen waitForSuggestedUsers() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return new SuggestedUsersScreen(testDriver);
+        return new EmailOptInScreen(testDriver);
     }
 
     @Override

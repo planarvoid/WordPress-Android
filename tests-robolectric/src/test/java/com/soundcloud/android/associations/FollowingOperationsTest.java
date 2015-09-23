@@ -17,10 +17,8 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
@@ -40,7 +38,6 @@ import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -68,8 +65,6 @@ public class FollowingOperationsTest {
     private Observer observer;
 
     private PublicApiUser user;
-    private SuggestedUser suggestedUser;
-    private List<SuggestedUser> suggestedUsers;
     private Collection<UserAssociation> userAssociations;
 
     @Before
@@ -83,9 +78,6 @@ public class FollowingOperationsTest {
         ops = new FollowingOperations(apiClientRx, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator, Schedulers.immediate());
 
         user = ModelFixtures.create(PublicApiUser.class);
-
-        suggestedUser = ModelFixtures.create(SuggestedUser.class);
-        suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
 
         userAssociations = newArrayList(userAssociationOne, userAssociationTwo);
     }
@@ -101,18 +93,6 @@ public class FollowingOperationsTest {
     public void shouldSyncFollowingsOnAddition() {
         ops.addFollowing(user).subscribe(observer);
         verify(syncInitiator).pushFollowingsToApi();
-    }
-
-    @Test
-    public void shouldToggleFollowingOnSuggestedUserAddition() throws CreateModelException {
-        ops.addFollowingBySuggestedUser(suggestedUser);
-        verify(followStatus).addFollowing(suggestedUser.getId());
-    }
-
-    @Test
-    public void shouldToggleFollowingsOnSuggestedUserAdditions() throws CreateModelException {
-        ops.addFollowingsBySuggestedUsers(suggestedUsers);
-        verify(followStatus).addFollowing(ScModel.getIdList(suggestedUsers));
     }
 
     @Test

@@ -216,19 +216,8 @@
   <string name="dashboard_notifications_activity_message_comment_two">Berbagai komentar dari %1$s dan %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Berbagai komentar dari %1$s, %2$s, dan lain-lain</string>
   <!--__ONBOARDING-->
-  <string name="suggested_users_genres_large_title">Pilih kategori favoritmu</string>
-  <string name="suggested_users_genres_sub_title">Ikuti orang-orang yang populer di komunitas SoundCloud.</string>
-  <string name="suggested_users_section_facebook">Facebook</string>
-  <string name="suggested_users_section_music">Musik</string>
-  <string name="suggested_users_section_audio">Audio</string>
-  <string name="suggested_users_section_empty">Tidak ditemukan hasil</string>
-  <string name="suggested_users_section_error">Hasil tidak ditemukan, ketuk untuk mencoba lagi</string>
-  <string name="suggested_users_btn_select_all">Pilih Semua</string>
-  <string name="suggested_users_btn_deselect_all">Batalkan Semua Pilihan</string>
-  <string name="problem_connecting_to_SoundCloud">Terjadi masalah saat menghubungi\nSoundCloud.</string>
   <string name="and_conjunction">%1$s dan %2$s</string>
   <string name="try_again">Coba Lagi</string>
-  <string name="finish">Selesai</string>
   <string name="error_onboarding_fail">Kami masih mengerjakan stream Anda. Kami akan terus mencoba sampai berhasil! Sementara itu, Anda dapat mencari dan menjelajahi musik &amp; audio lain.</string>
   <string name="age">Umur</string>
   <string name="enter_age_hint">Masukkan umur Anda</string>

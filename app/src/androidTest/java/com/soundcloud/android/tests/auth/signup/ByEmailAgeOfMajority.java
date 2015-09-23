@@ -17,17 +17,15 @@ public class ByEmailAgeOfMajority extends SignUpTest {
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
-        signUpBasicsScreen.typeEmail(generateEmail());
-        signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.typeAge(21);
+        EmailOptInScreen optInScreen = signUpBasicsScreen
+                .typeEmail(generateEmail())
+                .typePassword("password123")
+                .typeAge(21)
+                .signup()
+                .acceptTerms()
+                .skipSignUpDetails();
 
-        signUpBasicsScreen.signup();
-        signUpBasicsScreen.acceptTerms();
-        signUpBasicsScreen.skipSignUpDetails();
-        suggestedUsersScreen = signUpBasicsScreen.waitForSuggestedUsers();
-        final EmailOptInScreen optInScreen = suggestedUsersScreen.finish();
         final StreamScreen streamScreen = optInScreen.clickNo();
-
         final PlaylistTagsScreen playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
         final SearchResultsScreen searchResult = playlistTagsScreen.actionBar().doSearch("annoymouse");
         final ProfileScreen profileScreen = searchResult.clickFirstUserItem();
