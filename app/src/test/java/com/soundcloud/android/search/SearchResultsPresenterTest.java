@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
+import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -50,7 +52,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     private SearchResultsPresenter presenter;
 
-    @Mock private Bundle bundle;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private SearchOperations searchOperations;
     @Mock private SearchResultsAdapter adapter;
@@ -83,7 +84,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final List<ListItem> listItems = setupAdapter();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         verify(clickListener).onItemClick(listItems, fragmentRule.getView(), 0);
@@ -93,7 +94,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     public void trackItemClickPublishesEventFromSearchAllTab() {
         setupAdapter();
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -109,12 +110,13 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackItemClickPublishesSearchEventFromTracksTab() {
-        when(bundle.getInt(SearchResultsFragment.EXTRA_TYPE)).thenReturn(SearchOperations.TYPE_TRACKS);
-        when(bundle.getBoolean(SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT)).thenReturn(false);
+        final Bundle arguments = new Bundle();
+        arguments.putInt(EXTRA_TYPE, SearchOperations.TYPE_TRACKS);
+        arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
 
         setupAdapter();
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(arguments);
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -130,14 +132,16 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playlistItemClickPublishesSearchEventFromPlaylistTab() {
+        final Bundle arguments = new Bundle();
+        arguments.putInt(EXTRA_TYPE, SearchOperations.TYPE_PLAYLISTS);
+        arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
+
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 1, PLAYLIST_URN);
 
-        when(bundle.getInt(SearchResultsFragment.EXTRA_TYPE)).thenReturn(SearchOperations.TYPE_PLAYLISTS);
-        when(bundle.getBoolean(SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT)).thenReturn(false);
         when(adapter.getItem(1)).thenReturn(PlaylistItem.from(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN))));
         when(searchPagingFunction.getSearchQuerySourceInfo(1, PLAYLIST_URN)).thenReturn(searchQuerySourceInfo);
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(arguments);
         presenter.onItemClicked(fragmentRule.getView(), 1);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -153,14 +157,16 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void userItemClickPublishesSearchEventFromUsersTab() {
+        final Bundle arguments = new Bundle();
+        arguments.putInt(EXTRA_TYPE, SearchOperations.TYPE_USERS);
+        arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
+
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, USER_URN);
 
-        when(bundle.getInt(SearchResultsFragment.EXTRA_TYPE)).thenReturn(SearchOperations.TYPE_USERS);
-        when(bundle.getBoolean(SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT)).thenReturn(false);
         when(adapter.getItem(0)).thenReturn(UserItem.from(PropertySet.from(UserProperty.URN.bind(USER_URN))));
         when(searchPagingFunction.getSearchQuerySourceInfo(0, USER_URN)).thenReturn(searchQuerySourceInfo);
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(arguments);
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
         SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -176,8 +182,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotTrackNonFirstSearch() {
-        when(bundle.getInt(SearchResultsFragment.EXTRA_TYPE)).thenReturn(SearchOperations.TYPE_ALL);
-        when(bundle.getBoolean(SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT)).thenReturn(false);
+        final Bundle arguments = new Bundle();
+        arguments.putInt(EXTRA_TYPE, SearchOperations.TYPE_ALL);
+        arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
 
         final List<PropertySetSource> items = Collections.emptyList();
         final Observable<SearchResult> observable = Observable.just(new SearchResult(items, null, null));
@@ -186,7 +193,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(searchPagingFunction.call(any(SearchResult.class))).thenReturn(observable);
         when(searchPagingFunction.getSearchQuerySourceInfo()).thenReturn(searchQuerySourceInfo);
 
-        presenter.onBuildBinding(bundle);
+        presenter.onBuildBinding(arguments);
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
@@ -196,8 +203,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getTrackRenderer()).thenReturn(trackItemRenderer);
 
         final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragmentRule.getFragment(), bundle);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), bundle);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
@@ -209,8 +216,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getTrackRenderer()).thenReturn(trackItemRenderer);
 
         final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragmentRule.getFragment(), bundle);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), bundle);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
 
@@ -219,8 +226,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesFromEventBusOnDestroyView() {
-        presenter.onCreate(fragmentRule.getFragment(), bundle);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), bundle);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onDestroyView(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
