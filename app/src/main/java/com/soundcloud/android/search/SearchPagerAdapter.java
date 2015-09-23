@@ -29,13 +29,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_ALL, query, firstTime);
+                return SearchResultsFragment.create(SearchOperations.TYPE_ALL, query, firstTime);
             case TAB_TRACKS:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_TRACKS, query, false);
+                return SearchResultsFragment.create(SearchOperations.TYPE_TRACKS, query, false);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_PLAYLISTS, query, false);
+                return SearchResultsFragment.create(SearchOperations.TYPE_PLAYLISTS, query, false);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_USERS, query, false);
+                return SearchResultsFragment.create(SearchOperations.TYPE_USERS, query, false);
             default:
                 throw new IllegalArgumentException("Unexpected position for getItem " + position);
         }

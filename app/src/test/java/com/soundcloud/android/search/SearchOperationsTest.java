@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
@@ -22,7 +22,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -31,12 +31,12 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -46,8 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SearchOperationsTest {
+public class SearchOperationsTest extends AndroidUnitTest {
 
     private SearchOperations operations;
 
@@ -62,11 +61,11 @@ public class SearchOperationsTest {
     private ApiTrack track;
     private ApiPlaylist playlist;
     private ApiUser user;
-    private TestObserver<SearchResult> observer;
+    private TestSubscriber<SearchResult> subscriber;
 
     @Before
     public void setUp() {
-        observer = new TestObserver<>();
+        subscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
         playlist = ModelFixtures.create(ApiPlaylist.class);
         user = ModelFixtures.create(ApiUser.class);
@@ -79,7 +78,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchAllEndpoint() {
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
                 .withQueryParam("limit", "30")
@@ -88,7 +87,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchTracksEndpoint() {
-        operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
                 .withQueryParam("limit", "30")
@@ -97,7 +96,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchPlaylistsEndpoint() {
-        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
                 .withQueryParam("limit", "30")
@@ -106,7 +105,7 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldMakeGETRequestToSearchUserEndpoint() {
-        operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
                 .withQueryParam("limit", "30")
@@ -115,46 +114,46 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldCacheUserSearchResult() throws PropellerWriteException {
-        SearchCollection<ApiUser> users = new SearchCollection<>();
+        final SearchCollection<ApiUser> users = new SearchCollection<>();
         users.setCollection(ModelFixtures.create(ApiUser.class, 2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(users));
 
-        operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(subscriber);
 
         verify(storeUsersCommand).call(users);
     }
 
     @Test
     public void shouldCachePlaylistSearchResult() throws Exception {
-        SearchCollection<ApiPlaylist> playlists = new SearchCollection<>();
+        final SearchCollection<ApiPlaylist> playlists = new SearchCollection<>();
         playlists.setCollection(ModelFixtures.create(ApiPlaylist.class, 2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(playlists));
 
-        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(subscriber);
 
         verify(storePlaylistsCommand).call(playlists);
     }
 
     @Test
     public void shouldCacheTrackSearchResult() throws Exception {
-        SearchCollection<ApiTrack> tracks = new SearchCollection<>();
+        final SearchCollection<ApiTrack> tracks = new SearchCollection<>();
         tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(tracks));
 
-        operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(subscriber);
 
         verify(storeTracksCommand).call(tracks);
     }
 
     @Test
     public void shouldCacheUniversalSearchResult() throws Exception {
-        Observable observable = Observable.just(new SearchCollection<>(Lists.newArrayList(
+        final Observable observable = Observable.just(new SearchCollection<>(Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
                 ApiUniversalSearchItem.forPlaylist(playlist))));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
         verify(cacheUniversalSearchCommand).call();
     }
@@ -166,10 +165,10 @@ public class SearchOperationsTest {
                 ApiUniversalSearchItem.forTrack(track),
                 ApiUniversalSearchItem.forPlaylist(playlist));
 
-        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
+        final Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        PropertySet playlistIsLikedStatus = PropertySet.from(
+        final PropertySet playlistIsLikedStatus = PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.getUrn()),
                 PlaylistProperty.IS_LIKED.bind(true));
 
@@ -177,12 +176,12 @@ public class SearchOperationsTest {
         final Map<Urn, PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        SearchResult searchResult = observer.getOnNextEvents().get(0);
-        PropertySet playlistPropSet = searchResult.getItems().get(2);
-        expect(playlistPropSet).toEqual(playlist.toPropertySet().merge(playlistIsLikedStatus));
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        final PropertySet playlistPropSet = searchResult.getItems().get(2);
+        assertThat(playlistPropSet).isEqualTo(playlist.toPropertySet().merge(playlistIsLikedStatus));
     }
 
     @Test
@@ -197,54 +196,54 @@ public class SearchOperationsTest {
         final Map<Urn, PropertySet> userFollowings = Collections.singletonMap(user.getUrn(), PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
         final PropertySet userIsFollowing = PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true));
 
-        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
+        final Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
         when(loadFollowingCommand.call(expectedSearchResult)).thenReturn(userFollowings);
 
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        SearchResult searchResult = observer.getOnNextEvents().get(0);
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
 
-        PropertySet followedUserPropertySet = searchResult.getItems().get(0);
-        expect(followedUserPropertySet).toEqual(user.toPropertySet().merge(userIsFollowing));
+        final PropertySet followedUserPropertySet = searchResult.getItems().get(0);
+        assertThat(followedUserPropertySet).isEqualTo(user.toPropertySet().merge(userIsFollowing));
 
-        PropertySet nonFollowedUserPropertySet = searchResult.getItems().get(2);
-        expect(nonFollowedUserPropertySet).toEqual(user2.toPropertySet());
+        final PropertySet nonFollowedUserPropertySet = searchResult.getItems().get(2);
+        assertThat(nonFollowedUserPropertySet).isEqualTo(user2.toPropertySet());
     }
 
     @Test
     public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() throws Exception {
-        ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forPlaylist(playlist), // should be enriched with like status
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forPlaylist(playlist2), // should be enriched with like status
                 ApiUniversalSearchItem.forTrack(track));
-        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
+        final Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        Map<Urn, PropertySet> likedPlaylists = new HashMap<>(2);
+        final Map<Urn, PropertySet> likedPlaylists = new HashMap<>(2);
         likedPlaylists.put(playlist2.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
         likedPlaylists.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
         when(loadPlaylistLikedStatuses.call(CollectionUtils.toPropertySets(apiUniversalSearchItems))).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        SearchResult searchResult = observer.getOnNextEvents().get(0);
-        PropertySet playlist1Set = searchResult.getItems().get(0);
-        PropertySet playlist2Set = searchResult.getItems().get(2);
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        final PropertySet playlist1Set = searchResult.getItems().get(0);
+        final PropertySet playlist2Set = searchResult.getItems().get(2);
         // expect things to still be in correct order
-        expect(playlist1Set.get(PlaylistProperty.URN)).toEqual(playlist.toPropertySet().get(PlaylistProperty.URN));
-        expect(playlist2Set.get(PlaylistProperty.URN)).toEqual(playlist2.toPropertySet().get(PlaylistProperty.URN));
+        assertThat(playlist1Set.get(PlaylistProperty.URN)).isEqualTo(playlist.toPropertySet().get(PlaylistProperty.URN));
+        assertThat(playlist2Set.get(PlaylistProperty.URN)).isEqualTo(playlist2.toPropertySet().get(PlaylistProperty.URN));
     }
 
     @Test
     public void shouldBackFillLikesForPlaylistsInPlaylistSearch() throws Exception {
         final List<ApiPlaylist> apiPlaylists = Arrays.asList(playlist);
-        Observable searchObservable = Observable.just(new SearchCollection<>(apiPlaylists));
+        final Observable searchObservable = Observable.just(new SearchCollection<>(apiPlaylists));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(searchObservable);
 
         final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_LIKED.bind(true));
@@ -252,18 +251,18 @@ public class SearchOperationsTest {
         final SearchResult expectedSearchResult = new SearchResult(apiPlaylists, Optional.<Link>absent(), Optional.<Urn>absent());
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
-        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
+        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(subscriber);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        SearchResult searchResult = observer.getOnNextEvents().get(0);
-        PropertySet playlistPropSet = searchResult.getItems().get(0);
-        expect(playlistPropSet).toEqual(playlist.toPropertySet().merge(playlistIsLikedStatus));
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        final PropertySet playlistPropSet = searchResult.getItems().get(0);
+        assertThat(playlistPropSet).isEqualTo(playlist.toPropertySet().merge(playlistIsLikedStatus));
     }
 
     @Test
     public void shouldProvideResultPager() {
-        SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Arrays.asList(playlist));
-        SearchCollection<ApiPlaylist> lastPage = new SearchCollection<>(Arrays.asList(playlist));
+        final SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Collections.singletonList(playlist));
+        final SearchCollection<ApiPlaylist> lastPage = new SearchCollection<>(Collections.singletonList(playlist));
         firstPage.setLinks(Collections.singletonMap(SearchCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next")));
 
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
@@ -271,29 +270,31 @@ public class SearchOperationsTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/next")), isA(TypeToken.class))).
                 thenReturn(Observable.<Object>just(lastPage));
 
-        SearchOperations.SearchResultPager pager = operations.pager(SearchOperations.TYPE_PLAYLISTS);
-        pager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(observer);
-        pager.next();
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_PLAYLISTS);
+        final Pager<SearchResult, SearchResult> searchResultPager = Pager.create(pagingFunction);
+        searchResultPager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(subscriber);
+        searchResultPager.next();
 
-        expect(observer.getOnNextEvents()).toNumber(2);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        subscriber.assertValueCount(2);
+        subscriber.assertCompleted();
     }
 
     @Test
     public void shouldProvideResultPagerWithQuerySourceInfo() {
-        Urn queryUrn = new Urn("soundcloud:search:urn");
-        SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Arrays.asList(playlist));
+        final Urn queryUrn = new Urn("soundcloud:search:urn");
+        final SearchCollection<ApiPlaylist> firstPage = new SearchCollection<>(Collections.singletonList(playlist));
         firstPage.setQueryUrn(queryUrn.toString());
 
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
                 .thenReturn(Observable.<Object>just(firstPage));
 
-        SearchOperations.SearchResultPager pager = operations.pager(SearchOperations.TYPE_PLAYLISTS);
-        pager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(observer);
-        pager.next();
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_PLAYLISTS);
+        final Pager<SearchResult, SearchResult> searchResultPager = Pager.create(pagingFunction);
+        searchResultPager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(subscriber);
+        searchResultPager.next();
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
-        expect(pager.getSearchQuerySourceInfo().getQueryUrn()).toEqual(queryUrn);
+        subscriber.assertValueCount(1);
+        subscriber.assertCompleted();
+        assertThat(pagingFunction.getSearchQuerySourceInfo().getQueryUrn()).isEqualTo(queryUrn);
     }
 }
