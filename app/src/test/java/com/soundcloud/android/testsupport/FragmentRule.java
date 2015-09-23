@@ -37,9 +37,13 @@ public class FragmentRule implements TestRule {
         return fragment.getView();
     }
 
+    public void setFragmentArguments(Bundle arguments) {
+        fragment.getArguments().putAll(arguments);
+    }
+
     @Override
     public Statement apply(Statement statement, Description description) {
-        fragment = new DummyFragment(fragmentLayout);
+        fragment = new DummyFragment(fragmentLayout, new Bundle());
         SupportFragmentTestUtil.startVisibleFragment(fragment);
         return statement;
     }
@@ -49,8 +53,9 @@ public class FragmentRule implements TestRule {
 
         @LayoutRes private final int layoutId;
 
-        DummyFragment(int layoutId) {
+        DummyFragment(int layoutId, Bundle arguments) {
             this.layoutId = layoutId;
+            this.setArguments(arguments);
         }
 
         @Nullable
