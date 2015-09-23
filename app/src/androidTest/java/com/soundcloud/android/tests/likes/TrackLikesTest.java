@@ -33,12 +33,6 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testClickingShuffleButtonOpensPlayer() {
-        VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
-
-        assertThat(playerElement, is(visible()));
-    }
-
     public void testClickingTrackOpensPlayer() {
         VisualPlayerElement playerElement = likesScreen.clickTrack(1);
 
