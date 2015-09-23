@@ -62,7 +62,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
 
     @Before
     public void setUp() throws Exception {

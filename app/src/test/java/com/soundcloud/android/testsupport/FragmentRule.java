@@ -20,9 +20,15 @@ public class FragmentRule implements TestRule {
     private final int fragmentLayout;
 
     private Fragment fragment;
+    private Bundle fragmentArgs;
 
     public FragmentRule(@LayoutRes int fragmentLayout) {
+        this(fragmentLayout, null);
+    }
+
+    public FragmentRule(@LayoutRes int fragmentLayout, Bundle fragmentArgs) {
         this.fragmentLayout = fragmentLayout;
+        this.fragmentArgs = fragmentArgs;
     }
 
     public Fragment getFragment() {
@@ -38,12 +44,16 @@ public class FragmentRule implements TestRule {
     }
 
     public void setFragmentArguments(Bundle arguments) {
-        fragment.getArguments().putAll(arguments);
+        if (fragmentArgs != null) {
+            fragment.getArguments().putAll(arguments);
+        } else {
+            throw new IllegalArgumentException("Construct FragmentRule by passing an empty Bundle as a parameter");
+        }
     }
 
     @Override
     public Statement apply(Statement statement, Description description) {
-        fragment = new DummyFragment(fragmentLayout, new Bundle());
+        fragment = new DummyFragment(fragmentLayout, fragmentArgs);
         SupportFragmentTestUtil.startVisibleFragment(fragment);
         return statement;
     }
