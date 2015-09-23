@@ -257,7 +257,7 @@ public class LegacyProfileActivity extends ScActivity implements
                 followerCount.setVisibility(View.GONE);
             } else {
                 followerCount.setVisibility(View.VISIBLE);
-                followerCount.setText(ScTextUtils.formatNumberWithCommas(user.followers_count));
+                followerCount.setText(ScTextUtils.formatNumber(getResources(), user.followers_count));
             }
         }
 

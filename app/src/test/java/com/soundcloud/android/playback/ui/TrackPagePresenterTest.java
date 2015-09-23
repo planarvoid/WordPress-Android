@@ -39,7 +39,6 @@ import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
 
-import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -49,7 +48,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private static final int DURATION = 20000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    @Mock private Resources resources;
     @Mock private WaveformOperations waveformOperations;
     @Mock private TrackPageListener listener;
     @Mock private WaveformViewController.Factory waveformFactory;
@@ -82,7 +80,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, featureFlags);
+                errorControllerFactory, castConnectionHelper, resources(), featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

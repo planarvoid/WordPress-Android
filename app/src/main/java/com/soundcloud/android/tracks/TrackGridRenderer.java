@@ -54,8 +54,7 @@ public class TrackGridRenderer implements CellRenderer<TrackItem> {
             viewHolder.genre.setText("#" + track.getGenre());
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
-        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlayCount());
-        viewHolder.playcount.setText(playcountWithCommas);
+        viewHolder.playcount.setText(ScTextUtils.formatNumber(itemView.getResources(), track.getPlayCount()));
 
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
         imageOperations.displayInAdapterView(track.getEntityUrn(), apiImageSize, viewHolder.imageView);

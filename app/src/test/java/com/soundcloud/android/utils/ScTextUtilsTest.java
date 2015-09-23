@@ -197,41 +197,14 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     public void shouldFormatFollowingMessage() {
         assertThat(ScTextUtils.formatFollowingMessage(resources(), 0)).isEqualTo("Followed by you");
         assertThat(ScTextUtils.formatFollowingMessage(resources(), 1)).isEqualTo("Followed by you and 1 other person");
-        assertThat(ScTextUtils.formatFollowingMessage(resources(), 100001)).isEqualTo("Followed by you and 100,001 other people");
+        assertThat(ScTextUtils.formatFollowingMessage(resources(), 100001)).isEqualTo("Followed by you and 100K other people");
     }
 
     @Test
     public void shouldFormatFollowersMessage() {
         assertThat(ScTextUtils.formatFollowersMessage(resources(), 0)).isEqualTo("Followed by 0 people");
         assertThat(ScTextUtils.formatFollowersMessage(resources(), 1)).isEqualTo("Followed by 1 person");
-        assertThat(ScTextUtils.formatFollowersMessage(resources(), 100001)).isEqualTo("Followed by 100,001 people");
-    }
-
-    @Test
-    public void shouldShortenLargeNumbers() {
-        assertThat(ScTextUtils.shortenLargeNumber(999)).isEqualTo("999");
-        assertThat(ScTextUtils.shortenLargeNumber(1000)).isEqualTo("1K+");
-        assertThat(ScTextUtils.shortenLargeNumber(1999)).isEqualTo("1K+");
-        assertThat(ScTextUtils.shortenLargeNumber(2000)).isEqualTo("2K+");
-        assertThat(ScTextUtils.shortenLargeNumber(9999)).isEqualTo("9K+");
-        assertThat(ScTextUtils.shortenLargeNumber(10000)).isEqualTo("9K+"); // 4 chars would make the text spill over again
-    }
-
-    @Test
-    public void shouldFormatLargeNumbers() {
-        assertThat(ScTextUtils.formatLargeNumber(0)).isEqualTo("");
-        assertThat(ScTextUtils.formatLargeNumber(999)).isEqualTo("999");
-        assertThat(ScTextUtils.formatLargeNumber(9999)).isEqualTo("9,999");
-
-        assertThat(ScTextUtils.formatLargeNumber(10000)).isEqualTo("10K");
-        assertThat(ScTextUtils.formatLargeNumber(11412)).isEqualTo("11.4K");
-        assertThat(ScTextUtils.formatLargeNumber(999999)).isEqualTo("999.9K");
-
-        assertThat(ScTextUtils.formatLargeNumber(1000000)).isEqualTo("1M");
-        assertThat(ScTextUtils.formatLargeNumber(1200000)).isEqualTo("1.2M");
-        assertThat(ScTextUtils.formatLargeNumber(999200000)).isEqualTo("999.2M");
-
-        assertThat(ScTextUtils.formatLargeNumber(1000000000)).isEqualTo("1BN");
+        assertThat(ScTextUtils.formatFollowersMessage(resources(), 100001)).isEqualTo("Followed by 100K people");
     }
 
     @Test

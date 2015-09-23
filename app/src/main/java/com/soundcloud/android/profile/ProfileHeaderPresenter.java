@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
@@ -58,7 +59,7 @@ class ProfileHeaderPresenter {
         collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
         collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
-        followerCount.setText(user.getFollowerCount());
+        followerCount.setText(ScTextUtils.formatNumber(followerCount.getResources(), user.getFollowerCount()));
         followButton.setChecked(user.isFollowed());
 
         if (!user.getUrn().equals(lastUser)){

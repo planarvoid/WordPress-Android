@@ -163,7 +163,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         final int likesCount = playlist.getLikesCount();
         if (hasLike(likesCount)) {
             likesCountText.setVisibility(View.VISIBLE);
-            likesCountText.setText(ScTextUtils.formatNumberWithCommas(likesCount));
+            likesCountText.setText(ScTextUtils.formatNumber(resources, likesCount));
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
             heartIcon.setLevel(playlist.isLiked() ? 1 : 0);
         }

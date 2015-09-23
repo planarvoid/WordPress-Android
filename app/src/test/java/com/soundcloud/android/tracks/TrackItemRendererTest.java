@@ -93,7 +93,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldBindPlayCountToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        verify(trackItemView).showPlaycount("870");
+        verify(trackItemView).showPlaycount(870);
     }
 
     @Test

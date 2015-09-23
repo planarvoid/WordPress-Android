@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
@@ -60,7 +61,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final AdOverlayController.Factory adOverlayControllerFactory;
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
+    private final Resources resources;
     private final FeatureFlags featureFlags;
+
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
@@ -72,7 +75,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
-                              CastConnectionHelper castConnectionHelper, FeatureFlags featureFlags) {
+                              CastConnectionHelper castConnectionHelper, Resources resources, FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.imageOperations = imageOperations;
@@ -83,6 +86,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.adOverlayControllerFactory = adOverlayControllerFactory;
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
+        this.resources = resources;
         this.featureFlags = featureFlags;
     }
 
@@ -114,7 +118,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
-                        + view.getContext().getResources().getResourceName(view.getId()));
+                        + resources.getResourceName(view.getId()));
         }
     }
 
@@ -133,7 +137,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.user.setText(trackState.getUserName());
         holder.profileLink.setTag(trackState.getUserUrn());
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
-        setupRelatedTrack(trackView, trackState, holder);
+        setupRelatedTrack(trackState, holder);
 
         holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
@@ -159,7 +163,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setClickListener(this, holder.onClickViews);
     }
 
-    private void setupRelatedTrack(View trackView, PlayerTrackState trackState, TrackPageHolder holder) {
+    private void setupRelatedTrack(PlayerTrackState trackState, TrackPageHolder holder) {
         final boolean hasRelatedTrack = trackState.hasRelatedTrack();
         if (hasRelatedTrack && featureFlags.isEnabled(Flag.RECOMMENDED_PLAYER_CONTEXT)){
             holder.relatedToTrack.setText(trackState.getRelatedTrackTitle());
@@ -168,7 +172,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.relatedToTrackArtwork.setVisibility(View.VISIBLE);
 
             imageOperations.displayWithPlaceholder(trackState.getRelatedTrackUrn(),
-                    ApiImageSize.getSmallImageSize(trackView.getResources()), holder.relatedToTrackArtwork);
+                    ApiImageSize.getSmallImageSize(resources), holder.relatedToTrackArtwork);
         } else {
             clearRelated(holder);
         }
@@ -306,7 +310,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(ScTextUtils.formatLargeNumber(count));
+        holder.likeToggle.setText(ScTextUtils.formatNumber(resources, count));
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
@@ -361,7 +365,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.showBackground(visible);
 
         if (visible){
-            final int backgroundColor = holder.title.getResources().getColor(R.color.overlay_text_background);
+            final int backgroundColor = resources.getColor(R.color.overlay_text_background);
             holder.relatedToTrackArtwork.setBackgroundColor(backgroundColor);
             holder.relatedToTrack.setBackgroundColor(backgroundColor);
             holder.relatedTo.setBackgroundColor(backgroundColor);

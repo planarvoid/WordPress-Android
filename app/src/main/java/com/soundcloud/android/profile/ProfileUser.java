@@ -21,8 +21,8 @@ class ProfileUser {
         return source.get(UserProperty.USERNAME);
     }
 
-    public String getFollowerCount() {
-        return ScTextUtils.formatNumberWithCommas(source.get(UserProperty.FOLLOWERS_COUNT));
+    public long getFollowerCount() {
+        return source.get(UserProperty.FOLLOWERS_COUNT);
     }
 
     public boolean isFollowed() {

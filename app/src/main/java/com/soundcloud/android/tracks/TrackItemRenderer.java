@@ -132,10 +132,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void showPlayCount(TrackItemView itemView, TrackItem track) {
         final int playCount = track.getPlayCount();
         if (hasPlayCount(playCount)) {
-            itemView.showPlaycount(ScTextUtils.formatNumberWithCommas(playCount));
+            itemView.showPlaycount(playCount);
         }
     }
-
 
     private boolean hasPlayCount(int playCount) {
         return playCount > 0;

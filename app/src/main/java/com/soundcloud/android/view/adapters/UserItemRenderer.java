@@ -46,7 +46,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         final int followersCount = user.getFollowersCount();
         if (followersCount > Consts.NOT_SET) {
             followersCountText.setVisibility(View.VISIBLE);
-            followersCountText.setText(ScTextUtils.formatNumberWithCommas(followersCount));
+            followersCountText.setText(ScTextUtils.formatNumber(itemView.getResources(), followersCount));
         } else {
             followersCountText.setVisibility(View.GONE);
         }
