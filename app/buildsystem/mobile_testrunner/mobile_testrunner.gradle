@@ -173,13 +173,20 @@ def execute(Execution execution) {
     new Run(id: runId, numTests: numTests)
 }
 
-def int executeQueryForRemainingTests(runId) {
+def int executeQueryForRemainingTests(runId, numRetries) {
     def url = "$project.ext.mobileTestRunnerUrl/results/$runId/remaining_tests"
     def response = executeGet(url, null)
     if (null == response) {
-        throw new GradleException("Unable to query remaining tests for run id: $runId")
+        if(numRetries < 3) {
+            Thread.sleep(1000L)
+            executeQueryForRemaingTests(runId, numRetries + 1)
+        }
+        else {
+            throw new GradleException("Unable to query remaining tests for run id: $runId")
+        }
+    } else {
+        response.remaining_tests
     }
-    response.remaining_tests
 }
 
 def getAndShowNewResultsForRun(runId, retrievedResults) {
@@ -194,7 +201,7 @@ def getAndShowNewResultsForRun(runId, retrievedResults) {
 def TestResult[] getAndShowResultsForRun(Run run) {
     def retrievedResults = []
 
-    while ( executeQueryForRemainingTests(run.id) > 0 ) {
+    while ( executeQueryForRemainingTests(run.id, 0) > 0 ) {
         retrievedResults = getAndShowNewResultsForRun(run.id, retrievedResults)
         sleep(2000)
     }
