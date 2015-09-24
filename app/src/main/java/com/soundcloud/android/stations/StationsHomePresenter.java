@@ -91,8 +91,8 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
 
     private Observable<List<StationBucket>> buckets() {
         return Observable.concat(
-                bucket(StationsCollectionsTypes.SAVED, resources.getString(R.string.stations_collection_title_saved_stations)),
                 bucket(StationsCollectionsTypes.RECENT, resources.getString(R.string.stations_collection_title_recently_played_stations)),
+                bucket(StationsCollectionsTypes.SAVED, resources.getString(R.string.stations_collection_title_saved_stations)),
                 bucket(StationsCollectionsTypes.TRACK_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_track_recommendations)),
                 bucket(StationsCollectionsTypes.GENRE_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_genre_recommendations)),
                 bucket(StationsCollectionsTypes.CURATOR_RECOMMENDATIONS, resources.getString(R.string.stations_collection_title_curator_recommendations)))
