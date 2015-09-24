@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -63,8 +64,12 @@ public class Navigator {
         context.startActivity(createProfileIntent(context, user));
     }
 
-    public void openSearch(Context activityContext) {
-        startActivity(activityContext, SearchActivity.class);
+    public void openDiscovery(Context activityContext) {
+        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)) {
+            startActivity(activityContext, DiscoveryActivity.class);
+        } else {
+            startActivity(activityContext, SearchActivity.class);
+        }
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {

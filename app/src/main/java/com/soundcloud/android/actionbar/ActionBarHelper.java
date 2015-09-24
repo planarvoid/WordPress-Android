@@ -70,7 +70,7 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
     public boolean onOptionsItemSelected(final AppCompatActivity activity, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search:
-                navigator.openSearch(activity);
+                navigator.openDiscovery(activity);
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:
