@@ -13,6 +13,7 @@ import java.util.List;
 class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<CollectionsItem> {
 
     private OnRemoveFilterListener onRemoveFilterClickListener;
+
     private final View.OnClickListener onRemoveFilterClicked = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -20,7 +21,7 @@ class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<Collections
                 onRemoveFilterClickListener.onRemoveFilter();
             }
         }
-    };;
+    };
 
     interface OnRemoveFilterListener {
         void onRemoveFilter();
@@ -45,4 +46,5 @@ class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<Collections
     public void setOnRemoveFilterClickListener(OnRemoveFilterListener onSettingsClickListener) {
         this.onRemoveFilterClickListener = onSettingsClickListener;
     }
+
 }
