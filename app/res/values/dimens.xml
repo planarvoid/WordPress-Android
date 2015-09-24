@@ -105,7 +105,7 @@
     <dimen name="likes_header_padding_top">10dp</dimen>
     <dimen name="likes_header_padding_bottom">6dp</dimen>
     <dimen name="likes_header_padding_right">4dp</dimen>
-    <dimen name="likes_shuffle_button_padding">10dp</dimen>
+    <dimen name="likes_shuffle_button_padding">16dp</dimen>
     <dimen name="likes_shuffle_button_margin_left">8dp</dimen>
     <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
