@@ -13,9 +13,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.ViewAllStationsScreen;
-import com.soundcloud.android.screens.elements.StationsBucketElement;
-import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -36,10 +33,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setRequiredEnabledFeatures(Flag.STATIONS);
-
-        // TODO: Sync Stations upon login. Then remove this line!
-        menuScreen.open().clickStations().pullToRefresh();
+        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
         playlistDetailsScreen = menuScreen
                 .open()
@@ -91,52 +85,5 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         player.pressBackToCollapse();
         final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
         assertThat(resumedTrackTitle, is(equalTo(resumeCurrentlyPlayingStationTitle)));
-    }
-
-    public void testStartedStationShouldBeAddedToRecentStations() {
-        final String stationTitle = startStationAndReturnTitle();
-
-        final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
-
-        assertThat(recentStations.getFirstStation().getTitle(), is(equalTo(stationTitle)));
-        ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
-        assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
-    }
-
-    public void testStartStationFromBucket() throws Exception {
-        final String stationTitle = startStationAndReturnTitle();
-
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickStations()
-                .getRecentStationsBucket()
-                .findStation(With.text(stationTitle))
-                .click();
-
-        assertThat(player, is(visible()));
-    }
-
-    public void testStartStationFromViewAllStations() throws Exception {
-        final String stationTitle = startStationAndReturnTitle();
-
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickStations()
-                .getRecentStationsBucket()
-                .clickViewAll()
-                .findStation(With.text(stationTitle))
-                .click();
-
-        assertThat(player, is(visible()));
-    }
-
-    private String startStationAndReturnTitle() {
-        final TrackItemElement track = playlistDetailsScreen.getTrack(1);
-        final String title = track.getTitle();
-
-        track.clickOverflowButton().clickStartStation().pressBackToCollapse();
-        solo.goBack();
-
-        return title;
     }
 }

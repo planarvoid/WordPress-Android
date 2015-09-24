@@ -27,7 +27,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.STATIONS, Flag.EVENTLOGGER_AUDIO_V1);
+        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.STATIONS_HOME, Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
     }
 
