@@ -13,6 +13,7 @@ class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsView
     @Inject
     public StationsAdapter(StationRenderer renderer) {
         super(renderer);
+        this.setHasStableIds(true);
     }
 
     @Override
@@ -36,5 +37,10 @@ class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsView
     @Override
     public int getBasicItemViewType(int i) {
         return STATION_TYPE;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return getItem(position).getStation().getUrn().getNumericId();
     }
 }
