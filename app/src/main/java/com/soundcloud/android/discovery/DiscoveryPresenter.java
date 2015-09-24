@@ -12,6 +12,8 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -35,6 +37,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
 
     @Nullable private PlaylistTagsPresenter.Listener tagsListener;
 
@@ -44,13 +47,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
                        DiscoveryAdapter adapter,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackInitiator playbackInitiator,
-                       Navigator navigator) {
+                       Navigator navigator, FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.cards());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackInitiator = playbackInitiator;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -83,8 +87,16 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     @Override
     protected CollectionBinding<DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setOnRecommendationClickListener(this);
-        return CollectionBinding.from(discoveryOperations.recommendationsAndPlaylistDiscovery())
+        return CollectionBinding.from(buildDiscoveryItemsObservable())
                 .withAdapter(adapter).build();
+    }
+
+    private Observable<List<DiscoveryItem>> buildDiscoveryItemsObservable() {
+        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)) {
+            return discoveryOperations.discoveryItemsAndRecommendations();
+        } else {
+            return discoveryOperations.discoveryItems();
+        }
     }
 
     @Override

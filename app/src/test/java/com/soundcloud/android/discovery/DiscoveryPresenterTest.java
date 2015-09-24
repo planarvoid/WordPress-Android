@@ -16,6 +16,8 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
@@ -56,6 +58,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private DiscoveryAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
+    @Mock private FeatureFlags featureFlags;
 
     private DiscoveryPresenter presenter;
 
@@ -70,7 +73,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         this.presenter = new DiscoveryPresenter(swipeRefreshAttacher, discoveryOperations,
-                adapter, expandPlayerSubscriberProvider, playbackInitiator, navigator);
+                adapter, expandPlayerSubscriberProvider, playbackInitiator, navigator, featureFlags);
 
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -101,6 +104,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnViewAllShouldOpenRecommendations() {
+        enableRecommendations();
+
         Context context = mock(Context.class);
         RecommendationItem recommendationItem = mock(RecommendationItem.class);
         when(recommendationItem.getSeedTrackLocalId()).thenReturn(1L);
@@ -112,8 +117,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnRecommendationReasonPlaysSeedAndRecommendedTracks() {
+        enableRecommendations();
+
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
-        when(discoveryOperations.recommendationsAndPlaylistDiscovery()).thenReturn(discoveryItems);
+        when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
 
         PublishSubject<List<Urn>> recommendedTracksForSeed = PublishSubject.create();
         when(discoveryOperations.recommendedTracksWithSeed(any(RecommendationItem.class))).thenReturn(recommendedTracksForSeed);
@@ -131,8 +138,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnRecommendationArtworkPlaysRecommendedTracks() {
+        enableRecommendations();
+
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
-        when(discoveryOperations.recommendationsAndPlaylistDiscovery()).thenReturn(discoveryItems);
+        when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
 
         PublishSubject<List<Urn>> recommendedTracks = PublishSubject.create();
         when(discoveryOperations.recommendedTracks()).thenReturn(recommendedTracks);
@@ -146,5 +155,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onRecommendationArtworkClicked(recommendationItemOne);
+    }
+
+    private void enableRecommendations() {
+        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 }

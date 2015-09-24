@@ -38,8 +38,7 @@ public class DiscoveryOperations {
             new Func2<List<DiscoveryItem>, List<DiscoveryItem>, List<DiscoveryItem>>() {
                 @Override
                 public List<DiscoveryItem> call(List<DiscoveryItem> recommendations, List<DiscoveryItem> playlistTags) {
-                    List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size() + 1);
-                    combined.add(new SearchItem());
+                    List<DiscoveryItem> combined = new ArrayList<>(recommendations.size() + playlistTags.size());
                     combined.addAll(recommendations);
                     combined.addAll(playlistTags);
                     return combined;
@@ -53,6 +52,13 @@ public class DiscoveryOperations {
                     return Collections.<DiscoveryItem>singletonList(new PlaylistDiscoveryItem(popular, recent));
                 }
             };
+
+    private static final Func1<SearchItem, DiscoveryItem> SEARCH_TO_DISCOVERY_ITEM = new Func1<SearchItem, DiscoveryItem>() {
+        @Override
+        public DiscoveryItem call(SearchItem searchItem) {
+            return searchItem;
+        }
+    };
 
     private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
             new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
@@ -109,6 +115,10 @@ public class DiscoveryOperations {
                 .subscribeOn(scheduler);
     }
 
+    private Observable<DiscoveryItem> searchItem() {
+        return Observable.just(new SearchItem()).map(SEARCH_TO_DISCOVERY_ITEM);
+    }
+
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
         return playlistDiscoveryOperations.popularPlaylistTags()
                 .zipWith(
@@ -117,11 +127,18 @@ public class DiscoveryOperations {
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
-    Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
-        return recommendations()
-                .zipWith(
-                        playlistDiscovery(),
-                        TO_DISCOVERY_ITEMS_LIST)
+    Observable<List<DiscoveryItem>> discoveryItems() {
+        return searchItem()
+                .toList()
+                .concatWith(playlistDiscovery())
+                .subscribeOn(scheduler);
+    }
+
+    Observable<List<DiscoveryItem>> discoveryItemsAndRecommendations() {
+        return searchItem()
+                .toList()
+                .concatWith(recommendations()
+                        .zipWith(playlistDiscovery(), TO_DISCOVERY_ITEMS_LIST))
                 .subscribeOn(scheduler);
     }
 
@@ -130,6 +147,7 @@ public class DiscoveryOperations {
         //but we need to keep the seed track position inside the queue, thus,
         //we query all previous and subsequents tracks, put the seed track in
         //its position and build the list.
+        //TODO: Issue: https://github.com/soundcloud/SoundCloud-Android/issues/3705
         return recommendationsStorage.recommendedTracksBeforeSeed(recommendationItem.getSeedTrackLocalId())
                 .zipWith(
                         recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),
