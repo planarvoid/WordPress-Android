@@ -20,6 +20,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -187,7 +188,7 @@ class SoundStreamStorage {
 
         private void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
-            if (ScTextUtils.isNotBlank(reposter)) {
+            if (Strings.isNotBlank(reposter)) {
                 propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
             }
         }

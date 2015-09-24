@@ -11,12 +11,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -26,14 +26,18 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UserItemRendererTest {
 
-    @InjectMocks private UserItemRenderer renderer;
+    private UserItemRenderer renderer;
 
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
+
+    private final CondensedNumberFormatter numberFormatter =
+            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
 
     private View itemView;
     private PropertySet propertySet;
@@ -41,6 +45,8 @@ public class UserItemRendererTest {
 
     @Before
     public void setup() {
+        renderer = new UserItemRenderer(imageOperations, numberFormatter);
+
         propertySet = PropertySet.from(
                 UserProperty.URN.bind(Urn.forUser(2)),
                 UserProperty.USERNAME.bind("forss"),

@@ -17,7 +17,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -223,7 +223,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     @Override
     public Cursor runQueryOnBackgroundThread(@Nullable final CharSequence constraint) {
         suggestionsHandler.removeMessages(0);
-        final String searchQuery = ScTextUtils.safeToString(constraint).trim();
+        final String searchQuery = Strings.safeToString(constraint).trim();
         if (!TextUtils.isEmpty(searchQuery)) {
             currentConstraint = searchQuery;
             currentPattern = getHighlightPattern(currentConstraint);

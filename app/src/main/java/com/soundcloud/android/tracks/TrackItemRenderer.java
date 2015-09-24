@@ -8,6 +8,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
@@ -38,6 +40,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations,
+                             CondensedNumberFormatter numberFormatter,
                              TrackItemMenuPresenter trackItemMenuPresenter,
                              EventBus eventBus,
                              ScreenProvider screenProvider,
@@ -46,6 +49,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              TrackItemView.Factory trackItemViewFactory) {
 
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
@@ -130,12 +134,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void showPlayCount(TrackItemView itemView, TrackItem track) {
-        final int playCount = track.getPlayCount();
-        if (hasPlayCount(playCount)) {
-            itemView.showPlaycount(ScTextUtils.formatNumberWithCommas(playCount));
+        final int count = track.getPlayCount();
+        if (hasPlayCount(count)) {
+            itemView.showPlaycount(numberFormatter.format(count));
         }
     }
-
 
     private boolean hasPlayCount(int playCount) {
         return playCount > 0;

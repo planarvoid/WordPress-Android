@@ -13,11 +13,11 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -27,22 +27,28 @@ import android.widget.FrameLayout;
 import android.widget.ToggleButton;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
 public class FollowableUserItemRendererTest {
 
-    @InjectMocks private FollowableUserItemRenderer renderer;
+    private FollowableUserItemRenderer renderer;
 
     @Mock private FeatureFlags featureFlags;
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
     @Mock private NextFollowingOperations followingOperations;
 
+    private final CondensedNumberFormatter numberFormatter =
+            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+
     private View itemView;
     private ApiUser user;
 
     @Before
     public void setup() {
+        renderer = new FollowableUserItemRenderer(imageOperations, numberFormatter, followingOperations, featureFlags);
+
         final Context context = Robolectric.application;
         itemView = LayoutInflater.from(context).inflate(R.layout.user_list_item, new FrameLayout(context), false);
         user = ModelFixtures.create(ApiUser.class);

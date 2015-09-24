@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLException;
@@ -33,7 +33,7 @@ class SoundCloudHostnameVerifier implements HostnameVerifier {
     }
 
     private boolean verifyHostName(String hostname, List<String> altNames) {
-        if (altNames.isEmpty() || ScTextUtils.isBlank(hostname)) {
+        if (altNames.isEmpty() || Strings.isBlank(hostname)) {
             return false;
         }
         altNames.add(hostname);

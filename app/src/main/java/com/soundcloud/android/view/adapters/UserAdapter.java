@@ -16,10 +16,10 @@ import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
 import android.net.Uri;
@@ -85,7 +85,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
             @Override
             public boolean apply(PublicApiResource input) {
                 PublicApiUser user = ((UserHolder) input).getUser();
-                return ScTextUtils.isNotBlank(user.getUsername());
+                return Strings.isNotBlank(user.getUsername());
             }
         }));
     }

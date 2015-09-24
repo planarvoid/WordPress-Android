@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.Scheduler;
@@ -86,7 +85,7 @@ public class PlaylistTagStorage {
 
     private List<String> getStoredTags(String key) {
         String storedTags = sharedPreferences.getString(key, "");
-        if (ScTextUtils.isBlank(storedTags)) {
+        if (Strings.isBlank(storedTags)) {
             return new LinkedList<>();
         }
         return deserialize(storedTags);

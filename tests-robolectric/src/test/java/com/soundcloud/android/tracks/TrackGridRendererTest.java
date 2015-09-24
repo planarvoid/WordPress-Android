@@ -10,11 +10,12 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.view.View;
@@ -23,13 +24,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackGridRendererTest {
 
-    @InjectMocks private TrackGridRenderer renderer;
+    private TrackGridRenderer renderer;
 
     @Mock private ImageOperations imageOperations;
+
+    private final CondensedNumberFormatter numberFormatter =
+            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+
+    @Before
+    public void setUp() throws Exception {
+        renderer = new TrackGridRenderer(imageOperations, numberFormatter);
+    }
 
     @Test
     public void shouldCreateItemView() {

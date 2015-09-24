@@ -6,7 +6,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +20,12 @@ import java.util.List;
 public class UserItemRenderer implements CellRenderer<UserItem> {
 
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
 
     @Inject
-    public UserItemRenderer(ImageOperations imageOperations) {
+    public UserItemRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter) {
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
         final int followersCount = user.getFollowersCount();
         if (followersCount > Consts.NOT_SET) {
             followersCountText.setVisibility(View.VISIBLE);
-            followersCountText.setText(ScTextUtils.formatNumberWithCommas(followersCount));
+            followersCountText.setText(numberFormatter.format(followersCount));
         } else {
             followersCountText.setVisibility(View.GONE);
         }

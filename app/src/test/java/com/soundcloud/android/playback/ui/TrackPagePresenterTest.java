@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
@@ -39,17 +40,17 @@ import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowToast;
 
-import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private static final int DURATION = 20000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    @Mock private Resources resources;
     @Mock private WaveformOperations waveformOperations;
     @Mock private TrackPageListener listener;
     @Mock private WaveformViewController.Factory waveformFactory;
@@ -70,7 +71,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
+
+    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -80,9 +84,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, featureFlags);
+                errorControllerFactory, castConnectionHelper, resources(), featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

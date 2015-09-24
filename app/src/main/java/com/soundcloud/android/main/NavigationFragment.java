@@ -13,8 +13,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
@@ -107,7 +107,7 @@ public class NavigationFragment extends Fragment {
 
     public boolean handleIntent(Intent intent) {
         final String action = intent.getAction();
-        if (ScTextUtils.isNotBlank(action)) {
+        if (Strings.isNotBlank(action)) {
             switch (action) {
                 case Actions.STREAM:
                     selectItem(NavItem.STREAM);
@@ -148,7 +148,7 @@ public class NavigationFragment extends Fragment {
         final String host = data.getHost();
         return host != null && (STREAM.equals(host)
                         || STREAM.equals(data.getLastPathSegment())
-                        || (host.contains(SOUNDCLOUD_COM) && ScTextUtils.isBlank(data.getPath())));
+                        || (host.contains(SOUNDCLOUD_COM) && Strings.isBlank(data.getPath())));
     }
 
     @Override

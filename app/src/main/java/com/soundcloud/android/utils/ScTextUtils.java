@@ -3,11 +3,13 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -24,9 +26,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -37,27 +36,9 @@ public class ScTextUtils {
     );
 
     public static final String EMPTY_STRING = "";
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###,###");
-    public static final DecimalFormat ROUNDED_FORMAT = getRoundedFormat();
     public static final String SPACE_SEPARATOR = " ";
 
-    private ScTextUtils() {
-    }
-
-    @Deprecated // use Strings.isBlank
-    public static boolean isBlank(@Nullable String string) {
-        return Strings.isBlank(string);
-    }
-
-    @Deprecated // use Strings.isNotBlank
-    public static boolean isNotBlank(@Nullable String string) {
-        return Strings.isNotBlank(string);
-    }
-
-    @Deprecated // use Strings.safeToString
-    public static String safeToString(@Nullable Object object) {
-        return Strings.safeToString(object);
-    }
+    private ScTextUtils() {}
 
     /**
      * Prefer this method over Guava's Longs.tryParse and Java's parseLong, since the former will fail on 2.2 devices
@@ -147,7 +128,7 @@ public class ScTextUtils {
     }
 
     public static String getClippedString(String string, int maxLength) {
-        checkArgument(isNotBlank(string), "String must be non null/not empty");
+        checkArgument(Strings.isNotBlank(string), "String must be non null/not empty");
         int length = (string.length() < maxLength) ? string.length() : maxLength;
         return string.substring(0, length);
     }
@@ -244,17 +225,17 @@ public class ScTextUtils {
         if (otherFollowers == 0) {
             return r.getString(R.string.following_zero);
         } else {
-            String others = formatNumberWithCommas(otherFollowers);
+            final String others = formatNumber(r, otherFollowers);
             return r.getQuantityString(R.plurals.following_message, otherFollowers, others);
         }
     }
 
     public static String formatFollowersMessage(Resources r, int followers) {
-        return r.getQuantityString(R.plurals.followers_message, followers, formatNumberWithCommas(followers));
+        return r.getQuantityString(R.plurals.followers_message, followers, formatNumber(r, followers));
     }
 
-    public static boolean isNotBlank(CharSequence sequence) {
-        return sequence != null && isNotBlank(sequence.toString());
+    private static String formatNumber(Resources resources, long number) {
+        return CondensedNumberFormatter.create(Locale.getDefault(), resources).format(number);
     }
 
     public static class ClickSpan extends ClickableSpan {
@@ -274,7 +255,7 @@ public class ScTextUtils {
         }
 
         @Override
-        public void updateDrawState(TextPaint ds) {
+        public void updateDrawState(@NonNull TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(underline);
         }
@@ -303,47 +284,6 @@ public class ScTextUtils {
 
         @Override
         final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
-    }
-
-    public static String formatNumberWithCommas(long number) {
-        return DECIMAL_FORMAT.format(number);
-    }
-
-    private static DecimalFormat getRoundedFormat() {
-        final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-        final DecimalFormat format = new DecimalFormat("###,###.#", symbols);
-        format.setRoundingMode(RoundingMode.DOWN);
-        return format;
-    }
-
-    private static String shortenFactorialNumber(double number) {
-        return ROUNDED_FORMAT.format(number);
-    }
-
-    public static String shortenLargeNumber(int number) {
-        if (number <= 0) {
-            return EMPTY_STRING;
-        } else if (number >= 10000) {
-            return "9K+"; // top out at 9k or text gets too long again
-        } else if (number >= 1000) {
-            return number / 1000 + "K+";
-        } else {
-            return String.valueOf(number);
-        }
-    }
-
-    public static String formatLargeNumber(long number) {
-        if (number <= 0) {
-            return EMPTY_STRING;
-        } else if (number <= 9999) {
-            return formatNumberWithCommas(number);
-        } else if (number <= 999999) {
-            return shortenFactorialNumber(number / 1000.0) + "K";
-        } else if (number <= 999999999) {
-            return shortenFactorialNumber(number / 1000000.0) + "M";
-        } else {
-            return shortenFactorialNumber(number / 1000000000.0) + "BN";
-        }
     }
 
     public static String fromSnakeCaseToCamelCase(String string) {

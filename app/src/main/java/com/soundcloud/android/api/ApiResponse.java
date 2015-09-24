@@ -4,6 +4,7 @@ package com.soundcloud.android.api;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -75,7 +76,7 @@ public class ApiResponse {
     }
 
     public boolean hasResponseBody() {
-        return ScTextUtils.isNotBlank(responseBody);
+        return Strings.isNotBlank(responseBody);
     }
 
     public int getStatusCode() {

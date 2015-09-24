@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 
@@ -16,15 +17,18 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 public class TrackInfoPresenter {
+
     private final Resources resources;
+    private final CondensedNumberFormatter numberFormatter;
 
     interface CommentClickListener {
         void onCommentsClicked();
     }
 
     @Inject
-    public TrackInfoPresenter(Resources resources) {
+    public TrackInfoPresenter(Resources resources, CondensedNumberFormatter numberFormatter) {
         this.resources = resources;
+        this.numberFormatter = numberFormatter;
     }
 
     public View create(LayoutInflater inflater, ViewGroup container) {
@@ -119,7 +123,7 @@ public class TrackInfoPresenter {
 
     private void setStat(View view, int id, Integer count) {
         if (count > 0) {
-            setTextAndShow(view, id, String.valueOf(ScTextUtils.formatLargeNumber(count)));
+            setTextAndShow(view, id, numberFormatter.format(count));
         } else {
             view.findViewById(id).setVisibility(View.GONE);
         }

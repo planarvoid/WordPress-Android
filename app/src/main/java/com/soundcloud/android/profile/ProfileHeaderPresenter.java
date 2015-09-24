@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 class ProfileHeaderPresenter {
 
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
 
     @Bind(R.id.header_info_layout) View headerInfoLayout;
     @Bind(R.id.indicator) View tabs;
@@ -36,9 +38,10 @@ class ProfileHeaderPresenter {
     private Urn lastUser;
 
     public ProfileHeaderPresenter(Activity profileActivity, ImageOperations imageOperations,
-                                  AccountOperations accountOperations, final Urn user,
-                                  final NextFollowingOperations followingOperations) {
+                                  CondensedNumberFormatter numberFormatter, AccountOperations accountOperations,
+                                  final Urn user, final NextFollowingOperations followingOperations) {
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
 
         ButterKnife.bind(this, profileActivity);
 
@@ -58,7 +61,7 @@ class ProfileHeaderPresenter {
         collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
         collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
-        followerCount.setText(user.getFollowerCount());
+        followerCount.setText(numberFormatter.format(user.getFollowerCount()));
         followButton.setChecked(user.isFollowed());
 
         if (!user.getUrn().equals(lastUser)){
@@ -72,19 +75,22 @@ class ProfileHeaderPresenter {
     public static class ProfileHeaderPresenterFactory {
 
         private final ImageOperations imageOperations;
+        private final CondensedNumberFormatter numberFormatter;
         private final AccountOperations accountOperations;
         private final NextFollowingOperations followingOperations;
 
         @Inject
-        public ProfileHeaderPresenterFactory(ImageOperations imageOperations, AccountOperations accountOperations,
-                                             NextFollowingOperations followingOperations) {
+        public ProfileHeaderPresenterFactory(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
+                                             AccountOperations accountOperations, NextFollowingOperations followingOperations) {
             this.imageOperations = imageOperations;
+            this.numberFormatter = numberFormatter;
             this.accountOperations = accountOperations;
             this.followingOperations = followingOperations;
         }
 
         ProfileHeaderPresenter create(Activity profileActivity, Urn user) {
-            return new ProfileHeaderPresenter(profileActivity, imageOperations, accountOperations, user, followingOperations);
+            return new ProfileHeaderPresenter(profileActivity, imageOperations, numberFormatter, accountOperations,
+                    user, followingOperations);
         }
     }
 

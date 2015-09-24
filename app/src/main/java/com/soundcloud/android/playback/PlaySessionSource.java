@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -133,11 +134,11 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public String getInitialSource() {
-        return ScTextUtils.isNotBlank(exploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
+        return Strings.isNotBlank(exploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
     }
 
     public String getInitialSourceVersion() {
-        return ScTextUtils.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
+        return Strings.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
     }
 
     public boolean isFromQuery() {

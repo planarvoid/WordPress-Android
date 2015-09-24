@@ -2,8 +2,8 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 
 class ProfileUser {
 
@@ -21,8 +21,8 @@ class ProfileUser {
         return source.get(UserProperty.USERNAME);
     }
 
-    public String getFollowerCount() {
-        return ScTextUtils.formatNumberWithCommas(source.get(UserProperty.FOLLOWERS_COUNT));
+    public long getFollowerCount() {
+        return source.get(UserProperty.FOLLOWERS_COUNT);
     }
 
     public boolean isFollowed() {
@@ -54,10 +54,10 @@ class ProfileUser {
     }
 
     public boolean hasDetails() {
-        return ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.DESCRIPTION))
-                || ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.DISCOGS_NAME))
-                || ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.WEBSITE_URL))
-                || ScTextUtils.isNotBlank(source.getOrElseNull(UserProperty.MYSPACE_NAME));
+        return Strings.isNotBlank(source.getOrElseNull(UserProperty.DESCRIPTION))
+                || Strings.isNotBlank(source.getOrElseNull(UserProperty.DISCOGS_NAME))
+                || Strings.isNotBlank(source.getOrElseNull(UserProperty.WEBSITE_URL))
+                || Strings.isNotBlank(source.getOrElseNull(UserProperty.MYSPACE_NAME));
     }
 
     @Override

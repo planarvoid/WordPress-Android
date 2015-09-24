@@ -150,7 +150,7 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
             clearFocus();
         }
 
-        if (ScTextUtils.isNotBlank(query)) {
+        if (Strings.isNotBlank(query)) {
             setQuery(query);
         }
     }

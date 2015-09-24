@@ -28,10 +28,12 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -75,6 +77,7 @@ public class LegacyProfileActivity extends ScActivity implements
     protected SlidingTabLayout indicator;
     /* package */ @Nullable PublicApiUser user;
     @Inject ImageOperations imageOperations;
+    @Inject CondensedNumberFormatter numberFormatter;
     @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
     @Inject FeatureFlags featureFlags;
@@ -257,14 +260,14 @@ public class LegacyProfileActivity extends ScActivity implements
                 followerCount.setVisibility(View.GONE);
             } else {
                 followerCount.setVisibility(View.VISIBLE);
-                followerCount.setText(ScTextUtils.formatNumberWithCommas(user.followers_count));
+                followerCount.setText(numberFormatter.format(user.followers_count));
             }
         }
 
         setFollowersMessage();
 
         if (location != null) {
-            if (ScTextUtils.isBlank(user.getLocation())) {
+            if (Strings.isBlank(user.getLocation())) {
                 location.setVisibility(View.GONE);
             } else {
                 location.setVisibility(View.VISIBLE);

@@ -27,8 +27,8 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -324,7 +324,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     private String buildShareIntentText() {
-        if (ScTextUtils.isNotBlank(playlistWithTracks.getCreatorName())) {
+        if (Strings.isNotBlank(playlistWithTracks.getCreatorName())) {
             return context.getString(R.string.share_track_by_artist_on_soundcloud,
                     playlistWithTracks.getTitle(), playlistWithTracks.getCreatorName(), playlistWithTracks.getPermalinkUrl());
         }

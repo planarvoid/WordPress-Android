@@ -18,6 +18,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
@@ -78,7 +79,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         final String commentText = input.getText().toString();
-                        if (ScTextUtils.isNotBlank(commentText)) {
+                        if (Strings.isNotBlank(commentText)) {
                             onAddComment(commentText);
                             dismiss();
                         }

@@ -22,7 +22,7 @@ import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,7 +67,7 @@ public class LoginTask extends AuthTask {
             Token token = tokenUtils.getToken(data);
             String conflictingDeviceId = data.getString(CONFLICTING_DEVICE_KEY);
 
-            if (ScTextUtils.isBlank(conflictingDeviceId)) {
+            if (Strings.isBlank(conflictingDeviceId)) {
                 DeviceManagement deviceManagement = configurationOperations.registerDevice(token);
                 if (deviceManagement.isNotAuthorized()) {
                     data.putString(CONFLICTING_DEVICE_KEY, deviceManagement.getConflictingDeviceId());

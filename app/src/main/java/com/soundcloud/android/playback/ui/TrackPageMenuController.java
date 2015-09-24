@@ -19,6 +19,7 @@ import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -195,7 +196,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     private String buildText(PlayerTrackState track) {
-        if (ScTextUtils.isNotBlank(track.getUserName())) {
+        if (Strings.isNotBlank(track.getUserName())) {
             return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(),
                     track.getUserName(), track.getPermalinkUrl());
         }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import java.io.File;
 import java.util.HashMap;
@@ -86,7 +86,7 @@ public final class OnboardingEvent {
     @SuppressWarnings("PMD.ConfusingTernary")
     public static OnboardingEvent savedUserInfo(String username, File avatarFile) {
         return new OnboardingEvent(USER_INFO)
-                .put(USER_INFO_ADDED_USERNAME, ScTextUtils.isNotBlank(username) ? YES : NO)
+                .put(USER_INFO_ADDED_USERNAME, Strings.isNotBlank(username) ? YES : NO)
                 .put(USER_INFO_ADDED_PICTURE, avatarFile != null ? YES : NO);
     }
 

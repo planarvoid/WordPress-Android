@@ -93,8 +93,8 @@ public class TrackItemView {
         ViewUtils.unsetTouchClickable(promoted);
     }
 
-    public void showPlaycount(String text) {
-        playCount.setText(text);
+    public void showPlaycount(String playcount) {
+        playCount.setText(playcount);
         playCount.setVisibility(View.VISIBLE);
     }
 

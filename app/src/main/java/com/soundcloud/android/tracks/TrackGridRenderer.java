@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
@@ -19,10 +19,12 @@ import java.util.List;
 public class TrackGridRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
 
     @Inject
-    TrackGridRenderer(ImageOperations imageOperations) {
+    TrackGridRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter) {
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
     }
 
     @Override
@@ -54,8 +56,7 @@ public class TrackGridRenderer implements CellRenderer<TrackItem> {
             viewHolder.genre.setText("#" + track.getGenre());
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
-        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlayCount());
-        viewHolder.playcount.setText(playcountWithCommas);
+        viewHolder.playcount.setText(numberFormatter.format(track.getPlayCount()));
 
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
         imageOperations.displayInAdapterView(track.getEntityUrn(), apiImageSize, viewHolder.imageView);

@@ -32,10 +32,10 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.UserAdapter;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -455,7 +455,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     protected String getRelatedUsername() {
-        return ScTextUtils.safeToString(getArguments().getString(EXTRA_USERNAME));
+        return Strings.safeToString(getArguments().getString(EXTRA_USERNAME));
     }
 
     protected Screen getScreen() {

@@ -20,6 +20,7 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
@@ -53,6 +55,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -60,22 +63,26 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final AdOverlayController.Factory adOverlayControllerFactory;
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
+    private final Resources resources;
     private final FeatureFlags featureFlags;
+
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
                               ImageOperations imageOperations,
+                              CondensedNumberFormatter numberFormatter,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
-                              CastConnectionHelper castConnectionHelper, FeatureFlags featureFlags) {
+                              CastConnectionHelper castConnectionHelper, Resources resources, FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -83,6 +90,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.adOverlayControllerFactory = adOverlayControllerFactory;
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
+        this.resources = resources;
         this.featureFlags = featureFlags;
     }
 
@@ -114,7 +122,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
-                        + view.getContext().getResources().getResourceName(view.getId()));
+                        + resources.getResourceName(view.getId()));
         }
     }
 
@@ -133,7 +141,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.user.setText(trackState.getUserName());
         holder.profileLink.setTag(trackState.getUserUrn());
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
-        setupRelatedTrack(trackView, trackState, holder);
+        setupRelatedTrack(trackState, holder);
 
         holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
@@ -159,7 +167,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setClickListener(this, holder.onClickViews);
     }
 
-    private void setupRelatedTrack(View trackView, PlayerTrackState trackState, TrackPageHolder holder) {
+    private void setupRelatedTrack(PlayerTrackState trackState, TrackPageHolder holder) {
         final boolean hasRelatedTrack = trackState.hasRelatedTrack();
         if (hasRelatedTrack && featureFlags.isEnabled(Flag.RECOMMENDED_PLAYER_CONTEXT)){
             holder.relatedToTrack.setText(trackState.getRelatedTrackTitle());
@@ -168,7 +176,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.relatedToTrackArtwork.setVisibility(View.VISIBLE);
 
             imageOperations.displayWithPlaceholder(trackState.getRelatedTrackUrn(),
-                    ApiImageSize.getSmallImageSize(trackView.getResources()), holder.relatedToTrackArtwork);
+                    ApiImageSize.getSmallImageSize(resources), holder.relatedToTrackArtwork);
         } else {
             clearRelated(holder);
         }
@@ -306,7 +314,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(ScTextUtils.formatLargeNumber(count));
+        holder.likeToggle.setText(numberFormatter.format(count));
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
@@ -361,7 +369,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.showBackground(visible);
 
         if (visible){
-            final int backgroundColor = holder.title.getResources().getColor(R.color.overlay_text_background);
+            final int backgroundColor = resources.getColor(R.color.overlay_text_background);
             holder.relatedToTrackArtwork.setBackgroundColor(backgroundColor);
             holder.relatedToTrack.setBackgroundColor(backgroundColor);
             holder.relatedTo.setBackgroundColor(backgroundColor);

@@ -7,6 +7,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.View;
@@ -18,13 +19,14 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
 
     @Inject
     public DownloadableTrackItemRenderer(ImageOperations imageOperations,
+                                         CondensedNumberFormatter numberFormatter,
                                          TrackItemMenuPresenter trackItemMenuPresenter,
                                          EventBus eventBus,
                                          FeatureOperations featureOperations,
                                          ScreenProvider screenProvider,
                                          Navigator navigator,
                                          TrackItemView.Factory trackItemViewFactory) {
-        super(imageOperations, trackItemMenuPresenter,
+        super(imageOperations, numberFormatter, trackItemMenuPresenter,
                 eventBus, screenProvider, navigator,
                 featureOperations, trackItemViewFactory);
     }
