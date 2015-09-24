@@ -28,7 +28,6 @@ public class CollectionsFragment extends LightCycleSupportFragment implements Re
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
-
     @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {
         return (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);

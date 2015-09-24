@@ -62,9 +62,10 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
-    private CompositeSubscription eventSubscriptions;
 
+    private CompositeSubscription eventSubscriptions;
     private CollectionsOptions currentOptions;
+
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
@@ -165,4 +166,5 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         return (currentOptions.showLikes() && !currentOptions.showPosts())
                 || !currentOptions.showLikes() && currentOptions.showPosts();
     }
+
 }
