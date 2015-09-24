@@ -83,7 +83,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         this.eventBus = eventBus;
         adapter.setListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
-
     }
 
     @Override
@@ -106,7 +105,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setBackgroundColor(view.getResources().getColor(R.color.collections_home_background));
     }
 
     @Override
@@ -135,7 +133,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @NonNull
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {
-        return new GridLayoutManager.SpanSizeLookup(){
+        return new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
                 return adapter.getItem(position).isPlaylistItem() ? 1 : spanCount;

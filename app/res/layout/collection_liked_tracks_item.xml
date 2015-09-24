@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:orientation="vertical">
+
+    <View
+        android:layout_height="16dp"
+        android:layout_width="match_parent"
+        android:background="@color/collections_home_background"
+        android:clickable="true"
+        android:focusable="false" />
+
+    <View style="@style/Divider.Horizontal" />
 
     <LinearLayout
+        android:id="@+id/holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:background="?android:attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="12dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="12dp">
 
-        <View style="@style/Divider.Horizontal"/>
-
-        <LinearLayout
-            android:id="@+id/holder"
-            android:layout_width="match_parent"
+        <TextView
+            style="@style/Collections.YourLikedTracks"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:layout_weight="1"
+            android:width="0dp"
+            android:drawableLeft="@drawable/collections_likes_icon"
+            android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="12dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="12dp">
-
-            <TextView
-                style="@style/Collections.YourLikedTracks"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:width="0dp"
-                android:drawableLeft="@drawable/collections_likes_icon"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:text="@string/collections_your_liked_tracks" />
-
-        </LinearLayout>
-
-        <View style="@style/Divider.Horizontal"/>
+            android:text="@string/collections_your_liked_tracks" />
 
     </LinearLayout>
-</FrameLayout>
+
+    <View style="@style/Divider.Horizontal"/>
+
+</LinearLayout>
