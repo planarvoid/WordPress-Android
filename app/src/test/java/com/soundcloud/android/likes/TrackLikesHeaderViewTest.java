@@ -67,10 +67,9 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showNumberOfLikedTracksForZeroLikedTracks() {
+    public void hideHeaderViewForZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(0);
-        assertThat(getHeaderText()).hasText(RuntimeEnvironment.application.getResources()
-                .getString(R.string.number_of_liked_tracks_you_liked_zero));
+        assertThat(trackLikesHeaderView.getHeaderView()).isGone();
     }
 
     @Test

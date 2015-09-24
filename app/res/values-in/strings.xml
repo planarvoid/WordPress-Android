@@ -42,7 +42,6 @@
   <string name="unable_to_play_related_tracks">Tidak dapat memutar lagu-lagu yang terkait</string>
   <string name="loading_related_tracks">Memuat lagu-lagu yang terkait...</string>
   <string name="following_zero">Diikuti oleh Anda</string>
-  <string name="number_of_liked_tracks_you_liked_zero">Anda belum punya lagu-lagu yang disukai</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Telusuri SoundCloud</string>
   <string name="accessibility_stats_user_liked">Disukai oleh Anda</string>

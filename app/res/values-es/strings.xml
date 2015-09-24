@@ -42,7 +42,6 @@
   <string name="unable_to_play_related_tracks">No se puede reproducir pistas similares</string>
   <string name="loading_related_tracks">Cargando pistas similares...</string>
   <string name="following_zero">Le sigues tú</string>
-  <string name="number_of_liked_tracks_you_liked_zero">No tienes pistas que te gusten</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Buscar en SoundCloud</string>
   <string name="accessibility_stats_user_liked">Te gusta</string>

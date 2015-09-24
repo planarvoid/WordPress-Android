@@ -44,7 +44,6 @@
     <string name="loading_related_tracks">Loading related tracks...</string>
 
     <string name="following_zero">Followed by you</string>
-    <string name="number_of_liked_tracks_you_liked_zero">You have no liked tracks</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Search SoundCloud</string>

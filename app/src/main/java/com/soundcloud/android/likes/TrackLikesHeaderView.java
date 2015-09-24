@@ -73,6 +73,7 @@ class TrackLikesHeaderView {
 
     void updateTrackCount(int trackCount) {
         this.trackCount = trackCount;
+        headerView.setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
         downloadableHeaderView.setHeaderText(getHeaderText(trackCount));
         updateShuffleButton(trackCount);
     }
@@ -82,11 +83,7 @@ class TrackLikesHeaderView {
     }
 
     private String getHeaderText(int likedTracks) {
-        if (likedTracks == 0) {
-            return resources.getString(R.string.number_of_liked_tracks_you_liked_zero);
-        } else {
-            return resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
-        }
+        return resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
     }
 
     private void updateShuffleButton(int likedTracks) {

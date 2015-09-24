@@ -42,7 +42,6 @@
   <string name="unable_to_play_related_tracks">Não é possível reproduzir as faixas relacionadas</string>
   <string name="loading_related_tracks">Carregando faixas relacionadas...</string>
   <string name="following_zero">Seguido por você</string>
-  <string name="number_of_liked_tracks_you_liked_zero">Você não curtiu nenhuma faixa</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Pesquisar na SoundCloud</string>
   <string name="accessibility_stats_user_liked">Curtido por você</string>
