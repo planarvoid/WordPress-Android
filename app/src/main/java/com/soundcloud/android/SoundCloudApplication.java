@@ -177,7 +177,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             playPublisher.subscribe();
         }
 
-        if (featureFlags.isEnabled(Flag.STATIONS)) {
+        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
             stationsController.subscribe();
         }
 

@@ -331,7 +331,7 @@ public class NavigationFragment extends Fragment {
     public NavItem[] getEnabledNavItems() {
 
         List<NavItem> navItems = new ArrayList<>();
-        if (featureFlags.isEnabled(Flag.STATIONS)) {
+        if (featureFlags.isEnabled(Flag.STATIONS_HOME)) {
             navItems.add(NavItem.STATIONS);
         }
         navItems.add(NavItem.STREAM);

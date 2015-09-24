@@ -125,7 +125,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist());
         menu.setItemVisible(R.id.play_related_tracks, featureFlags.isEnabled(Flag.PLAY_RELATED_TRACKS));
         menu.setItemEnabled(R.id.play_related_tracks, IOUtils.isConnected(button.getContext()));
-        menu.setItemVisible(R.id.start_radio, featureFlags.isEnabled(Flag.STATIONS));
+        menu.setItemVisible(R.id.start_radio, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
         menu.setItemEnabled(R.id.start_radio, IOUtils.isConnected(button.getContext()));
         menu.show();
         return menu;
