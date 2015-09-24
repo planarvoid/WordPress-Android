@@ -11,6 +11,8 @@ import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -20,7 +22,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.testsupport.FragmentRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,10 +34,6 @@ import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
 import javax.inject.Provider;
 import java.util.Arrays;
@@ -47,18 +45,17 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     private static final Urn SEED_TRACK_URN = Urn.forTrack(1L);
     private static final Urn RECOMMENDATION_URN = Urn.forTrack(2L);
     private static final Urn RECOMMENDED_TRACK_URN = Urn.forTrack(3L);
+    private static final Urn SUGGESTED_TRACK_URN = Urn.forTrack(4L);
+    private static final Urn SUGGESTED_USER_URN = Urn.forUser(5L);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private View view;
-    @Mock private Fragment fragment;
-    @Mock private RecyclerView recyclerView;
-    @Mock private EmptyView emptyView;
-    @Mock private Resources resources;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private DiscoveryAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private FeatureFlags featureFlags;
+
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
     private DiscoveryPresenter presenter;
 
@@ -75,13 +72,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         this.presenter = new DiscoveryPresenter(swipeRefreshAttacher, discoveryOperations,
                 adapter, expandPlayerSubscriberProvider, playbackInitiator, navigator, featureFlags);
 
-        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
-        when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(view.getContext()).thenReturn(context());
-        when(view.getResources()).thenReturn(context().getResources());
-        when(recyclerView.getAdapter()).thenReturn(adapter);
         when(recommendationItemOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);
+        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 
     @Test
@@ -90,13 +84,13 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         exception.expectMessage("Host activity must be a " + PlaylistTagsPresenter.Listener.class);
 
         Activity activity = mock(Activity.class);
-        presenter.onAttach(fragment, activity);
+        presenter.onAttach(fragmentRule.getFragment(), activity);
     }
 
     @Test
     public void selectPlayListTagShouldCallActivityListener() {
         Activity activity = mock(Activity.class, withSettings().extraInterfaces(PlaylistTagsPresenter.Listener.class));
-        presenter.onAttach(fragment, activity);
+        presenter.onAttach(fragmentRule.getFragment(), activity);
         presenter.onTagSelected("#rock");
 
         verify((PlaylistTagsPresenter.Listener) activity).onTagSelected("#rock");
@@ -104,8 +98,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnViewAllShouldOpenRecommendations() {
-        enableRecommendations();
-
         Context context = mock(Context.class);
         RecommendationItem recommendationItem = mock(RecommendationItem.class);
         when(recommendationItem.getSeedTrackLocalId()).thenReturn(1L);
@@ -117,8 +109,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickOnRecommendationReasonPlaysSeedAndRecommendedTracks() {
-        enableRecommendations();
-
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
         when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
 
@@ -131,15 +121,13 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(playbackInitiator.playTracks(eq(recommendedTracksForSeed), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onRecommendationReasonClicked(recommendationItemOne);
     }
 
     @Test
     public void clickOnRecommendationArtworkPlaysRecommendedTracks() {
-        enableRecommendations();
-
         PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
         when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
 
@@ -152,13 +140,44 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(playbackInitiator.playTracks(eq(recommendedTracks), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onRecommendationArtworkClicked(recommendationItemOne);
     }
 
-    private void enableRecommendations() {
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+    @Test
+    public void onTextSearchPerformOpenSearchResults() {
+        final Context context = context();
+        final String searchQuery = "anyQuery";
+
+        presenter.onSearchTextPerformed(context, searchQuery);
+
+        verify(navigator).openSearchResults(context, searchQuery);
+    }
+
+    @Test
+    public void playsSuggestedTrackFromSearch() {
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(SUGGESTED_TRACK_URN);
+
+        PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
+        when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
+        when(playbackInitiator.startPlaybackWithRecommendations(SUGGESTED_TRACK_URN, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo))
+                .thenReturn(Observable.just(PlaybackResult.success()));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        presenter.onLaunchSearchSuggestion(context(), SUGGESTED_TRACK_URN, searchQuerySourceInfo, null);
+
+        verify(playbackInitiator).startPlaybackWithRecommendations(SUGGESTED_TRACK_URN, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo);
+    }
+
+    @Test
+    public void launchesSearchSuggestion() {
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(SUGGESTED_USER_URN);
+        final Context context = context();
+
+        presenter.onLaunchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
+
+        verify(navigator).launchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
     }
 }

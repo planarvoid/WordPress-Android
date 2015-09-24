@@ -70,9 +70,11 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(2);
 
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(2);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
         assertPlaylistDiscoItem(discoveryItems.get(1), POPULAR_TAGS, RECENT_TAGS);
     }
@@ -86,9 +88,11 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(2);
 
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(2);
 
+        assertSearchItem(searchItem);
         assertPlaylistDiscoItem(discoveryItems.get(1), POPULAR_TAGS, RECENT_TAGS);
     }
 
@@ -102,9 +106,11 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(2);
 
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertPlaylistDiscoItem(discoveryItems.get(0), POPULAR_TAGS, RECENT_TAGS);
     }
 
@@ -118,9 +124,11 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(2);
 
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
@@ -134,9 +142,11 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(2);
 
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
         final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
@@ -215,6 +225,10 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         verify(storeRecommendationsCommand).clearTables();
         verify(discoverySyncer).clearLastSyncTime();
         verify(playlistDiscoveryOperations).clearData();
+    }
+
+    private void assertSearchItem(DiscoveryItem discoveryItem) {
+        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.SearchItem);
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
