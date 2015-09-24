@@ -127,7 +127,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     private void playSearchSuggestedTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
+        playbackInitiator.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 }

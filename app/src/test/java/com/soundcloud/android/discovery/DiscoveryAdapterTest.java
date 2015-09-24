@@ -17,12 +17,13 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock private RecommendationItemRenderer recommendationItemRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
+    @Mock private SearchItemRenderer searchItemRenderer;
 
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationItemRenderer, playlistTagRenderer);
+        adapter = new DiscoveryAdapter(recommendationItemRenderer, playlistTagRenderer, searchItemRenderer);
     }
 
     @Test
