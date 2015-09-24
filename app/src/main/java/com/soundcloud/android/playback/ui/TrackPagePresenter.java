@@ -20,6 +20,7 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -54,6 +55,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -69,6 +71,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
                               ImageOperations imageOperations,
+                              CondensedNumberFormatter numberFormatter,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
@@ -79,6 +82,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -310,7 +314,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(ScTextUtils.formatNumber(resources, count));
+        holder.likeToggle.setText(numberFormatter.format(count));
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {

@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
@@ -42,6 +43,8 @@ import org.robolectric.shadows.ShadowToast;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
@@ -68,7 +71,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
+
+    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -78,7 +84,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources(), featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);

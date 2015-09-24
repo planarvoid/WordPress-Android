@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import junit.framework.TestCase;
@@ -19,15 +20,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.Locale;
+
 @RunWith(SoundCloudTestRunner.class)
 public class TrackInfoPresenterTest extends TestCase {
+
     private View view;
     private TrackInfoPresenter presenter;
+
     @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
+
+    private final CondensedNumberFormatter numberFormatter =
+            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackInfoPresenter(Robolectric.application.getResources());
+        presenter = new TrackInfoPresenter(Robolectric.application.getResources(), numberFormatter);
         view = presenter.create(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application));
     }
 

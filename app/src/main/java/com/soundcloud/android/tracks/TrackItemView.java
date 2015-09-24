@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
@@ -94,8 +93,8 @@ public class TrackItemView {
         ViewUtils.unsetTouchClickable(promoted);
     }
 
-    public void showPlaycount(long count) {
-        playCount.setText(ScTextUtils.formatNumber(playCount.getResources(), count));
+    public void showPlaycount(String playcount) {
+        playCount.setText(playcount);
         playCount.setVisibility(View.VISIBLE);
     }
 

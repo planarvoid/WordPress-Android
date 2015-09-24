@@ -6,8 +6,8 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +24,7 @@ import javax.inject.Inject;
 public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final Context context;
+    private final CondensedNumberFormatter numberFormatter;
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -36,9 +37,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
-    public PlaylistEngagementsView(Context context, PopupMenuWrapper.Factory popupMenuWrapperFactory,
+    public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter, PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                    DownloadableHeaderView downloadableHeaderView) {
         this.context = context;
+        this.numberFormatter = numberFormatter;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadableHeaderView = downloadableHeaderView;
@@ -178,7 +180,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
                                       int checkedStringId) {
-        final String buttonLabel = ScTextUtils.formatNumber(resources, count);
+        final String buttonLabel = numberFormatter.format(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
         button.setChecked(checked);

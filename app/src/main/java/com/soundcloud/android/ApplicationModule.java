@@ -38,6 +38,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
@@ -69,6 +70,7 @@ import android.telephony.TelephonyManager;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.Locale;
 
 @Module(library = true, includes = {ApiModule.class, StorageModule.class})
 public class ApplicationModule {
@@ -96,6 +98,11 @@ public class ApplicationModule {
     @Provides
     public Resources provideResources() {
         return application.getResources();
+    }
+
+    @Provides
+    public CondensedNumberFormatter provideNumberFormatter() {
+        return CondensedNumberFormatter.create(Locale.getDefault(), application.getResources());
     }
 
     @Provides

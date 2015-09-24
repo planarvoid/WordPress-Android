@@ -16,6 +16,7 @@ import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -32,6 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistItemRendererTest {
@@ -43,6 +45,9 @@ public class PlaylistItemRendererTest {
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
     @Mock private Navigator navigator;
+
+    private final CondensedNumberFormatter numberFormatter =
+            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
 
     private View itemView;
 
@@ -64,8 +69,8 @@ public class PlaylistItemRendererTest {
         final Context context = Robolectric.application;
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, playlistItemMenuPresenter,
-                eventBus, screenProvider, navigator);
+        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, numberFormatter,
+                playlistItemMenuPresenter, eventBus, screenProvider, navigator);
     }
 
     @Test

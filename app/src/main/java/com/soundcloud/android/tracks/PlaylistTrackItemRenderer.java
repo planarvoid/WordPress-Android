@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.model.Urn;
 
@@ -22,10 +23,12 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     private Urn pageUrn = Urn.NOT_SET;
 
     @Inject
-    public PlaylistTrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                                     EventBus eventBus, FeatureOperations featureOperations,
-                                     ScreenProvider screenProvider, Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
-        super(imageOperations, trackItemMenuPresenter, eventBus, featureOperations, screenProvider, navigator, trackItemViewFactory);
+    public PlaylistTrackItemRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
+                                     TrackItemMenuPresenter trackItemMenuPresenter, EventBus eventBus,
+                                     FeatureOperations featureOperations, ScreenProvider screenProvider,
+                                     Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
+        super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus, featureOperations, screenProvider,
+                navigator, trackItemViewFactory);
     }
 
     public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {

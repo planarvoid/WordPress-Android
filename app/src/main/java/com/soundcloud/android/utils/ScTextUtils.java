@@ -234,6 +234,10 @@ public class ScTextUtils {
         return r.getQuantityString(R.plurals.followers_message, followers, formatNumber(r, followers));
     }
 
+    private static String formatNumber(Resources resources, long number) {
+        return CondensedNumberFormatter.create(Locale.getDefault(), resources).format(number);
+    }
+
     public static class ClickSpan extends ClickableSpan {
         private final OnClickListener listener;
         private final boolean underline;
@@ -280,10 +284,6 @@ public class ScTextUtils {
 
         @Override
         final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
-    }
-
-    public static String formatNumber(Resources resources, long number) {
-        return CondensedNumberFormatter.create(Locale.getDefault(), resources).format(number);
     }
 
     public static String fromSnakeCaseToCamelCase(String string) {

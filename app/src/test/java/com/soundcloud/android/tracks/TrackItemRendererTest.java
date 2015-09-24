@@ -14,14 +14,14 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -30,10 +30,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class TrackItemRendererTest extends AndroidUnitTest {
 
-    @InjectMocks
     private TrackItemRenderer renderer;
 
     @Mock private LayoutInflater inflater;
@@ -43,14 +43,20 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private Navigator navigator;
     @Mock private View itemView;
-    @Mock private TrackItemView trackItemView;
     @Mock private ImageView imageView;
+    @Mock private TrackItemView trackItemView;
+    @Mock private TrackItemView.Factory trackItemViewFactory;
 
     private PropertySet propertySet;
     private TrackItem trackItem;
 
+    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
+
     @Before
     public void setUp() throws Exception {
+        renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
+                screenProvider, navigator, featureOperations, trackItemViewFactory);
+
         propertySet = PropertySet.from(
                 TrackProperty.TITLE.bind("title"),
                 TrackProperty.CREATOR_NAME.bind("creator"),
@@ -93,7 +99,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldBindPlayCountToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        verify(trackItemView).showPlaycount(870);
+        verify(trackItemView).showPlaycount(numberFormatter.format(870));
     }
 
     @Test

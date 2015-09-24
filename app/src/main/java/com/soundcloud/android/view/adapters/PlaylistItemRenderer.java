@@ -9,7 +9,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -30,15 +30,18 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final CondensedNumberFormatter numberFormatter;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
+
     private boolean allowOfflineOptions;
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
                                 ImageOperations imageOperations,
+                                CondensedNumberFormatter numberFormatter,
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 EventBus eventBus,
                                 ScreenProvider screenProvider,
@@ -46,6 +49,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.numberFormatter = numberFormatter;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
@@ -163,7 +167,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         final int likesCount = playlist.getLikesCount();
         if (hasLike(likesCount)) {
             likesCountText.setVisibility(View.VISIBLE);
-            likesCountText.setText(ScTextUtils.formatNumber(resources, likesCount));
+            likesCountText.setText(numberFormatter.format(likesCount));
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
             heartIcon.setLevel(playlist.isLiked() ? 1 : 0);
         }

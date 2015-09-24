@@ -7,6 +7,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -23,13 +24,14 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
     @Inject
     public DownloadablePlaylistItemRenderer(Resources resources,
                                             ImageOperations imageOperations,
+                                            CondensedNumberFormatter numberFormatter,
                                             PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                             FeatureOperations featureOperations,
                                             EventBus eventBus,
                                             ScreenProvider screenProvider,
                                             Navigator navigator) {
 
-        super(resources, imageOperations, playlistItemMenuPresenter, eventBus, screenProvider, navigator);
+        super(resources, imageOperations, numberFormatter, playlistItemMenuPresenter, eventBus, screenProvider, navigator);
         this.featureOperations = featureOperations;
         allowOfflineOptions();
     }
