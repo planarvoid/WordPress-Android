@@ -6,7 +6,8 @@
 
     <LinearLayout
         android:id="@+id/track_likes_header"
-        style="@style/TrackLikesHeader">
+        style="@style/TrackLikesHeader"
+        android:visibility="gone">
         <include layout="@layout/track_likes_header_common" />
     </LinearLayout>
 
