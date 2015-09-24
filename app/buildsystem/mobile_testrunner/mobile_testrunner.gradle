@@ -218,8 +218,8 @@ def failBuildIfNecessary(TestResult[] retrievedResults) {
     }
 }
 
-def runTestsForLabel(String label, Test[] tests) {
-    def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, null, tests))
+def runTestsForLabel(String label, String[] excludeAnnotations, Test[] tests) {
+    def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, excludeAnnotations, tests))
     def run = execute(execution)
     createHtmlReportForRun(run.id)
     def results = getAndShowResultsForRun(run)
@@ -285,52 +285,19 @@ class Logger {
     }
 }
 
-task testRunLollipopTests << {
-    def tests = [
-            new Test(class_name: "com.soundcloud.android.tests.FailureTest", test_name: "testShouldAlwaysFail"),
-            new Test(class_name: "com.soundcloud.android.tests.widget.WidgetLinksTest", test_name: "testOpenAppFromWidgetWithUserShowsStreamScreen")
-    ] as Test[]
-
-    runTestsForLabel("Lollipop", tests)
-}
-
 task runLollipopTests << {
-    runTestsForLabel("Lollipop", null)
+    runTestsForLabel("Lollipop", null, null)
 }
 
 task runKitkatTests << {
-    runTestsForLabel("KitKat", null)
+    runTestsForLabel("KitKat", null, null)
 }
 
-task stressTestRunner << {
-    def r = new Runnable() {
-        @Override
-        void run() {
-            try{
-                runTestsForLabel("KitKat", null)
-            } catch(GradleException e) {
-                println(e)
-            }
-        }
-    }
-
-    def threads = []
-    10.times {
-        def t = new Thread(r)
-        t.start()
-        threads += t
-    }
-
-    threads.each { t -> t.join() }
-
-    def lines = Logger.getLogger().logLines
-
-    def durationMs = lines.last().timestamp - lines.first().timestamp
-
-    def log_filename = "result_stress_test_" + System.currentTimeMillis() + ".log"
-    def log = new File(log_filename)
-
-    log.write(lines.join("\n"))
-
-    println("Stress test duration " + durationMs / 1000 + " sec Details in " + log_filename)
+task runKitkatTestsRelease << {
+    def excludeAnnotations = [
+        "com.soundcloud.android.framework.annotation.Ignore",
+        "com.soundcloud.android.framework.annotation.AdsTest",
+        "com.soundcloud.android.framework.annotation.EventTrackingTest"
+    ] as String[]
+    runTestsForLabel("KitKat", excludeAnnotations, null)
 }
