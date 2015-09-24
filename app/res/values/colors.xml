@@ -128,11 +128,12 @@
     <color name="play_related_tracks_bars_color">#999999</color>
     <color name="play_related_tracks_text_color">#333333</color>
 
-    <!-- Recommendations -->
+    <!-- Discovery -->
     <color name="card_list_background">#f2f2f2</color>
     <color name="recommendation_reason_text">#999</color>
     <color name="seed_track_text">#333</color>
     <color name="recommended_for_you_text">#666</color>
+    <color name="search_hint_text">#999</color>
 
     <!-- Stations -->
     <color name="stations_home_background">#e5e5e5</color>
