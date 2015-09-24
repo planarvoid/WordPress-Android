@@ -298,6 +298,7 @@
         <activity android:label="@string/upgrade_page_title" android:name=".payments.UpgradeActivity"/>
 
         <!-- discovery -->
+        <activity android:label="@string/activity_title_discovery" android:name=".discovery.DiscoveryActivity"/>
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
         <activity android:label="@string/activity_title_search_results" android:name=".discovery.SearchResultsActivity"/>
 

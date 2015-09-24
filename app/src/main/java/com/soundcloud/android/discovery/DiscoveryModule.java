@@ -5,6 +5,7 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
+                DiscoveryActivity.class,
                 DiscoveryFragment.class,
                 RecommendedTracksActivity.class,
                 RecommendedTracksFragment.class,

@@ -405,6 +405,7 @@
     <string name="search_for_query">Search for \'%s\'</string>
 
     <!-- __DISCOVERY -->
+    <string name="activity_title_discovery">Search</string>
     <string name="activity_title_recommendations">Recommended for you</string>
     <string name="recommendation_view_all">View all %1$d</string>
     <string name="recommendation_reason_because_you">Because you %1$s %2$s</string>
