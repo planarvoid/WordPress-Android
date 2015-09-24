@@ -179,7 +179,7 @@ def int executeQueryForRemainingTests(runId, numRetries) {
     if (null == response) {
         if(numRetries < 3) {
             Thread.sleep(1000L)
-            executeQueryForRemaingTests(runId, numRetries + 1)
+            executeQueryForRemainingTests(runId, numRetries + 1)
         }
         else {
             throw new GradleException("Unable to query remaining tests for run id: $runId")
