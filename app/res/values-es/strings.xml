@@ -375,6 +375,7 @@
   <string name="pref_clear_cache">Borrar el caché de la aplicación</string>
   <string name="pref_clear_cache_desc">Borra el caché de aplicaciones para liberar memoria de tu dispositivo</string>
   <string name="pref_connection_and_data">Conexión y datos</string>
+  <string name="pref_privacy">Privacidad</string>
   <string name="pref_help">Ayuda</string>
   <string name="pref_help_desc">Acceder al sitio de soporte de SoundCloud</string>
   <string name="pref_revoke_access">Cerrar sesión</string>
@@ -471,6 +472,5 @@
   <!--__PROMOTED TRACKS-->
   <string name="promoted_label">Patrocinado</string>
   <string name="promoted_by_label">Promocionado por %s</string>
-  <!--__STATIONS-->
-  <string name="side_menu_stations">Emisoras</string>
+  <!--__FACEBOOK INVITES-->
 </resources>

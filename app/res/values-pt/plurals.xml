@@ -37,15 +37,19 @@
     <item quantity="one">%d nova republicação</item>
     <item quantity="other">%d novas republicações</item>
   </plurals>
+  <plurals name="dashboard_notifications_activity_follower">
+    <item quantity="one">%d novo seguidor</item>
+    <item quantity="other">%d novos seguidores</item>
+  </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
   <plurals name="dashboard_notifications_ticker">
     <item quantity="one">%s novo som</item>
-    <item quantity="other">%s novos sons</item>
+    <item quantity="other">%s novas faixas</item>
   </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
   <plurals name="dashboard_notifications_title">
     <item quantity="one">%s novo som</item>
-    <item quantity="other">%s novos sons</item>
+    <item quantity="other">%s novas faixas</item>
   </plurals>
   <!--__ACCESSIBILITY-->
   <plurals name="accessibility_stats_likes">
