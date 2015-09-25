@@ -44,7 +44,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventLike() {
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, null);
         localyticsUIEventHandler.handleEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Like"), attributeCaptor.capture());
@@ -58,7 +58,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventUnlike() {
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, null);
         localyticsUIEventHandler.handleEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Unlike"), attributeCaptor.capture());

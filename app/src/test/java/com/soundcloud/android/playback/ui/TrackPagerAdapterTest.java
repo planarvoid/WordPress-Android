@@ -102,20 +102,23 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
                 PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR_NAME.bind("artist"));
+                PlayableProperty.CREATOR_NAME.bind("artist"),
+                PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)));
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
-                        PlayableProperty.CREATOR_NAME.bind("artist"))
+                        PlayableProperty.CREATOR_NAME.bind("artist"),
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)))
         ));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
                 PropertySet.from(
                         TrackProperty.URN.bind(TRACK2_RELATED_URN),
                         PlayableProperty.TITLE.bind("related title"),
-                        PlayableProperty.CREATOR_NAME.bind("related artist"))
+                        PlayableProperty.CREATOR_NAME.bind("related artist"),
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234l)))
         ));
     }
 
@@ -473,7 +476,8 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         final PropertySet value = TestPropertySets.interstitialForPlayer()
                 .put(TrackProperty.URN, MONETIZABLE_TRACK_URN)
                 .put(TrackProperty.TITLE, "title")
-                .put(TrackProperty.CREATOR_NAME, "artist");
+                .put(TrackProperty.CREATOR_NAME, "artist")
+                .put(TrackProperty.CREATOR_URN, Urn.forUser(123l));
 
         verify(trackPagePresenter).setAdOverlay(same(viewForTrack), eq(value));
     }

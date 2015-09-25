@@ -67,6 +67,10 @@ public abstract class PlayableItem implements StreamItem {
         return source.getOrElse(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
     }
 
+    public Urn getCreatorUrn() {
+        return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
+    }
+
     public String getCreatorName() {
         return source.getOrElse(PlayableProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING);
     }

@@ -54,6 +54,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void onToggleUnlikedTrackLikesViaLikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -63,6 +64,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
 
         listener.onToggleLike(false, TRACK_URN);
 
@@ -72,6 +74,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
@@ -83,6 +86,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);

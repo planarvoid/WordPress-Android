@@ -180,7 +180,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
 
         when(dataBuilderv0.build(event)).thenReturn("ForLikeEvent");
 
@@ -195,7 +195,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackUnlikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnlikeEvent");
 

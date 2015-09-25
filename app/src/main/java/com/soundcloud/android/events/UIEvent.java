@@ -4,6 +4,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +57,11 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
 
+    public static final String KEY_CREATOR_NAME = "creator_display_name";
+    public static final String KEY_CREATOR_URN = "creator_urn";
+    public static final String KEY_PLAYABLE_TITLE = "playable_title";
+    public static final String KEY_PLAYABLE_URN = "playable_urn";
+
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
@@ -78,7 +84,8 @@ public final class UIEvent extends TrackingEvent {
                                          String pageName,
                                          @NotNull Urn resourceUrn,
                                          @NotNull Urn pageUrn,
-                                         @Nullable PromotedSourceInfo promotedSourceInfo) {
+                                         @Nullable PromotedSourceInfo promotedSourceInfo,
+                                         @Nullable PlayableItem playableItem) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
                 .put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
@@ -87,7 +94,8 @@ public final class UIEvent extends TrackingEvent {
                 .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
                 .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
-                .putPromotedItemKeys(promotedSourceInfo);
+                .putPromotedItemKeys(promotedSourceInfo)
+                .putPlayableItemKeys(playableItem);
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost,
@@ -236,6 +244,17 @@ public final class UIEvent extends TrackingEvent {
                 this.put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
             }
         }
+        return this;
+    }
+
+    private UIEvent putPlayableItemKeys(@Nullable PlayableItem playableItem) {
+        if (playableItem != null) {
+            this.put(KEY_CREATOR_URN, playableItem.getCreatorUrn().toString())
+                .put(KEY_CREATOR_NAME, playableItem.getCreatorName())
+                .put(KEY_PLAYABLE_URN, playableItem.getEntityUrn().toString())
+                .put(KEY_PLAYABLE_TITLE, playableItem.getTitle());
+        }
+
         return this;
     }
 

@@ -219,7 +219,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                        screenProvider.getLastScreenTag(),
                        trackUrn,
                        pageUrn,
-                       getPromotedSource()));
+                       getPromotedSource(),
+                       track));
     }
 
     private void handleLike() {

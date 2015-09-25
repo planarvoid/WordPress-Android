@@ -25,6 +25,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
@@ -271,7 +272,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
-                            playSessionSourceInfo.getPromotedSourceInfo()));
+                            playSessionSourceInfo.getPromotedSourceInfo(),
+                            PlayableItem.from(playlistWithTracks.getSourceSet())));
 
             fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }

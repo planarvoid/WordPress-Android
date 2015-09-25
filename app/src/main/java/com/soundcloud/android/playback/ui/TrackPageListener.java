@@ -10,17 +10,20 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
@@ -44,8 +47,6 @@ class TrackPageListener extends PageListener {
     public void onToggleLike(boolean addLike, Urn trackUrn) {
         fireAndForget(likeOperations.toggleLike(trackUrn, addLike));
 
-        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(trackUrn);
-        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
                         ScreenElement.PLAYER.get(),
@@ -53,7 +54,19 @@ class TrackPageListener extends PageListener {
                         Screen.PLAYER_MAIN.get(),
                         trackUrn,
                         trackUrn,
-                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
+                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
+                        getCurrentPlayableItem()));
+    }
+
+    @Nullable
+    private PlayableItem getCurrentPlayableItem() {
+        final PropertySet metadata = playQueueManager.getCurrentMetaData();
+
+        if (metadata.contains(PlayableProperty.URN)) {
+            return PlayableItem.from(metadata);
+        }
+
+        return null;
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {
