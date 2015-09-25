@@ -53,13 +53,6 @@ public class DiscoveryOperations {
                 }
             };
 
-    private static final Func1<SearchItem, DiscoveryItem> SEARCH_TO_DISCOVERY_ITEM = new Func1<SearchItem, DiscoveryItem>() {
-        @Override
-        public DiscoveryItem call(SearchItem searchItem) {
-            return searchItem;
-        }
-    };
-
     private final Func1<Boolean, Observable<List<DiscoveryItem>>> toRecommendations =
             new Func1<Boolean, Observable<List<DiscoveryItem>>>() {
                 @Override
@@ -115,8 +108,10 @@ public class DiscoveryOperations {
                 .subscribeOn(scheduler);
     }
 
-    private Observable<DiscoveryItem> searchItem() {
-        return Observable.just(new SearchItem()).map(SEARCH_TO_DISCOVERY_ITEM);
+    private Observable<List<DiscoveryItem>> searchItem() {
+        List<DiscoveryItem> searchItemList = new ArrayList<>(1);
+        searchItemList.add(new SearchItem());
+        return Observable.just(searchItemList);
     }
 
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
@@ -129,14 +124,12 @@ public class DiscoveryOperations {
 
     Observable<List<DiscoveryItem>> discoveryItems() {
         return searchItem()
-                .toList()
                 .concatWith(playlistDiscovery())
                 .subscribeOn(scheduler);
     }
 
     Observable<List<DiscoveryItem>> discoveryItemsAndRecommendations() {
         return searchItem()
-                .toList()
                 .concatWith(recommendations()
                         .zipWith(playlistDiscovery(), TO_DISCOVERY_ITEMS_LIST))
                 .subscribeOn(scheduler);

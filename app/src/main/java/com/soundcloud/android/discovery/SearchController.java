@@ -13,9 +13,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 class SearchController {
 
     interface SearchCallback {
