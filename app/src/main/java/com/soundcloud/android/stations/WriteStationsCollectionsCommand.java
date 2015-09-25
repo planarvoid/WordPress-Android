@@ -40,6 +40,7 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
                 step(propeller.delete(
                         Tables.StationsCollections.TABLE,
                         filter().whereLt(Tables.StationsCollections.UPDATED_LOCALLY_AT, metadata.clearBeforeTime)
+                                .orWhereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
                 ));
 
                 final ApiStationsCollections stationsCollections = metadata.stationsCollections;
@@ -54,7 +55,6 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
                 step(saveStations(propeller, stations));
                 step(addStationsToCollection(propeller, type, stations));
             }
-
         });
     }
 

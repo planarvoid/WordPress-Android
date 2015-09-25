@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiDateFormat;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -102,19 +102,12 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class PublicApi {
 
@@ -260,7 +253,7 @@ public class PublicApi {
         return new ObjectMapper()
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setDateFormat(new CloudDateFormat());
+                .setDateFormat(new ApiDateFormat());
     }
 
     public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
@@ -1014,59 +1007,4 @@ public class PublicApi {
                 stateHandler, params);
     }
 
-    public static class CloudDateFormat extends StdDateFormat {
-        // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
-        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<>();
-        /**
-         * Used by the SoundCloud API
-         */
-        private final DateFormat dateFormat;
-
-        private CloudDateFormat() {
-            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z", Locale.US);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        }
-
-        private static CloudDateFormat instance() {
-            CloudDateFormat fmt = threadLocal.get();
-            if (fmt == null) {
-                fmt = new CloudDateFormat();
-                threadLocal.set(fmt);
-            }
-            return fmt;
-        }
-
-        public static Date fromString(String s) {
-            try {
-                return instance().parse(s);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public static long toTime(String s) {
-            return fromString(s).getTime();
-        }
-
-        public static String formatDate(long tstamp) {
-            return instance().format(tstamp);
-        }
-
-        @SuppressWarnings({"CloneDoesntCallSuperClone"})
-        @Override
-        public CloudDateFormat clone() {
-            return instance();
-        }
-
-        @Override
-        public Date parse(String dateStr, ParsePosition pos) {
-            final Date d = dateFormat.parse(dateStr, pos);
-            return (d == null) ? super.parse(dateStr, pos) : d;
-        }
-
-        @Override
-        public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-            return dateFormat.format(date, toAppendTo, fieldPosition);
-        }
-    }
 }

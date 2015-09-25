@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 class StationsStorage {
-    private static final Func1<CursorReader, Station> toStationWithoutTracks = new Func1<CursorReader, Station>() {
+    private static final Func1<CursorReader, Station> TO_STATION_WITHOUT_TRACKS = new Func1<CursorReader, Station>() {
         @Override
         public Station call(CursorReader cursorReader) {
             return new Station(
@@ -39,14 +39,14 @@ class StationsStorage {
         }
     };
 
-    private static final Func1<CursorReader, Urn> toTrackUrn = new Func1<CursorReader, Urn>() {
+    private static final Func1<CursorReader, Urn> TO_TRACK_URN = new Func1<CursorReader, Urn>() {
         @Override
         public Urn call(CursorReader cursorReader) {
             return new Urn(cursorReader.getString(StationsPlayQueues.TRACK_URN));
         }
     };
 
-    private static final ResultMapper<PropertySet> toRecentStationProperties = new ResultMapper<PropertySet>() {
+    private static final ResultMapper<PropertySet> TO_RECENT_STATION = new ResultMapper<PropertySet>() {
         @Override
         public PropertySet map(CursorReader reader) {
             return PropertySet.from(
@@ -104,8 +104,8 @@ class StationsStorage {
 
     Observable<Station> station(Urn stationUrn) {
         return Observable.zip(
-                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn)).map(toStationWithoutTracks),
-                propellerRx.query(buildTracksListQuery(stationUrn)).map(toTrackUrn).toList(),
+                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn)).map(TO_STATION_WITHOUT_TRACKS),
+                propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_TRACK_URN).toList(),
                 new Func2<Station, List<Urn>, Station>() {
                     @Override
                     public Station call(Station station, List<Urn> tracks) {
@@ -156,7 +156,6 @@ class StationsStorage {
                         .from(StationsCollections.TABLE)
                         .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
                         .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
-                .toList(toRecentStationProperties);
+                .toList(TO_RECENT_STATION);
     }
-
 }

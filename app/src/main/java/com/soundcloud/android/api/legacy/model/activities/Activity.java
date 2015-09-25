@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.activities.ActivityProperty;
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.ApiDateFormat;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -128,7 +128,7 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     public String getDateString() {
         return createdAt == null ? null :
-                PublicApi.CloudDateFormat.formatDate(createdAt.getTime());
+                ApiDateFormat.formatDate(createdAt.getTime());
     }
 
     public UUID toUUID() {

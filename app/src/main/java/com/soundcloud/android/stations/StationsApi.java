@@ -7,10 +7,12 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 class StationsApi {
     private final ApiClientRx apiClientRx;
@@ -31,9 +33,10 @@ class StationsApi {
         return apiClientRx.mappedResponse(request, ApiStation.class);
     }
 
-    ApiStationsCollections fetchStationsCollections() throws ApiRequestException, IOException, ApiMapperException {
+    ApiStationsCollections syncStationsCollections(List<PropertySet> recentStationsToSync) throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest request = ApiRequest
-                .get(ApiEndpoints.STATIONS.path())
+                .post(ApiEndpoints.STATIONS.path())
+                .withContent(new StationsSyncPostBody(recentStationsToSync))
                 .forPrivateApi(1)
                 .build();
 

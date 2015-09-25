@@ -13,10 +13,10 @@ import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.ApiStationMetadata;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
-import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.OfflineContent;
@@ -207,6 +207,15 @@ public class DatabaseAssertions {
         assertThat(
                 select(from(StationsCollections.TABLE)),
                 counts(0)
+        );
+    }
+
+    public void assertLocalStationDeleted(Urn urn) {
+        assertThat(
+                select(from(StationsCollections.TABLE)
+                        .whereEq(StationsCollections.STATION_URN, urn.toString())
+                        .whereNull(StationsCollections.UPDATED_LOCALLY_AT)),
+                counts(1)
         );
     }
 

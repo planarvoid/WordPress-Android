@@ -103,7 +103,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
         final Func1<Station, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
 
         return operations
-                .stations(type)
+                .collection(type)
                 .map(toViewModel)
                 .toList()
                 .filter(hasStations)

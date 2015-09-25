@@ -1,11 +1,11 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
@@ -26,12 +26,20 @@ import java.util.List;
 class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
     private static final String COLLECTION_TYPE_KEY = "type";
 
+    private final Func1<SyncResult, Observable<List<StationViewModel>>> toStationViewModels = new Func1<SyncResult, Observable<List<StationViewModel>>>() {
+        @Override
+        public Observable<List<StationViewModel>> call(SyncResult ignored) {
+            return source;
+        }
+    };
 
     private final StationsOperations operations;
     private final StationsAdapter adapter;
     private final Resources resources;
     private final PlayQueueManager playQueueManager;
     @LightCycle final StationsNowPlayingController stationsNowPlayingController;
+
+    private Observable<List<StationViewModel>> source;
 
     @Inject
     public ShowAllStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -63,10 +71,10 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
     }
 
     private Observable<List<StationViewModel>> stationsSource(Bundle bundle) {
-        final Func1<Station, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
+        final Func1<Station, StationViewModel> toViewModel = buildToViewModel();
 
         return operations
-                .stations(getCollectionType(bundle))
+                .collection(getCollectionType(bundle))
                 .map(toViewModel)
                 .take(resources.getInteger(R.integer.stations_list_max_recent_stations))
                 .toList();
@@ -76,19 +84,29 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
         return bundle.getInt(COLLECTION_TYPE_KEY);
     }
 
-    private Func1<Station, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
+    private Func1<Station, StationViewModel> buildToViewModel() {
         return new Func1<Station, StationViewModel>() {
             @Override
             public StationViewModel call(Station station) {
-                return new StationViewModel(station, currentlyPlayingCollection.equals(station.getUrn()));
+                return new StationViewModel(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
             }
         };
     }
 
     @Override
     protected CollectionBinding<StationViewModel> onBuildBinding(Bundle bundle) {
+        source = stationsSource(bundle);
+
         return CollectionBinding
-                .from(stationsSource(bundle))
+                .from(source)
+                .withAdapter(adapter)
+                .build();
+    }
+
+    @Override
+    protected CollectionBinding<StationViewModel> onRefreshBinding() {
+        return CollectionBinding
+                .from(operations.sync().flatMap(toStationViewModels))
                 .withAdapter(adapter)
                 .build();
     }

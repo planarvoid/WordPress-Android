@@ -37,9 +37,6 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.STATIONS_HOME);
 
         stationsScreen = menuScreen.open().clickStations();
-
-        // TODO: Sync Stations upon login. Then remove this line!
-        stationsScreen.pullToRefresh();
     }
 
     public void testSavedStationsIsAvailable() {

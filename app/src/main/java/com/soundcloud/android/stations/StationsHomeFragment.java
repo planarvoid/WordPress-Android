@@ -36,5 +36,6 @@ public class StationsHomeFragment extends LightCycleSupportFragment implements R
 
     @Override
     public View[] getRefreshableViews() {
-        return new View[]{stationsHomePresenter.getRecyclerView(), stationsHomePresenter.getEmptyView()};    }
+        return new View[]{stationsHomePresenter.getRecyclerView(), stationsHomePresenter.getEmptyView()};
+    }
 }
