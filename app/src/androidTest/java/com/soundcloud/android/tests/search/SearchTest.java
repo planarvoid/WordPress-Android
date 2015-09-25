@@ -21,7 +21,6 @@ import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SearchTest extends ActivityTest<SearchActivity> {
-    private StreamScreen streamScreen;
     private PlaylistTagsScreen playlistTagsScreen;
 
     public SearchTest() {
@@ -38,7 +37,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         setRequiredEnabledFeatures(Flag.FOLLOW_USER_SEARCH);
         super.setUp();
 
-        streamScreen = new StreamScreen(solo);
+        StreamScreen streamScreen = new StreamScreen(solo);
         playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
     }
 
@@ -146,7 +145,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
     }
 
     public void testShouldHideSoftKeyboardWhenScrollingTagsVertically() {
-        solo.getSolo().scrollDown();
+        playlistTagsScreen.scrollDown();
         assertEquals("Keyboard should be hidden when scrolling", false, playlistTagsScreen.isKeyboardShown());
     }
 

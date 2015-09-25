@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -13,7 +14,7 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
 
-import android.widget.ListView;
+import android.support.v7.widget.RecyclerView;
 
 public class SearchResultsScreen extends Screen {
     private static final Class ACTIVITY = SearchActivity.class;
@@ -84,7 +85,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        testDriver.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
+        resultsList().scrollToBottomOfPage();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -110,8 +111,9 @@ public class SearchResultsScreen extends Screen {
     }
 
     public int getResultItemCount() {
-        waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
-        return resultsList().getAdapter().getCount();
+        final RecyclerViewElement recyclerViewElement = resultsList();
+        waiter.waitForItemCountToIncrease(recyclerViewElement.getAdapter(), 0);
+        return recyclerViewElement.getItemCount();
     }
 
     public UserItemElement getFirstUser() {
@@ -119,8 +121,8 @@ public class SearchResultsScreen extends Screen {
         return getUsers().get(0);
     }
 
-    private ListView resultsList() {
-        return (ListView) getViewPager().getCurrentPage(ListView.class);
+    private RecyclerViewElement resultsList() {
+        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     private SlidingTabs tabs() {

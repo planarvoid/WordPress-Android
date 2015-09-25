@@ -49,6 +49,10 @@ public class PlaylistTagsScreen extends Screen {
         return waiter.waitForElement(R.id.all_tags);
     }
 
+    public boolean scrollDown() {
+        return testDriver.scrollDown();
+    }
+
     private List<String> getTagStringsFromContainer() {
         return Lists.transform(getTags(), new Function<ViewElement, String>() {
             @Override
