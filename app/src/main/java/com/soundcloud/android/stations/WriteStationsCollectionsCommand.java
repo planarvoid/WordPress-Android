@@ -2,12 +2,12 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import autovalue.shaded.com.google.common.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -122,13 +122,13 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
             }
 
             SyncCollectionsMetadata that = (SyncCollectionsMetadata) o;
-            return Objects.equal(clearBeforeTime, that.clearBeforeTime) &&
-                    Objects.equal(stationsCollections, that.stationsCollections);
+            return MoreObjects.equal(clearBeforeTime, that.clearBeforeTime) &&
+                    MoreObjects.equal(stationsCollections, that.stationsCollections);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(clearBeforeTime, stationsCollections);
+            return MoreObjects.hashCode(clearBeforeTime, stationsCollections);
         }
     }
 }
