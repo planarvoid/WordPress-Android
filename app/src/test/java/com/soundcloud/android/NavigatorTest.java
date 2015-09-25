@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -222,6 +223,17 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, 88L)
                 .opensActivity(RecommendedTracksActivity.class);
+    }
+
+    @Test
+    public void opensPlaylistDiscoveryTag() {
+        final String playListTag = "playListTag";
+
+        navigator.openPlaylistDiscoveryTag(activityContext, playListTag);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsExtra(PlaylistDiscoveryActivity.EXTRA_PLAYLIST_TAG, playListTag)
+                .opensActivity(PlaylistDiscoveryActivity.class);
     }
 
     @Test

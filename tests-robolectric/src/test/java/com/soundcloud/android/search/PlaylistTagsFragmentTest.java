@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -128,7 +129,7 @@ public class PlaylistTagsFragmentTest {
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        verify((PlaylistTagsFragmentListener) listener).onTagSelected("popular1");
+        verify((PlaylistTagsFragmentListener) listener).onTagSelected(mock(Context.class), "popular1");
     }
     
     @Test

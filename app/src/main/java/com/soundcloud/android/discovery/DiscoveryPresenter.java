@@ -1,7 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -14,13 +12,11 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,8 +34,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
-
-    @Nullable private PlaylistTagsPresenter.Listener tagsListener;
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -63,30 +57,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
         getBinding().connect();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
-    public void onAttach(Fragment fragment, Activity activity) {
-        super.onAttach(fragment, activity);
-        checkArgument(activity instanceof PlaylistTagsPresenter.Listener, "Host activity must be a " + PlaylistTagsPresenter.Listener.class);
-        this.tagsListener = ((PlaylistTagsPresenter.Listener) activity);
-    }
-
-    @Override
-    public void onDetach(Fragment fragment) {
-        this.tagsListener = null;
-        super.onDetach(fragment);
-    }
-
-    @Override
-    public void onTagSelected(String tag) {
-        if (tagsListener != null) {
-            tagsListener.onTagSelected(tag);
-        }
+    public void onTagSelected(Context context, String tag) {
+        navigator.openPlaylistDiscoveryTag(context, tag);
     }
 
     @Override
     protected CollectionBinding<DiscoveryItem> onBuildBinding(Bundle bundle) {
-        adapter.setOnRecommendationClickListener(this);
+        adapter.setDiscoveryListener(this);
         return CollectionBinding.from(buildDiscoveryItemsObservable())
                 .withAdapter(adapter).build();
     }

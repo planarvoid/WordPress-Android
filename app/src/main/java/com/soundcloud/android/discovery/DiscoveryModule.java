@@ -9,7 +9,8 @@ import dagger.Module;
                 DiscoveryFragment.class,
                 RecommendedTracksActivity.class,
                 RecommendedTracksFragment.class,
-                SearchResultsActivity.class
+                SearchResultsActivity.class,
+                PlaylistDiscoveryActivity.class
         })
 public class DiscoveryModule {
 }
