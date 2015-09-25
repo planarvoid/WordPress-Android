@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 
 import android.support.annotation.VisibleForTesting;
@@ -31,7 +31,7 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
     @Override
     protected ApiRequest buildRequest(List<Urn> urns) {
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
-        body.put("urns", CollectionUtils.urnsToStrings(urns));
+        body.put("urns", Urns.toString(urns));
 
         return ApiRequest.post(ApiEndpoints.TRACKS_FETCH.path())
                 .forPrivateApi(1)

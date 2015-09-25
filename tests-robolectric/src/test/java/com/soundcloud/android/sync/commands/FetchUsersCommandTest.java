@@ -14,7 +14,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class FetchUsersCommandTest {
     }
 
     private void setupRequest(List<Urn> urns, List<PublicApiUser> users) throws Exception {
-        final String joinedIds = CollectionUtils.urnsToJoinedIds(urns, ",");
+        final String joinedIds = Urns.toJoinedIds(urns, ",");
         when(apiClient.fetchMappedResponse(argThat(
                 isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_USERS.path())
                         .withQueryParam("ids", joinedIds)

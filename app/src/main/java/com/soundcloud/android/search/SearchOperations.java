@@ -19,7 +19,7 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -262,7 +262,7 @@ class SearchOperations {
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
             final Optional<Link> nextHref = searchResultsCollection.nextHref;
 
-            allUrns.addAll(CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems()));
+            allUrns.addAll(PropertySets.extractUrns(searchResultsCollection.getItems()));
 
             if (searchResultsCollection.queryUrn.isPresent()) {
                 queryUrn = searchResultsCollection.queryUrn.get();

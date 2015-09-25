@@ -6,7 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
@@ -249,13 +249,13 @@ public class SyncInitiator {
     public void requestTracksSync(List<PropertySet> tracks) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_TRACKS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(tracks)));
+                .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(tracks)));
     }
 
     public void requestPlaylistSync(List<PropertySet> playlists) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_PLAYLISTS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(playlists)));
+                .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(playlists)));
     }
 
     public Observable<SyncResult> syncUsers(final List<Urn> userUrns) {

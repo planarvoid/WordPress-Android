@@ -9,7 +9,7 @@ import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +80,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);
-        requestBody.put("track_urns", CollectionUtils.urnsToStrings(trackUrns));
+        requestBody.put("track_urns", Urns.toString(trackUrns));
         return requestBody;
     }
 }

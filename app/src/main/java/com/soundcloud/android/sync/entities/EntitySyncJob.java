@@ -6,7 +6,7 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.GuavaFunctions;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
 
@@ -45,7 +45,7 @@ public class EntitySyncJob implements SyncJob {
             if (!urns.isEmpty()) {
                 Collection<PropertySetSource> collection = fetchResources.with(urns).call();
                 storeResources.call(collection);
-                updatedPropertySets = MoreCollections.transform(collection, GuavaFunctions.toPropertySet());
+                updatedPropertySets = MoreCollections.transform(collection, PropertySets.toPropertySet());
             }
         } catch (Exception e) {
             ErrorUtils.handleThrowable(e, this.getClass());

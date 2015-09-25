@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.utils.CollectionUtils.toPropertySets;
+import static com.soundcloud.android.utils.PropertySets.toPropertySets;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,7 +17,7 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -294,7 +294,7 @@ public class LikesSyncerTest {
 
     private void withRemoteTrackLikes(ApiLike... likes) throws Exception {
         final TreeSet<PropertySet> propertySets = new TreeSet<>(FetchLikesCommand.LIKES_COMPARATOR);
-        propertySets.addAll(CollectionUtils.toPropertySets(likes));
+        propertySets.addAll(PropertySets.toPropertySets(likes));
         when(fetchLikes.call()).thenReturn(propertySets);
     }
 
@@ -303,7 +303,7 @@ public class LikesSyncerTest {
     }
 
     private void withLocalTrackLikes(ApiLike... likes) throws Exception {
-        when(loadLikes.call()).thenReturn(toPropertySets(Arrays.asList(likes)));
+        when(loadLikes.call()).thenReturn(PropertySets.toPropertySets(Arrays.asList(likes)));
     }
 
     private void withLocalTrackLikes(PropertySet... likes) throws Exception {

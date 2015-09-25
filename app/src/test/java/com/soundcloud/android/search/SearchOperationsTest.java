@@ -25,7 +25,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -227,7 +227,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final Map<Urn, PropertySet> likedPlaylists = new HashMap<>(2);
         likedPlaylists.put(playlist2.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
         likedPlaylists.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
-        when(loadPlaylistLikedStatuses.call(CollectionUtils.toPropertySets(apiUniversalSearchItems))).thenReturn(likedPlaylists);
+        when(loadPlaylistLikedStatuses.call(PropertySets.toPropertySets(apiUniversalSearchItems))).thenReturn(likedPlaylists);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 

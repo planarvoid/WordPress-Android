@@ -4,7 +4,7 @@ import com.soundcloud.android.api.ApiMultipartRequest;
 import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.FormPart;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.objects.MoreObjects;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
@@ -92,9 +92,9 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             Object targetContent = ((ApiObjectContentRequest) request).getContent();
             if (content instanceof Iterable) {
                 return targetContent instanceof Iterable
-                        && CollectionUtils.elementsEqual((Iterable) content, (Iterable) targetContent);
+                        && Iterables.elementsEqual((Iterable) content, (Iterable) targetContent);
             } else if (content instanceof Map && targetContent instanceof Map) {
-                return CollectionUtils.elementsEqual(((Map) content).entrySet(), ((Map) targetContent).entrySet());
+                return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) targetContent).entrySet());
             } else {
                 return MoreObjects.equal(targetContent, content);
             }
