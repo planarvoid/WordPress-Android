@@ -2,7 +2,6 @@ package com.soundcloud.android.main;
 
 import static com.soundcloud.android.main.NavigationFragment.NavItem;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
-import static rx.android.app.AppObservable.bindActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -33,6 +32,7 @@ import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -133,7 +133,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         if (!justAuthenticated) {
-            subscription.add(bindActivity(this, userRepository.syncedUserInfo(accountOperations.getLoggedInUserUrn())).subscribe(new UserSubscriber()));
+            subscription.add(
+                    userRepository.syncedUserInfo(accountOperations.getLoggedInUserUrn())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new UserSubscriber()));
         }
     }
 

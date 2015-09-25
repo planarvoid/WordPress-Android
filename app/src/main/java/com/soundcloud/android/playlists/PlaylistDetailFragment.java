@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
-import static rx.android.app.AppObservable.bindSupportFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.Navigator;
@@ -39,7 +38,6 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.w3c.dom.Text;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -240,7 +238,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void createLoadPlaylistObservable() {
-        loadPlaylist = bindSupportFragment(this, playlistOperations.playlist(getPlaylistUrn()));
+        loadPlaylist = playlistOperations.playlist(getPlaylistUrn()).observeOn(mainThread());
     }
 
     private void subscribeToLoadObservable() {
