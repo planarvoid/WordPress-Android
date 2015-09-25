@@ -40,7 +40,6 @@ android {
       minifyEnabled true
       shrinkResources false
       zipAlignEnabled true
-      multiDexEnabled false
       proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
     }
