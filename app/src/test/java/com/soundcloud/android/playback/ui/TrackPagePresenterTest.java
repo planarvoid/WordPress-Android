@@ -237,7 +237,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
 
-        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20, dateProvider)));
+        verify(artworkController).showIdleState(progressArgumentCaptor.capture());
+        Assertions.assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
+        Assertions.assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
     }
 
     @Test
