@@ -105,7 +105,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         return null;
     }
 
-    private void trackLike(boolean addLike) {
+    private void playlistLike(boolean addLike) {
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
                         ScreenElement.LIST.get(),
@@ -113,7 +113,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                         screenProvider.getLastScreenTag(),
                         playlist.getEntityUrn(),
                         Urn.NOT_SET,
-                        getPromotedSourceIfExists()));
+                        getPromotedSourceIfExists(),
+                        playlist));
     }
 
     private void handleLike() {
@@ -123,7 +124,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(appContext, addLike));
 
-        trackLike(addLike);
+        playlistLike(addLike);
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));

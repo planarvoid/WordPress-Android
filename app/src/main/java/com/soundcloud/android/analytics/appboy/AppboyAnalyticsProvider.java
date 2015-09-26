@@ -1,8 +1,5 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
-import com.appboy.Appboy;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -11,6 +8,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
@@ -24,19 +22,21 @@ import javax.inject.Inject;
 public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     public static final String TAG = "AppboyProvider";
-    private final Appboy session;
+    private final AppboyWrapper appboy;
+    private final AppboyUIEventHandler uiEventHandler;
 
     @Inject
-    public AppboyAnalyticsProvider(Appboy session, AccountOperations accountOperations) {
+    public AppboyAnalyticsProvider(AppboyWrapper appboy, AccountOperations accountOperations) {
         Log.d(TAG, "initialized");
-        this.session = session;
+        this.appboy = appboy;
+        uiEventHandler = new AppboyUIEventHandler(appboy);
         changeUser(accountOperations.getLoggedInUserUrn());
     }
 
     @Override
     public void flush() {
         Log.d(TAG, "flushed");
-        session.requestImmediateDataFlush();
+        appboy.requestImmediateDataFlush();
     }
 
     @Override
@@ -83,27 +83,24 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
-        // No-op
+        if (event instanceof UIEvent) {
+            uiEventHandler.handleEvent((UIEvent) event);
+        }
     }
 
-    public void openSession(Activity activity) {
+    private void openSession(Activity activity) {
         Log.d(TAG, "openSession (" + activity.getClass().getSimpleName() + ")");
-        session.openSession(activity);
+        appboy.openSession(activity);
     }
 
-    public void closeSession(Activity activity) {
+    private void closeSession(Activity activity) {
         Log.d(TAG, "closeSession (" + activity.getClass().getSimpleName() + ")");
-        session.closeSession(activity);
+        appboy.closeSession(activity);
     }
 
     private void changeUser(Urn userUrn) {
-        checkArgument(userUrn.isUser());
-
-        String urnString = userUrn.toString();
-
-        if (!urnString.equals(session.getCurrentUser().getUserId())) {
-            Log.d(TAG, "changeUser to " + urnString);
-            session.changeUser(urnString);
+        if (userUrn.getNumericId() > 0) {
+            appboy.changeUser(userUrn.toString());
         }
     }
 }

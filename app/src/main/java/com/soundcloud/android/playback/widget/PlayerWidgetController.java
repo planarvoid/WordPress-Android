@@ -9,11 +9,12 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -25,6 +26,7 @@ import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -100,10 +102,9 @@ public class PlayerWidgetController {
 
     public void handleToggleLikeAction(boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+
         fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(currentTrackUrn);
-        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
                         Screen.WIDGET.get(),
@@ -111,7 +112,19 @@ public class PlayerWidgetController {
                         Screen.WIDGET.get(),
                         currentTrackUrn,
                         Urn.NOT_SET,
-                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
+                        playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn),
+                        getCurrentPlayableItem()));
+    }
+
+    @Nullable
+    private PlayableItem getCurrentPlayableItem() {
+        final PropertySet metadata = playQueueManager.getCurrentMetaData();
+
+        if (metadata.contains(PlayableProperty.URN)) {
+            return PlayableItem.from(metadata);
+        }
+
+        return null;
     }
 
     /**

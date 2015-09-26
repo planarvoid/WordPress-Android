@@ -12,7 +12,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
@@ -136,15 +135,13 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {
         fireAndForget(repostOperations.toggleRepost(trackUrn, wasReposted));
 
-        final boolean isTrackFromPromoted = playQueueManager.isTrackFromCurrentPromotedItem(trackUrn);
-        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleRepost(wasReposted,
                         playQueueManager.getScreenTag(),
                         Screen.PLAYER_MAIN.get(),
                         trackUrn,
                         trackUrn,
-                        (isTrackFromPromoted ? trackSourceInfo.getPromotedSourceInfo() : null)));
+                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn)));
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {

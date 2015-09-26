@@ -47,8 +47,7 @@ public class PlayQueueTest {
     @Test
     public void shouldAddTrackToPlayQueue() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
-
-        playQueue.addTrack(Urn.forTrack(123L), "source3", "version3");
+        playQueue.addPlayQueueItem(new PlayQueueItem.Builder(Urn.forTrack(123L)).fromSource("source3", "version3").build());
 
         assertThat(playQueue.size()).isEqualTo(4);
         assertThat(playQueue.getTrackId(3)).isEqualTo(123L);

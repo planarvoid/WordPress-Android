@@ -307,7 +307,8 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
             public void call(PropertySet track) {
                 adOverlayData.put(TrackProperty.URN, track.get(TrackProperty.URN))
                         .put(TrackProperty.TITLE, track.get(TrackProperty.TITLE))
-                        .put(TrackProperty.CREATOR_NAME, track.get(TrackProperty.CREATOR_NAME));
+                        .put(TrackProperty.CREATOR_NAME, track.get(TrackProperty.CREATOR_NAME))
+                        .put(TrackProperty.CREATOR_URN, track.get(TrackProperty.CREATOR_URN));
             }
         });
     }

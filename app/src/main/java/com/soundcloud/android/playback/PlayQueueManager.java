@@ -425,6 +425,19 @@ public class PlayQueueManager implements OriginProvider {
         return trackUrns;
     }
 
+    @Nullable
+    public PromotedSourceInfo getCurrentPromotedSourceInfo(Urn trackUrn) {
+        if (isTrackFromCurrentPromotedItem(trackUrn)) {
+            final TrackSourceInfo trackSourceInfo = getCurrentTrackSourceInfo();
+
+            if (trackSourceInfo != null) {
+                return trackSourceInfo.getPromotedSourceInfo();
+            }
+        }
+
+        return null;
+    }
+
     private void saveQueue() {
         if (playQueue.hasItems()) {
             playQueueOperations.saveQueue(playQueue.copy());

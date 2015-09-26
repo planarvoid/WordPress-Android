@@ -252,6 +252,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
@@ -265,12 +266,13 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", "widget", WIDGET_TRACK_URN, Urn.NOT_SET, null);
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", "widget", WIDGET_TRACK_URN, Urn.NOT_SET, null, null);
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
@@ -282,13 +284,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         final PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(promotedTrack);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrackItem);
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
-        trackSourceInfo.setPromotedSourceInfo(promotedSourceInfo);
-
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getEntityUrn())).thenReturn(promotedSourceInfo);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(promotedTrack);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(promotedTrackItem.getEntityUrn());
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(promotedTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
@@ -301,7 +300,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                 "widget",
                 promotedTrackItem.getEntityUrn(),
                 Urn.NOT_SET,
-                promotedSourceInfo);
+                promotedSourceInfo,
+                promotedTrackItem);
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
@@ -314,13 +314,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(promotedPlaylist);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
-        trackSourceInfo.setPromotedSourceInfo(promotedSourceInfo);
-
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentPromotedSourceInfo(WIDGET_TRACK_URN)).thenReturn(promotedSourceInfo);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(promotedPlaylist);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
@@ -333,7 +330,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                 "widget",
                 WIDGET_TRACK_URN,
                 Urn.NOT_SET,
-                promotedSourceInfo);
+                promotedSourceInfo,
+                promotedPlaylistItem);
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
@@ -354,6 +352,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
@@ -365,6 +364,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                 "widget",
                 WIDGET_TRACK_URN,
                 Urn.NOT_SET,
+                null,
                 null);
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
