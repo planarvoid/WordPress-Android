@@ -48,5 +48,6 @@ public class OfflineContentHelper {
         testsFixtures.updateLastPolicyUpdateTime(context, date.getTime());
         testsFixtures.insertLocalPlaylistWithTrack(context, playlist, track);
         testsFixtures.insertOfflinePlaylist(context, playlist);
+        testsFixtures.insertPlaylistLike(context, playlist.getNumericId(), System.currentTimeMillis());
     }
 }
