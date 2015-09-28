@@ -148,7 +148,10 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpandedPlayerPlaying() {
-        return !playButton().isVisible() && progress().isVisible() && waiter.waitForElementCondition(new TextChangedCondition(progress()));
+        return waitForExpandedPlayer()
+                && !playButton().isVisible()
+                && progress().isVisible()
+                && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 
     public void tapFooter() {
