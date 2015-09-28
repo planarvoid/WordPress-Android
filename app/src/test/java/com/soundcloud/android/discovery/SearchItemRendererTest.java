@@ -1,12 +1,15 @@
 package com.soundcloud.android.discovery;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,45 +26,47 @@ public class SearchItemRendererTest extends AndroidUnitTest {
 
     private SearchItemRenderer renderer;
 
-    @Mock private SearchController searchController;
-    @Mock private AutoCompleteTextView searchView;
-    @Mock private SearchItemRenderer.OnSearchListener listener;
+    @Mock private SuggestionsAdapter adapter;
+    @Mock private View itemView;
+    @Mock private SearchItemRenderer.SearchListener listener;
+
+    private AutoCompleteTextView searchView;
 
     @Before
     public void setUp() {
-        renderer = new SearchItemRenderer(searchController);
-    }
+        renderer = new SearchItemRenderer(adapter);
+        searchView = new AutoCompleteTextView(context());
 
-    @Test
-    public void delegatesBindSearchViewToController() {
-        final View itemView = mock(View.class);
-        when(itemView.findViewById(R.id.search)).thenReturn(searchView);
-
-        renderer.bindItemView(0, itemView, Collections.EMPTY_LIST);
-
-        verify(searchController).bindSearchView(searchView, renderer);
+        when(itemView.findViewById(anyInt())).thenReturn(searchView);
     }
 
     @Test
     public void performsTextSearch() {
-        final Context context = context();
-        final String query = "query";
+        when(adapter.isSearchItem(anyInt())).thenReturn(true);
 
-        renderer.setOnSearchListener(listener);
-        renderer.performTextSearch(context, query);
+        renderer.setSearchListener(listener);
+        renderer.bindItemView(0, itemView, Collections.EMPTY_LIST);
+        clickSearchItem();
 
-        verify(listener).onSearchTextPerformed(context, query);
+        verify(listener).onSearchTextPerformed(any(Context.class), anyString());
+        verifyNoMoreInteractions(listener);
     }
 
     @Test
     public void launchesSearchSuggestion() {
-        final Context context = context();
-        final Urn trackUrn = Urn.forTrack(12L);
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(trackUrn);
+        when(adapter.isSearchItem(anyInt())).thenReturn(false);
+        when(adapter.getItemIntentData(anyInt())).thenReturn(Uri.EMPTY);
+        when(adapter.getQueryUrn(anyInt())).thenReturn(Urn.NOT_SET);
 
-        renderer.setOnSearchListener(listener);
-        renderer.launchSearchSuggestion(context, trackUrn, searchQuerySourceInfo, Uri.EMPTY);
+        renderer.setSearchListener(listener);
+        renderer.bindItemView(0, itemView, Collections.EMPTY_LIST);
+        clickSearchItem();
 
-        verify(listener).onLaunchSearchSuggestion(context, trackUrn, searchQuerySourceInfo, Uri.EMPTY);
+        verify(listener).onLaunchSearchSuggestion(any(Context.class), any(Urn.class), any(SearchQuerySourceInfo.class), any(Uri.class));
+        verifyNoMoreInteractions(listener);
+    }
+
+    private void clickSearchItem() {
+        searchView.getOnItemClickListener().onItemClick(null, null, 0, 0);
     }
 }

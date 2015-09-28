@@ -23,7 +23,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     interface DiscoveryItemListener extends
             RecommendationItemRenderer.OnRecommendationClickListener,
             PlaylistTagsPresenter.Listener,
-            SearchItemRenderer.OnSearchListener {
+            SearchItemRenderer.SearchListener {
     }
 
     @Inject
@@ -68,6 +68,6 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     void setOnRecommendationClickListener(DiscoveryItemListener itemListener) {
         this.trackRecommendationRenderer.setOnRecommendationClickListener(itemListener);
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
-        this.searchItemRenderer.setOnSearchListener(itemListener);
+        this.searchItemRenderer.setSearchListener(itemListener);
     }
 }
