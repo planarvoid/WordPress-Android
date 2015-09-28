@@ -108,6 +108,12 @@ public class DiscoveryOperations {
                 .subscribeOn(scheduler);
     }
 
+    private Observable<List<DiscoveryItem>> searchItem() {
+        List<DiscoveryItem> searchItemList = new ArrayList<>(1);
+        searchItemList.add(new SearchItem());
+        return Observable.just(searchItemList);
+    }
+
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
         return playlistDiscoveryOperations.popularPlaylistTags()
                 .zipWith(
@@ -116,11 +122,16 @@ public class DiscoveryOperations {
                 .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
-    Observable<List<DiscoveryItem>> recommendationsAndPlaylistDiscovery() {
-        return recommendations()
-                .zipWith(
-                        playlistDiscovery(),
-                        TO_DISCOVERY_ITEMS_LIST)
+    Observable<List<DiscoveryItem>> discoveryItems() {
+        return searchItem()
+                .concatWith(playlistDiscovery())
+                .subscribeOn(scheduler);
+    }
+
+    Observable<List<DiscoveryItem>> discoveryItemsAndRecommendations() {
+        return searchItem()
+                .concatWith(recommendations()
+                        .zipWith(playlistDiscovery(), TO_DISCOVERY_ITEMS_LIST))
                 .subscribeOn(scheduler);
     }
 
@@ -129,6 +140,7 @@ public class DiscoveryOperations {
         //but we need to keep the seed track position inside the queue, thus,
         //we query all previous and subsequents tracks, put the seed track in
         //its position and build the list.
+        //TODO: Issue: https://github.com/soundcloud/SoundCloud-Android/issues/3705
         return recommendationsStorage.recommendedTracksBeforeSeed(recommendationItem.getSeedTrackLocalId())
                 .zipWith(
                         recommendationsStorage.recommendedTracksAfterSeed(recommendationItem.getSeedTrackLocalId()),

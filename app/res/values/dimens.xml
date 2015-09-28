@@ -110,9 +110,9 @@
     <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
-    <!-- Recommendations -->
-    <dimen name="recommendations_cell_padding">4dp</dimen>
-    <dimen name="recommendations_cell_elevation">3dp</dimen>
+    <!-- Discovery -->
+    <dimen name="discovery_cell_padding">4dp</dimen>
+    <dimen name="discovery_cell_elevation">3dp</dimen>
     <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top_bottom">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
@@ -124,6 +124,8 @@
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_bottom">4dp</dimen>
     <dimen name="recommendations_cell_text_recommended_margin">4dp</dimen>
+    <dimen name="search_cell_text_height">48dp</dimen>
+    <dimen name="search_cell_drawable_padding">12dp</dimen>
 
     <!-- Record -->
     <dimen name="rec_upload_button_dimension">60dp</dimen>

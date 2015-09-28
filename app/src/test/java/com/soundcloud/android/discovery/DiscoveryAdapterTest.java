@@ -17,25 +17,29 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock private RecommendationItemRenderer recommendationItemRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
+    @Mock private SearchItemRenderer searchItemRenderer;
 
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationItemRenderer, playlistTagRenderer);
+        adapter = new DiscoveryAdapter(recommendationItemRenderer, playlistTagRenderer, searchItemRenderer);
     }
 
     @Test
     public void rendersCorrectViewTypes() {
+        SearchItem searchItem = mock(SearchItem.class);
+        when(searchItem.getKind()).thenReturn(SearchItem.Kind.SearchItem);
         DiscoveryItem playlistTagItem = mock(DiscoveryItem.class);
         when(playlistTagItem.getKind()).thenReturn(DiscoveryItem.Kind.PlaylistTagsItem);
         DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
         when(trackRecommendationItem.getKind()).thenReturn(DiscoveryItem.Kind.TrackRecommendationItem);
 
-        adapter.onNext(Arrays.asList(playlistTagItem, trackRecommendationItem));
+        adapter.onNext(Arrays.asList(searchItem, playlistTagItem, trackRecommendationItem));
 
-        assertThat(adapter.getBasicItemViewType(0)).isEqualTo(DiscoveryAdapter.PLAYLIST_TAGS_TYPE);
-        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(DiscoveryAdapter.RECOMMENDATION_SEED_TYPE);
+        assertThat(adapter.getBasicItemViewType(0)).isEqualTo(DiscoveryAdapter.SEARCH_TYPE);
+        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(DiscoveryAdapter.PLAYLIST_TAGS_TYPE);
+        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(DiscoveryAdapter.RECOMMENDATION_SEED_TYPE);
     }
 
     @Test

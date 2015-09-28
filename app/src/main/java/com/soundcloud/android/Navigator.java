@@ -6,7 +6,9 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.WebViewActivity;
@@ -62,8 +64,12 @@ public class Navigator {
         context.startActivity(createProfileIntent(context, user));
     }
 
-    public void openSearch(Context activityContext) {
-        startActivity(activityContext, SearchActivity.class);
+    public void openDiscovery(Context activityContext) {
+        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)) {
+            startActivity(activityContext, DiscoveryActivity.class);
+        } else {
+            startActivity(activityContext, SearchActivity.class);
+        }
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -144,6 +150,19 @@ public class Navigator {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
     }
 
+    public void openSearchResults(Context context, String query) {
+        context.startActivity(createSearchResultsIntent(context, query));
+    }
+
+    public void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        if (urn.isUser()) {
+            intent.putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+        }
+        Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
+        context.startActivity(intent.setData(itemUri));
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -221,6 +240,11 @@ public class Navigator {
     private Intent createRecommendationIntent(Context context, long localSeedId) {
         return new Intent(context, RecommendedTracksActivity.class)
                 .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
+    }
+
+    private Intent createSearchResultsIntent(Context context, String searchQuery) {
+        return new Intent(context, SearchResultsActivity.class)
+                .putExtra(SearchResultsActivity.EXTRA_SEARCH_QUERY, searchQuery);
     }
 
     private Intent createWebViewIntent(Context context, Uri uri) {

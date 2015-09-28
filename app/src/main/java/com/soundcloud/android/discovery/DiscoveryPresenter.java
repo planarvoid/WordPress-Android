@@ -4,6 +4,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -11,6 +12,8 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -19,6 +22,7 @@ import rx.Observable;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -33,6 +37,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
 
     @Nullable private PlaylistTagsPresenter.Listener tagsListener;
 
@@ -42,13 +47,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
                        DiscoveryAdapter adapter,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackInitiator playbackInitiator,
-                       Navigator navigator) {
+                       Navigator navigator, FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.cards());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackInitiator = playbackInitiator;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -81,8 +87,16 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     @Override
     protected CollectionBinding<DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setOnRecommendationClickListener(this);
-        return CollectionBinding.from(discoveryOperations.recommendationsAndPlaylistDiscovery())
+        return CollectionBinding.from(buildDiscoveryItemsObservable())
                 .withAdapter(adapter).build();
+    }
+
+    private Observable<List<DiscoveryItem>> buildDiscoveryItemsObservable() {
+        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)) {
+            return discoveryOperations.discoveryItemsAndRecommendations();
+        } else {
+            return discoveryOperations.discoveryItems();
+        }
     }
 
     @Override
@@ -98,7 +112,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     @Override
     public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
         playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendedTracks());
-
     }
 
     @Override
@@ -106,8 +119,27 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
         navigator.openRecommendation(context, recommendationItem.getSeedTrackLocalId());
     }
 
+    @Override
+    public void onSearchTextPerformed(Context context, String query) {
+        navigator.openSearchResults(context, query);
+    }
+
+    @Override
+    public void onLaunchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
+        if (urn.isTrack()) {
+            playSearchSuggestedTrack(urn, searchQuerySourceInfo);
+        } else {
+            navigator.launchSearchSuggestion(context, urn, searchQuerySourceInfo, itemUri);
+        }
+    }
+
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    private void playSearchSuggestedTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+        playbackInitiator.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 }

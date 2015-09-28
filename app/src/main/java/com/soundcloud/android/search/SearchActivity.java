@@ -4,7 +4,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
@@ -12,7 +11,6 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
@@ -105,21 +103,11 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         searchActionBarController.onCreateOptionsMenu(menu, getMenuInflater(), this);
-        if (featureFlags.isEnabled(Flag.SEARCH_AND_RECOMMENDATIONS)) {
-            searchActionBarController.setFocusable(false);
-            searchActionBarController.clearFocus();
-        }
         return true;
     }
 
     private void addContentFragment() {
-        Fragment fragment;
-        if (featureFlags.isEnabled(Flag.SEARCH_AND_RECOMMENDATIONS)) {
-            fragment = new DiscoveryFragment();
-        } else {
-            fragment = new PlaylistTagsFragment();
-        }
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new PlaylistTagsFragment()).commit();
     }
 
     private void addContent(Fragment fragment, String tag) {

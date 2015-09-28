@@ -50,7 +50,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
     @Override
     public void bindItemView(int position, View itemView, List<RecommendationItem> list) {
 
-        getTextView(itemView, R.id.recommendations_header).setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+        getTextView(itemView, R.id.recommendations_header).setVisibility(position == 1 ? View.VISIBLE : View.GONE);
 
         final RecommendationItem recommendationItem = list.get(position);
         getTextView(itemView, R.id.reason).setText(getReasonText(recommendationItem));

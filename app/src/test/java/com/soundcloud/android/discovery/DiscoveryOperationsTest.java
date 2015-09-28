@@ -36,7 +36,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     private static final List<String> RECENT_TAGS = Arrays.asList("recentTag1", "recentTag2");
 
     private final Scheduler scheduler = Schedulers.immediate();
-    private final TestSubscriber<List<DiscoveryItem>> observer = new TestSubscriber<>();
+    private final TestSubscriber<List<DiscoveryItem>> subscriber = new TestSubscriber<>();
     private final PublishSubject<Boolean> syncSubject = PublishSubject.create();
     private final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
     private final ApiTrack recommendedTrack = ModelFixtures.create(ApiTrack.class);
@@ -63,16 +63,18 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsRecommendationsFollowedByPlaylistDiscoTags() {
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
-        observer.assertNoValues(); // make sure we sync before loading
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
+        subscriber.assertValueCount(1); // make sure we sync before loading
         syncSubject.onNext(true);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(2);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
         assertPlaylistDiscoItem(discoveryItems.get(1), POPULAR_TAGS, RECENT_TAGS);
     }
@@ -81,14 +83,16 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsPlaylistDiscoTagsWhenRecommendationsSyncErrors() {
         when(discoverySyncer.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
 
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(2);
 
+        assertSearchItem(searchItem);
         assertPlaylistDiscoItem(discoveryItems.get(1), POPULAR_TAGS, RECENT_TAGS);
     }
 
@@ -96,15 +100,17 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsPlaylistDiscoTagsWhenRecommendationsLoadErrors() {
         when(recommendationsStorage.seedTracks()).thenReturn(Observable.<List<PropertySet>>error(new IOException()));
 
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
         syncSubject.onNext(true);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertPlaylistDiscoItem(discoveryItems.get(0), POPULAR_TAGS, RECENT_TAGS);
     }
 
@@ -112,15 +118,17 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsRecommendationsWhenPlaylistRecentTagsLoadErrors() {
         when(playlistDiscoveryOperations.recentPlaylistTags()).thenReturn(Observable.<List<String>>error(new IOException()));
 
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
         syncSubject.onNext(true);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
@@ -128,15 +136,17 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsRecommendationsWhenPlaylistPopularTagsLoadErrors() {
         when(playlistDiscoveryOperations.popularPlaylistTags()).thenReturn(Observable.<List<String>>error(new IOException()));
 
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
         syncSubject.onNext(true);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final DiscoveryItem searchItem = onNextEvents.get(0).get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(1);
 
+        assertSearchItem(searchItem);
         assertRecommendedTrackItem(discoveryItems.get(0));
     }
 
@@ -197,12 +207,12 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsRecommendationsFromStorageWhenRecommendationsSyncErrors() {
         when(discoverySyncer.syncRecommendations()).thenReturn(Observable.<Boolean>error(new IOException()));
 
-        operations.recommendationsAndPlaylistDiscovery().subscribe(observer);
+        operations.discoveryItemsAndRecommendations().subscribe(subscriber);
 
-        final List<List<DiscoveryItem>> onNextEvents = observer.getOnNextEvents();
-        assertThat(onNextEvents).hasSize(1);
+        final List<List<DiscoveryItem>> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(2);
 
-        final List<DiscoveryItem> discoveryItems = onNextEvents.get(0);
+        final List<DiscoveryItem> discoveryItems = onNextEvents.get(1);
         assertThat(discoveryItems).hasSize(2);
 
         assertRecommendedTrackItem(discoveryItems.get(0));
@@ -215,6 +225,10 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         verify(storeRecommendationsCommand).clearTables();
         verify(discoverySyncer).clearLastSyncTime();
         verify(playlistDiscoveryOperations).clearData();
+    }
+
+    private void assertSearchItem(DiscoveryItem discoveryItem) {
+        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.SearchItem);
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {

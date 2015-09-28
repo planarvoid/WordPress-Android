@@ -14,20 +14,27 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
     static final int RECOMMENDATION_SEED_TYPE = ViewTypes.DEFAULT_VIEW_TYPE;
     static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
+    static final int SEARCH_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 2;
 
     private final RecommendationItemRenderer trackRecommendationRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
+    private final SearchItemRenderer searchItemRenderer;
 
     interface DiscoveryItemListener extends
-            RecommendationItemRenderer.OnRecommendationClickListener, PlaylistTagsPresenter.Listener {
+            RecommendationItemRenderer.OnRecommendationClickListener,
+            PlaylistTagsPresenter.Listener,
+            SearchItemRenderer.SearchListener {
     }
 
     @Inject
-    DiscoveryAdapter(RecommendationItemRenderer trackRecommendationRenderer, PlaylistTagRenderer playlistTagRenderer) {
+    DiscoveryAdapter(RecommendationItemRenderer trackRecommendationRenderer, PlaylistTagRenderer playlistTagRenderer,
+                     SearchItemRenderer searchItemRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, trackRecommendationRenderer),
-                new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer));
+                new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
+                new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer));
         this.trackRecommendationRenderer = trackRecommendationRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
+        this.searchItemRenderer = searchItemRenderer;
     }
 
     @Override
@@ -38,6 +45,9 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
             case PlaylistTagsItem:
                 return PLAYLIST_TAGS_TYPE;
+
+            case SearchItem:
+                return SEARCH_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unhandled discovery item kind " + getItem(position).getKind());
@@ -58,5 +68,6 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     void setOnRecommendationClickListener(DiscoveryItemListener itemListener) {
         this.trackRecommendationRenderer.setOnRecommendationClickListener(itemListener);
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
+        this.searchItemRenderer.setSearchListener(itemListener);
     }
 }

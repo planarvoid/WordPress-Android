@@ -115,4 +115,7 @@
     <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
     <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
     <string name="collections_remove_filters">Remove Filters</string>
+
+    <!-- __DISCOVERY -->
+    <string name="activity_title_search_results">Search</string>
 </resources>

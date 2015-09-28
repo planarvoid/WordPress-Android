@@ -29,7 +29,7 @@ public class RecommendedTracksActivity extends ScActivity {
     }
 
     private void createFragmentForRecommendations() {
-        long localSeedId = getIntent().getLongExtra(EXTRA_LOCAL_SEED_ID, Consts.NOT_SET);
+        final long localSeedId = getIntent().getLongExtra(EXTRA_LOCAL_SEED_ID, Consts.NOT_SET);
         if (localSeedId > 0) {
             Fragment fragment = RecommendedTracksFragment.create(localSeedId);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
