@@ -126,7 +126,7 @@ dependencies {
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
-  provided libraries.autoValue
+  provided libraries.javaxAnnotations // for auto-value
 
   /* SoundCloud Libraries */
   compile libraries.androidKit
