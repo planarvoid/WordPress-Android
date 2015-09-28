@@ -25,9 +25,12 @@ def FEATURE_APPBOY = "FEATURE_APPBOY"
  *        - Recommendations
  *        - Charts
  *        - Playlist discovery tags
- * By enabling FEATURE_DISCOVERY, by default, 'search' and 'playlist discovery' is enable so
+ * By enabling FEATURE_DISCOVERY, by default, 'search' and 'playlist discovery' are enable so
  * in order for both FEATURE_DISCOVERY_RECOMMENDATIONS and FEATURE_DISCOVERY_CHARTS to work,
- * FEATURE_DISCOVERY must be enable.
+ * FEATURE_DISCOVERY must be switched on.
+ *
+ * FEATURE_DISCOVERY can be removed completely once we get rid of SearchActivity (this is meant
+ * to happen within the new Tab Navigation approach).
  */
 def FEATURE_DISCOVERY = "FEATURE_DISCOVERY"
 def FEATURE_DISCOVERY_RECOMMENDATIONS = "FEATURE_DISCOVERY_RECOMMENDATIONS"
