@@ -50,7 +50,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
     private Subscription connectionSubscription = RxUtils.invalidSubscription();
     private PlaylistDiscoveryOperations.PlaylistPager pager;
 
-    public static PlaylistResultsFragment newInstance(String tag) {
+    public static PlaylistResultsFragment create(String tag) {
         PlaylistResultsFragment fragment = new PlaylistResultsFragment();
         Bundle arguments = new Bundle();
         arguments.putString(KEY_PLAYLIST_TAG, tag);

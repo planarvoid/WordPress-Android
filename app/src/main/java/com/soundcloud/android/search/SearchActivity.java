@@ -16,6 +16,7 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
 
         @Override
         public void performTagSearch(String tag) {
-            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+            addContent(PlaylistResultsFragment.create(tag), PlaylistResultsFragment.TAG);
         }
 
         @Override
@@ -120,10 +121,10 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     }
 
     @Override
-    public void onTagSelected(String tag) {
+    public void onTagSelected(Context context, String tag) {
         if (!isFinishing()) {
             searchActionBarController.setQuery("#" + tag);
-            addContent(PlaylistResultsFragment.newInstance(tag), PlaylistResultsFragment.TAG);
+            addContent(PlaylistResultsFragment.create(tag), PlaylistResultsFragment.TAG);
         }
     }
 

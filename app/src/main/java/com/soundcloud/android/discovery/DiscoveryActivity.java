@@ -3,14 +3,13 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.search.PlaylistTagsFragment;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class DiscoveryActivity extends ScActivity implements PlaylistTagsFragment.PlaylistTagsFragmentListener {
+public class DiscoveryActivity extends ScActivity {
 
     @Inject @LightCycle PlayerController playerController;
 
@@ -32,15 +31,5 @@ public class DiscoveryActivity extends ScActivity implements PlaylistTagsFragmen
     @Override
     protected void setContentView() {
         presenter.setBaseLayout();
-    }
-
-    @Override
-    public void onTagsScrolled() {
-        //TODO: This needs to be refactored
-    }
-
-    @Override
-    public void onTagSelected(String tag) {
-        //TODO: This needs to be refactored
     }
 }

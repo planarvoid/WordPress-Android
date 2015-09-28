@@ -7,7 +7,6 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -20,7 +19,6 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import org.junit.Before;
@@ -32,7 +30,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import android.app.Activity;
 import android.content.Context;
 
 import javax.inject.Provider;
@@ -76,24 +73,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);
         when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-    }
-
-    @Test
-    public void activityMustImplementPlayListTagListener() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Host activity must be a " + PlaylistTagsPresenter.Listener.class);
-
-        Activity activity = mock(Activity.class);
-        presenter.onAttach(fragmentRule.getFragment(), activity);
-    }
-
-    @Test
-    public void selectPlayListTagShouldCallActivityListener() {
-        Activity activity = mock(Activity.class, withSettings().extraInterfaces(PlaylistTagsPresenter.Listener.class));
-        presenter.onAttach(fragmentRule.getFragment(), activity);
-        presenter.onTagSelected("#rock");
-
-        verify((PlaylistTagsPresenter.Listener) activity).onTagSelected("#rock");
     }
 
     @Test
@@ -179,5 +158,15 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         presenter.onLaunchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
 
         verify(navigator).launchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
+    }
+
+    @Test
+    public void tagSelectedOpensPlaylistDiscoveryActivity() {
+        final String playListTag = "playListTag";
+        final Context context = context();
+
+        presenter.onTagSelected(context, playListTag);
+
+        verify(navigator).openPlaylistDiscoveryTag(context, playListTag);
     }
 }

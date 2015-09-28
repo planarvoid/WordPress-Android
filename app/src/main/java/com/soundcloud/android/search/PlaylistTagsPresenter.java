@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.FlowLayout;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -27,7 +28,7 @@ public class PlaylistTagsPresenter {
     @Nullable private Listener listener;
 
     public interface Listener {
-        void onTagSelected(String tag);
+        void onTagSelected(Context context, String tag);
     }
 
     @Inject
@@ -45,7 +46,7 @@ public class PlaylistTagsPresenter {
         public void onClick(View v) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch((String) v.getTag()));
             if (listener != null){
-                listener.onTagSelected((String) v.getTag());
+                listener.onTagSelected(v.getContext(), (String) v.getTag());
             }
         }
     };
@@ -55,7 +56,7 @@ public class PlaylistTagsPresenter {
         public void onClick(View v) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch((String) v.getTag()));
             if (listener != null){
-                listener.onTagSelected((String) v.getTag());
+                listener.onTagSelected(v.getContext(), (String) v.getTag());
             }
         }
     };

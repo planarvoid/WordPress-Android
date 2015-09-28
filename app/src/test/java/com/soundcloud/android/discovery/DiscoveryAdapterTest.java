@@ -45,7 +45,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Test
     public void setsClickListeners() {
         final DiscoveryItemListener itemListener = mock(DiscoveryItemListener.class);
-        adapter.setOnRecommendationClickListener(itemListener);
+        adapter.setDiscoveryListener(itemListener);
 
         verify(recommendationItemRenderer).setOnRecommendationClickListener(itemListener);
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);

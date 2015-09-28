@@ -65,7 +65,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
         }
     }
 
-    void setOnRecommendationClickListener(DiscoveryItemListener itemListener) {
+    void setDiscoveryListener(DiscoveryItemListener itemListener) {
         this.trackRecommendationRenderer.setOnRecommendationClickListener(itemListener);
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
         this.searchItemRenderer.setSearchListener(itemListener);

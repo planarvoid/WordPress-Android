@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryActivity;
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -163,6 +164,10 @@ public class Navigator {
         context.startActivity(intent.setData(itemUri));
     }
 
+    public void openPlaylistDiscoveryTag(Context context, String playlistTag) {
+        context.startActivity(createPlaylistDiscoveryIntent(context, playlistTag));
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -245,6 +250,11 @@ public class Navigator {
     private Intent createSearchResultsIntent(Context context, String searchQuery) {
         return new Intent(context, SearchResultsActivity.class)
                 .putExtra(SearchResultsActivity.EXTRA_SEARCH_QUERY, searchQuery);
+    }
+
+    private Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {
+        return new Intent(context, PlaylistDiscoveryActivity.class)
+                .putExtra(PlaylistDiscoveryActivity.EXTRA_PLAYLIST_TAG, playListTag);
     }
 
     private Intent createWebViewIntent(Context context, Uri uri) {
