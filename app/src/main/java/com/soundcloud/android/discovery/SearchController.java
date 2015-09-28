@@ -33,10 +33,8 @@ class SearchController {
     }
 
     void bindSearchView(AutoCompleteTextView searchView, SearchCallback searchCallback) {
-        checkNotNull(searchView);
-        checkNotNull(searchCallback);
-        this.searchView = searchView;
-        this.searchCallback = searchCallback;
+        this.searchView = checkNotNull(searchView);
+        this.searchCallback = checkNotNull(searchCallback);
         initSearchView();
     }
 
