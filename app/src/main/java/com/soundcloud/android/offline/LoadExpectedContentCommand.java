@@ -252,7 +252,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                     reader.getString(WAVEFORM_URL),
                     reader.getBoolean(SYNCABLE),
                     // do not include creator opt out in likes collection unless there are no syncable tracks
-                    reader.getBoolean(SYNCABLE) || !hasSyncableTracks ? true : false);
+                    reader.getBoolean(SYNCABLE) || !hasSyncableTracks);
         }
     }
 
