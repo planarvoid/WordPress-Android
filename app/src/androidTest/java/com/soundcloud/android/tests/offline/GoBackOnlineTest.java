@@ -16,7 +16,9 @@ import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.content.Context;
@@ -82,19 +84,34 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testRemovesOfflinePlaylistAfter30DaysOffline() {
-        networkManagerClient.switchWifiOff();
-        resetPolicyUpdateAndCheckTime(context);
-        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(30, TimeUnit.DAYS));
-        setPolicyUpdateTime(context, getPreviousDate(30, TimeUnit.DAYS).getTime());
         enableOfflineContent(context);
 
-        final StreamScreen streamScreen = startMainActivity();
-        streamScreen.getGoBackOnlineDialog().clickContinue();
+        // make playlist available offline
+        StreamScreen streamScreen = startMainActivity();
+        streamScreen
+                .openMenu()
+                .clickPlaylists()
+                .getPlaylistAtPosition(0)
+                .clickOverflow()
+                .clickMakeAvailableOffline();
 
-        assertThat(streamScreen.getGoBackOnlineDialog(), not(visible()));
+        // open other activity
+        SettingsScreen settingsScreen = streamScreen
+                .actionBar()
+                .clickSettingsOverflowButton();
 
-        // playlist should not be offline anymore
-        ViewElement makeAvailableOfflineItem = startMainActivity()
+        networkManagerClient.switchWifiOff();
+        resetPolicyUpdateAndCheckTime(context);
+        setPolicyUpdateTime(context, getPreviousDate(30, TimeUnit.DAYS).getTime());
+
+        // going back should prompt the go back online dialog
+        testDriver.goBack();
+        streamScreen
+                .getGoBackOnlineDialog()
+                .clickContinue();
+
+        // offline content deleted so playlist should not be offline anymore
+        ViewElement makeAvailableOfflineItem = streamScreen
                 .openMenu()
                 .clickPlaylists()
                 .getPlaylistAtPosition(0)

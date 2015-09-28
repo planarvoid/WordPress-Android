@@ -42,12 +42,4 @@ public class OfflineContentHelper {
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
         randomAccessFile.setLength(sizeInMB * 1024L * 1024L);
     }
-
-    public void setOfflinePlaylistAndTrackWithPolicy(Context context, Urn playlist, Urn track, Date date) {
-        testsFixtures.insertOfflineTrack(context, track);
-        testsFixtures.updateLastPolicyUpdateTime(context, date.getTime());
-        testsFixtures.insertLocalPlaylistWithTrack(context, playlist, track);
-        testsFixtures.insertOfflinePlaylist(context, playlist);
-        testsFixtures.insertPlaylistLike(context, playlist.getNumericId(), System.currentTimeMillis());
-    }
 }

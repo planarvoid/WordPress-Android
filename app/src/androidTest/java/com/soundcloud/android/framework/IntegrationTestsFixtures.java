@@ -18,13 +18,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 public class IntegrationTestsFixtures {
-    public void insertLocalPlaylistWithTrack(Context context, Urn playlist, Urn track) {
-        insert(context, Table.PlaylistTracks.name(), buildPlaylistTrackValues(playlist, track, System.currentTimeMillis()));
-    }
-
-    public void insertOfflinePlaylist(Context context, Urn parcelableExtra) {
-        insert(context, OfflineContent.TABLE.name(), buildOfflineContentValues(parcelableExtra));
-    }
 
     public void insertOfflineTrack(Context context, Urn track) {
         insert(context, TrackDownloads.TABLE.name(), buildTrackDownloadValues(track, System.currentTimeMillis()));
@@ -40,18 +33,6 @@ public class IntegrationTestsFixtures {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
         db.delete(TrackDownloads.TABLE.name(), null, null);
         db.delete(OfflineContent.TABLE.name(), null, null);
-    }
-
-    public void insertPlaylistLike(Context context, long playlistId, long likeTime) {
-        insert(context, Table.Likes.name(), buildPlaylistLikeValues(playlistId, likeTime));
-    }
-
-    private ContentValues buildPlaylistLikeValues(long playlistId, long likeTime) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.Likes._ID, playlistId)
-                .put(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .put(TableColumns.Likes.CREATED_AT, likeTime)
-                .get();
     }
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
