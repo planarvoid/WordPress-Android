@@ -26,6 +26,7 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 import java.util.List;
@@ -312,9 +313,16 @@ public class DatabaseFixtures {
         return insertStation(Consts.NOT_SET);
     }
 
-    public ApiStation insertStation(int lastPlayedPosition) {
-        final ApiStation station = StationFixtures.getApiStation();
+    public ApiStation insertStation(ApiStation station) {
+        return insertStation(Consts.NOT_SET, station);
+    }
 
+    public ApiStation insertStation(int lastPlayedPosition) {
+        return insertStation(lastPlayedPosition, StationFixtures.getApiStation());
+    }
+
+    @NonNull
+    private ApiStation insertStation(int lastPlayedPosition, ApiStation station) {
         insertInto(Stations.TABLE, getStationContentValues(station, lastPlayedPosition));
 
         final List<? extends TrackRecord> playQueue = station.getTrackRecords();

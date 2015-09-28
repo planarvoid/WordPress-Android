@@ -33,6 +33,41 @@ public class StationsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadPlayQueueReturnsEmptyWhenNoContent() {
+        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+
+        storage.loadPlayQueue(Urn.forTrackStation(111222333L), 30).subscribe(subscriber);
+
+        subscriber.assertNoValues();
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void loadPlayQueueReturnsAllContentWhenStartPositionIs0() {
+        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+        final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
+        testFixtures().insertStation(station);
+
+        storage.loadPlayQueue(Urn.forTrackStation(123L), 0).subscribe(subscriber);
+
+        subscriber.assertReceivedOnNext(station.getTracks());
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void loadPlayQueueReturnsContentAfterGivenStartPosition() {
+        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+        final int size = 10;
+        final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), size);
+        testFixtures().insertStation(station);
+
+        storage.loadPlayQueue(Urn.forTrackStation(123L), 5).subscribe(subscriber);
+
+        subscriber.assertReceivedOnNext(station.getTracks().subList(5, size));
+        subscriber.assertCompleted();
+    }
+
+    @Test
     public void shouldReturnTheStation() {
         ApiStation apiStation = testFixtures().insertStation();
 

@@ -27,6 +27,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.settings.SettingKey;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestUrns;
@@ -55,6 +56,7 @@ import android.util.DisplayMetrics;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
@@ -82,6 +84,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private PlaybackStrategy playbackStrategy;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private AccountOperations accountOperations;
+    @Mock private StationsOperations stationsOperations;
 
     private PlaySessionController controller;
 
@@ -90,7 +93,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
 
         controller = new PlaySessionController(resources, eventBus, adsOperations, playQueueManager, trackRepository,
-                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations);
+                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
         controller.subscribe();
 
         track = expectedTrackForPlayer();
@@ -101,6 +104,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getLastTrackUrn()).thenReturn(LAST_URN);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(Observable.just(recommendedPlayQueue));
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
@@ -321,6 +325,21 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+    }
+
+    @Test
+    public void appendsStationsTracksWhenAtTheEndOfAStationsPlayQueue() {
+        final Urn station = Urn.forTrackStation(123L);
+        final PlayQueue playQueue = PlayQueue.fromStation(station, Collections.singletonList(trackUrn));
+        final int queueSize = PlaySessionController.RECOMMENDED_LOAD_TOLERANCE;
+
+        when(playQueueManager.getQueueSize()).thenReturn(queueSize);
+        when(playQueueManager.getCollectionUrn()).thenReturn(station);
+        when(stationsOperations.fetchUpcomingTracks(station, queueSize)).thenReturn(Observable.just(playQueue));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, station, 0));
+
+        verify(playQueueManager).appendPlayQueueItems(playQueue);
     }
 
     @Test

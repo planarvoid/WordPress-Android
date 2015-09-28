@@ -75,11 +75,14 @@ class StationsStorage {
         this.dateProvider = dateProvider;
     }
 
-    public ChangeResult clearContentUpdatedBefore(long time) {
-        return propellerDatabase.delete(
-                StationsCollections.TABLE,
-                filter().whereLt(StationsCollections.UPDATED_LOCALLY_AT, time)
-        );
+    public Observable<Urn> loadPlayQueue(Urn station, int startPosition) {
+        return propellerRx
+                .query(Query
+                        .from(StationsPlayQueues.TABLE)
+                        .whereEq(StationsPlayQueues.STATION_URN, station.toString())
+                        .whereGe(StationsPlayQueues.POSITION, startPosition)
+                        .order(StationsPlayQueues.POSITION, Query.Order.ASC))
+                .map(TO_TRACK_URN);
     }
 
     void clear() {

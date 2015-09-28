@@ -8,6 +8,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
@@ -154,8 +155,12 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueue;
     }
 
-    public void addPlayQueueItem(PlayQueueItem playQueueItem) {
+    void addPlayQueueItem(PlayQueueItem playQueueItem) {
         playQueueItems.add(playQueueItem);
+    }
+
+    void addAllPlayQueueItems(Iterable<PlayQueueItem> somePlayQueueItems) {
+        Iterables.addAll(playQueueItems, somePlayQueueItems);
     }
 
     Urn getReposter(int position) {

@@ -5,11 +5,10 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.Filter;
+import com.soundcloud.propeller.query.Query;
 
 import android.content.ContentValues;
 
@@ -29,21 +28,20 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.upsert(Stations.TABLE, buildStationContentValues(station)));
-                step(deletePlayQueue(propeller, station));
                 addPlayQueue(propeller);
             }
 
             private void addPlayQueue(PropellerDatabase propeller) {
                 final List<Urn> tracks = station.getTracks();
+                final Integer playQueueSize = propeller.query(Query.count(StationsPlayQueues.TABLE)
+                        .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString()))
+                        .first(Integer.class);
+
                 for (int position = 0; position < tracks.size(); position++) {
-                    step(propeller.upsert(StationsPlayQueues.TABLE, buildContentValues(station, tracks.get(position), position)));
+                    step(propeller.upsert(StationsPlayQueues.TABLE, buildContentValues(station, tracks.get(position), playQueueSize + position)));
                 }
             }
         });
-}
-
-    private ChangeResult deletePlayQueue(PropellerDatabase propeller, StationRecord station) {
-        return propeller.delete(StationsPlayQueues.TABLE, Filter.filter().whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString()));
     }
 
     private ContentValues buildContentValues(StationRecord station, Urn trackUrn, int trackPosition) {

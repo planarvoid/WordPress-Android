@@ -6,6 +6,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
@@ -13,8 +14,11 @@ import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
 public class StationsOperations {
     private final StationsStorage stationsStorage;
@@ -83,6 +87,37 @@ public class StationsOperations {
                 .saveUnsyncedRecentlyPlayedStation(stationUrn)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction())
                 .subscribeOn(scheduler);
+    }
+
+    public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {
+        return stationsApi
+                .fetchStation(station)
+                .doOnNext(storeTracks)
+                .doOnNext(storeStationCommand.toAction())
+                .flatMap(toTracks(station, currentSize))
+                .toList()
+                .map(toPlayQueue(station))
+                .subscribeOn(scheduler);
+    }
+
+    @NonNull
+    private Func1<List<Urn>, PlayQueue> toPlayQueue(final Urn station) {
+        return new Func1<List<Urn>, PlayQueue>() {
+            @Override
+            public PlayQueue call(List<Urn> tracks) {
+                return PlayQueue.fromStation(station, tracks);
+            }
+        };
+    }
+
+    @NonNull
+    private Func1<ApiStation, Observable<Urn>> toTracks(final Urn station, final int startPosition) {
+        return new Func1<ApiStation, Observable<Urn>>() {
+            @Override
+            public Observable<Urn> call(ApiStation apiStation) {
+                return stationsStorage.loadPlayQueue(station, startPosition);
+            }
+        };
     }
 
     private Observable<Station> fetchStation(Urn stationUrn) {

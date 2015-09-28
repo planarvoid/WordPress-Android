@@ -1,14 +1,12 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.ArrayList;
 
 public class StoreStationCommandTest extends StorageIntegrationTest {
     private ApiStation station;
@@ -21,13 +19,16 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveThePreviousPlayQueue() {
-        StationRecord stationWithEmptyPlayQueue = new ApiStation(station.getMetadata(), new ModelCollection<>(Collections.<ApiTrack>emptyList()));
+    public void shouldAppendThePreviousPlayQueue() {
+        StationRecord stationWithNewTracks = StationFixtures.getApiStation(station.getUrn());
 
         command.call(station);
-        command.call(stationWithEmptyPlayQueue);
+        command.call(stationWithNewTracks);
 
-        databaseAssertions().assertStationsPlayQueueIsEmpty(station);
+        final ArrayList<Urn> allTracks = new ArrayList<>();
+        allTracks.addAll(station.getTracks());
+        allTracks.addAll(stationWithNewTracks.getTracks());
+        databaseAssertions().assertStationPlayQueueContains(station.getUrn(), allTracks);
     }
 
     @Test

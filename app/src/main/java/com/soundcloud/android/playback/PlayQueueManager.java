@@ -86,7 +86,14 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
+    void appendPlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
+        this.playQueue.addAllPlayQueueItems(playQueueItems);
+
+        publishQueueUpdate();
+        saveQueue();
+    }
+
+    void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
         final List<Urn> trackUrns = this.playQueue.getTrackUrns();
         for (PlayQueueItem playQueueItem : playQueueItems) {
             if (!trackUrns.contains(playQueueItem.getTrackUrn())) {
