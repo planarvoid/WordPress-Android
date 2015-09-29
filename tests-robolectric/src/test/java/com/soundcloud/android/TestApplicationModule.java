@@ -9,6 +9,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
+import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -315,6 +316,11 @@ public class TestApplicationModule {
     @Provides
     DailyUpdateScheduler providePolicyUpdateScheduler() {
         return mock(DailyUpdateScheduler.class);
+    }
+
+    @Provides
+    AppboyWrapper provideAppboyWrapper() {
+        return mock(AppboyWrapper.class);
     }
 }
 
