@@ -54,11 +54,32 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        if (event.getKind() == ActivityLifeCycleEvent.ON_START_EVENT) {
-            openSession(event.getActivity());
-        } else if (event.getKind() == ActivityLifeCycleEvent.ON_STOP_EVENT) {
-            closeSession(event.getActivity());
+        switch(event.getKind()) {
+            case ActivityLifeCycleEvent.ON_START_EVENT:
+                openSession(event.getActivity());
+                break;
+            case ActivityLifeCycleEvent.ON_RESUME_EVENT:
+                registerInAppMessage(event.getActivity());
+                break;
+            case ActivityLifeCycleEvent.ON_PAUSE_EVENT:
+                unregisterInAppMessage(event.getActivity());
+                break;
+            case ActivityLifeCycleEvent.ON_STOP_EVENT:
+                closeSession(event.getActivity());
+                break;
+            default:
+                break;
         }
+    }
+
+    private void unregisterInAppMessage(Activity activity) {
+        Log.d(TAG, "unregisterInAppMessage (" + activity.getClass().getSimpleName() + ")");
+        appboy.unregisterInAppMessageManager(activity);
+    }
+
+    private void registerInAppMessage(Activity activity) {
+        Log.d(TAG, "registerInAppMessage (" + activity.getClass().getSimpleName() + ")");
+        appboy.registerInAppMessageManager(activity);
     }
 
     @Override

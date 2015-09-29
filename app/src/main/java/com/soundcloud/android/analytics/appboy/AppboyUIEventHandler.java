@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
+import static com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider.TAG;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TITLE;
@@ -15,9 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 class AppboyUIEventHandler {
-
-    private static final String TAG = "Appboy";
-
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES = Arrays.asList(
             CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
 

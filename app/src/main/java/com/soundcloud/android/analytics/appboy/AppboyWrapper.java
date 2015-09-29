@@ -4,6 +4,7 @@ package com.soundcloud.android.analytics.appboy;
 import com.appboy.Appboy;
 import com.appboy.AppboyUser;
 import com.appboy.models.outgoing.AppboyProperties;
+import com.appboy.ui.inappmessage.AppboyInAppMessageManager;
 
 import android.app.Activity;
 import android.util.Base64;
@@ -23,12 +24,16 @@ class AppboyWrapper {
         return appboy.openSession(activity);
     }
 
+    public void registerInAppMessageManager(Activity activity) {
+        AppboyInAppMessageManager.getInstance().registerInAppMessageManager(activity);
+    }
+
     boolean closeSession(Activity activity) {
         return appboy.closeSession(activity);
     }
 
-    AppboyUser getCurrentUser() {
-        return appboy.getCurrentUser();
+    public void unregisterInAppMessageManager(Activity activity) {
+        AppboyInAppMessageManager.getInstance().unregisterInAppMessageManager(activity);
     }
 
     AppboyUser changeUser(String userId) {
@@ -43,13 +48,8 @@ class AppboyWrapper {
         return appboy.logCustomEvent(eventName, properties);
     }
 
-    boolean logCustomEvent(String eventName) {
-        return appboy.logCustomEvent(eventName);
-    }
-
-    public String encodeUserId(String userId) {
+    private String encodeUserId(String userId) {
         return Base64.encodeToString(userId.getBytes(), Base64.NO_WRAP);
     }
-
 
 }

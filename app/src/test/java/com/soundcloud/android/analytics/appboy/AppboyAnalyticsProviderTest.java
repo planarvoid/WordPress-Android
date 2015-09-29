@@ -50,7 +50,6 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        when(appboy.getCurrentUser()).thenReturn(appboyUser);
         when(appboyUser.getUserId()).thenReturn(userUrn.toString());
 
         appboyAnalyticsProvider = new AppboyAnalyticsProvider(appboy, accountOperations);
@@ -96,6 +95,24 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
         appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
 
         verify(appboy).closeSession(activity);
+    }
+
+    @Test
+    public void shouldHandleResumeLifeCycleEvents() {
+        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnResume(activity);
+
+        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
+
+        verify(appboy).registerInAppMessageManager(activity);
+    }
+
+    @Test
+    public void shouldHandlePauseLifeCycleEvents() {
+        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnPause(activity);
+
+        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
+
+        verify(appboy).unregisterInAppMessageManager(activity);
     }
 
     @Test

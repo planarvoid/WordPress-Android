@@ -236,7 +236,7 @@ public class OnboardActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this));
 
         unpackAccountAuthenticatorResponse(getIntent());
         unpackDeeplink(getIntent());
@@ -315,13 +315,13 @@ public class OnboardActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this));
     }
 
     @Override

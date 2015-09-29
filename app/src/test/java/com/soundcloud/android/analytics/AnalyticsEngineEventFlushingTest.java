@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -12,13 +11,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -33,8 +31,7 @@ import android.content.SharedPreferences;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AnalyticsEngineEventFlushingTest {
+public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SharedPreferences sharedPreferences;
@@ -43,6 +40,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker schedulerWorker;
     @Mock private AnalyticsProviderFactory analyticsProviderFactory;
+    @Mock private Activity activity;
     @Captor private ArgumentCaptor<Action0> flushAction;
 
     @Before
@@ -56,7 +54,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleToFlushEventDataOnFirstTrackingEvent() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
@@ -64,7 +62,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void flushActionShouldCallFlushOnAllProviders() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
@@ -75,7 +73,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldRescheduleFlushForTrackingEventAfterPreviousFlushFinished() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         InOrder inOrder = inOrder(schedulerWorker);
@@ -90,7 +88,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldNotScheduleFlushIfFlushIsAlreadyScheduled() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
@@ -99,14 +97,14 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

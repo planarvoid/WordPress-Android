@@ -27,14 +27,14 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     private final CurrentPlayQueueTrackEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L), Urn.NOT_SET, 0);
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
-    private final ActivityLifeCycleEvent ACTIVITY_RESUME_EVENT = ActivityLifeCycleEvent.forOnResume(Activity.class);
-    private final ActivityLifeCycleEvent ACTIVITY_PAUSE_EVENT = ActivityLifeCycleEvent.forOnPause(Activity.class);
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
     @Mock private Activity activity;
     @Mock private AdsOperations adsOperations;
     private TestEventBus eventBus;
+    private ActivityLifeCycleEvent activityResumeEvent;
+    private ActivityLifeCycleEvent activityPauseEvent;
 
     private VisualAdImpressionOperations controller;
     private TestSubscriber<Object> subscriber;
@@ -51,6 +51,8 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
         currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
         subscriber = new TestSubscriber<>();
+        activityResumeEvent  = ActivityLifeCycleEvent.forOnResume(activity);
+        activityPauseEvent  = ActivityLifeCycleEvent.forOnPause(activity);
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
@@ -62,7 +64,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLogWhenAppIsForegroundAndCurrentTrackIsAnAdAndPlayerIsExpanded() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
@@ -71,12 +73,12 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLogOnlyOnceTheCurrentAd() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
-        activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSE_EVENT);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityPauseEvent);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }
@@ -86,7 +88,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
 
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
@@ -95,7 +97,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotLogWhenTheAppIsInBackground() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSE_EVENT);
+        activitiesLifeCycleQueue.onNext(activityPauseEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
@@ -104,7 +106,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotLogWhenThePlayerIsCollapsed() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_COLLAPSED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
@@ -113,7 +115,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLogWhenTheTrackChanged() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
+        activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         assertThat(subscriber.getOnNextEvents()).isEmpty();
 
