@@ -9,11 +9,11 @@ import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import javax.inject.Provider;
 import java.io.IOException;
 
 public class GcmRegistrationServiceTest extends AndroidUnitTest {
@@ -25,16 +25,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private AppboyWrapper appboyWrapper;
 
-    private Provider<AppboyWrapper> appboyWrapperProvider = new Provider<AppboyWrapper>() {
-        @Override
-        public AppboyWrapper get() {
-            return appboyWrapper;
-        }
-    };
-
     @Before
     public void setUp() throws Exception {
-        service = new GcmRegistrationService(gcmStorage, instanceId, featureFlags, appboyWrapperProvider);
+        service = new GcmRegistrationService(gcmStorage, instanceId, featureFlags, InjectionSupport.providerOf(appboyWrapper));
     }
 
     @Test
@@ -57,7 +50,6 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
         verify(appboyWrapper).handleRegistration("token");
     }
-
 
     @Test
     public void clearsTokenOnUnsuccessfullyFetchedToken() throws IOException {
