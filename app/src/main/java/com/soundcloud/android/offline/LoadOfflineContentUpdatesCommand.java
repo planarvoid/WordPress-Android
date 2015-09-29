@@ -64,18 +64,18 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     @Override
     public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
-        final List<DownloadRequest> expectedRequests = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
+        final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
         final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
-        final Collection<Urn> expectedTracks = MoreCollections.transform(expectedRequests, toUrn);
+        final Collection<Urn> downloadableUrns = MoreCollections.transform(downloadable, toUrn);
 
         final List<Urn> requested = getDownloadRequests();
         final List<Urn> downloaded = getDownloaded();
         final List<Urn> pendingRemovals = getPendingRemovals();
         final List<Urn> previousUnavailable = getMarkedAsUnavailable();
 
-        final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(expectedRequests, pendingRemovals);
-        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(expectedRequests, requested, downloaded, tracksToRestore);
-        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(expectedRequests, pendingRemovals, tracksToRestore, downloaded);
+        final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(downloadable, pendingRemovals);
+        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(downloadable, requested, downloaded, tracksToRestore);
+        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(downloadable, pendingRemovals, tracksToRestore, downloaded);
         final List<Urn> newPendingRemovals = getNewPendingRemovals(userExpectedContent, downloaded, previousUnavailable, requested);
 
         return new OfflineContentUpdates(

@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.utils.CollectionUtils.subtract;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.events.CurrentDownloadEvent;

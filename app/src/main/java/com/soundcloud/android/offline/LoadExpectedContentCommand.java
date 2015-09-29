@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.offline.DownloadRequest.Builder;
+import static com.soundcloud.android.storage.Table.*;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
@@ -11,6 +12,7 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITIO
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TRACK_TYPE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
@@ -46,6 +48,9 @@ import java.util.concurrent.TimeUnit;
 
 class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
     private final static String DISTINCT_KEYWORD = "DISTINCT ";
+    private final static Where LIKES_SOUNDS_FILTER = filter()
+            .whereEq(Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
+            .whereEq(Likes.field(_TYPE), TableColumns.Sounds.TYPE_TRACK);
 
     private final PropellerDatabase database;
 
@@ -101,10 +106,9 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         Sounds.field(DURATION),
                         Sounds.field(WAVEFORM_URL),
                         TrackPolicies.field(SYNCABLE))
+                .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
                 .innerJoin(TrackPolicies.name(),
                         Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
-                .innerJoin(Table.Likes.name(),
-                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
                 .where(isDownloadable())
                 .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
@@ -115,13 +119,11 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private boolean querySyncableLikedTracks() {
         final Query query = Query.apply(exists(Query.from(Sounds.name())
+                .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
                 .innerJoin(TrackPolicies.name(),
                         Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
-                .innerJoin(Table.Likes.name(),
-                        Table.Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
                 .where(isDownloadable())
                 .whereEq(TableColumns.TrackPolicies.SYNCABLE, 1)
-                .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))));
         return database.query(query).first(scalar(Boolean.class));
     }
@@ -149,9 +151,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         Sounds.field(WAVEFORM_URL),
                         TrackPolicies.field(SYNCABLE),
                         PlaylistTracks.field(PLAYLIST_ID))
-                .innerJoin(Sounds.name(), filter()
-                        .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
-                        .whereIn(PLAYLIST_ID, playlistIds))
+                .innerJoin(Sounds.name(), playlistTracksSoundsFilter(playlistIds))
                 .innerJoin(TrackPolicies.name(),
                         PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
                         TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
@@ -166,15 +166,20 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     private Query playlistsWithSyncableTracks(List<Long> playlistIds) {
         return Query.from(PlaylistTracks.name())
                 .select(DISTINCT_KEYWORD + PlaylistTracks.field(PLAYLIST_ID))
-                .innerJoin(Sounds.name(), filter()
-                        .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
-                        .whereIn(PLAYLIST_ID, playlistIds))
+                .innerJoin(Sounds.name(), playlistTracksSoundsFilter(playlistIds))
                 .innerJoin(TrackPolicies.name(),
                         PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
                         TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .where(isDownloadable())
                 .whereEq(TableColumns.TrackPolicies.SYNCABLE, 1)
                 .whereNull(PlaylistTracks.field(REMOVED_AT));
+    }
+
+    private Where playlistTracksSoundsFilter(List<Long> playlistIds) {
+        return filter()
+                .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
+                .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
+                .whereIn(PLAYLIST_ID, playlistIds);
     }
 
     private Query orderedPlaylistQuery() {
