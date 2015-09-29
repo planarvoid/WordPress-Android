@@ -84,6 +84,8 @@
         <ignore path="res/values/keys.xml"/>
         <!-- ignore Crashlytics plugin auto-generated code -->
         <ignore path="res/values/com_crashlytics_export_strings.xml"/>
+        <!-- ignore Appboy notification drawables -->
+        <ignore path="res/values/appboy.xml"/>
     </issue>
 
     <issue id="SetJavaScriptEnabled">
