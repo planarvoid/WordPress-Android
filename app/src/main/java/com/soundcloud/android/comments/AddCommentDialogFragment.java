@@ -1,8 +1,6 @@
 package com.soundcloud.android.comments;
 
 
-import static rx.android.app.AppObservable.bindActivity;
-
 import com.cocosw.undobar.UndoBarController;
 import com.cocosw.undobar.UndoBarController.UndoBar;
 import com.cocosw.undobar.UndoBarStyle;
@@ -14,12 +12,15 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -48,6 +49,8 @@ public class AddCommentDialogFragment extends DialogFragment {
 
     @Inject CommentsOperations commentsOperations;
     @Inject EventBus eventBus;
+
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     public static AddCommentDialogFragment create(PropertySet track, long position, String originScreen) {
         Bundle b = new Bundle();
@@ -89,16 +92,21 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .create();
     }
 
-    private void onAddComment(String commentText){
+    @Override
+    public void onDestroyView() {
+        subscription.unsubscribe();
+        super.onDestroyView();
+    }
+
+    private void onAddComment(String commentText) {
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
         final Urn trackUrn = track.get(TrackProperty.URN);
         final long position = getArguments().getLong(EXTRA_POSITION);
 
         final FragmentActivity activity = (FragmentActivity) getActivity();
-        bindActivity(
-                activity,
-                commentsOperations.addComment(trackUrn, commentText, position)
-        ).subscribe(new CommentAddedSubscriber(activity, track, eventBus));
+        subscription = commentsOperations.addComment(trackUrn, commentText, position)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CommentAddedSubscriber(activity, track, eventBus));
 
         final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));

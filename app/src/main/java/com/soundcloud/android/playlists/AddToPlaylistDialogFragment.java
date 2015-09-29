@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static rx.android.app.AppObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import butterknife.Bind;
@@ -19,6 +18,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -126,10 +126,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     private void onAddTrackToSet(long playlistId) {
         long trackId = getArguments().getLong(KEY_TRACK_ID);
 
-        addTrackSubscription = bindFragment(this,
-                playlistOperations
-                        .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId)))
-                        .subscribe(new TrackAddedSubscriber());
+        addTrackSubscription = playlistOperations
+                .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new TrackAddedSubscriber());
 
         trackAddingToPlaylistEvent(trackId);
     }
