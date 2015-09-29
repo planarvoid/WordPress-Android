@@ -100,18 +100,24 @@ public class StationsOperations {
     }
 
     Observable<Station> collection(final int type) {
-        return stationsStorage.getStationsCollection(type)
-                .switchIfEmpty(sync().flatMap(continueWith(stationsStorage.getStationsCollection(type))))
+        return loadStationsCollection(type)
+                .switchIfEmpty(syncAndReloadStations(type))
                 .subscribeOn(scheduler);
     }
 
     Observable<SyncResult> sync() {
-        return syncInitiator.syncRecentStations().subscribeOn(scheduler);
+        return syncInitiator.syncRecentStations();
+    }
+
+    private Observable<Station> loadStationsCollection(final int type) {
+        return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
+    }
+
+    private Observable<Station> syncAndReloadStations(final int type) {
+        return syncInitiator.syncRecentStations().flatMap(continueWith(loadStationsCollection(type)));
     }
 
     public void clearData() {
         stationsStorage.clear();
     }
-
-
 }
