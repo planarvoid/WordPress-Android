@@ -309,6 +309,9 @@
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
+        <!-- Appboy web links -->
+        <activity android:name="com.appboy.ui.AppboyWebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar" />
+
         <!-- providers -->
         <provider android:authorities="com.soundcloud.android.provider.ScContentProvider" android:exported="false" android:name=".storage.provider.ScContentProvider"/>
 

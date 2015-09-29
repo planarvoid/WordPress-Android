@@ -30,12 +30,12 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     private final AdOverlayEvent LEAVE_BEHIND_HIDDEN = AdOverlayEvent.hidden();
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED = PlayerUIEvent.fromPlayerCollapsed();
-    private final ActivityLifeCycleEvent ACTIVITY_RESUMED = ActivityLifeCycleEvent.forOnResume(Activity.class);
-    private final ActivityLifeCycleEvent ACTIVITY_PAUSED = ActivityLifeCycleEvent.forOnPause(Activity.class);
 
     @Mock private Activity activity;
     @Mock private AccountOperations accountOperations;
     private TestEventBus eventBus;
+    private ActivityLifeCycleEvent activityResumed;
+    private ActivityLifeCycleEvent activityPaused;
 
     private AdOverlayImpressionOperations controller;
     private TestObserver<TrackingEvent> observer;
@@ -50,6 +50,9 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         controller = new AdOverlayImpressionOperations(eventBus, accountOperations);
 
+        activityResumed = ActivityLifeCycleEvent.forOnResume(activity);
+        activityPaused = ActivityLifeCycleEvent.forOnPause(activity);
+
         leaveBehindEventQueue = eventBus.queue(EventQueue.AD_OVERLAY);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
@@ -62,7 +65,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void emitImpressionWhenLeaveBehindIsShownAndAppIsForegroundAndPlayerIsExpanded() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
@@ -70,12 +73,12 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doNotRepeatImpressionWhenActivityLifeCycleStateChange() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
-        activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSED);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityPaused);
+        activitiesLifeCycleQueue.onNext(activityResumed);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
     }
@@ -83,7 +86,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void doNotRepeatImpressionWhenExpendedStateChange() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
         playerUiQueue.onNext(PLAYER_COLLAPSED);
@@ -95,7 +98,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void emit2ImpressionsWhenTheLeaveBehindIsShowTwice() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_HIDDEN);
@@ -107,7 +110,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void doNotRepeatImpressionWhenLeaveBehindWhenLeaveBehindShownStatesWithoutHidden() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
@@ -118,7 +121,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void doNotEmitImpressionWhenLeaveBehindIsHidden() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_HIDDEN);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
         assertThat(observer.getOnNextEvents()).isEmpty();
@@ -126,7 +129,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doNotEmitImpressionWhenTheAppIsInBackground() {
-        activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSED);
+        activitiesLifeCycleQueue.onNext(activityPaused);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
         playerUiQueue.onNext(PLAYER_EXPANDED);
 
@@ -136,7 +139,7 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void doNotEmitImpressionWhenThePlayerIsCollapsed() {
         playerUiQueue.onNext(PLAYER_COLLAPSED);
-        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        activitiesLifeCycleQueue.onNext(activityResumed);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
         assertThat(observer.getOnNextEvents()).isEmpty();

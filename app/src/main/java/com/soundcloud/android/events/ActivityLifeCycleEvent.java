@@ -15,12 +15,12 @@ public final class ActivityLifeCycleEvent {
     private final Activity activity;
     private final int kind;
 
-    public static ActivityLifeCycleEvent forOnCreate(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(ON_CREATE_EVENT, activityClass);
+    public static ActivityLifeCycleEvent forOnCreate(Activity activity) {
+        return new ActivityLifeCycleEvent(ON_CREATE_EVENT, activity);
     }
 
-    public static ActivityLifeCycleEvent forOnResume(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(ON_RESUME_EVENT, activityClass);
+    public static ActivityLifeCycleEvent forOnResume(Activity activity) {
+        return new ActivityLifeCycleEvent(ON_RESUME_EVENT, activity);
     }
 
     public static ActivityLifeCycleEvent forOnStart(Activity activity) {
@@ -31,14 +31,8 @@ public final class ActivityLifeCycleEvent {
         return new ActivityLifeCycleEvent(ON_STOP_EVENT, activity);
     }
 
-    public static ActivityLifeCycleEvent forOnPause(Class<? extends Activity> activityClass) {
-        return new ActivityLifeCycleEvent(ON_PAUSE_EVENT, activityClass);
-    }
-
-    private ActivityLifeCycleEvent(int kind, Class<? extends Activity> activityClass) {
-        this.activityClass = activityClass;
-        this.activity = null;
-        this.kind = kind;
+    public static ActivityLifeCycleEvent forOnPause(Activity activity) {
+        return new ActivityLifeCycleEvent(ON_PAUSE_EVENT, activity);
     }
 
     private ActivityLifeCycleEvent(int kind, Activity activity) {
