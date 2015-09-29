@@ -15,7 +15,7 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -178,7 +178,7 @@ public class CastOperationsTest extends AndroidUnitTest {
 
     private MediaInfo createMediaInfo(List<Urn> playQueue, Urn currentTrack) throws JSONException {
         JSONObject customData = new JSONObject()
-                .put("play_queue", new JSONArray(CollectionUtils.urnsToStrings(playQueue)));
+                .put("play_queue", new JSONArray(Urns.toString(playQueue)));
 
         MediaMetadata metadata = new MediaMetadata();
         metadata.putString("urn", currentTrack.toString());
@@ -213,7 +213,7 @@ public class CastOperationsTest extends AndroidUnitTest {
         assertThat(localPlayQueue.currentTrackUrn).isEqualTo(currentTrack.get(TrackProperty.URN));
         assertThat(localPlayQueue.playQueueTrackUrns).isEqualTo(playQueueTracks);
         assertThat(localPlayQueue.playQueueTracksJSON.get("play_queue").toString())
-                .isEqualTo(new JSONArray(CollectionUtils.urnsToStrings(playQueueTracks)).toString());
+                .isEqualTo(new JSONArray(Urns.toString(playQueueTracks)).toString());
 
         MediaInfo mediaInfo = localPlayQueue.mediaInfo;
         assertThat(mediaInfo.getContentType()).isEqualTo("audio/mpeg");

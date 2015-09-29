@@ -6,7 +6,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 
@@ -40,7 +40,7 @@ public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>
             final int endIndex = Math.min(input.size(), (++pageIndex) * pageSize);
             final ApiRequest request = buildRequest(input.subList(startIndex, endIndex));
 
-            CollectionUtils.addAll(results, apiClient.fetchMappedResponse(request, provideResourceType()));
+            Iterables.addAll(results, apiClient.fetchMappedResponse(request, provideResourceType()));
 
         } while (pageIndex * pageSize < input.size());
         return results;

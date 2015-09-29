@@ -15,8 +15,8 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -127,7 +127,7 @@ public class CastOperations {
     private JSONObject createPlayQueueJSON(List<Urn> urns) {
         JSONObject playQueue = new JSONObject();
         try {
-            playQueue.put(KEY_PLAY_QUEUE, new JSONArray(CollectionUtils.urnsToStrings(urns)));
+            playQueue.put(KEY_PLAY_QUEUE, new JSONArray(Urns.toString(urns)));
         } catch (JSONException e) {
             Log.e(TAG, "Unable to build play queue JSON object", e);
         }

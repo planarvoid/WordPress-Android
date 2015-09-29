@@ -13,7 +13,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class FetchPlaylistsCommandTest {
 
     private void setupRequest(List<Urn> urns, List<ApiPlaylist> playlists) throws Exception {
         Map body = new HashMap();
-        body.put("urns", CollectionUtils.urnsToStrings(urns));
+        body.put("urns", Urns.toString(urns));
 
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_FETCH.path()).withContent(body)), isA(TypeToken.class)))

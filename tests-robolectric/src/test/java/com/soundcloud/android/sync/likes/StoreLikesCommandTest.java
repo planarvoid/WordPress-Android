@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.utils.CollectionUtils.toPropertySets;
+import static com.soundcloud.android.utils.PropertySets.toPropertySets;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -36,7 +37,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         final ApiLike trackLike = ModelFixtures.apiTrackLike();
         final ApiLike playlistLike = ModelFixtures.apiPlaylistLike();
 
-        command.with(toPropertySets(trackLike, playlistLike)).call();
+        command.with(PropertySets.toPropertySets(trackLike, playlistLike)).call();
 
         assertThat(select(Query.from(Table.Likes.name())), counts(2));
         assertLikeInserted(trackLike, TableColumns.Sounds.TYPE_TRACK);

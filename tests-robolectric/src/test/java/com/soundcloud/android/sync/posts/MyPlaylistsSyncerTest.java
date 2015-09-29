@@ -16,7 +16,8 @@ import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.android.utils.Urns;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,7 @@ public class MyPlaylistsSyncerTest {
         final ApiPlaylist newPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
         final ApiPlaylist newPlaylist2 = ModelFixtures.create(ApiPlaylist.class);
 
-        when(loadLocalPlaylists.call()).thenReturn(CollectionUtils.toPropertySets(playlists));
+        when(loadLocalPlaylists.call()).thenReturn(PropertySets.toPropertySets(playlists));
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
                 .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
@@ -94,7 +95,7 @@ public class MyPlaylistsSyncerTest {
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);
-        requestBody.put("track_urns", CollectionUtils.urnsToStrings(playlistTracks));
+        requestBody.put("track_urns", Urns.toString(playlistTracks));
         return requestBody;
     }
 

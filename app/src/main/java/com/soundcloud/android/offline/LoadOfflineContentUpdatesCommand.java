@@ -4,8 +4,6 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
-import static com.soundcloud.android.utils.CollectionUtils.add;
-import static com.soundcloud.android.utils.CollectionUtils.subtract;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.Filter.filter;
 
@@ -22,6 +20,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +38,22 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
             return request.track;
         }
     };
+
+    private static <T> Collection<T> add(Collection<T> items, Collection<T>... collectionsToAdd) {
+        final ArrayList<T> result = new ArrayList<>(items);
+        for (Collection<T> itemsToAdd : collectionsToAdd) {
+            result.addAll(itemsToAdd);
+        }
+        return result;
+    }
+
+    private static <T> Collection<T> subtract(Collection<T> items, Collection<T>... collectionsToSubtract) {
+        final ArrayList<T> result = new ArrayList<>(items);
+        for (Collection<T> itemsToSubtract : collectionsToSubtract) {
+            result.removeAll(itemsToSubtract);
+        }
+        return result;
+    }
 
     @Inject
     public LoadOfflineContentUpdatesCommand(PropellerDatabase propellerDatabase, CurrentDateProvider dateProvider) {
