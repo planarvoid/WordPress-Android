@@ -427,7 +427,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
                 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
 
-
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
 

@@ -10,6 +10,7 @@ import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -58,6 +59,35 @@ public class EventLoggerV1JsonDataBuilder {
             default:
                 throw new IllegalStateException("Unexpected StreamNotificationEvent type: " + event);
         }
+    }
+
+    public String buildForUIEvent(UIEvent event) {
+        switch (event.getKind()) {
+            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
+                return transform(buildClickEvent("playlist_to_offline::add", event));
+            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
+                return transform(buildClickEvent("playlist_to_offline::remove", event));
+            case UIEvent.KIND_OFFLINE_LIKES_ADD:
+                return transform(buildClickEvent("likes_to_offline::add", event));
+            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
+                return transform(buildClickEvent("likes_to_offline::remove", event));
+            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
+                return transform(buildClickEvent("collection_to_offline::add", event));
+            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
+                return transform(buildClickEvent("collection_to_offline::remove", event));
+            default:
+                throw new IllegalStateException("Unexpected UIEvent type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {
+        return buildBaseEvent("click", event)
+                .clickName(clickName)
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
+                .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN));
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {

@@ -157,6 +157,14 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_UNREPOST:
                 trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
                 break;
+            case UIEvent.KIND_OFFLINE_LIKES_ADD:
+            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
+            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
+            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
+            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
+            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
+                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
+                break;
             default:
                 // no-op, ignoring certain types
                 break;
@@ -200,7 +208,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         } else {
             trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioEvent(eventData));
         }
-
     }
 
     private void trackEvent(long timeStamp, String data) {

@@ -89,9 +89,15 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 return true;
             case R.id.make_offline_available:
                 fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
+                eventBus.publish(EventQueue.TRACKING,
+                        UIEvent.fromAddOfflinePlaylist(
+                                screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
                 return true;
             case R.id.make_offline_unavailable:
                 fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
+                eventBus.publish(EventQueue.TRACKING,
+                        UIEvent.fromRemoveOfflinePlaylist(
+                                screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
                 return true;
             default:
                 return false;

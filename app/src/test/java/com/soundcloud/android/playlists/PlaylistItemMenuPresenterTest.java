@@ -114,12 +114,36 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickingOnMakeOfflineAvailablePublishTrackingEvent() {
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_PLAYLIST_ADD);
+        assertThat(trackingEvent.getAttributes()
+                .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
+    }
+
+    @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
         presenter.onMenuItemClick(menuItem, context);
 
         verify(offlineContentOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+    }
+
+    @Test
+    public void clickingOnMakeOfflineUnavailablePublishTrackingEvent() {
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE);
+        assertThat(trackingEvent.getAttributes()
+                .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
     }
 
     @Test

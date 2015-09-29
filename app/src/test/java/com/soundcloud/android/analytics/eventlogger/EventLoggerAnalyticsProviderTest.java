@@ -343,9 +343,37 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldTrackLikesToOfflineEvent() {
+        UIEvent event = UIEvent.fromAddOfflineLikes("page_name");
+        assertThat(v1UIEventCaptor("ForOfflineLikesEvent", event)).isEqualTo("ForOfflineLikesEvent");
+    }
+
+    @Test
+    public void shouldTrackCollectionToOfflineEvent() {
+        UIEvent event = UIEvent.fromToggleOfflineCollection(true);
+        assertThat(v1UIEventCaptor("ForOfflineCollection", event)).isEqualTo("ForOfflineCollection");
+    }
+
+    @Test
+    public void shouldTrackPlaylistToOfflineEvent() {
+        UIEvent event = UIEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
+        assertThat(v1UIEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
+    }
+
+    @Test
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventTracker).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+    }
+
+    private String v1UIEventCaptor(String name, UIEvent event) {
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn(name);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        return captor.getValue().getData();
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {

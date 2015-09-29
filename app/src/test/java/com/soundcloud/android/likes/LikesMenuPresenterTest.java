@@ -1,5 +1,6 @@
 package com.soundcloud.android.likes;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -8,12 +9,16 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
-import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +36,7 @@ import javax.inject.Provider;
 public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     private LikesMenuPresenter likesMenuPresenter;
+    private TestEventBus eventBus;
 
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private FeatureOperations featureOperations;
@@ -42,7 +48,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
     @Mock private MenuItem menuItem;
     @Mock private View button;
     @Mock private PopupMenuWrapper popupMenuWrapper;
-    @Mock private EventBus eventBus;
+    @Mock private ScreenProvider screenProvider;
     @Captor private ArgumentCaptor<PopupMenuWrapper.PopupMenuWrapperListener> listenerCaptor;
 
     @Before
@@ -53,13 +59,17 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
                 return offlineLikesDialog;
             }
         };
+        eventBus = new TestEventBus();
+
         when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
         when(button.getContext()).thenReturn(context);
+        when(screenProvider.getLastScreenTag()).thenReturn("page_name");
         likesMenuPresenter = new LikesMenuPresenter(
                 popupMenuWrapperFactory,
                 featureOperations,
                 offlineContentOperations,
                 syncLikesDialogProvider,
+                screenProvider,
                 navigator,
                 eventBus);
     }
@@ -128,6 +138,21 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_available, false);
         verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_unavailable, true);
         verify(popupMenuWrapper).show();
+    }
+
+    @Test
+    public void sendsTrackingEventWhenRemovingOfflineLikes() {
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Boolean>empty());
+        MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_unavailable);
+        showMenu(true, false);
+
+        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
+        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_LIKES_REMOVE);
+        assertThat(trackingEvent.getAttributes()
+                .containsValue("page_name")).isTrue();
     }
 
     private void showMenu(boolean offlineFeatureEnabled, boolean offlineLikesEnabled) {
