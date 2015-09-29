@@ -8,10 +8,10 @@
 
     <color name="orange_toggle_on">@color/sc_orange</color>
     <color name="orange_toggle_on_ripple">#e24b03</color>
-    <color name="orange_toggle_on_text">#FFF</color>
+    <color name="orange_toggle_on_text">#ffffff</color>
     <color name="orange_toggle_off">#e5e5e5</color>
     <color name="orange_toggle_off_ripple">#c9c9c9</color>
-    <color name="orange_toggle_off_text">#888</color>
+    <color name="orange_toggle_off_text">#888888</color>
 
     <color name="orange_radio_on_text">@color/sc_orange</color>
     <color name="orange_radio_off_text">#777777</color>
@@ -28,10 +28,10 @@
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
     <color name="playlist_tracks">#e5e5e5</color>
-    <color name="card_full_image_border">#F2F2F2</color>
+    <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
-    <color name="player_gradient_start">#4C000000</color>
+    <color name="player_gradient_start">#4c000000</color>
     <color name="player_user_text">#c5c5c5</color>
     <color name="player_cast_device_name">#ffffff</color>
 
@@ -130,10 +130,10 @@
 
     <!-- Discovery -->
     <color name="card_list_background">#f2f2f2</color>
-    <color name="recommendation_reason_text">#999</color>
-    <color name="seed_track_text">#333</color>
-    <color name="recommended_for_you_text">#666</color>
-    <color name="search_hint_text">#999</color>
+    <color name="recommendation_reason_text">#999999</color>
+    <color name="seed_track_text">#333333</color>
+    <color name="recommended_for_you_text">#666666</color>
+    <color name="search_hint_text">#999999</color>
 
     <!-- Stations -->
     <color name="stations_home_background">#e5e5e5</color>
@@ -143,6 +143,6 @@
     <!-- Collections -->
     <color name="collections_home_background">#e5e5e5</color>
     <color name="collections_options_dialog_header">#b3b3b3</color>
-    <color name="collections_kill_filter_text_color">#ccc</color>
+    <color name="collections_kill_filter_text_color">#999999</color>
 
 </resources>
