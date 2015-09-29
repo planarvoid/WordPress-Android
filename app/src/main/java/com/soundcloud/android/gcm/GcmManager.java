@@ -34,7 +34,10 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) && bundle == null) {
+        boolean ensureRegistration = featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)
+                || featureFlags.isEnabled(Flag.APPBOY);
+
+        if (ensureRegistration && bundle == null) {
             int resultCode = googlePlayServices.isPlayServicesAvailable(activity);
             if (resultCode == ConnectionResult.SUCCESS) {
                 ensureRegistrationTokenStored(activity);

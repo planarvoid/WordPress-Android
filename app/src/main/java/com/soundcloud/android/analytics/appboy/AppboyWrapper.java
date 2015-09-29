@@ -22,6 +22,10 @@ public class AppboyWrapper {
         this.appboy = appboy;
     }
 
+    public void handleRegistration(String token) {
+        appboy.registerAppboyPushMessages(token);
+    }
+
     public void setAppboyEndpointProvider(final String authority) {
         Appboy.setAppboyEndpointProvider(new IAppboyEndpointProvider() {
             @Override

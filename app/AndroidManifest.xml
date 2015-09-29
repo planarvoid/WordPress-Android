@@ -405,6 +405,23 @@
                 <category android:name="com.soundcloud.android"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name="com.appboy.AppboyGcmReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.soundcloud.android" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".gcm.AppboyBroadcastReceiver" android:exported="false" >
+            <intent-filter>
+                <action android:name="com.soundcloud.android.intent.APPBOY_PUSH_RECEIVED" />
+                <action android:name="com.soundcloud.android.intent.APPBOY_NOTIFICATION_OPENED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.soundcloud.android.gcm.GcmInstanceIDListenerService"
             android:exported="false">

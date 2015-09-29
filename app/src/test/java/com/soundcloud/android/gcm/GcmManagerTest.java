@@ -39,6 +39,7 @@ public class GcmManagerTest {
     @Test
     public void checksForPlayServicesWhenBundleIsNull() {
         when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
@@ -49,6 +50,7 @@ public class GcmManagerTest {
     @Test
     public void showsErrorDialogWhenPlayServicesAvailableReturnsRecoverableErrorWhenBundleIsNull() {
         when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
         when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
 
@@ -60,6 +62,7 @@ public class GcmManagerTest {
     @Test
     public void startsRegistrationServiceWithNoToken() {
         when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
@@ -71,6 +74,7 @@ public class GcmManagerTest {
     @Test
     public void doesNotStartRegistrationServiceWithToken() {
         when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
         when(gcmStorage.hasToken()).thenReturn(true);
 
