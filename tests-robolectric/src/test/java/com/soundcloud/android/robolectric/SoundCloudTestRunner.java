@@ -40,6 +40,7 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
 
     public SoundCloudTestRunner(Class testClass) throws InitializationError {
         super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
+        RobolectricTestRunner.setStaticValue(android.os.Build.class, "MANUFACTURER", "me");
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisEncoder");
