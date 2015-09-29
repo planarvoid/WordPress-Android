@@ -3,20 +3,37 @@ package com.soundcloud.android.analytics.appboy;
 
 import com.appboy.Appboy;
 import com.appboy.AppboyUser;
+import com.appboy.IAppboyEndpointProvider;
 import com.appboy.models.outgoing.AppboyProperties;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.util.Base64;
 
 import javax.inject.Inject;
 
-class AppboyWrapper {
+public class AppboyWrapper {
 
     private final Appboy appboy;
 
     @Inject
-    AppboyWrapper(Appboy appboy) {
+    public AppboyWrapper(Appboy appboy) {
         this.appboy = appboy;
+    }
+
+    public void setAppboyEndpointProvider(final String authority) {
+        Appboy.setAppboyEndpointProvider(new IAppboyEndpointProvider() {
+            @Override
+            public Uri getApiEndpoint(Uri appboyEndpoint) {
+                return appboyEndpoint.buildUpon()
+                        .authority(authority).build();
+            }
+
+            @Override
+            public Uri getResourceEndpoint(Uri appboyEndpoint) {
+                return appboyEndpoint;
+            }
+        });
     }
 
     boolean openSession(Activity activity) {
@@ -50,6 +67,5 @@ class AppboyWrapper {
     public String encodeUserId(String userId) {
         return Base64.encodeToString(userId.getBytes(), Base64.NO_WRAP);
     }
-
 
 }
