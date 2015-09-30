@@ -43,7 +43,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
                 .addProperty("creator_urn", track.getCreatorUrn().toString())
                 .addProperty("playable_title", track.getTitle())
                 .addProperty("playable_urn", track.getEntityUrn().toString())
-                .addProperty("playable_type", track.getPlayableType());
+                .addProperty("playable_type", "track");
 
         eventHandler.handleEvent(event);
 
@@ -71,7 +71,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
                 .addProperty("creator_urn", track.getCreatorUrn().toString())
                 .addProperty("playable_title", track.getTitle())
                 .addProperty("playable_urn", track.getEntityUrn().toString())
-                .addProperty("playable_type", track.getPlayableType());
+                .addProperty("playable_type", "track");
 
         eventHandler.handleEvent(event);
 

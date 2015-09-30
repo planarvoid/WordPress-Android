@@ -19,10 +19,6 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 
 public abstract class PlayableItem implements StreamItem {
-    private static final String TYPE_TRACK = "track";
-    private static final String TYPE_PLAYLIST = "playlist";
-    private static final String TYPE_STATION = "station";
-    private static final String TYPE_OTHER = "other";
 
     protected final PropertySet source;
 
@@ -102,18 +98,4 @@ public abstract class PlayableItem implements StreamItem {
     public Date getCreatedAt() {
         return source.get(PlayableProperty.CREATED_AT);
     }
-
-    public String getPlayableType() {
-        Urn urn = getEntityUrn();
-
-        if(urn.isTrack()) {
-            return TYPE_TRACK;
-        } else if(urn.isPlaylist()) {
-            return TYPE_PLAYLIST;
-        } else if(urn.isStation()) {
-            return TYPE_STATION;
-        } else {
-            return TYPE_OTHER;
-        }
-     }
 }

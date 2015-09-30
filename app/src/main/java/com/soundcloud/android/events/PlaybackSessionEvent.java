@@ -5,7 +5,6 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -227,14 +226,9 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     private void putPlayableItemKeys(@Nullable PropertySet track) {
-        if (track != null && track.contains(PlayableProperty.URN)) {
-            PlayableItem playableItem = PlayableItem.from(track);
-            this.put(UIEvent.KEY_CREATOR_URN, playableItem.getCreatorUrn().toString())
-                    .put(UIEvent.KEY_CREATOR_NAME, playableItem.getCreatorName())
-                    .put(UIEvent.KEY_PLAYABLE_URN, playableItem.getEntityUrn().toString())
-                    .put(UIEvent.KEY_PLAYABLE_TITLE, playableItem.getTitle())
-                    .put(UIEvent.KEY_PLAYABLE_TYPE, playableItem.getPlayableType());
-        }
+        PlayableMetadata
+                .fromPlayableProperties(track)
+                .addToTrackingEvent(this);
     }
 
 }
