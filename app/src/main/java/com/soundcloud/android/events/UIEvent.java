@@ -117,10 +117,11 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
     }
 
-    public static UIEvent fromComment(String screenTag, long trackId) {
+    public static UIEvent fromComment(String screenTag, long trackId, @Nullable PropertySet track) {
         return new UIEvent(KIND_COMMENT)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
+                .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
+                .putPlayablePropertySetKeys(track);
     }
 
     public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn) {
@@ -245,6 +246,13 @@ public final class UIEvent extends TrackingEvent {
     private UIEvent putPlayableItemKeys(@Nullable PlayableItem playableItem) {
         PlayableMetadata
                 .fromPlayableItem(playableItem)
+                .addToTrackingEvent(this);
+        return this;
+    }
+
+    private UIEvent putPlayablePropertySetKeys(PropertySet properties) {
+        PlayableMetadata
+                .fromPlayableProperties(properties)
                 .addToTrackingEvent(this);
         return this;
     }

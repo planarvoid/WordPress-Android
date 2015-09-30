@@ -26,6 +26,7 @@ public class UIEventTest extends AndroidUnitTest {
     private TrackSourceInfo trackSourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private PromotedSourceInfo promotedSourceInfoWithNoPromoter;
+    private PropertySet trackPropertySet;
     private TrackItem trackItem;
     private PlaylistItem playlistItem;
 
@@ -34,7 +35,8 @@ public class UIEventTest extends AndroidUnitTest {
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         promotedSourceInfo = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.of(PROMOTER_URN), null);
         promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.<Urn>absent(), null);
-        trackItem = TrackItem.from(buildPlayablePropertySet(TRACK_URN));
+        trackPropertySet = buildPlayablePropertySet(TRACK_URN);
+        trackItem = TrackItem.from(trackPropertySet);
         playlistItem = PlaylistItem.from(buildPlayablePropertySet(PLAYLIST_URN));
     }
 
@@ -831,10 +833,11 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromComment() {
-        UIEvent uiEvent = UIEvent.fromComment("screen", 30);
+        UIEvent uiEvent = UIEvent.fromComment("screen", 30, trackPropertySet);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_COMMENT);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("track_id")).isEqualTo("30");
+        assertThat(uiEvent.get("playable_title")).isEqualTo(trackItem.getTitle());
     }
 
     @Test

@@ -33,6 +33,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_LIKE:
                 tagEvent(AppboyEvents.LIKE, buildPlayableProperties(event));
                 break;
+            case UIEvent.KIND_COMMENT:
+                tagEvent(AppboyEvents.COMMENT, buildPlayableProperties(event));
+                break;
             default:
                 break;
         }
