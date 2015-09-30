@@ -112,8 +112,8 @@ class StreamPlayer implements PlayerListener {
         configureNextPlayerToUse();
     }
 
-    public void resume() {
-        currentPlayer.resume();
+    public boolean resume() {
+        return currentPlayer.resume();
     }
 
     public void pause() {

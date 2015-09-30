@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -162,6 +163,23 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         Player.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         assertThat(broadcasted).isEqualTo(stateTransition);
+    }
+
+    @Test
+    public void playAgainWhenTheStreamPlayerFailedToResume() {
+        when(remoteAudioManager.requestMusicFocus(playbackService, IAudioManager.FOCUS_GAIN)).thenReturn(true);
+        playbackService.onCreate();
+        playbackService.play(track, 0);
+        playbackService.pause();
+
+        reset(streamPlayer);
+        when(streamPlayer.isPlaying()).thenReturn(false);
+        when(streamPlayer.resume()).thenReturn(false);
+        when(streamPlayer.getProgress()).thenReturn(1000L);
+
+        playbackService.togglePlayback();
+
+        verify(streamPlayer).play(track, 1000L, TRACK_PROPERTIES.get(TrackProperty.DURATION));
     }
 
     @Test
