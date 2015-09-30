@@ -50,6 +50,43 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     }
 
     @Test
+    public void shouldHaveADefaultLastPlayedPositionOfNull() {
+        final ApiStationsCollections remoteContent = StationFixtures.collections(
+                Collections.singletonList(Urn.forTrackStation(0L)),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+        final ApiStationMetadata remoteStation = remoteContent.getRecents().get(0);
+
+        command.call(buildSyncMetadata(remoteContent));
+
+        databaseAssertions().assertStationMetadataInserted(remoteStation);
+    }
+
+    @Test
+    public void shouldNotClearLastPlayedPositionFromStation() {
+        final int lastPlayedPosition = 50;
+        final ApiStation localStation = testFixtures().insertStation(lastPlayedPosition);
+        databaseAssertions().assertStationMetadataInserted(localStation.getMetadata(), lastPlayedPosition);
+
+        final ApiStationsCollections remoteContent = StationFixtures.collections(
+                Collections.singletonList(localStation.getUrn()),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+
+        command.call(buildSyncMetadata(remoteContent));
+
+        final ApiStationMetadata remoteStation = remoteContent.getRecents().get(0);
+
+        databaseAssertions().assertStationMetadataInserted(remoteStation, lastPlayedPosition);
+    }
+
+    @Test
     public void shouldAddToLocalContentNewRemoteContent() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections();
 

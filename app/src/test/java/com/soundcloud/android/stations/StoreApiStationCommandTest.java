@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
@@ -8,19 +7,19 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class StoreStationCommandTest extends StorageIntegrationTest {
+public class StoreApiStationCommandTest extends StorageIntegrationTest {
     private ApiStation station;
-    private StoreStationCommand command;
+    private StoreApiStationCommand command;
 
     @Before
     public void setup() {
-        command = new StoreStationCommand(propeller());
+        command = new StoreApiStationCommand(propeller());
         station = StationFixtures.getApiStation();
     }
 
     @Test
     public void shouldAppendThePreviousPlayQueue() {
-        StationRecord stationWithNewTracks = StationFixtures.getApiStation(station.getUrn());
+        ApiStation stationWithNewTracks = StationFixtures.getApiStation(station.getUrn());
 
         command.call(station);
         command.call(stationWithNewTracks);

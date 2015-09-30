@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
@@ -15,15 +14,15 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.List;
 
-class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
+class StoreApiStationCommand extends DefaultWriteStorageCommand<ApiStation, WriteResult> {
 
     @Inject
-    public StoreStationCommand(PropellerDatabase database) {
+    public StoreApiStationCommand(PropellerDatabase database) {
         super(database);
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final StationRecord station) {
+    protected WriteResult write(PropellerDatabase propeller, final ApiStation station) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
@@ -44,7 +43,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         });
     }
 
-    private ContentValues buildContentValues(StationRecord station, Urn trackUrn, int trackPosition) {
+    private ContentValues buildContentValues(ApiStation station, Urn trackUrn, int trackPosition) {
         return ContentValuesBuilder
                 .values()
                 .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
@@ -53,14 +52,13 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .get();
     }
 
-    private ContentValues buildStationContentValues(StationRecord station) {
+    private ContentValues buildStationContentValues(ApiStation station) {
         return ContentValuesBuilder
                 .values()
                 .put(Stations.STATION_URN, station.getUrn().toString())
                 .put(Stations.TYPE, station.getType())
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.PERMALINK, station.getPermalink())
-                .put(Stations.LAST_PLAYED_TRACK_POSITION, station.getPreviousPosition())
                 .get();
     }
 }

@@ -96,7 +96,7 @@ public interface Tables {
                 "type TEXT," +
                 "title TEXT," +
                 "permalink TEXT," +
-                "last_played_track_position INTEGER DEFAULT 0," +
+                "last_played_track_position INTEGER DEFAULT NULL," +
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";
 

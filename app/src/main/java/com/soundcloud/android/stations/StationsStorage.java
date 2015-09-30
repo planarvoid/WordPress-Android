@@ -34,7 +34,9 @@ class StationsStorage {
                     cursorReader.getString(Stations.TYPE),
                     Collections.<Urn>emptyList(),
                     cursorReader.getString(Stations.PERMALINK),
-                    cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
+                    cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
+                            ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
+                            : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
             );
         }
     };

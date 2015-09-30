@@ -4,7 +4,6 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -121,6 +120,20 @@ public class DatabaseAssertions {
     }
 
 
+    public void assertStationMetadataInserted(ApiStationMetadata station, int lastPlayedTrackPosition) {
+        assertThat(
+                select(
+                        from(Stations.TABLE)
+                                .whereEq(Stations.STATION_URN, station.getUrn())
+                                .whereEq(Stations.TITLE, station.getTitle())
+                                .whereEq(Stations.TYPE, station.getType())
+                                .whereEq(Stations.PERMALINK, station.getPermalink())
+                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedTrackPosition)
+                ),
+                counts(1)
+        );
+    }
+
     public void assertStationMetadataInserted(ApiStationMetadata station) {
         assertThat(
                 select(
@@ -129,7 +142,7 @@ public class DatabaseAssertions {
                                 .whereEq(Stations.TITLE, station.getTitle())
                                 .whereEq(Stations.TYPE, station.getType())
                                 .whereEq(Stations.PERMALINK, station.getPermalink())
-                                .whereEq(Stations.LAST_PLAYED_TRACK_POSITION, Consts.NOT_SET)
+                                .whereNull(Stations.LAST_PLAYED_TRACK_POSITION)
                 ),
                 counts(1)
         );
@@ -539,5 +552,4 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Waveforms.MAX_AMPLITUDE, waveformData.maxAmplitude)
                 .whereEq(TableColumns.Waveforms.SAMPLES, serializer.serialize(waveformData.samples))), counts(1));
     }
-
 }
