@@ -9,8 +9,10 @@ import static org.mockito.Mockito.verify;
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.explore.ExploreGenre;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -121,6 +123,28 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         expectCustomEvent("comment", playableOnlyProperties);
     }
 
+    @Test
+    public void shouldTrackExploreGenresScreens() {
+        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_MUSIC_GENRE.get(), ExploreGenre.POPULAR_AUDIO_CATEGORY);
+        AppboyProperties properties = new AppboyProperties();
+        properties.addProperty("genre", ExploreGenre.POPULAR_AUDIO_CATEGORY.getTitle());
+        properties.addProperty("category", event.getScreenTag());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("explore", properties);
+    }
+
+    @Test
+    public void exploreTrendingAudioOrMusicTrackingShouldOnlyContainCategory() {
+        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO);
+        AppboyProperties properties = new AppboyProperties();
+        properties.addProperty("category", event.getScreenTag());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("explore", properties);
+    }
 
     @Test
     public void shouldTrackSearchEvents() {

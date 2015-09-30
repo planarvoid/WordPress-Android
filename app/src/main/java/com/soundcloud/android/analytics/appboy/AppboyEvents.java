@@ -5,6 +5,7 @@ abstract class AppboyEvents {
     static final String PLAY = "play";
     static final String FOLLOW = "follow";
     static final String COMMENT = "comment";
+    static final String EXPLORE = "explore";
     static final String SEARCH = "search";
     static final String SHARE = "share";
 }
