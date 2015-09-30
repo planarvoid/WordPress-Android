@@ -16,8 +16,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-
-import android.util.Log;
+import com.soundcloud.android.utils.Log;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +24,9 @@ import java.util.List;
 class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
+
+    private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES =
+            Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN);
 
     private final AppboyWrapper appboy;
 
@@ -38,6 +40,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_LIKE:
                 tagEvent(AppboyEvents.LIKE, buildPlayableProperties(event));
                 break;
+            case UIEvent.KIND_FOLLOW:
+                tagEvent(AppboyEvents.FOLLOW, buildCreatorProperties(event));
+                break;
             case UIEvent.KIND_COMMENT:
                 tagEvent(AppboyEvents.COMMENT, buildPlayableProperties(event));
                 break;
@@ -47,6 +52,10 @@ class AppboyEventHandler {
             default:
                 break;
         }
+    }
+
+    private AppboyProperties buildCreatorProperties(UIEvent event) {
+        return buildProperties(CREATOR_ATTRIBUTES, event);
     }
 
     public void handleEvent(SearchEvent event) {

@@ -12,6 +12,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -58,15 +59,18 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToFollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30);
+        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", userProperties);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("user_id")).isEqualTo("30");
+        assertThat(uiEvent.get("creator_urn")).isEqualTo("soundcloud:users:30");
+        assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
     }
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30);
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", buildUserPropertySet(Urn.forUser(30l)));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("user_id")).isEqualTo("30");
@@ -946,6 +950,14 @@ public class UIEventTest extends AndroidUnitTest {
                 PlayableProperty.CREATOR_URN.bind(USER_URN),
                 PlayableProperty.CREATOR_NAME.bind("some username"),
                 PlayableProperty.TITLE.bind("some title")
+        );
+    }
+
+    private PropertySet buildUserPropertySet(Urn urn) {
+        return PropertySet.from(
+                UserProperty.URN.bind(urn),
+                UserProperty.USERNAME.bind("some username"),
+                UserProperty.ID.bind(urn.getNumericId())
         );
     }
 
