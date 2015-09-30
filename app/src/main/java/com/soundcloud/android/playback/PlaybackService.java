@@ -290,7 +290,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */ void play() {
         Log.d(TAG, "Playing");
         if (!streamPlayer.isPlaying() && currentTrack != Urn.NOT_SET && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            streamPlayer.resume();
+            if (!streamPlayer.resume()) {
+                Log.d(TAG, "Re-opening current track as it is not resumable");
+                play(currentTrack, streamPlayer.getProgress());
+            }
             resetVolume();
         }
     }
