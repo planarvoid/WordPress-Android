@@ -268,7 +268,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleLike(addLike,
                             Screen.PLAYLIST_DETAILS.get(),
-                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            originProvider.getScreenTag(),
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
@@ -284,7 +284,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleRepost(isReposted,
-                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            originProvider.getScreenTag(),
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
@@ -304,7 +304,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onShare() {
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistWithTracks.getUrn()));
+                    UIEvent.fromShare(originProvider.getScreenTag(), playlistWithTracks.getUrn(), playlistWithTracks.getSourceSet()));
             sendShareIntent();
         }
     }

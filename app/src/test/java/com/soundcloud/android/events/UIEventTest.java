@@ -842,20 +842,28 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromTrackShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN);
+        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN, buildPlayablePropertySet(TRACK_URN));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("track");
         assertThat(uiEvent.get("resource_id")).isEqualTo("30");
+        assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
+        assertThat(uiEvent.get("creator_urn")).isEqualTo(USER_URN.toString());
+        assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
+        assertThat(uiEvent.get("playable_urn")).isEqualTo(TRACK_URN.toString());
     }
 
     @Test
     public void shouldCreateEventFromPlaylistShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN);
+        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN, buildPlayablePropertySet(PLAYLIST_URN));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("playlist");
         assertThat(uiEvent.get("resource_id")).isEqualTo("42");
+        assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
+        assertThat(uiEvent.get("creator_urn")).isEqualTo(USER_URN.toString());
+        assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
+        assertThat(uiEvent.get("playable_urn")).isEqualTo(PLAYLIST_URN.toString());
     }
 
     @Test

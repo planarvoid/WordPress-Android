@@ -11,6 +11,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,7 +100,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventShare() {
-        UIEvent event = UIEvent.fromShare("screen", TRACK_URN);
+        UIEvent event = UIEvent.fromShare("screen", TRACK_URN, PropertySet.create());
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Share", event.getAttributes());
     }

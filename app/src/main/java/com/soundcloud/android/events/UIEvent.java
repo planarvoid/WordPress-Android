@@ -124,11 +124,12 @@ public final class UIEvent extends TrackingEvent {
                 .putPlayablePropertySetKeys(track);
     }
 
-    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn) {
+    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn, @NotNull PropertySet playable) {
         return new UIEvent(KIND_SHARE)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
+                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
+                .putPlayablePropertySetKeys(playable);
     }
 
     public static UIEvent fromShuffleMyLikes() {

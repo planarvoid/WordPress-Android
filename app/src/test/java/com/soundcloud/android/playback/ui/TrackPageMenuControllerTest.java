@@ -118,7 +118,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn());
+        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn(), track.getSource());
         expectUIEvent(expectedEvent);
     }
 

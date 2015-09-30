@@ -36,6 +36,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_COMMENT:
                 tagEvent(AppboyEvents.COMMENT, buildPlayableProperties(event));
                 break;
+            case UIEvent.KIND_SHARE:
+                tagEvent(AppboyEvents.SHARE, buildPlayableProperties(event));
+                break;
             default:
                 break;
         }

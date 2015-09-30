@@ -128,7 +128,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void handleShare(PlayerTrackState track) {
         if (!track.isPrivate()) {
             activity.startActivity(buildShareIntent(track));
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn(), track.getSource()));
         }
     }
 
