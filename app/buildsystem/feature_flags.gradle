@@ -63,6 +63,7 @@ android {
     beta {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -75,7 +76,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_APPBOY, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
