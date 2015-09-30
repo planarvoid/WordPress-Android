@@ -73,6 +73,10 @@ public class AppboyWrapper {
         return appboy.logCustomEvent(eventName, properties);
     }
 
+    boolean logCustomEvent(String eventName) {
+        return appboy.logCustomEvent(eventName);
+    }
+
     private String encodeUserId(String userId) {
         return Base64.encodeToString(userId.getBytes(), Base64.NO_WRAP);
     }

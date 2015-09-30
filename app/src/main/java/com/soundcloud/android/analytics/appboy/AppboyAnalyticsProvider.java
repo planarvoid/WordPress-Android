@@ -8,6 +8,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -109,6 +110,8 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
             eventHandler.handleEvent((UIEvent) event);
         } else if (event instanceof PlaybackSessionEvent) {
             eventHandler.handleEvent((PlaybackSessionEvent) event);
+        } else if (event instanceof SearchEvent) {
+            eventHandler.handleEvent((SearchEvent) event);
         }
     }
 
