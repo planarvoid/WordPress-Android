@@ -79,10 +79,12 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldHandleStartLifeCycleEvents() {
         ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnStart(activity);
+        when(appboy.openSession(activity)).thenReturn(true);
 
         appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
 
         verify(appboy).openSession(activity);
+        verify(appboy).requestInAppMessageRefresh();
     }
 
     @Test
