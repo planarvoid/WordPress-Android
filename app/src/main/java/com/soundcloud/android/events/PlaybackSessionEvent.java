@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -97,6 +98,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.duration = track.get(PlayableProperty.DURATION);
+        putPlayableItemKeys(track);
     }
 
     // Audio ad
@@ -144,6 +146,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public boolean isPlayingOwnPlaylist() {
         return trackSourceInfo.getPlaylistOwnerUrn().toString().equals(get(KEY_LOGGED_IN_USER_URN));
+    }
+
+    public boolean isUserTriggered() {
+        return trackSourceInfo.getIsUserTriggered();
     }
 
     public long getProgress() {
@@ -218,4 +224,11 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public boolean hasTrackFinished() {
         return isStopEvent() && getStopReason() == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
     }
+
+    private void putPlayableItemKeys(@Nullable PropertySet track) {
+        PlayableMetadata
+                .fromPlayableProperties(track)
+                .addToTrackingEvent(this);
+    }
+
 }

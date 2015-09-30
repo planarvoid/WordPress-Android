@@ -1,8 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +23,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.app.Activity;
@@ -126,24 +123,6 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackLikeEvents() {
-        PlayableItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, promotedTrack);
-
-        AppboyProperties expectedProperties = new AppboyProperties()
-                .addProperty("creator_display_name", promotedTrack.getCreatorName())
-                .addProperty("creator_urn", promotedTrack.getCreatorUrn().toString())
-                .addProperty("playable_title", promotedTrack.getTitle())
-                .addProperty("playable_urn", promotedTrack.getEntityUrn().toString())
-                .addProperty("playable_type", "track");
-
-        appboyAnalyticsProvider.handleTrackingEvent(event);
-
-        expectCustomEvent("like", expectedProperties);
-    }
-
-    @Test
     public void shouldNotTrackUnLikeEvents() {
         PlayableItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name",
@@ -152,17 +131,6 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
         appboyAnalyticsProvider.handleTrackingEvent(event);
 
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
-    }
-
-    private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
-        ArgumentCaptor<AppboyProperties> captor = ArgumentCaptor.forClass(AppboyProperties.class);
-
-        verify(appboy).logCustomEvent(eq(eventName), captor.capture());
-
-        String generatedJson = captor.getValue().forJsonPut().toString();
-        String expectedJson = expectedProperties.forJsonPut().toString();
-
-        assertThat(generatedJson).isEqualTo(expectedJson);
     }
 
 }

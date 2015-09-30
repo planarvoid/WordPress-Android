@@ -57,11 +57,6 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
 
-    public static final String KEY_CREATOR_NAME = "creator_display_name";
-    public static final String KEY_CREATOR_URN = "creator_urn";
-    public static final String KEY_PLAYABLE_TITLE = "playable_title";
-    public static final String KEY_PLAYABLE_URN = "playable_urn";
-
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
@@ -248,13 +243,9 @@ public final class UIEvent extends TrackingEvent {
     }
 
     private UIEvent putPlayableItemKeys(@Nullable PlayableItem playableItem) {
-        if (playableItem != null) {
-            this.put(KEY_CREATOR_URN, playableItem.getCreatorUrn().toString())
-                .put(KEY_CREATOR_NAME, playableItem.getCreatorName())
-                .put(KEY_PLAYABLE_URN, playableItem.getEntityUrn().toString())
-                .put(KEY_PLAYABLE_TITLE, playableItem.getTitle());
-        }
-
+        PlayableMetadata
+                .fromPlayableItem(playableItem)
+                .addToTrackingEvent(this);
         return this;
     }
 
