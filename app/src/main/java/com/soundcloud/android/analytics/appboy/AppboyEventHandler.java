@@ -17,13 +17,13 @@ import android.util.Log;
 import java.util.Arrays;
 import java.util.List;
 
-class AppboyCustomEventHandler {
+class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
 
     private final AppboyWrapper appboy;
 
-    AppboyCustomEventHandler(AppboyWrapper appboy) {
+    AppboyEventHandler(AppboyWrapper appboy) {
         this.appboy = appboy;
     }
 

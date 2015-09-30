@@ -20,17 +20,17 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-public class AppboyCustomEventHandlerTest extends AndroidUnitTest {
+public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Mock private AppboyWrapper appboy;
 
     private static final PropertySet trackPropertySet = TestPropertySets.expectedTrackForPlayer();
     private static final TrackItem track = TrackItem.from(trackPropertySet);
-    private AppboyCustomEventHandler eventHandler;
+    private AppboyEventHandler eventHandler;
 
     @Before
     public void setUp() throws Exception {
-        eventHandler = new AppboyCustomEventHandler(appboy);
+        eventHandler = new AppboyEventHandler(appboy);
     }
 
     @Test

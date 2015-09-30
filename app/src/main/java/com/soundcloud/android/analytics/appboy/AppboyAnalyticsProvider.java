@@ -24,13 +24,13 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     public static final String TAG = "AppboyProvider";
     private final AppboyWrapper appboy;
-    private final AppboyCustomEventHandler customEventHandler;
+    private final AppboyEventHandler eventHandler;
 
     @Inject
     public AppboyAnalyticsProvider(AppboyWrapper appboy, AccountOperations accountOperations) {
         Log.d(TAG, "initialized");
         this.appboy = appboy;
-        customEventHandler = new AppboyCustomEventHandler(appboy);
+        eventHandler = new AppboyEventHandler(appboy);
         changeUser(accountOperations.getLoggedInUserUrn());
     }
 
@@ -106,9 +106,9 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
         if (event instanceof UIEvent) {
-            customEventHandler.handleEvent((UIEvent) event);
+            eventHandler.handleEvent((UIEvent) event);
         } else if (event instanceof PlaybackSessionEvent) {
-            customEventHandler.handleEvent((PlaybackSessionEvent) event);
+            eventHandler.handleEvent((PlaybackSessionEvent) event);
         }
     }
 
