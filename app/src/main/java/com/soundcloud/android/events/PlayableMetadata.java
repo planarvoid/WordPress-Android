@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.appboy.ui.support.StringUtils.EMPTY_STRING;
+import static com.soundcloud.android.utils.ScTextUtils.EMPTY_STRING;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
