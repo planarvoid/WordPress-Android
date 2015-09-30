@@ -11,6 +11,7 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -36,6 +37,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject PlaybackInitiator playbackInitiator;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
@@ -67,8 +69,8 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithMargins();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithMargins(this);
     }
 
     @Override

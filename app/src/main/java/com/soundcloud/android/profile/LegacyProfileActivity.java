@@ -32,6 +32,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
@@ -82,6 +83,7 @@ public class LegacyProfileActivity extends ScActivity implements
     @Inject LegacyUserStorage userStorage;
     @Inject @LightCycle PlayerController playerController;
     @Inject ProfileFragmentCreator profileListFragmentCreator;
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -281,8 +283,8 @@ public class LegacyProfileActivity extends ScActivity implements
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithContent(R.layout.profile_content);
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithContent(this, R.layout.profile_content);
     }
 
     protected void handleIntent(Intent intent) {

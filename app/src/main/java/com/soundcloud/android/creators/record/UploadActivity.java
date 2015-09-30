@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscriber;
 
@@ -17,6 +18,8 @@ import javax.inject.Inject;
 import java.io.File;
 
 public class UploadActivity extends ScActivity {
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject RecordingOperations operations;
     @Inject Navigator navigator;
 
@@ -36,6 +39,11 @@ public class UploadActivity extends ScActivity {
 
         operations.upload(SoundRecorder.UPLOAD_DIR, stream, intent.getType(), getContentResolver())
                 .subscribe(uploadSubscriber(intent));
+    }
+
+    @Override
+    protected void setActivityContentView() {
+        baseLayoutHelper.setContainerLayout(this);
     }
 
     @NotNull

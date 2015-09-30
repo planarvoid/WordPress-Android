@@ -7,6 +7,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -18,9 +19,11 @@ public class ShowAllStationsActivity extends ScActivity {
 
     @Inject @LightCycle PlayerController playerController;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
+
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayout();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayout(this);
     }
 
     @Override

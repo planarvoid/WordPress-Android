@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.view.Menu;
@@ -17,10 +18,12 @@ public class ProfileActivity extends ScActivity {
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ProfilePresenter profilePresenter;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
+
     @Override
-    protected void setContentView() {
+    protected void setActivityContentView() {
         super.setContentView(R.layout.new_profile);
-        presenter.setToolBar();
+        baseLayoutHelper.setToolBar(this);
     }
 
     @Override

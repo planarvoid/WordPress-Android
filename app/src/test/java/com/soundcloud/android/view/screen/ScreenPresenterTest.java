@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 @RunWith(MockitoJUnitRunner.class)
 public class ScreenPresenterTest {
 
-    private ScreenPresenter presenter;
+    private BaseLayoutHelper presenter;
 
     @Mock private AppCompatActivity activity;
     @Mock private LayoutInflater inflater;
@@ -31,11 +31,9 @@ public class ScreenPresenterTest {
     @Mock private View content;
     @Mock private ApplicationProperties applicationProperties;
 
-
     @Before
     public void setUp() throws Exception {
-        presenter = new ScreenPresenter(applicationProperties);
-        presenter.attach(activity);
+        presenter = new BaseLayoutHelper(applicationProperties);
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
@@ -45,7 +43,7 @@ public class ScreenPresenterTest {
     public void shouldRequestActionBarOverlayFeatureOnSettingLayout() {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
 
-        presenter.setBaseLayout();
+        presenter.setBaseLayout(activity);
 
         verify(activity).supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
     }
@@ -54,7 +52,7 @@ public class ScreenPresenterTest {
     public void shouldSetActivityLayoutOnSetBaseLayout() {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
 
-        presenter.setBaseLayout();
+        presenter.setBaseLayout(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -63,7 +61,7 @@ public class ScreenPresenterTest {
     public void shouldSetActivityLayoutOnSetBaseLayoutWithMargins() {
         when(inflater.inflate(R.layout.base_with_margins, null)).thenReturn(layout);
 
-        presenter.setBaseLayoutWithMargins();
+        presenter.setBaseLayoutWithMargins(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -72,7 +70,7 @@ public class ScreenPresenterTest {
     public void shouldSetActivityLayoutOnSetBaseDrawerLayout() {
         when(inflater.inflate(R.layout.base_with_drawer, null)).thenReturn(layout);
 
-        presenter.setBaseDrawerLayout();
+        presenter.setBaseDrawerLayout(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -82,7 +80,7 @@ public class ScreenPresenterTest {
         when(inflater.inflate(R.layout.profile_content, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        presenter.setBaseLayoutWithContent(R.layout.profile_content);
+        presenter.setBaseLayoutWithContent(activity, R.layout.profile_content);
 
         verify(container).addView(layout);
     }
@@ -92,7 +90,7 @@ public class ScreenPresenterTest {
         when(inflater.inflate(R.layout.profile_content, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        presenter.setBaseDrawerLayoutWithContent(R.layout.profile_content);
+        presenter.setBaseDrawerLayoutWithContent(activity, R.layout.profile_content);
 
         verify(container).addView(layout);
     }

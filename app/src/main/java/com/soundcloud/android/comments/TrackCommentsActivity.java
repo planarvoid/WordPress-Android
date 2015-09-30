@@ -13,6 +13,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -31,6 +32,7 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject ImageOperations imageOperations;
 
     @Override
@@ -78,8 +80,8 @@ public class TrackCommentsActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithContent(R.layout.track_comments_activity);
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithContent(this, R.layout.track_comments_activity);
     }
 
     @Override
