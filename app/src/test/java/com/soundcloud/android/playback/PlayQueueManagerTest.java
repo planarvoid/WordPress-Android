@@ -195,6 +195,43 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void appendlayQueueItemsAppendsAllPlayQueueItems() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
+
+        playQueueManager.appendPlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(3L, 4L, 5L), playlistSessionSource));
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(6);
+        assertThat(playQueueManager.getUrnAtPosition(3)).isEqualTo(Urn.forTrack(3L));
+        assertThat(playQueueManager.getUrnAtPosition(4)).isEqualTo(Urn.forTrack(4L));
+        assertThat(playQueueManager.getUrnAtPosition(5)).isEqualTo(Urn.forTrack(5L));
+    }
+
+    @Test
+    public void appendPlayQueueItemsSavesQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
+
+        playQueueManager.appendPlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(4L, 5L), playlistSessionSource));
+
+        verify(playQueueOperations).saveQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L), playlistSessionSource));
+    }
+
+    @Test
+    public void appendPlayQueueItemsBroadcastsPlayQueueUpdate() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
+
+        playQueueManager.appendPlayQueueItems(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(4L, 5L), playlistSessionSource));
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(2);
+    }
+
+    @Test
     public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);

@@ -24,11 +24,9 @@ import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
@@ -41,12 +39,6 @@ import java.util.List;
 
 public class DatabaseAssertions {
 
-    private final Function<TrackRecord, String> toUrn = new Function<TrackRecord, String>() {
-        @Override
-        public String apply(TrackRecord track) {
-            return track.getUrn().toString();
-        }
-    };
     private SQLiteDatabase database;
 
     public DatabaseAssertions(SQLiteDatabase database) {
@@ -176,12 +168,21 @@ public class DatabaseAssertions {
         );
     }
 
-    public void assertStationsPlayQueueIsEmpty(StationRecord station) {
+    public void assertStationPlayQueueContains(Urn stationUrn, List<Urn> tracks) {
         assertThat(
-                select(from(StationsPlayQueues.TABLE)
-                        .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())),
-                counts(0)
+                select(from(StationsPlayQueues.TABLE).whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())),
+                counts(tracks.size())
         );
+        for (int position = 0; position < tracks.size(); position++) {
+            Urn track = tracks.get(position);
+            assertThat(
+                    select(from(StationsPlayQueues.TABLE)
+                            .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
+                            .whereEq(StationsPlayQueues.POSITION, position)
+                            .whereEq(StationsPlayQueues.TRACK_URN, track.toString())),
+                    counts(1)
+            );
+        }
     }
 
     public void assertRecentStationsContains(Urn stationUrn, long currentTime, int expectedCount) {

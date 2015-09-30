@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.Collections;
+import java.util.List;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -84,6 +86,22 @@ public class StationsOperationsTest {
 
         subscriber.assertValue(station);
         assertThat(syncResults.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void fetchUpcomingTracksShouldFetchAndReturnTrackFromStorage() {
+        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
+        final Urn station = Urn.forTrackStation(123L);
+        final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
+        final List<Urn> tracks = stationApi.getTracks();
+        final List<Urn> subTrackList = tracks.subList(2, tracks.size());
+
+        when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
+        when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));
+
+        operations.fetchUpcomingTracks(station, 2).subscribe(subscriber);
+
+        subscriber.assertValue(PlayQueue.fromStation(station, subTrackList));
     }
 
     @Test

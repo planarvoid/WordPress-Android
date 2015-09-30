@@ -116,12 +116,12 @@ public interface Tables {
                 "station_urn TEXT," +
                 "track_urn TEXT," +
                 "position INTEGER DEFAULT 0," +
-                "PRIMARY KEY(station_urn, track_urn) ON CONFLICT REPLACE," +
+                "PRIMARY KEY(station_urn, track_urn, position) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
         protected StationsPlayQueues() {
-            super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_urn"));
+            super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_urn", "position"));
         }
     }
 

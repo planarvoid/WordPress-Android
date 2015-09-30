@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -62,7 +63,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void shouldAddPlayQueueItemToPlayQueue() {
+    public void addPlayQueueItemShouldAppendToPlayQueue() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
         playQueue.addPlayQueueItem(new PlayQueueItem.Builder(Urn.forTrack(123L))
@@ -73,6 +74,22 @@ public class PlayQueueTest {
         assertThat(playQueue.getTrackId(3)).isEqualTo(123L);
         assertThat(playQueue.getTrackSource(3)).isEqualTo("source3");
         assertThat(playQueue.getSourceVersion(3)).isEqualTo("version3");
+    }
+
+    @Test
+    public void addAllPlayQueueItemsShouldAppendToPlayQueue() {
+        PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
+
+        playQueue.addAllPlayQueueItems(Arrays.asList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2));
+
+        assertThat(playQueue.size()).isEqualTo(5);
+        assertThat(playQueue.getUrn(3)).isEqualTo(PLAY_QUEUE_ITEM_1.getTrackUrn());
+        assertThat(playQueue.getTrackSource(3)).isEqualTo(PLAY_QUEUE_ITEM_1.getSource());
+        assertThat(playQueue.getSourceVersion(3)).isEqualTo(PLAY_QUEUE_ITEM_1.getSourceVersion());
+
+        assertThat(playQueue.getUrn(4)).isEqualTo(PLAY_QUEUE_ITEM_2.getTrackUrn());
+        assertThat(playQueue.getTrackSource(4)).isEqualTo(PLAY_QUEUE_ITEM_2.getSource());
+        assertThat(playQueue.getSourceVersion(4)).isEqualTo(PLAY_QUEUE_ITEM_2.getSourceVersion());
     }
 
     @Test
