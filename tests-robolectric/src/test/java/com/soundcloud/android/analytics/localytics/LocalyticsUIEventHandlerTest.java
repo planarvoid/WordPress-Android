@@ -92,7 +92,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventComment() {
-        UIEvent event = UIEvent.fromComment("screen", 30L);
+        UIEvent event = UIEvent.fromComment("screen", 30L, null);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Comment", event.getAttributes());
     }
