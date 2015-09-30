@@ -109,7 +109,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .subscribe(new CommentAddedSubscriber(activity, track, eventBus));
 
         final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId(), track));
     }
 
     @VisibleForTesting

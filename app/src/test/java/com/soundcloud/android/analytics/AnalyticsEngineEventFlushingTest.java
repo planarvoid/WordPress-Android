@@ -117,7 +117,7 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment("screen", 1L));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment("screen", 1L, null));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

@@ -26,6 +26,14 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     private static final PropertySet trackPropertySet = TestPropertySets.expectedTrackForPlayer();
     private static final TrackItem track = TrackItem.from(trackPropertySet);
+
+    private static final AppboyProperties playableOnlyProperties = new AppboyProperties()
+            .addProperty("creator_display_name", track.getCreatorName())
+            .addProperty("creator_urn", track.getCreatorUrn().toString())
+            .addProperty("playable_title", track.getTitle())
+            .addProperty("playable_urn", track.getEntityUrn().toString())
+            .addProperty("playable_type", "track");
+
     private AppboyEventHandler eventHandler;
 
     @Before
@@ -38,16 +46,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name",
                 Urn.forTrack(123), Urn.NOT_SET, null, track);
 
-        AppboyProperties expectedProperties = new AppboyProperties()
-                .addProperty("creator_display_name", track.getCreatorName())
-                .addProperty("creator_urn", track.getCreatorUrn().toString())
-                .addProperty("playable_title", track.getTitle())
-                .addProperty("playable_urn", track.getEntityUrn().toString())
-                .addProperty("playable_type", "track");
-
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("like", expectedProperties);
+        expectCustomEvent("like", playableOnlyProperties);
     }
 
     @Test
@@ -66,16 +67,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
                 trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
 
-        AppboyProperties expectedProperties = new AppboyProperties()
-                .addProperty("creator_display_name", track.getCreatorName())
-                .addProperty("creator_urn", track.getCreatorUrn().toString())
-                .addProperty("playable_title", track.getTitle())
-                .addProperty("playable_urn", track.getEntityUrn().toString())
-                .addProperty("playable_type", "track");
-
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("play", expectedProperties);
+        expectCustomEvent("play", playableOnlyProperties);
     }
 
     @Test
@@ -114,6 +108,15 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
+    }
+
+    @Test
+    public void shouldTrackCommentEvents() {
+        UIEvent event = UIEvent.fromComment("screen", 123l, trackPropertySet);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("comment", playableOnlyProperties);
     }
 
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
