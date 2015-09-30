@@ -24,7 +24,7 @@ def executePostWithData(url, json, defaultReturnValue) {
 }
 
 def executeGet(url, defaultReturnValue) {
-  def cmd = ['curl',  '-X', 'GET', '-m', '10', url]
+  def cmd = ['curl',  '-X', 'GET', '-m', '20', url]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
