@@ -5,9 +5,11 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -97,6 +99,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.duration = track.get(PlayableProperty.DURATION);
+        putPlayableItemKeys(track);
     }
 
     // Audio ad
@@ -144,6 +147,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public boolean isPlayingOwnPlaylist() {
         return trackSourceInfo.getPlaylistOwnerUrn().toString().equals(get(KEY_LOGGED_IN_USER_URN));
+    }
+
+    public boolean isUserTriggered() {
+        return trackSourceInfo.getIsUserTriggered();
     }
 
     public long getProgress() {
@@ -218,4 +225,16 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public boolean hasTrackFinished() {
         return isStopEvent() && getStopReason() == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
     }
+
+    private void putPlayableItemKeys(@Nullable PropertySet track) {
+        if (track != null && track.contains(PlayableProperty.URN)) {
+            PlayableItem playableItem = PlayableItem.from(track);
+            this.put(UIEvent.KEY_CREATOR_URN, playableItem.getCreatorUrn().toString())
+                    .put(UIEvent.KEY_CREATOR_NAME, playableItem.getCreatorName())
+                    .put(UIEvent.KEY_PLAYABLE_URN, playableItem.getEntityUrn().toString())
+                    .put(UIEvent.KEY_PLAYABLE_TITLE, playableItem.getTitle())
+                    .put(UIEvent.KEY_PLAYABLE_TYPE, playableItem.getPlayableType());
+        }
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
 
-import com.soundcloud.android.events.LocalyticTrackingKeys;
 import com.soundcloud.android.events.UIEvent;
 
 import java.util.Locale;
@@ -11,7 +10,7 @@ enum AppboyAttributeName {
     CREATOR_URN(UIEvent.KEY_CREATOR_URN),
     PLAYABLE_TITLE(UIEvent.KEY_PLAYABLE_TITLE),
     PLAYABLE_URN(UIEvent.KEY_PLAYABLE_URN),
-    PLAYABLE_TYPE(LocalyticTrackingKeys.KEY_RESOURCES_TYPE);
+    PLAYABLE_TYPE(UIEvent.KEY_PLAYABLE_TYPE);
 
     private final String key;
 
