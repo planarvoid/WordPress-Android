@@ -65,6 +65,10 @@ public class AppboyWrapper {
         appboy.requestImmediateDataFlush();
     }
 
+    void requestInAppMessageRefresh() {
+        appboy.requestInAppMessageRefresh();
+    }
+
     boolean logCustomEvent(String eventName, AppboyProperties properties) {
         return appboy.logCustomEvent(eventName, properties);
     }

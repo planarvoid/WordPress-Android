@@ -55,7 +55,7 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        switch(event.getKind()) {
+        switch (event.getKind()) {
             case ActivityLifeCycleEvent.ON_START_EVENT:
                 openSession(event.getActivity());
                 break;
@@ -114,7 +114,9 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     private void openSession(Activity activity) {
         Log.d(TAG, "openSession (" + activity.getClass().getSimpleName() + ")");
-        appboy.openSession(activity);
+        if (appboy.openSession(activity)) {
+            appboy.requestInAppMessageRefresh();
+        }
     }
 
     private void closeSession(Activity activity) {
