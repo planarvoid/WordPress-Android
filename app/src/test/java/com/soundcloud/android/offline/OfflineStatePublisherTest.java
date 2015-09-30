@@ -27,6 +27,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void setUp() {
         queue = new DownloadQueue();
         publisher = new OfflineStatePublisher(eventBus);
+        publisher.setUpdates(emptyUpdates());
     }
 
     @Test
@@ -68,7 +69,8 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<Urn>emptyList()
         );
 
-        publisher.publishNotDownloadableStateChanges(queue, updates, Urn.NOT_SET);
+        publisher.setUpdates(updates);
+        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -87,7 +89,8 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 removedDownloads
         );
 
-        publisher.publishNotDownloadableStateChanges(queue, updates, Urn.NOT_SET);
+        publisher.setUpdates(updates);
+        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -106,7 +109,8 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<Urn>emptyList()
         );
 
-        publisher.publishNotDownloadableStateChanges(queue, updates, Urn.NOT_SET);
+        publisher.setUpdates(updates);
+        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -124,23 +128,19 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Arrays.asList(downloadRequest1.track)
         );
 
-        publisher.publishNotDownloadableStateChanges(queue, updates, downloadRequest1.track);
+        publisher.setUpdates(updates);
+        publisher.publishNotDownloadableStateChanges(queue, downloadRequest1.track);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).isEmpty();
     }
 
     @Test
     public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
-        final OfflineContentUpdates noOfflineRequest = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList());
         final List<DownloadRequest> previousQueueState = Collections.singletonList(downloadRequest1);
 
         queue.set(previousQueueState);
-        publisher.publishNotDownloadableStateChanges(queue, noOfflineRequest, Urn.NOT_SET);
+        publisher.setUpdates(emptyUpdates());
+        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -161,6 +161,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     @Test
     public void publishDownloadSuccessfulEventsEmitsTrackDownloadedEvent() {
         final DownloadState result = DownloadState.success(downloadRequest1);
+        publisher.setUpdates(emptyUpdates());
         publisher.publishDownloadSuccessfulEvents(queue, result);
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
@@ -248,7 +249,16 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         return new DownloadRequest(track, 123456, "http://wav", true, inLikes, inPlaylists);
     }
 
-    private DownloadRequest creatorOptOutRequest(Urn track){
+    private DownloadRequest creatorOptOutRequest(Urn track) {
         return new DownloadRequest.Builder(track, 123456, "http://wav", false).build();
+    }
+
+    private OfflineContentUpdates emptyUpdates() {
+        return new OfflineContentUpdates(
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList());
     }
 }

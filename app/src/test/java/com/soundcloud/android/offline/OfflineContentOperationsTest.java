@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
@@ -198,7 +199,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getLikedTracksDownloadStateReturnsNoOfflineWhenOfflineLikedTrackNotEnabled() {
+    public void getLikedTracksOfflineStateReturnsNoOfflineWhenOfflineLikedTrackAreDisabled() {
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
 
         final TestObserver<OfflineState> observer = new TestObserver<>();
@@ -208,23 +209,13 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getLikedTracksDownloadStateReturnsRequestedWhenPendingRequestsExists() {
+    public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
+        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
         final TestObserver<OfflineState> observer = new TestObserver<>();
         operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.REQUESTED);
-    }
-
-    @Test
-    public void getLikedTracksDownloadStateReturnsDownloadedWhenNoPendingRequest() {
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(trackDownloadsStorage.pendingLikedTracksUrns()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.DOWNLOADED);
     }
 
     @Test

@@ -1,6 +1,9 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_OFFLINE_TRACKS;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST;
+import static com.soundcloud.android.playlists.PlaylistMapper.LOCAL_TRACK_COUNT;
+import static com.soundcloud.android.playlists.PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER;
 import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
 import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.storage.Table.Likes;
@@ -13,7 +16,6 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LikedPlaylistMapper;
-import com.soundcloud.android.playlists.PlaylistMapper;
 import com.soundcloud.android.playlists.PostedPlaylistMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -49,7 +51,7 @@ public class PlaylistLikesStorage {
     }
 
     Observable<PropertySet> loadLikedPlaylist(Urn urn) {
-        final Query query = playlistLikeQuery().whereEq(Table.Likes + "." + TableColumns.Likes._ID, urn.getNumericId());
+        final Query query = playlistLikeQuery().whereEq(Table.Likes.field(TableColumns.Likes._ID), urn.getNumericId());
         return propellerRx.query(query).map(PLAYLIST_MAPPER).defaultIfEmpty(PropertySet.create());
     }
 
@@ -66,9 +68,10 @@ public class PlaylistLikesStorage {
                         TableColumns.SoundView.TRACK_COUNT,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.SHARING,
-                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
+                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(LOCAL_TRACK_COUNT),
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
                         exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST),
+                        exists(HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_OFFLINE_TRACKS),
                         exists(IS_MARKED_FOR_OFFLINE_QUERY).as(PostedPlaylistMapper.IS_MARKED_FOR_OFFLINE))
                 .innerJoin(Table.SoundView.name(), likesSoundViewJoin)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)

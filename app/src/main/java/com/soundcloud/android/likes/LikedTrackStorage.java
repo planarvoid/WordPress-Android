@@ -31,7 +31,6 @@ public class LikedTrackStorage {
         this.propellerRx = propellerRx;
     }
 
-
     public Observable<List<PropertySet>> loadTrackLikes(int limit, long before) {
         return propellerRx.query(buildTrackLikesQuery(limit, before))
                 .map(new LikedTrackMapper())

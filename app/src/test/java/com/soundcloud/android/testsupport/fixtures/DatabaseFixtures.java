@@ -564,6 +564,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.POLICY, "BLOCK");
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, false);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
+        cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         insertInto(Table.TrackPolicies, cv);
     }

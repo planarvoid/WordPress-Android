@@ -230,7 +230,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         @Override
         public void onNext(OfflineContentUpdates requests) {
             Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + requests);
-            publisher.publishNotDownloadableStateChanges(queue, requests, downloadHandler.getCurrentTrack());
+            publisher.setUpdates(requests);
+            publisher.publishNotDownloadableStateChanges(queue, downloadHandler.getCurrentTrack());
 
             queue.set(MoreCollections.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
             publisher.publishDownloadsRequested(queue);

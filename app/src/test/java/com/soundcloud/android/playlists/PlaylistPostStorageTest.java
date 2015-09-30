@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
+import android.support.annotation.NonNull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -132,63 +134,94 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() throws Exception {
+    public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() {
         final ApiPlaylist postedPlaylist = insertPlaylistWithRequestedDownload(POSTED_DATE_1, System.currentTimeMillis());
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.singletonList(createPostAndRequestedPropertySet(postedPlaylist)));
+        subscriber.assertValue(
+                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.REQUESTED)));
     }
 
     @Test
-    public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() throws Exception {
+    public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() {
         final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        subscriber.assertValue(Collections.singletonList(createPostAndDownloadedPropertySet(postedPlaylist)));
+        subscriber.assertValue(
+                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.DOWNLOADED)));
     }
 
     @Test
-    public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() throws Exception {
+    public void loadDownloadStateOfAPlaylistWithOnlyCreatorOptOutTracks() {
+        final ApiPlaylist postedPlaylist = insertPlaylistWithUnavailableTrack(POSTED_DATE_1, 123L);
+        addCreatorOptOutTrackToPlaylist(postedPlaylist);
+
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValue(
+                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.UNAVAILABLE)));
+    }
+
+    @Test
+    public void loadDownloadStateOfAPlaylistWithSomeCreatorOptOutTracks() {
+        final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
+        addCreatorOptOutTrackToPlaylist(postedPlaylist);
+
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValue(
+                Collections.singletonList(createPostedPlaylistPropertySet(postedPlaylist, OfflineState.DOWNLOADED)));
+    }
+
+    @Test
+    public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() {
         final ApiPlaylist postedPlaylistDownloaded = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
-        final PropertySet downloadedPlaylist = createPostAndDownloadedPropertySet(postedPlaylistDownloaded);
+        final PropertySet downloadedPlaylist = createPostedPlaylistPropertySet(postedPlaylistDownloaded, OfflineState.DOWNLOADED);
 
         final ApiPlaylist postedPlaylistRequested = insertPlaylistWithRequestedDownload(POSTED_DATE_2, System.currentTimeMillis());
-        final PropertySet requestedPlaylist = createPostAndRequestedPropertySet(postedPlaylistRequested);
+        final PropertySet requestedPlaylist = createPostedPlaylistPropertySet(postedPlaylistRequested, OfflineState.REQUESTED);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(Arrays.asList(requestedPlaylist, downloadedPlaylist));
     }
 
-    private PropertySet createPostAndRequestedPropertySet(ApiPlaylist postedPlaylistRequested) {
-        return createPostPropertySet(postedPlaylistRequested)
+    private PropertySet createPostedPlaylistPropertySet(ApiPlaylist apiPlaylist, OfflineState offlineState) {
+        return createPostPropertySet(apiPlaylist)
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
-    }
-
-    private PropertySet createPostAndDownloadedPropertySet(ApiPlaylist postedPlaylistDownloaded) {
-        return createPostPropertySet(postedPlaylistDownloaded)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
-                .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
+                .put(OfflineProperty.OFFLINE_STATE, offlineState);
     }
 
     private ApiPlaylist insertPlaylistWithRequestedDownload(Date postedDate, long requestedAt) {
-        final ApiPlaylist postedPlaylist = createPlaylistAt(postedDate);
+        final ApiPlaylist postedPlaylist = insertPlaylistMarkedForOffline(postedDate);
+
         final ApiTrack track = testFixtures().insertPlaylistTrack(postedPlaylist, 0);
-        createPlaylistCollectionWithId(postedPlaylist.getUrn().getNumericId(), postedDate);
-        testFixtures().insertPlaylistMarkedForOfflineSync(postedPlaylist);
         testFixtures().insertTrackPendingDownload(track.getUrn(), requestedAt);
         return postedPlaylist;
     }
 
     private ApiPlaylist insertPlaylistWithDownloadedTrack(Date postedDate, long requestedAt, long completedAt) {
-        final ApiPlaylist postedPlaylistDownloaded = createPlaylistAt(postedDate);
+        final ApiPlaylist postedPlaylistDownloaded = insertPlaylistMarkedForOffline(postedDate);
+
         final ApiTrack trackDownloaded = testFixtures().insertPlaylistTrack(postedPlaylistDownloaded, 0);
+        testFixtures().insertCompletedTrackDownload(trackDownloaded.getUrn(), requestedAt, completedAt);
+        return postedPlaylistDownloaded;
+    }
+
+    private ApiPlaylist insertPlaylistWithUnavailableTrack(Date postedDate, long unavailableAt) {
+        final ApiPlaylist postedPlaylistDownloaded = insertPlaylistMarkedForOffline(postedDate);
+
+        final ApiTrack trackDownloaded = testFixtures().insertPlaylistTrack(postedPlaylistDownloaded, 0);
+        testFixtures().insertUnavailableTrackDownload(trackDownloaded.getUrn(), unavailableAt);
+        return postedPlaylistDownloaded;
+    }
+
+    private ApiPlaylist insertPlaylistMarkedForOffline(Date postedDate) {
+        final ApiPlaylist postedPlaylistDownloaded = createPlaylistAt(postedDate);
         createPlaylistCollectionWithId(postedPlaylistDownloaded.getUrn().getNumericId(), postedDate);
         testFixtures().insertPlaylistMarkedForOfflineSync(postedPlaylistDownloaded);
-        testFixtures().insertCompletedTrackDownload(trackDownloaded.getUrn(), requestedAt, completedAt);
         return postedPlaylistDownloaded;
     }
 
@@ -228,5 +261,10 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         apiTrack.setUrn(Urn.forTrack(trackId));
         testFixtures().insertTrack(apiTrack);
         testFixtures().insertTrackPost(apiTrack.getId(), apiTrack.getCreatedAt().getTime(), false);
+    }
+
+    private void addCreatorOptOutTrackToPlaylist(ApiPlaylist postedPlaylist) {
+        final ApiTrack track = testFixtures().insertPlaylistTrack(postedPlaylist, 1);
+        testFixtures().insertUnavailableTrackDownload(track.getUrn(), POSTED_DATE_1.getTime());
     }
 }

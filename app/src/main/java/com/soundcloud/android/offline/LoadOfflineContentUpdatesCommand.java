@@ -4,6 +4,7 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
+import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.Filter.filter;
 
@@ -63,19 +64,19 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     @Override
     public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
-        final List<DownloadRequest> expectedRequests = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
+        final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
         final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
+        final Collection<Urn> downloadableUrns = MoreCollections.transform(downloadable, toUrn);
 
-        final Collection<Urn> expectedTracks = MoreCollections.transform(expectedRequests, toUrn);
         final List<Urn> requested = getDownloadRequests();
         final List<Urn> downloaded = getDownloaded();
         final List<Urn> pendingRemovals = getPendingRemovals();
-        final List<Urn> unavailable = getMarkedAsUnavailable();
+        final List<Urn> previousUnavailable = getMarkedAsUnavailable();
 
-        final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(expectedRequests, pendingRemovals);
-        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(expectedRequests, requested, downloaded, tracksToRestore);
-        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(expectedRequests, pendingRemovals, tracksToRestore, downloaded);
-        final List<Urn> newPendingRemovals = getNewPendingRemovals(expectedTracks, downloaded, unavailable, requested);
+        final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(downloadable, pendingRemovals);
+        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(downloadable, requested, downloaded, tracksToRestore);
+        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(downloadable, pendingRemovals, tracksToRestore, downloaded);
+        final List<Urn> newPendingRemovals = getNewPendingRemovals(userExpectedContent, downloaded, previousUnavailable, requested);
 
         return new OfflineContentUpdates(
                 newArrayList(allDownloadRequests),
@@ -132,9 +133,10 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloaded,
+    private List<Urn> getNewPendingRemovals(Collection<DownloadRequest> expectedContent, List<Urn> downloaded,
                                             Collection<Urn> unavailable, Collection<Urn> requested) {
-        return newArrayList(subtract(add(downloaded, requested, unavailable), expectedContent));
+        Collection<Urn> expectedTracks = MoreCollections.transform(expectedContent, toUrn);
+        return newArrayList(subtract(add(downloaded, requested, unavailable), expectedTracks));
     }
 
     private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent,

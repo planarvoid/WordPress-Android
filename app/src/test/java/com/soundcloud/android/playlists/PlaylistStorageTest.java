@@ -172,6 +172,38 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadDownloadedStateWhenPlaylistHasOnlyCreatorOptedOutTracks() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        testFixtures().insertUnavailableTrackDownload(track.getUrn(), 123L);
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        final PropertySet expected = TestPropertySets
+                .fromApiPlaylist(apiPlaylist, false, false, true, false)
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
+
+        assertThat(playlist).isEqualTo(expected);
+    }
+
+    @Test
+    public void loadDownloadedStateWhenPlaylistHasSomeCreatorOptedOutTracks() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        testFixtures().insertCompletedTrackDownload(track1.getUrn(), 123L, System.currentTimeMillis());
+        final ApiTrack track2 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        testFixtures().insertUnavailableTrackDownload(track2.getUrn(), 123L);
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        final PropertySet expected = TestPropertySets
+                .fromApiPlaylist(apiPlaylist, false, false, true, false)
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
+
+        assertThat(playlist).isEqualTo(expected);
+    }
+
+    @Test
     public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() {
         final ApiPlaylist downloadedPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack downloadedTrack = testFixtures().insertPlaylistTrack(downloadedPlaylist, 0);
