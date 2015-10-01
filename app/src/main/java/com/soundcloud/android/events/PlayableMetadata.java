@@ -1,11 +1,11 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.utils.ScTextUtils.EMPTY_STRING;
-
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,20 +34,28 @@ public class PlayableMetadata {
         this.playableUrn = playableUrn;
     }
 
+    static PlayableMetadata fromUserProperties(PropertySet properties) {
+        return new PlayableMetadata(
+                properties.getOrElse(UserProperty.USERNAME, Strings.EMPTY),
+                properties.getOrElse(UserProperty.URN, Urn.NOT_SET),
+                Strings.EMPTY,
+                Urn.NOT_SET);
+    }
+
     static PlayableMetadata fromPlayableProperties(@Nullable PropertySet properties) {
         if (properties == null) {
             return empty();
         }
 
         return new PlayableMetadata(
-                properties.getOrElse(PlayableProperty.CREATOR_NAME, EMPTY_STRING),
+                properties.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY),
                 properties.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET),
-                properties.getOrElse(PlayableProperty.TITLE, EMPTY_STRING),
+                properties.getOrElse(PlayableProperty.TITLE, Strings.EMPTY),
                 properties.getOrElse(PlayableProperty.URN, Urn.NOT_SET));
     }
 
     static PlayableMetadata empty() {
-        return new PlayableMetadata(EMPTY_STRING, Urn.NOT_SET, EMPTY_STRING, Urn.NOT_SET);
+        return new PlayableMetadata(Strings.EMPTY, Urn.NOT_SET, Strings.EMPTY, Urn.NOT_SET);
     }
 
     static PlayableMetadata fromPlayableItem(@Nullable PlayableItem item) {

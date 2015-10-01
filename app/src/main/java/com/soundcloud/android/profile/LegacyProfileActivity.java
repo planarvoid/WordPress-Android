@@ -151,7 +151,7 @@ public class LegacyProfileActivity extends ScActivity implements
                     public void onClick(View v) {
                         toggleFollowing(user);
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
-                                Screen.USER_HEADER.get(), user.getId()));
+                                Screen.USER_HEADER.get(), user.toPropertySet()));
                     }
                 });
             }

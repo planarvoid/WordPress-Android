@@ -14,4 +14,5 @@ public final class UserProperty extends EntityProperty {
     public static final Property<String> WEBSITE_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> MYSPACE_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> DISCOGS_NAME = Property.of(UserProperty.class, String.class);
+    public static final Property<Long> ID = Property.of(UserProperty.class, Long.class);
 }

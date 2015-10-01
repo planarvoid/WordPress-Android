@@ -11,6 +11,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventFollow() {
-        UIEvent event = UIEvent.fromToggleFollow(true, "screen", 30L);
+        UIEvent event = UIEvent.fromToggleFollow(true, "screen", buildUserPropertySet(Urn.forUser(123L)));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Follow", event.getAttributes());
     }
@@ -105,4 +106,11 @@ public class LocalyticsUIEventHandlerTest {
         verify(localyticsSession).tagEvent("Share", event.getAttributes());
     }
 
+    private PropertySet buildUserPropertySet(Urn urn) {
+        return PropertySet.from(
+                UserProperty.URN.bind(urn),
+                UserProperty.USERNAME.bind("some username"),
+                UserProperty.ID.bind(urn.getNumericId())
+        );
+    }
 }

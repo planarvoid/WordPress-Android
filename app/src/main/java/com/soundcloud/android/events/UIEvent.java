@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -67,10 +68,11 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
+    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, PropertySet user) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(userId));
+                .put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(user.get(UserProperty.ID)))
+                .putCreatorPropertyKeys(user);
     }
 
     public static UIEvent fromToggleLike(boolean isLike,
@@ -247,6 +249,13 @@ public final class UIEvent extends TrackingEvent {
     private UIEvent putPlayableItemKeys(@Nullable PlayableItem playableItem) {
         PlayableMetadata
                 .fromPlayableItem(playableItem)
+                .addToTrackingEvent(this);
+        return this;
+    }
+
+    private UIEvent putCreatorPropertyKeys(PropertySet user) {
+        PlayableMetadata
+                .fromUserProperties(user)
                 .addToTrackingEvent(this);
         return this;
     }
