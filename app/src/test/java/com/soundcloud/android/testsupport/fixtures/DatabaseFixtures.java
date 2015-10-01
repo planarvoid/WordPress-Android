@@ -26,7 +26,6 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
 
 import java.util.Date;
 import java.util.List;
@@ -310,41 +309,50 @@ public class DatabaseFixtures {
     }
 
     public ApiStation insertStation() {
-        return insertStation(Consts.NOT_SET);
-    }
-
-    public ApiStation insertStation(ApiStation station) {
-        return insertStation(Consts.NOT_SET, station);
+        return insertStation(StationFixtures.getApiStation());
     }
 
     public ApiStation insertStation(int lastPlayedPosition) {
-        return insertStation(lastPlayedPosition, StationFixtures.getApiStation());
+        return insertStation(StationFixtures.getApiStation(), lastPlayedPosition);
     }
 
-    @NonNull
-    private ApiStation insertStation(int lastPlayedPosition, ApiStation station) {
-        insertInto(Stations.TABLE, getStationContentValues(station, lastPlayedPosition));
+    public ApiStation insertStation(ApiStation station) {
+        insertInto(Stations.TABLE, getStationContentValues(station));
+        insertStationPlayQueue(station);
+        return station;
+    }
 
+    private ApiStation insertStation(ApiStation station, int lastPlayedPosition) {
+        insertInto(Stations.TABLE, getStationContentValues(station, lastPlayedPosition));
+        insertStationPlayQueue(station);
+        return station;
+    }
+
+    private ContentValues getStationContentValues(StationRecord station) {
+        return getDefaultStationContentValuesBuilder(station).get();
+    }
+
+    private ContentValues getStationContentValues(StationRecord station, int lastPlayedPosition) {
+        return getDefaultStationContentValuesBuilder(station)
+                .put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition)
+                .get();
+    }
+
+    private void insertStationPlayQueue(ApiStation station) {
         final List<? extends TrackRecord> playQueue = station.getTrackRecords();
 
         for (int i = 0; i < playQueue.size(); i++) {
             final TrackRecord track = playQueue.get(i);
             insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
         }
-
-        return station;
     }
 
-    private ContentValues getStationContentValues(StationRecord station, int lastPlayedPosition) {
-        final ContentValuesBuilder stationContentValues = ContentValuesBuilder.values();
-
-        stationContentValues.put(Stations.STATION_URN, station.getUrn().toString());
-        stationContentValues.put(Stations.TITLE, station.getTitle());
-        stationContentValues.put(Stations.TYPE, station.getType());
-        stationContentValues.put(Stations.PERMALINK, station.getPermalink());
-        stationContentValues.put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition);
-
-        return stationContentValues.get();
+    private ContentValuesBuilder getDefaultStationContentValuesBuilder(StationRecord station) {
+        return ContentValuesBuilder.values()
+                .put(Stations.STATION_URN, station.getUrn().toString())
+                .put(Stations.TITLE, station.getTitle())
+                .put(Stations.TYPE, station.getType())
+                .put(Stations.PERMALINK, station.getPermalink());
     }
 
     private ContentValues getTrackContentValues(int position, StationRecord stationInfo, TrackRecord track) {

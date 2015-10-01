@@ -27,7 +27,7 @@ public class StationsOperationsTest {
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
     @Mock StoreTracksCommand storeTracksCommand;
-    @Mock StoreStationCommand storeStationCommand;
+    @Mock StoreApiStationCommand storeApiStationCommand;
     @Mock StationsSyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
@@ -41,7 +41,7 @@ public class StationsOperationsTest {
                 stationsStorage,
                 stationsApi,
                 storeTracksCommand,
-                storeStationCommand,
+                storeApiStationCommand,
                 syncInitiator,
                 Schedulers.immediate()
         );
@@ -133,6 +133,6 @@ public class StationsOperationsTest {
         operations.station(station).subscribe(subscriber);
 
         verify(storeTracksCommand).call(apiStation.getTrackRecords());
-        verify(storeStationCommand).call(apiStation);
+        verify(storeApiStationCommand).call(apiStation);
     }
 }
