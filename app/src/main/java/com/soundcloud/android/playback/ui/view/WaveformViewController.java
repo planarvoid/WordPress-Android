@@ -152,6 +152,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void reset() {
         waveformSubscription.unsubscribe(); // Matthias, help test this
         waveformObservable = null;
+        isWaveformLoaded = false;
         leftProgressController.reset();
         rightProgressController.reset();
         dragProgressController.reset();
