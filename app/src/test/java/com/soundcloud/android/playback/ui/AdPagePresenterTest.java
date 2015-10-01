@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -30,11 +31,13 @@ import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
+import rx.Observable;
+
 public class AdPagePresenterTest extends AndroidUnitTest {
 
     private AdPagePresenter presenter;
-
     private View adView;
+
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
@@ -44,6 +47,8 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
+
         presenter = new AdPagePresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
         presenter.bindItemView(adView, new PlayerAd(buildAd()));
@@ -64,17 +69,31 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void togglePlayOnAdPageArtworkClick() {
-        adView.findViewById(R.id.track_page_artwork).performClick();
+    public void togglePlayOnFullBleedAdPageArtworkClick() {
+        adView.findViewById(R.id.fullbleed_ad_artwork).performClick();
 
         verify(pageListener).onTogglePlay();
     }
 
     @Test
-    public void togglePlayOnAdPageArtworkOverlayClick() {
+    public void togglePlayOnAdPageOverlay() {
         adView.findViewById(R.id.artwork_overlay).performClick();
 
         verify(pageListener).onTogglePlay();
+    }
+
+    @Test
+    public void toggleClickThroughOnCenteredAdPageArtworkClick() {
+        adView.findViewById(R.id.centered_ad_artwork).performClick();
+
+        verify(pageListener).onClickThrough();
+    }
+
+    @Test
+    public void toggleClickThroughOnCenteredOverlayClick() {
+        adView.findViewById(R.id.centered_ad_overlay).performClick();
+
+        verify(pageListener).onClickThrough();
     }
 
     @Test
@@ -117,6 +136,56 @@ public class AdPagePresenterTest extends AndroidUnitTest {
         adView.findViewById(R.id.why_ads).performClick();
 
         verify(pageListener).onAboutAds(any(FragmentActivity.class));
+    }
+
+    @Test
+    public void bothLayoutsInvisibleOnClearedAdView() {
+        presenter.clearItemView(adView);
+
+        assertCenteredLayoutInvisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void bothLayoutsInvisibleOnNoAdImageObserved() {
+        assertCenteredLayoutInvisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void bothLayoutsInvisibleOnNullAdImage() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
+        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+
+        assertCenteredLayoutInvisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void centeredLayoutSetOnIABSizedAdImage() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
+        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+
+        assertCenteredLayoutVisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void centeredLayoutSetOn2xIABSizedAdImage() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
+        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+
+        assertCenteredLayoutVisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
+        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+
+        assertCenteredLayoutInvisible();
+        assertFullbleedLayoutVisible();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -185,6 +254,30 @@ public class AdPagePresenterTest extends AndroidUnitTest {
 
     private View previewArtworkOverlay() {
         return adView.findViewById(R.id.preview_artwork_overlay);
+    }
+
+    private void assertFullbleedLayoutVisible() {
+        assertThat(adView.findViewById(R.id.learn_more)).isVisible();
+        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
+    }
+
+    private void assertFullbleedLayoutInvisible() {
+        assertThat(adView.findViewById(R.id.learn_more)).isInvisible();
+        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isInvisible();
+    }
+
+    private void assertCenteredLayoutVisible() {
+        assertThat(adView.findViewById(R.id.centered_ad_overlay)).isVisible();
+        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isVisible();
+    }
+
+    private void assertCenteredLayoutInvisible() {
+        assertThat(adView.findViewById(R.id.centered_ad_overlay)).isInvisible();
+        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isInvisible();
+    }
+
+    private Bitmap buildBitmap(int width, int height) {
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
     private PropertySet buildAd() {

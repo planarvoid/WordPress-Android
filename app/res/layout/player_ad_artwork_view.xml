@@ -2,11 +2,20 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <ImageView
-            android:id="@+id/track_page_artwork"
-            style="@style/PlayerAdArtwork"/>
+        android:id="@+id/fullbleed_ad_artwork"
+        style="@style/PlayerAdArtwork"
+        android:visibility="invisible"/>
+    <ImageView
+        android:id="@+id/centered_ad_artwork"
+        style="@style/PlayerIABAdArtwork"
+        android:visibility="invisible"/>
     <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
             android:id="@+id/artwork_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/artwork_overlay"/>
+    <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
+            android:id="@+id/centered_ad_overlay"
+            style="@style/PlayerIABAdArtwork"
+            android:visibility="invisible"/>
 </merge>

@@ -47,6 +47,7 @@
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
+    <color name="ad_default_background">#333333</color>
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>

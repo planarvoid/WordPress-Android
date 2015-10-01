@@ -3,6 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/ad_default_background"
                 android:id="@+id/player_ad_page">
 
     <include layout="@layout/player_ad_artwork_view"/>
@@ -15,7 +16,8 @@
             style="@style/AdButton.LearnMore"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/ad_learn_more_bottom" />
+            android:layout_marginBottom="@dimen/ad_learn_more_bottom"
+            android:visibility="invisible"/>
 
     <FrameLayout
             android:id="@+id/skip_container"

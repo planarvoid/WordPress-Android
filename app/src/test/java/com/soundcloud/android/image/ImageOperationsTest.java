@@ -86,6 +86,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock Cache<Urn, Bitmap> blurCache;
     @Mock FallbackBitmapLoadingAdapter.Factory viewlessLoadingAdapterFactory;
     @Mock FallbackBitmapLoadingAdapter fallbackBitmapLoadingAdapter;
+    @Mock BitmapLoadingAdapter.Factory bitmapLoadingAdapterFactory;
+    @Mock BitmapLoadingAdapter bitmapLoadingAdapter;
     @Mock FileNameGenerator fileNameGenerator;
     @Mock ImageProcessor imageProcessor;
     @Mock Configuration configuration;
@@ -98,7 +100,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(
                 imageLoader, apiUrlBuilder, placeholderGenerator, viewlessLoadingAdapterFactory,
-                imageProcessor, placeholderCache, blurCache, fileNameGenerator);
+                bitmapLoadingAdapterFactory, imageProcessor, placeholderCache, blurCache, fileNameGenerator);
         scheduler = Schedulers.immediate();
 
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
@@ -289,17 +291,6 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void displayAdInPlayerShouldNotCacheImageToDisk() {
-        imageOperations.displayAdInPlayer(Uri.parse(URL), imageView, transitionDrawable);
-
-        verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture());
-        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
-        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
-        assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isSameAs(imageView);
-        verifyFallbackDrawableOptions(RES_ID);
-    }
-
-    @Test
     public void precacheTrackArtworkCachesImageOnDisc() {
         imageOperations.precacheTrackArtwork(URN, ApiImageSize.LARGE);
 
@@ -346,6 +337,36 @@ public class ImageOperationsTest extends AndroidUnitTest {
         assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(transitionDrawable);
         assertThat(displayOptionsCaptor.getValue().getImageOnFail(resources())).isSameAs(transitionDrawable);
         assertThat(displayOptionsCaptor.getValue().getImageForEmptyUri(resources())).isSameAs(transitionDrawable);
+    }
+
+    @Test
+    public void adImageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() {
+        final Bitmap bitmap = Mockito.mock(Bitmap.class);
+        ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
+
+        Observable<Bitmap> observable = imageOperations.adImage(Uri.parse(URL));
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
+        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
+        observable.subscribe(subscriber);
+
+        verify(imageLoader).loadImage(eq(URL), captor.capture());
+        captor.getValue().onLoadingComplete("ad-image-url", imageView, bitmap);
+        verify(bitmapLoadingAdapter).onLoadingComplete(eq("ad-image-url"), any(ImageView.class), eq(bitmap));
+    }
+
+    @Test
+    public void adImageObservablePassesLoadFailedToLoadingAdapter() {
+        ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
+
+        Observable<Bitmap> observable = imageOperations.adImage(Uri.parse(URL));
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
+        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
+        observable.subscribe(subscriber);
+
+        verify(imageLoader).loadImage(eq(URL), captor.capture());
+        captor.getValue().onLoadingFailed("ad-image-url", imageView,
+                new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
+        verify(bitmapLoadingAdapter).onLoadingFailed("ad-image-url", imageView, "Decoding error");
     }
 
     @Test

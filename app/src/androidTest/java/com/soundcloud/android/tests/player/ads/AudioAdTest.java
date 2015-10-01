@@ -27,26 +27,33 @@ public class AudioAdTest extends AdBaseTest {
     public void testSkipIsNotAllowedOnAd() {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
-        playerElement.clickArtwork();
+
+        if (playerElement.isFullbleedAd()){
+            playerElement.clickAdArtwork();
+        }
+
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
-    public void testTappingArtworkPausesAd() {
+    public void testTappingFullbleedAdArtworkPausesAd() {
         swipeToAd();
-        playerElement.waitForPlayState();
-        playerElement.clickArtwork();
-        assertThat(playerElement, is(not(playing())));
+        if (playerElement.isFullbleedAd()) {
+            playerElement.waitForPlayState();
+            playerElement.clickAdArtwork();
+            assertThat(playerElement, is(not(playing())));
+        }
     }
 
-    public void testTappingArtworkTwiceResumePlayingAd() {
+    public void testTappingFullBleedAdArtworkTwiceResumePlayingAd() {
         swipeToAd();
-        playerElement.waitForPlayState();
-        playerElement.clickArtwork();
-        playerElement.waitForPlayButton();
-        playerElement.clickArtwork();
-        assertThat(playerElement, is(playing()));
+        if (playerElement.isFullbleedAd()) {
+            playerElement.waitForPlayState();
+            playerElement.clickAdArtwork();
+            playerElement.waitForPlayButton();
+            playerElement.clickAdArtwork();
+            assertThat(playerElement, is(playing()));
+        }
     }
-
 
     public void skip_testSkipShouldBeDisplayedWhenAdIsSkippable() {
         swipeToAd();

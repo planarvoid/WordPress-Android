@@ -251,6 +251,7 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
             adView = adPagePresenter.createItemView(container, skipListener);
         }
         bindView(position, adView);
+
         return adView;
     }
 

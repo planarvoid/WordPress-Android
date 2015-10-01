@@ -91,6 +91,14 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.track_page_artwork));
     }
 
+    private ViewElement fullBleedArtwork() {
+        return solo.findElement(With.id(R.id.fullbleed_ad_artwork));
+    }
+
+    private ViewElement centeredAdArtwork() {
+        return solo.findElement(With.id(R.id.centered_ad_artwork));
+    }
+
     private ViewElement creator() {
         return solo.findElement(With.id(R.id.track_page_user));
     }
@@ -296,6 +304,30 @@ public class VisualPlayerElement extends Element {
 
     public void clickArtwork() {
         artwork().click();
+    }
+
+    public void clickAdArtwork() {
+        if (isCenteredAd()) {
+            clickCenteredAdArtwork();
+        } else {
+            clickFullbleedAdArtwork();
+        }
+    }
+
+    public boolean isCenteredAd() {
+       return centeredAdArtwork().isVisible();
+    }
+
+    public void clickCenteredAdArtwork() {
+       centeredAdArtwork().click();
+    }
+
+    public boolean isFullbleedAd() {
+        return fullBleedArtwork().isVisible();
+    }
+
+    public void clickFullbleedAdArtwork() {
+        fullBleedArtwork().click();
     }
 
     public ProfileScreen clickCreator() {

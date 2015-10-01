@@ -65,6 +65,7 @@ public class ImageOperations {
 
     private final Set<String> notFoundUris = new HashSet<>();
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
+    private final BitmapLoadingAdapter.Factory bitmapAdapterFactory;
     private final FileNameGenerator fileNameGenerator;
 
     private final Cache<String, TransitionDrawable> placeholderCache;
@@ -80,20 +81,20 @@ public class ImageOperations {
 
     @Inject
     public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
-                           FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
-        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, imageProcessor,
+                           FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
+                           ImageProcessor imageProcessor) {
+        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, bitmapAdapterFactory, imageProcessor,
                 Cache.<String, TransitionDrawable>withSoftValues(50),
                 Cache.<Urn, Bitmap>withSoftValues(10),
                 new HashCodeFileNameGenerator());
-
     }
 
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
-                    FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor,
-                    Cache<String, TransitionDrawable> placeholderCache,
+                    FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
+                    ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.urlBuilder = urlBuilder;
@@ -101,6 +102,7 @@ public class ImageOperations {
         this.placeholderCache = placeholderCache;
         this.blurredImageCache = blurredImageCache;
         this.adapterFactory = adapterFactory;
+        this.bitmapAdapterFactory = bitmapAdapterFactory;
         this.imageProcessor = imageProcessor;
         this.fileNameGenerator = fileNameGenerator;
     }
@@ -157,14 +159,6 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayAdInPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
-        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        imageLoader.displayImage(
-                uri.toString(),
-                imageAware,
-                ImageOptionsFactory.playerAd(placeholderDrawable));
-    }
-
     public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
@@ -191,6 +185,10 @@ public class ImageOperations {
         imageLoader.cancelDisplayTask(imageView);
     }
 
+    private void load(Uri uri, ImageListener imageListener) {
+        imageLoader.loadImage(uri.toString(), new ImageListenerUILAdapter(imageListener));
+    }
+
     private void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
         imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
@@ -205,6 +203,15 @@ public class ImageOperations {
 
     public void display(String imageUrl, ImageView imageView) {
         imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
+    }
+
+    public Observable<Bitmap> adImage(final Uri uri) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                load(uri, bitmapAdapterFactory.create(subscriber));
+            }
+        });
     }
 
     public Observable<Bitmap> artwork(final Urn resourceUrn, final ApiImageSize apiImageSize) {

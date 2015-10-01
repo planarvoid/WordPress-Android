@@ -63,16 +63,6 @@ final class ImageOptionsFactory {
         return options.build();
     }
 
-    public static DisplayImageOptions playerAd(@Nullable Drawable placeholderDrawable) {
-        return new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisk(false)
-                .showImageOnLoading(placeholderDrawable)
-                .showImageForEmptyUri(placeholderDrawable)
-                .showImageOnFail(placeholderDrawable)
-                .build();
-    }
-
     public static DisplayImageOptions playerLeaveBehind() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
