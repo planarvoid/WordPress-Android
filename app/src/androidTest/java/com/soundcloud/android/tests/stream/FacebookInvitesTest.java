@@ -6,13 +6,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 
+@EventTrackingTest
 public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> {
 
     private static final String FACEBOOK_INVITES_CLOSED = "facebook-invites-closed";
