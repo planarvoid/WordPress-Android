@@ -110,7 +110,7 @@
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_created">Created</string>
     <string name="collections_options_toggle_likes">Liked</string>
-    <string name="collections_options_dialog_sort_by_creation">Date created</string>
+    <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
     <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
     <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
