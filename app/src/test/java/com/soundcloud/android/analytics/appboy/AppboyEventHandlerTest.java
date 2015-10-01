@@ -119,6 +119,15 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         expectCustomEvent("comment", playableOnlyProperties);
     }
 
+    @Test
+    public void shouldTrackShareEvents() {
+        UIEvent event = UIEvent.fromShare("screen", Urn.forTrack(123l), trackPropertySet);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("share", playableOnlyProperties);
+    }
+
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
         ArgumentCaptor<AppboyProperties> captor = ArgumentCaptor.forClass(AppboyProperties.class);
 
