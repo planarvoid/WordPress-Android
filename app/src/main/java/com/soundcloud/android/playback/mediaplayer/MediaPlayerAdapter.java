@@ -338,10 +338,10 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private void setInternalState(PlaybackState playbackState) {
-        setInternalState(playbackState, getAdjustedProgress(), getDuration());
+        setInternalState(playbackState, getAdjustedProgress());
     }
 
-    private void setInternalState(PlaybackState playbackState, long progress, long duration) {
+    private void setInternalState(PlaybackState playbackState, long progress) {
         internalState = playbackState;
 
         // TODO : Replace this with ProgressReporter next time we are in here
@@ -351,7 +351,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, duration, dateProvider);
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, getDuration(), dateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
@@ -542,7 +542,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (mediaPlayer != null) {
             // store times as they will not be accessible after release
             final long progress = getAdjustedProgress();
-            final long duration = getDuration();
 
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();
@@ -551,7 +550,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
 
-            setInternalState(PlaybackState.STOPPED, progress, duration);
+            setInternalState(PlaybackState.STOPPED, progress);
         }
     }
 
