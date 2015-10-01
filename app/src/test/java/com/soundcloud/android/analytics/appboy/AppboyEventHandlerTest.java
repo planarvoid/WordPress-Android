@@ -7,7 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -117,6 +119,16 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         expectCustomEvent("comment", playableOnlyProperties);
+    }
+
+
+    @Test
+    public void shouldTrackSearchEvents() {
+        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, null);
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("search");
     }
 
     @Test
