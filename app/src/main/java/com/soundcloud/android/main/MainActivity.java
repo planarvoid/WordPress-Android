@@ -24,7 +24,6 @@ import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsHomeFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
@@ -66,7 +65,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private boolean refreshStream;
 
     @Inject UserRepository userRepository;
-    @Inject FeatureFlags featureFlags;
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;

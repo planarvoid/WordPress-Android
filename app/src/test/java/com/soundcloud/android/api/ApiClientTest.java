@@ -19,7 +19,6 @@ import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -48,7 +47,6 @@ public class ApiClientTest extends AndroidUnitTest {
     private ApiClient apiClient;
 
     @Mock private OkHttpClient httpClient;
-    @Mock private FeatureFlags featureFlags;
     @Mock private JsonTransformer jsonTransformer;
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private DeviceHelper deviceHelper;

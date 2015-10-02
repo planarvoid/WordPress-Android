@@ -11,7 +11,6 @@ import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -32,7 +31,6 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
-    @Inject FeatureFlags featureFlags;
     @Inject ImageOperations imageOperations;
 
     @Override

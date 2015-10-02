@@ -12,7 +12,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -34,7 +33,6 @@ public class ExploreTracksOperationsTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private Observer observer;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() {

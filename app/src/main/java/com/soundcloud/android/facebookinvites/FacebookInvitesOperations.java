@@ -2,8 +2,6 @@ package com.soundcloud.android.facebookinvites;
 
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -21,19 +19,16 @@ public class FacebookInvitesOperations {
     public static final int REST_AFTER_DISMISS_COUNT = 2;
 
     private final FacebookInvitesStorage facebookInvitesStorage;
-    private final FeatureFlags featureFlags;
     private final FacebookApiHelper facebookApiHelper;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final FacebookApi facebookApi;
 
     @Inject
     public FacebookInvitesOperations(FacebookInvitesStorage facebookInvitesStorage,
-                                     FeatureFlags featureFlags,
                                      FacebookApi facebookApi,
                                      FacebookApiHelper facebookApiHelper,
                                      NetworkConnectionHelper networkConnectionHelper) {
         this.facebookInvitesStorage = facebookInvitesStorage;
-        this.featureFlags = featureFlags;
         this.facebookApi = facebookApi;
         this.facebookApiHelper = facebookApiHelper;
         this.networkConnectionHelper = networkConnectionHelper;

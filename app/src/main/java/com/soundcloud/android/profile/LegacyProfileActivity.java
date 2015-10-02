@@ -23,7 +23,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -80,7 +79,6 @@ public class LegacyProfileActivity extends ScActivity implements
     @Inject CondensedNumberFormatter numberFormatter;
     @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
-    @Inject FeatureFlags featureFlags;
     @Inject LegacyUserStorage userStorage;
     @Inject @LightCycle PlayerController playerController;
     @Inject ProfileFragmentCreator profileListFragmentCreator;

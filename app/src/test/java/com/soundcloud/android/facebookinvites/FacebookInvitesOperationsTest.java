@@ -6,8 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
@@ -33,12 +31,11 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     @Mock private Observer<Optional<FacebookInvitesItem>> observer;
     @Mock private FacebookApi facebookApi;
     @Mock private FacebookApiHelper facebookApiHelper;
-    @Mock private FeatureFlags featureFlags;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     @Before
     public void setUp() throws Exception {
-        operations = new FacebookInvitesOperations(storage, featureFlags, facebookApi, facebookApiHelper, networkConnectionHelper);
+        operations = new FacebookInvitesOperations(storage, facebookApi, facebookApiHelper, networkConnectionHelper);
 
         when(storage.getMillisSinceLastClick()).thenReturn(clickInterval);
         when(storage.getTimesAppOpened()).thenReturn(openCount);

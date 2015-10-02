@@ -28,14 +28,13 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +62,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackRepository trackRepository;
     @Mock private AdsOperations adsOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
 
     @Before

@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -37,7 +36,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
     @Mock private Navigator navigator;
 

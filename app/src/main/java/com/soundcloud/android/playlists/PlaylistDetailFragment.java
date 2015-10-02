@@ -82,7 +82,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistPresenter playlistPresenter;
     @Inject PlaybackToastHelper playbackToastHelper;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
     @Inject FeatureOperations featureOperations;
@@ -186,7 +185,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playQueueManager = playQueueManager;
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.accountOperations = accountOperations;
         this.navigator = navigator;
