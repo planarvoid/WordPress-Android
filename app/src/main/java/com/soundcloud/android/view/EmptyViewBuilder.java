@@ -60,7 +60,7 @@ public class EmptyViewBuilder {
             // profile specific
             case ME_SOUNDS:
                 image = R.drawable.empty_sounds;
-                messageText = context.getString(R.string.list_empty_user_sounds_message);
+                messageText = context.getString(R.string.list_empty_you_sounds_message);
                 break;
 
             case USER_SOUNDS:
@@ -75,11 +75,11 @@ public class EmptyViewBuilder {
 
             case USER_PLAYLISTS:
                 image = R.drawable.empty_playlists;
-                messageText = getTextForUser(context, R.string.list_empty_user_playlists_message, username);
+                messageText = getTextForUser(context, R.string.empty_user_playlists_text, username);
                 break;
 
             case ME_LIKES:
-                messageText = context.getString(R.string.list_empty_user_likes_message);
+                messageText = context.getString(R.string.list_empty_you_likes_message);
                 image = R.drawable.empty_like;
                 break;
 
@@ -90,8 +90,8 @@ public class EmptyViewBuilder {
 
             case ME_FOLLOWERS:
                 image = R.drawable.empty_followers;
-                secondaryText = context.getString(R.string.list_empty_user_followers_secondary);
-                messageText = context.getString(R.string.list_empty_user_followers_message);
+                secondaryText = context.getString(R.string.list_empty_you_followers_secondary);
+                messageText = context.getString(R.string.list_empty_you_followers_message);
                 break;
 
             case USER_FOLLOWERS:
@@ -101,7 +101,7 @@ public class EmptyViewBuilder {
 
             case ME_FOLLOWINGS:
                 image = R.drawable.empty_following;
-                messageText = context.getString(R.string.list_empty_user_following_message);
+                messageText = context.getString(R.string.list_empty_you_following_message);
                 actionText = context.getString(R.string.list_empty_user_following_action);
                 action = new Intent(Actions.SEARCH);
                 break;
