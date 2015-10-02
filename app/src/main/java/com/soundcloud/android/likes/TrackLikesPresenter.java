@@ -124,7 +124,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         super.onViewCreated(fragment, view, savedInstanceState);
 
         getEmptyView().setImage(R.drawable.empty_like);
-        getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
+        getEmptyView().setMessageText(R.string.list_empty_you_likes_message);
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK,

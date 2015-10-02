@@ -51,7 +51,7 @@ class MyPostsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
-        emptyView.setMessageText(R.string.list_empty_user_sounds_message);
+        emptyView.setMessageText(R.string.list_empty_you_sounds_message);
         emptyView.setImage(R.drawable.empty_sounds);
     }
 

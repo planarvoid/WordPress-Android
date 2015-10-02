@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,21 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class UserFollowersFragment extends ScrollableProfileFragment  {
+    public static String IS_CURRENT_USER = "is_current_user";
 
     @Inject @LightCycle UserFollowersPresenter presenter;
 
     public static UserFollowersFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         UserFollowersFragment fragment = new UserFollowersFragment();
         fragment.setArguments(ProfileArguments.from(userUrn,screen, searchQuerySourceInfo));
+        return fragment;
+    }
+
+    public static Fragment createForCurrentUser(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySource) {
+        UserFollowersFragment fragment = new UserFollowersFragment();
+        Bundle bundle = ProfileArguments.from(userUrn, screen, searchQuerySource);
+        bundle.putBoolean(IS_CURRENT_USER, true);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -38,4 +48,5 @@ public class UserFollowersFragment extends ScrollableProfileFragment  {
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
+
 }
