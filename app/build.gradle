@@ -150,7 +150,6 @@ dependencies {
   }
   compile libraries.jacksonRespack
   compile libraries.okHttp
-  compile libraries.localytics
   compile (libraries.slidingUpPanel) {
     transitive = true;
   }

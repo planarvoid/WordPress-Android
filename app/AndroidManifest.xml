@@ -61,8 +61,6 @@
         android:supportsRtl="false"
         >
 
-        <meta-data android:name="LOCALYTICS_NOTIFICATION_ICON" android:value="@drawable/ic_notification_localytics"/>
-
         <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -393,16 +391,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- GCM -->
-        <receiver android:name=".gcm.GcmMessageReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="com.soundcloud.android"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name="com.appboy.AppboyGcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
@@ -450,8 +438,6 @@
         </service>
 
         <service android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
-
-        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="@string/localytics_app_key"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>

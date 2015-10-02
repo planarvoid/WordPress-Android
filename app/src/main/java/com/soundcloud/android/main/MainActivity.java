@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -29,7 +28,6 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
 
     @Inject @LightCycle NavigationPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
-    @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
