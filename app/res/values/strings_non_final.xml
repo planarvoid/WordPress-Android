@@ -32,7 +32,7 @@
     <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
     <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
     <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
-    <string name="payments_error_unconfirmed_email">Please follow the link in your confirmation email and try again.</string>
+    <string name="payments_error_unconfirmed_email">You do not have a confirmed email address. To complete your purchase, please confirm your email address.</string>
     <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
     <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
     <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
