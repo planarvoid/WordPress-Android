@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -23,7 +24,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserFollowersPresenter extends com.soundcloud.android.presentation.RecyclerViewPresenter<UserItem> {
+class UserFollowersPresenter extends RecyclerViewPresenter<UserItem> {
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
@@ -53,7 +54,7 @@ class UserFollowersPresenter extends com.soundcloud.android.presentation.Recycle
 
     @Override
     protected CollectionBinding<UserItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
+        final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedFollowers(userUrn), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.followersPagingFunction())
@@ -71,8 +72,18 @@ class UserFollowersPresenter extends com.soundcloud.android.presentation.Recycle
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        getEmptyView().setMessageText(R.string.new_empty_user_followers_text);
         getEmptyView().setImage(R.drawable.empty_followers);
+        setEmtpyViewMessage(fragment);
+    }
+
+    private void setEmtpyViewMessage(Fragment fragment) {
+        final boolean isCurrentUser = fragment.getArguments().getBoolean(UserFollowersFragment.IS_CURRENT_USER, false);
+        if (isCurrentUser) {
+            getEmptyView().setMessageText(R.string.list_empty_you_followers_message);
+            getEmptyView().setSecondaryText(R.string.list_empty_you_followers_secondary);
+        } else {
+            getEmptyView().setMessageText(R.string.new_empty_user_followers_text);
+        }
     }
 
     @Override

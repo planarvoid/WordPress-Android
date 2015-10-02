@@ -127,7 +127,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     }
 
     protected void configureEmptyView(EmptyView emptyView) {
-        emptyView.setMessageText(R.string.list_empty_user_following_message);
+        emptyView.setMessageText(R.string.list_empty_you_following_message);
         emptyView.setImage(R.drawable.empty_following);
     }
 

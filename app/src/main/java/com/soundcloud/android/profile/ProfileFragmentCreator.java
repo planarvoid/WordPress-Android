@@ -38,8 +38,9 @@ class ProfileFragmentCreator {
             case USER_FOLLOWINGS:
                 return UserFollowingsFragment.create(userUrn, screen, searchQuerySource);
             case USER_FOLLOWERS:
-            case ME_FOLLOWERS:
                 return UserFollowersFragment.create(userUrn, screen, searchQuerySource);
+            case ME_FOLLOWERS:
+                return UserFollowersFragment.createForCurrentUser(userUrn, screen, searchQuerySource);
             default:
                 throw new IllegalArgumentException("Content type not recognized " + content);
         }

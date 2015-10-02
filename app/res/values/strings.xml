@@ -134,22 +134,23 @@
     <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
     <string name="list_empty_stream_action">Find people to follow</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks</string>
-    <string name="list_empty_user_followers_message">You don\'t have any followers yet.</string>
-    <string name="list_empty_user_followers_secondary">Share your favorite tracks and playlists to build your community</string>
     <string name="list_empty_user_following_action">Find people to follow</string>
-    <string name="list_empty_user_following_message">Follow your favorite artists, bands and curators to hear their latest tracks</string>
-    <string name="list_empty_user_likes_message">Like your favorite sounds to hear them again</string>
-    <string name="list_empty_user_sounds_message">Repost sounds to share with your followers</string>
     <string name="empty_playlist_title">Empty Playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet</string>
-    <string name="list_empty_user_playlists_message">%1$s currently has no playlist.</string>
-    <string name="list_empty_you_playlists_message">Create Playlists to make mixes of your favorite sounds</string>
     <string name="list_empty_liked_playlists_message">Like your favorite playlists to hear them again</string>
 
-    <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
-    <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
-    <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
+    <string name="list_empty_you_sounds_message">Repost sounds to share with your followers.</string>
+    <string name="list_empty_you_playlists_message">Create Playlists to make mixes of your favorite sounds.</string>
+    <string name="list_empty_you_likes_message">Like your favorite sounds to hear them again.</string>
+    <string name="list_empty_you_following_message">Follow your favorite artists, bands and curators to hear their latest tracks.</string>
+    <string name="list_empty_you_followers_message">You don\'t have any followers yet.</string>
+    <string name="list_empty_you_followers_secondary">Share your favorite tracks and playlists to build your community</string>
+
     <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
+    <string name="empty_user_playlists_text">%1$s currently has no playlists</string>
+    <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
+    <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
+    <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
 
     <!-- new profile -->
     <string name="new_empty_user_posts_message">This user hasn\'t uploaded\nany public sounds yet.</string>
