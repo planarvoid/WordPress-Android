@@ -70,8 +70,8 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, PropertySet user) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(user.get(UserProperty.ID)))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(user.get(UserProperty.ID)))
                 .putCreatorPropertyKeys(user);
     }
 
@@ -84,13 +84,13 @@ public final class UIEvent extends TrackingEvent {
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
                                          @Nullable PlayableItem playableItem) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
-                .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
-                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableItemKeys(playableItem);
     }
@@ -102,12 +102,12 @@ public final class UIEvent extends TrackingEvent {
                                            @NotNull Urn pageUrn,
                                            @Nullable PromotedSourceInfo promotedSourceInfo) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
-                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo);
     }
 
@@ -121,16 +121,16 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromComment(String screenTag, long trackId, @Nullable PropertySet track) {
         return new UIEvent(KIND_COMMENT)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
                 .putPlayablePropertySetKeys(track);
     }
 
     public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn, @NotNull PropertySet playable) {
         return new UIEvent(KIND_SHARE)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .putPlayablePropertySetKeys(playable);
     }
 
@@ -180,16 +180,16 @@ public final class UIEvent extends TrackingEvent {
     @VisibleForTesting
     public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.COMPANION_URN))
-                .put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString())
-                .put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.COMPANION_URN))
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.get(AdProperty.AD_CLICKTHROUGH_URLS));
     }
 
     @VisibleForTesting
     public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
                 .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AD_SKIP_URLS));
     }
 
@@ -227,11 +227,6 @@ public final class UIEvent extends TrackingEvent {
     public UIEvent(String kind, long timeStamp) {
         super(kind, timeStamp);
         promotedTrackingUrls = new HashMap<>();
-    }
-
-    @Override
-    public UIEvent put(String key, @Nullable String value) {
-        return (UIEvent) super.put(key, value);
     }
 
     public UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
