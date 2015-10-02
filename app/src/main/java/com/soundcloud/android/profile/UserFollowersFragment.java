@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class UserFollowersFragment extends ScrollableProfileFragment  {
-    public static String IS_CURRENT_USER = "is_current_user";
+    public static final String IS_CURRENT_USER = "is_current_user";
 
     @Inject @LightCycle UserFollowersPresenter presenter;
 
