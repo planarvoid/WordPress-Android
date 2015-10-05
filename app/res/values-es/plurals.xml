@@ -5,6 +5,10 @@
     Until this translation issue on Transifex is fixed, we will keep this file.
     When it is fixed, we should move these plurals back to the strings.xml file.-->
   <!--__NOTIFICATIONS-->
+  <plurals name="dashboard_notifications_activity_ticker_repost">
+    <item quantity="one">%d republicación nueva</item>
+    <item quantity="other">%d republicaciones nuevas</item>
+  </plurals>
   <plurals name="dashboard_notifications_activity_ticker_activity">
     <item quantity="one">%d actividad nueva</item>
     <item quantity="other">%d actividades nuevas</item>
@@ -13,6 +17,10 @@
     <item quantity="one">%d comentario nuevo</item>
     <item quantity="other">%d comentarios nuevos</item>
   </plurals>
+  <plurals name="dashboard_notifications_activity_ticker_like">
+    <item quantity="one">%d me gusta nuevo</item>
+    <item quantity="other">%d me gusta nuevos</item>
+  </plurals>
   <plurals name="dashboard_notifications_activity_title_activity">
     <item quantity="one">%d actividad nueva</item>
     <item quantity="other">%d actividades nuevas</item>
@@ -20,6 +28,18 @@
   <plurals name="dashboard_notifications_activity_title_comment">
     <item quantity="one">%d comentario nuevo</item>
     <item quantity="other">%d comentarios nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_like">
+    <item quantity="one">%d me gusta nuevo</item>
+    <item quantity="other">%d me gusta nuevos</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_title_repost">
+    <item quantity="one">%d republicación nueva</item>
+    <item quantity="other">%d republicaciones nuevas</item>
+  </plurals>
+  <plurals name="dashboard_notifications_activity_follower">
+    <item quantity="one">%d seguidor nuevo</item>
+    <item quantity="other">%d seguidores nuevos</item>
   </plurals>
   <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
   <plurals name="dashboard_notifications_ticker">
@@ -32,10 +52,6 @@
     <item quantity="other">%s pistas nuevas</item>
   </plurals>
   <!--__ACCESSIBILITY-->
-  <plurals name="accessibility_stats_likes">
-    <item quantity="one">%d me gusta</item>
-    <item quantity="other">%d me gusta</item>
-  </plurals>
   <!--__PLAYER-->
   <plurals name="trackinfo_comments">
     <item quantity="one">%d comentario sobre esta pista</item>
@@ -60,10 +76,6 @@
   <plurals name="following_message">
     <item quantity="one">Le sigues tú y %s otra persona</item>
     <item quantity="other">Le sigues tú y %s otras personas</item>
-  </plurals>
-  <plurals name="number_of_liked_tracks_you_liked">
-    <item quantity="one">Te gusta %d pista</item>
-    <item quantity="other">Te gustan %d pistas</item>
   </plurals>
   <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
   <plurals name="number_of_others">

@@ -125,21 +125,16 @@
   <string name="list_empty_activity_secondary">Saiba mais sobre o compartilhamento de faixas com nossos 101s</string>
   <string name="list_empty_stream_action">Encontrar pessoas para seguir</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes</string>
-  <string name="list_empty_you_followers_message">Você ainda não tem nenhum seguidor.</string>
-  <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade.</string>
   <string name="list_empty_user_following_action">Encontrar pessoas para seguir</string>
-  <string name="list_empty_you_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as faixas mais recentes.</string>
-  <string name="list_empty_you_likes_message">Curta seus faixas favoritas para ouvi-las novamente.</string>
-  <string name="list_empty_you_sounds_message">Republique faixas para compartilhar com seus seguidores.</string>
   <string name="empty_playlist_title">Playlist vazia</string>
   <string name="empty_playlist_description">Esta playlist ainda não tem faixas</string>
-  <string name="empty_user_playlists_text">%1$s não tem nenhuma playlist no momento.</string>
-  <string name="list_empty_you_playlists_message">Crie playlists para combinar suas faixas favoritas.</string>
-  <string name="list_empty_liked_playlists_message">Curta suas playlists favoritas para ouvi-las novamente.</string>
-  <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtida.</string>
-  <string name="empty_user_followers_text">%1$s ainda não\né seguido por ninguém.</string>
-  <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
+  <string name="list_empty_liked_playlists_message">Curta suas playlists favoritas para ouvi-las novamente</string>
+  <string name="list_empty_you_followers_message">Você ainda não tem nenhum seguidor.</string>
+  <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade</string>
   <string name="empty_user_tracks_text">%1$s ainda não fez upload de nenhuma faixa pública.</string>
+  <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtida.</string>
+  <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
+  <string name="empty_user_followers_text">%1$s ainda não\né seguido por ninguém.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Esse usuário ainda não fez upload de\nnenhuma faixa pública.</string>
   <string name="new_empty_user_playlists_message">Esse usuário não possui nenhuma playlist no momento.</string>
@@ -369,7 +364,8 @@
   <string name="search_empty">Nenhum resultado encontrado</string>
   <string name="search_empty_subtext">Verifique a ortografia ou tente uma pesquisa diferente</string>
   <string name="search_for_query">Pesquisar \'%s\'</string>
-  <!--__RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
+  <string name="activity_title_discovery">Pesquisar</string>
   <string name="activity_title_recommendations">Recomendado para você</string>
   <string name="recommendation_view_all">Exibir todas as %1$d</string>
   <string name="recommendation_reason_because_you">Porque você %1$s %2$s</string>
