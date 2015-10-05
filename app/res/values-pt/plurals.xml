@@ -52,10 +52,6 @@
     <item quantity="other">%s novas faixas</item>
   </plurals>
   <!--__ACCESSIBILITY-->
-  <plurals name="accessibility_stats_likes">
-    <item quantity="one">%d curtida</item>
-    <item quantity="other">%d curtidas</item>
-  </plurals>
   <!--__PLAYER-->
   <plurals name="trackinfo_comments">
     <item quantity="one">%d comentário nessa faixa</item>
@@ -80,10 +76,6 @@
   <plurals name="following_message">
     <item quantity="one">Seguido por você e por %s outra pessoa</item>
     <item quantity="other">Seguido por você e por %s outras pessoas</item>
-  </plurals>
-  <plurals name="number_of_liked_tracks_you_liked">
-    <item quantity="one">Você curtiu %d faixa</item>
-    <item quantity="other">Você curtiu %d faixas</item>
   </plurals>
   <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
   <plurals name="number_of_others">

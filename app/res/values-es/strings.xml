@@ -87,6 +87,7 @@
   <string name="authentication_recover_progress_message">Solicitud de restablecimiento de contraseña</string>
   <string name="authentication_sign_up">Crear cuenta</string>
   <string name="authentication_signup_error_message">Parece que hay un problema. Por favor, intenta registrarte en SoundCloud.com.</string>
+  <string name="authentication_signup_facebook_email_required">Necesitamos tu permiso en Facebook para compartir tu dirección de email con nosotros y poder crearte una cuenta.</string>
   <string name="authentication_terms_of_use">Condiciones de uso</string>
   <string name="authentication_your_email_address">Tu dirección de email</string>
   <string name="authentication_your_password">Tu contraseña</string>
@@ -124,21 +125,16 @@
   <string name="list_empty_activity_secondary">Visita nuestros tutoriales para aprender a compartir pistas</string>
   <string name="list_empty_stream_action">Encontrar gente para seguir</string>
   <string name="list_empty_stream_message">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas canciones</string>
-  <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
-  <string name="list_empty_you_followers_secondary">Comparte tus canciones y listas de reproducción favoritas para crear tu comunidad.</string>
   <string name="list_empty_user_following_action">Encontrar gente para seguir</string>
-  <string name="list_empty_you_following_message">Sigue a tus artistas favoritos, bandas y curadores para escuchar sus últimas canciones.</string>
-  <string name="list_empty_you_likes_message">Haz Me gusta en tus pistas favoritas para escucharlas de nuevo.</string>
-  <string name="list_empty_you_sounds_message">Vuelve a publicar las pistas para compartirlas con tus seguidores.</string>
   <string name="empty_playlist_title">Lista vacía</string>
   <string name="empty_playlist_description">Esta lista no tiene pistas aún</string>
-  <string name="empty_user_playlists_text">%1$s no tiene ninguna lista.</string>
-  <string name="list_empty_you_playlists_message">Crear listas para hacer mezclas de tus pistas favoritas.</string>
-  <string name="list_empty_liked_playlists_message">Haz Me gusta en tus listas favoritas para escucharlas de nuevo.</string>
-  <string name="empty_user_likes_text">%1$s no ha hecho\nMe gusta en ninguna pista.</string>
-  <string name="empty_user_followers_text">%1$s no tiene\nseguidores todavía.</string>
-  <string name="empty_user_followings_text">%1$s no está\nsiguiendo a nadie todavía.</string>
+  <string name="list_empty_liked_playlists_message">Haz Me gusta en tus listas favoritas para escucharlas de nuevo</string>
+  <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
+  <string name="list_empty_you_followers_secondary">Comparte tus canciones y listas de reproducción favoritas para crear tu comunidad</string>
   <string name="empty_user_tracks_text">%1$s no ha subido\nninguna pista pública todavía.</string>
+  <string name="empty_user_likes_text">%1$s no ha hecho\nMe gusta en ninguna pista.</string>
+  <string name="empty_user_followings_text">%1$s no está\nsiguiendo a nadie todavía.</string>
+  <string name="empty_user_followers_text">%1$s no tiene\nseguidores todavía.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Este usuario aún no ha subido\npistas públicas.</string>
   <string name="new_empty_user_playlists_message">Este usuario no tiene ninguna lista.</string>
@@ -211,6 +207,10 @@
   <string name="dashboard_notifications_activity_message_like_one">de %1$s</string>
   <string name="dashboard_notifications_activity_message_like_two">de %1$s y %2$s</string>
   <string name="dashboard_notifications_activity_message_like_other">de %1$s, %2$s y otras pistas</string>
+  <string name="dashboard_notifications_activity_message_follow_one">%1$s te ha seguido</string>
+  <string name="dashboard_notifications_activity_message_follow_two">%1$s y %2$s te han seguido</string>
+  <string name="dashboard_notifications_activity_message_follow_three">%1$s, %2$s y 1 más te han seguido</string>
+  <string name="dashboard_notifications_activity_message_follow_many">%1$s, %2$s y %3$s más te han seguido</string>
   <string name="dashboard_notifications_activity_message_comment_one">Comentarios de %s</string>
   <string name="dashboard_notifications_activity_message_comment_two">Comentarios de %1$s y %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Comentarios de %1$s, %2$s y otros</string>
@@ -290,6 +290,7 @@
   <string name="pause">Pausa</string>
   <string name="previous">Anterior</string>
   <string name="next">Siguiente</string>
+  <string name="player_related_to">Reproduciendo pistas similares de</string>
   <!--__COMMENTS-->
   <string name="user_commented_at">%1$s en %2$s</string>
   <!--__PLAYLISTS-->
@@ -363,11 +364,15 @@
   <string name="search_empty">No se encontraron resultados.</string>
   <string name="search_empty_subtext">Revisa la ortografía o intenta una búsqueda diferente</string>
   <string name="search_for_query">Buscar \'%s\'</string>
-  <!--__RECOMMENDATIONS-->
+  <!--__DISCOVERY-->
+  <string name="activity_title_discovery">Buscar</string>
+  <string name="activity_title_recommendations">Recomendado para ti</string>
   <string name="recommendation_view_all">Ver las %1$d</string>
   <string name="recommendation_reason_because_you">Motivo: %1$s %2$s</string>
   <string name="recommendation_reason_liked">ha hecho me gusta en</string>
+  <string name="recommendation_reason_listened_to">reproducido</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
+  <string name="recommendation_seeds_header">Recomendado para ti</string>
   <!--__SETTINGS-->
   <string name="pref_app_details">Detalles de la aplicación</string>
   <string name="pref_basic_settings">Configuración básica</string>
@@ -377,6 +382,8 @@
   <string name="pref_privacy">Privacidad</string>
   <string name="pref_help">Ayuda</string>
   <string name="pref_help_desc">Acceder al sitio de soporte de SoundCloud</string>
+  <string name="pref_autoplay_related">Reproducir automáticamente pistas similares</string>
+  <string name="pref_autoplay_related_desc">Cuando una lista finaliza, reproduce pistas según la última pista</string>
   <string name="pref_revoke_access">Cerrar sesión</string>
   <string name="pref_revoke_desc">Cerrar sesión del usuario actual</string>
   <string name="pref_sync_wifi_only">Actualizar solo datos a través de Wi-Fi</string>
@@ -397,6 +404,8 @@
     <item>Sin procesar</item>
   </string-array>
   <!--__SETTINGS SIGN OUT-->
+  <string name="sign_out_title">¿Borrar datos de usuario?</string>
+  <string name="sign_out_description">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Acerca de</string>
   <string name="title_legal">Legal</string>
@@ -472,4 +481,7 @@
   <string name="promoted_label">Patrocinado</string>
   <string name="promoted_by_label">Promocionado por %s</string>
   <!--__FACEBOOK INVITES-->
+  <string name="facebook_invites_title">Invitar a amigos a SoundCloud</string>
+  <string name="facebook_invites_description">Compartir es bueno. Invita a tus amigos a disfrutar de SoundCloud contigo.</string>
+  <string name="facebook_invites_button">Invitar a amigos</string>
 </resources>
