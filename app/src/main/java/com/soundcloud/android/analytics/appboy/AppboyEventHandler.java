@@ -2,8 +2,10 @@ package com.soundcloud.android.analytics.appboy;
 
 import static com.soundcloud.android.analytics.Screen.SEARCH_EVERYTHING;
 import static com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider.TAG;
+import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
+import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.GENRE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TITLE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TYPE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_URN;
@@ -12,18 +14,25 @@ import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.utils.Log;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
+
+    private static final List<AppboyAttributeName> EXPLORE_CATEGORY_ATTRIBUTES = Collections.singletonList(CATEGORY);
+
+    private static final List<AppboyAttributeName> EXPLORE_GENRE_AND_CATEGORY = Arrays.asList(GENRE, CATEGORY);
 
     private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES =
             Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN);
@@ -77,6 +86,24 @@ class AppboyEventHandler {
         }
     }
 
+    public void handleEvent(ScreenEvent event) {
+        if (isCategoryScreen(event)) {
+            tagEvent(AppboyEvents.EXPLORE, buildProperties(EXPLORE_CATEGORY_ATTRIBUTES, event));
+        } else if (isGenreScreen(event)) {
+            tagEvent(AppboyEvents.EXPLORE, buildProperties(EXPLORE_GENRE_AND_CATEGORY, event));
+        }
+    }
+
+    private boolean isCategoryScreen(ScreenEvent event) {
+        return event.getScreenTag().equals(Screen.EXPLORE_GENRES.get())
+                || event.getScreenTag().equals(Screen.EXPLORE_TRENDING_AUDIO.get())
+                || event.getScreenTag().equals(Screen.EXPLORE_TRENDING_MUSIC.get());
+    }
+
+    private boolean isGenreScreen(ScreenEvent event) {
+        return event.getScreenTag().startsWith(AppboyEvents.EXPLORE);
+    }
+
     private AppboyProperties buildPlayableProperties(TrackingEvent event) {
         return buildProperties(PLAYABLE_ATTRIBUTES, event);
     }
@@ -85,9 +112,8 @@ class AppboyEventHandler {
         AppboyProperties properties = new AppboyProperties();
 
         for (AppboyAttributeName attributeName : fields) {
-            properties.addProperty(attributeName.getName(), event.get(attributeName.getKey()));
+            properties.addProperty(attributeName.getAppBoyKey(), event.get(attributeName.getEventKey()));
         }
-
         return properties;
     }
 

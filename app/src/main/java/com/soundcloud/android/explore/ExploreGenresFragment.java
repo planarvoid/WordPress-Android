@@ -89,11 +89,11 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        ExploreGenre category = adapter.getItem(adjustedPosition);
+        ExploreGenre genre = adapter.getItem(adjustedPosition);
 
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create((String) view.getTag()));
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create((String) view.getTag(), genre));
 
-        intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
+        intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, genre);
         intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());
         startActivity(intent);
     }

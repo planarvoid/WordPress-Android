@@ -2,28 +2,31 @@ package com.soundcloud.android.analytics.appboy;
 
 
 import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.ScreenEvent;
 
-import java.util.Locale;
+public enum AppboyAttributeName {
+    CREATOR_DISPLAY_NAME("creator_display_name", PlayableMetadata.KEY_CREATOR_NAME),
+    CREATOR_URN("creator_urn", PlayableMetadata.KEY_CREATOR_URN),
+    PLAYABLE_TITLE("playable_title", PlayableMetadata.KEY_PLAYABLE_TITLE),
+    PLAYABLE_URN("playable_urn", PlayableMetadata.KEY_PLAYABLE_URN),
+    PLAYABLE_TYPE("playable_type", PlayableMetadata.KEY_PLAYABLE_TYPE),
+    CATEGORY("category", ScreenEvent.KEY_SCREEN),
+    GENRE("genre", ScreenEvent.KEY_GENRE);
 
-enum AppboyAttributeName {
-    CREATOR_DISPLAY_NAME(PlayableMetadata.KEY_CREATOR_NAME),
-    CREATOR_URN(PlayableMetadata.KEY_CREATOR_URN),
-    PLAYABLE_TITLE(PlayableMetadata.KEY_PLAYABLE_TITLE),
-    PLAYABLE_URN(PlayableMetadata.KEY_PLAYABLE_URN),
-    PLAYABLE_TYPE(PlayableMetadata.KEY_PLAYABLE_TYPE);
+    private final String eventKey;
+    private final String appBoyKey;
 
-    private final String key;
-
-    AppboyAttributeName(String attributeKey) {
-        this.key = attributeKey;
+    AppboyAttributeName(String appBoyKey, String eventKey) {
+        this.appBoyKey = appBoyKey;
+        this.eventKey = eventKey;
     }
 
-    String getKey() {
-        return key;
+    String getEventKey() {
+        return eventKey;
     }
 
-    String getName() {
-        return this.name().toLowerCase(Locale.US);
+    String getAppBoyKey() {
+        return appBoyKey;
     }
 }
 
