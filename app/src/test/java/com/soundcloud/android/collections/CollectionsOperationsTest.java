@@ -12,7 +12,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationsCollectionsTypes;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -23,6 +28,8 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+
+import android.content.Context;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -37,6 +44,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private PlaylistLikesStorage playlistLikeStorage;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
+    @Mock private StationsOperations stationsOperations;
 
     private TestSubscriber<MyCollections> subscriber = new TestSubscriber<>();
     private List<Urn> likesUrns = Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L));
@@ -48,12 +56,19 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new CollectionsOperations(Schedulers.immediate(), syncStateStorage, playlistPostStorage, playlistLikeStorage, loadLikedTrackUrnsCommand, syncInitiator);
+        operations = new CollectionsOperations(Schedulers.immediate(),
+                syncStateStorage,
+                playlistPostStorage,
+                playlistLikeStorage,
+                loadLikedTrackUrnsCommand,
+                syncInitiator,
+                stationsOperations,
+                new FeatureFlags(sharedPreferences("test", Context.MODE_PRIVATE)));
 
-        when(loadLikedTrackUrnsCommand.toObservable())
-                .thenReturn(Observable.just(likesUrns));
+        when(loadLikedTrackUrnsCommand.toObservable()).thenReturn(Observable.just(likesUrns));
         when(syncStateStorage.hasSyncedCollectionsBefore()).thenReturn(Observable.just(true));
-
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
+        when(stationsOperations.sync()).thenReturn(Observable.just(SyncResult.success("stations sync", true)));
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
         likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");

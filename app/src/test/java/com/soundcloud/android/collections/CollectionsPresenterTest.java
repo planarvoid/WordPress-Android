@@ -24,6 +24,8 @@ import java.util.List;
 
 public class CollectionsPresenterTest extends AndroidUnitTest {
 
+    public static final List<Urn> RECENT_STATIONS = Collections.singletonList(Urn.forTrackStation(123L));
+
     CollectionsPresenter presenter;
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
@@ -63,7 +65,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
         when(collectionsOperations.collections(any(CollectionsOptions.class))).thenReturn(Observable.just(myCollections));
@@ -77,12 +80,13 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1)),
@@ -95,12 +99,13 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().showPosts(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1)),
@@ -109,16 +114,16 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotaddFilterRemovalWhenBothFiltersApplied() {
+    public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().showPosts(true).showLikes(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1))
@@ -130,12 +135,12 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1))
@@ -147,12 +152,12 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );
@@ -163,12 +168,45 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
         presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
+                CollectionsItem.fromPlaylistHeader(),
+                CollectionsItem.fromEmptyPlaylists()
+        );
+    }
+
+    @Test
+      public void collectionsItemsShouldContainNoPreviewCollectionItemWhenThereAreNoLikesOrStations() {
+        final List<PlaylistItem> playlistItems = Collections.emptyList();
+        final MyCollections myCollections = new MyCollections(
+                Collections.<Urn>emptyList(),
+                playlistItems,
+                Collections.<Urn>emptyList());
+
+        presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).showPosts(true).build());
+
+        assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
+                CollectionsItem.fromPlaylistHeader(),
+                CollectionsItem.fromEmptyPlaylists()
+        );
+    }
+
+    @Test
+    public void collectionsItemsShouldPreviewCollectionItemWhenThereAreStations() {
+        final List<PlaylistItem> playlistItems = Collections.emptyList();
+        final MyCollections myCollections = new MyCollections(
+                Collections.<Urn>emptyList(),
+                playlistItems,
+                RECENT_STATIONS);
+
+        presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).showPosts(true).build());
+
+        assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );

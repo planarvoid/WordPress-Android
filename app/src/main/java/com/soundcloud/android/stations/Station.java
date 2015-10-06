@@ -2,11 +2,19 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
 public class Station implements StationRecord {
+    public static final Function<Station, Urn> TO_URN = new Function<Station, Urn>() {
+        @Override
+        public Urn apply(Station station) {
+            return station.getUrn();
+        }
+    };
+
     private final String type;
     private final List<Urn> tracks;
     private final int lastPosition;

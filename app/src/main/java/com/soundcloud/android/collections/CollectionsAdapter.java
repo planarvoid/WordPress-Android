@@ -19,12 +19,12 @@ public class CollectionsAdapter extends PagingRecyclerItemAdapter<CollectionsIte
     }
 
     @Inject
-    public CollectionsAdapter(CollectionsLikedTracksRenderer likedTracksRenderer,
+    public CollectionsAdapter(CollectionsPreviewRenderer collectionsPreviewRenderer,
                               CollectionPlaylistHeaderRenderer headerRenderer,
                               CollectionPlaylistRemoveFilterRenderer removeFilterRenderer,
                               CollectionEmptyPlaylistsRenderer emptyPlaylistsRenderer,
                               CollectionPlaylistItemRenderer playlistRenderer) {
-        super(new CellRendererBinding<>(CollectionsItem.TYPE_LIKES, likedTracksRenderer),
+        super(new CellRendererBinding<>(CollectionsItem.TYPE_COLLECTIONS_PREVIEW, collectionsPreviewRenderer),
                 new CellRendererBinding<>(CollectionsItem.TYPE_PLAYLIST_HEADER, headerRenderer),
                 new CellRendererBinding<>(CollectionsItem.TYPE_REMOVE_FILTER, removeFilterRenderer),
                 new CellRendererBinding<>(CollectionsItem.TYPE_EMPTY_PLAYLISTS, emptyPlaylistsRenderer),
