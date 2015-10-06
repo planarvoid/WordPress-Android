@@ -134,13 +134,13 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<Station> collection(final int type) {
+    public Observable<Station> collection(final int type) {
         return loadStationsCollection(type)
                 .switchIfEmpty(syncAndReloadStations(type))
                 .subscribeOn(scheduler);
     }
 
-    Observable<SyncResult> sync() {
+    public Observable<SyncResult> sync() {
         return syncInitiator.syncRecentStations();
     }
 
