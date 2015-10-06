@@ -193,16 +193,16 @@ public final class UIEvent extends TrackingEvent {
     public static UIEvent fromRemoveOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
                                                     @Nullable PromotedSourceInfo promotedSourceInfo) {
         return new UIEvent(KIND_OFFLINE_PLAYLIST_REMOVE)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo);
     }
 
     public static UIEvent fromAddOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
                                                  @Nullable PromotedSourceInfo promotedSourceInfo) {
         return new UIEvent(KIND_OFFLINE_PLAYLIST_ADD)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo);
     }
 
