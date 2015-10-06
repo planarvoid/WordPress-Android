@@ -66,7 +66,7 @@ public class Navigator {
     }
 
     public void openDiscovery(Context activityContext) {
-        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)) {
+        if (featureFlags.isEnabled(Flag.DISCOVERY)) {
             startActivity(activityContext, DiscoveryActivity.class);
         } else {
             startActivity(activityContext, SearchActivity.class);

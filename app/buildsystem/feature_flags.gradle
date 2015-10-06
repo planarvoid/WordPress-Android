@@ -18,6 +18,7 @@ def FEATURE_KILL_CONCURRENT_STREAMING = "FEATURE_KILL_CONCURRENT_STREAMING"
 def FEATURE_COLLECTIONS = "FEATURE_COLLECTIONS"
 def FEATURE_DAILY_POLICY_UPDATES = "FEATURE_DAILY_POLICY_UPDATES"
 def FEATURE_APPBOY = "FEATURE_APPBOY"
+def FEATURE_TABS = "FEATURE_TABS"
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -52,6 +53,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, TRUE   //FEATURE_DISCOVERY must be enable as well
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -66,6 +68,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
@@ -95,6 +98,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
@@ -110,6 +114,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
@@ -131,6 +136,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
@@ -154,6 +160,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
@@ -176,6 +183,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE

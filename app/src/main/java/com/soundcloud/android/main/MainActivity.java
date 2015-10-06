@@ -11,7 +11,6 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.main.NavigationFragment.NavItem;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
@@ -27,9 +26,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
-    @Inject BaseLayoutHelper baseLayoutHelper;
 
-    @Inject @LightCycle LegacyMainPresenter mainPresenter;
+    @Inject @LightCycle NavigationPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
@@ -48,7 +46,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     @Override
     protected void setActivityContentView() {
-        baseLayoutHelper.setBaseDrawerLayout(this);
+        mainPresenter.setBaseLayout(this);
     }
 
     private void setupEmailOptIn() {

@@ -23,15 +23,19 @@ public class BaseLayoutHelper {
     }
 
     public View setContainerLayout(AppCompatActivity activity) {
-        return createLayout(activity, R.layout.container_layout);
+        return createActionBarLayout(activity, R.layout.container_layout);
     }
 
     public View setBaseLayout(AppCompatActivity activity) {
+        return createActionBarLayout(activity, R.layout.base);
+    }
+
+    public View setBaseTabsLayout(AppCompatActivity activity) {
         return createLayout(activity, R.layout.base);
     }
 
     public View setBaseLayoutWithMargins(AppCompatActivity activity) {
-        return createLayout(activity, R.layout.base_with_margins);
+        return createActionBarLayout(activity, R.layout.base_with_margins);
     }
 
     public View setBaseLayoutWithContent(AppCompatActivity activity, int contentId) {
@@ -41,26 +45,13 @@ public class BaseLayoutHelper {
     }
 
     public View setBaseDrawerLayout(AppCompatActivity activity) {
-        return createLayout(activity, R.layout.base_with_drawer);
+        return createActionBarLayout(activity, R.layout.base_with_drawer);
     }
 
     public View setBaseDrawerLayoutWithContent(AppCompatActivity activity, int contentId) {
         View layout = setBaseDrawerLayout(activity);
         addContent(activity, contentId, layout);
         return layout;
-    }
-
-    public void setToolBar(AppCompatActivity activity) {
-        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
-        if (toolbar != null) {
-            activity.setSupportActionBar(toolbar);
-
-            final ActionBar actionBar = activity.getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayHomeAsUpEnabled(true);
-                actionBar.setDisplayShowTitleEnabled(true);
-            }
-        }
     }
 
     private View createLayout(AppCompatActivity activity, int baseLayoutId) {
@@ -73,9 +64,26 @@ public class BaseLayoutHelper {
         if (drawerLayout != null && applicationProperties.isDebugBuild()) {
             View.inflate(layout.getContext(), R.layout.dev_drawer, drawerLayout);
         }
-
-        setToolBar(activity);
         return layout;
+    }
+
+    private View createActionBarLayout(AppCompatActivity activity, int baseLayoutId) {
+        final View layout = createLayout(activity, baseLayoutId);
+        setupActionBar(activity);
+        return layout;
+    }
+
+    public void setupActionBar(AppCompatActivity activity) {
+        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+
+            final ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+            }
+        }
     }
 
     private void addContent(AppCompatActivity activity, int contentId, View layout) {

@@ -71,8 +71,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         when(recommendationItemOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 
     @Test

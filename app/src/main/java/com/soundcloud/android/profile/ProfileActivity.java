@@ -23,7 +23,7 @@ public class ProfileActivity extends ScActivity {
     @Override
     protected void setActivityContentView() {
         super.setContentView(R.layout.new_profile);
-        baseLayoutHelper.setToolBar(this);
+        baseLayoutHelper.setupActionBar(this);
     }
 
     @Override

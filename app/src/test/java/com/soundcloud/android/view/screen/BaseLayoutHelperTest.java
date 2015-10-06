@@ -2,6 +2,8 @@ package com.soundcloud.android.view.screen;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,12 +17,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScreenPresenterTest {
+public class BaseLayoutHelperTest {
 
     private BaseLayoutHelper presenter;
 
@@ -73,6 +76,26 @@ public class ScreenPresenterTest {
         presenter.setBaseDrawerLayout(activity);
 
         verify(activity).setContentView(layout);
+    }
+
+    @Test
+    public void shouldSetToolbarAsActionBarForBaseLayout() {
+        Toolbar toolbar = mock(Toolbar.class);
+        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
+        when(activity.findViewById(R.id.toolbar_id)).thenReturn(toolbar);
+
+        presenter.setBaseLayout(activity);
+
+        verify(activity).setSupportActionBar(toolbar);
+    }
+
+    @Test
+    public void shouldNotSetToolbarAsActionBarForTabLayout() {
+        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
+
+        presenter.setBaseTabsLayout(activity);
+
+        verify(activity, never()).setSupportActionBar(any(Toolbar.class));
     }
 
     @Test

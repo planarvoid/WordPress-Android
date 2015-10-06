@@ -26,7 +26,7 @@ public class UpgradeActivity extends ScActivity {
     @Override
     protected void setActivityContentView() {
         super.setContentView(R.layout.upgrade_activity);
-        baseLayoutHelper.setToolBar(this);
+        baseLayoutHelper.setupActionBar(this);
     }
 
     @Override
