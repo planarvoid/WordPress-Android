@@ -30,9 +30,9 @@ public class TrackingEvent {
         return timestamp;
     }
 
-    public TrackingEvent put(String key, @Nullable String value) {
+    public <T extends TrackingEvent> T put(String key, @Nullable String value) {
         attributes.put(key, value);
-        return this;
+        return (T) this;
     }
 
     public String get(String key) {

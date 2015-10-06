@@ -25,8 +25,4 @@ public class ForegroundEvent extends TrackingEvent {
         super(kind, System.currentTimeMillis());
     }
 
-    @Override
-    public ForegroundEvent put(String key, String value) {
-        return (ForegroundEvent) super.put(key, value);
-    }
 }

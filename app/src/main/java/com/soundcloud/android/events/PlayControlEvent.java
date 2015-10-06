@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.Consts;
-import org.jetbrains.annotations.Nullable;
 
 public final class PlayControlEvent extends TrackingEvent {
 
@@ -104,8 +103,4 @@ public final class PlayControlEvent extends TrackingEvent {
                 .put(ATTRIBUTE_LOCATION, source);
     }
 
-    @Override
-    public PlayControlEvent put(String key, @Nullable String value) {
-        return (PlayControlEvent) super.put(key, value);
-    }
 }
