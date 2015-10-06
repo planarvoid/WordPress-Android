@@ -58,6 +58,13 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
 
+    public static final String KIND_OFFLINE_LIKES_ADD = "offline_likes_add";
+    public static final String KIND_OFFLINE_LIKES_REMOVE = "offline_likes_remove";
+    public static final String KIND_OFFLINE_COLLECTION_ADD = "offline_collection_add";
+    public static final String KIND_OFFLINE_COLLECTION_REMOVE = "offline_collection_remove";
+    public static final String KIND_OFFLINE_PLAYLIST_ADD = "offline_playlist_add";
+    public static final String KIND_OFFLINE_PLAYLIST_REMOVE = "offline_playlist_remove";
+
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
@@ -138,7 +145,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_SHUFFLE_LIKES);
     }
 
-    public static UIEvent fromShufflePlaylist( String screenTag, @NotNull Urn resourceUrn) {
+    public static UIEvent fromShufflePlaylist(String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(KIND_SHUFFLE_PLAYLIST)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, TYPE_PLAYLIST)
@@ -167,6 +174,36 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromSearchAction() {
         return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "search");
+    }
+
+    public static UIEvent fromRemoveOfflineLikes(String pageName) {
+        return new UIEvent(KIND_OFFLINE_LIKES_REMOVE)
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName);
+    }
+
+    public static UIEvent fromAddOfflineLikes(String pageName) {
+        return new UIEvent(KIND_OFFLINE_LIKES_ADD)
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName);
+    }
+
+    public static UIEvent fromToggleOfflineCollection(boolean addToOffline) {
+        return new UIEvent(addToOffline ? KIND_OFFLINE_COLLECTION_ADD : KIND_OFFLINE_COLLECTION_REMOVE);
+    }
+
+    public static UIEvent fromRemoveOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
+                                                    @Nullable PromotedSourceInfo promotedSourceInfo) {
+        return new UIEvent(KIND_OFFLINE_PLAYLIST_REMOVE)
+                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .putPromotedItemKeys(promotedSourceInfo);
+    }
+
+    public static UIEvent fromAddOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
+                                                 @Nullable PromotedSourceInfo promotedSourceInfo) {
+        return new UIEvent(KIND_OFFLINE_PLAYLIST_ADD)
+                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .putPromotedItemKeys(promotedSourceInfo);
     }
 
     public static UIEvent fromAudioAdClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
@@ -237,7 +274,7 @@ public final class UIEvent extends TrackingEvent {
     public UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
         if (promotedSourceInfo != null) {
             this.put(AdTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn())
-                .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
+                    .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
 
             if (promotedSourceInfo.getPromoterUrn().isPresent()) {
                 this.put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());

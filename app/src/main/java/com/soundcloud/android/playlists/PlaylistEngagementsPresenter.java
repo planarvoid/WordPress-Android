@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -229,6 +230,20 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                 ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
                 : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
         fireAndForget(observable);
+
+        eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(isMarkedForOffline));
+    }
+
+    private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
+        return isMarkedForOffline ?
+                UIEvent.fromAddOfflinePlaylist(
+                        Screen.PLAYLIST_DETAILS.get(),
+                        playlistWithTracks.getUrn(),
+                        playSessionSourceInfo.getPromotedSourceInfo()) :
+                UIEvent.fromRemoveOfflinePlaylist(
+                        Screen.PLAYLIST_DETAILS.get(),
+                        playlistWithTracks.getUrn(),
+                        playSessionSourceInfo.getPromotedSourceInfo());
     }
 
     @Override

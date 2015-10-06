@@ -14,9 +14,12 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -41,6 +44,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
+    private static final String PAGE_NAME = "page_name";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -289,6 +293,89 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn("ad:urn:123")
                 .monetizationType("promoted")
                 .promotedBy("soundcloud:users:123"));
+    }
+
+    @Test
+    public void createsJsonForLikesToOfflineAddEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromAddOfflineLikes(PAGE_NAME);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("likes_to_offline::add")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForLikesToOfflineRemoveEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromRemoveOfflineLikes(PAGE_NAME);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("likes_to_offline::remove")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForCollectionToOfflineAddEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleOfflineCollection(true);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("collection_to_offline::add"));
+    }
+
+    @Test
+    public void createsJsonForCollectionToOfflineRemoveEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleOfflineCollection(false);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("collection_to_offline::remove"));
+    }
+
+    @Test
+    public void createsJsonForPlaylistToOfflineAddEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromAddOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("playlist_to_offline::add")
+                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPlaylistToOfflineRemoveEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("playlist_to_offline::remove")
+                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
+        PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
+        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), promotedSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                .clickName("playlist_to_offline::remove")
+                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .pageName(PAGE_NAME)
+                .adUrn(item.getAdUrn())
+                .monetizationType("promoted")
+                .promotedBy(item.getPromoterUrn().get().toString()));
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
