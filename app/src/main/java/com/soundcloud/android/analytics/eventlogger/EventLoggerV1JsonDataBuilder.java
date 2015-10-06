@@ -7,6 +7,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -78,6 +79,19 @@ public class EventLoggerV1JsonDataBuilder {
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
+    }
+
+    public String buildForOfflineSyncEvent(OfflineSyncEvent event) {
+        return transform(buildBaseEvent("offline_sync", event)
+                        .eventType(event.getKind())
+                        .eventStage(event.getStage())
+                        .consumerSubsPlan(featureOperations.getPlan())
+                        .track(event.getTrackUrn())
+                        .trackOwner(event.getTrackOwner())
+                        .inPlaylist(event.inPlaylist())
+                        .inLikes(event.inLikes())
+                        .appVersion(deviceHelper.getAppVersion())
+        );
     }
 
     private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {

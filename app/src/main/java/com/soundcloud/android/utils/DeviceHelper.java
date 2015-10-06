@@ -87,6 +87,10 @@ public class DeviceHelper {
                 getDeviceName());
     }
 
+    public String getAppVersion() {
+        return BuildConfig.VERSION_NAME;
+    }
+
     public boolean hasMicrophone() {
         PackageManager pm = context.getPackageManager();
         return pm != null && pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
