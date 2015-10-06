@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.assertj.core.util.Lists;
@@ -23,7 +24,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
-    private static final DownloadRequest request = new DownloadRequest(TRACK_1, 12345L, "http://wav");
+    private static final DownloadRequest request = ModelFixtures.downloadRequestFromLikes(TRACK_1);
 
     private TrackDownloadsStorage storage;
     private TestDateProvider dateProvider;

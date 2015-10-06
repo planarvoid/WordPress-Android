@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     private static final long DURATION = 12345L;
     private static final String WAVEFORM = "http://wav";
 
-    private static DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
+    private static DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(TRACK_URN_2);
 
 
     private LoadOfflineContentUpdatesCommand command;
@@ -80,8 +81,8 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     @Test
     public void returnsFilteredOutCreatorOptOuts() {
         final List<DownloadRequest> expectedRequests = new ArrayList<>(2);
-        DownloadRequest creatorOptOut = new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build();
-        DownloadRequest downloadRequest = new DownloadRequest.Builder(TRACK_URN_2, DURATION, WAVEFORM, true).build();
+        DownloadRequest creatorOptOut = ModelFixtures.creatorOptOutRequest(TRACK_URN_1);
+        DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(TRACK_URN_2);
 
         expectedRequests.add(creatorOptOut);
         expectedRequests.add(downloadRequest);
@@ -95,7 +96,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     @Test
     public void returnsDownloadedTrackAsCreatorOptOutAfterPolicyChange() {
         final List<DownloadRequest> expectedRequest = new ArrayList<>(1);
-        expectedRequest.add(new DownloadRequest.Builder(TRACK_URN_1, DURATION, WAVEFORM, false).build());
+        expectedRequest.add(ModelFixtures.creatorOptOutRequest(TRACK_URN_1));
         actualDownloadedTracks(TRACK_URN_1);
 
         OfflineContentUpdates updates = command.call(expectedRequest);
@@ -109,9 +110,9 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, DURATION, WAVEFORM);
-        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, DURATION, WAVEFORM);
-        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, DURATION, WAVEFORM);
+        final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_1);
+        final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_2);
+        final DownloadRequest downloadRequest3 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_3);
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest1, downloadRequest2, downloadRequest3);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 

@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.offline.DownloadRequest.Builder;
-import static com.soundcloud.android.storage.Table.*;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
@@ -12,9 +11,9 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITIO
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
-import static com.soundcloud.android.storage.TableColumns.Sounds.TRACK_TYPE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
+import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
@@ -28,7 +27,6 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
@@ -88,7 +86,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
             if (!trackToRequestsDataMap.containsKey(data.track)) {
                 trackToRequestsDataMap.put(data.track,
                         new DownloadRequest
-                                .Builder(data.track, data.duration, data.waveformUrl, data.syncable));
+                                .Builder(data.track, data.creator, data.duration, data.waveformUrl, data.syncable));
             }
 
             trackToRequestsDataMap.get(data.track)
@@ -105,6 +103,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         Sounds.field(_ID),
                         Sounds.field(DURATION),
                         Sounds.field(WAVEFORM_URL),
+                        Sounds.field(USER_ID),
                         TrackPolicies.field(SYNCABLE))
                 .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
                 .innerJoin(TrackPolicies.name(),
@@ -149,6 +148,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
                         Sounds.field(_ID),
                         Sounds.field(DURATION),
                         Sounds.field(WAVEFORM_URL),
+                        Sounds.field(USER_ID),
                         TrackPolicies.field(SYNCABLE),
                         PlaylistTracks.field(PLAYLIST_ID))
                 .innerJoin(Sounds.name(), playlistTracksSoundsFilter(playlistIds))
@@ -194,24 +194,29 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private static class OfflineRequestData {
         private final Urn track;
+        private final Urn creator;
         private final long duration;
         private final String waveformUrl;
         private final boolean syncable;
         private final boolean isInLikes;
         private final Urn playlist;
 
-        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, Urn playlist) {
-            this(trackId, duration, waveformUrl, syncable, false, playlist);
+        public OfflineRequestData(long trackId, long creatorId, long duration,
+                                  String waveformUrl, boolean syncable, Urn playlist) {
+            this(trackId, creatorId, duration, waveformUrl, syncable, false, playlist);
         }
 
-        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, boolean inLikes) {
-            this(trackId, duration, waveformUrl, syncable, inLikes, Urn.NOT_SET);
+        public OfflineRequestData(long trackId, long creatorId, long duration,
+                                  String waveformUrl, boolean syncable, boolean inLikes) {
+            this(trackId, creatorId, duration, waveformUrl, syncable, inLikes, Urn.NOT_SET);
         }
 
-        public OfflineRequestData(long trackId, long duration, String waveformUrl, boolean syncable, boolean inLikes, Urn playlist) {
+        public OfflineRequestData(long trackId, long creatorId, long duration, String waveformUrl,
+                                  boolean syncable, boolean inLikes, Urn playlist) {
+            this.track = Urn.forTrack(trackId);
+            this.creator = Urn.forUser(creatorId);
             this.duration = duration;
             this.waveformUrl = waveformUrl;
-            this.track = Urn.forTrack(trackId);
             this.syncable = syncable;
             this.isInLikes = inLikes;
             this.playlist = playlist;
@@ -233,6 +238,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
             return new OfflineRequestData(
                     reader.getLong(_ID),
+                    reader.getLong(USER_ID),
                     reader.getLong(DURATION),
                     reader.getString(WAVEFORM_URL),
                     reader.getBoolean(SYNCABLE),
@@ -250,9 +256,9 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
         @Override
         public OfflineRequestData map(CursorReader reader) {
-
             return new OfflineRequestData(
                     reader.getLong(_ID),
+                    reader.getLong(USER_ID),
                     reader.getLong(DURATION),
                     reader.getString(WAVEFORM_URL),
                     reader.getBoolean(SYNCABLE),

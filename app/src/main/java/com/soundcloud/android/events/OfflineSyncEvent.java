@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Urn;
-import org.jetbrains.annotations.NotNull;
+import com.soundcloud.android.offline.OfflineTrackContext;
 
 public class OfflineSyncEvent extends TrackingEvent {
 
@@ -12,64 +12,45 @@ public class OfflineSyncEvent extends TrackingEvent {
     public static final String STAGE_FAIL = "fail";
     public static final String STAGE_COMPLETE = "complete";
 
-    private Urn track;
-    private Urn creator;
-    private boolean inLikes;
-    private boolean inPlaylist;
-    private String stage;
+    private final OfflineTrackContext trackContext;
+    private final String stage;
 
-    protected OfflineSyncEvent(@NotNull String kind) {
+    private OfflineSyncEvent(String kind, String stage, OfflineTrackContext trackContext) {
         super(kind, System.currentTimeMillis());
-    }
-
-    public static OfflineSyncEvent fromDesync(Urn trackUrn, Urn creatorUrn, boolean inLikes, boolean inPlaylist) {
-        return new OfflineSyncEvent(KIND_DESYNC)
-                .track(trackUrn)
-                .creator(creatorUrn)
-                .inLikes(inLikes)
-                .inPlaylist(inPlaylist)
-                .eventStage(STAGE_COMPLETE);
-    }
-
-    private OfflineSyncEvent eventStage(String stage) {
         this.stage = stage;
-        return this;
+        this.trackContext = trackContext;
     }
 
-    private OfflineSyncEvent inPlaylist(boolean inPlaylist) {
-        this.inPlaylist = inPlaylist;
-        return this;
+    public static OfflineSyncEvent fromDesync(OfflineTrackContext trackContext) {
+        return new OfflineSyncEvent(KIND_DESYNC, STAGE_COMPLETE, trackContext);
     }
 
-    private OfflineSyncEvent track(Urn track) {
-        this.track = track;
-        return this;
+    public static OfflineSyncEvent fromSyncComplete(OfflineTrackContext trackContext) {
+        return new OfflineSyncEvent(KIND_SYNC, STAGE_COMPLETE, trackContext);
     }
 
-    private OfflineSyncEvent creator(Urn creator) {
-        this.creator = creator;
-        return this;
+    public static OfflineSyncEvent fromSyncStart(OfflineTrackContext trackContext) {
+        return new OfflineSyncEvent(KIND_SYNC, STAGE_START, trackContext);
     }
 
-    private OfflineSyncEvent inLikes(boolean inLikes) {
-        this.inLikes = inLikes;
-        return this;
+    public static OfflineSyncEvent fromSyncFail(OfflineTrackContext trackContext) {
+        return new OfflineSyncEvent(KIND_SYNC, STAGE_FAIL, trackContext);
     }
 
     public Urn getTrackUrn() {
-        return track;
+        return trackContext.getTrack();
     }
 
     public Urn getTrackOwner() {
-        return creator;
+        return trackContext.getCreator();
     }
 
     public boolean inPlaylist() {
-        return inPlaylist;
+        return !trackContext.inPlaylists().isEmpty();
     }
 
     public boolean inLikes() {
-        return inLikes;
+        return trackContext.inLikes();
     }
 
     public String getStage() {

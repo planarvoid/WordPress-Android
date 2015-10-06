@@ -77,7 +77,7 @@ class DownloadOperations {
     }
 
     DownloadState download(DownloadRequest request, DownloadProgressListener listener) {
-        if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
+        if (!fileStorage.isEnoughSpaceForTrack(request.getDuration())) {
             return DownloadState.notEnoughSpace(request);
         }
 
@@ -95,13 +95,13 @@ class DownloadOperations {
     private DownloadState downloadAndStore(DownloadRequest request, DownloadProgressListener listener) {
         TrackFileResponse response = null;
         try {
-            response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.track));
+            response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.getTrack()));
 
             if (response.isSuccess()) {
                 saveTrack(request, response, listener);
 
-                assetDownloader.fetchTrackArtwork(request.track);
-                assetDownloader.fetchTrackWaveform(request.track, request.waveformUrl);
+                assetDownloader.fetchTrackArtwork(request.getTrack());
+                assetDownloader.fetchTrackWaveform(request.getTrack(), request.getWaveformUrl());
 
                 return DownloadState.success(request);
             } else {
@@ -139,14 +139,14 @@ class DownloadOperations {
     private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
-        fileStorage.storeTrack(request.track, response.getInputStream(), new Encryptor.EncryptionProgressListener() {
+        fileStorage.storeTrack(request.getTrack(), response.getInputStream(), new Encryptor.EncryptionProgressListener() {
             @Override
             public void onBytesEncrypted(long totalProcessed) {
                 listener.onProgress(totalProcessed);
             }
         });
 
-        Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
+        Log.d(OfflineContentService.TAG, "Track stored on device: " + request.getTrack());
     }
 
     public interface DownloadProgressListener {

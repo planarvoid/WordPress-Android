@@ -18,6 +18,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineTrackContext;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
@@ -385,7 +387,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createJsonFromOfflineSyncEvent() throws ApiMapperException {
-        final OfflineSyncEvent event = OfflineSyncEvent.fromDesync(TRACK_URN, CREATOR_URN, false, false);
+        final OfflineTrackContext trackContext = OfflineTrackContext.create(TRACK_URN, CREATOR_URN, Collections.EMPTY_LIST, false);
+        final OfflineSyncEvent event = OfflineSyncEvent.fromDesync(trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 

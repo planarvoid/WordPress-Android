@@ -1,12 +1,15 @@
 package com.soundcloud.android.offline;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +19,8 @@ import java.util.List;
 
 public class OfflineStatePublisherTest extends AndroidUnitTest {
 
-    private final DownloadRequest downloadRequest1 = createDownloadRequest(Urn.forTrack(123L));
-    private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
+    private final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
+    private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(456L));
 
     private DownloadQueue queue;
     private OfflineStatePublisher publisher;
@@ -64,7 +67,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(downloadRequest1),
+                singletonList(downloadRequest1),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
@@ -74,13 +77,13 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Collections.singletonList(downloadRequest1))
+                CurrentDownloadEvent.downloaded(singletonList(downloadRequest1))
         );
     }
 
     @Test
     public void publishNotDownloadableStateChangesEmitsDownloadRemovedWhenTrackIsRemoved() {
-        final List<Urn> removedDownloads = Collections.singletonList(downloadRequest1.track);
+        final List<Urn> removedDownloads = singletonList(downloadRequest1.getTrack());
         final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -100,7 +103,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishNotDownloadableStateChangesEmitsTrackUnavailableWithCreatorOptOutTracks() {
-        final List<DownloadRequest> creatorOptOut = Collections.singletonList(creatorOptOutRequest(Urn.forTrack(123L)));
+        final List<DownloadRequest> creatorOptOut = singletonList(creatorOptOutRequest(Urn.forTrack(123L)));
         final OfflineContentUpdates updates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -125,18 +128,18 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(downloadRequest1.track)
+                Arrays.asList(downloadRequest1.getTrack())
         );
 
         publisher.setUpdates(updates);
-        publisher.publishNotDownloadableStateChanges(queue, downloadRequest1.track);
+        publisher.publishNotDownloadableStateChanges(queue, downloadRequest1.getTrack());
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).isEmpty();
     }
 
     @Test
     public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
-        final List<DownloadRequest> previousQueueState = Collections.singletonList(downloadRequest1);
+        final List<DownloadRequest> previousQueueState = singletonList(downloadRequest1);
 
         queue.set(previousQueueState);
         publisher.setUpdates(emptyUpdates());
@@ -144,7 +147,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequestRemoved(Collections.singletonList(downloadRequest1))
+                CurrentDownloadEvent.downloadRequestRemoved(singletonList(downloadRequest1))
         );
     }
 
@@ -166,7 +169,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Collections.singletonList(downloadRequest1))
+                CurrentDownloadEvent.downloaded(singletonList(downloadRequest1))
         );
     }
 
@@ -174,7 +177,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadSuccessfulEmitsDownloadRequestEventForRelatedPlaylist() {
         final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
         final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
-        final List<DownloadRequest> queueState = Collections.singletonList(
+        final List<DownloadRequest> queueState = singletonList(
                 createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
 
         queue.set(queueState);
@@ -183,7 +186,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         List<CurrentDownloadEvent> actual = eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD);
         assertThat(actual).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Collections.singletonList(downloadRequest1)),
+                CurrentDownloadEvent.downloaded(toBeDownloaded.isLiked(), singletonList(toBeDownloaded.getTrack())),
                 CurrentDownloadEvent.downloadRequested(false, relatedPlaylists)
         );
     }
@@ -194,7 +197,8 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(Collections.singletonList(downloadRequest1))
+                CurrentDownloadEvent.unavailable(singletonList(downloadRequest1)),
+                CurrentDownloadEvent.downloadRequested(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
         );
     }
 
@@ -202,7 +206,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadErrorEventsEmitsDownloadRequestEventForRelatedPlaylist() {
         final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
         final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
-        final List<DownloadRequest> queueState = Collections.singletonList(
+        final List<DownloadRequest> queueState = singletonList(
                 createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
 
         queue.set(queueState);
@@ -210,7 +214,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(false, Collections.singletonList(downloadRequest1.track)),
+                CurrentDownloadEvent.unavailable(false, singletonList(toBeDownloaded.getTrack())),
                 CurrentDownloadEvent.downloadRequested(false, relatedPlaylists)
         );
     }
@@ -221,7 +225,8 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRemoved(Collections.singletonList(downloadRequest1.track))
+                CurrentDownloadEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
+                CurrentDownloadEvent.downloaded(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
         );
     }
 
@@ -229,28 +234,26 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadCancelEventsEmitsDownloadedForPlaylistWithNoPendingTracks() {
         final List<Urn> toBeDownloadedPlaylist = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(222L));
         final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, toBeDownloadedPlaylist);
-        final List<DownloadRequest> queueState = Collections.singletonList(
-                createDownloadRequest(Urn.forTrack(124L), false, Collections.singletonList(Urn.forPlaylist(222L))));
+        final List<DownloadRequest> queueState = singletonList(
+                createDownloadRequest(Urn.forTrack(124L), false, singletonList(Urn.forPlaylist(222L))));
 
         queue.set(queueState);
         publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(toBeDownloaded));
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRemoved(Collections.singletonList(downloadRequest1.track)),
-                CurrentDownloadEvent.downloaded(false, Collections.singletonList(Urn.forPlaylist(123L))));
+                CurrentDownloadEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
+                CurrentDownloadEvent.downloaded(false, singletonList(Urn.forPlaylist(123L))));
     }
 
-    private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, 123456, "http://wav");
-    }
-
-    private DownloadRequest createDownloadRequest(Urn track, boolean inLikes, List<Urn> inPlaylists) {
-        return new DownloadRequest(track, 123456, "http://wav", true, inLikes, inPlaylists);
+    private DownloadRequest createDownloadRequest(Urn trackUrn, boolean inLikes, List<Urn> inPlaylists) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setUrn(trackUrn);
+        return ModelFixtures.downloadRequestFromPlaylists(track, inLikes, inPlaylists);
     }
 
     private DownloadRequest creatorOptOutRequest(Urn track) {
-        return new DownloadRequest.Builder(track, 123456, "http://wav", false).build();
+        return ModelFixtures.creatorOptOutRequest(track);
     }
 
     private OfflineContentUpdates emptyUpdates() {
