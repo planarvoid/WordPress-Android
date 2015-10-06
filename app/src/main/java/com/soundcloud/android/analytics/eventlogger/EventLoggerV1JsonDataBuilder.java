@@ -10,7 +10,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineSyncTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -30,6 +30,7 @@ public class EventLoggerV1JsonDataBuilder {
 
     private static final String AUDIO_EVENT = "audio";
     private static final String CLICK_EVENT = "click";
+    private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
     private static final String BOOGALOO_VERSION = "v1.4.0";
 
@@ -99,17 +100,15 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflineSyncEvent(OfflineSyncEvent event) {
-        return transform(buildBaseEvent("offline_sync", event)
-                        .eventType(event.getKind())
-                        .eventStage(event.getStage())
-                        .consumerSubsPlan(featureOperations.getPlan())
-                        .track(event.getTrackUrn())
-                        .trackOwner(event.getTrackOwner())
-                        .inPlaylist(event.isInPlaylists())
-                        .inLikes(event.isLiked())
-                        .appVersion(deviceHelper.getAppVersion())
-        );
+    public String buildForOfflineSyncEvent(OfflineSyncTrackingEvent event) {
+        final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
+                .eventStage(event.getKind())
+                .track(event.getTrackUrn())
+                .trackOwner(event.getTrackOwner())
+                .inOfflineLikes(event.isFromLikes())
+                .inOfflinePlaylist(event.partOfPlaylist())
+                .appVersion(deviceHelper.getAppVersion());
+        return transform(eventLoggerEventData);
     }
 
     public String buildForCollectionEvent(CollectionEvent event) {
@@ -133,7 +132,7 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {
-        return buildBaseEvent("click", event)
+        return buildBaseEvent(CLICK_EVENT, event)
                 .clickName(clickName)
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
@@ -202,7 +201,7 @@ public class EventLoggerV1JsonDataBuilder {
             data.sourceVersion(trackSourceInfo.getSourceVersion());
         }
         if (trackSourceInfo.isFromPlaylist()) {
-            data.inPlaylist(trackSourceInfo.getCollectionUrn());
+            data.inOfflinePlaylist(trackSourceInfo.getCollectionUrn());
             data.playlistPosition(trackSourceInfo.getPlaylistPosition());
         }
 

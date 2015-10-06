@@ -9,6 +9,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.OfflineSyncTrackingEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -99,7 +100,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleFacebookInvitesEvent((FacebookInvitesEvent) event);
         } else if (event instanceof CollectionEvent) {
             handleCollectionEvent((CollectionEvent) event);
+        } else if (event instanceof OfflineSyncTrackingEvent) {
+            handleOfflineSyncEvent((OfflineSyncTrackingEvent) event);
         }
+    }
+
+    private void handleOfflineSyncEvent(OfflineSyncTrackingEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineSyncEvent(event));
     }
 
     private void handleCollectionEvent(CollectionEvent event) {
