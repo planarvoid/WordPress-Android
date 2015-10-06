@@ -11,6 +11,7 @@ import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,8 @@ public class PlaylistDetailActivity extends ScActivity {
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
 
     @Inject @LightCycle PlayerController playerController;
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Deprecated // Use Navigator
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {
@@ -94,8 +97,8 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayout();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayout(this);
     }
 
     @Override

@@ -13,49 +13,44 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class ScreenPresenter {
+public class BaseLayoutHelper {
 
-    private AppCompatActivity activity;
     private ApplicationProperties applicationProperties;
 
     @Inject
-    ScreenPresenter(ApplicationProperties applicationProperties) {
+    BaseLayoutHelper(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
     }
 
-    public void attach(AppCompatActivity activity) {
-        this.activity = activity;
+    public View setContainerLayout(AppCompatActivity activity) {
+        return createLayout(activity, R.layout.container_layout);
     }
 
-    public View setContainerLayout() {
-        return createLayout(R.layout.container_layout);
+    public View setBaseLayout(AppCompatActivity activity) {
+        return createLayout(activity, R.layout.base);
     }
 
-    public View setBaseLayout() {
-        return createLayout(R.layout.base);
+    public View setBaseLayoutWithMargins(AppCompatActivity activity) {
+        return createLayout(activity, R.layout.base_with_margins);
     }
 
-    public View setBaseLayoutWithMargins() {
-        return createLayout(R.layout.base_with_margins);
-    }
-
-    public View setBaseLayoutWithContent(int contentId) {
-        View layout = setBaseLayout();
-        addContent(contentId, layout);
+    public View setBaseLayoutWithContent(AppCompatActivity activity, int contentId) {
+        View layout = setBaseLayout(activity);
+        addContent(activity, contentId, layout);
         return layout;
     }
 
-    public View setBaseDrawerLayout() {
-        return createLayout(R.layout.base_with_drawer);
+    public View setBaseDrawerLayout(AppCompatActivity activity) {
+        return createLayout(activity, R.layout.base_with_drawer);
     }
 
-    public View setBaseDrawerLayoutWithContent(int contentId) {
-        View layout = setBaseDrawerLayout();
-        addContent(contentId, layout);
+    public View setBaseDrawerLayoutWithContent(AppCompatActivity activity, int contentId) {
+        View layout = setBaseDrawerLayout(activity);
+        addContent(activity, contentId, layout);
         return layout;
     }
 
-    public void setToolBar() {
+    public void setToolBar(AppCompatActivity activity) {
         final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         if (toolbar != null) {
             activity.setSupportActionBar(toolbar);
@@ -68,24 +63,25 @@ public class ScreenPresenter {
         }
     }
 
-    private View createLayout(int baseLayoutId) {
+    private View createLayout(AppCompatActivity activity, int baseLayoutId) {
         activity.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 
         final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
         activity.setContentView(layout);
 
         final DrawerLayout drawerLayout = (DrawerLayout) layout.findViewById(R.id.drawer_layout);
-        if (drawerLayout != null && applicationProperties.isDebugBuild()){
+        if (drawerLayout != null && applicationProperties.isDebugBuild()) {
             View.inflate(layout.getContext(), R.layout.dev_drawer, drawerLayout);
         }
 
-        setToolBar();
+        setToolBar(activity);
         return layout;
     }
 
-    private void addContent(int contentId, View layout) {
+    private void addContent(AppCompatActivity activity, int contentId, View layout) {
         ViewGroup container = (ViewGroup) layout.findViewById(R.id.container);
         View content = activity.getLayoutInflater().inflate(contentId, null);
         container.addView(content);
     }
+
 }
