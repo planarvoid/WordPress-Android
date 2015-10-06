@@ -108,10 +108,10 @@ public class AdsOperations {
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
         final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
-        if (ads.hasAudioAd()) {
-            insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
-        } else if (ads.hasInterstitialAd()) {
+        if (ads.hasInterstitialAd()) {
             applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
+        } else if (ads.hasAudioAd()) {
+            insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
         }
     }
 

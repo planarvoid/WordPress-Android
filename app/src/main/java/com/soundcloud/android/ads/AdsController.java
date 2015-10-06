@@ -182,8 +182,8 @@ public class AdsController {
         @Override
         public void onNext(Object event) {
             final Urn nextTrackUrn = playQueueManager.getNextTrackUrn();
-            final AudioAdSubscriber audioAdSubscriber = new AudioAdSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn);
-            createAdsFetchObservable(nextTrackUrn, audioAdSubscriber);
+            final NextTrackSubscriber nextTrackSubscriber = new NextTrackSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn);
+            createAdsFetchObservable(nextTrackUrn, nextTrackSubscriber);
         }
     }
 
@@ -233,11 +233,11 @@ public class AdsController {
         }
     }
 
-    private final class AudioAdSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
+    private final class NextTrackSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
         private final int intendedPosition;
         private final Urn monetizableTrack;
 
-        AudioAdSubscriber(int intendedPosition, Urn monetizableTrack) {
+        NextTrackSubscriber(int intendedPosition, Urn monetizableTrack) {
             this.intendedPosition = intendedPosition;
             this.monetizableTrack = monetizableTrack;
         }
