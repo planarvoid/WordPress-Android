@@ -4,10 +4,10 @@ Running on a feature team model means there are different expecations when you c
 
 ## Share your code early
 
-1. work on a branch and open up a WIP PR on github
-2. make tested, working commits and push them frequently
-3. when your changes are ready for final review, remove WIP from the PR title and ask for a review in the #android slack channel
-4. your PR needs two thumbs up before you merge it, or one thumb up if you paired on it
+1. Work on a branch and open up a WIP PR on GitHub.
+2. Make tested and working commits, and push them frequently.
+3. When your changes are ready for final review, remove `WIP` from the PR title and ask for a review in the `#android` slack channel.
+4. Wait for two thumbs up for your PR before you merge it. Alternatively, wait for one thumb up if you paired on your PR.
 
 ## Communicate early with Release Captains
 
@@ -22,11 +22,11 @@ Information about release timelines and contents are sent here.
 
 ## Assure your feature's quality
 
-* have someone on your feature team test changes you make
-* regression test your area of the app, when approaching a release
-* automate more acceptance tests so you have less regression testing to do
+* Have someone on your feature team test your changes.
+* Regression test your area of the app, when approaching a release.
+* Automate more acceptance tests so you have less regression testing to do.
 
 ## Monitor your feature in production
 
-* build and monitor your own feature specific prometheus metrics
-* check shared dashboards such as Fabric for items related to your feature
+* Build and monitor your own feature specific Prometheus metrics.
+* Check shared dashboards such as Fabric for items related to your feature.
