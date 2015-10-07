@@ -19,9 +19,9 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsHomeFragment;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -39,7 +39,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class LegacyMainPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements NavigationFragment.NavigationCallbacks {
+@Deprecated // New top level navigation is in MainTabsPresenter
+class LegacyMainPresenter extends NavigationPresenter {
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
 
@@ -58,6 +59,7 @@ class LegacyMainPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final Resources resources;
     private final EventBus eventBus;
     private final Navigator navigator;
+    private final BaseLayoutHelper layoutHelper;
 
     private final Handler drawerHandler = new Handler();
     private final CompositeSubscription userSubscription = new CompositeSubscription();
@@ -73,12 +75,13 @@ class LegacyMainPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     @Inject
     public LegacyMainPresenter(AccountOperations accountOperations, UserRepository userRepository, Resources resources,
-                               EventBus eventBus, Navigator navigator) {
+                               EventBus eventBus, Navigator navigator, BaseLayoutHelper layoutHelper) {
         this.accountOperations = accountOperations;
         this.userRepository = userRepository;
         this.resources = resources;
         this.eventBus = eventBus;
         this.navigator = navigator;
+        this.layoutHelper = layoutHelper;
     }
 
     @Override
@@ -151,6 +154,11 @@ class LegacyMainPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     public void onInvalidateOptionsMenu() {
         actionBar.setTitle(lastTitle);
+    }
+
+    @Override
+    public void setBaseLayout(AppCompatActivity activity) {
+        layoutHelper.setBaseDrawerLayout(activity);
     }
 
     @Override

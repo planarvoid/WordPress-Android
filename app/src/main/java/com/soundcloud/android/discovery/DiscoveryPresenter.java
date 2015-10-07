@@ -70,7 +70,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     private Observable<List<DiscoveryItem>> buildDiscoveryItemsObservable() {
-        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)) {
+        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
             return discoveryOperations.discoveryItemsAndRecommendations();
         } else {
             return discoveryOperations.discoveryItems();
