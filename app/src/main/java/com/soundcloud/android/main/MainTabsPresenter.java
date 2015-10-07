@@ -46,21 +46,26 @@ public class MainTabsPresenter extends NavigationPresenter {
 
     private void setupViews(AppCompatActivity activity) {
         pager = (ViewPager) activity.findViewById(R.id.pager);
+        bindPagerWithTabs(createTabs());
+    }
+
+    private void bindPagerWithTabs(TabLayout tabBar) {
         pager.setAdapter(pagerAdapter);
-        addTabsToToolBar(createTabBar());
+        tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
+        pager.addOnPageChangeListener(pageChangeListenerFor(tabBar));
+        setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
     }
 
     @NonNull
-    private TabLayout createTabBar() {
+    private TabLayout createTabs() {
         TabLayout tabBar = new TabLayout(activity);
-        tabBar.setupWithViewPager(pager);
         tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
         tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
+        addToToolbar(tabBar);
         return tabBar;
     }
 
-    private void addTabsToToolBar(TabLayout tabBar) {
+    private void addToToolbar(TabLayout tabBar) {
         Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         toolbar.setContentInsetsAbsolute(0, 0);
         toolbar.addView(tabBar);
@@ -81,6 +86,31 @@ public class MainTabsPresenter extends NavigationPresenter {
         ImageView view = new ImageView(activity);
         view.setImageResource(icon);
         return view;
+    }
+
+    private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
+                                                                                final MainPagerAdapter pagerAdapter) {
+        return new TabLayout.ViewPagerOnTabSelectedListener(pager) {
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                pagerAdapter.resetScroll(tab.getPosition());
+            }
+        };
+    }
+
+    private static ViewPager.OnPageChangeListener pageChangeListenerFor(final TabLayout tabBar) {
+        /*
+         * Workaround for tab re-selection callback issue:
+         * https://code.google.com/p/android/issues/detail?id=177189#c16
+         */
+        return new TabLayout.TabLayoutOnPageChangeListener(tabBar) {
+            @Override
+            public void onPageSelected(int position) {
+                if (tabBar.getSelectedTabPosition() != position) {
+                    super.onPageSelected(position);
+                }
+            }
+        };
     }
 
     @Override
