@@ -1,6 +1,6 @@
 # SoundCloud Android
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md), if you are contributing a change to production.
+First read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to make a change to production.
 
 ## Building
 
