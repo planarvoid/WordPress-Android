@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -78,6 +79,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
+    @Mock private AdsController adsController;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
@@ -92,7 +94,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
 
-        controller = new PlaySessionController(resources, eventBus, adsOperations, playQueueManager, trackRepository,
+        controller = new PlaySessionController(resources, eventBus, adsOperations, adsController, playQueueManager, trackRepository,
                 InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
         controller.subscribe();
 
@@ -270,6 +272,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
         verify(playQueueManager).autoNextTrack();
         verify(playbackStrategy, never()).playCurrent();
+    }
+
+    @Test
+    public void onStateTransitionTriesToReconfigureAd() {
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
+        verify(adsController).reconfigureAdForNextTrack();
     }
 
     @Test

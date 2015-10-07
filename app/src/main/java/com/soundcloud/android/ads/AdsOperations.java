@@ -123,7 +123,7 @@ public class AdsOperations {
         }
     }
 
-    private void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
+    void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
         PropertySet adMetaData = apiAudioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
@@ -133,6 +133,7 @@ public class AdsOperations {
             insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, currentMonetizablePosition);
         } else {
             playQueueManager.performPlayQueueUpdateOperations(
+                    new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, PropertySet.create()),
                     new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
             );
         }
@@ -149,7 +150,7 @@ public class AdsOperations {
 
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.InsertOperation(currentMonetizablePosition, audioAdTrack, adMetaData, false),
-                new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, leaveBehindProperties)
+                new PlayQueueManager.SetMetadataOperation(newMonetizablePosition, leaveBehindProperties)
         );
     }
 
@@ -188,8 +189,7 @@ public class AdsOperations {
                 .put(TrackProperty.URN, monetizableTrack);
 
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.MergeMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
+                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
         );
     }
-
 }

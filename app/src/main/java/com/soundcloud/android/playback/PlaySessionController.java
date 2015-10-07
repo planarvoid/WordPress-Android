@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -62,6 +63,7 @@ public class PlaySessionController {
     private final Resources resources;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final AdsController adsController;
     private final PlayQueueOperations playQueueOperations;
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
@@ -136,6 +138,7 @@ public class PlaySessionController {
     public PlaySessionController(Resources resources,
                                  EventBus eventBus,
                                  AdsOperations adsOperations,
+                                 AdsController adsController,
                                  PlayQueueManager playQueueManager,
                                  TrackRepository trackRepository,
                                  Lazy<IRemoteAudioManager> audioManager,
@@ -152,6 +155,7 @@ public class PlaySessionController {
         this.resources = resources;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.adsController = adsController;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.playQueueOperations = playQueueOperations;
@@ -287,6 +291,8 @@ public class PlaySessionController {
         if (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
                 && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition))) {
             logInvalidSkipping(stateTransition);
+
+            adsController.reconfigureAdForNextTrack();
 
             tryToSkipTrack(stateTransition);
             if (!stateTransition.playSessionIsActive()) {

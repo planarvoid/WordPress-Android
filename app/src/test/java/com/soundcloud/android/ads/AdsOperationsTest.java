@@ -188,11 +188,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(new ApiAdWrapper(audioAdWithoutLeaveBehind))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
+        value2.execute(playQueue);
 
         assertThat(playQueue.getUrn(0)).isEqualTo(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
         assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
@@ -232,11 +235,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(new ApiAdWrapper(apiAudioAd))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
+        value2.execute(playQueue);
 
         assertThat(playQueue.getUrn(0)).isEqualTo(apiTrack.getUrn());
         assertThat(playQueue.getUrn(1)).isEqualTo(TRACK_URN);
