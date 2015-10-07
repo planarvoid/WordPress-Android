@@ -6,9 +6,12 @@ First read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to make a change to pr
 
 Prerequisites:
 
-* Xcode command line tools (if you have `gcc` and `make` you are good)
-* Java 8. Either use [jenv][] to manage your environments, or ensure
-JAVA_HOME is set, eg.
+* (Mac only) Xcode command line tools
+* GCC (`gcc`) and GNU Make (`make`)
+* Java 8
+
+  You can use [jenv][] to manage your environments.
+  Alternatively, you can set the `JAVA_HOME` environment variable:
 
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
