@@ -5,6 +5,7 @@ class EventLoggerParam {
     static final String ANONYMOUS_ID = "anonymous_id";
     static final String TIMESTAMP = "ts";
     static final String USER = "user";
+
     // audio event params
     static final String ACTION = "action";
     static final String TRACK = "track";
@@ -22,6 +23,10 @@ class EventLoggerParam {
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
     static final String CONSUMER_SUBS_PLAN = "consumer_subs_plan";
+    static final String EVENT_TYPE = "event_type";
+    static final String OFFLINE_EVENT_STAGE = "event_stage";
+    static final String APP_VERSION = "app_version";
+    static final String IN_LIKES = "in_likes";
 
     // ad specific params
     static final String AD_URN = "ad_urn";
@@ -32,6 +37,7 @@ class EventLoggerParam {
     static final String IMPRESSION_OBJECT = "impression_object";
     static final String IMPRESSION_CATEGORY = "impression_category";
     static final String PROMOTED_BY = "promoted_by";
+
     // performance & error event params
     static final String LATENCY = "latency";
     static final String PROTOCOL = "protocol";
@@ -44,15 +50,18 @@ class EventLoggerParam {
     static final String FORMAT = "format";
     static final String URL = "url";
     static final String ERROR_CODE = "errorCode";
+
     // click specific params
     static final String CLICK_NAME = "click_name";
     static final String CLICK_OBJECT = "click_object";
     static final String CLICK_TARGET = "click_target";
     static final String CLICK_CATEGORY = "click_category";
     static final String REASON = "reason";
+
     // search tracking
     static final String QUERY_URN = "query_urn";
     static final String QUERY_POSITION = "query_position";
+
     // foreground
     static final String PAGE_URN = "page_urn";
     static final String REFERRER = "referrer";

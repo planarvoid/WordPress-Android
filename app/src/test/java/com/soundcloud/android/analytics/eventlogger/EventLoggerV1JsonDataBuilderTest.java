@@ -13,6 +13,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -38,9 +39,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";
+    private static final String APP_VERSION = "15.09.11-release";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn CREATOR_URN = Urn.forUser(123L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
@@ -65,6 +69,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
+        when(deviceHelper.getAppVersion()).thenReturn(APP_VERSION);
         when(featureOperations.getPlan()).thenReturn(CONSUMER_SUBS_PLAN);
     }
 
@@ -376,6 +381,24 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn(item.getAdUrn())
                 .monetizationType("promoted")
                 .promotedBy(item.getPromoterUrn().get().toString()));
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncEvent() throws ApiMapperException {
+        final OfflineSyncEvent event = OfflineSyncEvent.fromDesync(TRACK_URN, CREATOR_URN, false, false);
+
+        jsonDataBuilder.buildForOfflineSyncEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+                        .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .inPlaylist(false)
+                        .inLikes(false)
+                        .appVersion(APP_VERSION)
+                        .eventType("desync")
+                        .eventStage("complete")
+        );
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
