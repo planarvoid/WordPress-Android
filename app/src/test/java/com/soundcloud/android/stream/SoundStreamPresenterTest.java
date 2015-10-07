@@ -74,7 +74,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null)).thenReturn(itemClickListener);
+        when(itemClickListenerFactory.create(Screen.STREAM, null)).thenReturn(itemClickListener);
         presenter = new SoundStreamPresenter(streamOperations, adapter, imagePauseOnScrollListener,
                 swipeRefreshAttacher, eventBus, itemClickListenerFactory,
                 facebookInvitesDialogPresenter);

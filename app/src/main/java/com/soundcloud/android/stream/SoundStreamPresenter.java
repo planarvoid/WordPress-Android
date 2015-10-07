@@ -61,7 +61,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
-        this.itemClickListener = itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null);
+        this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
     }
@@ -153,7 +153,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     private void publishPromotedItemClickEvent(PromotedListItem item) {
-        eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.SIDE_MENU_STREAM.get()));
+        eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.STREAM.get()));
     }
 
     @Override

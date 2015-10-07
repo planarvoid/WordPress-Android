@@ -19,7 +19,7 @@ public enum Screen {
 
     // core screens
     SIDE_MENU_DRAWER("drawer"),
-    SIDE_MENU_STREAM("stream:main"),
+    STREAM("stream:main"),
     SIDE_MENU_LIKES("collection:likes"),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
     COLLECTIONS("collections"),
@@ -79,6 +79,7 @@ public enum Screen {
 
     // misc
     ACTIVITIES("activity:main"),
+    YOU("you:main"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),

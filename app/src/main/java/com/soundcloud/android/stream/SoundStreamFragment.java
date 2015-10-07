@@ -22,6 +22,7 @@ public class SoundStreamFragment extends LightCycleSupportFragment implements Re
 
     @Inject @LightCycle SoundStreamPresenter presenter;
 
+    @Deprecated
     public static SoundStreamFragment create(boolean onboardingSucceeded) {
         final Bundle args = new Bundle();
         args.putBoolean(ONBOARDING_RESULT_EXTRA, onboardingSucceeded);

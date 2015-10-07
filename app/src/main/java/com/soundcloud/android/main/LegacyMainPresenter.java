@@ -310,7 +310,7 @@ class LegacyMainPresenter extends NavigationPresenter {
     public void trackScreen() {
         switch (navigationFragment.getCurrentSelectedItem()) {
             case STREAM:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_STREAM));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STREAM));
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment
