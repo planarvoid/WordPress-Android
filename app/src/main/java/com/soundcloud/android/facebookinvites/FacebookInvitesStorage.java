@@ -11,7 +11,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class FacebookInvitesStorage {
+class FacebookInvitesStorage {
     public static final String LAST_CLICK = "last_click";
     public static final String TIMES_APP_OPENED = "times_app_opened";
     public static final String LAST_DISMISS = "last_dismiss";
