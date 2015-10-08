@@ -100,6 +100,8 @@
     <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
     <string name="station_bucket_action_text">View all</string>
+    <string name="stations_onboarding_stream_title">Start Station - Stop Discontent</string>
+    <string name="stations_onboarding_stream_text">Tap the 3 dots from your favorite track and start a station..</string>
 
     <!-- __COLLECTION -->
     <string name="side_menu_collection">Collection</string>

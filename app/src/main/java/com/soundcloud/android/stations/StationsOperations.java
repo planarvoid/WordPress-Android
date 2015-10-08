@@ -100,6 +100,10 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
+    public boolean shouldDisplayOnboardingStreamItem() {
+        return !stationsStorage.isOnboardingDisabled();
+    }
+
     @NonNull
     private Func1<List<Urn>, PlayQueue> toPlayQueue(final Urn station) {
         return new Func1<List<Urn>, PlayQueue>() {
@@ -154,5 +158,9 @@ public class StationsOperations {
 
     public void clearData() {
         stationsStorage.clear();
+    }
+
+    void disableOnboarding() {
+        stationsStorage.disableOnboarding();
     }
 }

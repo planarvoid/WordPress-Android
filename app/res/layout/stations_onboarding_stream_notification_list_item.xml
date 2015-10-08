@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/facebook_invites_list_item">
+
+    <LinearLayout style="@style/ListItemNotificationLayout">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/ListItemNotificationTitle"
+            android:text="@string/stations_onboarding_stream_title" />
+
+        <TextView
+            android:id="@+id/description"
+            style="@style/ListItemNotificationDescription"
+            android:text="@string/stations_onboarding_stream_text" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/close_button"
+        style="@style/ListItemNotificationCloseButton" />
+
+</FrameLayout>

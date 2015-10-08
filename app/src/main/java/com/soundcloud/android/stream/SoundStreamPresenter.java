@@ -16,6 +16,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -33,7 +34,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements OnFacebookInvitesClickListener {
+public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements OnFacebookInvitesClickListener, StationsOnboardingStreamItemRenderer.Listener {
 
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
@@ -61,6 +62,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.eventBus = eventBus;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
         this.itemClickListener = itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null);
+        adapter.setOnFacebookInvitesClickListener(this);
+        adapter.setOnStationsOnboardingStreamClickListener(this);
     }
 
     @Override
@@ -75,8 +78,12 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     @Override
+    public void onStationOnboardingItemClosed(int position) {
+        removeItem(position);
+    }
+
+    @Override
     protected CollectionBinding<StreamItem> onBuildBinding(Bundle fragmentArgs) {
-        adapter.setOnFacebookInvitesClickListener(this);
         return CollectionBinding.from(streamOperations.initialStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
@@ -155,7 +162,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
         if (facebookInvitesItem != null) {
             publishFacebookInviteDismissed(facebookInvitesItem);
-            removeFacebookInvitesNotification(position);
+            removeItem(position);
         }
     }
 
@@ -176,8 +183,13 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         if (facebookInvitesItem != null) {
             publishFacebookInviteClicked(facebookInvitesItem);
             facebookInvitesDialogPresenter.show(fragment.getActivity());
-            removeFacebookInvitesNotification(position);
+            removeItem(position);
         }
+    }
+
+    private void removeItem(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
     }
 
     private void publishFacebookInviteDismissed(FacebookInvitesItem item) {
@@ -188,8 +200,4 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         eventBus.publish(EventQueue.TRACKING, StreamNotificationEvent.forFacebookInviteClick(item));
     }
 
-    private void removeFacebookInvitesNotification(int position) {
-        adapter.removeItem(position);
-        adapter.notifyItemRemoved(position);
-    }
 }

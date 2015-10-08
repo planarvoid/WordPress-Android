@@ -218,6 +218,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.STATIONS)
+    public SharedPreferences provideStations() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(ApplicationModule.HIGH_PRIORITY)
     public Scheduler provideHighPrioScheduler() {
         return Schedulers.immediate();
