@@ -42,10 +42,18 @@
 	    "name": "test",
             "jobs": [
 		[
-                    { "unit_tests": {
-			"cmd": "./gradlew clean runUnitTests; ./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI", 
-			"test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml,app/build/outputs/apk/*androidTest*.apk,app/build/outputs/apk/androidnetworkmanager-*.apk,app/src/androidTest/res/values/test_properties.xml" } },
-		    { "acceptance_tests": {"cmd": "./gradlew runKitKatTests", "test-reports": "results/xml/*.xml" } }
+                    { 
+			"unit_tests": {
+			    "cmd": "./gradlew clean runUnitTests", 
+			    "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml" 
+			} 
+		    }, { 
+			"acceptance_tests": {
+			    "cmd": "./gradlew assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI; ./gradlew runKitKatTests", 
+			    "test-reports": "results/xml/*.xml", 
+			    "artifacts": ["app/build/outputs/apk/*androidTest*.apk", "app/build/outputs/apk/androidnetworkmanager-*.apk", "app/src/androidTest/res/values/test_properties.xml"]
+			} 
+		    }
 		]
             ],
  	    "next-stages": [ "deploy" ]

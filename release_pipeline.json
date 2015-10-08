@@ -1,0 +1,41 @@
+{
+    "stages": [
+        {
+            "name": "build",
+            "jobs": [
+		[	
+                    { "static_analysis": { "cmd": "./gradlew staticAnalysis" } }, 
+		    { "compile": { "cmd": "./gradlew clean updateVersion assembleProdDebug" } },
+		    { "dex_watchdog": { "cmd": "echo ''" } }
+		]
+            ],
+	    "next-stages": [ "test" ]
+        }, 
+	{ 
+	    "name": "test",
+            "jobs": [
+		[
+                    { "unit_tests": {"cmd": "./gradlew clean runUnitTests", "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml" } },
+		    { "acceptance_tests": {"cmd": "./gradlew runKitKatTests", "test-reports": "results/xml/*.xml" } }
+		]
+            ],
+ 	    "next-stages": [ "deploy" ]
+	}, 
+	{
+	    "name": "deploy",
+	    "jobs": [
+		{ "deploy_beta": {"cmd": "./gradlew deployBeta", "manual": true} },
+		{ "rollout_release_5_percent": {"cmd": "echo 'rolloutRelease: 5%'", "manual": true} },
+		{ "rollout_release_20_percent": {"cmd": "echo 'rolloutRelease: 20%'", "manual": true} },
+		{ "deploy_release": {"cmd": "echo 'deployingRelease'", "manual": true} }
+	    ]   
+	}
+    ],
+    "settings": {
+        "jenkins-server": "http://localhost:8080",
+	"default-name" : "SoundCloud_Android_Release",
+        "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
+        "slave-label": "master"
+    }
+}
+
