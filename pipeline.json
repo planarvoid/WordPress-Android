@@ -42,7 +42,9 @@
 	    "name": "test",
             "jobs": [
 		[
-                    { "unit_tests": {"cmd": "./gradlew clean runUnitTests", "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml" } },
+                    { "unit_tests": {
+			"cmd": "./gradlew clean runUnitTests; ./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI", 
+			"test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml,app/build/outputs/apk/*androidTest*.apk,app/build/outputs/apk/androidnetworkmanager-*.apk,app/src/androidTest/res/values/test_properties.xml" } },
 		    { "acceptance_tests": {"cmd": "./gradlew runKitKatTests", "test-reports": "results/xml/*.xml" } }
 		]
             ],
@@ -58,7 +60,7 @@
     "settings": {
 	"github-url": "https://github.com/soundcloud/SoundCloud-Android/",
 	"owner-emails": "android-dev@soundcloud.com",
-        "jenkins-server": "http://localhost:8080",
+        "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
 	"default-name" : "SoundCloud_Android_Master",
         "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
         "slave-label": "mobile-slave"
