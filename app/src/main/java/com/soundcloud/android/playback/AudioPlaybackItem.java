@@ -5,8 +5,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 
+import android.os.Parcelable;
+
 @AutoParcel
-public abstract class AudioPlaybackItem implements PlaybackItem {
+public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
 
     public static AudioPlaybackItem create(PropertySet track, long startPosition, PlaybackType playbackType) {
         return new AutoParcel_AudioPlaybackItem(track.get(TrackProperty.URN), startPosition, track.get(TrackProperty.DURATION), playbackType);
