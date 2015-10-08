@@ -11,7 +11,6 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -64,7 +63,6 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -107,7 +105,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject FacebookSdk facebookSdk;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject EncryptionTester encryptionTester;
-    @Inject Provider<AppboyWrapper> appboyWrapperProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
