@@ -20,6 +20,7 @@ import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.objects.MoreObjects;
 
+import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 
@@ -81,6 +82,11 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         } else if (eventKind == CurrentUserChangedEvent.USER_REMOVED) {
             session.setCustomerId(null);
         }
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override

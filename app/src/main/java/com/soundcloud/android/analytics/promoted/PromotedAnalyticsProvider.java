@@ -16,6 +16,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
+import android.content.Context;
+
 import javax.inject.Inject;
 import java.util.List;
 
@@ -39,6 +41,11 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
 
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override

@@ -26,6 +26,7 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
 
@@ -95,6 +96,12 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                            AnalyticsProviderFactory analyticsProviderFactory) {
         this(eventBus, sharedPreferences, AndroidSchedulers.mainThread(),
                 analyticsProviderFactory);
+    }
+
+    public void onAppCreated(Context context) {
+        for (AnalyticsProvider analyticsProvider : analyticsProviders) {
+            analyticsProvider.onAppCreated(context);
+        }
     }
 
     @VisibleForTesting

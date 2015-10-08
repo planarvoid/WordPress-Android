@@ -47,6 +47,11 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
+    public void onAppCreated(Context context) {
+        /* no op */
+    }
+
+    @Override
     public void handleActivityLifeCycleEvent(final ActivityLifeCycleEvent event) {
         executor.execute(new Runnable() {
             @Override

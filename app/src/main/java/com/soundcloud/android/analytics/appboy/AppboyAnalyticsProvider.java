@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -8,8 +9,8 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -19,6 +20,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
+import android.content.Context;
 
 import javax.inject.Inject;
 
@@ -53,6 +55,11 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
                 changeUser(currentUser.get(UserProperty.URN));
             }
         }
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        appboy.setAppboyEndpointProvider(context.getString(R.string.com_appboy_server));
     }
 
     @Override

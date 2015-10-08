@@ -156,7 +156,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         IOUtils.createCacheDirs();
 
-        setAppboyHost();
+        analyticsEngine.onAppCreated(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
         skippyFactory.create().preload(this);
@@ -193,13 +193,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         configurationFeatureController.subscribe();
         facebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
-    }
-
-    private void setAppboyHost() {
-        if (featureFlags.isEnabled(Flag.APPBOY)) {
-            String hostname = getString(R.string.com_appboy_server);
-            appboyWrapperProvider.get().setAppboyEndpointProvider(hostname);
-        }
     }
 
     private void generateDeviceKey() {

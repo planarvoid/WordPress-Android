@@ -26,6 +26,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
@@ -60,6 +61,11 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override

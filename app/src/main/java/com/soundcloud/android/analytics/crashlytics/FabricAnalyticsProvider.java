@@ -18,6 +18,7 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import io.fabric.sdk.android.Fabric;
 
+import android.content.Context;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -39,6 +40,11 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override
