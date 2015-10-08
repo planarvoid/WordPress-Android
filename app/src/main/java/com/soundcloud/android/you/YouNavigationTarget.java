@@ -14,8 +14,7 @@ public class YouNavigationTarget extends BaseNavigationTarget {
 
     @Override
     public Fragment createFragment() {
-        // TODO: You screen does not exist yet
-        return new Fragment();
+        return new YouFragment();
     }
 
     @Override

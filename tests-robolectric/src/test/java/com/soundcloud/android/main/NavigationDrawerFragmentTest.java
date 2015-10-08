@@ -33,9 +33,9 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class NavigationDrawerFragmentTest {
 
-    private NavigationDrawerFragment fragment;
+    private LegacyNavigationDrawerFragment fragment;
 
-    @Mock(extraInterfaces = NavigationFragment.NavigationCallbacks.class) AppCompatActivity activity;
+    @Mock(extraInterfaces = LegacyNavigationFragment.NavigationCallbacks.class) AppCompatActivity activity;
     @Mock DrawerLayout drawerLayout;
     @Mock ActionBar actionBar;
     @Mock View view;
@@ -49,7 +49,7 @@ public class NavigationDrawerFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new NavigationDrawerFragment(imageOperations, accountOperations, featureOperations, featureFlags, eventBus);
+        fragment = new LegacyNavigationDrawerFragment(imageOperations, accountOperations, featureOperations, featureFlags, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
         Robolectric.shadowOf(fragment).setAttached(true);

@@ -14,8 +14,7 @@ public class StreamNavigationTarget extends BaseNavigationTarget {
 
     @Override
     public Fragment createFragment() {
-        // TODO: We need a different way to set the onboarding state with this navigation model
-        return SoundStreamFragment.create(false);
+        return new SoundStreamFragment();
     }
 
     @Override

@@ -177,30 +177,11 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void configuresEmptyStateImage() {
+    public void configuresEmptyState() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
         verify(emptyView).setImage(R.drawable.empty_stream);
-    }
-
-    @Test
-    public void configuresEmptyStateForOnboardingFailure() {
-        presenter.onCreate(fragment, null);
-        presenter.setOnboardingSuccess(false);
-
-        presenter.onViewCreated(fragment, view, null);
-
-        verify(emptyView).setMessageText(R.string.error_onboarding_fail);
-    }
-
-    @Test
-    public void configuresEmptyStateForOnboardingSuccess() {
-        presenter.onCreate(fragment, null);
-        presenter.setOnboardingSuccess(true);
-
-        presenter.onViewCreated(fragment, view, null);
-
         verify(emptyView).setMessageText(R.string.list_empty_stream_message);
         verify(emptyView).setActionText(R.string.list_empty_stream_action);
     }
