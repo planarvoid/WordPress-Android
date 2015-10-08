@@ -46,7 +46,7 @@ public final class SyncConfig {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true);
     }
 
-    public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
+    public static boolean isActivitySyncEnabled(Context c) {
         return isLikeNotificationEnabled(c) || isCommentNotificationsEnabled(c);
     }
 

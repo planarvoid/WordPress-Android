@@ -9,6 +9,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.android.gms.common.api.Api;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequestException;
@@ -188,32 +189,51 @@ public class SoundStreamSyncerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void softRefreshResultingIn4XXFallsBackToHardRefreshToReplaceContent() throws Exception {
+    public void softRefreshResultingIn400ClearsFutureLinkAndReportsError() throws Exception {
         when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
-                .thenThrow(ApiRequestException.notFound(null, null));
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
-                .thenReturn(streamWithFutureLink());
+                .thenThrow(ApiRequestException.badRequest(null, null, null));
 
-        soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        try {
+            soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        } catch (ApiRequestException e) {
+            assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.BAD_REQUEST);
+        }
 
-        verify(replaceCommand).call(iterableArgumentCaptor.capture());
-        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
+        verify(streamSyncStorage).clear();
     }
 
     @Test
-    public void softRefreshResultingIn4XXFallsBackToHardRefreshToStoreNextPageUrl() throws Exception {
+    public void softRefreshResultingIn404ClearsFutureLinkAndReportsError() throws Exception {
         when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
         when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenThrow(ApiRequestException.notFound(null, null));
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
-                .thenReturn(streamWithFutureLink());
 
-        soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        try {
+            soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        } catch (ApiRequestException e) {
+            assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.NOT_FOUND);
+        }
 
-        verify(streamSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
+        verify(streamSyncStorage).clear();
+    }
+
+    @Test
+    public void softRefreshResultingIn500ClearsFutureLinkAndReportsError() throws Exception {
+        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
+                .thenThrow(ApiRequestException.serverError(null, null));
+
+        try {
+            soundStreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        } catch (ApiRequestException e) {
+            assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.SERVER_ERROR);
+        }
+
+        verify(streamSyncStorage).clear();
     }
 
     @Test

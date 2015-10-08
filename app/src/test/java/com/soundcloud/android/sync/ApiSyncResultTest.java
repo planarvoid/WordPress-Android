@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -79,31 +78,16 @@ public class ApiSyncResultTest extends AndroidUnitTest {
     }
 
     @Test
-    public void fromUnexpectedResponseCodesAddsMaxDelayTimeFor5XX() throws Exception {
-        final int inclusiveRange = ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE + 1;
-        when(random.nextInt(inclusiveRange)).thenReturn(ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE);
+    public void fromUnexpectedResponseCodesAddsOneSyncIntervalDelayFor5XX() throws Exception {
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500);
 
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
-
-        final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY + ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE;
-        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
-    }
-
-    @Test
-    public void fromUnexpectedResponseCodesAddsMinDelayTimeFor5XX() throws Exception {
-        final int inclusiveRange = ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE + 1;
-        when(random.nextInt(inclusiveRange)).thenReturn(0);
-
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
-
-        final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY;
-        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
+        assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(SyncConfig.DEFAULT_SYNC_DELAY);
     }
 
     @Test
     public void fromUnexpectedResponseCodesDoesNotAddDelayTimeFor4XX() throws Exception {
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404, random);
-        verifyZeroInteractions(random);
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404);
+
         assertThat(apiSyncResult.syncResult.delayUntil).isEqualTo(0L);
     }
 
