@@ -44,7 +44,8 @@ apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.soundcloud.gandalf'
+//disable Gandalf until this is fixed: https://github.com/soundcloud/gandalf/issues/6
+//apply plugin: 'com.soundcloud.gandalf'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
