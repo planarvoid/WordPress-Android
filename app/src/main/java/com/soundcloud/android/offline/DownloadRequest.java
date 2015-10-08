@@ -30,11 +30,11 @@ public abstract class DownloadRequest {
     }
 
     public List<Urn> getPlaylists() {
-        return getTrackContext().inPlaylists();
+        return getTrackContext().getPlaylists();
     }
 
     public boolean isLiked() {
-        return getTrackContext().inLikes();
+        return getTrackContext().isLiked();
     }
 
     static class Builder {

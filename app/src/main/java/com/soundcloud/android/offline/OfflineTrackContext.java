@@ -16,7 +16,7 @@ public abstract class OfflineTrackContext {
 
     public abstract Urn getCreator();
 
-    public abstract List<Urn> inPlaylists();
+    public abstract List<Urn> getPlaylists();
 
-    public abstract boolean inLikes();
+    public abstract boolean isLiked();
 }

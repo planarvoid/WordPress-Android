@@ -45,12 +45,12 @@ public class OfflineSyncEvent extends TrackingEvent {
         return trackContext.getCreator();
     }
 
-    public boolean inPlaylist() {
-        return !trackContext.inPlaylists().isEmpty();
+    public boolean isInPlaylists() {
+        return !trackContext.getPlaylists().isEmpty();
     }
 
-    public boolean inLikes() {
-        return trackContext.inLikes();
+    public boolean isLiked() {
+        return trackContext.isLiked();
     }
 
     public String getStage() {

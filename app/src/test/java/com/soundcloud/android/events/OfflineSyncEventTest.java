@@ -7,7 +7,6 @@ import com.soundcloud.android.offline.OfflineTrackContext;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.List;
 
 public class OfflineSyncEventTest {
 
@@ -58,8 +57,8 @@ public class OfflineSyncEventTest {
     private void assertThatTrackContextValuesAreEqual(OfflineSyncEvent event, OfflineTrackContext context) {
         assertThat(event.getTrackUrn()).isEqualTo(context.getTrack());
         assertThat(event.getTrackOwner()).isEqualTo(context.getCreator());
-        assertThat(event.inLikes()).isEqualTo(context.inLikes());
-        assertThat(event.inPlaylist()).isEqualTo(!context.inPlaylists().isEmpty());
+        assertThat(event.isLiked()).isEqualTo(context.isLiked());
+        assertThat(event.isInPlaylists()).isEqualTo(!context.getPlaylists().isEmpty());
     }
 
     private OfflineTrackContext getTrackContext() {
