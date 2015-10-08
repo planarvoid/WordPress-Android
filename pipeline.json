@@ -1,0 +1,67 @@
+{
+    "stages": [
+        {
+            "name": "build",
+            "jobs": [
+		[	
+		    { 
+			"compile": { 
+			    "cmd": "./gradlew clean updateVersion buildDebugCI", 
+			    "artifacts": [ "app/res/values/app_properties.xml","app/build/outputs/apk/soundcloud*.apk" ],
+			    "android-lint": {
+			    	"pattern": "app/build/outputs/lint-results-prodDebug.xml", 
+			    	"failedTotalHigh": 0,
+			    	"failedTotalNormal": 0
+			    },
+			    "findbugs": {
+				"pattern": "app/build/reports/findbugs/findbugs.xml"
+			    },
+			    "pmd": {
+				"pattern": "app/build/reports/pmd/pmd.xml"
+			    },
+			    "taskPublisher": {
+				"pattern": "app/**/*.*",
+				"excludePattern": "app/target/**/*"
+			    },
+			    "violations": {
+				"checkstyle": {
+				    "pattern": "app/build/reports/checkstyle/checkstyle.xml"
+				}
+			    }	
+			} 
+		    },
+		    { 
+			"dex_watchdog": { 
+			    "cmd": "echo ''" } 
+			}
+		]
+            ],
+	    "next-stages": [ "test" ]
+        }, 
+	{ 
+	    "name": "test",
+            "jobs": [
+		[
+                    { "unit_tests": {"cmd": "./gradlew clean runUnitTests", "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml" } },
+		    { "acceptance_tests": {"cmd": "./gradlew runKitKatTests", "test-reports": "results/xml/*.xml" } }
+		]
+            ],
+ 	    "next-stages": [ "deploy" ]
+	}, 
+	{
+	    "name": "deploy",
+	    "jobs": [
+		{ "deploy_alpha": {"cmd": "./gradlew deployBeta", "manual": true} }
+	    ]   
+	}
+    ],
+    "settings": {
+	"github-url": "https://github.com/soundcloud/SoundCloud-Android/",
+	"owner-emails": "android-dev@soundcloud.com",
+        "jenkins-server": "http://localhost:8080",
+	"default-name" : "SoundCloud_Android_Master",
+        "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
+        "slave-label": "mobile-slave"
+    }
+}
+
