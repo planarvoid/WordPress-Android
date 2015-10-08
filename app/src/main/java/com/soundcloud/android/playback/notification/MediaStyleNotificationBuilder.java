@@ -90,7 +90,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
 
     @Override
     public void clearIcon() {
-        builder.setLargeIcon(null);
+        builder.setLargeIcon((Bitmap) null);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public com.soundcloud.android.image.ApiImageSize getImageSize() {
+    public ApiImageSize getImageSize() {
         return ApiImageSize.getNotificationLargeIconImageSize(resources);
     }
 
