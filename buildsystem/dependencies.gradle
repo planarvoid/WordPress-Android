@@ -32,6 +32,10 @@ ext {
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
           javaxAnnotations            : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
           autoValue                   : "com.google.auto.value:auto-value:1.1",
+
+          autoParcelProcessor         : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
+          autoParcel                  : "com.github.frankiesardo:auto-parcel:0.3.1",
+
           // SoundCloud libraries
           androidKit                  : ["com.soundcloud.android-kit:core:$androidKitVersion",
                                          dependencies.create("com.soundcloud.android-kit:platform:$androidKitVersion@aar") {

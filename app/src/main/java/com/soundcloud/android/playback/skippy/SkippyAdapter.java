@@ -7,6 +7,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -35,6 +36,7 @@ import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,26 +115,26 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void play(Urn track, long duration) {
-        play(track, POSITION_START, duration);
+    public void play(Urn track) {
+        play(track, POSITION_START);
     }
 
     @Override
-    public void play(Urn track, long fromPos, long duration) {
-        play(track, duration, fromPos, PLAY_TYPE_DEFAULT);
+    public void play(Urn track, long fromPos) {
+        play(track, fromPos, PLAY_TYPE_DEFAULT);
     }
 
     @Override
-    public void playUninterrupted(Urn track, long duration) {
-        play(track, duration, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
+    public void playUninterrupted(Urn track) {
+        play(track, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
     }
 
     @Override
-    public void playOffline(Urn track, long fromPos, long duration) {
-        play(track, duration, fromPos, PLAY_TYPE_OFFLINE);
+    public void playOffline(Urn track, long fromPos) {
+        play(track, fromPos, PLAY_TYPE_OFFLINE);
     }
 
-    private void play(Urn track, long duration, long fromPos, int playType) {
+    private void play(Urn track, long fromPos, int playType) {
         currentTrackUrn = track;
 
         if (!accountOperations.isUserLoggedIn()) {
@@ -147,7 +149,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (!playerListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, duration, dateProvider);
+            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, Consts.NOT_SET, dateProvider);
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             return;
@@ -209,10 +211,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public boolean resume() {
+    public void resume() {
         skippy.resume();
-        // skippy is always resumeable, where as mediaplayer is not
-        return true;
     }
 
     @Override
@@ -508,7 +508,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         @Override
         public StackTraceElement[] getStackTrace() {
-            return new StackTraceElement[]{new StackTraceElement(errorCategory, ScTextUtils.EMPTY_STRING, sourceFile, line)};
+            final StackTraceElement element = new StackTraceElement(errorCategory, Strings.EMPTY, sourceFile, line);
+            return new StackTraceElement[]{element};
         }
     }
 

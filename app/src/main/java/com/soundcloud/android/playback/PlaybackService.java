@@ -6,19 +6,11 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 import android.app.Service;
 import android.content.Intent;
@@ -42,8 +34,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private final Handler fadeHandler = new FadeHandler(this);
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
     @Inject EventBus eventBus;
-    @Inject PlayQueueManager playQueueManager;
-    @Inject TrackRepository trackRepository;
     @Inject AccountOperations accountOperations;
     @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
@@ -52,29 +42,25 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject PlaybackSessionAnalyticsController analyticsController;
     @Inject AdsOperations adsOperations;
 
-    private Urn currentTrack = Urn.NOT_SET;
+    private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
     private PlaybackReceiver playbackReceiver;
-    private Subscription loadTrackSubscription = RxUtils.invalidSubscription();
+
 
     public PlaybackService() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    PlaybackService(PlayQueueManager playQueueManager,
-                    EventBus eventBus,
-                    TrackRepository trackRepository,
+    PlaybackService(EventBus eventBus,
                     AccountOperations accountOperations,
                     StreamPlayer streamPlayer,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     PlaybackNotificationController playbackNotificationController,
                     PlaybackSessionAnalyticsController analyticsController, AdsOperations adsOperations) {
         this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
-        this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
@@ -90,7 +76,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         streamPlayer.setListener(this);
 
-        playbackReceiver = playbackReceiverFactory.create(this, accountOperations, playQueueManager, eventBus);
+        playbackReceiver = playbackReceiverFactory.create(this, accountOperations, eventBus);
         audioManager = remoteAudioManagerProvider.get();
 
         IntentFilter playbackFilter = new IntentFilter();
@@ -181,7 +167,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public void resetAll() {
         stop();
-        currentTrack = Urn.NOT_SET;
+        currentPlaybackItem = Optional.absent();
         audioManager.abandonMusicFocus(false); // kills lockscreen
     }
 
@@ -190,21 +176,31 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
-        if (currentTrack.equals(stateTransition.getTrackUrn())) {
+        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getTrackUrn().equals(stateTransition.getTrackUrn())) {
             if (!stateTransition.isPlaying()) {
                 onIdleState();
             }
 
             analyticsController.onStateTransition(stateTransition);
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
         }
     }
 
     @Override
     public void onProgressEvent(long position, long duration) {
-        final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-        final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentTrack);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+        if (currentPlaybackItem.isPresent()){
+            final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
+            final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentPlaybackItem.get().getTrackUrn());
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+        }
+    }
+
+    private static Player.StateTransition correctUnknownDuration(Player.StateTransition stateTransition, PlaybackItem playbackItem) {
+        final PlaybackProgress progress = stateTransition.getProgress();
+        if (!progress.isDurationValid()) {
+            progress.setDuration(playbackItem.getDuration());
+        }
+        return stateTransition;
     }
 
     @Override
@@ -217,7 +213,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "Toggling playback");
         if (streamPlayer.isPlaying()) {
             pause();
-        } else if (currentTrack != Urn.NOT_SET) {
+        } else if (currentPlaybackItem.isPresent()) {
             play();
         }
     }
@@ -248,52 +244,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
     }
 
-    void play(Urn track, final long fromPos) {
-        startPlayback(track, new Action1<PropertySet>() {
-            @Override
-            public void call(PropertySet propertySet) {
-                streamPlayer.play(currentTrack, fromPos, propertySet.get(TrackProperty.DURATION));
-            }
-        });
-    }
-
-    void playOffline(Urn track, final long fromPos) {
-        startPlayback(track, new Action1<PropertySet>() {
-            @Override
-            public void call(PropertySet propertySet) {
-                streamPlayer.playOffline(currentTrack, fromPos, propertySet.get(TrackProperty.DURATION));
-            }
-        });
-    }
-
-    void playUninterrupted(Urn track) {
-        startPlayback(track, new Action1<PropertySet>() {
-            @Override
-            public void call(PropertySet propertySet) {
-                streamPlayer.playUninterrupted(currentTrack, propertySet.get(TrackProperty.DURATION));
-            }
-        });
-    }
-
-    private void startPlayback(Urn track, Action1<PropertySet> playAction) {
-        loadTrackSubscription.unsubscribe();
-        currentTrack = track;
-        // Currently, we need to pass the duration to the player because of a MediaPlayerAdapter
-        // requirement. This is eventually going to disappear as we refactor this part.
-        loadTrackSubscription = trackRepository
-                .track(track)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(playAction)
-                .subscribe(new TrackInformationSubscriber(track));
+    void play(PlaybackItem playbackItem) {
+        currentPlaybackItem = Optional.of(playbackItem);
+        streamPlayer.play(playbackItem);
     }
 
     /* package */ void play() {
         Log.d(TAG, "Playing");
-        if (!streamPlayer.isPlaying() && currentTrack != Urn.NOT_SET && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            if (!streamPlayer.resume()) {
-                Log.d(TAG, "Re-opening current track as it is not resumable");
-                play(currentTrack, streamPlayer.getProgress());
-            }
+        if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent() && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+            streamPlayer.resume();
             resetVolume();
         }
     }
@@ -333,13 +292,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String STOP = "com.soundcloud.android.playback.stop"; // from the notification
 
         String PLAY = "com.soundcloud.android.playback.play";
-        String PLAY_UNINTERRUPTED = "com.soundcloud.android.playback.playuninterrupted";
-        String PLAY_OFFLINE = "com.soundcloud.android.playback.playoffline";
     }
 
     public interface ActionExtras {
-        String URN = "urn";
         String POSITION = "seek_position";
+        String PLAYBACK_ITEM = "playback_item";
     }
 
     // broadcast notifications
@@ -347,22 +304,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
         @Deprecated
         String META_CHANGED = "com.soundcloud.android.metachanged";
-    }
-
-    private class TrackInformationSubscriber extends DefaultSubscriber<PropertySet> {
-
-        private final Urn track;
-
-        TrackInformationSubscriber(Urn track) {
-            this.track = track;
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            Log.d(TAG, "Unable to get track information " + throwable);
-            onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, track));
-
-        }
     }
 
     private static final class DelayedStopHandler extends Handler {

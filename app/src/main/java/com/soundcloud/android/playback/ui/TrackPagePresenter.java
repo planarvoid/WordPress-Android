@@ -10,6 +10,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;

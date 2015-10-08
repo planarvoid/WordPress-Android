@@ -13,7 +13,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,8 +53,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private PlaybackState internalState = PlaybackState.STOPPED;
 
     private Urn track = Urn.NOT_SET;
-    private long expectedDuration = POS_NOT_SET;
-    private String currentStreamUrl = ScTextUtils.EMPTY_STRING;
     private int connectionRetries = 0;
 
     private boolean waitingForSeek;
@@ -68,6 +66,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private PlayerListener playerListener;
 
     private long prepareStartTimeMs;
+    private String currentStreamUrl = Strings.EMPTY;
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
@@ -75,7 +74,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                               NetworkConnectionHelper networkConnectionHelper,
                               AccountOperations accountOperations,
                               BufferUnderrunListener bufferUnderrunListener,
-                              StreamUrlBuilder urlBuilder, CurrentDateProvider dateProvider) {
+                              StreamUrlBuilder urlBuilder,
+                              CurrentDateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -89,12 +89,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void play(Urn track, long duration) {
-        play(track, POS_NOT_SET, duration);
+    public void play(Urn track) {
+        play(track, 0);
     }
 
     @Override
-    public void play(Urn track, long fromPos, long duration) {
+    public void play(Urn track, long fromPos) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -103,7 +103,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         this.track = track;
-        this.expectedDuration = duration;
         waitingForSeek = false;
         resumePos = fromPos;
         seekPos = POS_NOT_SET;
@@ -121,13 +120,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void playUninterrupted(Urn track, long duration) {
+    public void playUninterrupted(Urn track) {
         // Not implemented for MediaPlayer
-        play(track, duration);
+        play(track);
     }
 
     @Override
-    public void playOffline(Urn track, long fromPos, long duration) {
+    public void playOffline(Urn track, long fromPos) {
         throw new IllegalStateException("MediaPlayer cannot play offline content!!");
     }
 
@@ -191,7 +190,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             if (connectionRetries++ < MAX_CONNECT_RETRIES) {
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
-                play(track, resumePosition, expectedDuration);
+                play(track, resumePosition);
             } else {
                 Log.d(TAG, "stream disconnected, giving up");
                 setInternalState(PlaybackState.ERROR);
@@ -338,20 +337,23 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private void setInternalState(PlaybackState playbackState) {
-        setInternalState(playbackState, getAdjustedProgress());
+        internalState = playbackState;
+        reportStateChange(playbackState, getAdjustedProgress(), getDuration());
     }
 
-    private void setInternalState(PlaybackState playbackState, long progress) {
+    private void setInternalState(PlaybackState playbackState, long progress, long duration) {
         internalState = playbackState;
+        reportStateChange(playbackState, progress, duration);
+    }
 
-        // TODO : Replace this with ProgressReporter next time we are in here
+    private void reportStateChange(PlaybackState playbackState, long progress, long duration) {
         playerHandler.removeMessages(PlayerHandler.SEND_PROGRESS);
         if (playbackState == PlaybackState.PLAYING) {
             playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);
         }
 
         if (playerListener != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, getDuration(), dateProvider);
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, duration, dateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
@@ -374,12 +376,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public boolean resume() {
+    public void resume() {
         if (mediaPlayer != null && internalState.isStartable()) {
             play();
-            return true;
         } else {
-            return false;
+            play(track, resumePos);
         }
     }
 
@@ -405,14 +406,14 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         this.playerListener = playerListener;
     }
 
-    public long seek(long ms) {
-        return seek(ms, true);
+    public long seek(long position) {
+        return seek(position, true);
     }
 
     @Override
-    public long seek(long ms, boolean performSeek) {
+    public long seek(long position, boolean performSeek) {
         if (isSeekable()) {
-            if (ms < 0) {
+            if (position < 0) {
                 throw new IllegalArgumentException("Trying to seek before 0");
             }
 
@@ -420,32 +421,19 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             if (mediaPlayer == null) {
                 return currentPos;
             } else {
-                long duration = getDuration();
-
-                final long newPos;
-                // don't go before the playhead if they are trying to seek
-                // beyond, just maintain their current position
-                if (ms > currentPos && currentPos > duration) {
-                    newPos = currentPos;
-                } else if (ms > duration) {
-                    newPos = duration;
-                } else {
-                    newPos = ms;
-                }
-
-                if (performSeek && newPos != currentPos) {
+                if (performSeek && position != currentPos) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "seeking to " + newPos);
+                        Log.d(TAG, "seeking to " + position);
                     }
 
                     resetConnectionRetries();
                     playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
-                    seekPos = newPos;
+                    seekPos = position;
                     waitingForSeek = true;
                     bufferUnderrunListener.onSeek();
-                    mediaPlayer.seekTo((int) newPos);
+                    mediaPlayer.seekTo((int) position);
                 }
-                return newPos;
+                return position;
             }
         } else {
             return POS_NOT_SET;
@@ -479,7 +467,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         long progress = getProgress();
 
         // Media player reports progress > expectedDuration refs #2035
-        if (progress > duration) {
+        if (duration > 0 && progress > duration) {
             Log.d(TAG, "Progress > expectedDuration: " + progress + " > " + duration);
             return duration;
         }
@@ -490,7 +478,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getDuration();
         } else {
-            return expectedDuration;
+            return POS_NOT_SET;
         }
     }
 
@@ -542,6 +530,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (mediaPlayer != null) {
             // store times as they will not be accessible after release
             final long progress = getAdjustedProgress();
+            final long duration = getDuration();
 
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();
@@ -550,7 +539,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
 
-            setInternalState(PlaybackState.STOPPED, progress);
+            setInternalState(PlaybackState.STOPPED, progress, duration);
         }
     }
 

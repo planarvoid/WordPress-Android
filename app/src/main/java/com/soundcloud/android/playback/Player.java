@@ -15,11 +15,11 @@ import java.util.EnumSet;
 public interface Player {
 
     @Deprecated // remove this when we get rid of or simplify mediaplayer
-    void play(Urn urn, long duration);
-    void play(Urn urn, long fromPos, long duration);
-    void playUninterrupted(Urn urn, long duration);
-    void playOffline(Urn urn, long fromPos, long duration);
-    boolean resume();
+    void play(Urn track);
+    void play(Urn track, long fromPos);
+    void playUninterrupted(Urn track);
+    void playOffline(Urn track, long fromPos);
+    void resume();
     void pause();
     long seek(long ms, boolean performSeek);
     long getProgress();

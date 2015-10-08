@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -89,12 +90,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     @Override
     public Observable<Void> playCurrent() {
         final Urn urn = playQueueManager.getCurrentTrackUrn();
-        if (adsOperations.isCurrentTrackAudioAd()) {
-            serviceInitiator.playUninterrupted(urn);
-            return Observable.just(null);
-        } else {
-            return trackRepository.track(urn).doOnNext(play(urn)).map(RxUtils.TO_VOID);
-        }
+        return trackRepository.track(urn).doOnNext(play(urn)).map(RxUtils.TO_VOID);
     }
 
     @NonNull
@@ -102,10 +98,13 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         return new Action1<PropertySet>() {
             @Override
             public void call(PropertySet track) {
-                if (offlinePlaybackOperations.shouldPlayOffline(track)) {
-                    serviceInitiator.playOffline(urn, getPosition(urn));
+                final Long duration = track.get(TrackProperty.DURATION);
+                if (adsOperations.isCurrentTrackAudioAd()) {
+                    serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
+                } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
+                    serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(urn)));
                 } else {
-                    serviceInitiator.play(urn, getPosition(urn));
+                    serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(urn)));
                 }
             }
         };

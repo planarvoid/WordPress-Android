@@ -124,6 +124,8 @@ dependencies {
   apt libraries.daggerCompiler
   apt libraries.lightCycleProcessor
   apt libraries.autoValue
+  apt libraries.autoParcelProcessor
+
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
@@ -137,6 +139,7 @@ dependencies {
   compile libraries.lightCycle
 
   /* 3rd Party Libraries */
+  compile libraries.autoParcel
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger
