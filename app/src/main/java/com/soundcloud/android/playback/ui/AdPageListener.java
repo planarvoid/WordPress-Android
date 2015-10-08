@@ -7,6 +7,8 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -59,13 +61,15 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough() {
-        final PropertySet audioAd = playQueueManager.getCurrentMetaData();
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        final PropertySet audioAd = currentPlayQueueItem.getMetaData();
+        final Urn trackUrn = currentPlayQueueItem.getUrn();
+
         Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
         startActivity(uri);
 
         adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_CLICKED, true);
-        // track this click
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn(), accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
     }
 
     public void onAboutAds(Context context) {

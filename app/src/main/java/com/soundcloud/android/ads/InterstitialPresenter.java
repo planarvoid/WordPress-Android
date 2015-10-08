@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -44,8 +45,8 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void onAdVisible(Urn playingUrn, PropertySet data, TrackSourceInfo trackSourceInfo) {
-        super.onAdVisible(playingUrn, data, trackSourceInfo);
+    public void onAdVisible(PlayQueueItem playQueueItem, PropertySet data, TrackSourceInfo trackSourceInfo) {
+        super.onAdVisible(playQueueItem, data, trackSourceInfo);
         interstitialImageHolder.setVisibility(View.VISIBLE);
         previewContainer.setVisibility(View.VISIBLE);
     }

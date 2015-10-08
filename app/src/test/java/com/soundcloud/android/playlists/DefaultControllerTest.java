@@ -3,9 +3,10 @@ package com.soundcloud.android.playlists;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
@@ -21,7 +22,6 @@ import android.widget.ListView;
 public class DefaultControllerTest extends AndroidUnitTest {
 
     private DefaultController controller;
-
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaylistTrackItemRenderer trackRenderer;
@@ -40,14 +40,16 @@ public class DefaultControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldListenForTrackPositionChangeEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L), Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test
     public void shouldListenForNewPlayQueueEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L), Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }

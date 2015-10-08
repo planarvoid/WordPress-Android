@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -47,7 +48,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
@@ -111,9 +112,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         Player.StateTransition playEvent = publishPlayingEvent();
 
@@ -128,9 +129,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
         when(playQueueManager.hasNextTrack()).thenReturn(true);
 
         publishPlayingEvent();
@@ -148,15 +149,15 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventForPlayingAudioAdOnPromotedContentDoesntHavePromotedInfo() throws Exception {
-        Urn promoter = Urn.forUser(83L);
-        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        PlaySessionSource source = new PlaySessionSource("stream");
+        final Urn promoter = Urn.forUser(83L);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final PlaySessionSource source = new PlaySessionSource("stream");
         source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.of(promoter), Arrays.asList("url")));
 
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         publishPlayingEvent();
 
@@ -274,12 +275,12 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         final Urn nextTrack = Urn.forTrack(456L);
         when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack, CREATOR_URN)));
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         publishPlayingEventForTrack(TRACK_URN);
 

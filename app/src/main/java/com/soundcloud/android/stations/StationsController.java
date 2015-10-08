@@ -1,6 +1,6 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -17,9 +17,9 @@ public class StationsController {
     private final EventBus eventBus;
     private final StationsOperations operations;
 
-    private static final Func1<CurrentPlayQueueTrackEvent, Boolean> IS_STATION = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+    private static final Func1<CurrentPlayQueueItemEvent, Boolean> IS_STATION = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
-        public Boolean call(CurrentPlayQueueTrackEvent event) {
+        public Boolean call(CurrentPlayQueueItemEvent event) {
             return event.getCollectionUrn().isStation();
         }
     };
@@ -31,9 +31,9 @@ public class StationsController {
         }
     };
 
-    private final Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>> saveLastTrackPosition = new Func1<CurrentPlayQueueTrackEvent, Observable<ChangeResult>>() {
+    private final Func1<CurrentPlayQueueItemEvent, Observable<ChangeResult>> saveLastTrackPosition = new Func1<CurrentPlayQueueItemEvent, Observable<ChangeResult>>() {
         @Override
-        public Observable<ChangeResult> call(CurrentPlayQueueTrackEvent event) {
+        public Observable<ChangeResult> call(CurrentPlayQueueItemEvent event) {
             return operations.saveLastPlayedTrackPosition(event.getCollectionUrn(), event.getPosition());
         }
     };
@@ -79,7 +79,7 @@ public class StationsController {
     }
 
     private void saveCurrentTrackPositionInStation() {
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .filter(IS_STATION)
                 .flatMap(saveLastTrackPosition)
                 .subscribe(new DefaultSubscriber<ChangeResult>());

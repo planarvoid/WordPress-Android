@@ -104,7 +104,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         configureEmptyView();
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }

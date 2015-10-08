@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -109,10 +110,10 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, bundle);
         presenter.onViewCreated(fragment, view, null);
 
-        final Urn playingTrack = Urn.forTrack(123L);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 1));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
 
-        verify(adapter).updateNowPlaying(playingTrack);
+        verify(adapter).updateNowPlaying(Urn.forTrack(123L));
     }
 
     @Test
@@ -121,10 +122,10 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
 
-        final Urn playingTrack = Urn.forTrack(123L);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 1));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
 
-        verify(adapter, never()).updateNowPlaying(playingTrack);
+        verify(adapter, never()).updateNowPlaying(Urn.forTrack(123L));
     }
 
     @Test

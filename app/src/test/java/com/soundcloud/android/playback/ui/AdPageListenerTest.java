@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -33,6 +34,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     private AdPageListener listener;
     private TestEventBus eventBus = new TestEventBus();
+    private PropertySet adData;
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
@@ -47,31 +49,29 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener = new AdPageListener(context(),
                  playSessionStateProvider, playSessionController, playQueueManager,
                  eventBus, adsOperations, accountOperations, whyAdsPresenter);
+
+        adData = TestPropertySets.audioAdProperties(Urn.forTrack(123));
+
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
     }
 
     @Test
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
         when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         listener.onClickThrough();
 
         Intent intent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isSameAs(audioAd.get(AdProperty.CLICK_THROUGH_LINK));
+        assertThat(intent.getData()).isSameAs(adData.get(AdProperty.CLICK_THROUGH_LINK));
     }
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
         when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(456));
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         listener.onClickThrough();
 
@@ -84,8 +84,6 @@ public class AdPageListenerTest extends AndroidUnitTest {
     public void onClickThroughShouldSetMenetizableTrackMetaAdClicked() {
         final PropertySet monetizableProperties = PropertySet.create();
         when(adsOperations.getMonetizableTrackMetaData()).thenReturn(monetizableProperties);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456)));
 
         listener.onClickThrough();
 

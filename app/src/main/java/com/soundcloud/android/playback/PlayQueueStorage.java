@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -38,20 +39,11 @@ class PlayQueueStorage {
         final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
-                final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values(4)
-                        .put(Tables.PlayQueue.TRACK_ID, item.getTrackUrn().getNumericId())
-                        .put(Tables.PlayQueue.SOURCE, item.getSource())
-                        .put(Tables.PlayQueue.SOURCE_VERSION, item.getSourceVersion());
-
-                if (!item.getRelatedEntity().equals(Urn.NOT_SET)){
-                    valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, item.getRelatedEntity().toString());
+                if (item.isTrack()) {
+                    newItems.add(trackItemContentValues((TrackQueueItem) item));
+                } else {
+                    ErrorUtils.handleSilentException(new IllegalStateException("Tried to persist an unsupported play queue item"));
                 }
-
-                if (item.getReposter().isUser()){
-                    valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, item.getReposter().getNumericId());
-                }
-
-                newItems.add(valuesBuilder.get());
             }
         }
 
@@ -72,14 +64,31 @@ class PlayQueueStorage {
                 final String source = reader.getString(Tables.PlayQueue.SOURCE);
                 final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
                 final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID));
-                final PlayQueueItem playQueueItem = new PlayQueueItem.Builder(track, reposter)
+                final TrackQueueItem trackQueueItem = new TrackQueueItem.Builder(track, reposter)
                         .relatedEntity(relatedEntity)
                         .fromSource(source, sourceVersion)
                         .build();
 
-                return playQueueItem;
+                return trackQueueItem;
             }
         });
+    }
+
+    private ContentValues trackItemContentValues(TrackQueueItem playQueueItem) {
+        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values(4)
+                .put(Tables.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().getNumericId())
+                .put(Tables.PlayQueue.SOURCE, playQueueItem.getSource())
+                .put(Tables.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
+
+        if (!playQueueItem.getRelatedEntity().equals(Urn.NOT_SET)){
+            valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, playQueueItem.getRelatedEntity().toString());
+        }
+
+        if (playQueueItem.getReposter().isUser()){
+            valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playQueueItem.getReposter().getNumericId());
+        }
+
+        return valuesBuilder.get();
     }
 
     private boolean hasRelatedEntity(CursorReader reader) {

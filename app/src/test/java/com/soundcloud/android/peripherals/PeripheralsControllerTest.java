@@ -6,11 +6,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -86,7 +87,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
@@ -115,7 +116,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");

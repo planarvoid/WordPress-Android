@@ -9,11 +9,12 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCa
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.Player;
@@ -45,7 +46,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final VideoCastManager castManager;
     private final ProgressReporter progressReporter;
     private final PlayQueueManager playQueueManager;
-    private final AdsOperations adsOperations;
     private final EventBus eventBus;
 
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
@@ -55,13 +55,11 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                       VideoCastManager castManager,
                       ProgressReporter progressReporter,
                       PlayQueueManager playQueueManager,
-                      AdsOperations adsOperations,
                       EventBus eventBus) {
         this.castOperations = castOperations;
         this.castManager = castManager;
         this.progressReporter = progressReporter;
         this.playQueueManager = playQueueManager;
-        this.adsOperations = adsOperations;
         this.eventBus = eventBus;
 
         castManager.addVideoCastConsumer(this);
@@ -149,10 +147,15 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     Observable<PlaybackResult> reloadCurrentQueue() {
-        return setNewQueue(
-                getCurrentQueueUrnsWithoutAds(),
-                playQueueManager.getCurrentTrackUrn(),
-                playQueueManager.getCurrentPlaySessionSource());
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        if (currentPlayQueueItem.isTrack()) {
+            return setNewQueue(
+                    getCurrentQueueUrnsWithoutAds(),
+                    currentPlayQueueItem.getUrn(),
+                    playQueueManager.getCurrentPlaySessionSource());
+        } else {
+            return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
+        }
     }
 
     public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
@@ -190,13 +193,14 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     public void playCurrent(long position) {
-        Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        final Urn currentTrackUrn = currentPlayQueueItem.getUrn();
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
         } else {
             reportStateChange(new StateTransition(PlayerState.BUFFERING, Reason.NONE, currentTrackUrn));
             playCurrentSubscription.unsubscribe();
-            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
+            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
                     .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
         }
     }
@@ -246,9 +250,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {
-        List<Urn> queueWithoutAds = playQueueManager.getCurrentQueueAsUrnList();
-        queueWithoutAds.removeAll(adsOperations.getAdUrnsInQueue());
-        return queueWithoutAds;
+        return new PlayQueue(playQueueManager.filterQueueItemsWithMetadata(AdFunctions.HAS_AD_URN)).getTrackItemUrns();
     }
 
     private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {
@@ -322,5 +324,4 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         castManager.onDeviceSelected(null);
         castManager.removeVideoCastConsumer(this);
     }
-
 }

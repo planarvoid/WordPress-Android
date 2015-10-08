@@ -17,7 +17,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -25,12 +25,14 @@ import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -82,7 +84,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
         playableMetadata = PlayableMetadata.from(widgetTrack);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
     }
 
     @Test
@@ -108,7 +110,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN), Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -116,12 +119,12 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() throws CreateModelException {
         final PropertySet audioAdProperties = audioAdProperties(Urn.forTrack(123L));
+        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAdProperties);
 
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, Urn.NOT_SET, audioAdProperties, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack.merge(audioAdProperties)));
     }
@@ -131,7 +134,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(WIDGET_TRACK_URN, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN), Urn.NOT_SET, 0));
 
         verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
@@ -139,8 +143,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingNormalTrack() {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, PropertySet.create()));
         when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
@@ -155,7 +159,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, audioAdProperties(Urn.forTrack(123L))));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
@@ -201,18 +206,11 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldResetPresenterWhenTheCurrentTrackIsNotSetOnUpdate() {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.NOT_SET);
-
-        controller.update();
-
-        verify(playerWidgetPresenter).reset(context);
-    }
-
-    @Test
     public void shouldUpdatePresenterTrackInformationWhenCurrentTrackIsNotAudioAd() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, PropertySet.create()));
+
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
 
         controller.update();
@@ -222,7 +220,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePresenterTrackWithAdInformationWhenCurrentTrackIsAudioAd() {
-        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, audioAdProperties(Urn.forTrack(123L))));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
 
         controller.update();
@@ -285,7 +284,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getEntityUrn())).thenReturn(promotedSourceInfo);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(promotedTrackItem.getEntityUrn());
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(promotedTrackItem.getEntityUrn()));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(promotedTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
@@ -303,7 +302,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPromotedSourceInfo(WIDGET_TRACK_URN)).thenReturn(promotedSourceInfo);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
@@ -325,7 +324,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);

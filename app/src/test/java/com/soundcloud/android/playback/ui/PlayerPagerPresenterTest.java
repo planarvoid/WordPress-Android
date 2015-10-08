@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -330,7 +331,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void getViewClearsRecycledViewWithUrnForCurrentPosition() {
         when(trackPagePresenter.accept(any(View.class))).thenReturn(true);
-        when(playQueueManager.getUrnAtPosition(0)).thenReturn(TRACK1_URN);
+        when(playQueueManager.getPlayQueueItemAtPosition(0)).thenReturn(TestPlayQueueItem.createTrack(TRACK1_URN));
         when(trackRepository.track(TRACK1_URN)).thenReturn(Observable.<PropertySet>empty());
 
         adapter.instantiateItem(container, 0);
@@ -551,7 +552,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final View viewForOtherTrack = getPageView(3, MONETIZABLE_TRACK_URN);
         setCurrentTrackState(3, MONETIZABLE_TRACK_URN, true);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(MONETIZABLE_TRACK_URN, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(MONETIZABLE_TRACK_URN), Urn.NOT_SET, 0));
 
         verify(trackPagePresenter, times(2)).clearAdOverlay(viewForCurrentTrack);
         verify(trackPagePresenter, never()).clearAdOverlay(viewForOtherTrack);
@@ -575,7 +577,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private void setupGetCurrentViewPreconditions(int position, Urn trackUrn) {
         track.put(TrackProperty.URN, trackUrn);
-        when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
+        when(playQueueManager.getPlayQueueItemAtPosition(position)).thenReturn(TestPlayQueueItem.createTrack(trackUrn));
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
     }
 
@@ -585,7 +587,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         }
         when(playQueueManager.isCurrentPosition(position)).thenReturn(isCurrentTrack);
         when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(isCurrentTrack);
-        when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
+        when(playQueueManager.getPlayQueueItemAtPosition(position)).thenReturn(TestPlayQueueItem.createTrack(trackUrn));
     }
 
     private void setupAudioAd() {

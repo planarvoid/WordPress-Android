@@ -15,6 +15,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -44,6 +45,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private final Urn trackUrn = Urn.forTrack(123L);
+    private final PlayQueueItem trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
     private TestSubscriber<Void> playCurrentSubscriber = new TestSubscriber<>();
     private TestObserver<PlaybackResult> playNewQueueSubscriber = new TestObserver<>();
@@ -83,7 +85,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void resumePlaysCurrentTrackThroughServiceIfServiceNotStarted() throws Exception {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
@@ -97,7 +99,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void togglePlaybackPlaysCurrentTrackIfPlaybackIntentIfServiceStarted() throws Exception {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
@@ -109,7 +111,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysNormalTrackSuccessfully() {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
@@ -123,7 +125,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Test
     public void playCurrentPlaysOfflineTrackSuccessfully() {
         final PropertySet offlineTrack = offlineTrack();
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
@@ -136,7 +138,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysAdSuccessfully() {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));

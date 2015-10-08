@@ -35,7 +35,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         provider = new PlaySessionStateProvider(eventBus, playQueueManager);
         provider.subscribe();
 
-        when(playQueueManager.getCurrentTrackId()).thenReturn(TRACK_ID);
         dateProvider = new TestDateProvider();
     }
 
