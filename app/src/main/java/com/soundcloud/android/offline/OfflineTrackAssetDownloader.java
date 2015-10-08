@@ -3,6 +3,7 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.waveform.WaveformFetchCommand;
 
@@ -39,9 +40,9 @@ class OfflineTrackAssetDownloader {
         if (!waveformStorage.hasWaveform(trackUrn)) {
             try {
                 waveformStorage.store(trackUrn, waveformFetchCommand.call(waveformUrl));
-            } catch (WaveformFetchCommand.WaveformFetchException ignored) {
-                Log.e(OfflineContentService.TAG, "Failed to fetch waveform!", ignored);
-                // default waveform will be displayed
+            } catch (WaveformFetchCommand.WaveformFetchException exception) {
+                // Default waveform will be displayed
+                ErrorUtils.handleSilentException("Failed to download waveform for track: " + trackUrn, exception);
             }
         }
     }

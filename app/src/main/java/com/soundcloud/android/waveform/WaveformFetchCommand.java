@@ -1,6 +1,7 @@
 package com.soundcloud.android.waveform;
 
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONException;
 
 import android.net.Uri;
@@ -34,7 +35,7 @@ public class WaveformFetchCommand extends Command<String, WaveformData> {
             } else {
                 throw new WaveformFetchException("Invalid response code");
             }
-        } catch (IOException | JSONException e) {
+        } catch (IOException | JSONException | IllegalStateException e) {
             throw new WaveformFetchException(e);
         }
     }
