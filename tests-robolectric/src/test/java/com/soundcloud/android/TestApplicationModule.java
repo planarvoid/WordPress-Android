@@ -47,12 +47,14 @@ import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 
 import javax.inject.Named;
 
@@ -85,6 +87,7 @@ public class TestApplicationModule {
         return application.getSharedPreferences("default", 0);
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Provides
     public AccountManager provideAccountManager() {
         return AccountManager.get(application);
