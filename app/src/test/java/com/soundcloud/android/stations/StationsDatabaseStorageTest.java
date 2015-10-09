@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -10,10 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
+import android.content.SharedPreferences;
+
 import java.util.Collections;
 import java.util.List;
 
-public class StationsStorageTest extends StorageIntegrationTest {
+public class StationsDatabaseStorageTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private StationsStorage storage;
     private TestSubscriber<Station> subscriber = new TestSubscriber<>();
@@ -21,7 +24,12 @@ public class StationsStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new StationsStorage(propeller(), propellerRx(), dateProvider);
+        storage = new StationsStorage(
+                mock(SharedPreferences.class),
+                propeller(),
+                propellerRx(),
+                dateProvider
+        );
     }
 
     @Test
