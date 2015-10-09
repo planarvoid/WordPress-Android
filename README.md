@@ -58,6 +58,25 @@ Make sure you are on the VPN:
     $ cd SoundCloud-Android
     $ ./gradlew assembleDebug
 
+You might encounter the following error:
+
+```
+Parallel execution with configuration on demand is an incubating feature.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':app'.
+> SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable.
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
+
+BUILD FAILED
+
+Total time: 1.753 secs
+```
+
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
 ## Opening the project in Android Studio
