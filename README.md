@@ -79,6 +79,8 @@ Total time: 1.753 secs
 
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
+You can also ask questions on the `#android-newbies` Slack channel.
+
 ## Opening the project in Android Studio
 
 Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
