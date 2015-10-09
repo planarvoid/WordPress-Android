@@ -6,47 +6,54 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
 import android.net.Uri;
+import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class TrackPagerAdapterTest extends AndroidUnitTest {
+public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private static final Urn TRACK1_URN = Urn.forTrack(123L);
     private static final Urn TRACK2_URN = Urn.forTrack(234L);
@@ -61,8 +68,10 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
 
+    @Mock private PlayerTrackPager playerTrackPager;
+
+    @Captor private ArgumentCaptor<SkipListener> skipListenerArgumentCaptor;
     @Mock private ViewGroup container;
-    @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     @Mock private View view1;
@@ -73,9 +82,12 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Mock private View view6;
     @Mock private View adView;
 
+    @Mock private PlayerFragment playerFragment;
+
     private TestEventBus eventBus;
-    private TrackPagerAdapter adapter;
+    private PlayerPagerPresenter presenter;
     private PropertySet track;
+    private PagerAdapter adapter;
 
     private List<TrackPageData> trackPageData = newArrayList(
             new TrackPageData(0, TRACK1_URN, PropertySet.create(), Urn.NOT_SET),
@@ -86,19 +98,26 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(view1, view2, view3, view4, view5, view6);
-        when(adPagePresenter.createItemView(container, skipListener)).thenReturn(adView);
+        when(trackPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(view1, view2, view3, view4, view5, view6);
+        when(adPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(adView);
 
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager,
+        presenter = new PlayerPagerPresenter(playQueueManager,
                 playSessionStateProvider,
                 trackRepository,
                 trackPagePresenter,
                 adPagePresenter,
                 castConnectionHelper,
                 eventBus);
-        adapter.onViewCreated(container, skipListener, viewVisibilityProvider);
-        adapter.setCurrentData(trackPageData);
+
+        when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
+        when(container.getResources()).thenReturn(resources());
+        presenter.onViewCreated(playerFragment, container, null);
+        final ArgumentCaptor<PagerAdapter> pagerAdapterCaptor = ArgumentCaptor.forClass(PagerAdapter.class);
+        verify(playerTrackPager).setAdapter(pagerAdapterCaptor.capture());
+        adapter = pagerAdapterCaptor.getValue();
+
+        presenter.setCurrentData(trackPageData);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
                 PlayableProperty.TITLE.bind("title"),
@@ -123,14 +142,50 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getCountReturnsCurrentPlayQueueSize() {
-        when(playQueueManager.getQueueSize()).thenReturn(4);
-        assertThat(adapter.getCount()).isEqualTo(4);
+    public void onNextOnSkipListenerSetsPagerToNextPosition() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        when(playerTrackPager.getCurrentItem()).thenReturn(3);
+
+        skipListenerArgumentCaptor.getValue().onNext();
+
+        verify(playerTrackPager).setCurrentItem(eq(4));
+    }
+
+    @Test
+    public void onNextOnSkipListenerEmitsPlayerSkipClickEvent() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        when(playerTrackPager.getCurrentItem()).thenReturn(3);
+
+        skipListenerArgumentCaptor.getValue().onNext();
+
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event).isEqualTo(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
+    }
+
+    @Test
+    public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        when(playerTrackPager.getCurrentItem()).thenReturn(3);
+
+        skipListenerArgumentCaptor.getValue().onPrevious();
+
+        verify(playerTrackPager).setCurrentItem(eq(2));
+    }
+
+    @Test
+    public void onPreviousOnSkipListenerEmitsPlayerPreviousClickEvent() {
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        when(playerTrackPager.getCurrentItem()).thenReturn(3);
+
+        skipListenerArgumentCaptor.getValue().onPrevious();
+
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event).isEqualTo(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         final View currentTrackView = getPageView();
         Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
 
@@ -141,7 +196,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onPlayingStateEventCallsSetPlayStateForOtherPage() {
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         setCurrentTrackState(0, TRACK1_URN, true);
         setCurrentTrackState(1, TRACK2_URN, false);
 
@@ -178,6 +233,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onPlaybackProgressEventSetsProgressOnCurrentPlayingTrackPage() {
+        presenter.onResume(playerFragment);
         View currentPageView = getPageView();
         PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), TRACK1_URN);
 
@@ -188,9 +244,10 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
+        presenter.onResume(playerFragment);
         View currentPageView = getPageView();
         PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), TRACK1_URN);
-        adapter.onPause();
+        presenter.onPause(playerFragment);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -243,7 +300,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void creatingNewTrackViewSetThePlayState() {
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -292,7 +349,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     public void shouldBindTrackViewForTracks() {
         ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
 
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         final View pageView = getPageView();
 
         verify(trackPagePresenter).bindItemView(same(pageView), captorPropertySet.capture());
@@ -302,14 +359,13 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
         assertThat(captorPropertySet.getValue().isForeground()).isTrue();
         assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
-        assertThat(captorPropertySet.getValue().getViewVisibilityProvider()).isSameAs(viewVisibilityProvider);
     }
 
     @Test
     public void shouldBindTrackViewForTrackWithRelatedTrack() {
         ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
 
-        adapter.onResume();
+        presenter.onResume(playerFragment);
 
         setCurrentTrackState(1, TRACK2_URN, true);
         final View pageView = getPageView(1, TRACK2_URN);
@@ -321,23 +377,22 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
         assertThat(captorPropertySet.getValue().isForeground()).isTrue();
         assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
-        assertThat(captorPropertySet.getValue().getViewVisibilityProvider()).isSameAs(viewVisibilityProvider);
         assertThat(captorPropertySet.getValue().getRelatedTrackUrn()).isEqualTo(TRACK2_RELATED_URN);
         assertThat(captorPropertySet.getValue().getRelatedTrackTitle()).isEqualTo("related title");
     }
 
     @Test
     public void shouldCreateAdViewForAudioAds() {
-        adapter.onViewCreated(container, skipListener, viewVisibilityProvider);
+        presenter.onViewCreated(playerFragment, container, null);
         setupAudioAd();
         getAdPageView();
 
-        verify(adPagePresenter).createItemView(container, skipListener);
+        verify(adPagePresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
     }
 
     @Test
     public void shouldBindAdViewForAudioAds() {
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         setupAudioAd();
         View pageView = getAdPageView();
         ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
@@ -354,7 +409,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         View currentPageView = getPageView();
         when(trackPagePresenter.accept(currentPageView)).thenReturn(true);
 
-        adapter.onTrackChange();
+        presenter.onTrackChange();
 
         verify(trackPagePresenter).onPageChange(currentPageView);
     }
@@ -376,7 +431,7 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
         when(playSessionStateProvider.getLastProgressForTrack(TRACK2_URN)).thenReturn(secondProgress);
         Mockito.reset(adPagePresenter); // progress gets set on initial bind, which we are not testing
 
-        adapter.onTrackChange();
+        presenter.onTrackChange();
 
         verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
         verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
@@ -392,14 +447,14 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     public void onPlayerSlideForwardsPositionToAdPresenter() {
         setupAudioAd();
         final View pageView = getAdPageView();
-        adapter.onPlayerSlide(0.5f);
+        presenter.onPlayerSlide(0.5f);
         verify(adPagePresenter).onPlayerSlide(pageView, 0.5f);
     }
 
     @Test
     public void onPlayerSlideForwardsPositionToTrackPresenter() {
         final View pageView = getPageView();
-        adapter.onPlayerSlide(0.5f);
+        presenter.onPlayerSlide(0.5f);
         verify(trackPagePresenter).onPlayerSlide(pageView, 0.5f);
     }
 
@@ -423,20 +478,20 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     @Test
     public void onPauseSetsBackgroundStateOnPresenter() {
         final View pageView = getPageView();
-        adapter.onPause();
+        presenter.onPause(playerFragment);
         verify(trackPagePresenter).onBackground(pageView);
     }
 
     @Test
     public void onResumeSetsForegroundStateOnPresenter() {
         final View pageView = getPageView();
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         verify(trackPagePresenter).onForeground(pageView);
     }
 
     @Test
     public void reusingExistingViewSetsForegroundStateOnPresenter() {
-        adapter.onResume();
+        presenter.onResume(playerFragment);
         final View view = getPageView();
         when(trackPagePresenter.clearItemView(view)).thenReturn(view);
         when(trackPagePresenter.accept(view)).thenReturn(true);
@@ -550,6 +605,6 @@ public class TrackPagerAdapterTest extends AndroidUnitTest {
     }
 
     private void setupAudioAd(PropertySet propertySet) {
-        adapter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet, Urn.NOT_SET)));
+        presenter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet, Urn.NOT_SET)));
     }
 }

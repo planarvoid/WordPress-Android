@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,24 +13,24 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.observers.TestObserver;
 
 import android.support.v4.view.ViewPager;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PlayerPagerScrollListenerTest {
 
     @Mock PlayQueueManager playQueueManager;
     @Mock PlayerTrackPager playerTrackPager;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock AdsOperations adsOperations;
-    @Mock TrackPagerAdapter adapter;
+    @Mock PlayerPagerPresenter presenter;
 
     private PlayerPagerScrollListener pagerScrollListener;
     private TestEventBus eventBus = new TestEventBus();
@@ -40,7 +40,7 @@ public class PlayerPagerScrollListenerTest {
     public void setUp() {
         observer = new TestObserver<>();
         pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackToastHelper, eventBus, adsOperations);
-        pagerScrollListener.initialize(playerTrackPager, adapter);
+        pagerScrollListener.initialize(playerTrackPager, presenter);
         pagerScrollListener.getPageChangedObservable().subscribe(observer);
     }
 
@@ -48,7 +48,7 @@ public class PlayerPagerScrollListenerTest {
     public void doesNotEmitTrackChangedOnIdleStateWithoutPageSelected() {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        expect(observer.getOnNextEvents()).toBeEmpty();
+        assertThat(observer.getOnNextEvents()).isEmpty();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class PlayerPagerScrollListenerTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class PlayerPagerScrollListenerTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.swipeSkip(true));
+        assertThat(event).isEqualTo(PlayControlEvent.swipeSkip(true));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PlayerPagerScrollListenerTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.swipeSkip(false));
+        assertThat(event).isEqualTo(PlayControlEvent.swipeSkip(false));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PlayerPagerScrollListenerTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.swipePrevious(true));
+        assertThat(event).isEqualTo(PlayControlEvent.swipePrevious(true));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class PlayerPagerScrollListenerTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event).toEqual(PlayControlEvent.swipePrevious(false));
+        assertThat(event).isEqualTo(PlayControlEvent.swipePrevious(false));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class PlayerPagerScrollListenerTest {
 
     @Test
     public void setsPagingDisabledOnPageSelectedWithAudioAdNotAtCurrentPosition() {
-        when(adapter.getPlayQueuePosition(1)).thenReturn(1);
+        when(presenter.getPlayQueuePosition(1)).thenReturn(1);
         when(adsOperations.isAudioAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(false);
 
@@ -129,7 +129,7 @@ public class PlayerPagerScrollListenerTest {
 
     @Test
     public void setsPagingEnabledOnPageSelectedWithAudioAdAtCurrentPosition() {
-        when(adapter.getPlayQueuePosition(1)).thenReturn(1);
+        when(presenter.getPlayQueuePosition(1)).thenReturn(1);
         when(adsOperations.isAudioAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(true);
 
@@ -141,7 +141,7 @@ public class PlayerPagerScrollListenerTest {
     @Test
     public void setsPagingEnabledOnPageSelectedWithCurrentNormalTrack() {
         // for normal tracks paging should always be enabled
-        when(adapter.getPlayQueuePosition(1)).thenReturn(1);
+        when(presenter.getPlayQueuePosition(1)).thenReturn(1);
         when(adsOperations.isAudioAdAtPosition(1)).thenReturn(false);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(true);
 
@@ -153,7 +153,7 @@ public class PlayerPagerScrollListenerTest {
     @Test
     public void setsPagingEnabledOnPageSelectedWithNormalTrack() {
         // for normal tracks paging should always be enabled
-        when(adapter.getPlayQueuePosition(1)).thenReturn(1);
+        when(presenter.getPlayQueuePosition(1)).thenReturn(1);
         when(adsOperations.isAudioAdAtPosition(1)).thenReturn(false);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(false);
 
