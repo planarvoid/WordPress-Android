@@ -119,7 +119,7 @@ class SoundStreamOperations {
         }
 
         private void publishTrackingEvent(PromotedListItem item) {
-            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.SIDE_MENU_STREAM.get()));
+            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.STREAM.get()));
         }
     };
 

@@ -25,7 +25,7 @@
             <fragment
                 tools:ignore="InconsistentLayout"
                 android:id="@id/fixed_navigation_fragment_id"
-                android:name="com.soundcloud.android.main.NavigationFragment"
+                android:name="com.soundcloud.android.main.LegacyNavigationFragment"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"

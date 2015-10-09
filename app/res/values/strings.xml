@@ -247,7 +247,6 @@
     <!-- __ONBOARDING -->
     <string name="and_conjunction">%1$s and %2$s</string>
     <string name="try_again">Try Again</string>
-    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
     <string name="age">Age</string>
     <string name="enter_age_hint">Enter your age</string>
     <string name="gender">Gender</string>

@@ -591,7 +591,7 @@ public class OnboardActivity extends FragmentActivity
 
             if (wasSignup || wasAuthorizedViaSignupScreen()) {
                 Intent intent = new Intent(this, MainActivity.class)
-                        .putExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true)
+                        .putExtra(MainActivity.EXTRA_FROM_SIGNIN, true)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else {

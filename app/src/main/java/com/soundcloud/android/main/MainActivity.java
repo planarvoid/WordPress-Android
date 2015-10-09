@@ -9,7 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
-import com.soundcloud.android.main.NavigationFragment.NavItem;
+import com.soundcloud.android.main.LegacyNavigationFragment.NavItem;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -19,11 +19,11 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
+public class MainActivity extends ScActivity implements LegacyNavigationFragment.NavigationCallbacks {
 
     public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
-    public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
-    
+    public static final String EXTRA_FROM_SIGNIN = "from_sign_in";
+
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
 
@@ -50,7 +50,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void setupEmailOptIn() {
-        if (getIntent().hasExtra(EXTRA_ONBOARDING_USERS_RESULT)) {
+        if (getIntent().getBooleanExtra(EXTRA_FROM_SIGNIN, false)) {
             EmailOptInDialogFragment.show(this);
         }
     }

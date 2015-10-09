@@ -217,7 +217,6 @@
   <!--__ONBOARDING-->
   <string name="and_conjunction">%1$s dan %2$s</string>
   <string name="try_again">Coba Lagi</string>
-  <string name="error_onboarding_fail">Kami masih mengerjakan stream Anda. Kami akan terus mencoba sampai berhasil! Sementara itu, Anda dapat mencari dan menjelajahi musik &amp; audio lain.</string>
   <string name="age">Umur</string>
   <string name="enter_age_hint">Masukkan umur Anda</string>
   <string name="gender">Jenis Kelamin</string>

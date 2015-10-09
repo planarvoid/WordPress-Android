@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@id/navigation_fragment_id"
-        android:name="com.soundcloud.android.main.NavigationDrawerFragment"
+        android:name="com.soundcloud.android.main.LegacyNavigationDrawerFragment"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start" />

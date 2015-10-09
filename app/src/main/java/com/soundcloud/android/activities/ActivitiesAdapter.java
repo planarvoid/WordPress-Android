@@ -191,7 +191,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             int adjustedPosition = filterPlayables(data.subList(0, position)).size();
             Urn initialTrack = trackUrns.get(adjustedPosition);
             playbackInitiator
-                    .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, playable.getUrn(), Screen.ACTIVITIES);

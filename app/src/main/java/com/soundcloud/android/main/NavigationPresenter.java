@@ -5,13 +5,13 @@ import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import android.support.v7.app.AppCompatActivity;
 
 public abstract class NavigationPresenter extends DefaultActivityLightCycle<AppCompatActivity>
-        implements NavigationFragment.NavigationCallbacks {
+        implements LegacyNavigationFragment.NavigationCallbacks {
 
     @Override
-    public void onSmoothSelectItem(NavigationFragment.NavItem item) {}
+    public void onSmoothSelectItem(LegacyNavigationFragment.NavItem item) {}
 
     @Override
-    public void onSelectItem(NavigationFragment.NavItem item) {}
+    public void onSelectItem(LegacyNavigationFragment.NavItem item) {}
 
     public boolean handleBackPressed() {
         return false;

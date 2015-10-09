@@ -28,7 +28,7 @@ import android.view.View;
 // This guy needs a thorough refactor. We should pull out all the drawer presentation logic into a testable object,
 // since it needs to deal with awkward life cycle stuff where the drawer layout can be null in many cases
 @SuppressLint("ValidFragment")
-public class NavigationDrawerFragment extends NavigationFragment {
+public class LegacyNavigationDrawerFragment extends LegacyNavigationFragment {
 
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -36,13 +36,13 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private Subscription subscription = RxUtils.invalidSubscription();
 
 
-    public NavigationDrawerFragment() {
+    public LegacyNavigationDrawerFragment() {
         // Android needs a default constructor.
     }
 
     @VisibleForTesting
-    protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                       FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
+    protected LegacyNavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations,
+                                             FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
         super(imageOperations, accountOperations, featureOperations, featureFlags, eventBus);
     }
 

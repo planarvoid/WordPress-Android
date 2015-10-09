@@ -43,7 +43,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class NavigationFragment extends Fragment {
+public class LegacyNavigationFragment extends Fragment {
 
     @VisibleForTesting
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
@@ -68,13 +68,13 @@ public class NavigationFragment extends Fragment {
     private NavItem currentSelectedItem = NavItem.STREAM;
     private NavigationAdapter adapter;
 
-    public NavigationFragment() {
+    public LegacyNavigationFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations,
-                                 FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
+    protected LegacyNavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations,
+                                       FeatureOperations featureOperations, FeatureFlags featureFlags, EventBus eventBus) {
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;

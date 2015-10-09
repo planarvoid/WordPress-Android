@@ -91,7 +91,7 @@ public class BaseLayoutHelperTest {
 
     @Test
     public void shouldNotSetToolbarAsActionBarForTabLayout() {
-        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
+        when(inflater.inflate(R.layout.base_with_tabs, null)).thenReturn(layout);
 
         presenter.setBaseTabsLayout(activity);
 

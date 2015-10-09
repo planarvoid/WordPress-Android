@@ -44,7 +44,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final MixedItemClickListener itemClickListener;
 
     private CompositeSubscription viewLifeCycle;
-    private boolean isOnboardingSuccess;
     private Fragment fragment;
 
     @Inject
@@ -61,7 +60,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
-        this.itemClickListener = itemClickListenerFactory.create(Screen.SIDE_MENU_STREAM, null);
+        this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
     }
@@ -71,10 +70,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
-    }
-
-    public void setOnboardingSuccess(boolean onboardingSuccess) {
-        this.isOnboardingSuccess = onboardingSuccess;
     }
 
     @Override
@@ -118,13 +113,9 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private void configureEmptyView() {
         final EmptyView emptyView = getEmptyView();
         emptyView.setImage(R.drawable.empty_stream);
-        if (isOnboardingSuccess) {
-            emptyView.setMessageText(R.string.list_empty_stream_message);
-            emptyView.setActionText(R.string.list_empty_stream_action);
-            emptyView.setButtonActions(new Intent(Actions.SEARCH));
-        } else {
-            emptyView.setMessageText(R.string.error_onboarding_fail);
-        }
+        emptyView.setMessageText(R.string.list_empty_stream_message);
+        emptyView.setActionText(R.string.list_empty_stream_action);
+        emptyView.setButtonActions(new Intent(Actions.SEARCH));
     }
 
     @Override
@@ -153,7 +144,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     private void publishPromotedItemClickEvent(PromotedListItem item) {
-        eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.SIDE_MENU_STREAM.get()));
+        eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.STREAM.get()));
     }
 
     @Override

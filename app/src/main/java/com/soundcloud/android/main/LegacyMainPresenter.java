@@ -12,7 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
-import com.soundcloud.android.main.NavigationFragment.NavItem;
+import com.soundcloud.android.main.LegacyNavigationFragment.NavItem;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -65,7 +65,7 @@ class LegacyMainPresenter extends NavigationPresenter {
     private final CompositeSubscription userSubscription = new CompositeSubscription();
 
     private AppCompatActivity activity;
-    private NavigationFragment navigationFragment;
+    private LegacyNavigationFragment navigationFragment;
     private FragmentManager fragmentManager;
     private ActionBar actionBar;
 
@@ -109,9 +109,9 @@ class LegacyMainPresenter extends NavigationPresenter {
         }
     }
 
-    private NavigationFragment findNavigationFragment(AppCompatActivity activity) {
+    private LegacyNavigationFragment findNavigationFragment(AppCompatActivity activity) {
         boolean isLayoutWithFixedNav = activity.findViewById(R.id.navigation_fragment_id) == null;
-        return (NavigationFragment) activity.getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
+        return (LegacyNavigationFragment) activity.getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
                 R.id.fixed_navigation_fragment_id :
                 R.id.navigation_fragment_id);
     }
@@ -291,10 +291,9 @@ class LegacyMainPresenter extends NavigationPresenter {
 
     private void displayStream() {
         Fragment fragment = fragmentManager.findFragmentByTag(STREAM_FRAGMENT_TAG);
-        boolean onboardingSucceeded = activity.getIntent().getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true);
         if (fragment == null || refreshStream) {
             refreshStream = false;
-            fragment = SoundStreamFragment.create(onboardingSucceeded);
+            fragment = new SoundStreamFragment();
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
         }
     }
@@ -310,7 +309,7 @@ class LegacyMainPresenter extends NavigationPresenter {
     public void trackScreen() {
         switch (navigationFragment.getCurrentSelectedItem()) {
             case STREAM:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_STREAM));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STREAM));
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment

@@ -217,7 +217,6 @@
   <!--__ONBOARDING-->
   <string name="and_conjunction">%1$s e %2$s</string>
   <string name="try_again">Tente novamente</string>
-  <string name="error_onboarding_fail">Ainda estamos trabalhando para preencher seu stream. Vamos continuar tentando até que funcione! Enquanto isso, você pode pesquisar e descobrir outro tipo de música e áudio.</string>
   <string name="age">Idade</string>
   <string name="enter_age_hint">Insira a sua idade</string>
   <string name="gender">Gênero</string>

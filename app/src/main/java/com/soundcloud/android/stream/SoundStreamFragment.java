@@ -17,28 +17,11 @@ import javax.inject.Inject;
 
 public class SoundStreamFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
-    @VisibleForTesting
-    static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
-
     @Inject @LightCycle SoundStreamPresenter presenter;
-
-    public static SoundStreamFragment create(boolean onboardingSucceeded) {
-        final Bundle args = new Bundle();
-        args.putBoolean(ONBOARDING_RESULT_EXTRA, onboardingSucceeded);
-        SoundStreamFragment fragment = new SoundStreamFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public SoundStreamFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        presenter.setOnboardingSuccess(getArguments().getBoolean(ONBOARDING_RESULT_EXTRA));
     }
 
     @Override
@@ -55,4 +38,5 @@ public class SoundStreamFragment extends LightCycleSupportFragment implements Re
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
+
 }
