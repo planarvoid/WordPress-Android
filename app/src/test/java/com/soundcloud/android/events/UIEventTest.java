@@ -8,10 +8,8 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -27,18 +25,17 @@ public class UIEventTest extends AndroidUnitTest {
     private TrackSourceInfo trackSourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private PromotedSourceInfo promotedSourceInfoWithNoPromoter;
-    private PropertySet trackPropertySet;
-    private TrackItem trackItem;
-    private PlaylistItem playlistItem;
+    private PlayableMetadata trackPlayableMetadata;
+    private PlayableMetadata playlistPlayableMetadata;
 
     @Before
     public void setUp() throws Exception {
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         promotedSourceInfo = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.of(PROMOTER_URN), null);
         promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.<Urn>absent(), null);
-        trackPropertySet = buildPlayablePropertySet(TRACK_URN);
-        trackItem = TrackItem.from(trackPropertySet);
-        playlistItem = PlaylistItem.from(buildPlayablePropertySet(PLAYLIST_URN));
+        trackPlayableMetadata = PlayableMetadata.from(buildPlayablePropertySet(TRACK_URN));
+        playlistPlayableMetadata = PlayableMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
+
     }
 
     @Test
@@ -60,7 +57,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToFollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", userProperties);
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30l, PlayableMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("user_id")).isEqualTo("30");
@@ -70,7 +67,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", buildUserPropertySet(Urn.forUser(30l)));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30l, PlayableMetadata.fromUser(buildUserPropertySet(Urn.forUser(30l))));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("user_id")).isEqualTo("30");
@@ -78,7 +75,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedTrackToggle() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -102,7 +99,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedTrackToggleWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, PLAYLIST_URN, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, PLAYLIST_URN, null, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -121,7 +118,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedTrackToggleWithTrackPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, null, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -140,7 +137,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedTrackToggle() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfo, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfo, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -159,7 +156,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedTrackToggleWithTrackPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, promotedSourceInfo, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, promotedSourceInfo, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -178,7 +175,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedTrackToggleWithNoPromoter() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, trackPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -197,7 +194,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, null, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, null, playlistPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -221,7 +218,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPlaylistWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, null, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, null, playlistPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -240,7 +237,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfo, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfo, playlistPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -259,7 +256,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylistWithNoPromoter() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, playlistPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -278,7 +275,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylistWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, promotedSourceInfo, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, promotedSourceInfo, playlistPlayableMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
@@ -297,7 +294,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -315,7 +312,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedTrackWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, PLAYLIST_URN, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, PLAYLIST_URN, null, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -333,7 +330,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedTrackWithTrackPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, null, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, TRACK_URN, null, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -351,7 +348,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPromotedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfo, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfo, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -369,7 +366,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPromotedTrackWithNoPromoter() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, trackItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, promotedSourceInfoWithNoPromoter, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -387,7 +384,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, null, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, null, playlistPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -405,7 +402,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylistWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, null, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, null, playlistPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -423,7 +420,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPromotedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfo, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, Urn.NOT_SET, promotedSourceInfo, playlistPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -441,7 +438,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPromotedPlaylistWithPlaylistPage() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, promotedSourceInfo, playlistItem);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", PLAYLIST_URN, PLAYLIST_URN, promotedSourceInfo, playlistPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -459,7 +456,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventWithUnknownResourceForUnexpectedUrnType() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", USER_URN, Urn.NOT_SET, null, null);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", USER_URN, Urn.NOT_SET, null, PlayableMetadata.EMPTY);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -837,16 +834,16 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromComment() {
-        UIEvent uiEvent = UIEvent.fromComment("screen", 30, trackPropertySet);
+        UIEvent uiEvent = UIEvent.fromComment("screen", 30, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_COMMENT);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("track_id")).isEqualTo("30");
-        assertThat(uiEvent.get("playable_title")).isEqualTo(trackItem.getTitle());
+        assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
     }
 
     @Test
     public void shouldCreateEventFromTrackShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN, buildPlayablePropertySet(TRACK_URN));
+        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN, trackPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("track");
@@ -859,7 +856,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromPlaylistShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN, buildPlayablePropertySet(PLAYLIST_URN));
+        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN, playlistPlayableMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("playlist");

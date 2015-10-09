@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -38,6 +39,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             .addProperty("playable_urn", track.getEntityUrn().toString())
             .addProperty("playable_type", "track");
 
+    private static final PlayableMetadata metadata = PlayableMetadata.from(trackPropertySet);
+
     private AppboyEventHandler eventHandler;
 
     @Before
@@ -48,7 +51,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLikeEvents() {
         UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, track);
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -58,7 +61,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackUnLikeEvents() {
         UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, track);
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -116,7 +119,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackCommentEvents() {
-        UIEvent event = UIEvent.fromComment("screen", 123l, trackPropertySet);
+        UIEvent event = UIEvent.fromComment("screen", 123l, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -157,7 +160,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShareEvents() {
-        UIEvent event = UIEvent.fromShare("screen", Urn.forTrack(123l), trackPropertySet);
+        UIEvent event = UIEvent.fromShare("screen", Urn.forTrack(123l), metadata);
 
         eventHandler.handleEvent(event);
 

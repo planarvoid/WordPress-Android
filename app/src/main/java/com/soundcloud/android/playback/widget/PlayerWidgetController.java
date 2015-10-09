@@ -2,19 +2,19 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -26,7 +26,6 @@ import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -100,31 +99,32 @@ public class PlayerWidgetController {
         return trackRepository.track(urn).map(PropertySetFunctions.mergeWith(metaData));
     }
 
-    public void handleToggleLikeAction(boolean addLike) {
+    public void handleToggleLikeAction(final boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        final PromotedSourceInfo promotedSourceInfo = playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn);
 
         fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike,
-                        Screen.WIDGET.get(),
-                        playQueueManager.getScreenTag(),
-                        Screen.WIDGET.get(),
-                        currentTrackUrn,
-                        Urn.NOT_SET,
-                        playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn),
-                        getCurrentPlayableItem()));
+        trackRepository.track(currentTrackUrn)
+                .map(likeEventFromTrack(addLike, currentTrackUrn, promotedSourceInfo))
+                .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
-    @Nullable
-    private PlayableItem getCurrentPlayableItem() {
-        final PropertySet metadata = playQueueManager.getCurrentMetaData();
+    private Func1<PropertySet, UIEvent> likeEventFromTrack(final boolean addLike, final Urn currentTrackUrn, final PromotedSourceInfo promotedSourceInfo) {
+        return new Func1<PropertySet, UIEvent>() {
+            @Override
+            public UIEvent call(PropertySet track) {
+                return UIEvent.fromToggleLike(addLike,
+                                Screen.WIDGET.get(),
+                                playQueueManager.getScreenTag(),
+                                Screen.WIDGET.get(),
+                                currentTrackUrn,
+                                Urn.NOT_SET,
+                                promotedSourceInfo,
+                                PlayableMetadata.from(track));
 
-        if (metadata.contains(PlayableProperty.URN)) {
-            return PlayableItem.from(metadata);
-        }
-
-        return null;
+            }
+        };
     }
 
     /**

@@ -4,8 +4,6 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -75,11 +73,11 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, PropertySet user) {
+    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId, PlayableMetadata userMetadata) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(user.get(UserProperty.ID)))
-                .putCreatorPropertyKeys(user);
+                .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(userId))
+                .putPlayableMetadata(userMetadata);
     }
 
     public static UIEvent fromToggleLike(boolean isLike,
@@ -89,7 +87,7 @@ public final class UIEvent extends TrackingEvent {
                                          @NotNull Urn resourceUrn,
                                          @NotNull Urn pageUrn,
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
-                                         @Nullable PlayableItem playableItem) {
+                                         PlayableMetadata playable) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
@@ -99,7 +97,7 @@ public final class UIEvent extends TrackingEvent {
                 .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo)
-                .putPlayableItemKeys(playableItem);
+                .putPlayableMetadata(playable);
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost,
@@ -126,19 +124,19 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
     }
 
-    public static UIEvent fromComment(String screenTag, long trackId, @Nullable PropertySet track) {
+    public static UIEvent fromComment(String screenTag, long trackId, PlayableMetadata playable) {
         return new UIEvent(KIND_COMMENT)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
-                .putPlayablePropertySetKeys(track);
+                .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn, @NotNull PropertySet playable) {
+    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn, PlayableMetadata playable) {
         return new UIEvent(KIND_SHARE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .putPlayablePropertySetKeys(playable);
+                .putPlayableMetadata(playable);
     }
 
     public static UIEvent fromShuffleMyLikes() {
@@ -278,24 +276,8 @@ public final class UIEvent extends TrackingEvent {
         return this;
     }
 
-    private UIEvent putPlayableItemKeys(@Nullable PlayableItem playableItem) {
-        PlayableMetadata
-                .fromPlayableItem(playableItem)
-                .addToTrackingEvent(this);
-        return this;
-    }
-
-    private UIEvent putCreatorPropertyKeys(PropertySet user) {
-        PlayableMetadata
-                .fromUserProperties(user)
-                .addToTrackingEvent(this);
-        return this;
-    }
-
-    private UIEvent putPlayablePropertySetKeys(PropertySet properties) {
-        PlayableMetadata
-                .fromPlayableProperties(properties)
-                .addToTrackingEvent(this);
+    private UIEvent putPlayableMetadata(PlayableMetadata metadata) {
+        metadata.addToTrackingEvent(this);
         return this;
     }
 
