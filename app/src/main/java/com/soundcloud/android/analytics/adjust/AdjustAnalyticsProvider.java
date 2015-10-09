@@ -23,7 +23,7 @@ public class AdjustAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void onAppCreated(Context context) {
-        /* no op */
+        adjustWrapper.onCreate(context);
     }
 
     @Override

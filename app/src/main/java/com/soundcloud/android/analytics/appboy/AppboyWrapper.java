@@ -5,6 +5,7 @@ import com.appboy.Appboy;
 import com.appboy.AppboyUser;
 import com.appboy.IAppboyEndpointProvider;
 import com.appboy.models.outgoing.AppboyProperties;
+import com.appboy.models.outgoing.AttributionData;
 import com.appboy.ui.inappmessage.AppboyInAppMessageManager;
 
 import android.app.Activity;
@@ -39,6 +40,11 @@ public class AppboyWrapper {
                 return appboyEndpoint;
             }
         });
+    }
+
+    public void setAttribution(String network, String campaign, String adGroup, String creative) {
+        AttributionData attributionData = new AttributionData(network, campaign, adGroup, creative);
+        appboy.getCurrentUser().setAttributionData(attributionData);
     }
 
     boolean openSession(Activity activity) {

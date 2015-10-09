@@ -376,7 +376,7 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_record"/>
         </receiver>
 
-        <receiver android:enabled="true" android:exported="true" android:name=".analytics.InstallReceiver">
+        <receiver android:enabled="true" android:exported="true" android:name="com.adjust.sdk.AdjustReferrerReceiver">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER"/>
             </intent-filter>
@@ -458,10 +458,6 @@
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
-
-        <meta-data android:name="AdjustAppToken" android:value="87l2rj9gqhlj"/>
-        <meta-data android:name="AdjustLogLevel" android:value="@string/adjust_log_level"/>
-        <meta-data android:name="AdjustEnvironment" android:value="@string/adjust_environment"/>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/production_facebook_app_id"/>
 

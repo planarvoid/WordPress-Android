@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
 import static com.soundcloud.android.analytics.Screen.SEARCH_EVERYTHING;
-import static com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider.TAG;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
@@ -15,12 +14,12 @@ import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.utils.Log;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,7 +43,6 @@ class AppboyEventHandler {
     }
 
     public void handleEvent(UIEvent event) {
-        Log.d(TAG, "Handling UIEvent: " + event);
         switch (event.getKind()) {
             case UIEvent.KIND_LIKE:
                 tagEvent(AppboyEvents.LIKE, buildPlayableProperties(event));
@@ -66,6 +64,14 @@ class AppboyEventHandler {
         }
     }
 
+    public void handleEvent(AttributionEvent event) {
+        appboy.setAttribution(
+                event.get(AttributionEvent.NETWORK),
+                event.get(AttributionEvent.CAMPAIGN),
+                event.get(AttributionEvent.ADGROUP),
+                event.get(AttributionEvent.CREATIVE));
+    }
+
     private AppboyProperties buildCreatorProperties(UIEvent event) {
         return buildProperties(CREATOR_ATTRIBUTES, event);
     }
@@ -82,7 +88,6 @@ class AppboyEventHandler {
     }
 
     public void handleEvent(PlaybackSessionEvent event) {
-        Log.d(TAG, "Handling PlaybackSessionEvent: " + event);
         if (event.isPlayEvent() && event.isUserTriggered()) {
             tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
             appboy.requestImmediateDataFlush();
