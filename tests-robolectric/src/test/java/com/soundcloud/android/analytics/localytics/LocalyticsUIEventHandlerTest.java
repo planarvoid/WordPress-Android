@@ -75,7 +75,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventRepost() {
-        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", TRACK_URN, Urn.NOT_SET, null);
+        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", TRACK_URN, Urn.NOT_SET, null, PlayableMetadata.EMPTY);
         localyticsUIEventHandler.handleEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Repost"), attributeCaptor.capture());
