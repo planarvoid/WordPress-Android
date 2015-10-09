@@ -9,6 +9,7 @@ Prerequisites:
 * (Mac only) Xcode command line tools
 * GCC (`gcc`) and GNU Make (`make`)
 * Java 8<br>
+  On Linux, refer to [How To Manually Install Oracle Java on a Debian or Ubuntu VPS][]
   You can use [jenv][] to manage your environments.<br>
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
@@ -133,6 +134,7 @@ You should also setup your default run configuration for JUnit so it looks like 
 * [Android guidelines][android-guide]
 * [Java syntax][java-syntax]
 
+[How To Manually Install Oracle Java on a Debian or Ubuntu VPS]: https://www.digitalocean.com/community/tutorials/how-to-manually-install-oracle-java-on-a-debian-or-ubuntu-vps
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Android SDK Manager]: http://developer.android.com/sdk/installing/adding-packages.html
 [Android Studio]: http://developer.android.com/sdk/index.html
