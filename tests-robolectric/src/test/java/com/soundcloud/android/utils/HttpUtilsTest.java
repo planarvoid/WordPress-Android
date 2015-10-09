@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.Request;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,7 @@ public class HttpUtilsTest {
         HttpUtils.addQueryParams(request);
         expect(request.queryString()).toEqual(Request.to("/resource").queryString());
 
-        HttpUtils.addQueryParams(request, null);
+        HttpUtils.addQueryParams(request);
         expect(request.queryString()).toEqual(Request.to("/resource").queryString());
 
         HttpUtils.addQueryParams(request, new String[]{});
