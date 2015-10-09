@@ -9,7 +9,7 @@ Prerequisites:
 * (Mac only) Xcode command line tools
 * GCC (`gcc`) and GNU Make (`make`)
 * Java 8<br>
-  On Linux, refer to [How To Manually Install Oracle Java on a Debian or Ubuntu VPS][]
+  On Linux, refer to [How To Manually Install Oracle Java on a Debian or Ubuntu VPS][]<br>
   You can use [jenv][] to manage your environments.<br>
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
