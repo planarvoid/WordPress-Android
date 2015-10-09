@@ -58,7 +58,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
             contentValues.add(ContentValuesBuilder.values(3)
                     .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
                     .put(TrackDownloads.REQUESTED_AT, null)
-                    .put(TrackDownloads._ID, optOuts.track.getNumericId())
+                    .put(TrackDownloads._ID, optOuts.getTrack().getNumericId())
                     .get());
         }
         return contentValues;
@@ -81,7 +81,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         for (DownloadRequest request : downloadedTracks) {
             contentValues.add(ContentValuesBuilder
                     .values(4)
-                    .put(_ID, request.track.getNumericId())
+                    .put(_ID, request.getTrack().getNumericId())
                     .put(UNAVAILABLE_AT, null)
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
@@ -95,7 +95,7 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         for (DownloadRequest request : pendingDownloads) {
             contentValues.add(ContentValuesBuilder
                     .values()
-                    .put(_ID, request.track.getNumericId())
+                    .put(_ID, request.getTrack().getNumericId())
                     .put(REQUESTED_AT, dateProvider.getCurrentTime())
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, null)

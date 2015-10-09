@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadOperations.DownloadProgressListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        downloadRequest = new DownloadRequest(Urn.forTrack(123), 12345, "http://wav");
+        downloadRequest = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
         successResult = DownloadState.success(downloadRequest);
         failedResult = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
         unavailableResult = DownloadState.unavailable(downloadRequest);
@@ -166,7 +167,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(successMessage);
 
-        verify(secureFileStorage).deleteTrack(downloadRequest.track);
+        verify(secureFileStorage).deleteTrack(downloadRequest.getTrack());
     }
 
     @Test

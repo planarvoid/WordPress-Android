@@ -88,8 +88,8 @@ public class EventLoggerV1JsonDataBuilder {
                         .consumerSubsPlan(featureOperations.getPlan())
                         .track(event.getTrackUrn())
                         .trackOwner(event.getTrackOwner())
-                        .inPlaylist(event.inPlaylist())
-                        .inLikes(event.inLikes())
+                        .inPlaylist(event.isInPlaylists())
+                        .inLikes(event.isLiked())
                         .appVersion(deviceHelper.getAppVersion())
         );
     }

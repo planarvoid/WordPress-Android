@@ -11,6 +11,7 @@ import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +33,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     private static final int TRACK_DURATION = 1234;
     private static final long TRACK_DURATION_IN_BYTES = SecureFileStorage.calculateFileSizeInBytes(TRACK_DURATION);
 
-    private final DownloadRequest downloadRequest = new DownloadRequest(Urn.forTrack(123L), TRACK_DURATION, "http://wav");
+    private final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
     private final DownloadState successfulDownloadState = DownloadState.success(downloadRequest);
     private final DownloadState failedDownloadState = DownloadState.error(downloadRequest);
     private final DownloadState storageLimitResult = DownloadState.notEnoughSpace(downloadRequest);
@@ -254,7 +255,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
         final DownloadQueue downloadQueue = new DownloadQueue();
         final Collection<DownloadRequest> requests = new ArrayList<>();
         for (int i = 0; i < size; i++){
-            requests.add(new DownloadRequest(Urn.forTrack(i), TRACK_DURATION, "http://wav"));
+            requests.add(ModelFixtures.downloadRequestFromLikes(Urn.forTrack(i)));
         }
         downloadQueue.set(requests);
         return downloadQueue;

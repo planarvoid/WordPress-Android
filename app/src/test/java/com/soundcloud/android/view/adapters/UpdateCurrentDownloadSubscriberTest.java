@@ -13,6 +13,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -43,7 +44,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L, "http://", true).build();
+        final DownloadRequest request = ModelFixtures.downloadRequestFromLikes(TRACK1);
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
         subscriber.onNext(event);
 

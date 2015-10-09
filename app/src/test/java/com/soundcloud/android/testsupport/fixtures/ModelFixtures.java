@@ -30,6 +30,8 @@ import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
+import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.OfflineTrackContext;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.sync.likes.ApiLike;
@@ -44,6 +46,7 @@ import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -126,7 +129,7 @@ public class ModelFixtures {
         return new ApiLike(apiPlaylist.getUrn(), new Date());
     }
 
-    public static ApiPlaylistWithTracks apiPlaylistWithNoTracks(){
+    public static ApiPlaylistWithTracks apiPlaylistWithNoTracks() {
         return new ApiPlaylistWithTracks(
                 ModelFixtures.create(ApiPlaylist.class),
                 new ModelCollection<ApiTrack>()
@@ -152,11 +155,31 @@ public class ModelFixtures {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
 
-    public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn ) {
+    public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {
         return apiPolicyInfo(trackUrn, true, "policy", true);
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
         return ApiPolicyInfo.create(trackUrn.toString(), monetizable, policy, syncable, "model", true, true);
+    }
+
+    public static DownloadRequest downloadRequestFromLikes(Urn track) {
+        OfflineTrackContext trackContext = OfflineTrackContext.create(track, Urn.forUser(123L), Collections.<Urn>emptyList(), true);
+        return DownloadRequest.create(trackContext, 1234, "http://waveform.url", true);
+    }
+
+    public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track, boolean inLikes, List<Urn> inPlaylists) {
+        OfflineTrackContext trackContext = OfflineTrackContext.create(track.getUrn(), track.getUser().getUrn(), inPlaylists, inLikes);
+        return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), true);
+    }
+
+    public static DownloadRequest creatorOptOutRequest(Urn track) {
+        OfflineTrackContext trackContext = OfflineTrackContext.create(track, Urn.forUser(123L), Collections.<Urn>emptyList(), true);
+        return DownloadRequest.create(trackContext, 1234, "http://waveform.url", false);
+    }
+
+    public static DownloadRequest creatorOptOutRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylist) {
+        OfflineTrackContext trackContext = OfflineTrackContext.create(track.getUrn(), track.getUser().getUrn(), inPlaylist, inLikes);
+        return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), false);
     }
 }

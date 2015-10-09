@@ -81,14 +81,14 @@ public final class CurrentDownloadEvent {
     }
 
     private static CurrentDownloadEvent create(OfflineState kind, List<DownloadRequest> requests) {
-        boolean inLikedTracks = false;
+        boolean isLiked = false;
         final List<Urn> entities = new ArrayList<>();
         for (DownloadRequest request : requests) {
-            inLikedTracks = inLikedTracks || request.inLikedTracks;
-            entities.addAll(request.inPlaylists);
-            entities.add(request.track);
+            isLiked = isLiked || request.isLiked();
+            entities.addAll(request.getPlaylists());
+            entities.add(request.getTrack());
         }
-        return new CurrentDownloadEvent(kind, inLikedTracks, entities);
+        return new CurrentDownloadEvent(kind, isLiked, entities);
     }
 
     @Override

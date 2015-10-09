@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -15,7 +13,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 class OfflineStatePublisher {
@@ -124,7 +121,7 @@ class OfflineStatePublisher {
     private void publishTrackUnavailable(DownloadState result) {
         Log.d(TAG, "unavailable");
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.unavailable(false, Collections.singletonList(result.getTrack())));
+                CurrentDownloadEvent.unavailable(result.request.isLiked(), Collections.singletonList(result.getTrack())));
     }
 
     private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
@@ -140,10 +137,10 @@ class OfflineStatePublisher {
 
     private void publishRelatedAndQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
         List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
-        if (!relatedPlaylists.isEmpty() || result.request.inLikedTracks) {
+        if (!relatedPlaylists.isEmpty() || result.request.isLiked()) {
             Log.d(TAG, "downloadRequested");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                    CurrentDownloadEvent.downloadRequested(result.request.inLikedTracks, relatedPlaylists));
+                    CurrentDownloadEvent.downloadRequested(result.request.isLiked(), relatedPlaylists));
         }
     }
 

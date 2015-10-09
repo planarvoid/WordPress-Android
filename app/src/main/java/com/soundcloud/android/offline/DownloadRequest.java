@@ -1,24 +1,45 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.objects.MoreObjects;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.google.auto.value.AutoValue;
+import com.soundcloud.android.model.Urn;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class DownloadRequest {
-    public final Urn track;
-    public final long duration;
-    public final String waveformUrl;
-    public final List<Urn> inPlaylists;
-    public final boolean inLikedTracks;
-    public final boolean downloadable;
+@AutoValue
+public abstract class DownloadRequest {
 
-    public static class Builder {
+    public static DownloadRequest create(OfflineTrackContext offlineTrackContext, long duration,
+                                         String waveformUrl, boolean syncable) {
+        return new AutoValue_DownloadRequest(offlineTrackContext, duration, waveformUrl, syncable);
+    }
+
+    public abstract OfflineTrackContext getTrackContext();
+
+    public abstract long getDuration();
+
+    public abstract String getWaveformUrl();
+
+    public abstract boolean isSyncable();
+
+    public Urn getTrack() {
+        return getTrackContext().getTrack();
+    }
+
+    public List<Urn> getPlaylists() {
+        return getTrackContext().getPlaylists();
+    }
+
+    public boolean isLiked() {
+        return getTrackContext().isLiked();
+    }
+
+    static class Builder {
         private final Urn track;
+        private final Urn creator;
         private final long duration;
         private final String waveformUrl;
         private final boolean syncable;
@@ -26,8 +47,9 @@ public final class DownloadRequest {
         private Set<Urn> playlists = new HashSet<>();
         private boolean inLikes = false;
 
-        public Builder(Urn track, long duration, String waveformUrl, boolean syncable) {
+        public Builder(Urn track, Urn creator, long duration, String waveformUrl, boolean syncable) {
             this.track = track;
+            this.creator = creator;
             this.duration = duration;
             this.waveformUrl = waveformUrl;
             this.syncable = syncable;
@@ -48,48 +70,8 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, duration, waveformUrl, syncable, inLikes, new ArrayList<>(playlists));
+            final OfflineTrackContext trackContext = OfflineTrackContext.create(track, creator, newArrayList(playlists), inLikes);
+            return DownloadRequest.create(trackContext, duration, waveformUrl, syncable);
         }
-    }
-
-    public DownloadRequest(Urn track, long duration, String waveformUrl, boolean downloadable,
-                           boolean inLikedTracks, List<Urn> inPlaylists) {
-        this.track = track;
-        this.duration = duration;
-        this.waveformUrl = waveformUrl;
-        this.downloadable = downloadable;
-        this.inPlaylists = inPlaylists;
-        this.inLikedTracks = inLikedTracks;
-    }
-
-    public DownloadRequest(Urn trackUrn, long duration, String waveformUrl) {
-        this(trackUrn, duration, waveformUrl, true, false, Collections.<Urn>emptyList());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DownloadRequest that = (DownloadRequest) o;
-
-        return MoreObjects.equal(track, that.track)
-                && MoreObjects.equal(inLikedTracks, that.inLikedTracks)
-                && MoreObjects.equal(inPlaylists, that.inPlaylists);
-    }
-
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(track, inLikedTracks, inPlaylists);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("track", track)
-                .add("inLikedTracks", inLikedTracks)
-                .add("inPlaylists", inPlaylists)
-                .toString();
     }
 }
