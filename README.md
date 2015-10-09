@@ -85,7 +85,7 @@ Open Android Studio, select `File` > `New` > `Import project`, and select `build
 
 Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
-Android Studio will automatically download and manage dependencies. When that download is complete, click <code>Install <i>n</i> packages...</code>. Then, reload the project.
+Android Studio will automatically download and manage dependencies. When that download is complete, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
 
 ## Setup code style
 
