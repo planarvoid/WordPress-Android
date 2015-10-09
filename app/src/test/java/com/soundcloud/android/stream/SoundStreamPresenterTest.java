@@ -20,6 +20,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -69,14 +70,20 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FragmentActivity activity;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
-
+    @Mock private StationsOperations stationsOperations;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         when(itemClickListenerFactory.create(Screen.STREAM, null)).thenReturn(itemClickListener);
-        presenter = new SoundStreamPresenter(streamOperations, adapter, imagePauseOnScrollListener,
-                swipeRefreshAttacher, eventBus, itemClickListenerFactory,
+        presenter = new SoundStreamPresenter(
+                streamOperations,
+                adapter,
+                stationsOperations,
+                imagePauseOnScrollListener,
+                swipeRefreshAttacher,
+                eventBus,
+                itemClickListenerFactory,
                 facebookInvitesDialogPresenter);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
@@ -273,4 +280,12 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
         verify(facebookInvitesDialogPresenter, never()).show(activity);
     }
+
+    @Test
+    public void onStationOnboardingItemClosedDiableOnboarding() {
+        presenter.onStationOnboardingItemClosed(0);
+
+        verify(stationsOperations).disableOnboarding();
+    }
+
 }

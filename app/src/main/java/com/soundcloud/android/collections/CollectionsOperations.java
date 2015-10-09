@@ -36,7 +36,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-class CollectionsOperations {
+public class CollectionsOperations {
 
     private static final Func1<List<PropertySet>, List<PropertySet>> SORT_BY_CREATION = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -86,6 +86,7 @@ class CollectionsOperations {
     private final SyncInitiator syncInitiator;
     private final StationsOperations stationsOperations;
     private final FeatureFlags featureFlags;
+    private final CollectionsOptionsStorage collectionsOptionsStorage;
 
     private static Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>> COMBINE_POSTED_AND_LIKED = new Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -112,7 +113,8 @@ class CollectionsOperations {
                           LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                           SyncInitiator syncInitiator,
                           StationsOperations stationsOperations,
-                          FeatureFlags featureFlags) {
+                          FeatureFlags featureFlags,
+                          CollectionsOptionsStorage collectionsOptionsStorage) {
         this.scheduler = scheduler;
         this.syncStateStorage = syncStateStorage;
         this.playlistPostStorage = playlistPostStorage;
@@ -121,6 +123,7 @@ class CollectionsOperations {
         this.syncInitiator = syncInitiator;
         this.stationsOperations = stationsOperations;
         this.featureFlags = featureFlags;
+        this.collectionsOptionsStorage = collectionsOptionsStorage;
     }
 
     Observable<MyCollections> collections(final CollectionsOptions options) {
@@ -148,7 +151,7 @@ class CollectionsOperations {
         return Observable.zip(
                 collectionsPlaylists(options),
                 loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler),
-                recentStations().toList() ,
+                recentStations().toList(),
                 COMBINE_LIKES_AND_PLAYLISTS_AND_RECENT_STATIONS
         );
     }
@@ -180,4 +183,7 @@ class CollectionsOperations {
         }
     }
 
+    public void clearData() {
+        collectionsOptionsStorage.clear();
+    }
 }

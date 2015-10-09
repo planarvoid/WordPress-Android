@@ -15,6 +15,7 @@ public class CollectionsItem implements ListItem {
     static final int TYPE_PLAYLIST_ITEM = 2;
     static final int TYPE_REMOVE_FILTER = 3;
     static final int TYPE_EMPTY_PLAYLISTS = 4;
+    static final int TYPE_ONBOARDING = 5;
 
     private final int type;
     private final List<Urn> likes;
@@ -28,6 +29,7 @@ public class CollectionsItem implements ListItem {
         this.playlistItem = playlistItem;
     }
 
+    // TODO avoid null (CollectionsItem<T> { T getEntity() ; getType()}) or use @nullable
     public static CollectionsItem fromCollectionsPreview(List<Urn> likes, List<Urn> stations) {
         return new CollectionsItem(CollectionsItem.TYPE_COLLECTIONS_PREVIEW, likes, stations, null);
     }
@@ -46,6 +48,10 @@ public class CollectionsItem implements ListItem {
 
     public static CollectionsItem fromPlaylistItem(PlaylistItem playlistItem) {
         return new CollectionsItem(CollectionsItem.TYPE_PLAYLIST_ITEM, null, null, playlistItem);
+    }
+
+    public static CollectionsItem fromOnboarding() {
+        return new CollectionsItem(CollectionsItem.TYPE_ONBOARDING, null, null, null);
     }
 
     public int getType() {

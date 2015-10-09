@@ -1,38 +1,35 @@
 package com.soundcloud.android.collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CollectionsOptionsStorageTest {
+public class CollectionsOptionsStorageTest extends AndroidUnitTest {
 
     private CollectionsOptionsStorage storage;
 
-    @Mock private SharedPreferences preferences;
-    @Mock private SharedPreferences.Editor preferencesEditor;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
 
     @Before
     public void setUp() throws Exception {
+        preferences = sharedPreferences("test", Context.MODE_PRIVATE);
         storage = new CollectionsOptionsStorage(preferences);
     }
 
     @Test
     public void loadsOptionsFromStorage() {
-        when(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_POSTS, false)).thenReturn(true);
-        when(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_LIKES, false)).thenReturn(true);
-        when(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_OFFLINE_ONLY, false)).thenReturn(true);
-        when(preferences.getBoolean(CollectionsOptionsStorage.KEY_SORT_BY_TITLE, false)).thenReturn(true);
+        editor = preferences.edit();
+        editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_POSTS, true);
+        editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_LIKES, true);
+        editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_OFFLINE_ONLY, true);
+        editor.putBoolean(CollectionsOptionsStorage.KEY_SORT_BY_TITLE, true);
+        editor.apply();
 
         final CollectionsOptions lastOrDefault = storage.getLastOrDefault();
 
@@ -44,17 +41,33 @@ public class CollectionsOptionsStorageTest {
 
     @Test
     public void storesOptionsInStorage() {
-        when(preferences.edit()).thenReturn(preferencesEditor);
-        when(preferencesEditor.putBoolean(anyString(), anyBoolean())).thenReturn(preferencesEditor);
-
         storage.store(getAllTrueOptions());
 
-        verify(preferencesEditor).putBoolean(CollectionsOptionsStorage.KEY_SHOW_POSTS, true);
-        verify(preferencesEditor).putBoolean(CollectionsOptionsStorage.KEY_SHOW_LIKES, true);
-        verify(preferencesEditor).putBoolean(CollectionsOptionsStorage.KEY_SHOW_OFFLINE_ONLY, true);
-        verify(preferencesEditor).putBoolean(CollectionsOptionsStorage.KEY_SORT_BY_TITLE, true);
-        verify(preferencesEditor).apply();
+        assertThat(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_POSTS, false)).isTrue();
+        assertThat(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_LIKES, false)).isTrue();
+        assertThat(preferences.getBoolean(CollectionsOptionsStorage.KEY_SHOW_OFFLINE_ONLY, false)).isTrue();
+        assertThat(preferences.getBoolean(CollectionsOptionsStorage.KEY_SORT_BY_TITLE, false)).isTrue();
+    }
 
+
+    @Test
+    public void isOnboardingEnabledReturnsTrueWhenStorageIsEmpty() {
+        assertThat(storage.isOnboardingEnabled()).isTrue();
+    }
+
+    @Test
+    public void isOnboardingEnabledReturnsFalseWhenHasBeenDisabled() {
+        storage.disableOnboarding();
+        assertThat(storage.isOnboardingEnabled()).isFalse();
+    }
+
+    @Test
+    public void clearReset() {
+        storage.disableOnboarding();
+
+        storage.clear();
+
+        assertThat(storage.isOnboardingEnabled()).isTrue();
     }
 
     private CollectionsOptions getAllTrueOptions() {

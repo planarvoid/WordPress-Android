@@ -1,7 +1,7 @@
 package com.soundcloud.android.facebookinvites;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.NotificationItem;
+import com.soundcloud.android.stream.NotificationItem;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
