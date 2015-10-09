@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -117,7 +118,7 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment("screen", 1L, null));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment("screen", 1L, PlayableMetadata.EMPTY));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

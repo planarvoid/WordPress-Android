@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static com.soundcloud.android.Expect.expect;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.LocalyticTrackingKeys;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -39,14 +40,14 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventFollow() {
-        UIEvent event = UIEvent.fromToggleFollow(true, "screen", buildUserPropertySet(Urn.forUser(123L)));
+        UIEvent event = UIEvent.fromToggleFollow(true, "screen", 123l, PlayableMetadata.fromUser(buildUserPropertySet(Urn.forUser(123L))));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Follow", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventLike() {
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, null);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, PlayableMetadata.EMPTY);
         localyticsUIEventHandler.handleEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Like"), attributeCaptor.capture());
@@ -60,7 +61,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventUnlike() {
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, null);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", TRACK_URN, Urn.NOT_SET, null, PlayableMetadata.EMPTY);
         localyticsUIEventHandler.handleEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Unlike"), attributeCaptor.capture());
@@ -94,14 +95,14 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventComment() {
-        UIEvent event = UIEvent.fromComment("screen", 30L, null);
+        UIEvent event = UIEvent.fromComment("screen", 30L, PlayableMetadata.EMPTY);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Comment", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventShare() {
-        UIEvent event = UIEvent.fromShare("screen", TRACK_URN, PropertySet.create());
+        UIEvent event = UIEvent.fromShare("screen", TRACK_URN, PlayableMetadata.EMPTY);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Share", event.getAttributes());
     }

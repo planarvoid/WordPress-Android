@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -20,6 +21,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -38,6 +40,8 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private LikeOperations likeOperations;
     @Mock private Navigator navigator;
+    @Mock private TrackRepository trackRepository;
+    @Mock private EngagementsTracking engagementsTracking;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -45,8 +49,8 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playSessionController, playQueueManager, playSessionStateProvider, eventBus,
-                likeOperations, navigator);
+        listener = new TrackPageListener(playSessionController, playQueueManager, playSessionStateProvider,
+                eventBus, likeOperations, navigator, engagementsTracking);
     }
 
     @Test
@@ -77,8 +81,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         listener.onToggleLike(true, TRACK_URN);
 
-        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, true, "player", "context_screen", "tracks:main", TRACK_URN, null);
     }
 
     @Test
@@ -89,8 +92,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         listener.onToggleLike(false, TRACK_URN);
 
-        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, false, "player", "context_screen", "tracks:main", TRACK_URN, null);
     }
 
     @Test

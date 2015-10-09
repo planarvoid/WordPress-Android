@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -98,7 +97,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.duration = track.get(PlayableProperty.DURATION);
-        putPlayableItemKeys(track);
+        PlayableMetadata.from(track).addToTrackingEvent(this);
     }
 
     // Audio ad
@@ -223,12 +222,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public boolean hasTrackFinished() {
         return isStopEvent() && getStopReason() == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
-    }
-
-    private void putPlayableItemKeys(@Nullable PropertySet track) {
-        PlayableMetadata
-                .fromPlayableProperties(track)
-                .addToTrackingEvent(this);
     }
 
 }

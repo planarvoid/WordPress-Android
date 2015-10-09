@@ -12,18 +12,19 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -87,6 +88,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         PlayerTrackState withoutUser = new PlayerTrackState(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
+                PlayableProperty.CREATOR_URN.bind(Urn.forUser(123)),
                 PlayableProperty.CREATOR_NAME.bind(""),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
@@ -118,7 +120,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn(), track.getSource());
+        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn(), PlayableMetadata.from(track));
         expectUIEvent(expectedEvent);
     }
 

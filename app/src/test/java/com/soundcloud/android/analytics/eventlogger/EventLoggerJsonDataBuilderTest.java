@@ -17,6 +17,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.MidTierTrackEvent;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -255,7 +256,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForLikeEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -267,7 +268,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForLikeEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -282,7 +283,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsJsonForPromotedItemLikeEvent() throws ApiMapperException {
         PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -297,7 +298,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnlikeEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -309,7 +310,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnlikeEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -324,7 +325,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsJsonForPromotedItemUnlikeEvent() throws ApiMapperException {
         PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 

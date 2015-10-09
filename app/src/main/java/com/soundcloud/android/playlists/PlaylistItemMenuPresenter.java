@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -120,7 +121,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                         playlist.getEntityUrn(),
                         Urn.NOT_SET,
                         getPromotedSourceIfExists(),
-                        playlist));
+                        PlayableMetadata.from(playlist)));
     }
 
     private void handleLike() {

@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -26,7 +27,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
@@ -288,7 +288,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
-                            PlayableItem.from(playlistWithTracks.getSourceSet())));
+                            PlayableMetadata.from(playlistWithTracks)));
 
             fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
@@ -319,7 +319,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onShare() {
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromShare(originProvider.getScreenTag(), playlistWithTracks.getUrn(), playlistWithTracks.getSourceSet()));
+                    UIEvent.fromShare(originProvider.getScreenTag(), playlistWithTracks.getUrn(), PlayableMetadata.from(playlistWithTracks)));
             sendShareIntent();
         }
     }

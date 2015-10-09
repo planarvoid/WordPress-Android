@@ -16,6 +16,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -151,7 +152,7 @@ public class LegacyProfileActivity extends ScActivity implements
                     public void onClick(View v) {
                         toggleFollowing(user);
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
-                                Screen.USER_HEADER.get(), user.toPropertySet()));
+                                Screen.USER_HEADER.get(), user.getId(), PlayableMetadata.fromUser(user.toPropertySet())));
                     }
                 });
             }

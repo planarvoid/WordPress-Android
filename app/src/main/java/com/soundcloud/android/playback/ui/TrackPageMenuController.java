@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -128,7 +129,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void handleShare(PlayerTrackState track) {
         if (!track.isPrivate()) {
             activity.startActivity(buildShareIntent(track));
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn(), track.getSource()));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn(), PlayableMetadata.from(track)));
         }
     }
 
