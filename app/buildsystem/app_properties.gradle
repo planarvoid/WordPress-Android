@@ -10,13 +10,12 @@ android {
     variant.resValue "bool", "verbose_logging", "false"
     variant.resValue "string", "public_api_base_url", "https://api.soundcloud.com"
     variant.resValue "string", "cast_receiver_app_id", "DCAC4134"
-
     variant.resValue "string", "comscore_c2", "16601931"
     variant.resValue "string", "comscore_secret", "e0579a59c522e051e0970b3279f1b077"
-
     variant.resValue "string", "com_appboy_push_gcm_sender_id", "984739005367"
     variant.resValue "bool",   "com_appboy_push_gcm_messaging_registration_enabled", "false"
     variant.resValue "integer","com_appboy_default_notification_accent_color", "0xFFff5500"
+    variant.resValue "string", "adjust_app_token", "87l2rj9gqhlj"
   }
 
   buildTypes {
@@ -26,7 +25,6 @@ android {
       resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -40,7 +38,6 @@ android {
       resValue "string", "com_appboy_api_key", "ee285825-b3e0-4f01-8bc9-ea372882cf0e"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -54,7 +51,6 @@ android {
       resValue "string", "com_appboy_api_key", "b3c3167a-d8cc-4fa6-8be3-caa52a04c566"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -68,7 +64,6 @@ android {
       resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -82,7 +77,6 @@ android {
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -96,7 +90,6 @@ android {
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -110,7 +103,6 @@ android {
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "false"
 
