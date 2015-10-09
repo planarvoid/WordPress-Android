@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -40,6 +41,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private LikeOperations likeOperations;
     @Mock private Navigator navigator;
     @Mock private TrackRepository trackRepository;
+    @Mock private EngagementsTracking engagementsTracking;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -48,14 +50,13 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, playSessionStateProvider,
-                trackRepository, eventBus, likeOperations, navigator);
+                eventBus, likeOperations, navigator, engagementsTracking);
     }
 
     @Test
     public void onToggleUnlikedTrackLikesViaLikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(PropertySet.create()));
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -66,7 +67,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 
@@ -78,12 +78,10 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(PropertySet.create()));
 
         listener.onToggleLike(true, TRACK_URN);
 
-        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, true, "player", "context_screen", "tracks:main", TRACK_URN, null);
     }
 
     @Test
@@ -91,12 +89,10 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(PropertySet.create()));
 
         listener.onToggleLike(false, TRACK_URN);
 
-        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, false, "player", "context_screen", "tracks:main", TRACK_URN, null);
     }
 
     @Test

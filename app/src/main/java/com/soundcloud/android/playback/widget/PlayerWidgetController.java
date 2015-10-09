@@ -2,14 +2,12 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -43,6 +41,7 @@ public class PlayerWidgetController {
     private final TrackRepository trackRepository;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final EngagementsTracking engagementsTracking;
 
     private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
         @Override
@@ -55,7 +54,8 @@ public class PlayerWidgetController {
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider,
                                   PlayQueueManager playQueueManager, TrackRepository trackRepository,
-                                  EventBus eventBus, LikeOperations likeOperations) {
+                                  EventBus eventBus, LikeOperations likeOperations,
+                                  EngagementsTracking engagementsTracking) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
@@ -63,6 +63,7 @@ public class PlayerWidgetController {
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
+        this.engagementsTracking = engagementsTracking;
     }
 
     public void subscribe() {
@@ -101,31 +102,18 @@ public class PlayerWidgetController {
 
     public void handleToggleLikeAction(final boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        final PromotedSourceInfo promotedSourceInfo = playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn);
 
         fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        trackRepository.track(currentTrackUrn)
-                .map(likeEventFromTrack(addLike, currentTrackUrn, promotedSourceInfo))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+        engagementsTracking.likeTrackUrn(currentTrackUrn,
+                addLike,
+                Screen.WIDGET.get(),
+                playQueueManager.getScreenTag(),
+                Screen.WIDGET.get(),
+                Urn.NOT_SET,
+                playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
     }
 
-    private Func1<PropertySet, UIEvent> likeEventFromTrack(final boolean addLike, final Urn currentTrackUrn, final PromotedSourceInfo promotedSourceInfo) {
-        return new Func1<PropertySet, UIEvent>() {
-            @Override
-            public UIEvent call(PropertySet track) {
-                return UIEvent.fromToggleLike(addLike,
-                                Screen.WIDGET.get(),
-                                playQueueManager.getScreenTag(),
-                                Screen.WIDGET.get(),
-                                currentTrackUrn,
-                                Urn.NOT_SET,
-                                promotedSourceInfo,
-                                PlayableMetadata.from(track));
-
-            }
-        };
-    }
 
     /**
      * Listens for track changes emitted from our application layer via Rx and updates the widget

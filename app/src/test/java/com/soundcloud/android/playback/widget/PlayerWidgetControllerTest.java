@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -21,7 +22,6 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableMetadata;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -65,6 +65,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private AdsOperations adsOperations;
     @Mock private LikeOperations likeOperations;
+    @Mock private EngagementsTracking engagementsTracking;
 
     @Before
     public void setUp() {
@@ -75,7 +76,8 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                 playQueueManager,
                 trackRepository,
                 eventBus,
-                likeOperations);
+                likeOperations,
+                engagementsTracking);
         when(context.getResources()).thenReturn(resources());
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
@@ -271,10 +273,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", "widget", WIDGET_TRACK_URN, Urn.NOT_SET, null, playableMetadata);
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
     }
 
     @Test
@@ -292,18 +291,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "widget",
-                "context_screen",
-                "widget",
-                promotedTrackItem.getEntityUrn(),
-                Urn.NOT_SET,
-                promotedSourceInfo,
-                PlayableMetadata.from(promotedTrack));
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+        verify(engagementsTracking).likeTrackUrn(promotedTrackItem.getEntityUrn(), true, "widget", "context_screen", "widget", Urn.NOT_SET, promotedSourceInfo);
     }
 
     @Test
@@ -321,18 +309,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "widget",
-                "context_screen",
-                "widget",
-                WIDGET_TRACK_URN,
-                Urn.NOT_SET,
-                promotedSourceInfo,
-                playableMetadata);
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, promotedSourceInfo);
     }
 
     @Test
@@ -349,22 +326,10 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.isTrackFromCurrentPromotedItem(any(Urn.class))).thenReturn(false);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
-        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "widget",
-                "context_screen",
-                "widget",
-                WIDGET_TRACK_URN,
-                Urn.NOT_SET,
-                null,
-                playableMetadata);
-
-        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
     }
 }
