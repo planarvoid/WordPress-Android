@@ -95,7 +95,7 @@
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
     <string name="stations_collection_title_saved_stations">Your stations</string>
-    <string name="stations_collection_title_recently_played_stations">Recently stations</string>
+    <string name="stations_collection_title_recently_played_stations">Recent stations</string>
     <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
     <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
