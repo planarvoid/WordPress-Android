@@ -150,7 +150,6 @@ dependencies {
   }
   compile libraries.jacksonRespack
   compile libraries.okHttp
-  provided libraries.httpClientAndroid
   compile libraries.localytics
   compile (libraries.slidingUpPanel) {
     transitive = true;
