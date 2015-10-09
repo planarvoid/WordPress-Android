@@ -209,9 +209,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEvents() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForRepostEvent");
 
@@ -224,9 +225,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnRepostEvents() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnRepostEvent");
 

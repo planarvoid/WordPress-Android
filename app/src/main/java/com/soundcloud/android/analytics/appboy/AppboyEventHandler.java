@@ -58,6 +58,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_SHARE:
                 tagEvent(AppboyEvents.SHARE, buildPlayableProperties(event));
                 break;
+            case UIEvent.KIND_REPOST:
+                tagEvent(AppboyEvents.REPOST, buildPlayableProperties(event));
+                break;
             default:
                 break;
         }

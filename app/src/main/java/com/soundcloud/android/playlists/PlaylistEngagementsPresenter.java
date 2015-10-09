@@ -303,7 +303,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
-                            playSessionSourceInfo.getPromotedSourceInfo()));
+                            playSessionSourceInfo.getPromotedSourceInfo(),
+                            PlayableMetadata.from(playlistWithTracks)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)

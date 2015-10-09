@@ -167,6 +167,26 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         expectCustomEvent("share", playableOnlyProperties);
     }
 
+    @Test
+    public void shouldTrackRepostEvents() {
+        UIEvent event = UIEvent.fromToggleRepost(true, "invoker_screen", "page_name",
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("repost", playableOnlyProperties);
+    }
+
+    @Test
+    public void shouldNotTrackUnRepostEvents() {
+        UIEvent event = UIEvent.fromToggleRepost(false, "invoker_screen", "page_name",
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
+    }
+
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
         ArgumentCaptor<AppboyProperties> captor = ArgumentCaptor.forClass(AppboyProperties.class);
 

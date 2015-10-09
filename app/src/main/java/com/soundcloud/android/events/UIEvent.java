@@ -6,9 +6,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.Collections;
@@ -73,7 +73,7 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId, PlayableMetadata userMetadata) {
+    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId, @NonNull PlayableMetadata userMetadata) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(userId))
@@ -84,10 +84,10 @@ public final class UIEvent extends TrackingEvent {
                                          String invokerScreen,
                                          String contextScreen,
                                          String pageName,
-                                         @NotNull Urn resourceUrn,
-                                         @NotNull Urn pageUrn,
+                                         @NonNull Urn resourceUrn,
+                                         @NonNull Urn pageUrn,
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
-                                         PlayableMetadata playable) {
+                                         @NonNull PlayableMetadata playable) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
@@ -103,9 +103,10 @@ public final class UIEvent extends TrackingEvent {
     public static UIEvent fromToggleRepost(boolean isRepost,
                                            String screenTag,
                                            String pageName,
-                                           @NotNull Urn resourceUrn,
-                                           @NotNull Urn pageUrn,
-                                           @Nullable PromotedSourceInfo promotedSourceInfo) {
+                                           @NonNull Urn resourceUrn,
+                                           @NonNull Urn pageUrn,
+                                           @Nullable PromotedSourceInfo promotedSourceInfo,
+                                           @NonNull PlayableMetadata playableMetadata) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
@@ -113,7 +114,8 @@ public final class UIEvent extends TrackingEvent {
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
-                .putPromotedItemKeys(promotedSourceInfo);
+                .putPromotedItemKeys(promotedSourceInfo)
+                .putPlayableMetadata(playableMetadata);
     }
 
     public static UIEvent fromAddToPlaylist(String invokerScreen, String contextScreen, boolean isNewPlaylist, long trackId) {
@@ -124,14 +126,14 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
     }
 
-    public static UIEvent fromComment(String screenTag, long trackId, PlayableMetadata playable) {
+    public static UIEvent fromComment(String screenTag, long trackId, @NonNull PlayableMetadata playable) {
         return new UIEvent(KIND_COMMENT)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
                 .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn, PlayableMetadata playable) {
+    public static UIEvent fromShare(String screenTag, @NonNull Urn resourceUrn, @NonNull PlayableMetadata playable) {
         return new UIEvent(KIND_SHARE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
@@ -143,7 +145,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_SHUFFLE_LIKES);
     }
 
-    public static UIEvent fromShufflePlaylist(String screenTag, @NotNull Urn resourceUrn) {
+    public static UIEvent fromShufflePlaylist(String screenTag, @NonNull Urn resourceUrn) {
         return new UIEvent(KIND_SHUFFLE_PLAYLIST)
                 .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, TYPE_PLAYLIST)
@@ -188,7 +190,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(addToOffline ? KIND_OFFLINE_COLLECTION_ADD : KIND_OFFLINE_COLLECTION_REMOVE);
     }
 
-    public static UIEvent fromRemoveOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
+    public static UIEvent fromRemoveOfflinePlaylist(String pageName, @NonNull Urn resourceUrn,
                                                     @Nullable PromotedSourceInfo promotedSourceInfo) {
         return new UIEvent(KIND_OFFLINE_PLAYLIST_REMOVE)
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
@@ -196,7 +198,7 @@ public final class UIEvent extends TrackingEvent {
                 .putPromotedItemKeys(promotedSourceInfo);
     }
 
-    public static UIEvent fromAddOfflinePlaylist(String pageName, @NotNull Urn resourceUrn,
+    public static UIEvent fromAddOfflinePlaylist(String pageName, @NonNull Urn resourceUrn,
                                                  @Nullable PromotedSourceInfo promotedSourceInfo) {
         return new UIEvent(KIND_OFFLINE_PLAYLIST_ADD)
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
@@ -276,7 +278,7 @@ public final class UIEvent extends TrackingEvent {
         return this;
     }
 
-    private UIEvent putPlayableMetadata(PlayableMetadata metadata) {
+    private UIEvent putPlayableMetadata(@NonNull PlayableMetadata metadata) {
         metadata.addToTrackingEvent(this);
         return this;
     }

@@ -142,7 +142,8 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                         Screen.PLAYER_MAIN.get(),
                         trackUrn,
                         trackUrn,
-                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn)));
+                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
+                        PlayableMetadata.from(track)));
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {
