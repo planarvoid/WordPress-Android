@@ -32,10 +32,15 @@
                 }
               }
             }
-          }, 
+          },
           {
-            "dex_watchdog": {
-                  "cmd": "echo ''"
+            "compile_test_apk": {
+                  "cmd": "./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
+                  "artifacts": [
+                    "app/build/outputs/apk/*androidTest*.apk", 
+                    "app/build/outputs/apk/androidnetworkmanager-*.apk", 
+                    "app/src/androidTest/res/values/test_properties.xml"
+                  ]
               }
           }
         ]
@@ -74,7 +79,7 @@
                 "app/build/outputs/apk/androidnetworkmanager-*.apk", 
                 "app/src/androidTest/res/values/test_properties.xml"
               ], 
-                "cmd": "./gradlew assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI; ./gradlew runKitKatTests", 
+                "cmd": "./gradlew runKitKatTests", 
                 "html-reports": [
                   {
                     "reportDir": "results/", 
@@ -83,6 +88,11 @@
                   }
                 ], 
                 "test-reports": "results/xml/*.xml"
+            }
+          }, 
+          {
+            "dex_watchdog": {
+              "cmd": "./gradlew assembleDebug assembleRelease \nexport COUNTS_FILE=dex-method-counts.csv \necho \"debug,release\" > $COUNTS_FILE;\n./gradlew --rerun-tasks --quiet countProdDebugDexMethods | grep -oP \"(\\d+)\" | xargs echo -n >> $COUNTS_FILE \n./gradlew --rerun-tasks --quiet countProdReleaseDexMethods | grep -oP \"(\\d+)\" | sed 's/^/,/' >> $COUNTS_FILE "
             }
           }
         ]
