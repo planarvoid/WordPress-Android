@@ -9,6 +9,8 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 
+import android.content.Context;
+
 import javax.inject.Inject;
 
 public class AdjustAnalyticsProvider implements AnalyticsProvider {
@@ -17,6 +19,11 @@ public class AdjustAnalyticsProvider implements AnalyticsProvider {
     @Inject
     public AdjustAnalyticsProvider(AdjustWrapper adjustWrapper) {
         this.adjustWrapper = adjustWrapper;
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override

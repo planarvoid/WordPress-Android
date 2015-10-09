@@ -16,12 +16,12 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.settings.SettingKey;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +33,7 @@ import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
@@ -221,6 +222,14 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
         verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
 
         assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.CLOSED);
+    }
+
+    @Test
+    public void shouldDispatchApplicationOnCreateEvents() {
+        analyticsEngine.onAppCreated(context());
+
+        verify(analyticsProviderOne, times(1)).onAppCreated(isA(Context.class));
+        verify(analyticsProviderTwo, times(1)).onAppCreated(isA(Context.class));
     }
 
     private void initialiseAnalyticsEngine() {

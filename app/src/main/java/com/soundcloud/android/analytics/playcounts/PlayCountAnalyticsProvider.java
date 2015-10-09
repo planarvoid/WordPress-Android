@@ -14,6 +14,8 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 
+import android.content.Context;
+
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
@@ -40,6 +42,11 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
 
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override

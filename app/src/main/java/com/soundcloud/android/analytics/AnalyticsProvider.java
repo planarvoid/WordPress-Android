@@ -8,6 +8,8 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 
+import android.content.Context;
+
 /**
  * Implementations of this interface will be sending information to a specific analytics provider
  */
@@ -54,4 +56,6 @@ public interface AnalyticsProvider {
     void handleTrackingEvent(TrackingEvent event);
 
     void handleUserSessionEvent(UserSessionEvent event);
+
+    void onAppCreated(Context context);
 }
