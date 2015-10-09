@@ -81,7 +81,7 @@ If you encounter problems, check and update the [troubleshooting page](https://g
 
 ## Opening the project in Android Studio
 
-Open Android Studio, select "Import project" and select `build.gradle` from the root project directory.
+Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
 
 Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
