@@ -13,10 +13,11 @@ Prerequisites:
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
-Install the [Android SDK][]
+### Install the [Android SDK][] and [Android Studio][]
+
+#### On Mac OS X:
 
     $ brew install android-sdk android-ndk maven
-
 
 Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
 
@@ -42,7 +43,15 @@ all release packages except for the system images, because we will use [Genymoti
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
 
-Clone and build the project, making sure you are on the VPN:
+Install [Android Studio][].
+
+#### On Linux:
+
+Install [Android Studio][], which contains [Android SDK][].
+
+### Clone and build the project
+
+Make sure you are on the VPN:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
@@ -51,8 +60,6 @@ Clone and build the project, making sure you are on the VPN:
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
 ## Opening the project in Android Studio
-
-Install [Android Studio][].
 
 Open Android Studio, select "Import project" and select `build.gradle` from the root project directory.
 
