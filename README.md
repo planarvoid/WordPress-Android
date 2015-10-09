@@ -8,11 +8,9 @@ Prerequisites:
 
 * (Mac only) Xcode command line tools
 * GCC (`gcc`) and GNU Make (`make`)
-* Java 8
-
-  You can use [jenv][] to manage your environments.
-  Alternatively, you can set the `JAVA_HOME` environment variable:
-
+* Java 8<br>
+  You can use [jenv][] to manage your environments.<br>
+  Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
 Install the [Android SDK][]
