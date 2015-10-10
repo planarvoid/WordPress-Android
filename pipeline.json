@@ -5,17 +5,17 @@
       "jobs": [
         [
           {
-            "compile": {
-              "android-lint": {
-                "failedTotalHigh": 0, 
-                "failedTotalNormal": 0, 
-                "pattern": "app/build/outputs/lint-results-prodDebug.xml"
-              }, 
+            "compile": { 
               "artifacts": [
                 "app/res/values/app_properties.xml", 
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
               "cmd": "./gradlew clean updateVersion buildDebugCI", 
+              "android-lint": {
+                "failedTotalHigh": 0, 
+                "failedTotalNormal": 0, 
+                "pattern": "app/build/outputs/lint-results-prodDebug.xml"
+              },
               "findbugs": {
                 "pattern": "app/build/reports/findbugs/findbugs.xml"
               }, 
@@ -107,7 +107,8 @@
         {
           "deploy_alpha": {
             "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha", 
-            "manual": true
+            "manual": true,
+            "schedule": "H 3 * * 2-6"
           }
         }
       ]
