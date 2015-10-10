@@ -35,13 +35,13 @@
           },
           {
             "compile_test_apk": {
-                  "cmd": "./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
-                  "artifacts": [
-                    "app/build/outputs/apk/*androidTest*.apk", 
-                    "app/build/outputs/apk/androidnetworkmanager-*.apk", 
-                    "app/src/androidTest/res/values/test_properties.xml"
-                  ]
-              }
+              "cmd": "./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
+              "artifacts": [
+                "app/build/outputs/apk/*androidTest*.apk", 
+                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
+                "app/src/androidTest/res/values/test_properties.xml"
+              ]
+            }
           }
         ]
       ],  
