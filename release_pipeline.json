@@ -11,26 +11,28 @@
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
               "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean updateVersion buildReleaseNoProguardCI", 
-              "android-lint": {
-                "failedTotalHigh": 0, 
-                "failedTotalNormal": 0, 
-                "pattern": "app/build/outputs/lint-results-prodDebug.xml"
-              },
-              "findbugs": {
-                "pattern": "app/build/reports/findbugs/findbugs.xml"
-              }, 
-              "pmd": {
-                "pattern": "app/build/reports/pmd/pmd.xml"
-              }, 
-              "taskPublisher": {
-                "excludePattern": "app/target/**/*", 
-                "pattern": "app/**/*.*"
-              }, 
-              "violations": {
-                "checkstyle": {
-                    "pattern": "app/build/reports/checkstyle/checkstyle.xml"
-                }
-              } 
+              "plugins": {
+                "androidLint": {
+                  "failedTotalHigh": 0, 
+                  "failedTotalNormal": 0, 
+                  "pattern": "app/build/outputs/lint-results-prodDebug.xml"
+                },
+                "findbugs": {
+                  "pattern": "app/build/reports/findbugs/findbugs.xml"
+                }, 
+                "pmd": {
+                  "pattern": "app/build/reports/pmd/pmd.xml"
+                }, 
+                "taskPublisher": {
+                  "excludePattern": "app/target/**/*", 
+                  "pattern": "app/**/*.*"
+                }, 
+                "violations": {
+                  "checkstyle": {
+                      "pattern": "app/build/reports/checkstyle/checkstyle.xml"
+                  }
+                } 
+              }
             }
           }, 
           {
@@ -74,38 +76,41 @@
               "cmd": "BUILD_TYPE=release ./gradlew runUnitTests", 
               "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
               "no-clean": true,
-              "html-reports": [
-                {
-                  "reportDir": "tests-robolectric/build/reports/tests/", 
-                  "reportFiles": "index.html", 
-                  "reportName": "Legacy test report"
-                }, 
-                {
-                  "reportDir": "app/build/reports/tests/devDebug/", 
-                  "reportFiles": "index.html", 
-                  "reportName": "Unit test report"
-                }
-              ]
+              "plugins": {
+                "htmlReports": [
+                  {
+                    "reportDir": "tests-robolectric/build/reports/tests/", 
+                    "reportFiles": "index.html", 
+                    "reportName": "Legacy test report"
+                  }, 
+                  {
+                    "reportDir": "app/build/reports/tests/devDebug/", 
+                    "reportFiles": "index.html", 
+                    "reportName": "Unit test report"
+                  }
+                ]
+              }
             } 
           },
           { "acceptance_tests": {
               "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runKitKatTestsRelease", 
               "test-reports": "results/xml/*.xml",
-              "html-reports": [
+              "plugins": {
+                "htmlReports": [
                   {
                     "reportDir": "results/", 
                     "reportFiles": "index.html", 
                     "reportName": "Test Results"
                   }
                 ]
-              } 
+              }
+            } 
+          },
+          { "testdroid_smoke_tests": {
+              "cmd": "cp app/build/outputs/apk/soundcloud-android-*release*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk"
+            }
           }
-        ],
-        { "testdroid_smoke_tests": {
-            "cmd": "cp app/build/outputs/apk/soundcloud-android-*release*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk", 
-            "manual": true
-          }
-        }
+        ]
       ],
       "next-stages": [ "deploy" ]
     }, 
