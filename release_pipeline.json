@@ -107,7 +107,7 @@
             } 
           },
           { "testdroid_smoke_tests": {
-              "cmd": "cp app/build/outputs/apk/soundcloud-android-*release*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk"
+              "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk"
             }
           }
         ]
@@ -123,8 +123,8 @@
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud*.apk"]
           } 
         },
+        { "rollout_release_1_percent": {"cmd": "echo 'rolloutRelease: 1%'", "manual": true} },
         { "rollout_release_5_percent": {"cmd": "echo 'rolloutRelease: 5%'", "manual": true} },
-        { "rollout_release_20_percent": {"cmd": "echo 'rolloutRelease: 20%'", "manual": true} },
         { 
           "deploy_release": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployRelease", 
