@@ -15,7 +15,6 @@ import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,7 +33,6 @@ class ProfileHeaderPresenter {
     @Bind(R.id.image) ImageView image;
     @Bind(R.id.followers_count) TextView followerCount;
     @Bind(R.id.toggle_btn_follow) ToggleButton followButton;
-    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Urn lastUser;
 
@@ -59,8 +57,6 @@ class ProfileHeaderPresenter {
     }
 
     public void setUserDetails(ProfileUser user) {
-        collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
-        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
         followButton.setChecked(user.isFollowed());
 

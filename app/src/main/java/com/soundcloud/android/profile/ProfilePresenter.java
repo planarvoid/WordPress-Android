@@ -21,8 +21,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import javax.inject.Inject;
 
@@ -62,10 +64,11 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
-
         super.onCreate(activity, bundle);
 
         user = activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
+
+        activity.setTitle(accountOperations.isLoggedInUser(user) ? R.string.side_menu_you : R.string.side_menu_profile);
 
         headerPresenter = profileHeaderPresenterFactory.create(activity, user);
 

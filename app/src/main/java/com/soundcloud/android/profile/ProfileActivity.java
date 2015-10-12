@@ -25,10 +25,4 @@ public class ProfileActivity extends ScActivity {
         super.setContentView(R.layout.new_profile);
         baseLayoutHelper.setupActionBar(this);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_white, menu);
-        return true;
-    }
 }
