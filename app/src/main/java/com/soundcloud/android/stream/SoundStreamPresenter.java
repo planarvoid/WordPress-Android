@@ -127,8 +127,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         } else if (item instanceof PromotedPlaylistItem) {
             publishPromotedItemClickEvent((PromotedPlaylistItem) item);
             handleListItemClick(view, position, item);
-        } else if (item instanceof FacebookInvitesItem) {
-            // no-op
         } else {
             handleListItemClick(view, position, item);
         }
