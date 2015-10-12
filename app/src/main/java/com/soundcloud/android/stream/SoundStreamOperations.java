@@ -17,6 +17,8 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
@@ -60,6 +62,7 @@ class SoundStreamOperations {
     private final EventBus eventBus;
     private final FacebookInvitesOperations facebookInvites;
     private final StationsOperations stationsOperations;
+    private final FeatureFlags featureFlags;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
@@ -127,8 +130,10 @@ class SoundStreamOperations {
 
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddNotification(streamItems)) {
-                streamItems.add(0, new StationOnboardingStreamItem());
+            if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+                if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddNotification(streamItems)) {
+                    streamItems.add(0, new StationOnboardingStreamItem());
+                }
             }
             return streamItems;
         }
@@ -140,7 +145,7 @@ class SoundStreamOperations {
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
-                          StationsOperations stationsOperations) {
+                          StationsOperations stationsOperations, FeatureFlags featureFlags) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
@@ -150,6 +155,7 @@ class SoundStreamOperations {
         this.eventBus = eventBus;
         this.facebookInvites = facebookInvites;
         this.stationsOperations = stationsOperations;
+        this.featureFlags = featureFlags;
     }
 
     PagingFunction<List<StreamItem>> pagingFunction() {

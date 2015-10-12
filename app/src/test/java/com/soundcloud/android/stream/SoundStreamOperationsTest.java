@@ -17,6 +17,8 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
@@ -60,6 +62,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
     @Mock private StationsOperations stationsOperations;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -82,7 +85,8 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
                 eventBus,
                 Schedulers.immediate(),
                 facebookInvitesOperations,
-                stationsOperations
+                stationsOperations,
+                featureFlags
         );
     }
 
@@ -417,6 +421,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Test
     public void showStationsOnboardingAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)).thenReturn(true);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.from(items));
         when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
 
@@ -460,6 +465,7 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
+        when(featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)).thenReturn(true);
         when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
