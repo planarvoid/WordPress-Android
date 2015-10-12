@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
@@ -61,8 +62,14 @@ class ProfileHeaderPresenter {
         collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
         collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
-        followerCount.setText(numberFormatter.format(user.getFollowerCount()));
         followButton.setChecked(user.isFollowed());
+
+        if (user.getFollowerCount() != Consts.NOT_SET) {
+            followerCount.setText(numberFormatter.format(user.getFollowerCount()));
+            followerCount.setVisibility(View.VISIBLE);
+        } else {
+            followerCount.setVisibility(View.GONE);
+        }
 
         if (!user.getUrn().equals(lastUser)){
             lastUser = user.getUrn();
