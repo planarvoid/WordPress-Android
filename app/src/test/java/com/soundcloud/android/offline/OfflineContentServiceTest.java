@@ -145,7 +145,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        verify(publisher).publishDownloadsRequested(downloadQueue);
+        verify(publisher).publishDownloadsRequested(downloadQueue.getRequests());
     }
 
     @Test

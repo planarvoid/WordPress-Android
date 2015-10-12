@@ -37,8 +37,11 @@ class OfflineStatePublisher {
     }
 
     void publishDownloadErrorEvents(DownloadQueue queue, DownloadState result) {
-        publishTrackUnavailable(result);
-        publishRelatedAndQueuedCollectionsAsRequested(queue, result);
+        List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
+        if (!relatedPlaylists.isEmpty() || result.request.isLiked()) {
+            Log.d(TAG, "downloadRequested");
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.request.isLiked(), relatedPlaylists));
+        }
     }
 
     void publishDownloadCancelEvents(DownloadQueue queue, DownloadState result) {
@@ -64,10 +67,14 @@ class OfflineStatePublisher {
         }
     }
 
-    void publishDownloadsRequested(DownloadQueue queue) {
-        if (!queue.getRequests().isEmpty()) {
+    void publishDownloadsRequested(DownloadRequest request) {
+        publishDownloadsRequested(Collections.singletonList(request));
+    }
+
+    void publishDownloadsRequested(List<DownloadRequest> requests) {
+        if (!requests.isEmpty()) {
             Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(queue.getRequests()));
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(requests));
         }
     }
 
@@ -132,15 +139,6 @@ class OfflineStatePublisher {
             Log.d(TAG, "downloadRequested");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                     CurrentDownloadEvent.downloadRequested(likedTrackRequested, requested));
-        }
-    }
-
-    private void publishRelatedAndQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
-        List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
-        if (!relatedPlaylists.isEmpty() || result.request.isLiked()) {
-            Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                    CurrentDownloadEvent.downloadRequested(result.request.isLiked(), relatedPlaylists));
         }
     }
 

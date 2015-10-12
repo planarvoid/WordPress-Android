@@ -37,7 +37,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadsRequestedEmitsDownloadRequestedEvent() {
         queue.set(Arrays.asList(downloadRequest1, downloadRequest2));
 
-        publisher.publishDownloadsRequested(queue);
+        publisher.publishDownloadsRequested(queue.getRequests());
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
@@ -47,7 +47,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishDownloadsRequestedDoesNotEmitNewEventsWhenQueueEmpty() {
-        publisher.publishDownloadsRequested(queue);
+        publisher.publishDownloadsRequested(queue.getRequests());
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).isEmpty();
     }
@@ -192,17 +192,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishDownloadErrorEventsEmitsTrackUnavailableEvent() {
-        publisher.publishDownloadErrorEvents(queue, DownloadState.error(downloadRequest1));
-
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(singletonList(downloadRequest1)),
-                CurrentDownloadEvent.downloadRequested(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
-        );
-    }
-
-    @Test
     public void publishDownloadErrorEventsEmitsDownloadRequestEventForRelatedPlaylist() {
         final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
         final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
@@ -214,7 +203,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(false, singletonList(toBeDownloaded.getTrack())),
                 CurrentDownloadEvent.downloadRequested(false, relatedPlaylists)
         );
     }
