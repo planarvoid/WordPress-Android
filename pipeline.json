@@ -1,0 +1,131 @@
+{ 
+  "stages": [
+    {
+      "name": "build",
+      "jobs": [
+        [
+          {
+            "compile": { 
+              "artifacts": [
+                "app/res/values/app_properties.xml", 
+                "app/build/outputs/apk/soundcloud*.apk"
+              ], 
+              "cmd": "./gradlew clean updateVersion buildDebugCI", 
+              "plugins": {
+                "androidLint": {
+                "failedTotalHigh": 0, 
+                "failedTotalNormal": 0, 
+                "pattern": "app/build/outputs/lint-results-prodDebug.xml"
+              },
+                "findbugs": {
+                  "pattern": "app/build/reports/findbugs/findbugs.xml"
+              }, 
+                "pmd": {
+                  "pattern": "app/build/reports/pmd/pmd.xml"
+              }, 
+                "taskPublisher": {
+                  "excludePattern": "app/target/**/*", 
+                  "pattern": "app/**/*.*"
+              }, 
+                "violations": {
+                  "checkstyle": {
+                      "pattern": "app/build/reports/checkstyle/checkstyle.xml"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "compile_test_apk": {
+              "cmd": "./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
+              "artifacts": [
+                "app/build/outputs/apk/*androidTest*.apk", 
+                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
+                "app/src/androidTest/res/values/test_properties.xml"
+              ]
+            }
+          }
+        ]
+      ],  
+      "next-stages": [
+        "test"
+      ]
+    }, 
+    {
+      "name": "test", 
+      "jobs": [
+        [
+          {
+            "unit_tests": {
+              "cmd": "./gradlew clean runUnitTests",  
+              "no-clean": true, 
+              "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
+              "plugins": {
+                "htmlReports": [
+                  {
+                    "reportDir": "tests-robolectric/build/reports/tests/", 
+                    "reportFiles": "index.html", 
+                    "reportName": "Legacy test report"
+                  }, 
+                  {
+                    "reportDir": "app/build/reports/tests/devDebug/", 
+                    "reportFiles": "index.html", 
+                    "reportName": "Unit test report"
+                  }
+                ]
+              }
+            }
+          }, 
+          {
+            "acceptance_tests": {
+              "artifacts": [
+                "app/build/outputs/apk/*androidTest*.apk", 
+                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
+                "app/src/androidTest/res/values/test_properties.xml"
+              ], 
+                "cmd": "./gradlew runKitKatTests", 
+                "plugins": {
+                  "htmlReports": [
+                    {
+                      "reportDir": "results/", 
+                      "reportFiles": "index.html", 
+                      "reportName": "Test Results"
+                    }
+                  ]
+                }, 
+                "test-reports": "results/xml/*.xml"
+            }
+          }, 
+          {
+            "dex_watchdog": {
+              "cmd": "./gradlew assembleDebug assembleRelease \nexport COUNTS_FILE=dex-method-counts.csv \necho \"debug,release\" > $COUNTS_FILE;\n./gradlew --rerun-tasks --quiet countProdDebugDexMethods | grep -oP \"(\\d+)\" | xargs echo -n >> $COUNTS_FILE \n./gradlew --rerun-tasks --quiet countProdReleaseDexMethods | grep -oP \"(\\d+)\" | sed 's/^/,/' >> $COUNTS_FILE "
+            }
+          }
+        ]
+      ], 
+      "next-stages": [
+        "deploy"
+      ]
+    }, 
+    {
+      "name": "deploy",
+      "jobs": [
+        {
+          "deploy_alpha": {
+            "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha; \n./gradlew deployAlpha ", 
+            "manual": true,
+            "schedule": "H 3 * * 2-6"
+          }
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "default-name": "Android_Listeners_Master", 
+    "git-url": "git@github.com:soundcloud/SoundCloud-Android.git", 
+    "github-url": "https://github.com/soundcloud/SoundCloud-Android/", 
+    "jenkins-server": "http://mobile-jenkins.int.s-cloud.net", 
+    "owner-emails": "slawomir@soundcloud.com", 
+    "slave-label": "mobile-slave"
+  }
+}
