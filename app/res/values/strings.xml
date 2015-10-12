@@ -439,6 +439,7 @@
     <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
     <string name="cache_clearing">Clearing cache</string>
     <string name="cache_clearing_message">Deleting cached files...</string>
+    <string name="cache_cleared">Cache cleared</string>
     <string-array name="pref_dev_record_type_entries">
         <item>Compressed</item>
         <item>Raw</item>

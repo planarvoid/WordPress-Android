@@ -18,7 +18,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -28,6 +30,7 @@ public class ClearCacheDialog extends DialogFragment {
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
+    @Inject Context appContext;
     @Inject ImageOperations imageOperations;
     @Inject WaveformOperations waveformOperations;
 
@@ -70,6 +73,7 @@ public class ClearCacheDialog extends DialogFragment {
     private class ClearCompleteSubscriber extends DefaultSubscriber<Void> {
         @Override
         public void onCompleted() {
+            Toast.makeText(appContext, R.string.cache_cleared, Toast.LENGTH_SHORT).show();
             dismiss();
         }
     }
