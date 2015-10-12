@@ -1,8 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:clickable="true">
 
-    <include layout="@layout/track_info_common"/>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/artwork_overlay"
+    android:paddingBottom="@dimen/track_info_margin_vertical"
+    android:paddingLeft="@dimen/track_info_margin_horizontal"
+    android:paddingRight="@dimen/track_info_margin_horizontal"
+    android:paddingTop="@dimen/track_info_margin_vertical"
+    android:clickable="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clickable="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:animateLayoutChanges="true"
+            android:background="@color/white"
+            android:clickable="true"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/track_info_interior_padding_bottom"
+            android:paddingTop="@dimen/track_info_interior_padding_top">
+
+            <TextView
+                android:id="@+id/creator"
+                style="@style/TrackInfo.Text.Main.Creator" />
+
+            <TextView
+                android:id="@id/title"
+                style="@style/TrackInfo.Text.Main.Title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/private_indicator"
+                style="@style/ListPrivateIndicator"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
+                android:layout_marginTop="10dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/stats_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
+                android:layout_marginRight="@dimen/track_info_interior_padding_horizontal"
+                android:layout_marginTop="10dp"
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/plays"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/stats_play" />
+
+                <View
+                    android:id="@+id/divider1"
+                    style="@style/TrackInfoDivider" />
+
+                <TextView
+                    android:id="@+id/likes"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/list_item_like" />
+
+                <View
+                    android:id="@+id/divider2"
+                    style="@style/TrackInfoDivider" />
+
+                <TextView
+                    android:id="@+id/reposts"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/stats_repost" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Horizontal" />
+
+            <FrameLayout
+                android:id="@+id/description_holder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible">
+
+                <include layout="@layout/track_info_comments_and_description" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </FrameLayout>

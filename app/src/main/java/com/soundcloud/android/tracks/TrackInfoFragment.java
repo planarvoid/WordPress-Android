@@ -81,19 +81,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         subscription = loadTrack.subscribe(new TrackSubscriber());
-
-        final int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_horizontal);
-        final int verticalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_vertical);
-        view.setBackgroundColor(getResources().getColor(R.color.artwork_overlay));
-        view.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
         view.setOnClickListener(this);
-
-
-        final int innerTopPadding = getResources().getDimensionPixelSize(R.dimen.track_info_interior_padding_top);
-        final int innerBottomPadding = getResources().getDimensionPixelSize(R.dimen.track_info_interior_padding_bottom);
-        final View innerView = ((ViewGroup) view).getChildAt(0);
-        innerView.setBackgroundColor(getResources().getColor(R.color.white));
-        innerView.setPadding(0, innerTopPadding, 0, innerBottomPadding);
     }
 
     @Override
