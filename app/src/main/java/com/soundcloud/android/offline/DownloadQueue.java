@@ -49,7 +49,7 @@ final class DownloadQueue {
     List<Urn> getRequestedWithOwningPlaylists(DownloadState result) {
         final List<Urn> requestedAndRelated = getRequestedEntities();
         addAllRemovingDuplication(requestedAndRelated, result.request.getPlaylists());
-
+        requestedAndRelated.add(result.getTrack());
         return requestedAndRelated;
     }
 

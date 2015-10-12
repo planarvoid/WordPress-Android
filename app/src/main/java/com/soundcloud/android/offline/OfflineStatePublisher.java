@@ -37,11 +37,10 @@ class OfflineStatePublisher {
     }
 
     void publishDownloadErrorEvents(DownloadQueue queue, DownloadState result) {
-        List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
-        if (!relatedPlaylists.isEmpty() || result.request.isLiked()) {
-            Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.request.isLiked(), relatedPlaylists));
-        }
+        Log.d(TAG, "downloadRequested");
+        List<Urn> changedEntities = queue.getRequestedWithOwningPlaylists(result);
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloadRequested(result.request.isLiked(), changedEntities));
     }
 
     void publishDownloadCancelEvents(DownloadQueue queue, DownloadState result) {

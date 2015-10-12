@@ -58,7 +58,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
                 .clickKeepLikesSynced();
 
         assertTrue(trackLikesScreen.headerDownloadElement().isRequested());
-        assertTrue(trackLikesScreen.tracks().get(0).downloadElement().isUnavailable());
+        assertTrue(trackLikesScreen.tracks().get(0).downloadElement().isRequested());
     }
 
     @Override

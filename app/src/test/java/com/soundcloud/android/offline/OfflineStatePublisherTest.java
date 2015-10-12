@@ -203,7 +203,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists)
+                CurrentDownloadEvent.downloadRequested(false, Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L), Urn.forTrack(123L)))
         );
     }
 
