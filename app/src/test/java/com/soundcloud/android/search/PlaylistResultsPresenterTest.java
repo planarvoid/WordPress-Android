@@ -15,7 +15,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -38,7 +37,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(
             R.layout.default_recyclerview_with_refresh, new Bundle());
     @Mock private PlaylistDiscoveryOperations operations;
-    @Mock private PagingRecyclerItemAdapter adapter;
+    @Mock private PlaylistResultsAdapter adapter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Navigator navigator;
     @Mock private View view;

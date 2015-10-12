@@ -9,8 +9,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import com.soundcloud.android.presentation.RecyclerItemAdapter.ViewHolder;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -27,14 +25,14 @@ import javax.inject.Inject;
 class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
 
     private final PlaylistDiscoveryOperations operations;
-    private final PagingRecyclerItemAdapter<PlaylistItem, ViewHolder> adapter;
+    private final PlaylistResultsAdapter adapter;
     private final Navigator navigator;
     private final EventBus eventBus;
 
     @Inject
     PlaylistResultsPresenter(
             PlaylistDiscoveryOperations operations,
-            PagingRecyclerItemAdapter<PlaylistItem, ViewHolder> adapter,
+            PlaylistResultsAdapter adapter,
             SwipeRefreshAttacher swipeRefreshAttacher,
             Navigator navigator,
             EventBus eventBus) {
