@@ -181,8 +181,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
         @Override
         public void onNext(List<Urn> allLikedTracks) {
-            headerView.updateTrackCount(allLikedTracks.size());
-            headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOverflowMenu());
+            if (headerView != null) {
+                headerView.updateTrackCount(allLikedTracks.size());
+                headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOverflowMenu());
+            }
         }
     }
 
