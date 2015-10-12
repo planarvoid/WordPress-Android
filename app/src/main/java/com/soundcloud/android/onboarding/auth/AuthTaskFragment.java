@@ -13,7 +13,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.onboarding.exceptions.SignInException;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -151,32 +150,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
         } else if (rootException instanceof AuthTaskException) {
             return ((AuthTaskException) rootException).getFirstError(); // message provided by the individual task
         } else {
-            if (rootException == null) {
-                logOnboardingError(genericExceptionFrom(result));
-            } else {
-                logOnboardingError(rootException);
-            }
             return activity.getString(R.string.authentication_error_generic);
         }
-    }
-
-    private Throwable genericExceptionFrom(AuthTaskResult result) {
-        return new SignInException(result.toString());
-    }
-
-    private void logOnboardingError(Throwable rootException) {
-        log(INFO, ONBOARDING_TAG, getLoginErrorDebugMessage(rootException));
-        ErrorUtils.handleSilentException("other sign in error while network connected", rootException);
-    }
-
-    private String getLoginErrorDebugMessage(Throwable rootException) {
-        String exceptionMessage = rootException == null ? "no exception" : rootException.getMessage();
-        return String.format(
-                "other sign in error while network connected. Message: %s, Network type: %s, Operator name: %s",
-                exceptionMessage,
-                networkConnectionHelper.getCurrentConnectionType().toString(),
-                networkConnectionHelper.getNetworkOperatorName()
-        );
     }
     
     private void deliverResultAndDismiss() {
