@@ -31,7 +31,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
     private final CompositeSubscription subscription = new CompositeSubscription();
-    @Nullable private TransactionState restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
+    @Nullable private TransactionState restoreState;
 
     private AppCompatActivity activity;
     private ProductDetails details;
