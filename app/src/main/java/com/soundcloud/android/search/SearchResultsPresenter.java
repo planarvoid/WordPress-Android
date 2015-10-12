@@ -87,7 +87,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus) {
-        super(swipeRefreshAttacher, Options.list());
+        super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

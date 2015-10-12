@@ -86,7 +86,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                          Resources resources,
                          EventBus eventBus,
                          FeatureFlags featureFlags) {
-        super(swipeRefreshAttacher, Options.cards());
+        super(swipeRefreshAttacher, Options.defaults());
         this.collectionsOperations = collectionsOperations;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
         this.adapter = adapter;

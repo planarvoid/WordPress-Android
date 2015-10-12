@@ -42,7 +42,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackInitiator playbackInitiator,
                        Navigator navigator, FeatureFlags featureFlags) {
-        super(swipeRefreshAttacher, Options.cards());
+        super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;

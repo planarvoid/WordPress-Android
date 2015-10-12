@@ -48,7 +48,7 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
                                     Resources resources,
                                     PlayQueueManager playQueueManager,
                                     StationsNowPlayingController stationsNowPlayingController) {
-        super(swipeRefreshAttacher, Options.cards());
+        super(swipeRefreshAttacher, Options.defaults());
         this.operations = operations;
         this.adapter = adapter;
         this.resources = resources;
