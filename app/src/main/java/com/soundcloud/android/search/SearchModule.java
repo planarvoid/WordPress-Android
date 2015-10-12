@@ -4,10 +4,15 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
+import com.soundcloud.android.presentation.ProgressCellRenderer;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter.ViewHolder;
 import com.soundcloud.android.view.adapters.PlaylistGridRenderer;
 import dagger.Module;
 import dagger.Provides;
+
+import android.view.View;
 
 import java.util.Random;
 
@@ -23,8 +28,20 @@ import java.util.Random;
 public class SearchModule {
 
     @Provides
-    public PagingListItemAdapter<PlaylistItem> playlistsResultAdapter(PlaylistGridRenderer renderer) {
-        return new PagingListItemAdapter<>(R.layout.grid_loading_item, renderer);
+    public PagingRecyclerItemAdapter<PlaylistItem, ViewHolder> playlistsResultAdapter(
+            PlaylistGridRenderer itemRenderer) {
+        return new PagingRecyclerItemAdapter<PlaylistItem, ViewHolder>(
+                itemRenderer, new ProgressCellRenderer(R.layout.grid_loading_item)) {
+            @Override
+            protected ViewHolder createViewHolder(View itemView) {
+                return new RecyclerItemAdapter.ViewHolder(itemView);
+            }
+
+            @Override
+            public int getBasicItemViewType(int position) {
+                return 0;
+            }
+        };
     }
 
     @Provides
