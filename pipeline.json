@@ -112,7 +112,7 @@
       "jobs": [
         {
           "deploy_alpha": {
-            "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha", 
+            "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha; \n./gradlew deployAlpha ", 
             "manual": true,
             "schedule": "H 3 * * 2-6"
           }
