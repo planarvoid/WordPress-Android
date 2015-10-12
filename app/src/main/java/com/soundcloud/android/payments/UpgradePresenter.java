@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.payments.error.PaymentError;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -14,6 +15,7 @@ import rx.Observable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -29,7 +31,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
     private final CompositeSubscription subscription = new CompositeSubscription();
-    @Nullable private TransactionState restoreState;
+    @Nullable private TransactionState restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
 
     private AppCompatActivity activity;
     private ProductDetails details;
@@ -50,11 +52,22 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         upgradeView.setupContentView(activity, this);
         paymentErrorPresenter.setActivity(activity);
         restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
+        clearExistingError(activity);
         initConnection();
     }
 
     private void initConnection() {
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
+    }
+
+    private void clearExistingError(AppCompatActivity activity) {
+        final Fragment error = activity.getSupportFragmentManager().findFragmentByTag(PaymentError.DIALOG_TAG);
+        if (error != null) {
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(error)
+                    .commit();
+        }
     }
 
     public TransactionState getState() {
