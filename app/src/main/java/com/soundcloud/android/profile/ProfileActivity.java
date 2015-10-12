@@ -6,8 +6,6 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
-import android.view.Menu;
-
 import javax.inject.Inject;
 
 public class ProfileActivity extends ScActivity {
@@ -22,7 +20,6 @@ public class ProfileActivity extends ScActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.new_profile);
-        baseLayoutHelper.setupActionBar(this);
+        baseLayoutHelper.createActionBarLayout(this, R.layout.new_profile);
     }
 }

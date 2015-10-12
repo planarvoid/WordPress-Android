@@ -67,7 +67,7 @@ public class BaseLayoutHelper {
         return layout;
     }
 
-    private View createActionBarLayout(AppCompatActivity activity, int baseLayoutId) {
+    public View createActionBarLayout(AppCompatActivity activity, int baseLayoutId) {
         final View layout = createLayout(activity, baseLayoutId);
         setupActionBar(activity);
         return layout;
