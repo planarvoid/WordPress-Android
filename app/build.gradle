@@ -92,6 +92,7 @@ android {
     exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/LICENSE'
     exclude 'META-INF/NOTICE'
+    exclude 'META-INF/services/javax.annotation.processing.Processor'
   }
 
   dexOptions {
@@ -126,6 +127,7 @@ dependencies {
   apt libraries.daggerCompiler
   apt libraries.lightCycleProcessor
   apt libraries.autoValue
+  apt libraries.autoFactory
   apt libraries.autoParcelProcessor
 
   provided libraries.findBugsAnnotations
@@ -142,6 +144,7 @@ dependencies {
 
   /* 3rd Party Libraries */
   compile libraries.autoParcel
+  compile libraries.autoFactory
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger

@@ -138,6 +138,15 @@ public class ImageOperations {
                 ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware), apiImageSize), notFoundListener);
     }
 
+    public void display(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        imageLoader.displayImage(
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageAware,
+                ImageOptionsFactory.cache(),
+                notFoundListener);
+    }
+
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(

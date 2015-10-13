@@ -74,13 +74,13 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:
-                startActivity(activity, SettingsActivity.class);
+                navigator.openSettings(activity);
                 return true;
             case R.id.action_record:
-                startActivity(activity, RecordActivity.class);
+                navigator.openRecord(activity);
                 return true;
             case R.id.action_activity:
-                startActivity(activity, ActivitiesActivity.class);
+                navigator.openActivities(activity);
                 return true;
             case R.id.action_feedback:
                 bugReporter.showGeneralFeedbackDialog(activity);

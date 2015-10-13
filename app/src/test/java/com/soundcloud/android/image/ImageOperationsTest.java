@@ -247,6 +247,20 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void displayShouldLoadImageFromMobileApi() throws ExecutionException {
+        final String imageUrl = RESOLVER_URL;
+        when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
+
+        imageOperations.display(URN, ApiImageSize.LARGE, imageView);
+
+        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
+                displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+
+        assertThat(imageViewAwareCaptor.getValue().getWrappedView()).isEqualTo(imageView);
+        verifyFullCacheOptions();
+    }
+
+    @Test
     public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL;
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
