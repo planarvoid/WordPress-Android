@@ -10,6 +10,8 @@ public enum AppboyAttributeName {
     PLAYABLE_TITLE("playable_title", PlayableMetadata.KEY_PLAYABLE_TITLE),
     PLAYABLE_URN("playable_urn", PlayableMetadata.KEY_PLAYABLE_URN),
     PLAYABLE_TYPE("playable_type", PlayableMetadata.KEY_PLAYABLE_TYPE),
+    PLAYLIST_TITLE("playlist_title", PlayableMetadata.KEY_PLAYABLE_TITLE),
+    PLAYLIST_URN("playlist_urn", PlayableMetadata.KEY_PLAYABLE_URN),
     CATEGORY("category", ScreenEvent.KEY_SCREEN),
     GENRE("genre", ScreenEvent.KEY_GENRE);
 

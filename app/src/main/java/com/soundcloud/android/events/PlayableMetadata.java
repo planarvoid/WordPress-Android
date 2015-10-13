@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
@@ -92,6 +93,17 @@ public class PlayableMetadata {
         return new PlayableMetadata(
                 playlist.getCreatorName(),
                 playlist.getCreatorUrn(),
+                playlist.getTitle(),
+                playlist.getUrn());
+    }
+
+    public static PlayableMetadata from(ApiPlaylist playlist) {
+        if (playlist == null) {
+            return EMPTY;
+        }
+        return new PlayableMetadata(
+                playlist.getUsername(),
+                playlist.getUser().getUrn(),
                 playlist.getTitle(),
                 playlist.getUrn());
     }

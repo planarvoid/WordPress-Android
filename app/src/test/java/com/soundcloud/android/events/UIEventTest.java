@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -949,6 +951,16 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.get(AdProperty.ARTWORK).toString());
         assertThat(uiEvent.getAudioAdSkipUrls()).contains("skip1", "skip2");
+    }
+
+    @Test
+    public void shouldCreateEventFromCreatePlaylist() {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        UIEvent event = UIEvent.fromCreatePlaylist(PlayableMetadata.from(playlist));
+
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_CREATE_PLAYLIST);
+        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(playlist.getTitle());
+        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_URN)).isEqualTo(playlist.getUrn().toString());
     }
 
     private PropertySet buildPlayablePropertySet(Urn urn) {
