@@ -45,6 +45,10 @@ public final class ActivityLifeCycleEvent {
         return kind;
     }
 
+    public boolean isNotForeground(){
+        return getKind() != ActivityLifeCycleEvent.ON_RESUME_EVENT;
+    }
+
     public Class<? extends Activity> getActivityClass() {
         return activityClass;
     }

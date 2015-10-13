@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -15,6 +16,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -23,6 +25,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -50,6 +53,8 @@ public class AdsController {
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
+    private Optional<ApiAdsForTrack> adsForNextTrack;
+    private ActivityLifeCycleEvent currentLifeCycleEvent;
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -176,14 +181,29 @@ public class AdsController {
 
         visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
         adOverlayImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+
+        eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE)
+                .subscribe(new ActivityStateSubscriber());
+    }
+
+    public void reconfigureAdForNextTrack() {
+        if (playQueueManager.hasNextTrack() &&
+                !adsOperations.isNextTrackAudioAd() &&
+                adsForNextTrack.isPresent() &&
+                adsForNextTrack.get().hasAudioAd() &&
+                currentLifeCycleEvent.isNotForeground()) {
+
+            int nextTrackPosition = playQueueManager.getCurrentPosition() + 1;
+            adsOperations.insertAudioAd(playQueueManager.getNextTrackUrn(), adsForNextTrack.get().audioAd(), nextTrackPosition);
+        }
     }
 
     private final class FetchAdForNextTrackSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(Object event) {
             final Urn nextTrackUrn = playQueueManager.getNextTrackUrn();
-            final AudioAdSubscriber audioAdSubscriber = new AudioAdSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn);
-            createAdsFetchObservable(nextTrackUrn, audioAdSubscriber);
+            final NextTrackSubscriber nextTrackSubscriber = new NextTrackSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn);
+            createAdsFetchObservable(nextTrackUrn, nextTrackSubscriber);
         }
     }
 
@@ -208,6 +228,7 @@ public class AdsController {
     private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+            adsForNextTrack = Optional.absent();
             Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
 
@@ -233,23 +254,25 @@ public class AdsController {
         }
     }
 
-    private final class AudioAdSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
+    private final class NextTrackSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
         private final int intendedPosition;
         private final Urn monetizableTrack;
 
-        AudioAdSubscriber(int intendedPosition, Urn monetizableTrack) {
+        NextTrackSubscriber(int intendedPosition, Urn monetizableTrack) {
             this.intendedPosition = intendedPosition;
             this.monetizableTrack = monetizableTrack;
         }
 
         @Override
         public void onNext(ApiAdsForTrack apiAdsForTrack) {
+
             /*
              * We're checking if we're still at the intended position before we try to insert the ad in the play queue.
              * This is a temporary work-around for a race condition where unsubscribe doesn't happen immediately and
              * we attempt to put an ad in the queue twice. Matthias, please help!
              */
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
+                adsForNextTrack = Optional.of(apiAdsForTrack);
                 adsOperations.applyAdToTrack(monetizableTrack, apiAdsForTrack);
 
                 if (apiAdsForTrack.hasAudioAd()){
@@ -343,5 +366,12 @@ public class AdsController {
 
     private void logAudioAdIgnored() {
         eventBus.publish(EventQueue.TRACKING, AdDebugEvent.ignoringAudioAd());
+    }
+
+    private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
+        @Override
+        public void onNext(ActivityLifeCycleEvent latestState) {
+            currentLifeCycleEvent = latestState;
+        }
     }
 }

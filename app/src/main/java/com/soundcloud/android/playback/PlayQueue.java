@@ -115,10 +115,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
-    public void mergeMetaData(int position, PropertySet metadata) {
+    public void setMetaData(int position, PropertySet metadata) {
         checkElementIndex(position, size());
 
-        playQueueItems.get(position).getMetaData().update(metadata);
+        playQueueItems.get(position).setMetaData(metadata);
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
@@ -234,4 +234,5 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public int hashCode() {
         return playQueueItems.hashCode();
     }
+
 }
