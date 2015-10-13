@@ -7,7 +7,6 @@ import com.soundcloud.android.analytics.Screen;
 import android.annotation.SuppressLint;
 import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,12 +17,14 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 /**
- * This class is a modified version of {@link android.support.v4.app.FragmentPagerAdapter}.
- * Apart from removing logs and hungarian notation for fields 2 changes have been introduced:
- * - tags generated for each fragment are following a different pattern
- * - it's possible to retrieve the fragment in a specified position
+ * This class is a modified version of {@link android.support.v4.app.FragmentPagerAdapter}:
+ * - uses NavigationModel
+ * - tags are generated for each fragment are following a known pattern
+ * - supports resetting scroll position on a Fragment that implements ScrollContent
  */
 public class MainPagerAdapter extends PagerAdapter {
+
+    private static final String FRAGMENT_NAME = "soundcloud:main:";
 
     private final NavigationModel navigationModel;
     private final FragmentManager fragmentManager;
@@ -88,14 +89,15 @@ public class MainPagerAdapter extends PagerAdapter {
         return navigationModel.getItem(position).createFragment();
     }
 
-    @Nullable
-    public Fragment getFragment(int position) {
-        String name = makeFragmentName(position);
-        return fragmentManager.findFragmentByTag(name);
+    public void resetScroll(int position) {
+        final Fragment fragment = fragmentManager.findFragmentByTag(makeFragmentName(position));
+        if (fragment instanceof ScrollContent) {
+            ((ScrollContent) fragment).resetScroll();
+        }
     }
 
     private String makeFragmentName(int position) {
-        return "soundcloud:main:" + position;
+        return FRAGMENT_NAME + position;
     }
 
     // currentTransaction is started here and committed in finishUpdate()
