@@ -14,7 +14,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -85,11 +84,6 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     private void registerInAppMessage(Activity activity) {
         appboy.registerInAppMessageManager(activity);
-    }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
-        // No-op
     }
 
     @Override

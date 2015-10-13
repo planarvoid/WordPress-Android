@@ -13,7 +13,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
 import android.content.Context;
@@ -82,9 +81,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             handlePromotedTrackEvent((PromotedTrackingEvent) event);
         }
     }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {}
 
     private void handleLeaveBehindImpression(AdOverlayTrackingEvent event) {
         trackAllUrls(event.getTimestamp(), event.getTrackingUrls());

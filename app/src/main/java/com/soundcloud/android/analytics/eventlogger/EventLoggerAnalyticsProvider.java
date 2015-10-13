@@ -19,7 +19,6 @@ import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -113,10 +112,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void handleScreenEvent(ScreenEvent event) {
         trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
-    }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
     }
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.isA;
@@ -15,9 +14,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -25,18 +22,16 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
@@ -52,7 +47,6 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
     @Mock private Scheduler.Worker worker;
     @Mock private AnalyticsProviderFactory providersFactory;
     @Mock private Activity activity;
-    @Captor private ArgumentCaptor<UserSessionEvent> sessionEventCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -102,7 +96,7 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
     public void shouldUpdateProvidersOnSharedPreferenceChanged() {
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
-        when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderThree));
+        when(providersFactory.getProviders()).thenReturn(Collections.singletonList(analyticsProviderThree));
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingKey.ANALYTICS_ENABLED);
 
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
@@ -138,98 +132,6 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
         verify(analyticsProviderTwo).handleTrackingEvent(any(TrackingEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
-    }
-
-    @Test
-    public void userOpenSessionWhenApplicationStarts() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
-
-        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void userOpenSessionWhenApplicationInForeground() {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(activity));
-
-        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void userOpenSessionWhenApplicationInForegroundAndPlaySessionStopped() throws CreateModelException {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEvent());
-
-        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void userOpenSessionWhenApplicationInBackgroundAndPlaySessionOpened() throws CreateModelException {
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionPlayEvent());
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity));
-
-        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void userOpenSessionWhenApplicationInBackgroundAndPlaySessionsStoppedForBuffering() throws CreateModelException {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
-
-        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void doesNotSendDuplicateUserSessionEvent() throws CreateModelException {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
-
-        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getAllValues().get(0)).isEqualTo(UserSessionEvent.CLOSED);
-        assertThat(sessionEventCaptor.getAllValues().get(1)).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void sendOpenSessionWhenSessionIsReopened() throws CreateModelException {
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(activity));
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity));
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(activity));
-
-        verify(analyticsProviderOne, times(3)).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getAllValues().get(0)).isEqualTo(UserSessionEvent.OPENED);
-        assertThat(sessionEventCaptor.getAllValues().get(1)).isEqualTo(UserSessionEvent.CLOSED);
-        assertThat(sessionEventCaptor.getAllValues().get(2)).isEqualTo(UserSessionEvent.OPENED);
-    }
-
-    @Test
-    public void userCloseSessionWhenApplicationInBackgroundAndPlaySessionsStopped() throws CreateModelException {
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionPlayEvent());
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity));
-        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_PAUSE));
-
-        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
-
-        assertThat(sessionEventCaptor.getValue()).isEqualTo(UserSessionEvent.CLOSED);
-    }
-
-    @Test
-    public void shouldDispatchApplicationOnCreateEvents() {
-        analyticsEngine.onAppCreated(context());
-
-        verify(analyticsProviderOne, times(1)).onAppCreated(isA(Context.class));
-        verify(analyticsProviderTwo, times(1)).onAppCreated(isA(Context.class));
     }
 
     private void initialiseAnalyticsEngine() {

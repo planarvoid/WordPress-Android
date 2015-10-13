@@ -7,7 +7,6 @@ import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class AnalyticsProviderFactory {
 
-    private static final int EXPECTED_PROVIDER_COUNT = 8;
+    private static final int EXPECTED_PROVIDER_COUNT = 7;
 
     private final SharedPreferences sharedPreferences;
     private final AnalyticsProperties analyticsProperties;

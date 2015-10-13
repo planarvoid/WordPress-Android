@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
