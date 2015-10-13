@@ -27,9 +27,9 @@ allprojects {
     assetsSrcDirs = 'assets'
     applicationId = 'com.soundcloud.android'
 
-    androidCompileSdkVersion = 21
+    androidCompileSdkVersion = 23
     androidMinSdkVersion = 14
-    androidTargetSdkVersion = 21
+    androidTargetSdkVersion = 22
 
     testApplicationId = "${applicationId}.tests"
     testInstrumentationRunner = "${applicationId}.framework.runner.RandomizingRunner"

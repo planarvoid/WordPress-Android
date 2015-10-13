@@ -85,8 +85,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
 import android.preference.PreferenceManager;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
@@ -180,7 +178,6 @@ public class PublicApi {
     protected String defaultContentType;
     private ApplicationProperties applicationProperties;
     private ObjectMapper objectMapper;
-    private Context context;
     private String userAgent;
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private AccountOperations accountOperations;
@@ -213,7 +210,6 @@ public class PublicApi {
         this.oAuth = oAuth;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.applicationProperties = applicationProperties;
-        this.context = context;
         this.objectMapper = objectMapper;
         // context can be null in tests
         if (context == null) {
@@ -372,17 +368,8 @@ public class PublicApi {
 
     }
 
-    @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
     protected SSLSocketFactory getSSLSocketFactory() {
-        //Why do we do this differentiation? Why not just use the standard one?
-        if (applicationProperties.isRunningOnDevice()) {
-            // make use of android's implementation
-            return SSLCertificateSocketFactory.getHttpSocketFactory(TIMEOUT,
-                    new SSLSessionCache(context));
-        } else {
-            // httpclient default
-            return SSLSocketFactory.getSocketFactory();
-        }
+        return SSLSocketFactory.getSocketFactory();
     }
 
     public ObjectMapper getMapper() {

@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config;
 import android.database.sqlite.SQLiteDatabase;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, application = ApplicationStub.class)
+@Config(constants = BuildConfig.class, application = ApplicationStub.class, sdk = 21)
 public abstract class StorageIntegrationTest extends IntegrationTest {
 
     @Rule public final HelperObjectsRule helpers = new HelperObjectsRule();

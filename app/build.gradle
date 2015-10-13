@@ -98,6 +98,8 @@ android {
     jumboMode true
     javaMaxHeapSize "4g"
   }
+
+  useLibrary 'org.apache.http.legacy'
 }
 
 configurations {
@@ -148,7 +150,6 @@ dependencies {
   }
   compile libraries.jacksonRespack
   compile libraries.okHttp
-  provided libraries.httpClientAndroid
   compile libraries.localytics
   compile (libraries.slidingUpPanel) {
     transitive = true;
