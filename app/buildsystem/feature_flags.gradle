@@ -66,12 +66,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -113,11 +113,11 @@ android {
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -135,12 +135,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
@@ -159,12 +159,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -182,12 +182,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
