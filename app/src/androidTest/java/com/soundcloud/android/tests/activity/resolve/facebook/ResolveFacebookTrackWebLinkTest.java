@@ -25,6 +25,7 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
         assertThat(player, is(expanded()));
         assertThat(player.getTrackTitle(), is(TRACK_NAME));
         player.waitForPlayState();
+        player.waitForMoreContent();
         player.swipeNext();
         assertThat(player.getTrackTitle(), is(not(TRACK_NAME)));
     }
