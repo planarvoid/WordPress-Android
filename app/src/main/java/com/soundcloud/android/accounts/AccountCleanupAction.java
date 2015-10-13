@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.collections.CollectionsOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -41,6 +42,7 @@ class AccountCleanupAction implements Action0 {
     private final DiscoveryOperations discoveryOperations;
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
+    private final CollectionsOperations collectionsOperations;
 
     @Inject
     AccountCleanupAction(SyncStateManager syncStateManager,
@@ -50,7 +52,9 @@ class AccountCleanupAction implements Action0 {
                          OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
                          DiscoveryOperations discoveryOperations,
-                         ClearTableCommand clearTableCommand, StationsOperations stationsOperations) {
+                         ClearTableCommand clearTableCommand,
+                         StationsOperations stationsOperations,
+                         CollectionsOperations collectionsOperations) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
@@ -65,6 +69,7 @@ class AccountCleanupAction implements Action0 {
         this.discoveryOperations = discoveryOperations;
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
+        this.collectionsOperations = collectionsOperations;
     }
 
     @Override
@@ -85,6 +90,7 @@ class AccountCleanupAction implements Action0 {
         stationsOperations.clearData();
         discoveryOperations.clearData();
         FollowingOperations.clearState();
+        collectionsOperations.clearData();
     }
 
     private void clearCollections() {

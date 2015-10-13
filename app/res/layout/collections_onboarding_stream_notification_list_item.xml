@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout style="@style/ListItemNotificationLayout">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/ListItemNotificationTitle"
+            android:text="@string/collections_notifications_title" />
+
+        <TextView
+            android:id="@+id/description"
+            style="@style/ListItemNotificationDescription"
+            android:text="@string/collections_notifications_description" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/close_button"
+        style="@style/ListItemNotificationCloseButton" />
+
+</FrameLayout>

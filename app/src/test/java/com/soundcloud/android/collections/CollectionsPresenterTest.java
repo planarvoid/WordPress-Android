@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -34,6 +35,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     @Mock private CollectionsPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionsAdapter adapter;
     @Mock private Fragment fragment;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private CollectionsOptions options;
@@ -43,7 +45,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         when(collectionsOperations.collections(any(CollectionsOptions.class))).thenReturn(Observable.<MyCollections>empty());
         options = CollectionsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
     }
 
     @Test

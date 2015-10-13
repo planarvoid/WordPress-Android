@@ -1,9 +1,9 @@
-package com.soundcloud.android.presentation;
+package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 
 public class NotificationItem implements StreamItem {

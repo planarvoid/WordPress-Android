@@ -160,7 +160,7 @@ public class StationsOperations {
         stationsStorage.clear();
     }
 
-    void disableOnboarding() {
+    public void disableOnboarding() {
         stationsStorage.disableOnboarding();
     }
 }

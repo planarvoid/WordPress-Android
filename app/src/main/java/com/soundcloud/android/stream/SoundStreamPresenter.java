@@ -17,6 +17,7 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -42,6 +43,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
+    private final StationsOperations stationsOperations;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -49,6 +51,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          SoundStreamAdapter adapter,
+                         StationsOperations stationsOperations,
                          ImagePauseOnScrollListener imagePauseOnScrollListener,
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          EventBus eventBus,
@@ -57,6 +60,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super(swipeRefreshAttacher);
         this.streamOperations = streamOperations;
         this.adapter = adapter;
+        this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
@@ -74,6 +78,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     @Override
     public void onStationOnboardingItemClosed(int position) {
+        stationsOperations.disableOnboarding();
         removeItem(position);
     }
 

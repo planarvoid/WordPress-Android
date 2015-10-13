@@ -45,6 +45,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     @Mock private PlaylistLikesStorage playlistLikeStorage;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     @Mock private StationsOperations stationsOperations;
+    @Mock private CollectionsOptionsStorage collectionsOptionsStorage;
 
     private TestSubscriber<MyCollections> subscriber = new TestSubscriber<>();
     private List<Urn> likesUrns = Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L));
@@ -63,7 +64,8 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
                 loadLikedTrackUrnsCommand,
                 syncInitiator,
                 stationsOperations,
-                new FeatureFlags(sharedPreferences("test", Context.MODE_PRIVATE)));
+                new FeatureFlags(sharedPreferences("test", Context.MODE_PRIVATE)),
+                collectionsOptionsStorage);
 
         when(loadLikedTrackUrnsCommand.toObservable()).thenReturn(Observable.just(likesUrns));
         when(syncStateStorage.hasSyncedCollectionsBefore()).thenReturn(Observable.just(true));

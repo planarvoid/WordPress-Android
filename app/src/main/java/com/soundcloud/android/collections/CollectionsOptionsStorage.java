@@ -8,7 +8,8 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class CollectionsOptionsStorage {
+class CollectionsOptionsStorage {
+    private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
 
     @VisibleForTesting
     static final String KEY_SHOW_LIKES = "showLikes";
@@ -22,6 +23,19 @@ public class CollectionsOptionsStorage {
     public CollectionsOptionsStorage(@Named(StorageModule.COLLECTIONS) SharedPreferences preferences) {
         this.preferences = preferences;
     }
+
+    void clear() {
+        preferences.edit().clear().apply();
+    }
+
+    boolean isOnboardingEnabled() {
+        return !preferences.getBoolean(ONBOARDING_DISABLED, false);
+    }
+
+    void disableOnboarding() {
+        preferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
+    }
+
 
     public CollectionsOptions getLastOrDefault() {
         return CollectionsOptions.builder()

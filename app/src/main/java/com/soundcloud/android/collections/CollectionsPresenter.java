@@ -6,6 +6,8 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -27,7 +29,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener {
+public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
     @VisibleForTesting
     final Func1<MyCollections, Iterable<CollectionsItem>> toCollectionsItems =
@@ -35,7 +37,13 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 @Override
                 public List<CollectionsItem> call(MyCollections myCollections) {
                     List<PlaylistItem> playlistItems = myCollections.getPlaylistItems();
-                    List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 2);
+                    List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 4);
+
+                    if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+                        if (collectionsOptionsStorage.isOnboardingEnabled()) {
+                            collectionsItems.add(CollectionsItem.fromOnboarding());
+                        }
+                    }
 
                     if (!myCollections.getLikes().isEmpty() || !myCollections.getRecentStations().isEmpty()) {
                         collectionsItems.add(CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()));
@@ -64,6 +72,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions;
     private CollectionsOptions currentOptions;
@@ -75,7 +84,8 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.cards());
         this.collectionsOperations = collectionsOperations;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
@@ -83,7 +93,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
         adapter.setListener(this);
+        adapter.setOnboardingListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
     }
 
@@ -133,6 +145,12 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         retryWith(onBuildBinding(null));
     }
 
+    @Override
+    public void onCollectionsOnboardingItemClosed(int position) {
+        collectionsOptionsStorage.disableOnboarding();
+        removeItem(position);
+    }
+
     @NonNull
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {
         return new GridLayoutManager.SpanSizeLookup() {
@@ -167,4 +185,8 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 || !currentOptions.showLikes() && currentOptions.showPosts();
     }
 
+    private void removeItem(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
+    }
 }
