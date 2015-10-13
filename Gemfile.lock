@@ -1,9 +1,9 @@
 GIT
   remote: git@github.com:soundcloud/android-publisher.git
-  revision: 0fdbfc77e89cd61dbc62328d1319172fac629db5
-  ref: 0fdbfc77e89cd61dbc62328d1319172fac629db5
+  revision: 9fbd84d9c773e0911e202c31a480aa205a661ee8
+  ref: 9fbd84d9c773e0911e202c31a480aa205a661ee8
   specs:
-    android-publisher (0.0.3)
+    android-publisher (0.0.4)
       oauth2
       trollop
 
