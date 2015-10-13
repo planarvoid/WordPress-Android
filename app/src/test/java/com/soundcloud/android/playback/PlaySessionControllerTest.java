@@ -95,7 +95,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
 
         controller = new PlaySessionController(resources, eventBus, adsOperations, adsController, playQueueManager, trackRepository,
-                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper, sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
+                InjectionSupport.lazyOf(audioManager), playQueueOperations, imageOperations, playSessionStateProvider, castConnectionHelper,
+                sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
         controller.subscribe();
 
         track = expectedTrackForPlayer();

@@ -262,7 +262,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         verify(adsOperations, never()).clearAllAds();
     }
 
-
     @Test
     public void queueUpdateEventDoesNotClearAudioAd() {
         adsController.subscribe();
@@ -493,6 +492,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.ads(NEXT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
 
         adsController.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, Urn.NOT_SET, apiAdsForTrack.audioAd().toPropertySet(), 0));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK,
+                CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, Urn.NOT_SET, apiAdsForTrack.audioAd().toPropertySet(), 0));
     }
 }

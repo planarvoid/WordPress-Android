@@ -16,6 +16,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -52,7 +53,7 @@ public class AdsController {
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
-    @Nullable private ApiAdsForTrack adsForNextTrack;
+    private Optional<ApiAdsForTrack> adsForNextTrack;
     private ActivityLifeCycleEvent currentLifeCycleEvent;
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
@@ -186,13 +187,14 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
-        if (!adsOperations.isNextTrackAudioAd() &&
-                adsForNextTrack != null &&
-                adsForNextTrack.hasAudioAd() &&
+        if (playQueueManager.hasNextTrack() &&
+                !adsOperations.isNextTrackAudioAd() &&
+                adsForNextTrack.isPresent() &&
+                adsForNextTrack.get().hasAudioAd() &&
                 currentLifeCycleEvent.isNotForeground()) {
 
             int nextTrackPosition = playQueueManager.getCurrentPosition() + 1;
-            adsOperations.insertAudioAd(playQueueManager.getNextTrackUrn(), adsForNextTrack.audioAd(), nextTrackPosition);
+            adsOperations.insertAudioAd(playQueueManager.getNextTrackUrn(), adsForNextTrack.get().audioAd(), nextTrackPosition);
         }
     }
 
@@ -226,7 +228,7 @@ public class AdsController {
     private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
-            adsForNextTrack = null;
+            adsForNextTrack = Optional.absent();
             Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
 
@@ -270,9 +272,7 @@ public class AdsController {
              * we attempt to put an ad in the queue twice. Matthias, please help!
              */
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
-                adsForNextTrack = apiAdsForTrack;
-
-
+                adsForNextTrack = Optional.of(apiAdsForTrack);
                 adsOperations.applyAdToTrack(monetizableTrack, apiAdsForTrack);
 
                 if (apiAdsForTrack.hasAudioAd()){
