@@ -5,12 +5,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,15 +24,15 @@ import android.support.v4.app.Fragment;
 import java.util.Collections;
 import java.util.List;
 
-
 public class CollectionsPresenterTest extends AndroidUnitTest {
 
     public static final List<Urn> RECENT_STATIONS = Collections.singletonList(Urn.forTrackStation(123L));
 
-    CollectionsPresenter presenter;
+    private CollectionsPresenter presenter;
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollectionsOperations collectionsOperations;
+    @Mock private PlaylistLikeOperations likeOperations;
     @Mock private CollectionsOptionsStorage collectionsOptionsStorage;
     @Mock private CollectionsPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionsAdapter adapter;
@@ -43,9 +45,11 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.<MyCollections>empty());
+        when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
     }
 
     @Test
