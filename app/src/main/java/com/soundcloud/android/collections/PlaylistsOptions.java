@@ -3,10 +3,10 @@ package com.soundcloud.android.collections;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class CollectionsOptions {
+public abstract class PlaylistsOptions {
 
     static Builder builder() {
-        return new AutoValue_CollectionsOptions
+        return new AutoValue_PlaylistsOptions
                 .Builder()
                 .showPosts(false)
                 .showLikes(false)
@@ -28,7 +28,7 @@ public abstract class CollectionsOptions {
         abstract Builder showPosts(boolean enabled);
         abstract Builder showOfflineOnly(boolean enabled);
         abstract Builder sortByTitle(boolean enabled);
-        abstract CollectionsOptions build();
+        abstract PlaylistsOptions build();
     }
 
 }

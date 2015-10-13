@@ -121,7 +121,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetMyPlaylistSyncMissesOnChangedSync() {
-        initiator.refreshPostedPlaylists().subscribe(legacySyncSubscriber);
+        initiator.refreshMyPlaylists().subscribe(legacySyncSubscriber);
         final Uri uri = Content.ME_PLAYLISTS.uri;
         sendSyncChangedLegacyToUri(uri);
         verify(syncStateManager).resetSyncMisses(uri);
