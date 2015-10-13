@@ -91,7 +91,10 @@
                       "reportFiles": "index.html", 
                       "reportName": "Test Results"
                     }
-                  ]
+                  ],
+                  "extEmail": {
+                    "content": "&lt;p&gt;${SCRIPT, template=&quot;random-gif.template&quot;}&lt;/p&gt;${SCRIPT, template=&quot;ios.template&quot;}"
+                  }
                 }, 
                 "test-reports": "results/xml/*.xml"
             }
