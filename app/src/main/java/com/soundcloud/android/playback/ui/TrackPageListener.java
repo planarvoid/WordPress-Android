@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;

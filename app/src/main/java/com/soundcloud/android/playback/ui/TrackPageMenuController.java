@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;

@@ -2,7 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;

@@ -5,7 +5,7 @@ import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURC
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;

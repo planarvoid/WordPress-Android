@@ -1,4 +1,4 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.main;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -3,7 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;

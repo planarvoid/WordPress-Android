@@ -2,7 +2,7 @@ package com.soundcloud.android.activities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;

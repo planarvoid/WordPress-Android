@@ -7,7 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;

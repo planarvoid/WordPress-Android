@@ -4,7 +4,7 @@ import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.Playable;

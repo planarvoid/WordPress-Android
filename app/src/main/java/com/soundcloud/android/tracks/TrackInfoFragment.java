@@ -4,7 +4,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
