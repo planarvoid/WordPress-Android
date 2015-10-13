@@ -5,6 +5,7 @@ import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.strings.Strings;
@@ -130,7 +131,8 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     @Nullable
     public T queryById(long id) {
-        Cursor cursor = resolver.query(getContent().forId(id), null, null, null, null);
+        final Uri uri = getContent().forId(id);
+        Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor == null) {
             return null;
         }
@@ -139,6 +141,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
             if (cursor.moveToFirst()) {
                 return objFromCursor(cursor);
             }
+            return null;
+        } catch (Throwable t) {
+            ErrorUtils.handleSilentException("query_uri=" + uri, t);
             return null;
         } finally {
             cursor.close();
