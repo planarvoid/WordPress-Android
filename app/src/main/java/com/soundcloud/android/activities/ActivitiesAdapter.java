@@ -3,6 +3,7 @@ package com.soundcloud.android.activities;
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -110,9 +111,13 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         return propertySets;
     }
 
-    @Override
     public CollectionParams getParams(boolean refresh) {
-        CollectionParams params = super.getParams(refresh);
+        CollectionParams params = new CollectionParams();
+        params.loadModel = content.modelType;
+        params.isRefresh = refresh;
+        params.maxToLoad = Consts.LIST_PAGE_SIZE;
+        params.startIndex = refresh ? 0 : page * Consts.LIST_PAGE_SIZE;
+        params.contentUri = contentUri;
         if (data.size() > 0) {
             Activity first = getItem(0);
             Activity last = getItem(getItemCount() - 1);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.collections;
 
-import static com.soundcloud.android.playback.PlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.soundcloud.android.Consts;
@@ -41,7 +40,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -164,8 +162,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()) {
-            final ScBaseAdapter listAdapter = getListAdapter();
-            if (listAdapter == null || listAdapter.isEmpty()) {
+            if (adapter == null || adapter.isEmpty()) {
                 configureEmptyView();
             } else if (isRefreshing()) {
                 pullToRefreshController.startRefreshing();
@@ -192,14 +189,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         Handler connectivityHandler = new ConnectivityHandler(this, connectivityListener);
         connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
-        IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(Broadcasts.META_CHANGED);
-
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver));
 
-        final ScBaseAdapter listAdapter = getListAdapter();
-        listAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
 
         if (retainedListPosition > 0) {
             listView.setSelection(retainedListPosition);
@@ -217,14 +210,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public void onResume() {
         super.onResume();
-        if (content != null) {
-            switch (content) {
-                case ME_ACTIVITIES:
-                    ContentStats.setLastSeen(getActivity(), content, System.currentTimeMillis());
-                    break;
-            }
-        }
-        final ScBaseAdapter adapter = getListAdapter();
+        ContentStats.setLastSeen(getActivity(), content, System.currentTimeMillis());
         if (adapter != null) {
             adapter.onResume(getScActivity());
         }
@@ -257,7 +243,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null) {
             SearchQuerySourceInfo searchQuerySourceInfo = (SearchQuerySourceInfo) getArguments().get(EXTRA_QUERY_SOURCE_INFO);
             adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen(), searchQuerySourceInfo);
@@ -267,12 +252,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Nullable
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
-    }
-
-    @Override
-    @Nullable
-    public ScBaseAdapter getListAdapter() {
-        return (ScBaseAdapter) super.getListAdapter();
     }
 
     @Override
@@ -286,9 +265,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 if (nothingChanged && !isRefreshTaskActive()) {
                     doneRefreshing();
                     checkAllowInitalAppend();
-                    final ScBaseAdapter listAdapter = getListAdapter();
-                    if (listAdapter != null) {
-                        listAdapter.notifyDataSetChanged();
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
                     }
 
                 } else if (!nothingChanged) {
@@ -311,8 +289,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         this.localCollection = localCollection;
         configurePullToRefreshState();
         log("Local collection changed " + this.localCollection);
-        // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
-        if (content != Content.ME_FOLLOWINGS || getListAdapter().needsItems()) {
+        if (adapter.needsItems()) {
             refreshSyncData();
         } else {
             checkAllowInitalAppend();
@@ -321,7 +298,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     @Override
     public void onPostTaskExecute(ReturnData data) {
-        final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) {
             return;
         }
@@ -339,7 +315,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             refreshTask = null; // allows isRefreshing to return false for display purposes
         }
 
-        adapter.handleTaskReturnData(data, getActivity());
+        adapter.handleTaskReturnData(data);
         configureEmptyView(data.responseCode);
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
@@ -360,7 +336,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null
                 && adapter.shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)
                 && canAppend()) {
@@ -404,7 +379,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             requestSync();
         }
 
-        final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null && getActivity() != null) {
             if (userRefresh) {
                 adapter.refreshCreationStamps(getActivity());
@@ -426,11 +400,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         clearAppendTask();
         configureEmptyView();
 
-        final ScBaseAdapter adp = getListAdapter();
-        if (adp != null) {
-            adp.clearData();
-            setListAdapter(adp);
-            adp.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.clearData();
+            setListAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
 
         if (canAppend()) {
@@ -468,8 +441,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     protected void onContentChanged() {
-        final ScBaseAdapter listAdapter = getListAdapter();
-        if (listAdapter instanceof ActivitiesAdapter && !((ActivitiesAdapter) listAdapter).isExpired(localCollection)) {
+        if (adapter != null && !adapter.isExpired(localCollection)) {
             log("Activity content has changed, no newer items, skipping refresh");
         } else {
             log("Content changed, adding newer items.");
@@ -517,7 +489,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
      */
     private void checkAllowInitalAppend() {
         log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",keepGoing:" + keepGoing + "]");
-        final ScBaseAdapter adapter = getListAdapter();
         if (!keepGoing && !waitingOnInitialSync() && adapter != null && adapter.needsItems()) {
             keepGoing = true;
             append(false);
@@ -540,7 +511,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private void executeRefreshTask() {
         final Context context = getActivity();
-        final ScBaseAdapter adapter = getListAdapter();
         if (context != null && adapter != null) {
             refreshTask = buildTask();
             refreshTask.execute(getTaskParams(true));
@@ -552,7 +522,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     private void onDataConnectionUpdated(boolean isConnected) {
-        final ScBaseAdapter adapter = getListAdapter();
         if (isConnected && adapter != null) {
             if (adapter.needsItems() && getScActivity() != null && accountOperations.isUserLoggedIn()) {
                 refresh(false);
