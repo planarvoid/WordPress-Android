@@ -18,6 +18,7 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTest
+@Ignore
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionsScreen collectionsScreen;
 
