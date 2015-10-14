@@ -2,7 +2,6 @@ package com.soundcloud.android.tests.stations;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
@@ -72,7 +71,6 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         finishEventTracking(START_STATION_FROM_VIEW_ALL);
     }
 
-    @Ignore
     public void testStartStationFromPlaylist() throws Exception {
         startEventTracking();
 

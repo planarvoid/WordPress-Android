@@ -22,7 +22,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:[a-zA-Z]+-stations:98576331
+    query_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
     local_storage_playback: false
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
@@ -46,6 +46,6 @@ expected_events:
     connection_type: wifi
     reason: pause
     trigger: manual
-    query_urn: soundcloud:[a-zA-Z]+-stations:98576331
+    query_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
     local_storage_playback: false
   version: '1'
