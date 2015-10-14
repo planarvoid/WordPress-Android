@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -24,6 +25,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 
 import android.app.PendingIntent;
@@ -95,6 +97,19 @@ public class Navigator {
                 requestCode,
                 createProfileIntent(context, user, Screen.WIDGET),
                 PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    public void openActivities(Context context) {
+        context.startActivity(new Intent(context, ActivitiesActivity.class));
+    }
+
+    public void openSettings(Context context) {
+        context.startActivity(new Intent(context, SettingsActivity.class));
+    }
+
+    @Deprecated // use method that passes Screen, remove this after tabs
+    public void openRecord(Context context) {
+        context.startActivity(createRecordIntent(context, null));
     }
 
     public void openRecord(Context context, Screen screen) {
