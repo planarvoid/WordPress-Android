@@ -4,6 +4,9 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -11,6 +14,7 @@ import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,17 +37,20 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand;
     private final ReplacePlaylistPostCommand replacePlaylist;
     private final ApiClient apiClient;
+    private final EventBus eventBus;
 
     @Inject
     public MyPlaylistsSyncer(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer postsSyncer,
                              LoadLocalPlaylistsCommand loadLocalPlaylists,
                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
-                             ReplacePlaylistPostCommand replacePlaylist, ApiClient apiClient) {
+                             ReplacePlaylistPostCommand replacePlaylist, ApiClient apiClient,
+                             EventBus eventBus) {
         this.postsSyncer = postsSyncer;
         this.loadLocalPlaylists = loadLocalPlaylists;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
         this.replacePlaylist = replacePlaylist;
         this.apiClient = apiClient;
+        this.eventBus = eventBus;
     }
 
     @NotNull
@@ -68,9 +75,13 @@ public class MyPlaylistsSyncer implements SyncStrategy {
                     .build();
 
             final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
-            Log.i("asdf","Synced local playlist " + newPlaylist);
+            publishPlaylistCreated(newPlaylist);
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
         }
+    }
+
+    private void publishPlaylistCreated(ApiPlaylist newPlaylist) {
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(PlayableMetadata.from(newPlaylist)));
     }
 
     private Map<String, Object> createPlaylistBody(PropertySet localPlaylist, List<Urn> trackUrns) {

@@ -15,6 +15,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreGenre;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -39,6 +40,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             .addProperty("playable_title", track.getTitle())
             .addProperty("playable_urn", track.getEntityUrn().toString())
             .addProperty("playable_type", "track");
+
 
     private static final PlayableMetadata metadata = PlayableMetadata.from(trackPropertySet);
 
@@ -195,6 +197,19 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
+    }
+
+    @Test
+    public void shouldTrackPlaylistCreation() {
+        PropertySet playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
+        UIEvent event = UIEvent.fromCreatePlaylist(PlayableMetadata.from(playlist));
+        AppboyProperties expectedProperties = new AppboyProperties()
+                .addProperty("playlist_title", playlist.get(PlayableProperty.TITLE))
+                .addProperty("playlist_urn", playlist.get(PlayableProperty.URN).toString());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("create_playlist", expectedProperties);
     }
 
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {

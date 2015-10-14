@@ -8,6 +8,8 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.GENRE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TITLE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_TYPE;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYABLE_URN;
+import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_TITLE;
+import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLIST_URN;
 import static com.soundcloud.android.events.SearchEvent.CLICK_NAME_SEARCH;
 import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
@@ -33,8 +35,9 @@ class AppboyEventHandler {
 
     private static final List<AppboyAttributeName> EXPLORE_GENRE_AND_CATEGORY = Arrays.asList(GENRE, CATEGORY);
 
-    private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES =
-            Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN);
+    private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES = Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN);
+
+    private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
 
     private final AppboyWrapper appboy;
 
@@ -59,6 +62,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_REPOST:
                 tagEvent(AppboyEvents.REPOST, buildPlayableProperties(event));
                 break;
+            case UIEvent.KIND_CREATE_PLAYLIST:
+                tagEvent(AppboyEvents.CREATE_PLAYLIST, buildPlaylistProperties(event));
+                break;
             default:
                 break;
         }
@@ -70,10 +76,6 @@ class AppboyEventHandler {
                 event.get(AttributionEvent.CAMPAIGN),
                 event.get(AttributionEvent.ADGROUP),
                 event.get(AttributionEvent.CREATIVE));
-    }
-
-    private AppboyProperties buildCreatorProperties(UIEvent event) {
-        return buildProperties(CREATOR_ATTRIBUTES, event);
     }
 
     public void handleEvent(SearchEvent event) {
@@ -114,6 +116,14 @@ class AppboyEventHandler {
 
     private AppboyProperties buildPlayableProperties(TrackingEvent event) {
         return buildProperties(PLAYABLE_ATTRIBUTES, event);
+    }
+
+    private AppboyProperties buildPlaylistProperties(UIEvent event) {
+        return buildProperties(PLAYLIST_ATTRIBUTES, event);
+    }
+
+    private AppboyProperties buildCreatorProperties(UIEvent event) {
+        return buildProperties(CREATOR_ATTRIBUTES, event);
     }
 
     private AppboyProperties buildProperties(List<AppboyAttributeName> fields, TrackingEvent event) {
