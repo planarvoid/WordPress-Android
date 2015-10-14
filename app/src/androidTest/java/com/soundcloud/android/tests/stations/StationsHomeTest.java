@@ -20,7 +20,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTest
-@Ignore
 public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     private StationsScreen stationsScreen;
 
