@@ -288,7 +288,6 @@
   <string name="pause">Pausar</string>
   <string name="previous">Anterior</string>
   <string name="next">Seguinte</string>
-  <string name="player_related_to">Reproduzindo faixas relacionadas a</string>
   <!--__COMMENTS-->
   <string name="user_commented_at">%1$s às %2$s</string>
   <!--__PLAYLISTS-->

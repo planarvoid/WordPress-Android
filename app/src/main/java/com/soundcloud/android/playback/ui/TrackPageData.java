@@ -10,14 +10,14 @@ import org.jetbrains.annotations.NotNull;
 final class TrackPageData {
     private final int positionInPlayQueue;
     private final Urn trackUrn;
+    private Urn collectionUrn;
     private final PropertySet properties;
-    private final Urn relatedToTrack;
 
-    TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, PropertySet properties, Urn relatedToTrack) {
+    TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, Urn collectionUrn, PropertySet properties) {
         this.positionInPlayQueue = positionInPlayQueue;
         this.trackUrn = trackUrn;
+        this.collectionUrn = collectionUrn;
         this.properties = properties;
-        this.relatedToTrack = relatedToTrack;
     }
 
     public PropertySet getProperties() {
@@ -32,12 +32,8 @@ final class TrackPageData {
         return positionInPlayQueue;
     }
 
-    public boolean hasRelatedTrack() {
-        return relatedToTrack.isTrack();
-    }
-
-    public Urn getRelatedTrackUrn() {
-        return relatedToTrack;
+    public Urn getCollectionUrn() {
+        return collectionUrn;
     }
 
     boolean isAdPage(){

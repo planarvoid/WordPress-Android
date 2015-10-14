@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!--http://stackoverflow.com/questions/6891339/aliasing-a-layout-resource-with-same-name-just-different-screen-qualifier-->
-    <item name="player_related_track" type="layout">@layout/player_related_track_one_line</item>
-</resources>

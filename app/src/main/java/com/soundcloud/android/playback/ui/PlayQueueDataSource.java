@@ -28,8 +28,8 @@ class PlayQueueDataSource {
     public List<TrackPageData> getCurrentTrackAsQueue() {
         final TrackPageData adPageData = new TrackPageData(playQueueManager.getCurrentPosition(),
                 playQueueManager.getCurrentTrackUrn(),
-                playQueueManager.getCurrentMetaData(),
-                playQueueManager.getCurrentRelatedEntity());
+                playQueueManager.getCollectionUrn(),
+                playQueueManager.getCurrentMetaData());
         return newArrayList(adPageData);
     }
 
@@ -38,8 +38,8 @@ class PlayQueueDataSource {
         for (int i = 0; i < playQueueManager.getQueueSize(); i++){
             final Urn trackUrn = playQueueManager.getUrnAtPosition(i);
             final PropertySet metaData = playQueueManager.getMetaDataAt(i);
-            final Urn relatedEntity = playQueueManager.getRelatedEntity(i);
-            trackPageDataCollection.add(new TrackPageData(i, trackUrn, metaData, relatedEntity));
+            final Urn collectionUrn = playQueueManager.getCollectionUrn();
+            trackPageDataCollection.add(new TrackPageData(i, trackUrn, collectionUrn, metaData));
         }
         return trackPageDataCollection;
     }

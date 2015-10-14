@@ -288,7 +288,6 @@
   <string name="pause">Pausa</string>
   <string name="previous">Anterior</string>
   <string name="next">Siguiente</string>
-  <string name="player_related_to">Reproduciendo pistas similares de</string>
   <!--__COMMENTS-->
   <string name="user_commented_at">%1$s en %2$s</string>
   <!--__PLAYLISTS-->

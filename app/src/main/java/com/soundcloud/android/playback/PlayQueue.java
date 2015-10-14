@@ -175,10 +175,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.get(position).getSourceVersion();
     }
 
-    Urn getRelatedEntity(int position) {
-        return playQueueItems.get(position).getRelatedEntity();
-    }
-
     List<Long> getTrackIds() {
         List<Long> trackIds = transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
