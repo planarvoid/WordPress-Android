@@ -103,17 +103,6 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
-    public void shouldCallUserAssociationStorageWithAllIds() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.LIST_PAGE_SIZE, "empty_collection.json");
-
-        userAssociationSyncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
-        userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
-
-        verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS, USER_ID, asList(792584L, 1255758L, 308291L), 0, Integer.MAX_VALUE);
-    }
-
-    @Test
     public void shouldNotRemoveDirtyAdditionsWhenSyncingLocalToRemote() throws Exception {
         final long user_id = 1L;
         UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING, new PublicApiUser(user_id));

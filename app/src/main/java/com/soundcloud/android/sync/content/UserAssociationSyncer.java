@@ -88,10 +88,6 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         this.navigator = navigator;
     }
 
-    public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
-        this.bulkInsertBatchSize = bulkInsertBatchSize;
-    }
-
     @NotNull
     @Override
     public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException {

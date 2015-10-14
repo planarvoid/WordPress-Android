@@ -34,8 +34,6 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.android.view.adapters.UserAdapter;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -454,10 +452,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return emptyViewBuilder.build(getActivity());
     }
 
-    protected String getRelatedUsername() {
-        return Strings.safeToString(getArguments().getString(EXTRA_USERNAME));
-    }
-
     protected Screen getScreen() {
         return (Screen) getArguments().getSerializable(EXTRA_SCREEN);
     }
@@ -586,9 +580,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
                     adapter = new ActivitiesAdapter(contentUri);
-                    break;
-                case SUGGESTED_USERS:
-                    adapter = new UserAdapter(contentUri);
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled content type " + content);

@@ -92,22 +92,6 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        ApiTrack track = testFixtures.insertLikedTrack(new Date());
-
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackMetadata._ID, track.getUrn().getNumericId());
-        cv.put(TableColumns.TrackMetadata.CACHED, 1);
-        resolver.insert(Content.TRACK_METADATA.uri, cv);
-
-        Uri uri = Content.ME_LIKES.withQuery(CACHED, "1");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
-        expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(track.getUrn().getNumericId());
-    }
-
-    @Test
     public void shouldQueryLikesWithDescendingOrder() throws Exception {
         ApiTrack track1 = testFixtures.insertLikedTrack(new Date(1000));
         ApiTrack track2 = testFixtures.insertLikedTrack(new Date(2000));
