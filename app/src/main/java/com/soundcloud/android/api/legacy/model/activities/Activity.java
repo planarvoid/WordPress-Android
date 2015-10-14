@@ -9,7 +9,6 @@ import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.SharingNote;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
@@ -58,7 +57,6 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     @JsonProperty public String uuid;
     @JsonProperty public String tags;
-    @JsonProperty public SharingNote sharing_note;
 
     static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
 
@@ -73,10 +71,6 @@ public abstract class Activity extends ScModel implements Parcelable,
     public Activity(Parcel in) {
         createdAt = new Date(in.readLong());
         tags = in.readString();
-        sharing_note = new SharingNote();
-        sharing_note.text = in.readString();
-        final long milliseconds = in.readLong();
-        sharing_note.created_at = milliseconds == -1l ? null : new Date(milliseconds);
     }
 
     public Activity(Cursor c) {
@@ -84,10 +78,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         uuid = c.getString(c.getColumnIndex(TableColumns.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(TableColumns.ActivityView.TAGS));
         createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.CREATED_AT)));
-
-        sharing_note = new SharingNote();
-        sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_CREATED_AT)));
-        sharing_note.text = c.getString(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_TEXT));
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
@@ -138,10 +128,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         cv.put(TableColumns.Activities.UUID, uuid);
         cv.put(TableColumns.Activities.TAGS, tags);
         cv.put(TableColumns.Activities.TYPE, getType().type);
-        if (sharing_note != null) {
-            cv.put(TableColumns.Activities.SHARING_NOTE_TEXT, sharing_note.text);
-            cv.put(TableColumns.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
-        }
 
         if (createdAt != null) {
             cv.put(TableColumns.Activities.CREATED_AT, createdAt.getTime());
@@ -218,8 +204,6 @@ public abstract class Activity extends ScModel implements Parcelable,
     public void writeToParcel(Parcel out, int flags) {
         out.writeLong(createdAt.getTime());
         out.writeString(tags == null ? "" : tags);
-        out.writeString(sharing_note == null ? "" : sharing_note.text);
-        out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
     public abstract Type getType();

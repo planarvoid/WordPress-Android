@@ -12,7 +12,7 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;

@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

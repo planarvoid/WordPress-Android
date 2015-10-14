@@ -2,7 +2,6 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
-import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;

@@ -1,16 +1,15 @@
-package com.soundcloud.android.api.legacy.model;
+package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
-import android.text.TextUtils;
+import com.soundcloud.java.strings.Strings;
 
 public enum Sharing {
     UNDEFINED(""),
     PUBLIC("public"),
     PRIVATE("private");
 
-    final String value;
+    public final String value;
 
     Sharing(String value) {
         this.value = value;
@@ -24,7 +23,7 @@ public enum Sharing {
     // don't use built in valueOf to create so we can handle nulls and unknowns ourself
     @JsonCreator
     public static Sharing from(String str) {
-        if (!TextUtils.isEmpty(str)) {
+        if (!Strings.isBlank(str)) {
             for (Sharing s : values()) {
                 if (s.value.equalsIgnoreCase(str)) {
                     return s;

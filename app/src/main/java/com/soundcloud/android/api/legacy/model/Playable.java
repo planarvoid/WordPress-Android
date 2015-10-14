@@ -9,6 +9,7 @@ import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;

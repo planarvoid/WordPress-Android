@@ -9,7 +9,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
