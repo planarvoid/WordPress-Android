@@ -43,7 +43,7 @@
                     <com.soundcloud.android.view.CustomFontTextView
                         android:id="@+id/profile_link"
                         style="@style/You.HeaderText.ProfileLink"
-                        android:text="View Public Profile" />
+                        android:text="@string/you_view_public_profile" />
 
                 </LinearLayout>
             </LinearLayout>
