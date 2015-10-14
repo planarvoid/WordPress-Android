@@ -18,7 +18,6 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTest
-@Ignore // Disabling since collection is not up and running on the CI yet.
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionsScreen collectionsScreen;
 
@@ -53,16 +52,6 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
         assertThat(viewAllStationsScreen.getFirstStation().click(), is(visible()));
     }
-
-    public void testStaleRecentStationsStateShouldBeDisplayedIfNetworkIsOffAndNavigateToCollection() {
-        final String stationTitle = startStationAndReturnTitle();
-        collectionsScreen.pullToRefresh();
-        networkManagerClient.switchWifiOff();
-        collectionsScreen = menuScreen.open().clickCollections();
-
-        assertTrue(collectionsScreen.isRecentStationsVisible());
-        assertThat(collectionsScreen.clickRecentStations().getFirstStation().getTitle(), is(equalTo(stationTitle)));
-}
 
     private String startStationAndReturnTitle() {
         final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen
