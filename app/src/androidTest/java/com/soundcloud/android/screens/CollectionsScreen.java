@@ -37,6 +37,10 @@ public class CollectionsScreen extends Screen {
         return new TextElement(getFirstPlaylist().findElement(With.id(R.id.title))).getText();
     }
 
+    public boolean isRecentStationsVisible() {
+        return recentStationsElement().isVisible();
+    }
+
     public PlaylistDetailsScreen clickOnPlaylist(With with) {
         collectionsView().scrollToItem(with).click();
         return new PlaylistDetailsScreen(testDriver);
