@@ -11,7 +11,6 @@ import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 @EventTrackingTest
-@Ignore
 public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
 
     private static final String START_STATION_FROM_STATIONS_HOME = "audio-events-v1-start_station_from_stations_home";
