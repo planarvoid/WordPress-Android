@@ -71,7 +71,6 @@ public class ScContentProviderTest {
         expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
     }
 
-
     @Test
     public void shouldGetCurrentUserId() throws Exception {
         Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);

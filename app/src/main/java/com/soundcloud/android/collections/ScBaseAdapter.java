@@ -1,27 +1,11 @@
 package com.soundcloud.android.collections;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.behavior.Creation;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.tasks.ReturnData;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.NotNull;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,26 +17,11 @@ import java.util.List;
 @Deprecated
 @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
-    private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
-        @Override
-        public boolean apply(ScModel input) {
-            return input instanceof PlayableHolder &&
-                    ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
-        }
-    };
-    protected final Content content;
-    protected final Uri contentUri;
     @NotNull protected List<T> data = new ArrayList<>();
     protected boolean isLoadingData;
     protected int page;
 
     private View progressView;
-
-    @SuppressWarnings("unchecked")
-    public ScBaseAdapter(Uri uri) {
-        content = Content.match(uri);
-        contentUri = uri;
-    }
 
     public int getItemCount() {
         return data.size();
@@ -101,19 +70,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             return IGNORE_ITEM_VIEW_TYPE;
         }
         return 0;
-    }
-
-    protected List<Urn> toTrackUrn(List<? extends PlayableHolder> filter) {
-        return transform(filter, new Function<PlayableHolder, Urn>() {
-            @Override
-            public Urn apply(PlayableHolder input) {
-                return input.getPlayable().getUrn();
-            }
-        });
-    }
-
-    protected List<? extends PlayableHolder> filterPlayables(List<? extends ScModel> data) {
-        return newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
     }
 
     protected boolean isPositionOfProgressElement(int position) {
@@ -168,37 +124,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         page = 0;
     }
 
-    // needed?
-    public Content getContent() {
-        return content;
-    }
-
     /**
      * @return true if there's no data in the adapter, and we're not currently loading data
      */
     public boolean needsItems() {
         return getCount() == 0;
-    }
-
-
-    public void onResume(ScActivity activity) {
-        refreshCreationStamps(activity);
-    }
-
-    public void onViewCreated() {
-        // hook for fragments
-    }
-
-    public void onDestroyView() {
-        // hook for fragments
-    }
-
-    public void refreshCreationStamps(@NotNull Activity activity) {
-        for (ScModel resource : data) {
-            if (resource instanceof Creation) {
-                ((Creation) resource).refreshTimeSinceCreated(activity);
-            }
-        }
     }
 
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -228,12 +158,5 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
     protected void onSuccessfulRefresh() {
         clearData();
-    }
-
-    public abstract int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo);
-
-    public interface ItemClickResults {
-        int IGNORE = 0;
-        int LEAVING = 1;
     }
 }

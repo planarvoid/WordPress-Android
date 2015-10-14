@@ -2,7 +2,6 @@ package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.behavior.Creation;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
@@ -13,14 +12,13 @@ import com.soundcloud.android.storage.provider.ScContentProvider;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Date;
 
-public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser, Creation {
+public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser {
 
     @Nullable public PublicApiUser owner;
     public int associationType;
@@ -96,11 +94,6 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     public void setType(Type type) {
         associationType = type.collectionType;
-    }
-
-    @Override
-    public void refreshTimeSinceCreated(Context context) {
-        elapsedTime = null;
     }
 
     @Override

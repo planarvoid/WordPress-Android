@@ -14,11 +14,9 @@ import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistLikeActivity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistRepostActivity;
-import com.soundcloud.android.api.legacy.model.activities.PlaylistSharingActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackRepostActivity;
-import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.api.legacy.model.activities.UserMentionActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -58,18 +56,6 @@ public class ActivitiesAdapterTest {
     }
 
     @Test
-    public void shouldReportSpecificTypeForTrackActivity() {
-        adapter.addItems(Arrays.<Activity>asList(new TrackActivity()));
-        expect(adapter.getItemViewType(0)).toEqual(Activity.Type.TRACK.ordinal());
-    }
-
-    @Test
-    public void shouldReportSpecificTypeForTrackSharingActivity() {
-        adapter.addItems(Arrays.<Activity>asList(new TrackSharingActivity()));
-        expect(adapter.getItemViewType(0)).toEqual(Activity.Type.TRACK_SHARING.ordinal());
-    }
-
-    @Test
     public void shouldReportSpecificTypeForTrackRepostActivity() {
         adapter.addItems(Arrays.<Activity>asList(new TrackRepostActivity()));
         expect(adapter.getItemViewType(0)).toEqual(Activity.Type.TRACK_REPOST.ordinal());
@@ -79,18 +65,6 @@ public class ActivitiesAdapterTest {
     public void shouldReportSpecificTypeForPlaylistRepostActivity() {
         adapter.addItems(Arrays.<Activity>asList(new PlaylistRepostActivity()));
         expect(adapter.getItemViewType(0)).toEqual(Activity.Type.PLAYLIST_REPOST.ordinal());
-    }
-
-    @Test
-    public void shouldReportSpecificTypeForPlaylistActivity() throws Exception {
-        adapter.addItems(Arrays.<Activity>asList(new PlaylistActivity()));
-        expect(adapter.getItemViewType(0)).toEqual(Activity.Type.PLAYLIST.ordinal());
-    }
-
-    @Test
-    public void shouldReportSpecificTypeForPlaylistSharingActivity() throws Exception {
-        adapter.addItems(Arrays.<Activity>asList(new PlaylistSharingActivity()));
-        expect(adapter.getItemViewType(0)).toEqual(Activity.Type.PLAYLIST_SHARING.ordinal());
     }
 
     @Test
@@ -130,23 +104,6 @@ public class ActivitiesAdapterTest {
     // would have to test this logic.
     //
     // Keep this test until the design is done.
-
-    @Test
-    public void shouldCallPresenterToCreateItemViewForTrackActivity() throws Exception {
-        // We can't use ModelCitizen unless we add a setter to TrackActivity.
-        adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackActivity.class)));
-        adapter.getView(0, null, parent);
-
-        verify(itemRenderer).createItemView(eq(parent));
-    }
-
-    @Test
-    public void shouldCallPresenterToCreateItemViewForTrackSharingActivity() throws Exception {
-        adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackSharingActivity.class)));
-        adapter.getView(0, null, parent);
-
-        verify(itemRenderer).createItemView(eq(parent));
-    }
 
     @Test
     public void shouldCallPresenterToCreateItemViewForTrackRepostActivity() throws Exception {

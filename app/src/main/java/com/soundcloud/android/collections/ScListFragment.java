@@ -9,7 +9,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.ContentStats;
@@ -172,12 +171,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        adapter.onViewCreated();
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -207,13 +200,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     @Override
-    @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public void onResume() {
         super.onResume();
         ContentStats.setLastSeen(getActivity(), content, System.currentTimeMillis());
-        if (adapter != null) {
-            adapter.onResume(getScActivity());
-        }
 
         if (pendingSync) {
             pendingSync = false;
@@ -226,9 +215,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         super.onDestroyView();
         pullToRefreshController.onDestroyView(this);
 
-        if (adapter != null) {
-            adapter.onDestroyView();
-        }
         // null out view references to avoid leaking the current Context in case we detach/re-attach
         listView = null;
         emptyView = null;
@@ -244,8 +230,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         if (adapter != null) {
-            SearchQuerySourceInfo searchQuerySourceInfo = (SearchQuerySourceInfo) getArguments().get(EXTRA_QUERY_SOURCE_INFO);
-            adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen(), searchQuerySourceInfo);
+            adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id);
         }
     }
 
@@ -381,7 +366,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         if (adapter != null && getActivity() != null) {
             if (userRefresh) {
-                adapter.refreshCreationStamps(getActivity());
                 if (adapter instanceof FollowingOperations.FollowStatusChangedListener) {
                     followingOperations.requestUserFollowings((FollowingOperations.FollowStatusChangedListener) adapter);
                 }
@@ -472,7 +456,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private void setupListAdapter() {
         if (getListAdapter() == null) {
-            adapter = new ActivitiesAdapter(contentUri);
+            adapter = new ActivitiesAdapter();
             setListAdapter(adapter);
             configureEmptyView();
             if (canAppend()) {

@@ -11,9 +11,8 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 
 import android.database.Cursor;
-import android.os.Parcel;
 
-public class TrackActivity extends Activity implements PlayableHolder {
+public abstract class TrackActivity extends Activity implements PlayableHolder {
     @JsonProperty public PublicApiTrack track;
 
     // for deserialization
@@ -24,16 +23,6 @@ public class TrackActivity extends Activity implements PlayableHolder {
     public TrackActivity(Cursor c) {
         super(c);
         track = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(c, TableColumns.ActivityView.SOUND_ID);
-    }
-
-    public TrackActivity(Parcel in) {
-        super(in);
-        track = in.readParcelable(PublicApiTrack.class.getClassLoader());
-    }
-
-    @Override
-    public Type getType() {
-        return Type.TRACK;
     }
 
     @Override
