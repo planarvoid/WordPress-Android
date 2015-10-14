@@ -2,6 +2,7 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -19,7 +20,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.java.collections.PropertySet;
@@ -46,6 +46,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Inject PlaybackInitiator playbackInitiator;
     @Inject ActivityItemRenderer itemRenderer;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
+    @Inject Navigator navigator;
 
 
     public ActivitiesAdapter(Uri uri) {
@@ -157,8 +158,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_LIKE:
             case TRACK_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                            .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                    navigator.openProfile(context, getItem(position).getUser().getUrn());
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }
@@ -166,16 +166,14 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                            .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                    navigator.openProfile(context, getItem(position).getUser().getUrn());
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }
                 return ItemClickResults.LEAVING;
 
             case AFFILIATION:
-                context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                        .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                navigator.openProfile(context, getItem(position).getUser().getUrn());
                 return ItemClickResults.LEAVING;
 
             default:
