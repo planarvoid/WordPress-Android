@@ -100,12 +100,6 @@
         <item quantity="other">%d tracks</item>
     </plurals>
 
-    <!-- __SINGLE_LINE_COLLECTION_TEXT_VIEW -->
-    <plurals name="number_of_others">
-        <item quantity="one">and %d other</item>
-        <item quantity="other">and %d others</item>
-    </plurals>
-
     <!-- __TIME -->
     <plurals name="elapsed_days">
         <item quantity="one">%d day</item>
