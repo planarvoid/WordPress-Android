@@ -18,7 +18,7 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTest
-@Ignore
+@Ignore // Disabling since collection is not up and running on the CI yet.
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionsScreen collectionsScreen;
 
