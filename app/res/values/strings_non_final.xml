@@ -129,6 +129,11 @@
     <string name="tab_collection">Collection</string>
     <string name="tab_you">You</string>
 
+    <!-- NEW STREAM -->
+    <string name="stream_track_header_text">%1$s %2$s a track</string>
+    <string name="stream_posted_action">posted</string>
+    <string name="stream_reposted_action">reposted</string>
+
     <!-- __YOU -->
     <string name="you_activity">Activity</string>
     <string name="you_record">Record</string>

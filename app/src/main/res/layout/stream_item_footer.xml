@@ -1,0 +1,52 @@
+<RelativeLayout
+    style="@style/Stream.Card.Bar"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:id="@+id/overflow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="-10dp"
+        android:background="@drawable/btn_engagements_overflow" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/toggle_like"
+        style="@style/Stream.StatsItem"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@id/overflow_button"
+        android:drawableLeft="@drawable/stats_likes_grey"
+        android:drawablePadding="4dp"
+        tools:text="2134" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/toggle_repost"
+        style="@style/Stream.StatsItem"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@id/toggle_like"
+        android:drawableLeft="@drawable/stats_repost"
+        android:drawablePadding="4dp"
+        tools:text="2134" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/play_count"
+        style="@style/Stream.StatsItem"
+        android:drawableLeft="@drawable/stats_play"
+        android:visibility="gone"
+        tools:text="1234" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/playlist_duration"
+        style="@style/Stream.StatsItem"
+        android:visibility="gone"
+        tools:text="2134" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/now_playing"
+        style="@style/Stream.NowPlaying"
+        android:text="@string/title_now_playing"
+        android:visibility="gone" />
+
+</RelativeLayout>

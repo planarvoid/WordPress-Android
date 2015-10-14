@@ -99,4 +99,11 @@ public abstract class PlayableItem implements StreamItem {
         return source.get(PlayableProperty.CREATED_AT);
     }
 
+    public int getLikeCount() {
+        return source.getOrElse(PlayableProperty.LIKES_COUNT, 0);
+    }
+
+    public int getRepostCount() {
+        return source.getOrElse(PlayableProperty.REPOSTS_COUNT, 0);
+    }
 }

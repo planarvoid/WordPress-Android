@@ -149,4 +149,8 @@
     <color name="you_background">#e5e5e5</color>
     <color name="you_version_text">@color/gray_text</color>
 
+    <!-- Stream -->
+    <color name="stream_home_background">#e5e5e5</color>
+
+
 </resources>

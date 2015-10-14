@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Stream" />
+
+    <style name="Stream.Card.Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">16dp</item>
+        <item name="android:background">@color/stream_home_background</item>
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="Stream.Card">
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Stream.Card.Bar">
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+    </style>
+
+    <style name="Stream.TrackImage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="ariv_dominantMeasurement">width</item>
+        <item name="ariv_aspectRatio">.50</item>
+        <item name="ariv_aspectRatioEnabled">true</item>
+    </style>
+
+    <style name="Stream.ArtistText" parent="BlackOverlayText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/overlay_subtext</item>
+        <item name="android:layout_marginLeft">12dp</item>
+    </style>
+
+    <style name="Stream.TitleText" parent="BlackOverlayText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/overlay_text</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">24dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <style name="Stream.PrimaryHeaderText" parent="ListItemText.PrimaryText">
+        <item name="android:layout_marginTop">0dp</item>
+    </style>
+
+    <style name="Stream.SecondaryHeaderText" parent="ListItemText.SecondaryText" />
+
+    <style name="Stream.StatsItem" parent="ListItemText">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:drawablePadding">8dp</item>
+    </style>
+
+    <style name="Stream.NowPlaying" parent="ListItemText">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+</resources>

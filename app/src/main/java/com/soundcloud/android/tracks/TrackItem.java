@@ -81,7 +81,7 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE) == OfflineState.UNAVAILABLE;
     }
 
-    int getPlayCount() {
+    public int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
     }
 

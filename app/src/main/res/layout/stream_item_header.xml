@@ -1,0 +1,37 @@
+<RelativeLayout
+    android:id="@+id/header_container"
+    style="@style/Stream.Card.Bar"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_image"
+        android:layout_width="@dimen/stream_avatar_size"
+        android:layout_height="@dimen/stream_avatar_size"
+        android:layout_centerVertical="true"
+        android:scaleType="centerCrop" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/header_text"
+        style="@style/Stream.PrimaryHeaderText"
+        android:layout_alignTop="@id/user_image"
+        android:layout_toRightOf="@id/user_image"
+        tools:text="Artist posted a track or a playlist" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/creation_date"
+        style="@style/Stream.SecondaryHeaderText"
+        android:layout_below="@id/header_text"
+        android:layout_toRightOf="@id/user_image"
+        tools:text="12 min ago" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/private_indicator"
+        style="@style/Stream.SecondaryHeaderText"
+        android:layout_below="@id/header_text"
+        android:layout_toRightOf="@id/creation_date"
+        android:layout_marginLeft="8dp"
+        android:text="@string/private_indicator"
+        android:visibility="visible" />
+
+</RelativeLayout>
