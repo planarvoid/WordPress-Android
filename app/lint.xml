@@ -9,6 +9,7 @@
     <issue id="InvalidPackage">
         <ignore path="**/com.google.auto.value/**/*"/>
         <ignore path="**/com.google.auto.factory/**/*"/>
+        <ignore regexp=".*okio.*" />
     </issue>
      
     <issue id="ViewConstructor" severity="ignore"/>
