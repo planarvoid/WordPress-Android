@@ -215,7 +215,6 @@
   <string name="dashboard_notifications_activity_message_comment_two">Berbagai komentar dari %1$s dan %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Berbagai komentar dari %1$s, %2$s, dan lain-lain</string>
   <!--__ONBOARDING-->
-  <string name="and_conjunction">%1$s dan %2$s</string>
   <string name="try_again">Coba Lagi</string>
   <string name="age">Umur</string>
   <string name="enter_age_hint">Masukkan umur Anda</string>
