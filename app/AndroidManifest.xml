@@ -50,7 +50,7 @@
     ignored until we upgrade to that version.
     -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:configChanges="orientation|keyboardHidden|keyboard"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
