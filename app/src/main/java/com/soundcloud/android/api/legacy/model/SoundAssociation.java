@@ -10,7 +10,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
@@ -147,14 +146,6 @@ public class SoundAssociation extends Association implements PlayableHolder, Pro
         if (playable != null) {
             playable.putFullContentValues(destination);
         }
-    }
-
-    @Override
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (elapsedTime == null) {
-            elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
-        }
-        return elapsedTime;
     }
 
     @Override

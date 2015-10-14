@@ -115,13 +115,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         return toUUID().hashCode();
     }
 
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null) {
-            refreshTimeSinceCreated(context);
-        }
-        return _elapsedTime;
-    }
-
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), createdAt.getTime());
     }

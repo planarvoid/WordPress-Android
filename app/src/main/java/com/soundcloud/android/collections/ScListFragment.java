@@ -20,11 +20,9 @@ import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playlists.PlaylistChangedSubscriber;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -36,13 +34,11 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -75,26 +71,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         AbsListView.OnScrollListener {
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final int CONNECTIVITY_MSG = 0;
-    private static final String EXTRA_CONTENT_URI = "contentUri";
-    private static final String EXTRA_TITLE_ID = "title";
-    private static final String EXTRA_USERNAME = "username";
     private static final String EXTRA_SCREEN = "screen";
     private static final String EXTRA_QUERY_SOURCE_INFO = "querySourceInfo";
     private static final String KEY_IS_RETAINED = "is_retained";
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
-    private final BroadcastReceiver playbackStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final ScBaseAdapter adapter = getListAdapter();
-
-            final String action = intent.getAction();
-            if (Broadcasts.META_CHANGED.equals(action)
-                    || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
-
-                adapter.notifyDataSetChanged();
-            }
-        }
-    };
     private final DefaultSubscriber<CurrentUserChangedEvent> userEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
         @Override
         public void onNext(CurrentUserChangedEvent args) {
@@ -115,11 +95,11 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Inject FollowingOperations followingOperations;
 
     @Nullable private ListView listView;
-    private ScBaseAdapter<?> adapter;
+    private ActivitiesAdapter adapter;
     @Nullable private EmptyView emptyView;
     private EmptyViewBuilder emptyViewBuilder;
-    private Content content;
-    private Uri contentUri;
+    private final Content content = Content.ME_ACTIVITIES;
+    private final Uri contentUri = Content.ME_ACTIVITIES.uri;
     @Nullable private CollectionTask refreshTask;
     @Nullable private LocalCollection localCollection;
     private ChangeObserver changeObserver;
@@ -129,67 +109,21 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private int retainedListPosition;
     private CompositeSubscription subscription;
 
-    public static ScListFragment newInstance(Content content, Screen screen) {
-        return newInstance(content.uri, screen);
-    }
-
-    public static ScListFragment newInstance(Uri contentUri, Screen screen) {
+    public static ScListFragment newInstance() {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
-        args.putSerializable(EXTRA_SCREEN, screen);
+        args.putSerializable(EXTRA_SCREEN, Screen.ACTIVITIES);
         fragment.setArguments(args);
         return fragment;
     }
-
-    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        ScListFragment fragment = new ScListFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
-        args.putString(EXTRA_USERNAME, username);
-        args.putSerializable(EXTRA_SCREEN, screen);
-        args.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static ScListFragment newInstance(Uri contentUri, int titleId, Screen screen) {
-        ScListFragment fragment = new ScListFragment();
-        Bundle args = createArguments(contentUri, titleId, screen);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static ScListFragment newInstance(Uri contentUri, int titleId, Screen screen, boolean isRetained) {
-        ScListFragment fragment = new ScListFragment();
-        Bundle args = createArguments(contentUri, titleId, screen);
-        args.putBoolean(KEY_IS_RETAINED, isRetained);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    protected static Bundle createArguments(Uri contentUri, int titleId, Screen screen) {
-        Bundle args = new Bundle();
-        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
-        args.putSerializable(EXTRA_SCREEN, screen);
-        args.putInt(EXTRA_TITLE_ID, titleId);
-        return args;
-    }
-
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if (contentUri == null) {
-            // only should happen once
-            contentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);
-            content = Content.match(contentUri);
-
-            if (content.isSyncable()) {
-                syncStateManager = new SyncStateManager(activity);
-                changeObserver = new ChangeObserver();
-            }
+        if (content.isSyncable()) {
+            syncStateManager = new SyncStateManager(activity);
+            changeObserver = new ChangeObserver();
         }
         // should happen once per activity lifecycle
         startObservingChanges();
@@ -209,7 +143,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         setupListAdapter();
     }
 
-    @Override @SuppressLint("InflateParams")
+    @Override
+    @SuppressLint("InflateParams")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -259,18 +194,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Broadcasts.META_CHANGED);
-        playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
-        getActivity().registerReceiver(playbackStatusListener, new IntentFilter(playbackFilter));
 
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver));
-
-        if (content.shouldListenForPlaylistChanges()) {
-            subscription.add(eventBus
-                    .queue(EventQueue.ENTITY_STATE_CHANGED)
-                    .filter(EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER)
-                    .subscribe(new PlaylistChangedSubscriber(adapter)));
-        }
 
         final ScBaseAdapter listAdapter = getListAdapter();
         listAdapter.notifyDataSetChanged();
@@ -293,7 +219,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         super.onResume();
         if (content != null) {
             switch (content) {
-                case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
                     ContentStats.setLastSeen(getActivity(), content, System.currentTimeMillis());
                     break;
@@ -566,7 +491,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     private void stopListening() {
-        AndroidUtils.safeUnregisterReceiver(getActivity(), playbackStatusListener);
         subscription.unsubscribe();
 
         if (syncStateManager != null && localCollection != null) {
@@ -575,15 +499,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     private void setupListAdapter() {
-        if (getListAdapter() == null && content != null) {
-            switch (content) {
-                case ME_SOUND_STREAM:
-                case ME_ACTIVITIES:
-                    adapter = new ActivitiesAdapter(contentUri);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unhandled content type " + content);
-            }
+        if (getListAdapter() == null) {
+            adapter = new ActivitiesAdapter(contentUri);
             setListAdapter(adapter);
             configureEmptyView();
             if (canAppend()) {
@@ -626,7 +543,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         final ScBaseAdapter adapter = getListAdapter();
         if (context != null && adapter != null) {
             refreshTask = buildTask();
-            refreshTask.execute(getTaskParams(adapter, true));
+            refreshTask.execute(getTaskParams(true));
         }
 
         if (listView != null && !pullToRefreshController.isRefreshing()) {
@@ -689,7 +606,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return new CollectionTask(publicApi, this);
     }
 
-    private CollectionParams getTaskParams(@NotNull ScBaseAdapter adapter, final boolean refresh) {
+    private CollectionParams getTaskParams(final boolean refresh) {
         CollectionParams params = adapter.getParams(refresh);
         params.setRequest(buildRequest(refresh));
         params.refreshPageItems = !isSyncable();
@@ -738,14 +655,13 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private void append(boolean force) {
         final Context context = getActivity();
-        final ScBaseAdapter adapter = getListAdapter();
         if (context == null || adapter == null) {
             return;
         } // has been detached
 
         if (force || isTaskFinished(appendTask)) {
             appendTask = buildTask();
-            appendTask.executeOnThreadPool(getTaskParams(adapter, false));
+            appendTask.executeOnThreadPool(getTaskParams(false));
         }
         adapter.setIsLoadingData(true);
     }

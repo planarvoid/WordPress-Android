@@ -203,13 +203,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (elapsedTime == null) {
-            refreshTimeSinceCreated(context);
-        }
-        return elapsedTime;
-    }
-
     public void refreshTimeSinceCreated(Context context) {
         if (created_at != null) {
             elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());

@@ -10,7 +10,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -97,14 +96,6 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     public void setType(Type type) {
         associationType = type.collectionType;
-    }
-
-    @Override
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (elapsedTime == null) {
-            elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
-        }
-        return elapsedTime;
     }
 
     @Override

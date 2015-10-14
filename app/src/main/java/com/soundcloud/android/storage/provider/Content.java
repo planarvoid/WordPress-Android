@@ -138,7 +138,6 @@ public enum Content {
     static final private SparseArray<Content> sMap = new SparseArray<>();
 
     public static final int SYNCABLE_CEILING = 190;
-    public static final int MINE_CEILING = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
             Content.ME_ACTIVITIES,
@@ -149,17 +148,6 @@ public enum Content {
     public static final EnumSet<Content> ID_BASED = EnumSet.of(
             Content.ME_FOLLOWINGS,
             Content.ME_FOLLOWERS
-    );
-
-    public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(
-            Content.ME_SOUND_STREAM,
-            Content.ME_ACTIVITIES,
-            Content.ME_SOUNDS,
-            Content.USER_SOUNDS,
-            Content.ME_LIKES,
-            Content.USER_LIKES,
-            Content.ME_PLAYLISTS,
-            Content.USER_PLAYLISTS
     );
 
     static {
@@ -177,10 +165,6 @@ public enum Content {
 
     public boolean isActivitiesItem() {
         return table == Table.Activities || table == Table.ActivityView;
-    }
-
-    public boolean isMine() {
-        return id < MINE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -241,10 +225,6 @@ public enum Content {
 
     public boolean hasRequest() {
         return remoteUri != null;
-    }
-
-    public boolean shouldListenForPlaylistChanges() {
-        return LISTEN_FOR_PLAYLIST_CHANGES.contains(this);
     }
 
     @Override

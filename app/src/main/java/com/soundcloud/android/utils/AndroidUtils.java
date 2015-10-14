@@ -2,14 +2,11 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import org.jetbrains.annotations.Nullable;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -193,23 +190,6 @@ public final class AndroidUtils {
             names[i] = accounts[i].name;
         }
         return names;
-    }
-
-    /**
-     * Idempotent version of {@link Context#unregisterReceiver(android.content.BroadcastReceiver)} which allows null
-     * references and recovers from "receiver not registered" errors.
-     *
-     * @param context  the context from which to unregister
-     * @param receiver the receiver to unregister
-     */
-    public static void safeUnregisterReceiver(final Context context, @Nullable final BroadcastReceiver receiver) {
-        if (receiver != null) {
-            try {
-                context.unregisterReceiver(receiver);
-            } catch (IllegalArgumentException receiverAlreadyUnregistered) {
-                receiverAlreadyUnregistered.printStackTrace();
-            }
-        }
     }
 
     private static class MapValueComparator implements Comparator<String> {
