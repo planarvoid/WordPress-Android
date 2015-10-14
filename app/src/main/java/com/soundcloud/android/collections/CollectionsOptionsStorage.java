@@ -36,9 +36,8 @@ class CollectionsOptionsStorage {
         preferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
     }
 
-
-    public CollectionsOptions getLastOrDefault() {
-        return CollectionsOptions.builder()
+    public PlaylistsOptions getLastOrDefault() {
+        return PlaylistsOptions.builder()
                 .showLikes(preferences.getBoolean(KEY_SHOW_LIKES, false))
                 .showPosts(preferences.getBoolean(KEY_SHOW_POSTS, false))
                 .showOfflineOnly(preferences.getBoolean(KEY_SHOW_OFFLINE_ONLY, false))
@@ -46,7 +45,7 @@ class CollectionsOptionsStorage {
                 .build();
     }
 
-    public void store(CollectionsOptions options) {
+    public void store(PlaylistsOptions options) {
         preferences.edit()
                 .putBoolean(KEY_SHOW_LIKES, options.showLikes())
                 .putBoolean(KEY_SHOW_POSTS, options.showPosts())

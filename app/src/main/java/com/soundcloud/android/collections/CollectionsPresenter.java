@@ -75,7 +75,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions;
-    private CollectionsOptions currentOptions;
+    private PlaylistsOptions currentOptions;
 
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -134,11 +134,11 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     public void onRemoveFilterClicked() {
-        onOptionsUpdated(CollectionsOptions.builder().build());
+        onOptionsUpdated(PlaylistsOptions.builder().build());
     }
 
     @Override
-    public void onOptionsUpdated(CollectionsOptions options) {
+    public void onOptionsUpdated(PlaylistsOptions options) {
         collectionsOptionsStorage.store(options);
         currentOptions = options;
         adapter.clear();
