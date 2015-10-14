@@ -72,6 +72,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         finishEventTracking(START_STATION_FROM_VIEW_ALL);
     }
 
+    @Ignore
     public void testStartStationFromPlaylist() throws Exception {
         startEventTracking();
 
