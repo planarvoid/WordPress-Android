@@ -1,13 +1,13 @@
 package com.soundcloud.android.activities;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -61,7 +61,7 @@ public class ActivitiesActivity extends ScActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
         return true;
     }
