@@ -1,28 +1,33 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
            tools:ignore="MissingTranslation">
 
-    <string name='pref_dev_settings'>Dev settings</string>
+    <string name="dev_drawer_section_build_features">Build Features</string>
 
-    <string name='pref_dev_record_type'>Recording type</string>
-    <string name='pref_dev_record_type_desc'>Choose your preferred recording type</string>
+    <string name="dev_drawer_category_actions_key">actions</string>
+    <string name="dev_drawer_category_actions_title">Actions</string>
 
-    <string name='pref_dev_clear_notification'>Clear notification</string>
-    <string name='pref_dev_clear_notification_summary'>Clear notification data &amp; rerun sync</string>
+    <string name="dev_drawer_action_kill_app_key">kill_process</string>
+    <string name="dev_drawer_action_kill_app_title">Kill Process</string>
 
-    <string name='pref_dev_rewind_notification'>Rewind notification</string>
-    <string name='pref_dev_rewind_notification_summary'>Rewind notifications 1 day data &amp; rerun sync</string>
+    <string name="dev_drawer_action_reset_flags_key">reset_flags</string>
+    <string name="dev_drawer_action_reset_flags_title">Restore Defaults</string>
 
-    <string name="pref_dev_crash">Crash</string>
-    <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
+    <string name="dev_drawer_action_policy_sync_key">policy_sync</string>
+    <string name="dev_drawer_action_policy_sync_title">Force sync policies</string>
 
-    <string name="pref_dev_sync_now">Sync now</string>
-    <string name="pref_dev_sync_now_summary">Request a sync</string>
+    <string name="dev_drawer_action_clear_notifications_key">clear_notifications</string>
+    <string name="dev_drawer_action_clear_notifications_title">Clear Notifications</string>
 
-    <string name='pref_dev_http_proxy'>HTTP proxy</string>
-    <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
-    <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
+    <string name="dev_drawer_action_rewind_notifications_key">rewind_notifications</string>
+    <string name="dev_drawer_action_rewind_notifications_title">Rewind Notifications</string>
 
-    <string name="pref_dev_flush_eventlogger_instantly">Flush Eventlogger Instantly</string>
-    <string name="pref_dev_flush_eventlogger_instantly_summary">Flush eventlogger whenever it receives an event. This helps with event validation.</string>
+    <string name="dev_drawer_action_sync_now_key">sync_now</string>
+    <string name="dev_drawer_action_sync_now_title">Sync Now</string>
+
+    <string name="dev_drawer_action_crash_key">crash</string>
+    <string name="dev_drawer_action_crash_title">Crash the app</string>
+
+    <string name="dev_drawer_flush_eventlogger_instantly_key">dev.flushEventloggerInstantly</string>
+    <string name="dev_drawer_flush_eventlogger_instantly_title">Flush Eventlogger Instantly</string>
 
 </resources>

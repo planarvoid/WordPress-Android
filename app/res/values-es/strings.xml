@@ -398,10 +398,6 @@
   <string name="wifi_settings_summary">Editar la configuración. Utilizar Wi-Fi para un mejor rendimiento.</string>
   <string name="cache_clearing">Borrando caché</string>
   <string name="cache_clearing_message">Eliminando archivos en caché...</string>
-  <string-array name="pref_dev_record_type_entries">
-    <item>Comprimido</item>
-    <item>Sin procesar</item>
-  </string-array>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">¿Borrar datos de usuario?</string>
   <string name="sign_out_description">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
