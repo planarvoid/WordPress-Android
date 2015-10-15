@@ -7,7 +7,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -16,6 +16,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.ToggleFollowSubscriber;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -23,7 +24,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -33,6 +33,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
@@ -80,10 +81,10 @@ public class LegacyProfileActivity extends ScActivity implements
     @Inject CondensedNumberFormatter numberFormatter;
     @Inject ApiClient apiClient;
     @Inject FollowingOperations followingOperations;
-    @Inject FeatureFlags featureFlags;
     @Inject LegacyUserStorage userStorage;
     @Inject @LightCycle PlayerController playerController;
     @Inject ProfileFragmentCreator profileListFragmentCreator;
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -151,7 +152,7 @@ public class LegacyProfileActivity extends ScActivity implements
                     public void onClick(View v) {
                         toggleFollowing(user);
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
-                                Screen.USER_HEADER.get(), user.getId()));
+                                Screen.USER_HEADER.get(), user.getId(), PlayableMetadata.fromUser(user.toPropertySet())));
                     }
                 });
             }
@@ -283,8 +284,8 @@ public class LegacyProfileActivity extends ScActivity implements
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithContent(R.layout.profile_content);
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithContent(this, R.layout.profile_content);
     }
 
     protected void handleIntent(Intent intent) {

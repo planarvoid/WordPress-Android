@@ -23,40 +23,67 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     private static final int TOGGLE_PLAY_ACTION_INDEX = 1;
     private static final int NEXT_ACTION_INDEX = 2;
 
-    private final Notification.Builder builder;
-    private final Notification.Action togglePlayAction;
     private final Resources resources;
+    private final Context context;
+
+    private Notification.Builder builder;
+    private int smallIcon;
+    private Bitmap largeIcon;
+    private String trackTitle;
+    private String creatorName;
+    private PendingIntent pendingIntent;
 
     public MediaStyleNotificationBuilder(Context context, ImageOperations imageOperations) {
+        this.context = context;
         resources = context.getResources();
-        builder = new Notification.Builder(context);
 
-        Notification.MediaStyle style = new Notification.MediaStyle();
-        style.setShowActionsInCompactView(PREVIOUS_ACTION_INDEX, TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
+        smallIcon = R.drawable.notification_loading;
+        largeIcon = imageOperations.decodeResource(resources, R.drawable.notification_loading);
+        builder = createBuilder();
+
+        builder.addAction(createAction(context, PlaybackAction.PREVIOUS));
+        builder.addAction(createAction(context, PlaybackAction.TOGGLE_PLAYBACK));
+        builder.addAction(createAction(context, PlaybackAction.NEXT));
+    }
+
+    private Notification.Builder createBuilder() {
+        Notification.Builder builder = new Notification.Builder(context);
+        Notification.MediaStyle style = new Notification.MediaStyle()
+                .setShowActionsInCompactView(PREVIOUS_ACTION_INDEX, TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
+
         builder.setStyle(style);
         builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setUsesChronometer(false);
         builder.setShowWhen(false);
-        builder.setSmallIcon(R.drawable.notification_loading);
-        builder.setLargeIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
 
-        builder.addAction(createAction(context, PlaybackAction.PREVIOUS));
-        togglePlayAction = createAction(context, PlaybackAction.TOGGLE_PLAYBACK);
-        builder.addAction(togglePlayAction);
-        builder.addAction(createAction(context, PlaybackAction.NEXT));
+        builder.setSmallIcon(smallIcon);
+        builder.setLargeIcon(largeIcon);
+        builder.setContentTitle(creatorName);
+        builder.setContentText(trackTitle);
+        builder.setContentIntent(pendingIntent);
+
+        return builder;
     }
 
     private Notification.Action createAction(Context context, String action) {
         int icon;
         String title;
+
         switch (action) {
             case PlaybackAction.PREVIOUS:
                 icon = R.drawable.notifications_previous;
                 title = resources.getString(R.string.previous);
                 break;
             case PlaybackAction.TOGGLE_PLAYBACK:
+            case PlaybackAction.PAUSE:
                 icon = R.drawable.notifications_play;
                 title = resources.getString(R.string.play);
+                action = PlaybackAction.TOGGLE_PLAYBACK;
+                break;
+            case PlaybackAction.PLAY:
+                icon = R.drawable.notifications_pause;
+                title = resources.getString(R.string.pause);
+                action = PlaybackAction.TOGGLE_PLAYBACK;
                 break;
             case PlaybackAction.NEXT:
                 icon = R.drawable.notifications_next;
@@ -79,44 +106,53 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setSmallIcon(int icon) {
-        builder.setSmallIcon(icon);
+    public void setSmallIcon(int smallIcon) {
+        this.smallIcon = smallIcon;
+        builder.setSmallIcon(smallIcon);
     }
 
     @Override
-    public void setIcon(Bitmap icon) {
-        builder.setLargeIcon(icon);
+    public void setIcon(Bitmap largeIcon) {
+        this.largeIcon = largeIcon;
+        builder.setLargeIcon(largeIcon);
     }
 
     @Override
     public void clearIcon() {
-        builder.setLargeIcon(null);
+        this.largeIcon = null;
+        builder.setLargeIcon((Bitmap) null);
     }
 
     @Override
     public void setContentIntent(PendingIntent pendingIntent) {
+        this.pendingIntent = pendingIntent;
         builder.setContentIntent(pendingIntent);
     }
 
     @Override
     public void setTrackTitle(String trackTitle) {
+        this.trackTitle = trackTitle;
         builder.setContentText(trackTitle);
     }
 
     @Override
     public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
         builder.setContentTitle(creatorName);
     }
 
     @Override
     public void setPlayingStatus(boolean isPlaying) {
+        builder = createBuilder();
+        builder.addAction(createAction(context, PlaybackAction.PREVIOUS));
+
         if (isPlaying) {
-            togglePlayAction.icon = R.drawable.notifications_pause;
-            togglePlayAction.title = resources.getString(R.string.pause);
+            builder.addAction(createAction(context, PlaybackAction.PLAY));
         } else {
-            togglePlayAction.icon = R.drawable.notifications_play;
-            togglePlayAction.title = resources.getString(R.string.play);
+            builder.addAction(createAction(context, PlaybackAction.PAUSE));
         }
+
+        builder.addAction(createAction(context, PlaybackAction.NEXT));
         builder.setOngoing(isPlaying);
     }
 
@@ -131,7 +167,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public com.soundcloud.android.image.ApiImageSize getImageSize() {
+    public ApiImageSize getImageSize() {
         return ApiImageSize.getNotificationLargeIconImageSize(resources);
     }
 

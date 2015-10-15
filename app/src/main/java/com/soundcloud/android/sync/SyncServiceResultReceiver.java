@@ -26,18 +26,16 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private final SyncStateManager syncStateManager;
     private final SyncResult result;
     private final Context context;
-    private final Bundle extras;
     private final OnResultListener listener;
 
 
     private SyncServiceResultReceiver(Context context, SoundStreamSyncOperations soundStreamSyncOperations, SyncStateManager syncStateManager,
-                                      SyncResult result, Bundle extras, OnResultListener listener) {
+                                      SyncResult result, OnResultListener listener) {
         super(new Handler());
         this.syncStateManager = syncStateManager;
         this.result = result;
         this.context = context;
         this.soundStreamSyncOperations = soundStreamSyncOperations;
-        this.extras = extras;
         this.listener = listener;
     }
 
@@ -91,7 +89,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         }
 
         // deliver incoming activities, if the user has enabled this
-        if (SyncConfig.isActivitySyncEnabled(context, extras)) {
+        if (SyncConfig.isActivitySyncEnabled(context)) {
             final long lastOwnSeen = ContentStats.getLastSeen(context, Content.ME_ACTIVITIES);
             Activities activities = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen);
             maybeNotifyActivity(context, activities);
@@ -173,8 +171,8 @@ class SyncServiceResultReceiver extends ResultReceiver {
             this.syncStateManager = syncStateManager;
         }
 
-        public SyncServiceResultReceiver create(SyncResult result, Bundle extras, OnResultListener listener){
-            return new SyncServiceResultReceiver(context, soundStreamSyncOps, syncStateManager, result, extras, listener);
+        public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener){
+            return new SyncServiceResultReceiver(context, soundStreamSyncOps, syncStateManager, result, listener);
         }
     }
 }

@@ -65,6 +65,6 @@ public class EncryptorTest {
         }
 
         verify(cipher, never()).update(any(byte[].class), anyInt(), anyInt(), any(byte[].class));
-        verify(cipher, never()).doFinal(any(byte[].class), anyInt());
+        verify(cipher, never()).finish(any(byte[].class), anyInt());
     }
 }

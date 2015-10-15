@@ -12,13 +12,16 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
+import com.soundcloud.android.collections.CollectionNavigationTarget;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
@@ -36,7 +39,9 @@ import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -98,6 +103,16 @@ public class ApplicationModule {
     @Provides
     public Resources provideResources() {
         return application.getResources();
+    }
+
+    @Provides
+    @Singleton
+    public NavigationModel navigationModel() {
+        return new NavigationModel(
+                new StreamNavigationTarget(),
+                new DiscoveryNavigationTarget(),
+                new CollectionNavigationTarget(),
+                new YouNavigationTarget());
     }
 
     @Provides

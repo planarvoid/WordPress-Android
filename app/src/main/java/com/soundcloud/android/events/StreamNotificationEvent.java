@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,30 +26,27 @@ public final class StreamNotificationEvent extends TrackingEvent {
     }
 
     public static StreamNotificationEvent forFacebookInviteShown(FacebookInvitesItem item) {
-        StreamNotificationEvent event = baseEvent(KIND_IMPRESSION, Screen.SIDE_MENU_STREAM.get());
+        StreamNotificationEvent event = baseEvent(KIND_IMPRESSION, Screen.STREAM.get());
         event.put(KEY_IMPRESSION_CATEGORY, TYPE_INVITE_FRIENDS);
         event.put(KEY_IMPRESSION_NAME, withImages(item));
         return event;
     }
 
     public static StreamNotificationEvent forFacebookInviteClick(FacebookInvitesItem item) {
-        StreamNotificationEvent event = baseEvent(KIND_CLICK, Screen.SIDE_MENU_STREAM.get());
-        event.put(KEY_CLICK_CATEGORY, TYPE_INVITE_FRIENDS);
-        event.put(KEY_CLICK_NAME, withImages(item));
-        return event;
+        return baseEvent(KIND_CLICK, Screen.STREAM.get())
+                .put(KEY_CLICK_CATEGORY, TYPE_INVITE_FRIENDS)
+                .put(KEY_CLICK_NAME, withImages(item));
     }
 
     public static StreamNotificationEvent forFacebookInviteDismissed(FacebookInvitesItem item) {
-        StreamNotificationEvent event = baseEvent(KIND_CLICK, Screen.SIDE_MENU_STREAM.get());
-        event.put(KEY_CLICK_CATEGORY, TYPE_INVITE_FRIENDS);
-        event.put(KEY_CLICK_NAME, dismissWithImages(item));
-        return event;
+        return baseEvent(KIND_CLICK, Screen.STREAM.get())
+                .put(KEY_CLICK_CATEGORY, TYPE_INVITE_FRIENDS)
+                .put(KEY_CLICK_NAME, dismissWithImages(item));
     }
 
     private static StreamNotificationEvent baseEvent(String kind, String screen) {
-        StreamNotificationEvent event = new StreamNotificationEvent(kind, System.currentTimeMillis());
-        event.put(KEY_PAGE_NAME, screen);
-        return event;
+        return new StreamNotificationEvent(kind, System.currentTimeMillis())
+                .put(KEY_PAGE_NAME, screen);
     }
 
     private static String withImages(FacebookInvitesItem item) {

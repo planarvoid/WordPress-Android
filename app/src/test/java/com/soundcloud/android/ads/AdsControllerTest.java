@@ -1,16 +1,21 @@
 package com.soundcloud.android.ads;
 
+import android.support.v7.app.AppCompatActivity;
+
 import static com.soundcloud.android.playback.Player.PlayerState;
 import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.Player.StateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -31,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.schedulers.TestScheduler;
@@ -76,16 +82,8 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void trackChangeEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
-        when(playQueueManager.hasNextTrack()).thenReturn(true);
-
-
-        when(trackRepository.track(NEXT_TRACK_URN)).thenReturn(Observable.just(NEXT_TRACK_MONETIZABLE_PROPERTY_SET));
-        when(adsOperations.ads(NEXT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
-
-
-        adsController.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, Urn.NOT_SET, apiAdsForTrack.audioAd().toPropertySet(), 0));
+    public void trackChangeEventInsertsAdForNextTrack() throws CreateModelException {
+        insertFullAdsForNextTrack();
 
         verify(adsOperations).applyAdToTrack(NEXT_TRACK_URN, apiAdsForTrack);
     }
@@ -94,7 +92,6 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void trackChangeEventInsertsInterstitialForCurrentTrackIntoPlayQueue() throws CreateModelException {
         when(trackRepository.track(CURRENT_TRACK_URN)).thenReturn(Observable.just(CURRENT_MONETIZABLE_PROPERTY_SET));
         when(adsOperations.ads(CURRENT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
-
         adsController.subscribe();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, Urn.NOT_SET, apiAdsForTrack.audioAd().toPropertySet(), 0));
 
@@ -135,6 +132,56 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         verify(adsOperations, never()).applyAdToTrack(any(Urn.class), any(ApiAdsForTrack.class));
+    }
+
+    @Test
+    public void configureAdForNextTrackInsertsAudioAd() {
+        insertFullAdsForNextTrack();
+
+        when(adsOperations.isNextTrackAudioAd()).thenReturn(false);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, apiAdsForTrack.audioAd(), 1);
+    }
+
+    @Test
+    public void configureAdForNextTrackInsertsAudioAdWhenAppInForeground() {
+        insertFullAdsForNextTrack();
+
+        when(adsOperations.isNextTrackAudioAd()).thenReturn(false);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(mock(AppCompatActivity.class)));
+
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(ApiAudioAd.class), anyInt());
+    }
+
+    @Test
+    public void configureAdForNextTrackDoesNotReplaceAnExistingAudioAd() {
+        insertFullAdsForNextTrack();
+
+        when(adsOperations.isNextTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(ApiAudioAd.class), anyInt());
+    }
+
+    @Test
+    public void configureAdForNextTrackDoesNothingWithNoAdsForNextTrack() {
+        when(adsOperations.isNextTrackAudioAd()).thenReturn(false);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(ApiAudioAd.class), anyInt());
     }
 
     @Test
@@ -437,5 +484,15 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isEqualTo(trackingEvent);
+    }
+
+    private void insertFullAdsForNextTrack() {
+        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(trackRepository.track(NEXT_TRACK_URN)).thenReturn(Observable.just(NEXT_TRACK_MONETIZABLE_PROPERTY_SET));
+        when(adsOperations.ads(NEXT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
+
+        adsController.subscribe();
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK,
+                CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, Urn.NOT_SET, apiAdsForTrack.audioAd().toPropertySet(), 0));
     }
 }

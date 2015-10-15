@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 class PlaybackReceiver extends BroadcastReceiver {
 
     private static final long DEFAULT_SEEK_POSITION = 0L;
+    private static final long DEFAULT_DURATION = Consts.NOT_SET;
 
     private final PlaybackService playbackService;
     private final PlayQueueManager playQueueManager;
@@ -25,14 +27,15 @@ class PlaybackReceiver extends BroadcastReceiver {
     private final EventBus eventBus;
 
     private PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations,
-                            PlayQueueManager playQueueManager, EventBus eventBus) {
+                             PlayQueueManager playQueueManager, EventBus eventBus) {
         this.playbackService = playbackService;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
@@ -47,11 +50,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         } else if (accountOperations.isUserLoggedIn()) {
             if (Action.PLAY.equals(action)) {
-                playbackService.play(getUrnFromIntent(intent), 0);
-            } else if (Action.PLAY_UNINTERRUPTED.equals(action)) {
-                playbackService.playUninterrupted(getUrnFromIntent(intent));
-            } else if (Action.PLAY_OFFLINE.equals(action)) {
-                playbackService.playOffline(getUrnFromIntent(intent), 0);
+                playbackService.play(getPlaybackItem(intent));
             } else if (Action.TOGGLE_PLAYBACK.equals(action)) {
                 playbackService.togglePlayback();
             } else if (Action.RESUME.equals(action)) {
@@ -59,7 +58,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Action.PAUSE.equals(action)) {
                 playbackService.pause();
             } else if (Action.SEEK.equals(action)) {
-                long seekPosition = intent.getLongExtra(PlaybackService.ActionExtras.POSITION, DEFAULT_SEEK_POSITION);
+                long seekPosition = getPositionFromIntent(intent);
                 playbackService.seek(seekPosition, true);
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
                 playbackService.pause();
@@ -73,8 +72,12 @@ class PlaybackReceiver extends BroadcastReceiver {
         }
     }
 
-    private Urn getUrnFromIntent(Intent intent) {
-        return (Urn) intent.getParcelableExtra(PlaybackService.ActionExtras.URN);
+    private long getPositionFromIntent(Intent intent) {
+        return intent.getLongExtra(PlaybackService.ActionExtras.POSITION, DEFAULT_SEEK_POSITION);
+    }
+
+    private PlaybackItem getPlaybackItem(Intent intent) {
+        return (PlaybackItem) intent.getParcelableExtra(PlaybackService.ActionExtras.PLAYBACK_ITEM);
     }
 
     private void trackPlayControlEvent(Intent intent) {
@@ -88,11 +91,15 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     static class Factory {
+        private final PlayQueueManager playQueueManager;
+
         @Inject
-        Factory() { }
+        Factory(PlayQueueManager playQueueManager) {
+            this.playQueueManager = playQueueManager;
+        }
 
         PlaybackReceiver create(PlaybackService playbackService, AccountOperations accountOperations,
-                                PlayQueueManager playQueueManager, EventBus eventBus) {
+                                EventBus eventBus) {
             return new PlaybackReceiver(playbackService, accountOperations, playQueueManager, eventBus);
         }
 

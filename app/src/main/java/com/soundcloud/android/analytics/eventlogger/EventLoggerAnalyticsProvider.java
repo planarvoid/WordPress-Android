@@ -19,13 +19,13 @@ import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
@@ -60,6 +60,11 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override
@@ -109,19 +114,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
-    }
-
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {
         final String url = dataBuilderV0.get().build(event);
         trackEvent(event.getTimestamp(), url);
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        if (AdOverlayTrackingEvent.KIND_CLICK.equals(event.getKind()) || AdOverlayTrackingEvent.KIND_IMPRESSION.equals(event.getKind())) {
-            trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
-        }
+        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     private void handlePromotedEvent(PromotedTrackingEvent eventData) {
@@ -156,6 +155,14 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
                 trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+                break;
+            case UIEvent.KIND_OFFLINE_LIKES_ADD:
+            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
+            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
+            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
+            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
+            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
+                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:
                 // no-op, ignoring certain types
@@ -200,7 +207,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         } else {
             trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioEvent(eventData));
         }
-
     }
 
     private void trackEvent(long timeStamp, String data) {

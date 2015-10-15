@@ -2,6 +2,7 @@ package com.soundcloud.android.collections;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
@@ -15,11 +16,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class CollectionsFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class CollectionsFragment extends LightCycleSupportFragment implements RefreshableScreen, ScrollContent {
 
-    @Inject @LightCycle CollectionsPresenter collectionsPresenter;
+    @Inject @LightCycle CollectionsPresenter presenter;
 
     public CollectionsFragment() {
+        setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -35,5 +37,12 @@ public class CollectionsFragment extends LightCycleSupportFragment implements Re
 
     @Override
     public View[] getRefreshableViews() {
-        return new View[]{collectionsPresenter.getRecyclerView(), collectionsPresenter.getEmptyView()};    }
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
+    }
+
+    @Override
+    public void resetScroll() {
+        presenter.scrollToTop();
+    }
+
 }

@@ -10,7 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -82,7 +82,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistPresenter playlistPresenter;
     @Inject PlaybackToastHelper playbackToastHelper;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
     @Inject FeatureOperations featureOperations;
@@ -186,7 +185,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playQueueManager = playQueueManager;
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.accountOperations = accountOperations;
         this.navigator = navigator;

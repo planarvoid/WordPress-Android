@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
@@ -14,7 +15,6 @@ import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,7 +33,6 @@ class ProfileHeaderPresenter {
     @Bind(R.id.image) ImageView image;
     @Bind(R.id.followers_count) TextView followerCount;
     @Bind(R.id.toggle_btn_follow) ToggleButton followButton;
-    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Urn lastUser;
 
@@ -58,11 +57,15 @@ class ProfileHeaderPresenter {
     }
 
     public void setUserDetails(ProfileUser user) {
-        collapsingToolbarLayout.setExpandedTitleColor(Color.BLACK);
-        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         username.setText(user.getName());
-        followerCount.setText(numberFormatter.format(user.getFollowerCount()));
         followButton.setChecked(user.isFollowed());
+
+        if (user.getFollowerCount() != Consts.NOT_SET) {
+            followerCount.setText(numberFormatter.format(user.getFollowerCount()));
+            followerCount.setVisibility(View.VISIBLE);
+        } else {
+            followerCount.setVisibility(View.GONE);
+        }
 
         if (!user.getUrn().equals(lastUser)){
             lastUser = user.getUrn();

@@ -1,34 +1,35 @@
 package com.soundcloud.android.analytics.appboy;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
+import android.content.Context;
 
 import javax.inject.Inject;
 
 public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
-    public static final String TAG = "AppboyProvider";
     private final AppboyWrapper appboy;
     private final AppboyEventHandler eventHandler;
 
     @Inject
     public AppboyAnalyticsProvider(AppboyWrapper appboy, AccountOperations accountOperations) {
-        Log.d(TAG, "initialized");
         this.appboy = appboy;
         eventHandler = new AppboyEventHandler(appboy);
         changeUser(accountOperations.getLoggedInUserUrn());
@@ -36,7 +37,6 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void flush() {
-        Log.d(TAG, "flushed");
         appboy.requestImmediateDataFlush();
     }
 
@@ -51,6 +51,11 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
                 changeUser(currentUser.get(UserProperty.URN));
             }
         }
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        appboy.setAppboyEndpointProvider(context.getString(R.string.com_appboy_server));
     }
 
     @Override
@@ -74,18 +79,11 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void unregisterInAppMessage(Activity activity) {
-        Log.d(TAG, "unregisterInAppMessage (" + activity.getClass().getSimpleName() + ")");
         appboy.unregisterInAppMessageManager(activity);
     }
 
     private void registerInAppMessage(Activity activity) {
-        Log.d(TAG, "registerInAppMessage (" + activity.getClass().getSimpleName() + ")");
         appboy.registerInAppMessageManager(activity);
-    }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
-        // No-op
     }
 
     @Override
@@ -109,18 +107,22 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
             eventHandler.handleEvent((UIEvent) event);
         } else if (event instanceof PlaybackSessionEvent) {
             eventHandler.handleEvent((PlaybackSessionEvent) event);
+        } else if (event instanceof ScreenEvent) {
+            eventHandler.handleEvent((ScreenEvent) event);
+        } else if (event instanceof SearchEvent) {
+            eventHandler.handleEvent((SearchEvent) event);
+        } else if (event instanceof AttributionEvent) {
+            eventHandler.handleEvent((AttributionEvent) event);
         }
     }
 
     private void openSession(Activity activity) {
-        Log.d(TAG, "openSession (" + activity.getClass().getSimpleName() + ")");
         if (appboy.openSession(activity)) {
             appboy.requestInAppMessageRefresh();
         }
     }
 
     private void closeSession(Activity activity) {
-        Log.d(TAG, "closeSession (" + activity.getClass().getSimpleName() + ")");
         appboy.closeSession(activity);
     }
 

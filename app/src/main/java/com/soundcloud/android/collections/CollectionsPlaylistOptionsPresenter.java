@@ -18,10 +18,10 @@ public class CollectionsPlaylistOptionsPresenter {
     }
 
     public interface Listener {
-        void onOptionsUpdated(CollectionsOptions options);
+        void onOptionsUpdated(PlaylistsOptions options);
     }
 
-    public void showOptions(Context context, final Listener listener, CollectionsOptions initialOptions) {
+    public void showOptions(Context context, final Listener listener, PlaylistsOptions initialOptions) {
         final View dialoglayout = View.inflate(context, R.layout.dialog_collections_options, null);
 
         final ToggleButton showLikes = (ToggleButton) dialoglayout.findViewById(R.id.show_likes);
@@ -37,11 +37,11 @@ public class CollectionsPlaylistOptionsPresenter {
         builder.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final CollectionsOptions collectionsOptions = AutoValue_CollectionsOptions.builder()
+                final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()
                         .showLikes(showLikes.isChecked())
                         .showPosts(showPosts.isChecked())
                         .sortByTitle(sortByTitle.isChecked()).build();
-                listener.onOptionsUpdated(collectionsOptions);
+                listener.onOptionsUpdated(playlistsOptions);
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

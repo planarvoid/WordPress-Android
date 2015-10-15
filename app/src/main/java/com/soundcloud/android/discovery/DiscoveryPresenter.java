@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -42,7 +42,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackInitiator playbackInitiator,
                        Navigator navigator, FeatureFlags featureFlags) {
-        super(swipeRefreshAttacher, Options.cards());
+        super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
@@ -70,7 +70,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     private Observable<List<DiscoveryItem>> buildDiscoveryItemsObservable() {
-        if (featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)) {
+        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
             return discoveryOperations.discoveryItemsAndRecommendations();
         } else {
             return discoveryOperations.discoveryItems();

@@ -8,7 +8,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -42,7 +41,6 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;
-    @Mock private FeatureFlags featureFlags;
     @Mock private SyncStateManager syncStateManager;
 
     @Before
@@ -123,7 +121,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetMyPlaylistSyncMissesOnChangedSync() {
-        initiator.refreshPostedPlaylists().subscribe(legacySyncSubscriber);
+        initiator.refreshMyPlaylists().subscribe(legacySyncSubscriber);
         final Uri uri = Content.ME_PLAYLISTS.uri;
         sendSyncChangedLegacyToUri(uri);
         verify(syncStateManager).resetSyncMisses(uri);

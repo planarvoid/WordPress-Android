@@ -2,7 +2,7 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;

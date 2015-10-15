@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.creatorOptOutRequest;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromPlaylists;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -7,15 +9,13 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-
-import android.support.annotation.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
@@ -38,7 +38,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> toBeOffline = command.call(null);
 
-        assertThat(toBeOffline).containsExactly(downloadRequest(apiTrack, true, Collections.<Urn>emptyList()));
+        assertThat(toBeOffline).containsExactly(downloadRequestFromPlaylists(apiTrack, true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(track1, false, Collections.singletonList(playlist.getUrn())));
+                downloadRequestFromPlaylists(track1, false, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
@@ -95,9 +95,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(apiTrack3, true, Collections.<Urn>emptyList()),
-                downloadRequest(apiTrack2, true, Collections.<Urn>emptyList()),
-                downloadRequest(apiTrack1, true, Collections.<Urn>emptyList())
+                downloadRequestFromPlaylists(apiTrack3, true, Collections.<Urn>emptyList()),
+                downloadRequestFromPlaylists(apiTrack2, true, Collections.<Urn>emptyList()),
+                downloadRequestFromPlaylists(apiTrack1, true, Collections.<Urn>emptyList())
         );
     }
 
@@ -111,8 +111,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(playlistTrack0, false, Collections.singletonList(playlist.getUrn())),
-                downloadRequest(playlistTrack1, false, Collections.singletonList(playlist.getUrn()))
+                downloadRequestFromPlaylists(playlistTrack0, false, Collections.singletonList(playlist.getUrn())),
+                downloadRequestFromPlaylists(playlistTrack1, false, Collections.singletonList(playlist.getUrn()))
         );
     }
 
@@ -131,8 +131,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(playlistTrack1, false, Collections.singletonList(apiPlaylist1.getUrn())),
-                downloadRequest(playlistTrack2, false, Collections.singletonList(apiPlaylist2.getUrn()))
+                downloadRequestFromPlaylists(playlistTrack1, false, Collections.singletonList(apiPlaylist1.getUrn())),
+                downloadRequestFromPlaylists(playlistTrack2, false, Collections.singletonList(apiPlaylist2.getUrn()))
         );
     }
 
@@ -148,8 +148,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(playlistTrack, false, Collections.singletonList(playlist.getUrn())),
-                downloadRequest(apiTrack, true, Collections.<Urn>emptyList())
+                downloadRequestFromPlaylists(playlistTrack, false, Collections.singletonList(playlist.getUrn())),
+                downloadRequestFromPlaylists(apiTrack, true, Collections.<Urn>emptyList())
         );
     }
 
@@ -165,7 +165,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> toBeOffline = command.call(null);
 
         assertThat(toBeOffline).containsExactly(
-                downloadRequest(apiTrack, true, Collections.singletonList(playlist.getUrn())));
+                downloadRequestFromPlaylists(apiTrack, true, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
@@ -228,8 +228,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         assertThat(toBeOffline)
                 .containsExactly(
-                        downloadRequest(creatorOptOut, false, Collections.<Urn>emptyList()),
-                        downloadRequest(syncable, true, Collections.<Urn>emptyList()));
+                        creatorOptOutRequest(creatorOptOut, false, Collections.<Urn>emptyList()),
+                        downloadRequestFromPlaylists(syncable, true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -243,8 +243,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         assertThat(toBeOffline)
                 .containsExactly(
-                        downloadRequest(creatorOptOut1, true, Collections.<Urn>emptyList()),
-                        downloadRequest(creatorOptOut2, true, Collections.<Urn>emptyList()));
+                        creatorOptOutRequest(creatorOptOut1, true, Collections.<Urn>emptyList()),
+                        creatorOptOutRequest(creatorOptOut2, true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -257,12 +257,12 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         assertThat(toBeOffline)
                 .containsExactly(
-                        downloadRequest(syncable, false, Collections.singletonList(playlist.getUrn())),
-                        downloadRequest(creatorOptOut, false, Collections.<Urn>emptyList()));
+                        downloadRequestFromPlaylists(syncable, false, Collections.singletonList(playlist.getUrn())),
+                        creatorOptOutRequest(creatorOptOut, false, Collections.<Urn>emptyList()));
     }
 
     @Test
-    public void creatorOptOutDoesInfluencesPlaylistCollectionStateWhenAllTracksAreOptedOut() {
+    public void creatorOptOutInfluencesPlaylistCollectionStateWhenAllTracksAreOptedOut() {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack creatorOptOut1 = insertCreatorOptOutPlaylistTrack(playlist, 0);
         final ApiTrack creatorOptOut2 = insertCreatorOptOutPlaylistTrack(playlist, 1);
@@ -271,12 +271,12 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         assertThat(toBeOffline)
                 .containsExactly(
-                        downloadRequest(creatorOptOut1, false, Collections.singletonList(playlist.getUrn())),
-                        downloadRequest(creatorOptOut2, false, Collections.singletonList(playlist.getUrn())));
+                        creatorOptOutRequest(creatorOptOut1, false, Collections.singletonList(playlist.getUrn())),
+                        creatorOptOutRequest(creatorOptOut2, false, Collections.singletonList(playlist.getUrn())));
     }
 
     @Test
-    public void creatorOptOutDoesInfluencesOtherPlaylistCollectionState() {
+    public void creatorOptOutInfluencesOtherPlaylistCollectionState() {
         ApiUser user = testFixtures().insertUser();
 
         final ApiPlaylist playlist1 = testFixtures().insertPlaylistWithCreationDate(user, new Date(100));
@@ -292,9 +292,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         assertThat(toBeOffline)
                 .containsExactly(
-                        downloadRequest(syncedTrack2, false, Collections.singletonList(playlist2.getUrn())),
-                        downloadRequest(creatorOptOut2, false, Collections.<Urn>emptyList()),
-                        downloadRequest(syncedTrack, false, Collections.singletonList(playlist1.getUrn())));
+                        downloadRequestFromPlaylists(syncedTrack2, false, Collections.singletonList(playlist2.getUrn())),
+                        creatorOptOutRequest(creatorOptOut2, false, Collections.<Urn>emptyList()),
+                        downloadRequestFromPlaylists(syncedTrack, false, Collections.singletonList(playlist1.getUrn())));
     }
 
     @Test
@@ -311,10 +311,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     private void enableOfflineLikes() {
         testFixtures().insertLikesMarkedForOfflineSync();
-    }
-
-    private DownloadRequest downloadRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylists) {
-        return new DownloadRequest(track.getUrn(), track.getDuration(), track.getWaveformUrl(), track.isSyncable(), inLikes, inPlaylists);
     }
 
     private ApiTrack insertCreatorOptOutLikedTrack(long likedAt) {

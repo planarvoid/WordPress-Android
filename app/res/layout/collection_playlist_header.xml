@@ -5,15 +5,8 @@
     android:layout_height="wrap_content">
 
     <View
-        android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@color/collections_home_background" />
-
-    <View
         android:id="@+id/divider"
-        style="@style/Divider.Horizontal"
-        android:layout_below="@id/background"/>
+        style="@style/Divider.Horizontal" />
 
     <TextView
         style="@style/Collections.PlaylistHeader"

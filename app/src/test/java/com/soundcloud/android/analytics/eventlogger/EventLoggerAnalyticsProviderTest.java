@@ -10,12 +10,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.MidTierTrackEvent;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -25,6 +26,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -180,7 +182,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         when(dataBuilderv0.build(event)).thenReturn("ForLikeEvent");
 
@@ -195,7 +197,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackUnlikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnlikeEvent");
 
@@ -208,9 +210,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEvents() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForRepostEvent");
 
@@ -223,9 +226,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnRepostEvents() {
-        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnRepostEvent");
 
@@ -234,6 +238,19 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
+    }
+
+    @Test
+    public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
+        TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
+        VisualAdImpressionEvent event = new VisualAdImpressionEvent(TestPropertySets.audioAdProperties(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForVisualAdImpression");
     }
 
     @Test
@@ -343,9 +360,37 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldTrackLikesToOfflineEvent() {
+        UIEvent event = UIEvent.fromAddOfflineLikes("page_name");
+        assertThat(v1UIEventCaptor("ForOfflineLikesEvent", event)).isEqualTo("ForOfflineLikesEvent");
+    }
+
+    @Test
+    public void shouldTrackCollectionToOfflineEvent() {
+        UIEvent event = UIEvent.fromToggleOfflineCollection(true);
+        assertThat(v1UIEventCaptor("ForOfflineCollection", event)).isEqualTo("ForOfflineCollection");
+    }
+
+    @Test
+    public void shouldTrackPlaylistToOfflineEvent() {
+        UIEvent event = UIEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
+        assertThat(v1UIEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
+    }
+
+    @Test
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventTracker).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+    }
+
+    private String v1UIEventCaptor(String name, UIEvent event) {
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn(name);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        return captor.getValue().getData();
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {

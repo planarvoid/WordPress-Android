@@ -34,12 +34,11 @@ public class SyncServiceResultReceiverTest {
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
 
     private SyncResult syncResult = new SyncResult();
-    private Bundle extras = new Bundle();
 
     @Before
     public void setUp() throws Exception {
         syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context, soundStreamSyncOperations, syncStateManager)
-                .create(syncResult, extras, onResultListener);
+                .create(syncResult, onResultListener);
     }
 
     @Test

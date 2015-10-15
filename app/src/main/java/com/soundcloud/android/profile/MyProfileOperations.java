@@ -253,7 +253,7 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists()
+        return syncInitiator.refreshMyPlaylists()
                 .flatMap(loadInitialPlaylistPosts);
     }
 

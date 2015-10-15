@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
     private final long trackDuration = 12345;
-    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration, "http://wav");
+    private final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(trackUrn);
 
     @Before
     public void setUp() throws Exception {
@@ -73,10 +74,10 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         operations.download(downloadRequest, listener);
 
         InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, assetDownloader, response);
-        inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
+        inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.getTrack());
         inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
-        inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest.track);
-        inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.track, downloadRequest.waveformUrl);
+        inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest.getTrack());
+        inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.getTrack(), downloadRequest.getWaveformUrl());
         inOrder.verify(response).close();
     }
 

@@ -2,15 +2,22 @@ package com.soundcloud.android.collections;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -27,7 +34,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener {
+public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem> implements CollectionsAdapter.Listener, CollectionsPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
     @VisibleForTesting
     final Func1<MyCollections, Iterable<CollectionsItem>> toCollectionsItems =
@@ -35,10 +42,18 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 @Override
                 public List<CollectionsItem> call(MyCollections myCollections) {
                     List<PlaylistItem> playlistItems = myCollections.getPlaylistItems();
-                    List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 2);
+                    List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 4);
 
-                    // prepend likes row + playlist header
-                    collectionsItems.add(CollectionsItem.fromLikes(myCollections.getLikes()));
+                    if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+                        if (collectionsOptionsStorage.isOnboardingEnabled()) {
+                            collectionsItems.add(CollectionsItem.fromOnboarding());
+                        }
+                    }
+
+                    if (!myCollections.getLikes().isEmpty() || !myCollections.getRecentStations().isEmpty()) {
+                        collectionsItems.add(CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()));
+                    }
+
                     collectionsItems.add(CollectionsItem.fromPlaylistHeader());
 
                     for (PlaylistItem playlistItem : playlistItems) {
@@ -57,31 +72,38 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
             };
 
     private final CollectionsOperations collectionsOperations;
+    private final PlaylistLikeOperations likeOperations;
     private final CollectionsOptionsStorage collectionsOptionsStorage;
     private final CollectionsAdapter adapter;
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions;
-    private CollectionsOptions currentOptions;
+    private PlaylistsOptions currentOptions;
 
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
+                         PlaylistLikeOperations likeOperations,
                          CollectionsOptionsStorage collectionsOptionsStorage,
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
-                         EventBus eventBus) {
-        super(swipeRefreshAttacher, Options.cards());
+                         EventBus eventBus,
+                         FeatureFlags featureFlags) {
+        super(swipeRefreshAttacher, Options.defaults());
         this.collectionsOperations = collectionsOperations;
+        this.likeOperations = likeOperations;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
         this.adapter = adapter;
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
         adapter.setListener(this);
+        adapter.setOnboardingListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
     }
 
@@ -92,7 +114,13 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter))
+                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
+                likeOperations.onPlaylistLiked()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber()),
+                likeOperations.onPlaylistUnliked()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RemoveEntityListSubscriber(adapter))
         );
     }
 
@@ -120,15 +148,25 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     public void onRemoveFilterClicked() {
-        onOptionsUpdated(CollectionsOptions.builder().build());
+        onOptionsUpdated(PlaylistsOptions.builder().build());
     }
 
     @Override
-    public void onOptionsUpdated(CollectionsOptions options) {
+    public void onOptionsUpdated(PlaylistsOptions options) {
         collectionsOptionsStorage.store(options);
         currentOptions = options;
+        refreshCollections();
+    }
+
+    private void refreshCollections() {
         adapter.clear();
         retryWith(onBuildBinding(null));
+    }
+
+    @Override
+    public void onCollectionsOnboardingItemClosed(int position) {
+        collectionsOptionsStorage.disableOnboarding();
+        removeItem(position);
     }
 
     @NonNull
@@ -165,4 +203,15 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 || !currentOptions.showLikes() && currentOptions.showPosts();
     }
 
+    private void removeItem(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
+    }
+
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<PropertySet> {
+        @Override
+        public void onNext(PropertySet ignored) {
+            refreshCollections();
+        }
+    }
 }

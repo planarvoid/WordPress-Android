@@ -4,7 +4,6 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,28 +19,27 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Intent;
 import android.media.AudioManager;
 
 public class PlaybackServiceTest extends AndroidUnitTest {
 
-    private static final PropertySet TRACK_PROPERTIES = TestPropertySets.expectedTrackForPlayer();
+    private static final int DURATION = 1000;
+    private static final long START_POSITION = 123L;
     private PlaybackService playbackService;
-    private Urn track = Urn.forTrack(123L);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
+    private Urn track = playbackItem.getTrackUrn();
     private TestEventBus eventBus = new TestEventBus();
+    private TestDateProvider dateProvider = new TestDateProvider();
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private StreamPlayer streamPlayer;
@@ -56,13 +54,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(playQueueManager, eventBus, trackRepository,
-                accountOperations, streamPlayer,
-                playbackReceiverFactory, InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController, analyticsController, adsOperations);
+        playbackService = new PlaybackService(eventBus,
+                accountOperations, streamPlayer,playbackReceiverFactory,
+                InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController,
+                analyticsController, adsOperations);
 
-        when(trackRepository.track(track)).thenReturn(Observable.just(TRACK_PROPERTIES));
-
-        when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
+        when(playbackReceiverFactory.create(playbackService, accountOperations, eventBus)).thenReturn(playbackReceiver);
     }
 
     @Test
@@ -152,13 +149,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
-        when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
-        when(stateTransition.trackEnded()).thenReturn(false);
-        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onCreate();
-        playbackService.play(track, 0);
+        playbackService.play(playbackItem);
 
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, 0, 123);
         playbackService.onPlaystateChanged(stateTransition);
 
         Player.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
@@ -166,20 +161,17 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playAgainWhenTheStreamPlayerFailedToResume() {
-        when(remoteAudioManager.requestMusicFocus(playbackService, IAudioManager.FOCUS_GAIN)).thenReturn(true);
+    public void onPlaystateChangedPublishesStateTransitionWithCorrectedDuration() throws Exception {
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+
         playbackService.onCreate();
-        playbackService.play(track, 0);
-        playbackService.pause();
+        playbackService.play(playbackItem);
 
-        reset(streamPlayer);
-        when(streamPlayer.isPlaying()).thenReturn(false);
-        when(streamPlayer.resume()).thenReturn(false);
-        when(streamPlayer.getProgress()).thenReturn(1000L);
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, 0, 0, dateProvider);
+        playbackService.onPlaystateChanged(stateTransition);
 
-        playbackService.togglePlayback();
-
-        verify(streamPlayer).play(track, 1000L, TRACK_PROPERTIES.get(TrackProperty.DURATION));
+        Player.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        assertThat(broadcasted).isEqualTo(new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, 0, playbackItem.getDuration(), dateProvider));
     }
 
     @Test
@@ -194,13 +186,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
-        when(stateTransition.getNewState()).thenReturn(Player.PlayerState.BUFFERING);
-        when(stateTransition.trackEnded()).thenReturn(false);
-        when(stateTransition.getTrackUrn()).thenReturn(track);
 
         playbackService.onCreate();
-        playbackService.play(track, 0);
+        playbackService.play(playbackItem);
 
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, 0, 123);
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(analyticsController).onStateTransition(stateTransition);
@@ -219,7 +209,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void onProgressPublishesAProgressEvent() throws Exception {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         playbackService.onCreate();
-        playbackService.play(track, 0);
+        playbackService.play(playbackItem);
 
         playbackService.onProgressEvent(123L, 456L);
 
@@ -234,21 +224,9 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
 
-        playbackService.play(track, 0);
+        playbackService.play(playbackItem);
 
-        verify(streamPlayer).play(track, 0, TRACK_PROPERTIES.get(TrackProperty.DURATION));
-    }
-
-    @Test
-    public void openCurrentWithAudioAdCallsPlayUninterruptedOnStreamPlayer() throws Exception {
-        playbackService.onCreate();
-        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.isQueueEmpty()).thenReturn(false);
-
-        playbackService.playUninterrupted(track);
-
-        verify(streamPlayer).playUninterrupted(track, TRACK_PROPERTIES.get(TrackProperty.DURATION));
+        verify(streamPlayer).play(playbackItem);
     }
 
     @Test
@@ -262,7 +240,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track));
-        playbackService.play(track, 0);
+        playbackService.play(playbackItem);
 
         playbackService.stop();
         playbackService.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, track));

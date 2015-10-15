@@ -125,6 +125,10 @@ public class SlidingTabLayout extends HorizontalScrollView {
             tabWidth = MeasureSpec.getSize(widthMeasureSpec) / tabStrip.getChildCount();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        // min height must be set for appbarlayout collapse behavior
+        // https://developer.android.com/reference/android/support/design/widget/AppBarLayout.LayoutParams.html#SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+        setMinimumHeight(getMeasuredHeight());
     }
 
     /**

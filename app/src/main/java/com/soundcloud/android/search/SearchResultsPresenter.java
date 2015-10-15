@@ -8,7 +8,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -87,7 +87,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus) {
-        super(swipeRefreshAttacher, Options.list());
+        super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

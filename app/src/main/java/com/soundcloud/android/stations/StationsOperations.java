@@ -24,7 +24,7 @@ public class StationsOperations {
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
     private final StoreTracksCommand storeTracksCommand;
-    private final StoreStationCommand storeStationCommand;
+    private final StoreApiStationCommand storeApiStationCommand;
     private final StationsSyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
@@ -61,7 +61,7 @@ public class StationsOperations {
     public StationsOperations(StationsStorage stationsStorage,
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
-                              StoreStationCommand storeStationCommand,
+                              StoreApiStationCommand storeApiStationCommand,
                               StationsSyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.stationsStorage = stationsStorage;
@@ -69,7 +69,7 @@ public class StationsOperations {
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
         this.storeTracksCommand = storeTracksCommand;
-        this.storeStationCommand = storeStationCommand;
+        this.storeApiStationCommand = storeApiStationCommand;
     }
 
     public Observable<Station> station(Urn stationUrn) {
@@ -93,11 +93,15 @@ public class StationsOperations {
         return stationsApi
                 .fetchStation(station)
                 .doOnNext(storeTracks)
-                .doOnNext(storeStationCommand.toAction())
+                .doOnNext(storeApiStationCommand.toAction())
                 .flatMap(toTracks(station, currentSize))
                 .toList()
                 .map(toPlayQueue(station))
                 .subscribeOn(scheduler);
+    }
+
+    public boolean shouldDisplayOnboardingStreamItem() {
+        return !stationsStorage.isOnboardingDisabled();
     }
 
     @NonNull
@@ -124,7 +128,7 @@ public class StationsOperations {
         return stationsApi
                 .fetchStation(stationUrn)
                 .doOnNext(storeTracks)
-                .doOnNext(storeStationCommand.toAction())
+                .doOnNext(storeApiStationCommand.toAction())
                 .map(TO_STATION);
     }
 
@@ -134,13 +138,13 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<Station> collection(final int type) {
+    public Observable<Station> collection(final int type) {
         return loadStationsCollection(type)
                 .switchIfEmpty(syncAndReloadStations(type))
                 .subscribeOn(scheduler);
     }
 
-    Observable<SyncResult> sync() {
+    public Observable<SyncResult> sync() {
         return syncInitiator.syncRecentStations();
     }
 
@@ -154,5 +158,9 @@ public class StationsOperations {
 
     public void clearData() {
         stationsStorage.clear();
+    }
+
+    public void disableOnboarding() {
+        stationsStorage.disableOnboarding();
     }
 }

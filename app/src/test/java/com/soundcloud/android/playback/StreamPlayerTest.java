@@ -14,7 +14,9 @@ import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,8 +33,11 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private Player.PlayerListener playerListener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
-    private Urn track = Urn.forTrack(123L);
-    private long duration = 1337;
+    private Urn trackUrn = Urn.forTrack(123L);
+    private PropertySet track = PropertySet.from(
+            TrackProperty.URN.bind(trackUrn),
+            TrackProperty.DURATION.bind(456L)
+    );
 
     @Before
     public void setUp() throws Exception {
@@ -67,82 +72,66 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void playCallsPlayOnSkippyByDefault() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.play(track, duration);
-        verify(skippyAdapter).play(track, duration);
+
+        startPlaybackOnSkippy();
+
+        verify(skippyAdapter).play(trackUrn, 123L);
     }
 
     @Test
     public void playSetsListenerOnSkippyByDefault() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.play(track, duration);
+
+        startPlaybackOnSkippy();
+
         verify(skippyAdapter).setListener(streamPlayerWrapper);
     }
 
     @Test
-    public void playUninterruptedCallsPlayOnSkippyByDefault() {
+    public void playWithUninterruptedPlaybackItemCallsPlayOnSkippyByDefault() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.playUninterrupted(track, duration);
-        verify(skippyAdapter).playUninterrupted(track, duration);
+
+        streamPlayerWrapper.play(AudioPlaybackItem.forAudioAd(track));
+
+        verify(skippyAdapter).playUninterrupted(trackUrn);
     }
 
     @Test
     public void playPlaysOnMediaPlayerIfSkippyLoadFailed() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
-        streamPlayerWrapper.play(track, duration);
-        verify(mediaPlayerAdapter).play(track, duration);
-    }
 
-    @Test
-    public void playOfflineCallsPlayOfflineOnSkippy() {
-        instantiateStreamPlaya();
+        startPlaybackOnSkippy();
 
-        streamPlayerWrapper.playOffline(track, duration);
-
-        verify(skippyAdapter).playOffline(track, 0, duration);
+        verify(mediaPlayerAdapter).play(trackUrn, 123L);
     }
 
     @Test
     public void playOfflineCallsPlayOfflineOnSkippyWithResumeTime() {
         instantiateStreamPlaya();
 
-        streamPlayerWrapper.playOffline(track, 123, duration);
+        streamPlayerWrapper.play(AudioPlaybackItem.forOffline(track, 123L));
 
-        verify(skippyAdapter).playOffline(track, 123, duration);
+        verify(skippyAdapter).playOffline(trackUrn, 123);
     }
 
     @Test
-    public void playCallsPlayOnMediaPlayerIfTrackAvailableOfflineAndSkippyFailedToInitialize() {
+    public void playCallsPlayOnMediaPlayerAndSkippyFailedToInitialize() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
 
-        streamPlayerWrapper.play(track, duration);
+        startPlaybackOnSkippy();
 
-        verify(mediaPlayerAdapter).play(track, duration);
+        verify(mediaPlayerAdapter).play(trackUrn, 123L);
     }
 
-    @Test
-    public void playCallsPlayOnSkippyPlayerIfTrackShouldNotBePlayedOffline() {
-        instantiateStreamPlaya();
-
-        streamPlayerWrapper.play(track, duration);
-
-        verify(skippyAdapter).play(track, duration);
-    }
-
-    @Test
-    public void playCallsPlayOnSkippyIfTrackShouldNotBePlayedOffline() {
-        instantiateStreamPlaya();
-
-        streamPlayerWrapper.play(track, duration);
-
-        verify(skippyAdapter).play(track, duration);
-    }
 
     @Test
     public void playSetsListenerToSkippy() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.play(track, duration);
+
+        startPlaybackOnSkippy();
+        
         verify(skippyAdapter).setListener(streamPlayerWrapper);
     }
 
@@ -287,21 +276,25 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsWhileConnectedToInternet() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
-        streamPlayerWrapper.play(track, duration);
+        
+        startPlaybackOnSkippy();
+        
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, track));
-        verify(mediaPlayerAdapter).play(track, 123L);
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn));
+        verify(mediaPlayerAdapter).play(trackUrn, 123L);
     }
 
     @Test
     public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithForbidden() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
-        streamPlayerWrapper.play(track, duration);
+        
+        startPlaybackOnSkippy();
+        
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, track));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(Urn.class), anyLong());
     }
 
@@ -309,10 +302,12 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithNotFound() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
-        streamPlayerWrapper.play(track, duration);
+
+        startPlaybackOnSkippy();
+        
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, track));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(Urn.class), anyLong());
     }
 
@@ -357,7 +352,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void getLastStateTransitionReturnsIdleNothingByDefault() {
         instantiateStreamPlaya();
-        assertThat(streamPlayerWrapper.getLastStateTransition().getNewState()).isEqualTo(Player.PlayerState.IDLE);
+        assertThat(streamPlayerWrapper.getLastStateTransition()).isEqualTo(Player.StateTransition.DEFAULT);
     }
 
     @Test
@@ -405,12 +400,13 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void fallBackToMediaPlayer() {
-        streamPlayerWrapper.play(track, duration);
+        startPlaybackOnSkippy();
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, track));
+        streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn));
     }
 
     private void startPlaybackOnSkippy() {
-        streamPlayerWrapper.play(track, duration);
+        streamPlayerWrapper.play(AudioPlaybackItem.create(track, 123L));
     }
+
 }

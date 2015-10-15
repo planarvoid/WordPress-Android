@@ -39,7 +39,7 @@ public class ErrorViewControllerTest {
         holder.hideOnErrorViews = Arrays.asList(hideOnError);
 
         errorLayout = LayoutInflater.from(Robolectric.application).inflate(R.layout.track_page_error, null);
-        when(errorStub.inflate()).thenReturn(errorLayout, null);
+        when(errorStub.inflate()).thenReturn(errorLayout);
 
         when(trackPage.findViewById(R.id.track_page_error_stub)).thenReturn(errorStub);
         when(trackPage.getTag()).thenReturn(holder);

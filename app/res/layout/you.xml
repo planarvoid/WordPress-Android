@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/profile_header"
+        style="@style/You.Container"
+        android:orientation="vertical"
+        tools:ignore="MergeRootFrame">
+
+        <FrameLayout
+            android:id="@+id/header_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp"
+            android:foreground="?attr/selectableItemBackground">
+
+            <LinearLayout
+                style="@style/You.Header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                tools:ignore="UselessParent">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/image"
+                    style="@style/You.HeaderImage" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <com.soundcloud.android.view.CustomFontTextView
+                        android:id="@+id/username"
+                        style="@style/You.HeaderText.Username" />
+
+                    <com.soundcloud.android.view.CustomFontTextView
+                        android:id="@+id/profile_link"
+                        style="@style/You.HeaderText.ProfileLink"
+                        android:text="@string/you_view_public_profile" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/you_activity_link"
+            style="@style/You.NavItem">
+
+            <TextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_activity" />
+
+        </FrameLayout>
+
+        <View style="@style/Divider.Horizontal" />
+
+        <FrameLayout
+            android:id="@+id/you_record_link"
+            style="@style/You.NavItem"
+            android:layout_marginBottom="16dp">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_record" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/you_offline_sync_settings_link"
+            style="@style/You.NavItem">
+
+            <TextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_offline_sync_settings" />
+
+        </FrameLayout>
+
+        <View style="@style/Divider.Horizontal" />
+
+        <FrameLayout
+            android:id="@+id/you_notification_settings_link"
+            style="@style/You.NavItem">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_notification_settings" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/you_basic_settings_link"
+            style="@style/You.NavItem"
+            android:layout_marginBottom="16dp">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_basic_settings" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/you_help_center_link"
+            style="@style/You.NavItem">
+
+            <TextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_help_center" />
+
+        </FrameLayout>
+
+        <View style="@style/Divider.Horizontal" />
+
+        <FrameLayout
+            android:id="@+id/you_legal_link"
+            style="@style/You.NavItem"
+            android:layout_marginBottom="16dp">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_legal" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/you_sign_out_link"
+            style="@style/You.NavItem"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                style="@style/You.NavItemText"
+                android:text="@string/you_sign_out" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+</ScrollView>

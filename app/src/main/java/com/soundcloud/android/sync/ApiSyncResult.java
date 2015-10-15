@@ -13,9 +13,6 @@ public class ApiSyncResult {
     public static final int REORDERED = 1;
     public static final int CHANGED   = 2;
 
-    protected static final int UNEXPECTED_RESPONSE_MINIMUM_DELAY = 20;
-    protected static final int UNEXPECTED_RESPONSE_DELAY_RANGE = 40;
-
     protected static final int GENERAL_ERROR_MINIMUM_DELAY = 10;
     protected static final int GENERAL_ERROR_DELAY_RANGE = 20;
 
@@ -77,12 +74,18 @@ public class ApiSyncResult {
     }
 
     public static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode) {
-        return fromUnexpectedResponse(uri, statusCode, new Random());
+        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
+
+        if (statusCode >= 500){
+            setDelayUntilToOneSyncInterval(apiSyncResult);
+        }
+
+        return apiSyncResult;
     }
 
     public static ApiSyncResult fromServerError(Uri uri) {
         final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
-        setDelayUntilToRandomDelay(new Random(), apiSyncResult);
+        setDelayUntilToOneSyncInterval(apiSyncResult);
         return apiSyncResult;
     }
 
@@ -90,20 +93,9 @@ public class ApiSyncResult {
         return new ApiSyncResult(uri);
     }
 
-    @VisibleForTesting
-    static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode, Random random) {
-        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
-
-        if (statusCode >= 500){
-            setDelayUntilToRandomDelay(random, apiSyncResult);
-        }
-
-        return apiSyncResult;
-    }
-
-    private static void setDelayUntilToRandomDelay(Random random, ApiSyncResult apiSyncResult) {
+    private static void setDelayUntilToOneSyncInterval(ApiSyncResult apiSyncResult) {
         // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
-        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
+        apiSyncResult.syncResult.delayUntil = SyncConfig.DEFAULT_SYNC_DELAY;
     }
 
     public static ApiSyncResult fromGeneralFailure(Uri uri) {

@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class ExploreGenre implements Parcelable {
 
-    public static final String EXPLORE_GENRE_EXTRA = "category";
+    public static final String EXPLORE_GENRE_EXTRA = "genre";
     public static final ExploreGenre POPULAR_MUSIC_CATEGORY = new ExploreGenre("Trending Music");
     public static final ExploreGenre POPULAR_AUDIO_CATEGORY = new ExploreGenre("Trending Audio");
     static final String SUGGESTED_TRACKS_LINK_REL = "suggested_tracks";

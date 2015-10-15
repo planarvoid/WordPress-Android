@@ -48,14 +48,14 @@ final class DownloadQueue {
 
     List<Urn> getRequestedWithOwningPlaylists(DownloadState result) {
         final List<Urn> requestedAndRelated = getRequestedEntities();
-        addAllRemovingDuplication(requestedAndRelated, result.request.inPlaylists);
-
+        addAllRemovingDuplication(requestedAndRelated, result.request.getPlaylists());
+        requestedAndRelated.add(result.getTrack());
         return requestedAndRelated;
     }
 
     private List<Urn> getIntersectionWith(DownloadState result) {
         final List<Urn> stillRequested = new ArrayList<>(getRequestedEntities());
-        stillRequested.retainAll(result.request.inPlaylists);
+        stillRequested.retainAll(result.request.getPlaylists());
         return stillRequested;
     }
 
@@ -64,26 +64,26 @@ final class DownloadQueue {
     }
 
     List<Urn> getDownloadedPlaylists(DownloadState result) {
-        final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
+        final ArrayList<Urn> completed = new ArrayList<>(result.request.getPlaylists());
         completed.removeAll(getRequestedEntities());
         return completed;
     }
 
     private List<Urn> getComplementWith(DownloadState result) {
-        final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
+        final ArrayList<Urn> completed = new ArrayList<>(result.request.getPlaylists());
         completed.removeAll(getRequestedEntities());
         completed.add(result.getTrack());
         return completed;
     }
 
     boolean isAllLikedTracksDownloaded(DownloadState result) {
-        return result.request.inLikedTracks && !isLikedTrackRequested();
+        return result.request.isLiked() && !isLikedTrackRequested();
     }
 
     List<Urn> getRequestedEntities() {
         final List<Urn> requested = new ArrayList<>();
         for (DownloadRequest request : queue) {
-            addAllRemovingDuplication(requested, request.inPlaylists);
+            addAllRemovingDuplication(requested, request.getPlaylists());
         }
         return requested;
     }
@@ -99,7 +99,7 @@ final class DownloadQueue {
 
     boolean isLikedTrackRequested() {
         for (DownloadRequest pending : queue) {
-            if (pending.inLikedTracks) {
+            if (pending.isLiked()) {
                 return true;
             }
         }

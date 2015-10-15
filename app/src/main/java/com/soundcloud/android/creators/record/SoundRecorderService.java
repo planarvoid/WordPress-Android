@@ -55,13 +55,13 @@ public class SoundRecorderService extends Service {
     // notifications
     private PendingIntent recordPendingIntent;
     private NotificationManager notificationManager;
-    private Notification recordNotification;
     private LocalBroadcastManager broadcastManager;
     private long lastNotifiedTime;
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
 
-        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+        @Override
+        @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -86,9 +86,9 @@ public class SoundRecorderService extends Service {
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l) / 1000;
-                if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime, time) && recordNotification != null) {
+                if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime, time)) {
                     lastNotifiedTime = time;
-                    updateRecordTicker(recordNotification, time);
+                    updateRecordTicker(time);
                 }
 
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
@@ -161,13 +161,16 @@ public class SoundRecorderService extends Service {
         wakeLock = null;
     }
 
-    public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+    private NotificationCompat.Builder ongoingNotificationBuilder(String title, String message,
+                                                                  PendingIntent pendingIntent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setContentTitle(title);
+        builder.setContentText(message);
         builder.setContentIntent(pendingIntent);
         builder.setOngoing(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        return builder.build();
+        return builder;
     }
 
     private void scheduleServiceShutdownCheck() {
@@ -187,20 +190,18 @@ public class SoundRecorderService extends Service {
     }
 
     private void killNotification(int id) {
-        if (id == RECORD_NOTIFY_ID) {
-            recordNotification = null;
-        }
         notificationManager.cancel(id);
     }
 
     private Notification createRecordingNotification(Recording recording) {
-        recordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-        recordNotification = createOngoingNotification(this, recordPendingIntent);
-        recordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message, 0),
-                recordPendingIntent);
+        recordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(),
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
-        return recordNotification;
+        return ongoingNotificationBuilder(
+                getString(R.string.cloud_recorder_event_title),
+                getString(R.string.cloud_recorder_event_message, 0),
+                recordPendingIntent)
+                .build();
     }
 
     private void sendRecordingNotification(Recording recording) {
@@ -217,16 +218,12 @@ public class SoundRecorderService extends Service {
     private Notification createPlaynotification(Intent intent, Recording r) {
         String title = r.sharingNote(getResources());
 
-        PendingIntent pi = PendingIntent.getActivity(
+        PendingIntent clickIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = createOngoingNotification(this, pi);
-
-        notification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
-                        .getString(R.string.cloud_recorder_playback_event_title), title,
-                pi);
-
-        return notification;
+        return ongoingNotificationBuilder(
+                getString(R.string.cloud_recorder_playback_event_title), title, clickIntent)
+                .build();
     }
 
     private void acquireWakeLock() {
@@ -241,11 +238,12 @@ public class SoundRecorderService extends Service {
         }
     }
 
-    /* package */ void updateRecordTicker(Notification notification, long recordTime) {
-        notification.setLatestEventInfo(this,
+    private void updateRecordTicker(long recordTime) {
+        Notification notification = ongoingNotificationBuilder(
                 getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message, ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
-                recordPendingIntent);
+                getString(R.string.cloud_recorder_event_message,
+                        ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
+                recordPendingIntent).build();
         notificationManager.notify(RECORD_NOTIFY_ID, notification);
     }
 }

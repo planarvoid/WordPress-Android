@@ -426,7 +426,8 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         final PropertySet propertySet = PropertySet.from(
                 UserProperty.URN.bind(getUrn()),
                 UserProperty.USERNAME.bind(username),
-                UserProperty.FOLLOWERS_COUNT.bind(followers_count)
+                UserProperty.FOLLOWERS_COUNT.bind(followers_count),
+                UserProperty.ID.bind(getId())
         );
         if (country != null) {
             propertySet.put(UserProperty.COUNTRY, country);

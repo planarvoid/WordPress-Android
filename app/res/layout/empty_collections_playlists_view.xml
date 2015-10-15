@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@android:color/white"
     android:padding="16dp"
     tools:ignore="Overdraw">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/empty_playlists"
-        style="@style/Ak.EmptyViewContent.EmptyCollection.Image" />
-
     <TextView
+        android:drawableTop="@drawable/empty_playlists"
+        android:drawablePadding="40dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/collections_empty_playlists"
         android:layout_marginBottom="32dp"
-        style="@style/Ak.EmptyViewContent.EmptyCollection" />
+        style="@style/Ak.EmptyViewContent.EmptyCollection.Image" />
 
-</LinearLayout>
+</FrameLayout>

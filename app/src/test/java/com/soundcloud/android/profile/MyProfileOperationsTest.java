@@ -215,7 +215,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncAndLoadPlaylistsWhenInitialPlaylistLoadReturnsEmptyList() {
         final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
-        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -225,7 +225,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadEmptyPlaylistsResultsWithEmptyResults() {
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -236,7 +236,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void pagedPlaylistItemsReturnsPlaylistItemsFromStorage() {
         final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -251,7 +251,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.just(secondPage));
-        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.playlistPagingFunction().call(firstPage).subscribe(subscriber);
 
@@ -267,7 +267,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
         final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.updatedPlaylists().subscribe(subscriber);
 

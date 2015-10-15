@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.storage.provider.Content;
 
@@ -52,10 +52,10 @@ public final class SearchEvent extends TrackingEvent {
 
     public static SearchEvent searchSuggestion(Content itemKind, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
-                .put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
-                .put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
-                .put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
-                .put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL)
+                .<SearchEvent>put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
+                .<SearchEvent>put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
+                .<SearchEvent>put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL)
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
@@ -83,10 +83,10 @@ public final class SearchEvent extends TrackingEvent {
 
     public static SearchEvent tapTrackOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_CLICK_NAME, CLICK_NAME_PLAY)
-                .put(KEY_TYPE, TYPE_TRACK)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_PLAY)
+                .<SearchEvent>put(KEY_TYPE, TYPE_TRACK)
+                .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
@@ -96,26 +96,26 @@ public final class SearchEvent extends TrackingEvent {
 
     public static SearchEvent tapPlaylistOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PLAYLIST)
-                .put(KEY_TYPE, TYPE_PLAYLIST)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PLAYLIST)
+                .<SearchEvent>put(KEY_TYPE, TYPE_PLAYLIST)
+                .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
     public static SearchEvent tapUserOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PROFILE)
-                .put(KEY_TYPE, TYPE_USER)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PROFILE)
+                .<SearchEvent>put(KEY_TYPE, TYPE_USER)
+                .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
     public static SearchEvent searchStart(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUBMIT)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_CLICK_NAME, CLICK_NAME_SEARCH)
+                .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_SEARCH)
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
@@ -165,8 +165,4 @@ public final class SearchEvent extends TrackingEvent {
         }
     }
 
-    @Override
-    public SearchEvent put(String key, String value) {
-        return (SearchEvent) super.put(key, value);
-    }
 }

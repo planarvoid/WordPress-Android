@@ -2,7 +2,6 @@ package com.soundcloud.android.facebookinvites;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.LayoutInflater;
@@ -40,6 +39,7 @@ public class FacebookInvitesItemRenderer implements CellRenderer<FacebookInvites
 
     @Override
     public void bindItemView(int position, View itemView, List<FacebookInvitesItem> notifications) {
+        itemView.setEnabled(false);
         FacebookInvitesItem item = notifications.get(position);
 
         if (item.hasPictures()) {

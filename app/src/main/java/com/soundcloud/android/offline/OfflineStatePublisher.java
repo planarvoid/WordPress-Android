@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -15,7 +13,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 class OfflineStatePublisher {
@@ -40,8 +37,10 @@ class OfflineStatePublisher {
     }
 
     void publishDownloadErrorEvents(DownloadQueue queue, DownloadState result) {
-        publishTrackUnavailable(result);
-        publishRelatedAndQueuedCollectionsAsRequested(queue, result);
+        Log.d(TAG, "downloadRequested");
+        List<Urn> changedEntities = queue.getRequestedWithOwningPlaylists(result);
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
+                CurrentDownloadEvent.downloadRequested(result.request.isLiked(), changedEntities));
     }
 
     void publishDownloadCancelEvents(DownloadQueue queue, DownloadState result) {
@@ -67,10 +66,14 @@ class OfflineStatePublisher {
         }
     }
 
-    void publishDownloadsRequested(DownloadQueue queue) {
-        if (!queue.getRequests().isEmpty()) {
+    void publishDownloadsRequested(DownloadRequest request) {
+        publishDownloadsRequested(Collections.singletonList(request));
+    }
+
+    void publishDownloadsRequested(List<DownloadRequest> requests) {
+        if (!requests.isEmpty()) {
             Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(queue.getRequests()));
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(requests));
         }
     }
 
@@ -124,7 +127,7 @@ class OfflineStatePublisher {
     private void publishTrackUnavailable(DownloadState result) {
         Log.d(TAG, "unavailable");
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.unavailable(false, Collections.singletonList(result.getTrack())));
+                CurrentDownloadEvent.unavailable(result.request.isLiked(), Collections.singletonList(result.getTrack())));
     }
 
     private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
@@ -135,15 +138,6 @@ class OfflineStatePublisher {
             Log.d(TAG, "downloadRequested");
             eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
                     CurrentDownloadEvent.downloadRequested(likedTrackRequested, requested));
-        }
-    }
-
-    private void publishRelatedAndQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
-        List<Urn> relatedPlaylists = queue.getRequestedWithOwningPlaylists(result);
-        if (!relatedPlaylists.isEmpty() || result.request.inLikedTracks) {
-            Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                    CurrentDownloadEvent.downloadRequested(result.request.inLikedTracks, relatedPlaylists));
         }
     }
 

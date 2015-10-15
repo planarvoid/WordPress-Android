@@ -9,11 +9,10 @@ import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
-import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
+import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -29,6 +28,7 @@ import javax.inject.Inject;
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
 public abstract class ScActivity extends LightCycleAppCompatActivity {
+
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle ActivityLifeCyclePublisher activityLifeCyclePublisher;
     @Inject @LightCycle NetworkConnectivityController networkConnectivityController;
@@ -40,14 +40,13 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
+
     @Inject ApplicationProperties applicationProperties;
-    @Inject protected ScreenPresenter presenter;
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
 
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        presenter.attach(this);
     }
 
     @Override
@@ -96,12 +95,7 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
 
     @Override
     protected void setActivityContentView() {
-        setContentView();
-    }
-
-    // Override this in activities with custom content views
-    protected void setContentView() {
-        presenter.setContainerLayout();
+        // Override with specific base layout in Activity. See also: BaseLayoutHelper
     }
 
     protected void setContentFragment(final Fragment f) {

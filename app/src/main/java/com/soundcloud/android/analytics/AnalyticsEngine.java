@@ -10,22 +10,18 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
-import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
 
@@ -65,36 +61,17 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     };
 
-    private final Func1<TrackingEvent, Boolean> isPlaybackSessionEvent = new Func1<TrackingEvent, Boolean>() {
-        @Override
-        public Boolean call(TrackingEvent trackingEvent) {
-            return trackingEvent instanceof PlaybackSessionEvent;
-        }
-    };
-
-    private final Func1<TrackingEvent, Boolean> toPlaybackSessionStatus = new Func1<TrackingEvent, Boolean>() {
-        @Override
-        public Boolean call(TrackingEvent trackingEvent) {
-            final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) trackingEvent;
-            return playbackSessionEvent.isPlayEvent() || playbackSessionEvent.isBufferingEvent();
-        }
-    };
-
-    private final Func2<ActivityLifeCycleEvent, Boolean, UserSessionEvent> combineToSessionEvent = new Func2<ActivityLifeCycleEvent, Boolean, UserSessionEvent>() {
-        @Override
-        public UserSessionEvent call(ActivityLifeCycleEvent activityLifeCycleEvent, Boolean isPlaying) {
-            final int activityLifeCycleEventKind = activityLifeCycleEvent.getKind();
-            final boolean isForeground = activityLifeCycleEventKind == ActivityLifeCycleEvent.ON_RESUME_EVENT || activityLifeCycleEventKind == ActivityLifeCycleEvent.ON_CREATE_EVENT;
-
-            return isForeground || isPlaying ? UserSessionEvent.OPENED : UserSessionEvent.CLOSED;
-        }
-    };
-
     @Inject
     public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
                            AnalyticsProviderFactory analyticsProviderFactory) {
         this(eventBus, sharedPreferences, AndroidSchedulers.mainThread(),
                 analyticsProviderFactory);
+    }
+
+    public void onAppCreated(Context context) {
+        for (AnalyticsProvider analyticsProvider : analyticsProviders) {
+            analyticsProvider.onAppCreated(context);
+        }
     }
 
     @VisibleForTesting
@@ -120,20 +97,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
-        eventsSubscription.add(getUserSessionEvent().subscribe(new UserSessionSubscriber()));
-    }
-
-    private Observable<UserSessionEvent> getUserSessionEvent() {
-        final Observable<ActivityLifeCycleEvent> activityLifeCycle = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        final Observable<Boolean> playbackSessionEvents = eventBus
-                .queue(EventQueue.TRACKING)
-                .filter(isPlaybackSessionEvent)
-                .map(toPlaybackSessionStatus)
-                .startWith(false);
-
-        return Observable
-                .combineLatest(activityLifeCycle, playbackSessionEvents, combineToSessionEvent)
-                .distinctUntilChanged();
     }
 
     @Override
@@ -198,13 +161,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, TrackingEvent event) {
             provider.handleTrackingEvent(event);
-        }
-    }
-
-    private class UserSessionSubscriber extends EventSubscriber<UserSessionEvent> {
-        @Override
-        protected void handleEvent(AnalyticsProvider provider, UserSessionEvent event) {
-            provider.handleUserSessionEvent(event);
         }
     }
 

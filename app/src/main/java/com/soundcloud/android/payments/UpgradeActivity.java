@@ -3,6 +3,7 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
@@ -14,6 +15,8 @@ public class UpgradeActivity extends ScActivity {
 
     @Inject @LightCycle UpgradePresenter upgradePresenter;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
+
     @VisibleForTesting
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -21,9 +24,9 @@ public class UpgradeActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
+    protected void setActivityContentView() {
         super.setContentView(R.layout.upgrade_activity);
-        presenter.setToolBar();
+        baseLayoutHelper.setupActionBar(this);
     }
 
     @Override

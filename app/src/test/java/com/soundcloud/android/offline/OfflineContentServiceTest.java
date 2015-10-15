@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,8 +40,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
-    private final DownloadRequest downloadRequest1 = createDownloadRequest(TRACK_1);
-    private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
+    private final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(TRACK_1);
+    private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(456L));
     private final DownloadState downloadState1 = DownloadState.success(downloadRequest1);
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 =
@@ -144,7 +145,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        verify(publisher).publishDownloadsRequested(downloadQueue);
+        verify(publisher).publishDownloadsRequested(downloadQueue.getRequests());
     }
 
     @Test
@@ -325,10 +326,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_STOP);
         return service.onStartCommand(intent, 0, 0);
-    }
-
-    private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, 123456, "http://wav");
     }
 
     private void setupNoDownloadRequest() {

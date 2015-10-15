@@ -30,6 +30,7 @@ import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -61,12 +62,12 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private ProfileUser profileUser;
+    private Intent intent = new Intent();
 
     @Before
     public void setUp() throws Exception {
         profileUser = createProfileUser();
 
-        final Intent intent = new Intent();
         intent.putExtra(ProfileActivity.EXTRA_USER_URN, USER_URN);
 
         when(activity.getIntent()).thenReturn(intent);
@@ -95,6 +96,16 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setsUserOnHeaderPresenter() throws Exception {
+        profilePresenter.onCreate(activity, null);
+
+        verify(profileHeaderPresenter).setUserDetails(profileUser);
+    }
+
+    @Test
+    public void setsUserOnHeaderPresenterWhenIntentProvidesUri() throws Exception {
+        intent.removeExtra(ProfileActivity.EXTRA_USER_URN);
+        intent.setData(Uri.parse("soundcloud://users/" + USER_URN.getNumericId()));
+
         profilePresenter.onCreate(activity, null);
 
         verify(profileHeaderPresenter).setUserDetails(profileUser);

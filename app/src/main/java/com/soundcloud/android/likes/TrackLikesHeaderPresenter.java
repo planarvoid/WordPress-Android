@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -181,8 +181,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
         @Override
         public void onNext(List<Urn> allLikedTracks) {
-            headerView.updateTrackCount(allLikedTracks.size());
-            headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOverflowMenu());
+            if (headerView != null) {
+                headerView.updateTrackCount(allLikedTracks.size());
+                headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOverflowMenu());
+            }
         }
     }
 

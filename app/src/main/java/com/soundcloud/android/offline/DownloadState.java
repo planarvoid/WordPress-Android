@@ -39,17 +39,17 @@ public final class DownloadState {
     }
 
     public static DownloadState success(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Successful download result: " + request.track);
-        return new DownloadState(Status.SUCCESS, request, calculateFileSizeInBytes(request.duration));
+        Log.d(OfflineContentService.TAG, "Successful download result: " + request.getTrack());
+        return new DownloadState(Status.SUCCESS, request, calculateFileSizeInBytes(request.getDuration()));
     }
 
     public static DownloadState unavailable(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Unavailable download result: " + request.track);
+        Log.d(OfflineContentService.TAG, "Unavailable download result: " + request.getTrack());
         return new DownloadState(Status.UNAVAILABLE, request);
     }
 
     public static DownloadState connectionError(DownloadRequest request, ConnectionState connectionState) {
-        Log.d(OfflineContentService.TAG, "Connection error download result: " + request.track);
+        Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getTrack());
         return new DownloadState(Status.CONNECTION_ERROR, request, connectionState);
     }
 
@@ -58,12 +58,12 @@ public final class DownloadState {
     }
 
     public static DownloadState notEnoughSpace(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.track);
+        Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.getTrack());
         return new DownloadState(Status.NOT_ENOUGH_SPACE, request);
     }
 
     public static DownloadState canceled(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Download cancelled: "+ request.track);
+        Log.d(OfflineContentService.TAG, "Download cancelled: " + request.getTrack());
         return new DownloadState(Status.CANCELLED, request);
     }
 
@@ -96,7 +96,7 @@ public final class DownloadState {
     }
 
     public Urn getTrack() {
-        return request.track;
+        return request.getTrack();
     }
 
     public long getTimestamp() {
@@ -108,7 +108,7 @@ public final class DownloadState {
     }
 
     public long getTotalBytes() {
-        return calculateFileSizeInBytes(request.duration);
+        return calculateFileSizeInBytes(request.getDuration());
     }
 
     @Override

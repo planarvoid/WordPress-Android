@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 
 import android.graphics.Rect;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
@@ -24,7 +25,7 @@ public class VisualPlayerElement extends Element {
     private final Condition IS_EXPANDED_CONDITION = new Condition() {
         @Override
         public boolean isSatisfied() {
-            return isExpanded();
+            return player().isVisible() && isExpanded();
         }
     };
     private final Condition IS_COLLAPSED_CONDITION = new Condition() {
@@ -232,7 +233,20 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForContent() {
+        waiter.waitForElement(With.id(R.id.player_track_pager));
         waiter.waitForContent(getViewPager());
+    }
+
+    public void waitForMoreContent() {
+        final int currentItem = getViewPager().getCurrentItem();
+        final PagerAdapter adapter = getViewPager().getAdapter();
+
+        waiter.waitForNetworkCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return adapter.getCount() > currentItem + 1;
+            }
+        });
     }
 
     public boolean waitForExpandedPlayer() {
@@ -248,8 +262,12 @@ public class VisualPlayerElement extends Element {
     }
 
     private int getPlayerHeight() {
-        final ViewElement element = solo.findElement(With.id(R.id.player_root));
+        final ViewElement element = player();
         return element.getHeight() + element.getTop();
+    }
+
+    private ViewElement player() {
+        return solo.findElement(With.id(R.id.player_root));
     }
 
     public boolean waitForCollapsedPlayer() {

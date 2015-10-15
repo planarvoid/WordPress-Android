@@ -6,7 +6,7 @@ import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -17,6 +17,10 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.StationOnboardingStreamItem;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -57,6 +61,8 @@ class SoundStreamOperations {
     private final ContentStats contentStats;
     private final EventBus eventBus;
     private final FacebookInvitesOperations facebookInvites;
+    private final StationsOperations stationsOperations;
+    private final FeatureFlags featureFlags;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
@@ -116,7 +122,20 @@ class SoundStreamOperations {
         }
 
         private void publishTrackingEvent(PromotedListItem item) {
-            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.SIDE_MENU_STREAM.get()));
+            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(item, Screen.STREAM.get()));
+        }
+    };
+
+    private final Func1<List<StreamItem>, List<StreamItem>> prependStationsOnboardingItem = new Func1<List<StreamItem>, List<StreamItem>>() {
+
+        @Override
+        public List<StreamItem> call(List<StreamItem> streamItems) {
+            if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+                if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddNotification(streamItems)) {
+                    streamItems.add(0, new StationOnboardingStreamItem());
+                }
+            }
+            return streamItems;
         }
     };
 
@@ -125,7 +144,8 @@ class SoundStreamOperations {
                           ContentStats contentStats, RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                          FacebookInvitesOperations facebookInvites) {
+                          FacebookInvitesOperations facebookInvites,
+                          StationsOperations stationsOperations, FeatureFlags featureFlags) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
@@ -134,6 +154,8 @@ class SoundStreamOperations {
         this.scheduler = scheduler;
         this.eventBus = eventBus;
         this.facebookInvites = facebookInvites;
+        this.stationsOperations = stationsOperations;
+        this.featureFlags = featureFlags;
     }
 
     PagingFunction<List<StreamItem>> pagingFunction() {
@@ -153,6 +175,7 @@ class SoundStreamOperations {
         return removeStalePromotedItemsCommand.toObservable(null)
                 .flatMap(loadFirstPageOfStream(syncCompleted))
                 .zipWith(facebookInvites.loadWithPictures(), prependFacebookInvites())
+                .map(prependStationsOnboardingItem)
                 .subscribeOn(scheduler);
     }
 

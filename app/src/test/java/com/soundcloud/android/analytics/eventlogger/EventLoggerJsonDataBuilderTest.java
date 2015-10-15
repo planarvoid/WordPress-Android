@@ -9,7 +9,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -17,6 +17,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.MidTierTrackEvent;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -255,7 +256,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForLikeEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -267,7 +268,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForLikeEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -282,7 +283,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsJsonForPromotedItemLikeEvent() throws ApiMapperException {
         PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -297,7 +298,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnlikeEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -309,7 +310,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnlikeEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -324,7 +325,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsJsonForPromotedItemUnlikeEvent() throws ApiMapperException {
         PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, null);
+        final UIEvent event = UIEvent.fromToggleLike(false, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -339,7 +340,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForRepostEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -351,7 +352,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForRepostEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -364,9 +365,10 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPromotedItemRepostEvent() throws ApiMapperException {
-        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem item = PromotedTrackItem.from(trackProperties);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        final UIEvent event = UIEvent.fromToggleRepost(true, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         jsonDataBuilder.build(event);
 
@@ -381,7 +383,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnRepostEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null);
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -393,7 +395,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForUnRepostEventWithPageUrn() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null);
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.forPlaylist(321), null, PlayableMetadata.EMPTY);
 
         jsonDataBuilder.build(event);
 
@@ -406,9 +408,10 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPromotedItemUnRepostEvent() throws ApiMapperException {
-        PromotedListItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem item = PromotedTrackItem.from(trackProperties);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo);
+        final UIEvent event = UIEvent.fromToggleRepost(false, SCREEN_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, PlayableMetadata.from(trackProperties));
 
         jsonDataBuilder.build(event);
 
@@ -426,7 +429,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
                 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
-
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));

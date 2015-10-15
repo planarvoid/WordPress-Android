@@ -14,9 +14,9 @@ import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.LegacyPager;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -108,8 +108,18 @@ public class PlaylistDiscoveryOperations {
         });
     }
 
-    PlaylistPager pager(String tag) {
-        return new PlaylistPager(tag);
+    Pager.PagingFunction<ApiPlaylistCollection> pager(final String searchTag) {
+        return new Pager.PagingFunction<ApiPlaylistCollection>() {
+            @Override
+            public Observable<ApiPlaylistCollection> call(ApiPlaylistCollection apiPlaylists) {
+                final Optional<Link> nextLink = apiPlaylists.getNextLink();
+                if (nextLink.isPresent()) {
+                    return getPlaylistResultsNextPage(searchTag, nextLink.get().getHref());
+                } else {
+                    return Pager.finish();
+                }
+            }
+        };
     }
 
     private Observable<ApiPlaylistCollection> getPlaylistResultsNextPage(String query, String nextHref) {
@@ -147,22 +157,4 @@ public class PlaylistDiscoveryOperations {
         return MoreCollections.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
-    class PlaylistPager extends LegacyPager<ApiPlaylistCollection> {
-
-        private final String query;
-
-        PlaylistPager(String query) {
-            this.query = query;
-        }
-
-        @Override
-        public Observable<ApiPlaylistCollection> call(ApiPlaylistCollection collection) {
-            final Optional<Link> nextLink = collection.getNextLink();
-            if (nextLink.isPresent()) {
-                return getPlaylistResultsNextPage(query, nextLink.get().getHref());
-            } else {
-                return LegacyPager.finish();
-            }
-        }
-    }
 }

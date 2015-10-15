@@ -44,7 +44,8 @@ apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.soundcloud.gandalf'
+//disable Gandalf until this is fixed: https://github.com/soundcloud/gandalf/issues/6
+//apply plugin: 'com.soundcloud.gandalf'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
@@ -91,12 +92,15 @@ android {
     exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/LICENSE'
     exclude 'META-INF/NOTICE'
+    exclude 'META-INF/services/javax.annotation.processing.Processor'
   }
 
   dexOptions {
     jumboMode true
     javaMaxHeapSize "4g"
   }
+
+  useLibrary 'org.apache.http.legacy'
 }
 
 configurations {
@@ -123,6 +127,9 @@ dependencies {
   apt libraries.daggerCompiler
   apt libraries.lightCycleProcessor
   apt libraries.autoValue
+  apt libraries.autoFactory
+  apt libraries.autoParcelProcessor
+
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
@@ -136,6 +143,8 @@ dependencies {
   compile libraries.lightCycle
 
   /* 3rd Party Libraries */
+  compile libraries.autoParcel
+  compile libraries.autoFactory
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger
@@ -144,8 +153,6 @@ dependencies {
   }
   compile libraries.jacksonRespack
   compile libraries.okHttp
-  provided libraries.httpClientAndroid
-  compile libraries.localytics
   compile (libraries.slidingUpPanel) {
     transitive = true;
   }

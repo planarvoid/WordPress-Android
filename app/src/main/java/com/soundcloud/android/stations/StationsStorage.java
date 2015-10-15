@@ -3,6 +3,7 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
@@ -20,11 +21,16 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
+import android.content.SharedPreferences;
+
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
 
 class StationsStorage {
+    private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
+
     private static final Func1<CursorReader, Station> TO_STATION_WITHOUT_TRACKS = new Func1<CursorReader, Station>() {
         @Override
         public Station call(CursorReader cursorReader) {
@@ -34,7 +40,9 @@ class StationsStorage {
                     cursorReader.getString(Stations.TYPE),
                     Collections.<Urn>emptyList(),
                     cursorReader.getString(Stations.PERMALINK),
-                    cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
+                    cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
+                            ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
+                            : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
             );
         }
     };
@@ -64,12 +72,17 @@ class StationsStorage {
         }
     };
 
+    private final SharedPreferences sharedPreferences;
     private final PropellerDatabase propellerDatabase;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
 
     @Inject
-    public StationsStorage(PropellerDatabase propellerDatabase, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
+    public StationsStorage(@Named(StorageModule.STATIONS) SharedPreferences sharedPreferences,
+                           PropellerDatabase propellerDatabase,
+                           PropellerRx propellerRx,
+                           CurrentDateProvider dateProvider) {
+        this.sharedPreferences = sharedPreferences;
         this.propellerDatabase = propellerDatabase;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
@@ -89,6 +102,7 @@ class StationsStorage {
         propellerDatabase.delete(Stations.TABLE);
         propellerDatabase.delete(StationsCollections.TABLE);
         propellerDatabase.delete(StationsPlayQueues.TABLE);
+        sharedPreferences.edit().clear().apply();
     }
 
     Observable<Station> getStationsCollection(int type) {
@@ -161,4 +175,13 @@ class StationsStorage {
                         .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
                 .toList(TO_RECENT_STATION);
     }
+
+    boolean isOnboardingDisabled() {
+        return sharedPreferences.getBoolean(ONBOARDING_DISABLED, false);
+    }
+
+    void disableOnboarding() {
+        sharedPreferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
+    }
+
 }

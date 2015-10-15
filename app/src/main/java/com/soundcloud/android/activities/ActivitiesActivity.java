@@ -2,13 +2,14 @@ package com.soundcloud.android.activities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
@@ -20,6 +21,8 @@ import javax.inject.Inject;
 public class ActivitiesActivity extends ScActivity {
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +41,8 @@ public class ActivitiesActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithMargins();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithMargins(this);
     }
 
     @Override

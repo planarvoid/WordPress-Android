@@ -2,19 +2,17 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -26,7 +24,6 @@ import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,6 +41,7 @@ public class PlayerWidgetController {
     private final TrackRepository trackRepository;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final EngagementsTracking engagementsTracking;
 
     private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
         @Override
@@ -56,7 +54,8 @@ public class PlayerWidgetController {
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider,
                                   PlayQueueManager playQueueManager, TrackRepository trackRepository,
-                                  EventBus eventBus, LikeOperations likeOperations) {
+                                  EventBus eventBus, LikeOperations likeOperations,
+                                  EngagementsTracking engagementsTracking) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
@@ -64,6 +63,7 @@ public class PlayerWidgetController {
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
+        this.engagementsTracking = engagementsTracking;
     }
 
     public void subscribe() {
@@ -100,32 +100,20 @@ public class PlayerWidgetController {
         return trackRepository.track(urn).map(PropertySetFunctions.mergeWith(metaData));
     }
 
-    public void handleToggleLikeAction(boolean addLike) {
+    public void handleToggleLikeAction(final boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
 
         fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike,
-                        Screen.WIDGET.get(),
-                        playQueueManager.getScreenTag(),
-                        Screen.WIDGET.get(),
-                        currentTrackUrn,
-                        Urn.NOT_SET,
-                        playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn),
-                        getCurrentPlayableItem()));
+        engagementsTracking.likeTrackUrn(currentTrackUrn,
+                addLike,
+                Screen.WIDGET.get(),
+                playQueueManager.getScreenTag(),
+                Screen.WIDGET.get(),
+                Urn.NOT_SET,
+                playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
     }
 
-    @Nullable
-    private PlayableItem getCurrentPlayableItem() {
-        final PropertySet metadata = playQueueManager.getCurrentMetaData();
-
-        if (metadata.contains(PlayableProperty.URN)) {
-            return PlayableItem.from(metadata);
-        }
-
-        return null;
-    }
 
     /**
      * Listens for track changes emitted from our application layer via Rx and updates the widget

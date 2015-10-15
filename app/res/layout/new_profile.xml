@@ -9,68 +9,52 @@
     app:dragView="@+id/player_layout"
     app:panelHeight="@dimen/player_footer">
 
-    <android.support.design.widget.CoordinatorLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
+        <include layout="@layout/toolbar" />
 
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar"
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar_id">
+
+            <android.support.design.widget.AppBarLayout
+                android:id="@+id/appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
-                android:minHeight="?android:attr/actionBarSize"
-                app:contentScrim="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:toolbarId="@id/toolbar_id">
+                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
 
                 <include
                     layout="@layout/profile_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_collapseMode="none" />
-
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="?android:attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                    app:layout_collapseMode="pin"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-            </android.support.design.widget.CollapsingToolbarLayout>
-
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
-                app:layout_scrollFlags="scroll">
+                    app:layout_collapseMode="none"
+                    app:layout_scrollFlags="scroll" />
 
                 <com.soundcloud.android.view.SlidingTabLayout
                     android:id="@+id/indicator"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:layout_collapseMode="pin" />
+                    android:foregroundGravity="bottom"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed" />
 
-            </android.support.design.widget.CollapsingToolbarLayout>
+            </android.support.design.widget.AppBarLayout>
 
-        </android.support.design.widget.AppBarLayout>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        </android.support.design.widget.CoordinatorLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
+        <View style="@style/ToolbarShadow" />
+
+    </RelativeLayout>
 
     <fragment
         android:id="@+id/player_root"

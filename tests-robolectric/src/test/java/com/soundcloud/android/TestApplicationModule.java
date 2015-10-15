@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import com.facebook.FacebookSdk;
 import com.google.android.gms.gcm.GcmReceiver;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
@@ -47,20 +46,22 @@ import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 
 import javax.inject.Named;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
-@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class,
-        GcmReceiver.class, ApiSyncService.class}, library = true)
+@Module(injects = {SoundCloudApplication.class, TestApplication.class,
+        ApiSyncer.class, ApiSyncService.class}, library = true)
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;
@@ -85,6 +86,7 @@ public class TestApplicationModule {
         return application.getSharedPreferences("default", 0);
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Provides
     public AccountManager provideAccountManager() {
         return AccountManager.get(application);
@@ -163,11 +165,6 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public LocalyticsAmpSession provideLocalyticsSession() {
-        return mock(LocalyticsAmpSession.class);
-    }
-
-    @Provides
     public SQLiteDatabase provideSqliteDatabase() {
         return mock(SQLiteDatabase.class);
     }
@@ -211,6 +208,18 @@ public class TestApplicationModule {
     @Provides
     @Named(StorageModule.STREAM_SYNC)
     public SharedPreferences provideStreamSync() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named(StorageModule.STATIONS)
+    public SharedPreferences provideStations() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named(StorageModule.COLLECTIONS)
+    public SharedPreferences provideCollections() {
         return provideSharedPreferences();
     }
 

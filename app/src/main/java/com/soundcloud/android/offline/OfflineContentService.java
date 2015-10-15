@@ -234,7 +234,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             publisher.publishNotDownloadableStateChanges(queue, downloadHandler.getCurrentTrack());
 
             queue.set(MoreCollections.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
-            publisher.publishDownloadsRequested(queue);
+            publisher.publishDownloadsRequested(queue.getRequests());
 
             updateNotification();
 

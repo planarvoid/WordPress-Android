@@ -35,7 +35,7 @@ public class CipherWrapper {
         }
     }
 
-    public int doFinal(byte[] output, int outputOffset) throws EncryptionException {
+    public int finish(byte[] output, int outputOffset) throws EncryptionException {
         ensureInitCalled();
         try {
             return cipher.doFinal(output, outputOffset);
@@ -44,11 +44,24 @@ public class CipherWrapper {
         }
     }
 
+    public byte[] finish(byte[] encrypted) throws EncryptionException {
+        ensureInitCalled();
+        try {
+            return cipher.doFinal(encrypted);
+        } catch (GeneralSecurityException e) {
+            throw new EncryptionException("Failed to call finish decryption", e);
+        }
+    }
+
     public void init(String cipherAlgorithm, int cipherMode, DeviceSecret secret, String keyAlgorithm)
             throws EncryptionException {
+        init(cipherAlgorithm, cipherMode, new IvParameterSpec(secret.getInitVector()),
+                new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, keyAlgorithm));
+    }
+
+    public void init(String cipherAlgorithm, int cipherMode, IvParameterSpec ivParam, SecretKey key)
+            throws EncryptionException {
         try {
-            final IvParameterSpec ivParam = new IvParameterSpec(secret.getInitVector());
-            final SecretKey key = new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, keyAlgorithm);
             getCipher(cipherAlgorithm).init(cipherMode, key, ivParam);
 
         } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {

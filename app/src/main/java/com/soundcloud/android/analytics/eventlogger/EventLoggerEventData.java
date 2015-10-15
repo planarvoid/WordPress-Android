@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.APP_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
@@ -19,11 +20,14 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EVENT_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
@@ -277,6 +281,31 @@ class EventLoggerEventData {
 
     public EventLoggerEventData playheadPosition(long position) {
         addToPayload(PLAYHEAD_POSITION, position);
+        return this;
+    }
+
+    public EventLoggerEventData inPlaylist(boolean inPlaylist) {
+        addToPayload(IN_PLAYLIST, inPlaylist);
+        return this;
+    }
+
+    public EventLoggerEventData inLikes(boolean inLikes) {
+        addToPayload(IN_LIKES, inLikes);
+        return this;
+    }
+
+    public EventLoggerEventData appVersion(String appVersion) {
+        addToPayload(APP_VERSION, appVersion);
+        return this;
+    }
+
+    public EventLoggerEventData eventType(String eventType) {
+        addToPayload(EVENT_TYPE, eventType);
+        return this;
+    }
+
+    public EventLoggerEventData eventStage(String eventStage) {
+        addToPayload(OFFLINE_EVENT_STAGE, eventStage);
         return this;
     }
 

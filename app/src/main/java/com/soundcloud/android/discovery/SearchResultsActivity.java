@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.search.TabbedSearchFragment;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -17,6 +18,8 @@ public class SearchResultsActivity extends ScActivity {
     public static final String EXTRA_SEARCH_QUERY = "searchQuery";
 
     @Inject @LightCycle PlayerController playerController;
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +46,7 @@ public class SearchResultsActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayout();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayout(this);
     }
 }

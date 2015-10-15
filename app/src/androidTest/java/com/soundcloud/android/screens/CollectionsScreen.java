@@ -28,8 +28,22 @@ public class CollectionsScreen extends Screen {
         return new CollectionsTrackLikesScreen(testDriver);
     }
 
+    public ViewAllStationsScreen clickRecentStations() {
+        recentStationsElement().click();
+        return new ViewAllStationsScreen(testDriver);
+    }
+
     public String getFirstPlaylistTitle() {
         return new TextElement(getFirstPlaylist().findElement(With.id(R.id.title))).getText();
+    }
+
+    public boolean isRecentStationsVisible() {
+        return recentStationsElement().isVisible();
+    }
+
+    public PlaylistDetailsScreen clickOnPlaylist(With with) {
+        collectionsView().scrollToItem(with).click();
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     private ViewElement getFirstPlaylist() {
@@ -65,6 +79,10 @@ public class CollectionsScreen extends Screen {
 
     private ViewElement trackLikesElement() {
         return testDriver.findElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
+    }
+
+    private ViewElement recentStationsElement() {
+        return testDriver.findElement(With.text(testDriver.getString(R.string.stations_collection_title_recently_played_stations)));
     }
 
     @Override

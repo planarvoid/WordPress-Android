@@ -4,8 +4,10 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
@@ -31,18 +33,21 @@ class LikesMenuPresenter {
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final Navigator navigator;
     private final EventBus eventBus;
+    private final ScreenProvider screenProvider;
 
     @Inject
     public LikesMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                               FeatureOperations featureOperations,
                               OfflineContentOperations offlineContentOperations,
                               Provider<OfflineLikesDialog> syncLikesDialogProvider,
+                              ScreenProvider screenProvider,
                               Navigator navigator,
                               EventBus eventBus) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineContentOperations;
         this.syncLikesDialogProvider = syncLikesDialogProvider;
+        this.screenProvider = screenProvider;
         this.navigator = navigator;
         this.eventBus = eventBus;
     }
@@ -73,6 +78,7 @@ class LikesMenuPresenter {
                         return true;
                     case R.id.action_make_offline_unavailable:
                         fireAndForget(offlineOperations.disableOfflineLikedTracks());
+                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
                         return true;
                     default:
                         return false;

@@ -20,6 +20,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,14 +120,15 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertFollowings() throws Exception {
         final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        final Iterable<UserAssociation> newAssociations = storage.followList(users).toBlocking().toIterable();
+        final List<UserAssociation> newAssociations = storage.followList(users).toList()
+                .toBlocking().firstOrDefault(Collections.<UserAssociation>emptyList());
 
-        expect(Iterables.transform(newAssociations, new Function<UserAssociation, Object>() {
+        expect(Lists.transform(newAssociations, new Function<UserAssociation, PublicApiUser>() {
             @Override
-            public Object apply(UserAssociation input) {
+            public PublicApiUser apply(UserAssociation input) {
                 return input.getUser();
             }
-        })).toContainExactlyInAnyOrder(users.toArray(new PublicApiUser[3]));
+        })).toEqual(users);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
         for (PublicApiUser user : users) {

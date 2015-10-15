@@ -2,10 +2,9 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -23,7 +22,6 @@ public class UserPostsFragment extends ScrollableProfileFragment {
     static final String SEARCH_QUERY_SOURCE_INFO_KEY = "search_query_source_info_key";
 
     @Inject @LightCycle UserPostsPresenter presenter;
-    @Inject FeatureFlags featureFlags;
 
     public static UserPostsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();

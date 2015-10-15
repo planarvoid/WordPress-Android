@@ -1,21 +1,24 @@
 # SoundCloud Android
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md), if you are contributing a change to production.
+First read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to make a change to production.
 
 ## Building
 
 Prerequisites:
 
-* Xcode command line tools (if you have `gcc` and `make` you are good)
-* Java 8. Either use [jenv][] to manage your environments, or ensure
-JAVA_HOME is set, eg.
-
+* (Mac only) Xcode command line tools
+* GCC (`gcc`) and GNU Make (`make`)
+* Java 7 or higher<br>
+  Refer to [Free Java Download][]<br>
+  You can use [jenv][] to manage your environments.<br>
+  Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
-Install the [Android SDK][]
+### Install the [Android SDK][] and [Android Studio][]
+
+#### On Mac OS X:
 
     $ brew install android-sdk android-ndk maven
-
 
 Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
 
@@ -41,23 +44,50 @@ all release packages except for the system images, because we will use [Genymoti
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
 
-Clone and build the project, making sure you are on the VPN:
+Install [Android Studio][].
+
+#### On Linux:
+
+Install [Android Studio][], which contains [Android SDK][].
+
+### Clone and build the project
+
+Make sure you are on the VPN:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
     $ ./gradlew assembleDebug
 
+You might encounter the following error:
+
+```
+Parallel execution with configuration on demand is an incubating feature.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':app'.
+> SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable.
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
+
+BUILD FAILED
+
+Total time: 1.753 secs
+```
+
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
+
+You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Opening the project in Android Studio
 
-Install [Android Studio][].
-
-Open Android Studio, select "Import project" and select `build.gradle` from the root project directory.
+Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
 
 Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
-Android Studio will automatically download and manage dependencies and will ask you to reload the project.
+Android Studio will automatically download and manage dependencies. When that download is complete, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
 
 ## Setup code style
 
@@ -125,6 +155,7 @@ You should also setup your default run configuration for JUnit so it looks like 
 * [Android guidelines][android-guide]
 * [Java syntax][java-syntax]
 
+[Free Java Download]: http://java.com/en/download
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Android SDK Manager]: http://developer.android.com/sdk/installing/adding-packages.html
 [Android Studio]: http://developer.android.com/sdk/index.html

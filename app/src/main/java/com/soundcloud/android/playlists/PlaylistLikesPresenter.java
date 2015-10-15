@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;

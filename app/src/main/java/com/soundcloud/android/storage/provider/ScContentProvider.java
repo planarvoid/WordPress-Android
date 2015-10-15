@@ -4,7 +4,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.android.storage.SQLiteErrors;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -19,7 +18,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -58,7 +56,7 @@ public class ScContentProvider extends ContentProvider {
                         final String[] selectionArgs,
                         final String sortOrder) {
 
-        return safeExecute(new DbOperation<Cursor>() {
+        return safeExecute(new QueryOperation<Cursor>(uri, columns, selection, selectionArgs, sortOrder) {
             @Override
             public Cursor execute() {
                 return doQuery(uri, columns, selection, selectionArgs, sortOrder);
@@ -791,14 +789,11 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-    // don't die on disk i/o problems
-    private <V> V safeExecute(DbOperation<V> r, V def) {
+    private <V> V safeExecute(DbOperation<V> op, V def) {
         try {
-            return r.execute();
-        } catch (SQLiteDiskIOException e) {
-            final String msg = "sqlite disk I/O:" + SQLiteErrors.convertToErrorMessage(e);
-            Log.w(TAG, msg, e);
-            ErrorUtils.handleSilentException(msg, e);
+            return op.execute();
+        } catch (Throwable e) {
+            ErrorUtils.handleSilentException("DB op failed; op=" + op.toString(), e);
             return def;
         }
     }
@@ -882,6 +877,35 @@ public class ScContentProvider extends ContentProvider {
     private interface DbOperation<V> {
         V execute();
     }
+
+    private abstract class QueryOperation<V> implements DbOperation<V> {
+        private final Uri uri;
+        private final String[] columns;
+        private final String selection;
+        private final String[] selectionArgs;
+        private final String sortOrder;
+
+        public QueryOperation(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
+
+            this.uri = uri;
+            this.columns = columns;
+            this.selection = selection;
+            this.selectionArgs = selectionArgs;
+            this.sortOrder = sortOrder;
+        }
+
+        @Override
+        public String toString() {
+            return "DbOperation{" +
+                    "uri=" + uri +
+                    ", columns=" + Arrays.toString(columns) +
+                    ", selection='" + selection + '\'' +
+                    ", selectionArgs=" + Arrays.toString(selectionArgs) +
+                    ", sortOrder='" + sortOrder + '\'' +
+                    '}';
+        }
+    }
+
 
     /**
      * Roughly corresponds to locally synced collections.

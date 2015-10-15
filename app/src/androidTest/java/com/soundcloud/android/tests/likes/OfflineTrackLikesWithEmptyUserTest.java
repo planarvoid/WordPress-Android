@@ -78,8 +78,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
                 .get(0)
                 .downloadElement();
 
-        // we tried to download but it failed with connection error so its not unavailable
-        assertTrue("Track should be unavailable", downloadElement.isUnavailable());
+        // we tried to download but it failed with connection error so its back to requested
+        assertTrue("Track should be requested", downloadElement.isRequested());
 
         networkManagerClient.switchWifiOn();
 

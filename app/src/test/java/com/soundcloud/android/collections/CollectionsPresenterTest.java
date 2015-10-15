@@ -5,11 +5,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,27 +24,32 @@ import android.support.v4.app.Fragment;
 import java.util.Collections;
 import java.util.List;
 
-
 public class CollectionsPresenterTest extends AndroidUnitTest {
 
-    CollectionsPresenter presenter;
+    public static final List<Urn> RECENT_STATIONS = Collections.singletonList(Urn.forTrackStation(123L));
+
+    private CollectionsPresenter presenter;
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollectionsOperations collectionsOperations;
+    @Mock private PlaylistLikeOperations likeOperations;
     @Mock private CollectionsOptionsStorage collectionsOptionsStorage;
     @Mock private CollectionsPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionsAdapter adapter;
     @Mock private Fragment fragment;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
-    private CollectionsOptions options;
+    private PlaylistsOptions options;
 
     @Before
     public void setUp() throws Exception {
-        when(collectionsOperations.collections(any(CollectionsOptions.class))).thenReturn(Observable.<MyCollections>empty());
-        options = CollectionsOptions.builder().build();
+        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.<MyCollections>empty());
+        when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
+        options = PlaylistsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
     }
 
     @Test
@@ -53,7 +61,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesStoredOptionsWhenOptionsUpdated() {
-        final CollectionsOptions options = CollectionsOptions.builder().build();
+        final PlaylistsOptions options = PlaylistsOptions.builder().build();
         presenter.onOptionsUpdated(options);
         verify(collectionsOptionsStorage).store(options);
     }
@@ -63,10 +71,11 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        when(collectionsOperations.collections(any(CollectionsOptions.class))).thenReturn(Observable.just(myCollections));
+        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.just(myCollections));
         presenter.onCreate(fragment, null);
 
         verify(collectionsOperations).collections(options);
@@ -77,12 +86,13 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1)),
@@ -95,12 +105,13 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems,
+                RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().showPosts(true).build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1)),
@@ -109,16 +120,16 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotaddFilterRemovalWhenBothFiltersApplied() {
+    public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().showPosts(true).showLikes(true).build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1))
@@ -130,12 +141,12 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(0)),
                 CollectionsItem.fromPlaylistItem(playlistItems.get(1))
@@ -147,12 +158,12 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );
@@ -163,12 +174,45 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems);
+                playlistItems, RECENT_STATIONS);
 
-        presenter.onOptionsUpdated(CollectionsOptions.builder().showLikes(true).showPosts(true).build());
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
-                CollectionsItem.fromLikes(myCollections.getLikes()),
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
+                CollectionsItem.fromPlaylistHeader(),
+                CollectionsItem.fromEmptyPlaylists()
+        );
+    }
+
+    @Test
+      public void collectionsItemsShouldContainNoPreviewCollectionItemWhenThereAreNoLikesOrStations() {
+        final List<PlaylistItem> playlistItems = Collections.emptyList();
+        final MyCollections myCollections = new MyCollections(
+                Collections.<Urn>emptyList(),
+                playlistItems,
+                Collections.<Urn>emptyList());
+
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
+
+        assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
+                CollectionsItem.fromPlaylistHeader(),
+                CollectionsItem.fromEmptyPlaylists()
+        );
+    }
+
+    @Test
+    public void collectionsItemsShouldPreviewCollectionItemWhenThereAreStations() {
+        final List<PlaylistItem> playlistItems = Collections.emptyList();
+        final MyCollections myCollections = new MyCollections(
+                Collections.<Urn>emptyList(),
+                playlistItems,
+                RECENT_STATIONS);
+
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
+
+        assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );

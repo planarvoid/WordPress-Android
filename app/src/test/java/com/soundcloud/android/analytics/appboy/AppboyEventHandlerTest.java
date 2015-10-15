@@ -7,8 +7,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.explore.ExploreGenre;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -34,6 +41,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             .addProperty("playable_urn", track.getEntityUrn().toString())
             .addProperty("playable_type", "track");
 
+
+    private static final PlayableMetadata metadata = PlayableMetadata.from(trackPropertySet);
+
     private AppboyEventHandler eventHandler;
 
     @Before
@@ -44,7 +54,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLikeEvents() {
         UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, track);
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -54,7 +64,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackUnLikeEvents() {
         UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, track);
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -112,11 +122,94 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackCommentEvents() {
-        UIEvent event = UIEvent.fromComment("screen", 123l, trackPropertySet);
+        UIEvent event = UIEvent.fromComment("screen", 123l, metadata);
 
         eventHandler.handleEvent(event);
 
         expectCustomEvent("comment", playableOnlyProperties);
+    }
+
+    @Test
+    public void shouldTrackExploreGenresScreens() {
+        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_MUSIC_GENRE.get(), ExploreGenre.POPULAR_AUDIO_CATEGORY);
+        AppboyProperties properties = new AppboyProperties();
+        properties.addProperty("genre", ExploreGenre.POPULAR_AUDIO_CATEGORY.getTitle());
+        properties.addProperty("category", event.getScreenTag());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("explore", properties);
+    }
+
+    @Test
+    public void exploreTrendingAudioOrMusicTrackingShouldOnlyContainCategory() {
+        ScreenEvent event = ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO);
+        AppboyProperties properties = new AppboyProperties();
+        properties.addProperty("category", event.getScreenTag());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("explore", properties);
+    }
+
+    @Test
+    public void shouldTrackSearchEvents() {
+        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, null);
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("search");
+    }
+
+    @Test
+    public void shouldTrackShareEvents() {
+        UIEvent event = UIEvent.fromShare("screen", Urn.forTrack(123l), metadata);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("share", playableOnlyProperties);
+    }
+
+    @Test
+    public void shouldTrackAttributionEvents() {
+        AttributionEvent event = new AttributionEvent("net", "cam", "adg", "cre");
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).setAttribution("net", "cam", "adg", "cre");
+    }
+
+    @Test
+    public void shouldTrackRepostEvents() {
+        UIEvent event = UIEvent.fromToggleRepost(true, "invoker_screen", "page_name",
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("repost", playableOnlyProperties);
+    }
+
+    @Test
+    public void shouldNotTrackUnRepostEvents() {
+        UIEvent event = UIEvent.fromToggleRepost(false, "invoker_screen", "page_name",
+                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
+    }
+
+    @Test
+    public void shouldTrackPlaylistCreation() {
+        PropertySet playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
+        UIEvent event = UIEvent.fromCreatePlaylist(PlayableMetadata.from(playlist));
+        AppboyProperties expectedProperties = new AppboyProperties()
+                .addProperty("playlist_title", playlist.get(PlayableProperty.TITLE))
+                .addProperty("playlist_urn", playlist.get(PlayableProperty.URN).toString());
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("create_playlist", expectedProperties);
     }
 
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {

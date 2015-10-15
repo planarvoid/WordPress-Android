@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackType.DEFAULT;
+import static com.soundcloud.android.playback.PlaybackType.OFFLINE;
+import static com.soundcloud.android.playback.PlaybackType.UNINTERRUPTED;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.model.Urn;
@@ -29,7 +32,7 @@ class StreamPlayer implements PlayerListener {
     private PlayerListener playerListener;
 
     // store start info so we can fallback and retry after Skippy failures
-    private Urn lastTrackPlayed;
+    private PlaybackItem lastTrackPlayed;
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
 
     @Inject
@@ -81,39 +84,29 @@ class StreamPlayer implements PlayerListener {
         return lastStateTransition.isPaused();
     }
 
-    public void play(Urn track, long duration) {
-        prepareForPlay(track);
-        currentPlayer.play(track, duration);
+    public void play(PlaybackItem playbackItem) {
+        prepareForPlay(playbackItem);
+
+        switch(playbackItem.getPlaybackType()) {
+            case DEFAULT :
+                currentPlayer.play(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+                break;
+            case OFFLINE :
+                currentPlayer.playOffline(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+                break;
+            case UNINTERRUPTED :
+                currentPlayer.playUninterrupted(playbackItem.getTrackUrn());
+                break;
+        }
     }
 
-    public void play(Urn track, long fromPos, long duration) {
-        prepareForPlay(track);
-        currentPlayer.play(track, fromPos, duration);
-    }
-
-    public void playOffline(Urn track, long duration) {
-        prepareForPlay(track);
-        currentPlayer.playOffline(track, 0, duration);
-    }
-
-    public void playOffline(Urn track, long fromPos, long duration) {
-        prepareForPlay(track);
-        currentPlayer.playOffline(track, fromPos, duration);
-    }
-
-    public void playUninterrupted(Urn track, long duration) {
-        prepareForPlay(track);
-
-        currentPlayer.playUninterrupted(track, duration);
-    }
-
-    private void prepareForPlay(Urn track) {
-        lastTrackPlayed = track;
+    private void prepareForPlay(PlaybackItem playbackItem) {
+        lastTrackPlayed = playbackItem;
         configureNextPlayerToUse();
     }
 
-    public boolean resume() {
-        return currentPlayer.resume();
+    public void resume() {
+        currentPlayer.resume();
     }
 
     public void pause() {
@@ -160,7 +153,7 @@ class StreamPlayer implements PlayerListener {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long progress = skippyPlayerDelegate.getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);
-            mediaPlayerDelegate.play(lastTrackPlayed, progress);
+            mediaPlayerDelegate.play(lastTrackPlayed.getTrackUrn(), progress);
         } else {
             checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;

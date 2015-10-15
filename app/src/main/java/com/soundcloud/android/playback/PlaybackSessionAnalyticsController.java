@@ -101,7 +101,7 @@ class PlaybackSessionAnalyticsController {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
                 final Urn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
-                final long progress = stateTransition.getProgress().position;
+                final long progress = stateTransition.getProgress().getPosition();
                 final String protocol = getProtocol(stateTransition);
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);
@@ -167,7 +167,7 @@ class PlaybackSessionAnalyticsController {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
-                final long progress = stateTransition.getProgress().position;
+                final long progress = stateTransition.getProgress().getPosition();
                 final String protocol = getProtocol(stateTransition);
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);

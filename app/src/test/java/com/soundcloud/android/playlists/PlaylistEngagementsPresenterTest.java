@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.PlaylistEngagementsView.OnEngagementListener;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -15,9 +16,10 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
@@ -35,11 +37,10 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +55,6 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
-import java.util.Collections;
-
 public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private PlaylistEngagementsPresenter controller;
@@ -66,7 +65,6 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private RepostOperations repostOperations;
     @Mock private Context context;
     @Mock private AccountOperations accountOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
     @Mock private PlaylistEngagementsView engagementsView;
     @Mock private ViewGroup rootView;
@@ -427,7 +425,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         reset(engagementsView);
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRemoved(Collections.singletonList(playlistWithTracks.getUrn())));
+                CurrentDownloadEvent.downloadRemoved(singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showOfflineState(OfflineState.NO_OFFLINE);
     }
@@ -438,7 +436,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRequested(false, Collections.singletonList(playlistWithTracks.getUrn())));
+                CurrentDownloadEvent.downloadRequested(false, singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
@@ -448,9 +446,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), 12345L, "http://wav", true)
-                .addToPlaylist(playlistWithTracks.getUrn())
-                .build();
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        final DownloadRequest request = ModelFixtures.downloadRequestFromPlaylists(track, true, singletonList(playlistWithTracks.getUrn()));
+
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
@@ -462,7 +460,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloaded(false, Collections.singletonList(playlistWithTracks.getUrn())));
+                CurrentDownloadEvent.downloaded(false, singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
     }
@@ -471,7 +469,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloaded(false, Collections.singletonList(Urn.forPlaylist(999999L))));
+                CurrentDownloadEvent.downloaded(false, singletonList(Urn.forPlaylist(999999L))));
 
         verify(engagementsView, never()).showOfflineState(OfflineState.DOWNLOADED);
     }

@@ -49,11 +49,11 @@ public class PlaylistItem extends PlayableItem {
         return new Func1<T, List<PlaylistItem>>() {
             @Override
             public List<PlaylistItem> call(T sourceList) {
-                List<PlaylistItem> trackItems = new ArrayList<>();
+                List<PlaylistItem> playlistItems = new ArrayList<>();
                 for (ApiPlaylist source : sourceList) {
-                    trackItems.add(from(source.toPropertySet()));
+                    playlistItems.add(from(source.toPropertySet()));
                 }
-                return trackItems;
+                return playlistItems;
             }
         };
     }

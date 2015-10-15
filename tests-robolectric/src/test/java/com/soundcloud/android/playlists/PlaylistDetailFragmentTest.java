@@ -18,12 +18,12 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -230,7 +230,7 @@ public class PlaylistDetailFragmentTest {
         TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
 
         when(controller.hasTracks()).thenReturn(true);
 
@@ -255,7 +255,7 @@ public class PlaylistDetailFragmentTest {
         when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
 
         getToggleButton(layout).performClick();
 
@@ -506,7 +506,7 @@ public class PlaylistDetailFragmentTest {
     private View createFragmentView() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
-        Screen.SIDE_MENU_STREAM.addToBundle(bundle);
+        Screen.STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         return createFragmentView(new Bundle());
     }
@@ -514,7 +514,7 @@ public class PlaylistDetailFragmentTest {
     private View createFragmentView(Bundle savedInstanceState) {
         Bundle fragmentArguments = new Bundle();
         fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
-        Screen.SIDE_MENU_STREAM.addToBundle(fragmentArguments);
+        Screen.STREAM.addToBundle(fragmentArguments);
         fragment.setArguments(fragmentArguments);
         fragment.onCreate(null);
         View layout = fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
@@ -543,7 +543,7 @@ public class PlaylistDetailFragmentTest {
     }
 
     private PlaySessionSource getPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
-        return PlaySessionSource.forPlaylist(Screen.SIDE_MENU_STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        return PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
     }
 
 }

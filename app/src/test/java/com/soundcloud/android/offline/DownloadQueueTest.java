@@ -1,14 +1,19 @@
 package com.soundcloud.android.offline;
 
+import static java.util.Collections.EMPTY_LIST;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class DownloadQueueTest extends AndroidUnitTest {
 
@@ -51,8 +56,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getRequestedReturnsAnEmptyListWhenPlaylistsFromTheResultAreNotInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST2));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getRequested(DownloadState.success(request2))).isEmpty();
@@ -60,8 +65,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getRequestedReturnsPlaylistsPendingInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST1));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getRequested(DownloadState.success(request2))).containsExactly(PLAYLIST1);
@@ -69,8 +74,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getRequestedReturnsPlaylistsWithoutDuplications() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1, PLAYLIST2);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1, PLAYLIST2);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, Arrays.asList(PLAYLIST1, PLAYLIST2));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, Arrays.asList(PLAYLIST1, PLAYLIST2));
         downloadQueue.set(Arrays.asList(request1, request2));
 
         assertThat(downloadQueue.getRequested(DownloadState.success(request1)))
@@ -79,8 +84,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getDownloadedReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST2));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2, PLAYLIST2);
@@ -88,8 +93,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getDownloadedReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST1));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2);
@@ -97,8 +102,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getDownloadedCollectionsReturnsOnlyPlaylistsWhenItsNotPendingAnymore() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST2));
 
         downloadQueue.set(Arrays.asList(request2));
 
@@ -107,8 +112,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getDownloadedCollectionsDoesNotReturnPlaylistWhenStillPending() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST1));
 
         downloadQueue.set(Arrays.asList(request2));
 
@@ -117,8 +122,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getUnavailableReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST2));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2, PLAYLIST2);
@@ -126,8 +131,8 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void getUnavailableReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
-        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
-        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, singletonList(PLAYLIST1));
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, singletonList(PLAYLIST1));
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getDownloaded(DownloadState.success(request2))).contains(TRACK2);
@@ -158,27 +163,22 @@ public class DownloadQueueTest extends AndroidUnitTest {
         assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadState.success(request1))).isFalse();
     }
 
-    private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav", true)
-                .addToLikes(isLikedTrack)
-                .build();
+    private DownloadRequest createDownloadRequest(Urn trackUrn, boolean isLikedTrack) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setUrn(trackUrn);
+
+        return ModelFixtures.downloadRequestFromPlaylists(track, isLikedTrack, EMPTY_LIST);
     }
 
-    private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav", true)
-                .addToPlaylist(playlist)
-                .build();
-    }
+    private DownloadRequest createDownloadRequest(Urn trackUrn, List<Urn> inPlaylists) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setUrn(trackUrn);
 
-    private DownloadRequest createDownloadRequest(Urn track, Urn playlist1, Urn playlist2) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav", true)
-                .addToPlaylist(playlist1)
-                .addToPlaylist(playlist2)
-                .build();
+        return ModelFixtures.downloadRequestFromPlaylists(track, false, inPlaylists);
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest.Builder(track, TRACK_DURATION, "http://wav", true).build();
+        return ModelFixtures.downloadRequestFromLikes(track);
     }
 
 }

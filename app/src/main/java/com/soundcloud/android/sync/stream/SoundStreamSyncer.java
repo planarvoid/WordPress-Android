@@ -50,7 +50,6 @@ public class SoundStreamSyncer implements SyncStrategy {
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             return appendStreamItems();
-
         } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action) || streamSyncStorage.isMissingFuturePageUrl()) {
             return refreshSoundStream();
         } else {
@@ -62,12 +61,11 @@ public class SoundStreamSyncer implements SyncStrategy {
         try {
             return prependStreamItems();
         } catch (ApiRequestException exception) {
-            if (exception.isNetworkError()) {
-                throw exception;
-            } else {
-                // we probably had a bad cursor in the local url, so just refresh everything to start over
-                return refreshSoundStream();
+            if (!exception.isNetworkError()) {
+                // we may have had a bad cursor in the future url, so clear it for the next sync
+                streamSyncStorage.clear();
             }
+            throw exception;
         }
     }
 

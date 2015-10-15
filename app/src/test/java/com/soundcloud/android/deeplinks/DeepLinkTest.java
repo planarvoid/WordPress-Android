@@ -48,6 +48,7 @@ public class DeepLinkTest extends AndroidUnitTest {
     @Test
     public void shouldHandleWebHomeTypes() {
         assertThat(DeepLink.fromUri(null)).isEqualTo(DeepLink.HOME);
+        assertThat(DeepLink.fromUri(Uri.parse("http://soundcloud.com"))).isEqualTo(DeepLink.HOME);
         assertThat(DeepLink.fromUri(Uri.parse("http://soundcloud.com/"))).isEqualTo(DeepLink.HOME);
         assertThat(DeepLink.fromUri(Uri.parse("https://soundcloud.com/"))).isEqualTo(DeepLink.HOME);
         assertThat(DeepLink.fromUri(Uri.parse("https://m.soundcloud.com/"))).isEqualTo(DeepLink.HOME);

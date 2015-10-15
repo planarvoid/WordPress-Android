@@ -17,7 +17,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -591,7 +591,7 @@ public class OnboardActivity extends FragmentActivity
 
             if (wasSignup || wasAuthorizedViaSignupScreen()) {
                 Intent intent = new Intent(this, MainActivity.class)
-                        .putExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true)
+                        .putExtra(MainActivity.EXTRA_FROM_SIGNIN, true)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else {

@@ -3,7 +3,6 @@ package com.soundcloud.android.robolectric.shadows;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import com.xtremelabs.robolectric.shadows.ShadowParcel;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import android.os.Bundle;
 import android.os.IBinder;
@@ -224,7 +223,7 @@ public class ScShadowParcel extends ShadowParcel {
 
     @Implementation
     public final void writeByteArray(byte[] b) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Implementation
@@ -335,7 +334,7 @@ public class ScShadowParcel extends ShadowParcel {
 
     @Implementation
     public final byte[] createByteArray() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Implementation

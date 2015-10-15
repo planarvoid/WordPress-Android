@@ -5,9 +5,7 @@ import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
@@ -63,7 +61,7 @@ class DownloadNotificationController {
         totalBytesToDownload = (int) (currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes());
 
         for (DownloadRequest request : pendingQueue.getRequests()){
-            totalBytesToDownload += SecureFileStorage.calculateFileSizeInBytes(request.duration);
+            totalBytesToDownload += SecureFileStorage.calculateFileSizeInBytes(request.getDuration());
         }
 
         progressNotification = notificationBuilderProvider.get();
@@ -225,10 +223,8 @@ class DownloadNotificationController {
         Intent intent;
         if (request == null) {
             intent = new Intent(context, MainActivity.class);
-        } else if (request.inPlaylists.isEmpty()) {
-            intent = new Intent(Actions.LIKES);
         } else {
-            intent = PlaylistDetailActivity.getIntent(request.inPlaylists.get(0), Screen.PLAYLIST_DETAILS);
+            intent = new Intent(Actions.COLLECTION);
         }
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -8,12 +8,14 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -25,7 +27,6 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
@@ -229,6 +230,20 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                 ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
                 : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
         fireAndForget(observable);
+
+        eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(isMarkedForOffline));
+    }
+
+    private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
+        return isMarkedForOffline ?
+                UIEvent.fromAddOfflinePlaylist(
+                        Screen.PLAYLIST_DETAILS.get(),
+                        playlistWithTracks.getUrn(),
+                        playSessionSourceInfo.getPromotedSourceInfo()) :
+                UIEvent.fromRemoveOfflinePlaylist(
+                        Screen.PLAYLIST_DETAILS.get(),
+                        playlistWithTracks.getUrn(),
+                        playSessionSourceInfo.getPromotedSourceInfo());
     }
 
     @Override
@@ -268,12 +283,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleLike(addLike,
                             Screen.PLAYLIST_DETAILS.get(),
-                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            originProvider.getScreenTag(),
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
-                            PlayableItem.from(playlistWithTracks.getSourceSet())));
+                            PlayableMetadata.from(playlistWithTracks)));
 
             fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
@@ -284,11 +299,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleRepost(isReposted,
-                            PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                            originProvider.getScreenTag(),
                             Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
-                            playSessionSourceInfo.getPromotedSourceInfo()));
+                            playSessionSourceInfo.getPromotedSourceInfo(),
+                            PlayableMetadata.from(playlistWithTracks)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)
@@ -304,7 +320,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onShare() {
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistWithTracks.getUrn()));
+                    UIEvent.fromShare(originProvider.getScreenTag(), playlistWithTracks.getUrn(), PlayableMetadata.from(playlistWithTracks)));
             sendShareIntent();
         }
     }

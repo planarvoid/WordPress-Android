@@ -56,6 +56,11 @@
         <attr name="baseline" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="CollectionPreviewView">
+        <attr name="collectionTitle" format="string" />
+        <attr name="collectionIcon" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="DownloadImageView">
         <attr name="downloaded" format="integer" />
         <attr name="downloading" format="integer" />

@@ -1,6 +1,6 @@
 package com.soundcloud.android.payments.error;
 
-class PaymentError {
+public class PaymentError {
 
     /*
      * We should only ever display one payment error at a time,

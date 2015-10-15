@@ -1,11 +1,12 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.gcm.GcmRegistrationService;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackService;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 
 import javax.inject.Inject;
 
@@ -42,23 +43,14 @@ public class ServiceInitiator {
         playerAction(PlaybackService.Action.PAUSE);
     }
 
-    public void play(Urn track, long fromPos) {
-        startPlayback(track, fromPos, PlaybackService.Action.PLAY);
+    public void play(PlaybackItem playbackItem) {
+        startPlayback(playbackItem, PlaybackService.Action.PLAY);
     }
 
-    public void playOffline(Urn track, long fromPos) {
-        startPlayback(track, fromPos, PlaybackService.Action.PLAY_OFFLINE);
-    }
-
-    public void playUninterrupted(Urn track) {
-        startPlayback(track, 0L, PlaybackService.Action.PLAY_UNINTERRUPTED);
-    }
-
-    private void startPlayback(Urn track, long fromPos, String action) {
+    private void startPlayback(PlaybackItem playbackItem, String action) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(action);
-        intent.putExtra(PlaybackService.ActionExtras.URN, track);
-        intent.putExtra(PlaybackService.ActionExtras.POSITION, fromPos);
+        intent.putExtra(PlaybackService.ActionExtras.PLAYBACK_ITEM, (Parcelable) playbackItem);
         context.startService(intent);
     }
 

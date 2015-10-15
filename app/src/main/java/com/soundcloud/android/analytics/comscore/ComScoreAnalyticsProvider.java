@@ -10,7 +10,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 
 import android.content.Context;
 
@@ -47,6 +46,11 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
+    public void onAppCreated(Context context) {
+        /* no op */
+    }
+
+    @Override
     public void handleActivityLifeCycleEvent(final ActivityLifeCycleEvent event) {
         executor.execute(new Runnable() {
             @Override
@@ -77,11 +81,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
         if (event instanceof PlaybackSessionEvent) {
             handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         }
-    }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
-        // Not implemented
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {

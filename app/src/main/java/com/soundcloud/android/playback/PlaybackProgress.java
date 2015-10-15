@@ -8,9 +8,8 @@ import android.support.annotation.VisibleForTesting;
 public class PlaybackProgress {
     private final DateProvider dateProvider;
     private final long createdAt;
-
-    final long position;
-    final long duration;
+    private final long position;
+    private long duration;
 
     public static PlaybackProgress empty() {
         return new PlaybackProgress(0, 0);
@@ -38,6 +37,10 @@ public class PlaybackProgress {
 
     public long getDuration() {
         return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public long getPosition() {

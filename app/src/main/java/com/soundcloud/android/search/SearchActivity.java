@@ -3,15 +3,15 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.SearchActionBarController;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -37,8 +37,8 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle SearchActionBarController searchActionBarController;
 
+    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject PlaybackInitiator playbackInitiator;
-    @Inject FeatureFlags featureFlags;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -69,8 +69,8 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithMargins();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setBaseLayoutWithMargins(this);
     }
 
     @Override

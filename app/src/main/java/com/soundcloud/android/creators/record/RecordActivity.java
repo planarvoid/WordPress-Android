@@ -15,6 +15,7 @@ import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -37,6 +38,8 @@ public class RecordActivity extends ScActivity {
     private static final String UPLOAD_PROGRESS_FRAGMENT_TAG = "upload_progress_fragment";
 
     @Inject @LightCycle ActionBarHelper actionBarHelper;
+
+    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject EventBus eventBus;
     @Inject SoundRecorder recorder;
 
@@ -51,8 +54,8 @@ public class RecordActivity extends ScActivity {
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setContainerLayout();
+    protected void setActivityContentView() {
+        baseLayoutHelper.setContainerLayout(this);
     }
 
     private void restoreCurrentFragment() {

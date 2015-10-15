@@ -14,10 +14,10 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import io.fabric.sdk.android.Fabric;
 
+import android.content.Context;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -39,6 +39,11 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
+
+    @Override
+    public void onAppCreated(Context context) {
+        /* no op */
     }
 
     @Override
@@ -99,10 +104,6 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
                 new CustomEvent("Payment failure")
                         .putCustomAttribute("Reason", event.getReason())
         );
-    }
-
-    @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {
     }
 
 }

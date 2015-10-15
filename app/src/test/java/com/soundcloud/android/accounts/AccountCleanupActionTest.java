@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
+import com.soundcloud.android.collections.CollectionsOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -53,13 +54,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private StreamSyncStorage streamSyncStorage;
     @Mock private PlanStorage planStorage;
     @Mock private StationsOperations stationsOperations;
+    @Mock private CollectionsOperations collectionsOperations;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, streamSyncStorage, planStorage,
-                removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations);
+                removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations, collectionsOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -173,5 +175,11 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldRemoveStationsStorage() {
         action.call();
         verify(stationsOperations).clearData();
+    }
+
+    @Test
+    public void shouldRemoveCollectionsStorage() {
+        action.call();
+        verify(collectionsOperations).clearData();
     }
 }

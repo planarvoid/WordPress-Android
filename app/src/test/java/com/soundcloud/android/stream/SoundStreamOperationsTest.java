@@ -17,6 +17,10 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.StationOnboardingStreamItem;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -31,8 +35,11 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,11 +61,14 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
+    @Mock private StationsOperations stationsOperations;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
 
     private final PropertySet promotedTrackProperties = TestPropertySets.expectedPromotedTrack();
     private final FacebookInvitesItem facebookInviteItem = new FacebookInvitesItem(Arrays.asList("url1", "url2"));
+    private final StationOnboardingStreamItem stationOnboardingStreamItem = new StationOnboardingStreamItem();
 
     @Before
     public void setUp() throws Exception {
@@ -66,9 +76,18 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         when(facebookInvitesOperations.loadWithPictures())
                 .thenReturn(Observable.just(Optional.<FacebookInvitesItem>absent()));
 
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats,
-                removeStalePromotedItemsCommand, markPromotedItemAsStaleCommand, eventBus,
-                Schedulers.immediate(), facebookInvitesOperations);
+        operations = new SoundStreamOperations(
+                soundStreamStorage,
+                syncInitiator,
+                contentStats,
+                removeStalePromotedItemsCommand,
+                markPromotedItemAsStaleCommand,
+                eventBus,
+                Schedulers.immediate(),
+                facebookInvitesOperations,
+                stationsOperations,
+                featureFlags
+        );
     }
 
     @Test
@@ -399,6 +418,67 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
         verify(observer).onCompleted();
     }
 
+    @Test
+    public void showStationsOnboardingAsFirstItem() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)).thenReturn(true);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+
+        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+        operations.initialStreamItems().subscribe(subscriber);
+
+        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(0);
+        assertThat(firstItem.getEntityUrn()).isEqualTo(StationOnboardingStreamItem.URN);
+    }
+
+    @Test
+    public void shouldNotShowStationsOnboardingOnEmptyStream() {
+        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<PropertySet>empty());
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+        operations.initialStreamItems().subscribe(subscriber);
+
+        subscriber.assertValue(Collections.<StreamItem>emptyList());
+    }
+
+    @Test
+    public void shouldNotShowStationsOnboardingOnPromotedOnlyStream() {
+        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.just(promotedTrackProperties));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+        operations.initialStreamItems().subscribe(subscriber);
+
+        subscriber.assertValue(Collections.<StreamItem>emptyList());
+    }
+
+    @Test
+    public void shouldShowStationsOnboardingAbovePromotedItems() {
+        final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        itemsWithPromoted.add(0, promotedTrackProperties);
+
+        when(featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)).thenReturn(true);
+        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.from(itemsWithPromoted));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+        operations.initialStreamItems().subscribe(subscriber);
+
+        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(0);
+        assertThat(firstItem.getEntityUrn()).isEqualTo(StationOnboardingStreamItem.URN);
+    }
+
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
@@ -422,8 +502,17 @@ public class SoundStreamOperationsTest extends AndroidUnitTest {
     }
 
     private List<StreamItem> itemsWithInvites(List<PropertySet> items) {
+        return getStreamItems(items, facebookInviteItem);
+    }
+
+    private List<StreamItem> itemsStationsOnboarding(List<PropertySet> items) {
+        return getStreamItems(items, stationOnboardingStreamItem);
+    }
+
+    @NonNull
+    private List<StreamItem> getStreamItems(List<PropertySet> items, StreamItem streamItem) {
         final List<StreamItem> streamItems = streamItemsFromPropertySets(items);
-        streamItems.add(0, facebookInviteItem);
+        streamItems.add(0, streamItem);
         return streamItems;
     }
 }

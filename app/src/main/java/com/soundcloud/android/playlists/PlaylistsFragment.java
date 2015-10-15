@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -24,7 +23,6 @@ public class PlaylistsFragment extends LightCycleSupportFragment {
 
     // if we need more granularity for the menu actions control
     @Inject ActionBarHelper actionBarHelper;
-    @Inject FeatureFlags featureFlags;
 
     public PlaylistsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);

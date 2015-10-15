@@ -32,7 +32,7 @@
     <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
     <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
     <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
-    <string name="payments_error_unconfirmed_email">Please follow the link in your confirmation email and try again.</string>
+    <string name="payments_error_unconfirmed_email">You do not have a confirmed email address. To complete your purchase, please confirm your email address.</string>
     <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
     <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
     <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
@@ -95,11 +95,13 @@
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
     <string name="stations_collection_title_saved_stations">Your stations</string>
-    <string name="stations_collection_title_recently_played_stations">Recently played stations</string>
+    <string name="stations_collection_title_recently_played_stations">Recent stations</string>
     <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
     <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
     <string name="station_bucket_action_text">View all</string>
+    <string name="stations_onboarding_stream_title">Start Station - Stop Discontent</string>
+    <string name="stations_onboarding_stream_text">Tap the 3 dots from your favorite track and start a station..</string>
 
     <!-- __COLLECTION -->
     <string name="side_menu_collection">Collection</string>
@@ -110,12 +112,31 @@
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_created">Created</string>
     <string name="collections_options_toggle_likes">Liked</string>
-    <string name="collections_options_dialog_sort_by_creation">Date created</string>
+    <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
     <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
     <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
     <string name="collections_remove_filters">Remove Filters</string>
+    <string name="collections_notifications_title">Welcome to your unified collection.</string>
+    <string name="collections_notifications_description">All your likes and playlists in one place. Plus stations you recently listened to.</string>
 
     <!-- __DISCOVERY -->
     <string name="activity_title_search_results">Search</string>
+
+    <!-- __TABS -->
+    <string name="tab_home">Home</string>
+    <string name="tab_discovery">Discovery</string>
+    <string name="tab_collection">Collection</string>
+    <string name="tab_you">You</string>
+
+    <!-- __YOU -->
+    <string name="you_activity">Activity</string>
+    <string name="you_record">Record</string>
+    <string name="you_offline_sync_settings">Offline Sync Settings</string>
+    <string name="you_notification_settings">Notification Settings</string>
+    <string name="you_basic_settings">Basic Settings</string>
+    <string name="you_help_center">Help Center</string>
+    <string name="you_legal">Legal</string>
+    <string name="you_sign_out">Sign out</string>
+    <string name="you_view_public_profile">View Public Profile</string>
 </resources>

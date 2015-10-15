@@ -23,7 +23,7 @@ public class ResolveTwitterUriTest extends ResolveBaseTest {
         final VisualPlayerElement playerElement = getPlayerElement();
         assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
         // make sure recommendations load
-        waiter.waitFiveSeconds();
+        playerElement.waitForMoreContent();
 
         playerElement.swipeNext();
         assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(TRACK_NAME))));

@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 
 public class ForegroundEvent extends TrackingEvent {
@@ -25,8 +25,4 @@ public class ForegroundEvent extends TrackingEvent {
         super(kind, System.currentTimeMillis());
     }
 
-    @Override
-    public ForegroundEvent put(String key, String value) {
-        return (ForegroundEvent) super.put(key, value);
-    }
 }

@@ -125,6 +125,7 @@ public enum DeepLink {
 
     private static DeepLink fromWebScheme(Uri uri) {
         switch (uri.getPath()) {
+            case "":
             case "/":
             case "/home":
                 return HOME;

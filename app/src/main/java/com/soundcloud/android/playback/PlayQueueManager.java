@@ -487,19 +487,19 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public static class MergeMetadataOperation implements QueueUpdateOperation {
+    public static class SetMetadataOperation implements QueueUpdateOperation {
 
         private final int position;
         private final PropertySet metadata;
 
-        public MergeMetadataOperation(int position, PropertySet metadata) {
+        public SetMetadataOperation(int position, PropertySet metadata) {
             this.position = position;
             this.metadata = metadata;
         }
 
         @Override
         public void execute(PlayQueue playQueue) {
-            playQueue.mergeMetaData(position, metadata);
+            playQueue.setMetaData(position, metadata);
         }
     }
 }

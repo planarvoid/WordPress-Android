@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.StationsTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;

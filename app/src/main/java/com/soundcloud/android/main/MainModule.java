@@ -10,8 +10,12 @@ import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
+import dagger.Lazy;
 import dagger.Module;
+import dagger.Provides;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
@@ -21,9 +25,9 @@ import dagger.Module;
                 RecordActivity.class,
                 UploadActivity.class,
                 MetadataFragment.class,
-                NavigationFragment.class,
+                LegacyNavigationFragment.class,
                 DevDrawerFragment.class,
-                NavigationDrawerFragment.class,
+                LegacyNavigationDrawerFragment.class,
                 EmailOptInDialogFragment.class,
                 SearchActivity.class,
                 TrackCommentsActivity.class,
@@ -31,4 +35,15 @@ import dagger.Module;
                 VerifyAgeActivity.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule {
+
+    @Provides
+    public NavigationPresenter provideNavigation(FeatureFlags flags, Lazy<LegacyMainPresenter> legacyPresenter,
+                                                 Lazy<MainTabsPresenter> tabsPresenter) {
+        if (flags.isEnabled(Flag.TABS)) {
+            return tabsPresenter.get();
+        } else {
+            return legacyPresenter.get();
+        }
+    }
+
 }

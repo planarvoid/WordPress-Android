@@ -10,23 +10,20 @@ android {
     variant.resValue "bool", "verbose_logging", "false"
     variant.resValue "string", "public_api_base_url", "https://api.soundcloud.com"
     variant.resValue "string", "cast_receiver_app_id", "DCAC4134"
-
     variant.resValue "string", "comscore_c2", "16601931"
     variant.resValue "string", "comscore_secret", "e0579a59c522e051e0970b3279f1b077"
-
     variant.resValue "string", "com_appboy_push_gcm_sender_id", "984739005367"
     variant.resValue "bool",   "com_appboy_push_gcm_messaging_registration_enabled", "false"
     variant.resValue "integer","com_appboy_default_notification_accent_color", "0xFFff5500"
+    variant.resValue "string", "adjust_app_token", "87l2rj9gqhlj"
   }
 
   buildTypes {
     debug {
       resValue "string", "build_type", "debug"
-      resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
       resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -36,11 +33,9 @@ android {
 
     alpha {
       resValue "string", "build_type", "alpha"
-      resValue "string", "localytics_app_key", "dd94ecf058dedd10d24cda8-dedc8f8c-0eb5-11e5-9ed9-00739d24cb30"
       resValue "string", "com_appboy_api_key", "ee285825-b3e0-4f01-8bc9-ea372882cf0e"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -50,11 +45,9 @@ android {
 
     beta {
       resValue "string", "build_type", "beta"
-      resValue "string", "localytics_app_key", "8fecc6a72fcb74ddc76e2ac-02fa3b92-08f2-11e3-120d-004a77f8b47f"
       resValue "string", "com_appboy_api_key", "b3c3167a-d8cc-4fa6-8be3-caa52a04c566"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -64,11 +57,9 @@ android {
 
     end2end {
       resValue "string", "build_type", "debug"
-      resValue "string", "localytics_app_key", "50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"
       resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "adjust_log_level", "info"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -78,11 +69,9 @@ android {
 
     release {
       resValue "string", "build_type", "release"
-      resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -92,11 +81,9 @@ android {
 
     releaseNoProguard {
       resValue "string", "build_type", "release"
-      resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -106,11 +93,9 @@ android {
 
     release_non_play_store {
       resValue "string", "build_type", "release"
-      resValue "string", "localytics_app_key", "182e977569f7648ada7d3b0-7806ed4c-0a4a-11e3-8dbf-005cf8cbabd8"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
-      resValue "string", "adjust_log_level", "error"
 
       resValue "bool", "google_plus_enabled", "false"
 

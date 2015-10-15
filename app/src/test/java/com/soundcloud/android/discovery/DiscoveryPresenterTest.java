@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -71,8 +71,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         when(recommendationItemOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.FEATURE_DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 
     @Test

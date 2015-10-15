@@ -6,9 +6,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-class PlayerTrackState extends PlayerItem implements PropertySetSource {
+public class PlayerTrackState extends PlayerItem implements PropertySetSource {
 
     static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
             TrackProperty.URN.bind(Urn.NOT_SET),
@@ -72,20 +73,20 @@ class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return relatedTrack.get(TrackProperty.URN);
     }
 
-    Urn getUrn() {
+    public Urn getUrn() {
         return source.get(TrackProperty.URN);
     }
 
-    String getTitle() {
+    public String getTitle() {
         return source.get(PlayableProperty.TITLE);
     }
 
-    String getUserName() {
-        return source.get(PlayableProperty.CREATOR_NAME);
+    public String getUserName() {
+        return source.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY);
     }
 
-    Urn getUserUrn() {
-        return source.get(PlayableProperty.CREATOR_URN);
+    public Urn getUserUrn() {
+        return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
     }
 
     long getDuration() {

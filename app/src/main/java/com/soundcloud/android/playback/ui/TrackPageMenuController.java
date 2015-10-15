@@ -3,11 +3,12 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -128,7 +129,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void handleShare(PlayerTrackState track) {
         if (!track.isPrivate()) {
             activity.startActivity(buildShareIntent(track));
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn(), PlayableMetadata.from(track)));
         }
     }
 
@@ -141,7 +142,8 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                         Screen.PLAYER_MAIN.get(),
                         trackUrn,
                         trackUrn,
-                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn)));
+                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
+                        PlayableMetadata.from(track)));
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {

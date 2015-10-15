@@ -47,7 +47,7 @@ public class StationFixtures {
         return new ApiStationMetadata(
                 station,
                 "station " + System.currentTimeMillis(),
-                "http://artwork",
+                "http://permalink",
                 "fixture-stations"
         );
     }

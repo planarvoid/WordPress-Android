@@ -18,6 +18,7 @@ def FEATURE_KILL_CONCURRENT_STREAMING = "FEATURE_KILL_CONCURRENT_STREAMING"
 def FEATURE_COLLECTIONS = "FEATURE_COLLECTIONS"
 def FEATURE_DAILY_POLICY_UPDATES = "FEATURE_DAILY_POLICY_UPDATES"
 def FEATURE_APPBOY = "FEATURE_APPBOY"
+def FEATURE_TABS = "FEATURE_TABS"
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -50,10 +51,11 @@ android {
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, TRUE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, TRUE   //FEATURE_DISCOVERY must be enable as well
+      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
@@ -64,11 +66,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -95,6 +98,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
@@ -108,10 +112,12 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -119,7 +125,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_APPBOY, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
@@ -129,11 +134,13 @@ android {
     release {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
@@ -142,7 +149,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_APPBOY, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
@@ -152,11 +158,13 @@ android {
     releaseNoProguard {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -164,7 +172,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_APPBOY, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
@@ -174,11 +181,13 @@ android {
     release_non_play_store {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, FALSE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -186,7 +195,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_RECOMMENDED_PLAYER_CONTEXT, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_APPBOY, FALSE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well

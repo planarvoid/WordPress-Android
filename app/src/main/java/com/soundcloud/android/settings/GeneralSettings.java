@@ -49,7 +49,6 @@ class GeneralSettings implements OnPreferenceClickListener {
     private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private final Context appContext;
-    private final DeviceHelper deviceHelper;
     private final FeatureOperations featureOperations;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final EventBus eventBus;
@@ -57,10 +56,9 @@ class GeneralSettings implements OnPreferenceClickListener {
     private PreferenceFragment settings;
 
     @Inject
-    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations,
+    public GeneralSettings(Context appContext, FeatureOperations featureOperations,
                            OfflineSettingsOperations offlineSettingsOperations, EventBus eventBus) {
         this.appContext = appContext;
-        this.deviceHelper = deviceHelper;
         this.featureOperations = featureOperations;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.eventBus = eventBus;

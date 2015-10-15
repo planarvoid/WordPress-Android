@@ -4,7 +4,6 @@ import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.REQUESTED_AT;
-import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.Filter.filter;
 
@@ -33,10 +32,24 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     private final PropellerDatabase propellerDatabase;
     private final DateProvider dateProvider;
 
-    private final Function<DownloadRequest, Urn> toUrn = new Function<DownloadRequest, Urn>() {
+    private final Function<DownloadRequest, Urn> TO_URN = new Function<DownloadRequest, Urn>() {
         @Override
         public Urn apply(DownloadRequest request) {
-            return request.track;
+            return request.getTrack();
+        }
+    };
+
+    private final Predicate<DownloadRequest> IS_SYNCABLE = new Predicate<DownloadRequest>() {
+        @Override
+        public boolean apply(DownloadRequest input) {
+            return input.isSyncable();
+        }
+    };
+
+    private final Predicate<DownloadRequest> IS_NOT_SYNCABLE = new Predicate<DownloadRequest>() {
+        @Override
+        public boolean apply(DownloadRequest input) {
+            return !input.isSyncable();
         }
     };
 
@@ -64,9 +77,9 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     @Override
     public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
-        final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, downloadablePredicate(true)));
-        final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, downloadablePredicate(false));
-        final Collection<Urn> downloadableUrns = MoreCollections.transform(downloadable, toUrn);
+        final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, IS_SYNCABLE));
+        final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, IS_NOT_SYNCABLE);
+        final Collection<Urn> downloadableUrns = MoreCollections.transform(downloadable, TO_URN);
 
         final List<Urn> requested = getDownloadRequests();
         final List<Urn> downloaded = getDownloaded();
@@ -85,15 +98,6 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
                 newArrayList(creatorOptOut),
                 newPendingRemovals
         );
-    }
-
-    private static Predicate<DownloadRequest> downloadablePredicate(final boolean isDownloadable) {
-        return new Predicate<DownloadRequest>() {
-            @Override
-            public boolean apply(DownloadRequest input) {
-                return input.downloadable == isDownloadable;
-            }
-        };
     }
 
     private List<Urn> getMarkedAsUnavailable() {
@@ -135,7 +139,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
 
     private List<Urn> getNewPendingRemovals(Collection<DownloadRequest> expectedContent, List<Urn> downloaded,
                                             Collection<Urn> unavailable, Collection<Urn> requested) {
-        Collection<Urn> expectedTracks = MoreCollections.transform(expectedContent, toUrn);
+        Collection<Urn> expectedTracks = MoreCollections.transform(expectedContent, TO_URN);
         return newArrayList(subtract(add(downloaded, requested, unavailable), expectedTracks));
     }
 
@@ -144,7 +148,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
-                return pendingRemovals.contains(request.track);
+                return pendingRemovals.contains(request.getTrack());
             }
         });
     }
@@ -156,8 +160,8 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
-                return !pendingDownloads.contains(request.track) &&
-                        !downloadedTracks.contains(request.track) &&
+                return !pendingDownloads.contains(request.getTrack()) &&
+                        !downloadedTracks.contains(request.getTrack()) &&
                         !tracksToRestore.contains(request);
             }
         });
@@ -170,9 +174,9 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
-                return !downloadedTracks.contains(request.track) &&
+                return !downloadedTracks.contains(request.getTrack()) &&
                         !tracksToRestore.contains(request) &&
-                        !downloadedContent.contains(request.track);
+                        !downloadedContent.contains(request.getTrack());
             }
         });
     }

@@ -5,6 +5,7 @@ import com.appboy.Appboy;
 import com.appboy.AppboyUser;
 import com.appboy.IAppboyEndpointProvider;
 import com.appboy.models.outgoing.AppboyProperties;
+import com.appboy.models.outgoing.AttributionData;
 import com.appboy.ui.inappmessage.AppboyInAppMessageManager;
 
 import android.app.Activity;
@@ -41,6 +42,11 @@ public class AppboyWrapper {
         });
     }
 
+    public void setAttribution(String network, String campaign, String adGroup, String creative) {
+        AttributionData attributionData = new AttributionData(network, campaign, adGroup, creative);
+        appboy.getCurrentUser().setAttributionData(attributionData);
+    }
+
     boolean openSession(Activity activity) {
         return appboy.openSession(activity);
     }
@@ -71,6 +77,10 @@ public class AppboyWrapper {
 
     boolean logCustomEvent(String eventName, AppboyProperties properties) {
         return appboy.logCustomEvent(eventName, properties);
+    }
+
+    boolean logCustomEvent(String eventName) {
+        return appboy.logCustomEvent(eventName);
     }
 
     private String encodeUserId(String userId) {

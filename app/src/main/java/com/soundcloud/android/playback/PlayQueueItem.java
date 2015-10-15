@@ -13,8 +13,8 @@ public final class PlayQueueItem {
     private final Urn relatedEntity;
     private final String source;
     private final String sourceVersion;
-    private final PropertySet metaData;
     private final boolean shouldPersist;
+    private PropertySet metaData;
 
     private PlayQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source, String sourceVersion,
                           PropertySet metaData, boolean shouldPersist) {
@@ -45,6 +45,10 @@ public final class PlayQueueItem {
 
     public PropertySet getMetaData() {
         return metaData;
+    }
+
+    public void setMetaData(PropertySet metaData) {
+        this.metaData = metaData;
     }
 
     public Urn getRelatedEntity() {

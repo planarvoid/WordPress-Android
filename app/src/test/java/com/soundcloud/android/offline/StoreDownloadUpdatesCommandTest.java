@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
@@ -14,7 +15,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     private CurrentDateProvider dateProvider;
 
     private static final Urn TRACK = Urn.forTrack(123L);
-    private static final DownloadRequest request = new DownloadRequest(TRACK, 12345L, "http://wav");
+    private static final DownloadRequest request = ModelFixtures.downloadRequestFromLikes(TRACK);
     private static final long NOW = System.currentTimeMillis();
 
     private StoreDownloadUpdatesCommand command;
@@ -72,7 +73,8 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void marksAsUnavailableOfflineCreatorOptOutTracks() {
-        final DownloadRequest creatorOptOut = new DownloadRequest.Builder(TRACK, 1L, "http://wav", false).build();
+        final DownloadRequest creatorOptOut = ModelFixtures.creatorOptOutRequest(TRACK);
+
         final OfflineContentUpdates offlineContentUpdates = new OfflineContentUpdates(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),

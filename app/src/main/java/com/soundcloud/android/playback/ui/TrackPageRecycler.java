@@ -15,7 +15,7 @@ class TrackPageRecycler {
     private final Deque<View> scrapViews;
 
     TrackPageRecycler() {
-        viewMap = new LinkedHashMap<>(TrackPagerAdapter.TRACK_VIEW_POOL_SIZE);
+        viewMap = new LinkedHashMap<>(PlayerPagerPresenter.TRACK_VIEW_POOL_SIZE);
         scrapViews = new LinkedList<>();
     }
 
