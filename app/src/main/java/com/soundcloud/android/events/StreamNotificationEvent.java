@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import org.jetbrains.annotations.NotNull;
 

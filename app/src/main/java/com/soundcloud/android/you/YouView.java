@@ -7,8 +7,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 
 import android.view.View;

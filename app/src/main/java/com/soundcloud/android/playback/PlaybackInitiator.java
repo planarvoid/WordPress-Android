@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.Urn;

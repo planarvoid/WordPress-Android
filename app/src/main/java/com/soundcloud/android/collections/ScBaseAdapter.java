@@ -5,7 +5,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.PublicApi;

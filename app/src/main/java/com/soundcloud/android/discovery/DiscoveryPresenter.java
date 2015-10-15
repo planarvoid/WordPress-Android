@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;

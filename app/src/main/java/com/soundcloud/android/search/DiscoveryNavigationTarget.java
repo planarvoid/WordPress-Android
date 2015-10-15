@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.discovery.DiscoveryFragment;
 import com.soundcloud.android.main.BaseNavigationTarget;
 

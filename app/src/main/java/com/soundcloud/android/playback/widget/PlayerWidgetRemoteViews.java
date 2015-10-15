@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.widget;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;

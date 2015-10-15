@@ -73,12 +73,13 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <!-- TODO: Remove the EXPLORE filter once we switch over to tabs -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.LIKES"/>
+                <action android:name="com.soundcloud.android.action.COLLECTION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -153,6 +154,7 @@
         </activity>
 
         <activity android:label="@string/title_search" android:name=".search.SearchActivity">
+            <!-- TODO: Move search intent filters to MainActivity (discovery tab) -->
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>

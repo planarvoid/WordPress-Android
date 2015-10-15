@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.CollectionsFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;

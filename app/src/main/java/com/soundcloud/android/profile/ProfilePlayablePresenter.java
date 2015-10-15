@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;

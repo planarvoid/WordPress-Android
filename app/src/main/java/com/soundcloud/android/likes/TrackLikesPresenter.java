@@ -7,7 +7,7 @@ import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;

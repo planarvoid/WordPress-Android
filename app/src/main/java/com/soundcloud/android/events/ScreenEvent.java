@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.explore.ExploreGenre;
 
 public final class ScreenEvent extends TrackingEvent {

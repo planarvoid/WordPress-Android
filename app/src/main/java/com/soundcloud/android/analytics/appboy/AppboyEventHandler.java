@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static com.soundcloud.android.analytics.Screen.SEARCH_EVERYTHING;
+import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
@@ -15,7 +15,7 @@ import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
 
 import com.appboy.models.outgoing.AppboyProperties;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;

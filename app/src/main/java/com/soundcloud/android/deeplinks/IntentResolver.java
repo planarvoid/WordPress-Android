@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
