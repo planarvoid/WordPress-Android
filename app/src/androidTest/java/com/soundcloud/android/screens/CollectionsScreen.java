@@ -82,7 +82,7 @@ public class CollectionsScreen extends Screen {
     }
 
     private ViewElement recentStationsElement() {
-        return testDriver.findElement(With.text(testDriver.getString(R.string.stations_collection_title_recently_played_stations)));
+        return testDriver.findElement(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
     }
 
     @Override

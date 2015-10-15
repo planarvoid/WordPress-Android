@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         soundcloud:collectionIcon="@drawable/sidebar_stations_icon"
-        soundcloud:collectionTitle="@string/stations_collection_title_recently_played_stations" />
+        soundcloud:collectionTitle="@string/stations_collection_title_recent_stations" />
 
     <View
         android:layout_height="16dp"

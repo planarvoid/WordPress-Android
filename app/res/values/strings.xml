@@ -482,9 +482,14 @@
     </string-array>
 
     <!-- __STATIONS -->
-    <string name="start_radio">Start radio</string>
-    <string name="unable_to_start_radio">Unable to start radio</string>
-    <string name="starting_radio">Starting radio...</string>
+    <string name="start_track_station">Start track station</string>
+    <string name="unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
+    <string name="loading_station">Loading station. Stay tuned.</string>
+    <string name="stations_collection_title_recent_stations">Recent stations</string>
+    <string name="stations_onboarding_stream_text">Start a station to hear a radio-like stream of similar tracks.\n\nJust tap on the more menu on any track to get going.</string>
+
+    <!-- __COLLECTION -->
+    <string name="collections_notifications_description">Your likes. Your playlists. Your stations. All in one place. Welcome to your new collection, the ultimate destination for your sounds.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
