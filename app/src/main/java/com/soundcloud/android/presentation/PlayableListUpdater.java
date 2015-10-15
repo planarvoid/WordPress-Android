@@ -1,8 +1,8 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -33,7 +33,7 @@ public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragme
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         fragmentLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackItemRenderer)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new LegacyUpdatePlayingTrackSubscriber(adapter, trackItemRenderer)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }

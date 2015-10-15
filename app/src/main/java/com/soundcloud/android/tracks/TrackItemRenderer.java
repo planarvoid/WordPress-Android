@@ -110,7 +110,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         itemView.resetAdditionalInformation();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
-        } else if (track.getEntityUrn().equals(playingTrack)) {
+        } else if (track.isPlaying() || track.getEntityUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
         } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
             itemView.showUpsell();
@@ -144,6 +144,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         return playCount > 0;
     }
 
+    @Deprecated // use isPlaying from trackItem
     public void setPlayingTrack(@NotNull Urn playingTrack) {
         this.playingTrack = playingTrack;
     }
