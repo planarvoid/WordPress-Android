@@ -7,12 +7,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
