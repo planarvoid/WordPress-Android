@@ -396,10 +396,6 @@
   <string name="wifi_settings_summary">Sunting pengaturanmu. Gunakan Wi-Fi untuk kinerja terbaik.</string>
   <string name="cache_clearing">Membersihkan cache</string>
   <string name="cache_clearing_message">Menghapus berkas cache...</string>
-  <string-array name="pref_dev_record_type_entries">
-    <item>Dikecilkan</item>
-    <item>Asli</item>
-  </string-array>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">Hapus data pengguna?</string>
   <string name="sign_out_description">Anda harus menghubungkan kembali akun SoundCloud Anda.</string>

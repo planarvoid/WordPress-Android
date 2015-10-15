@@ -13,5 +13,23 @@
         <Preference
             android:key="@string/dev_drawer_action_policy_sync_key"
             android:title="@string/dev_drawer_action_policy_sync_title"/>
+        <Preference
+            android:key="@string/dev_drawer_action_rewind_notifications_key"
+            android:title="@string/dev_drawer_action_rewind_notifications_title"/>
+        <Preference
+            android:key="@string/dev_drawer_action_clear_notifications_key"
+            android:title="@string/dev_drawer_action_clear_notifications_title"/>
+        <Preference
+            android:key="@string/dev_drawer_action_sync_now_key"
+            android:title="@string/dev_drawer_action_sync_now_title"/>
+        <Preference
+            android:key="@string/dev_drawer_action_crash_key"
+            android:title="@string/dev_drawer_action_crash_title"/>
+
+        <CheckBoxPreference
+            android:key="@string/dev_drawer_flush_eventlogger_instantly_key"
+            android:title="@string/dev_drawer_flush_eventlogger_instantly_title"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 </PreferenceScreen>
