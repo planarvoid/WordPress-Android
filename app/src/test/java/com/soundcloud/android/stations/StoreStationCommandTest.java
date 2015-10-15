@@ -7,13 +7,13 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class StoreApiStationCommandTest extends StorageIntegrationTest {
+public class StoreStationCommandTest extends StorageIntegrationTest {
     private ApiStation station;
-    private StoreApiStationCommand command;
+    private StoreStationCommand command;
 
     @Before
     public void setup() {
-        command = new StoreApiStationCommand(propeller());
+        command = new StoreStationCommand(propeller());
         station = StationFixtures.getApiStation();
     }
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.stations;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -39,7 +40,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
     @Override
     public void bindItemView(int position, View view, List<StationViewModel> stations) {
         final StationViewModel stationViewModel = stations.get(position);
-        final Station station = stationViewModel.getStation();
+        final StationRecord station = stationViewModel.getStation();
         final ImageView artwork = ButterKnife.findById(view, R.id.artwork);
         final TextView title = ButterKnife.findById(view, R.id.title);
         final TextView type = ButterKnife.findById(view, R.id.type);
@@ -74,11 +75,11 @@ class StationRenderer implements CellRenderer<StationViewModel> {
             case StationTypes.CURATOR:
                 return resources.getString(R.string.station_type_curator);
             default:
-                throw new IllegalArgumentException("Unknown station type: " + type);
+                throw new IllegalArgumentException("Unknown stationWithSeed type: " + type);
         }
     }
 
-    private View.OnClickListener startStation(final Station station) {
+    private View.OnClickListener startStation(final StationRecord station) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -21,7 +22,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -118,7 +118,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bindItemViewLoadsStationsContext()  {
         final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,viewVisibilityProvider);
-        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         trackState.setStation(station);
 
         presenter.bindItemView(trackView, trackState);

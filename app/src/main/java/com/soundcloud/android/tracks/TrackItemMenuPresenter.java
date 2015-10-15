@@ -177,7 +177,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 );
                 return true;
             case R.id.start_station:
-                startStationPresenter.startStation(context, Urn.forTrackStation(track.getEntityUrn().getNumericId()));
+                startStationPresenter.startStationForTrack(context, track.getEntityUrn());
                 return true;
             default:
                 return false;

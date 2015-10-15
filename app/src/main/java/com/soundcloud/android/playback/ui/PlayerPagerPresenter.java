@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -17,7 +18,6 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -345,9 +345,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return Observable.zip(
                     getTrackObservable(viewData.getTrackUrn(), viewData.getProperties()).map(toPlayerTrack),
                     stationsOperations.station(viewData.getCollectionUrn()),
-                    new Func2<PlayerTrackState, Station, PlayerItem>() {
+                    new Func2<PlayerTrackState, StationRecord, PlayerItem>() {
                         @Override
-                        public PlayerItem call(PlayerTrackState playerTrackState, Station station) {
+                        public PlayerItem call(PlayerTrackState playerTrackState, StationRecord station) {
                             playerTrackState.setStation(station);
                             return playerTrackState;
                         }

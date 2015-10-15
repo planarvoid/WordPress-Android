@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -31,7 +31,7 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
     private final boolean isForeground;
     private final ViewVisibilityProvider viewVisibilityProvider;
 
-    private Optional<Station> station = Optional.absent();
+    private Optional<StationRecord> station = Optional.absent();
 
     PlayerTrackState(PropertySet source,
                      boolean isCurrentTrack,
@@ -59,11 +59,11 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return isForeground;
     }
 
-    public void setStation(Station station) {
+    public void setStation(StationRecord station) {
         this.station = Optional.of(station);
     }
 
-    public Optional<Station> getStation() {
+    public Optional<StationRecord> getStation() {
         return station;
     }
 

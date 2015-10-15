@@ -2,6 +2,7 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -46,21 +47,21 @@ public class StationFixtures {
     private static ApiStationMetadata getApiStationMetadata(Urn station) {
         return new ApiStationMetadata(
                 station,
-                "station " + System.currentTimeMillis(),
+                "stationWithSeed " + System.currentTimeMillis(),
                 "http://permalink",
                 "fixture-stations"
         );
     }
 
-    public static Station getStation(Urn urn) {
+    public static StationRecord getStation(Urn urn) {
         return getStation(urn, 1);
     }
 
-    public static Station getStation(Urn urn, int size) {
+    public static StationRecord getStation(Urn urn, int size) {
         return getStation(getApiStation(urn, size));
     }
 
-    public static Station getStation(ApiStation apiStation) {
+    public static StationRecord getStation(ApiStation apiStation) {
         return new Station(
                 apiStation.getUrn(),
                 apiStation.getTitle(),

@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
@@ -14,15 +15,15 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.List;
 
-class StoreApiStationCommand extends DefaultWriteStorageCommand<ApiStation, WriteResult> {
+class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
 
     @Inject
-    public StoreApiStationCommand(PropellerDatabase database) {
+    public StoreStationCommand(PropellerDatabase database) {
         super(database);
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final ApiStation station) {
+    protected WriteResult write(PropellerDatabase propeller, final StationRecord station) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
@@ -43,7 +44,7 @@ class StoreApiStationCommand extends DefaultWriteStorageCommand<ApiStation, Writ
         });
     }
 
-    private ContentValues buildContentValues(ApiStation station, Urn trackUrn, int trackPosition) {
+    private ContentValues buildContentValues(StationRecord station, Urn trackUrn, int trackPosition) {
         return ContentValuesBuilder
                 .values()
                 .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
@@ -52,7 +53,7 @@ class StoreApiStationCommand extends DefaultWriteStorageCommand<ApiStation, Writ
                 .get();
     }
 
-    private ContentValues buildStationContentValues(ApiStation station) {
+    private ContentValues buildStationContentValues(StationRecord station) {
         return ContentValuesBuilder
                 .values()
                 .put(Stations.STATION_URN, station.getUrn().toString())
