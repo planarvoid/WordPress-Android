@@ -1,7 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.analytics.Screen;
-
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
@@ -10,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NavigationModel {
+
+    public static final int NOT_FOUND = -1;
 
     private final List<Target> listItems;
 
@@ -23,6 +23,15 @@ public class NavigationModel {
 
     public int getItemCount() {
         return listItems.size();
+    }
+
+    public int getPosition(Screen screen) {
+        for (int i = 0; i < listItems.size(); i++) {
+            if (listItems.get(i).getScreen().equals(screen)) {
+                return i;
+            }
+        }
+        return NOT_FOUND;
     }
 
     public interface Target {

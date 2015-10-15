@@ -21,6 +21,7 @@ public class CollectionsFragment extends LightCycleSupportFragment implements Re
     @Inject @LightCycle CollectionsPresenter presenter;
 
     public CollectionsFragment() {
+        setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 

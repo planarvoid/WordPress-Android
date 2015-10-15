@@ -233,6 +233,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForContent() {
+        waiter.waitForElement(With.id(R.id.player_track_pager));
         waiter.waitForContent(getViewPager());
     }
 

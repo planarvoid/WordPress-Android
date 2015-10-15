@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -50,9 +49,6 @@ public class LegacyNavigationFragment extends Fragment {
 
     private static final int NO_TEXT = -1;
     private static final int NO_IMAGE = -1;
-
-    private static final String STREAM = "stream";
-    private static final String SOUNDCLOUD_COM = "soundcloud.com";
 
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
@@ -106,34 +102,33 @@ public class LegacyNavigationFragment extends Fragment {
     }
 
     public boolean handleIntent(Intent intent) {
-        final String action = intent.getAction();
+        return resolveAction(intent.getAction()) || resolveData(intent.getData());
+    }
+
+    private boolean resolveAction(String action) {
         if (Strings.isNotBlank(action)) {
             switch (action) {
                 case Actions.STREAM:
                     selectItem(NavItem.STREAM);
                     return true;
-                case Actions.LIKES:
-                    selectItem(NavItem.LIKES);
+                case Actions.COLLECTION:
+                    selectItem(NavItem.COLLECTIONS);
                     return true;
                 case Actions.EXPLORE:
                     selectItem(NavItem.EXPLORE);
                     return true;
             }
         }
+        return false;
+    }
 
-        final Uri data = intent.getData();
+    private boolean resolveData(Uri data) {
         if (data != null) {
-            if (shouldGoToStream(data)) {
+            if (NavigationIntentHelper.shouldGoToStream(data)) {
                 selectItem(NavItem.STREAM);
                 return true;
-            } else if (data.getLastPathSegment().equals("explore")) {
+            } else if (NavigationIntentHelper.shoudGoToExplore(data)) {
                 selectItem(NavItem.EXPLORE);
-                return true;
-            } else if (ResolveActivity.accept(data, getResources())) {
-                // facebook deeplink, as they need to be routed through the launcher activity
-                startActivity(new Intent(getActivity(), ResolveActivity.class).setAction(Intent.ACTION_VIEW)
-                        .setData(data));
-                getActivity().finish();
                 return true;
             }
         }
@@ -142,13 +137,6 @@ public class LegacyNavigationFragment extends Fragment {
 
     public boolean handleBackPressed() {
         return false;
-    }
-
-    private boolean shouldGoToStream(Uri data) {
-        final String host = data.getHost();
-        return host != null && (STREAM.equals(host)
-                        || STREAM.equals(data.getLastPathSegment())
-                        || (host.contains(SOUNDCLOUD_COM) && Strings.isBlank(data.getPath())));
     }
 
     @Override

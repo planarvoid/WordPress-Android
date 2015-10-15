@@ -2,9 +2,8 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
@@ -14,6 +13,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -29,12 +29,12 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
 
     @Inject @LightCycle NavigationPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
-    @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
 
     protected void onCreate(Bundle savedInstanceState) {
+        redirectToResolverIfNecessary(getIntent());
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
@@ -65,9 +65,24 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
 
     @Override
     protected void onNewIntent(Intent intent) {
+        redirectToResolverIfNecessary(intent);
         super.onNewIntent(intent);
         trackForegroundEvent(intent);
         setIntent(intent);
+    }
+
+    private void redirectToResolverIfNecessary(Intent intent) {
+        final Uri data = intent.getData();
+        if (data != null
+                && ResolveActivity.accept(data, getResources())
+                && !NavigationIntentHelper.resolvesToNavigationItem(data)) {
+            redirectFacebookDeeplinkToResolver(data);
+        }
+    }
+
+    private void redirectFacebookDeeplinkToResolver(Uri data) {
+        startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));
+        finish();
     }
 
     private void trackForegroundEvent(Intent intent) {

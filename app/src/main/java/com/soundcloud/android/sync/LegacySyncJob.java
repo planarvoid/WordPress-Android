@@ -137,7 +137,7 @@ public class LegacySyncJob implements SyncJob {
                 handleSyncException(ApiSyncResult.fromClientError(contentUri), exception);
                 break;
             default:
-                throw new IllegalStateException("Umknown error reason : " + exception.reason());
+                throw new IllegalStateException("Unknown error reason : " + exception.reason());
         }
     }
 

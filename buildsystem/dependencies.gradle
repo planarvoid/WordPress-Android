@@ -32,7 +32,7 @@ ext {
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
           javaxAnnotations            : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
           autoValue                   : "com.google.auto.value:auto-value:1.1",
-
+          autoFactory                 : "com.google.auto.factory:auto-factory:1.0-beta2",
           autoParcelProcessor         : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
           autoParcel                  : "com.github.frankiesardo:auto-parcel:0.3.1",
 
@@ -43,14 +43,13 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:4.2.11@aar",
+          skippy                      : "com.soundcloud.android:skippy:4.2.12@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
-          comscore                    : "com.comscore:comscore:3.1502.26",
+          comscore                    : "com.comscore:comscore:3.1508.28",
           adjustAndroid               : "com.adjust.sdk:adjust-android:4.1.2",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.2@aar",
-          localytics                  : "com.localytics:android-localytics:2.71",
           appBoy                      : "com.appboy:android-sdk-ui:1.10.2",
 
           // utility libraries

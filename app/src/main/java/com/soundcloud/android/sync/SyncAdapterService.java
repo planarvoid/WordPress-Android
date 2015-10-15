@@ -145,7 +145,7 @@ public class SyncAdapterService extends Service {
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
-            final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, extras, new SyncServiceResultReceiver.OnResultListener() {
+            final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, new SyncServiceResultReceiver.OnResultListener() {
                 @Override
                 public void onResultReceived() {
                     // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
@@ -191,7 +191,7 @@ public class SyncAdapterService extends Service {
                     (manual || syncStateManager.isContentDueForSync(SyncContent.MySoundStream))) {
                 urisToSync.add(Content.ME_SOUND_STREAM.uri);
             }
-            if (SyncConfig.isActivitySyncEnabled(app, extras) &&
+            if (SyncConfig.isActivitySyncEnabled(app) &&
                     (manual || syncStateManager.isContentDueForSync(SyncContent.MyActivities))) {
                 urisToSync.add(Content.ME_ACTIVITIES.uri);
             }

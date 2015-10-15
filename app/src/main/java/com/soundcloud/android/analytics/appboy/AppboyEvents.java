@@ -9,4 +9,5 @@ abstract class AppboyEvents {
     static final String SEARCH = "search";
     static final String SHARE = "share";
     static final String REPOST = "repost";
+    static final String CREATE_PLAYLIST = "create_playlist";
 }

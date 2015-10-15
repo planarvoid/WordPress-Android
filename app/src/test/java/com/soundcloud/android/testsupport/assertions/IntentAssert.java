@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.assertions;
 
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.checks.Preconditions;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;

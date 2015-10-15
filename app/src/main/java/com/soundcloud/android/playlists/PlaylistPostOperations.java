@@ -78,7 +78,7 @@ class PlaylistPostOperations {
     }
 
     Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists()
+        return syncInitiator.refreshMyPlaylists()
                 .flatMap(loadInitialPlaylistPosts);
     }
 

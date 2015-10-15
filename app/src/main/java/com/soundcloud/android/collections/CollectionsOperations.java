@@ -1,5 +1,6 @@
 package com.soundcloud.android.collections;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
@@ -16,10 +17,12 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
+import rx.Notification;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -98,11 +101,31 @@ public class CollectionsOperations {
         }
     };
 
-    private static Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections> COMBINE_LIKES_AND_PLAYLISTS_AND_RECENT_STATIONS = new Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections>() {
+    private static final Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections>() {
         @Override
         public MyCollections call(List<PlaylistItem> playlistItems, List<Urn> likes, List<Station> recentStations) {
             return new MyCollections(likes, playlistItems, transform(recentStations, Station.TO_URN));
         }
+    };
+
+    private static final Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<Station>>, Notification<MyCollections>> TO_MY_COLLECTIONS_OR_ERROR =
+            new Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<Station>>, Notification<MyCollections>>() {
+                @Override
+                public Notification<MyCollections> call(Notification<List<PlaylistItem>> playlists,
+                                                        Notification<List<Urn>> likes,
+                                                        Notification<List<Station>> recentStations) {
+                    if (playlists.isOnError() && likes.isOnError() && recentStations.isOnError()) {
+                        return Notification.createOnError(playlists.getThrowable());
+                    }
+                    if (playlists.isOnCompleted() && likes.isOnCompleted() && recentStations.isOnCompleted()) {
+                        return Notification.createOnCompleted();
+                    }
+                    return Notification.createOnNext(TO_MY_COLLECTIONS.call(
+                            playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
+                            likes.isOnError() ? Collections.<Urn>emptyList() : likes.getValue(),
+                            recentStations.isOnError() ? Collections.<Station>emptyList() : recentStations.getValue()
+                    ));
+                }
     };
 
     @Inject
@@ -126,50 +149,84 @@ public class CollectionsOperations {
         this.collectionsOptionsStorage = collectionsOptionsStorage;
     }
 
-    Observable<MyCollections> collections(final CollectionsOptions options) {
-        return syncStateStorage.hasSyncedCollectionsBefore()
-                .flatMap(new Func1<Boolean, Observable<MyCollections>>() {
+    Observable<MyCollections> collections(final PlaylistsOptions options) {
+        return Observable
+                .zip(myPlaylists(options).materialize(), tracksLiked().materialize(), recentStations().materialize(), TO_MY_COLLECTIONS_OR_ERROR)
+                .dematerialize();
+    }
+
+    private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
+        return syncStateStorage
+                .hasSyncedBefore(SyncContent.MyPlaylists.content.uri)
+                .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
                     @Override
-                    public Observable<MyCollections> call(Boolean hasSynced) {
-                        return hasSynced ? collectionsFromStorage(options) : updatedCollections(options);
+                    public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
+                        if (hasSynced) {
+                            return loadPlaylists(options);
+                        } else {
+                            return refreshAndLoadPlaylists(options);
+                        }
                     }
                 }).subscribeOn(scheduler);
     }
 
-    Observable<MyCollections> updatedCollections(final CollectionsOptions options) {
-        return syncInitiator.refreshCollections()
-                .zipWith(stationsOperations.sync(), TO_VOID)
-                .flatMap(new Func1<Void, Observable<MyCollections>>() {
-                    @Override
-                    public Observable<MyCollections> call(Void ignored) {
-                        return collectionsFromStorage(options);
-                    }
-                });
+    private Observable<List<PlaylistItem>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
+        return syncInitiator
+                .refreshMyPlaylists()
+                .flatMap(continueWith(loadPlaylists(options)));
     }
 
-    private Observable<MyCollections> collectionsFromStorage(CollectionsOptions options) {
+    private Observable<List<Urn>> tracksLiked() {
+        return syncStateStorage
+                .hasSyncedBefore(SyncContent.MyLikes.content.uri)
+                .flatMap(new Func1<Boolean, Observable<List<Urn>>>() {
+                    @Override
+                    public Observable<List<Urn>> call(Boolean hasSynced) {
+                        if (hasSynced) {
+                            return loadTracksLiked();
+                        }
+                        else {
+                            return refreshLikesAndLoadTracksLiked();
+                        }
+                    }
+                }).subscribeOn(scheduler);
+    }
+
+    Observable<MyCollections> updatedCollections(final PlaylistsOptions options) {
         return Observable.zip(
-                collectionsPlaylists(options),
-                loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler),
-                recentStations().toList(),
-                COMBINE_LIKES_AND_PLAYLISTS_AND_RECENT_STATIONS
+                refreshAndLoadPlaylists(options),
+                refreshLikesAndLoadTracksLiked(),
+                recentStations(),
+                TO_MY_COLLECTIONS
         );
     }
 
-    private Observable<Station> recentStations() {
-        return featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH) ?
-                stationsOperations.collection(StationsCollectionsTypes.RECENT) :
-                Observable.<Station>empty();
+    private Observable<List<Urn>> refreshLikesAndLoadTracksLiked() {
+        return syncInitiator.refreshLikes().flatMap(continueWith(loadTracksLiked()));
     }
 
-    private Observable<List<PlaylistItem>> collectionsPlaylists(CollectionsOptions options) {
+    private Observable<List<Urn>> loadTracksLiked() {
+        return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
+    }
+
+    private Observable<List<Station>> recentStations() {
+        final Observable<Station> stations;
+        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+            stations = stationsOperations.collection(StationsCollectionsTypes.RECENT);
+        } else {
+            stations = Observable.empty();
+        }
+        return stations.toList();
+    }
+
+    private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {
         return unsortedPlaylists(options)
                 .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
                 .map(PlaylistItem.fromPropertySets())
                 .subscribeOn(scheduler);
     }
 
-    private Observable<List<PropertySet>> unsortedPlaylists(CollectionsOptions options) {
+    private Observable<List<PropertySet>> unsortedPlaylists(PlaylistsOptions options) {
         final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
         final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
 

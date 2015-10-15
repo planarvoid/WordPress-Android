@@ -9,7 +9,7 @@ import org.junit.Test;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class CollectionsOptionsStorageTest extends AndroidUnitTest {
+public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
 
     private CollectionsOptionsStorage storage;
 
@@ -31,7 +31,7 @@ public class CollectionsOptionsStorageTest extends AndroidUnitTest {
         editor.putBoolean(CollectionsOptionsStorage.KEY_SORT_BY_TITLE, true);
         editor.apply();
 
-        final CollectionsOptions lastOrDefault = storage.getLastOrDefault();
+        final PlaylistsOptions lastOrDefault = storage.getLastOrDefault();
 
         assertThat(lastOrDefault.showPosts()).isTrue();
         assertThat(lastOrDefault.showLikes()).isTrue();
@@ -70,8 +70,8 @@ public class CollectionsOptionsStorageTest extends AndroidUnitTest {
         assertThat(storage.isOnboardingEnabled()).isTrue();
     }
 
-    private CollectionsOptions getAllTrueOptions() {
-        return CollectionsOptions.builder()
+    private PlaylistsOptions getAllTrueOptions() {
+        return PlaylistsOptions.builder()
                     .showLikes(true)
                     .showPosts(true)
                     .sortByTitle(true)

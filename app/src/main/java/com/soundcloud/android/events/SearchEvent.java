@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.storage.provider.Content;
 

@@ -50,7 +50,7 @@
     ignored until we upgrade to that version.
     -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:configChanges="orientation|keyboardHidden|keyboard"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
@@ -60,8 +60,6 @@
         tools:ignore="UnusedAttribute"
         android:supportsRtl="false"
         >
-
-        <meta-data android:name="LOCALYTICS_NOTIFICATION_ICON" android:value="@drawable/ic_notification_localytics"/>
 
         <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
@@ -75,12 +73,13 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <!-- TODO: Remove the EXPLORE filter once we switch over to tabs -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.LIKES"/>
+                <action android:name="com.soundcloud.android.action.COLLECTION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -155,6 +154,7 @@
         </activity>
 
         <activity android:label="@string/title_search" android:name=".search.SearchActivity">
+            <!-- TODO: Move search intent filters to MainActivity (discovery tab) -->
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -222,12 +222,11 @@
             android:label="@string/app_name" />
 
         <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="" android:name=".profile.LegacyProfileActivity" android:theme="@style/Theme.SoundCloud.NoBg">
+        <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -235,8 +234,6 @@
                 <data android:mimeType="vnd.soundcloud/user"/>
             </intent-filter>
         </activity>
-
-        <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud" />
 
         <activity android:label="@string/track_likes_title" android:name=".likes.TrackLikesActivity" android:theme="@style/Theme.SoundCloud" />
 
@@ -396,16 +393,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- GCM -->
-        <receiver android:name=".gcm.GcmMessageReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <category android:name="com.soundcloud.android"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name="com.appboy.AppboyGcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
@@ -453,8 +440,6 @@
         </service>
 
         <service android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
-
-        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="@string/localytics_app_key"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>

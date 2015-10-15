@@ -46,6 +46,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_REPOST = "repost";
     public static final String KIND_UNREPOST = "unrepost";
     public static final String KIND_ADD_TO_PLAYLIST = "add_to_playlist";
+    public static final String KIND_CREATE_PLAYLIST= "create_playlist";
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
     public static final String KIND_SHUFFLE_LIKES = "shuffle_likes";
@@ -228,6 +229,11 @@ public final class UIEvent extends TrackingEvent {
         return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
                 .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
                 .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AD_SKIP_URLS));
+    }
+
+    public static UIEvent fromCreatePlaylist(PlayableMetadata metadata) {
+        return new UIEvent(KIND_CREATE_PLAYLIST)
+                .putPlayableMetadata(metadata);
     }
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {

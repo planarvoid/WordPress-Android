@@ -21,6 +21,7 @@ import com.soundcloud.android.settings.SettingsModule;
 import com.soundcloud.android.stations.StationsModule;
 import com.soundcloud.android.stream.SoundStreamModule;
 import com.soundcloud.android.tracks.TrackModule;
+import com.soundcloud.android.you.YouModule;
 import dagger.Module;
 
 @Module(includes = {
@@ -44,6 +45,7 @@ import dagger.Module;
         SettingsModule.class,
         StationsModule.class,
         DiscoveryModule.class,
-        CollectionsModule.class
+        CollectionsModule.class,
+        YouModule.class
 })
 public class FeaturesModule {}

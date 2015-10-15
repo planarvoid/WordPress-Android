@@ -177,7 +177,7 @@ public class SyncInitiator {
         }).doOnNext(resetSyncMissesLegacy(collectionUris));
     }
 
-    public Observable<Boolean> refreshPostedPlaylists() {
+    public Observable<Boolean> refreshMyPlaylists() {
         final Uri uri = SyncContent.MyPlaylists.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override

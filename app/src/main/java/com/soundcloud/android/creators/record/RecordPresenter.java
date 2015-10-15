@@ -14,7 +14,7 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;

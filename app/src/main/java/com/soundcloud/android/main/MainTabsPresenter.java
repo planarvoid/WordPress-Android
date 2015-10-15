@@ -1,8 +1,12 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.java.strings.Strings;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -21,12 +25,15 @@ public class MainTabsPresenter extends NavigationPresenter {
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
 
+    private NavigationModel navigationModel;
+
     private AppCompatActivity activity;
     private MainPagerAdapter pagerAdapter;
     private ViewPager pager;
 
     @Inject
-    MainTabsPresenter(BaseLayoutHelper layoutHelper, MainPagerAdapter.Factory pagerAdapterFactory) {
+    MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper, MainPagerAdapter.Factory pagerAdapterFactory) {
+        this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
     }
@@ -38,10 +45,58 @@ public class MainTabsPresenter extends NavigationPresenter {
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        super.onCreate(activity, bundle);
         this.activity = activity;
         pagerAdapter = pagerAdapterFactory.create(activity.getSupportFragmentManager());
         setupViews(activity);
+        if (bundle == null) {
+            setTabFromIntent(activity.getIntent());
+        }
+    }
+
+    @Override
+    public void onNewIntent(AppCompatActivity activity, Intent intent) {
+        setTabFromIntent(intent);
+    }
+
+    private void setTabFromIntent(Intent intent) {
+        final Uri data = intent.getData();
+        final String action = intent.getAction();
+        if (data != null) {
+            resolveData(data);
+        } else if (Strings.isNotBlank(action)) {
+            resolveAction(action);
+        }
+    }
+
+    private void resolveData(@NonNull Uri data) {
+        if (NavigationIntentHelper.shouldGoToStream(data)) {
+            selectItem(Screen.STREAM);
+        } else if (NavigationIntentHelper.shouldGoToSearch(data)) {
+            selectItem(Screen.SEARCH_MAIN);
+        }
+    }
+
+    private void resolveAction(@NonNull String action) {
+        switch (action) {
+            case Actions.STREAM:
+                selectItem(Screen.STREAM);
+                break;
+            case Actions.COLLECTION:
+                selectItem(Screen.COLLECTIONS);
+                break;
+            case Actions.SEARCH:
+                selectItem(Screen.SEARCH_MAIN);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void selectItem(Screen screen) {
+        int position = navigationModel.getPosition(screen);
+        if (position != NavigationModel.NOT_FOUND) {
+            pager.setCurrentItem(position);
+        }
     }
 
     private void setupViews(AppCompatActivity activity) {
@@ -76,8 +131,8 @@ public class MainTabsPresenter extends NavigationPresenter {
         tabBar.removeAllTabs();
         for (int pageIndex = 0; pageIndex < tabCount; pageIndex++) {
             TabLayout.Tab tab = tabBar.newTab();
-            tab.setCustomView(createTabViewFor(pagerAdapter.getPageIcon(pageIndex)));
-            tab.setContentDescription(pagerAdapter.getPageTitle(pageIndex));
+            tab.setCustomView(createTabViewFor(navigationModel.getItem(pageIndex).getIcon()));
+            tab.setContentDescription(navigationModel.getItem(pageIndex).getName());
             tabBar.addTab(tab, pageIndex, pageIndex == currentItem);
         }
     }

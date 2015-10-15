@@ -2,11 +2,8 @@ package com.soundcloud.android.main;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.soundcloud.android.analytics.Screen;
-
 import android.annotation.SuppressLint;
 import android.os.Parcelable;
-import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -46,15 +43,6 @@ public class MainPagerAdapter extends PagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return String.valueOf(position);
-    }
-
-    @DrawableRes
-    public int getPageIcon(int position) {
-        return navigationModel.getItem(position).getIcon();
-    }
-
-    public Screen getScreen(int position) {
-        return navigationModel.getItem(position).getScreen();
     }
 
     @Override

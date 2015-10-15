@@ -75,7 +75,7 @@ public class Encryptor {
             }
         }
 
-        cipherBytes = cipher.doFinal(encrypted, 0);
+        cipherBytes = cipher.finish(encrypted, 0);
         out.write(encrypted, 0, cipherBytes);
     }
 

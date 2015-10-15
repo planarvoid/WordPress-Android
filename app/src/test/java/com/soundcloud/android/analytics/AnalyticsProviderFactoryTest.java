@@ -4,14 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.appboy.Appboy;
-import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -40,7 +37,6 @@ public class AnalyticsProviderFactoryTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private EventLoggerAnalyticsProvider eventLoggerProvider;
     @Mock private PlayCountAnalyticsProvider playCountProvider;
-    @Mock private LocalyticsAnalyticsProvider localyticsProvider;
     @Mock private Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
     @Mock private PromotedAnalyticsProvider promotedProvider;
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
@@ -52,8 +48,8 @@ public class AnalyticsProviderFactoryTest {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, localyticsProvider, appboyAnalyticsProvider, promotedProvider,
+        factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
+                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider, promotedProvider,
                 adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider);
     }
 
@@ -81,7 +77,6 @@ public class AnalyticsProviderFactoryTest {
                 eventLoggerProvider,
                 playCountProvider,
                 promotedProvider,
-                localyticsProvider,
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider,
                 appboyAnalyticsProvider.get(),
@@ -90,8 +85,8 @@ public class AnalyticsProviderFactoryTest {
 
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, localyticsProvider, appboyAnalyticsProvider,
+        factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
+                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
                 promotedProvider, adjustAnalyticsProvider, null, fabricAnalyticsProvider);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
@@ -100,34 +95,15 @@ public class AnalyticsProviderFactoryTest {
                 eventLoggerProvider,
                 playCountProvider,
                 promotedProvider,
-                localyticsProvider,
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider,
                 appboyAnalyticsProvider.get());
     }
 
     @Test
-    public void getProvidersEnablesLocalyticsLoggingWhenVerboseLoggingIsOn() {
-        when(applicationProperties.useVerboseLogging()).thenReturn(true);
-
-        factory.getProviders();
-
-        assertThat(LocalyticsSession.isLoggingEnabled()).isTrue();
-    }
-
-    @Test
-    public void getProvidersDisablesLocalyticsLoggingWhenVerboseLoggingIsOff() {
-        when(applicationProperties.useVerboseLogging()).thenReturn(false);
-
-        factory.getProviders();
-
-        assertThat(LocalyticsSession.isLoggingEnabled()).isFalse();
-    }
-
-    @Test
     public void getProvidersReturnsAllProvidersExceptAppboyWhenFlagIsDisabled() {
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, localyticsProvider, appboyAnalyticsProvider,
+        factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
+                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
                 promotedProvider, adjustAnalyticsProvider, null, fabricAnalyticsProvider);
 
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
@@ -139,7 +115,6 @@ public class AnalyticsProviderFactoryTest {
                 eventLoggerProvider,
                 playCountProvider,
                 promotedProvider,
-                localyticsProvider,
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider);
     }
