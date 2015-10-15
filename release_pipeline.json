@@ -122,7 +122,8 @@
       "jobs": [
         { "deploy_beta": {
             "cmd": "BUILD_TYPE=beta bundle install && ./gradlew deployBeta", 
-            "manual": true, 
+            "manual": true,
+            "localBranch": true, 
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud*.apk"]
           } 
         },
@@ -130,6 +131,7 @@
           "rollout_release_1_percent": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployOnePercent", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
@@ -137,6 +139,7 @@
           "rollout_release_5_percent": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployFivePercent", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
@@ -144,6 +147,7 @@
           "deploy_release": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew rolloutFull", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         }
