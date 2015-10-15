@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -53,6 +54,14 @@ public class NavigatorTest extends AndroidUnitTest {
         appContext = context();
         activityContext = new Activity();
         when(flags.isEnabled(Flag.NEW_PROFILE)).thenReturn(false);
+    }
+
+    @Test
+    public void openHome() {
+        navigator.openHome(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
     }
 
     @Test

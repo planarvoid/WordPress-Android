@@ -1,6 +1,7 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -11,7 +12,6 @@ import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -42,6 +42,7 @@ public class RecordActivity extends ScActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject EventBus eventBus;
     @Inject SoundRecorder recorder;
+    @Inject Navigator navigator;
 
     private Subscription initialStateSubscription = RxUtils.invalidSubscription();
 
@@ -94,7 +95,7 @@ public class RecordActivity extends ScActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        navigator.openHome(this);
         finish();
         return true;
     }
