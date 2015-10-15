@@ -5,6 +5,7 @@ import static com.soundcloud.android.api.legacy.model.SearchSuggestions.Query;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -19,8 +20,10 @@ import android.provider.BaseColumns;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -46,22 +49,11 @@ public class SearchSuggestionsTest {
 
     @Test
     public void shouldInializeFromLocalResults() throws Exception {
-        MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
-        cursor.addRow(new Object[] {
-                1,
-                123,
-                "foo user",
-                Content.USER.forId(123).toString(),
-                null,
-        });
-        cursor.addRow(new Object[] {
-                2,
-                1234,
-                "foo track",
-                Content.TRACK.forId(1234).toString(),
-                null,
-        });
-        SearchSuggestions suggestions = new SearchSuggestions(cursor);
+        List<Shortcut> shortcuts = Arrays.asList(
+                Shortcut.create(Urn.forUser(123L), "foo user"),
+                Shortcut.create(Urn.forTrack(1234L), "foo track")
+        );
+        SearchSuggestions suggestions = new SearchSuggestions(shortcuts);
         expect(suggestions.size()).toEqual(2);
 
         Iterator<SearchSuggestions.Query> it = suggestions.iterator();
@@ -81,30 +73,12 @@ public class SearchSuggestionsTest {
 
     @Test
     public void shouldMergeTwoSuggestionsIntoOne() throws Exception {
-        MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
-        cursor.addRow(new Object[] {
-                1,
-                123,
-                "foo user",
-                Content.USER.forId(123).toString(),
-                null,
-        });
-        cursor.addRow(new Object[] {
-                2,
-                1234,
-                "foo track",
-                Content.TRACK.forId(1234).toString(),
-                null,
-        });
-        // duplicate!
-        cursor.addRow(new Object[] {
-                3,
-                2097360,
-                "Foo Fighters",
-                Content.USER.forId(2097360).toString(),
-                null,
-        });
-        SearchSuggestions local = new SearchSuggestions(cursor);
+        List<Shortcut> shortcuts = Arrays.asList(
+                Shortcut.create(Urn.forUser(123), "foo user"),
+                Shortcut.create(Urn.forTrack(1234), "foo track"),
+                Shortcut.create(Urn.forUser(2097360), "Foo Fighters")// duplicate!
+        );
+        SearchSuggestions local = new SearchSuggestions(shortcuts);
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_users.json");
 
@@ -145,16 +119,11 @@ public class SearchSuggestionsTest {
 
     @Test
     public void shouldConvertSuggestionsBackToCursor() throws Exception {
-        MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
-        cursor.addRow(new Object[] {
-                1,
-                123,
-                "foo user",
-                Content.USER.forId(123).toString(),
-                null,
-        });
-        SearchSuggestions suggestions = new SearchSuggestions(cursor);
-        Cursor c = suggestions.asCursor();
+        List<Shortcut> shortcuts = Arrays.asList(
+                Shortcut.create(Urn.forUser(123), "foo user")
+        );
+        SearchSuggestions local = new SearchSuggestions(shortcuts);
+        Cursor c = local.asCursor();
         expect(c.moveToNext()).toBeTrue();
         expect(c.getLong(c.getColumnIndex(BaseColumns._ID))).toEqual(-1l);
         expect(c.getLong(c.getColumnIndex(TableColumns.Suggestions.ID))).toEqual(123l);
@@ -176,13 +145,10 @@ public class SearchSuggestionsTest {
     }
 
     @Test
-    public void testResolveKindFromContentUri() {
-        expect(Query.kindFromContentUri(Content.TRACK.uri)).toEqual(Query.KIND_TRACK);
-        expect(Query.kindFromContentUri(Content.TRACKS.uri)).toEqual(Query.KIND_TRACK);
-        expect(Query.kindFromContentUri(Content.USER.uri)).toEqual(Query.KIND_USER);
-        expect(Query.kindFromContentUri(Content.USERS.uri)).toEqual(Query.KIND_USER);
-        expect(Query.kindFromContentUri(Content.PLAYLIST.uri)).toEqual(Query.KIND_PLAYLIST);
-        expect(Query.kindFromContentUri(Content.PLAYLISTS.uri)).toEqual(Query.KIND_PLAYLIST);
+    public void testResolveKindFromUrn() {
+        expect(Query.kindFromUrn(Urn.forTrack(123L))).toEqual(Query.KIND_TRACK);
+        expect(Query.kindFromUrn(Urn.forUser(123L))).toEqual(Query.KIND_USER);
+        expect(Query.kindFromUrn(Urn.forPlaylist(123L))).toEqual(Query.KIND_PLAYLIST);
     }
 
     @Test
@@ -236,23 +202,12 @@ public class SearchSuggestionsTest {
     @Test
     public void shouldKeepOriginalQueryPositionOnRemoteSuggestions() throws IOException {
         String expectedQueryUrnString = "soundcloud:search-suggest:d8e3e4f81f6449d7a96a238d4b222865";
-        MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
-        cursor.addRow(new Object[] {
-                1,
-                123,
-                "foo user",
-                Content.USER.forId(123).toString(),
-                null,
-        });
-        cursor.addRow(new Object[] {
-                2,
-                1234,
-                "foo track",
-                Content.TRACK.forId(1234).toString(),
-                null,
-        });
 
-        SearchSuggestions local = new SearchSuggestions(cursor);
+        List<Shortcut> shortcuts = Arrays.asList(
+                Shortcut.create(Urn.forUser(123), "foo user"),
+                Shortcut.create(Urn.forTrack(1234), "foo track")
+        );
+        SearchSuggestions local = new SearchSuggestions(shortcuts);
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_users.json");
 

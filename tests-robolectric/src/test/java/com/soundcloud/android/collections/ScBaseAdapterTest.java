@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.Shortcut;
+import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.main.Screen;
@@ -102,7 +102,7 @@ public class ScBaseAdapterTest {
         });
 
         // should not appear, not refreshable
-        staleModels.add(new Shortcut());
+        staleModels.add(new UnknownResource());
 
         adapter.checkForStaleItems(Robolectric.application, staleModels);
     }

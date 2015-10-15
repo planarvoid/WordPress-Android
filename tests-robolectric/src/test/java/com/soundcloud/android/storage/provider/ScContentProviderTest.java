@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -72,52 +71,6 @@ public class ScContentProviderTest {
         expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
     }
 
-
-    @Test
-    public void shouldSupportAndroidGlobalSearch() throws Exception {
-        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
-
-        List<ContentValues> cvs = new ArrayList<>();
-        for (Shortcut shortcut : shortcuts) {
-            ContentValues cv = shortcut.buildContentValues();
-            if (cv != null) {
-                cvs.add(cv);
-            }
-        }
-        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-        expect(inserted).toEqual(cvs.size());
-        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
-
-
-        Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[]{"blac"}, null);
-
-        expect(cursor.getCount()).toEqual(4);  // 2 followings + 2 likes
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/950");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
-
-        expect(cursor.moveToNext()).toBeTrue();
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("Blackest Ever Black");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/804339");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
-
-        expect(cursor.moveToNext()).toBeTrue();
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("The Black Dog - Industrial Smokers Behind The Factory Wall");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/25273712");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
-
-        expect(cursor.moveToNext()).toBeTrue();
-        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))).not.toEqual(0l);
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1))).toEqual("CBLS 119 - Compost Black Label Sessions Radio hosted by SHOW-B & Thomas Herb");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA))).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/24336214");
-        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1))).toMatch("content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/(\\d+)");
-    }
 
     @Test
     public void shouldGetCurrentUserId() throws Exception {
@@ -198,64 +151,6 @@ public class ScContentProviderTest {
         syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
         expect(syncs.isEmpty()).toBeTrue();
         expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
-    }
-
-    @Test
-    public void shouldBulkInsertSuggestions() throws Exception {
-        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
-
-        List<ContentValues> cvs = new ArrayList<>();
-        for (Shortcut shortcut : shortcuts) {
-            ContentValues cv = shortcut.buildContentValues();
-            if (cv != null) {
-                cvs.add(cv);
-            }
-        }
-
-        int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-        expect(inserted).toEqual(cvs.size());
-        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
-
-        // reinsert same batch, make sure no dups
-        inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
-        expect(inserted).toEqual(cvs.size());
-        expect(Content.ME_SHORTCUTS).toHaveCount(inserted);
-
-        expect(Content.USERS).toHaveCount(318);
-        expect(Content.TRACKS).toHaveCount(143);
-
-        PublicApiUser u = TestHelper.loadLocalContentItem(Content.USERS.uri, PublicApiUser.class, "_id = 9");
-
-        expect(u).not.toBeNull();
-        expect(u.username).toEqual("Katharina");
-        expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");
-        expect(u.permalink_url).toEqual("http://soundcloud.com/katharina");
-
-        PublicApiTrack t = TestHelper.loadLocalContent(new PublicApiTrack(64629168).toUri(), PublicApiTrack.class).get(0);
-        expect(t).not.toBeNull();
-        expect(t.title).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
-        expect(t.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
-        expect(t.permalink_url).toEqual("http://soundcloud.com/no-pain-in-pop/halls-roses-for-the-dead-max");
-    }
-
-    @Test
-    public void shouldStoreAndFetchShortcut() throws Exception {
-        Shortcut c = new Shortcut();
-        c.kind = "like";
-        c.setId(12);
-        c.title = "Something";
-        c.permalink_url = "http://soundcloud.com/foo";
-        c.artwork_url = "http://soundcloud.com/foo/artwork";
-
-
-        Uri uri = resolver.insert(Content.ME_SHORTCUTS.uri, c.buildContentValues());
-        expect(uri).not.toBeNull();
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        expect(cursor.getString(cursor.getColumnIndex(TableColumns.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
 
     @Test

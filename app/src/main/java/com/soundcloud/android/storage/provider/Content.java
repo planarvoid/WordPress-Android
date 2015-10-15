@@ -16,10 +16,10 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
 import org.jetbrains.annotations.Nullable;
@@ -47,9 +47,6 @@ public enum Content {
     ME_USERID("me/userid", null, 111, null, -1, null),
 
     ME_PLAYLIST("me/playlists/*", null, 112, PublicApiPlaylist.class,  ScContentProvider.CollectionItemTypes.PLAYLIST, Table.Posts),
-
-    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.Suggestions),
-    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.Suggestions),
 
     /* For pushing to the api*/
     ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 120, PublicApiTrack.class, -1, null),
@@ -111,12 +108,6 @@ public enum Content {
 
     SEARCH("search", null, 1500, PublicApiResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, PublicApiResource.class, -1, null),
-
-    //Android global search
-    ANDROID_SEARCH_SUGGEST(SearchManager.SUGGEST_URI_PATH_QUERY, null, 10000, null, -1, null),
-    ANDROID_SEARCH_SUGGEST_PATH(SearchManager.SUGGEST_URI_PATH_QUERY + "/*", null, 10001, null, -1, null),
-    ANDROID_SEARCH_REFRESH(SearchManager.SUGGEST_URI_PATH_SHORTCUT, null, 10002, null, -1, null),
-    ANDROID_SEARCH_REFRESH_PATH(SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", null, 10003, null, -1, null),
 
     UNKNOWN(null, null, -1, null, -1, null);
 

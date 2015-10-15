@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.search.suggestions.ShortcutsStorage;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
@@ -48,6 +49,7 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
     private final PublicApi publicApi;
     private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
+    private final ShortcutsStorage shortcutsStorage;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
         @Override
@@ -80,11 +82,13 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
     SearchActionBarController(PublicApi publicCloudAPI,
                               PlaybackInitiator playbackInitiator,
                               EventBus eventBus,
-                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                              ShortcutsStorage shortcutsStorage) {
         this.publicApi = publicCloudAPI;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.shortcutsStorage = shortcutsStorage;
     }
 
     public void setSearchCallback(SearchCallback searchCallback) {
@@ -247,7 +251,7 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
         searchView.setQueryHint(activity.getString(R.string.search_hint));
         searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
-        suggestionsAdapter = new SuggestionsAdapter(activity, publicApi, activity.getContentResolver());
+        suggestionsAdapter = new SuggestionsAdapter(activity, publicApi, shortcutsStorage);
         searchView.setSuggestionsAdapter(suggestionsAdapter);
 
         searchView.setOnQueryTextListener(queryTextListener);

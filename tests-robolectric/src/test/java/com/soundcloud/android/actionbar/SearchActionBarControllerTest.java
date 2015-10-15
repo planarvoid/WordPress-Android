@@ -13,6 +13,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.suggestions.ShortcutsStorage;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -32,6 +33,7 @@ public class SearchActionBarControllerTest {
     @Mock private SearchCallback callback;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private BugReporter bugReporter;
+    @Mock private ShortcutsStorage shortcutStorage;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchActionBarController actionBarController;
@@ -39,7 +41,7 @@ public class SearchActionBarControllerTest {
     @Before
     public void setUp() throws Exception {
         actionBarController = new SearchActionBarController(cloudAPI, playbackInitiator, eventBus,
-                TestSubscribers.expandPlayerSubscriber());
+                TestSubscribers.expandPlayerSubscriber(), shortcutStorage);
         actionBarController.setSearchCallback(callback);
     }
 

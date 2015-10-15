@@ -1,12 +1,11 @@
 package com.soundcloud.android.api.legacy.model;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.NotNull;
 
-import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -60,9 +59,9 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
      *               <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
      *               SuggestionTable</a>
      */
-    public SearchSuggestions(Cursor cursor) {
-        suggestions = new ArrayList<>(cursor.getCount());
-        fromLocalCursor(cursor);
+    public SearchSuggestions(List<Shortcut> shortcuts) {
+        suggestions = new ArrayList<>(shortcuts.size());
+        fromLocalShortcuts(shortcuts);
     }
 
     public void putRemoteIds(List<Long> missingTracks, List<Long> missingUsers, List<Long> missingPlaylists) {
@@ -185,18 +184,15 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         return highlightData.toString();
     }
 
-    private void fromLocalCursor(Cursor cursor) {
-        while (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndex(TableColumns.Suggestions.ID));
-            String query = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
-            String intentData = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
-            String iconUrl = cursor.getString(cursor.getColumnIndex(TableColumns.Suggestions.ICON_URL));
+    private void fromLocalShortcuts(List<Shortcut> shortcuts) {
+
+        for (Shortcut shortcut : shortcuts){
+            final Urn urn = shortcut.getUrn();
             Query q = new Query();
-            q.id = id;
-            q.query = query;
-            q.iconUri = iconUrl;
-            q.intentData = intentData;
-            q.kind = Query.kindFromContentUri(Uri.parse(intentData));
+            q.id = urn.getNumericId();
+            q.query = shortcut.getDisplayText();
+            q.intentData = Query.getDataUri(urn).toString();
+            q.kind = Query.kindFromUrn(urn);
             q.query_urn = query_urn;
             q.query_position = -1;
             suggestions.add(q);
@@ -229,27 +225,33 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         private String iconUri;
         private String intentData;
 
-        public static String kindFromContentUri(Uri uri) {
-            switch (Content.match(uri)) {
-                case TRACK:
-                case TRACKS:
-                    return KIND_TRACK;
-                case USER:
-                case USERS:
-                    return KIND_USER;
-                case PLAYLIST:
-                case PLAYLISTS:
-                    return KIND_PLAYLIST;
-                default:
-                    throw new IllegalStateException("Unsupported content URI: " + uri);
-            }
-        }
-
         public String getIntentData() {
             if (intentData != null) {
                 return intentData;
             }
             return contentProviderUri().toString();
+        }
+
+        static String kindFromUrn(Urn urn) {
+            if (urn.isUser()) {
+                return KIND_USER;
+            } else if (urn.isTrack()) {
+                return KIND_TRACK;
+            } else if (urn.isPlaylist()) {
+                return KIND_PLAYLIST;
+            } else {
+                throw new IllegalStateException("Unknown urn type " + urn);
+            }
+        }
+
+        static Uri getDataUri(Urn urn) {
+            if (urn.isUser()) {
+                return Content.USER.forId(urn.getNumericId());
+            } else if (urn.isTrack() || urn.isPlaylist()) {
+                return Content.TRACK.forId(urn.getNumericId());
+            } else {
+                throw new IllegalStateException("Unknown urn type " + urn);
+            }
         }
 
         public Urn getUrn() {
