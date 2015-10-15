@@ -2,9 +2,9 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 class StationsNowPlayingController extends DefaultSupportFragmentLightCycle<Fragment> {
     private final EventBus eventBus;
-    private StationsNowPlayingAdapter adapter;
+    private NowPlayingAdapter adapter;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -33,7 +33,7 @@ class StationsNowPlayingController extends DefaultSupportFragmentLightCycle<Frag
         subscription.unsubscribe();
     }
 
-    void setAdapter(StationsNowPlayingAdapter adapter) {
+    void setAdapter(NowPlayingAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -44,9 +44,5 @@ class StationsNowPlayingController extends DefaultSupportFragmentLightCycle<Frag
                 adapter.updateNowPlaying(event.getCollectionUrn());
             }
         }
-    }
-
-    interface StationsNowPlayingAdapter {
-        void updateNowPlaying(Urn currentlyPlayingCollectionUrn);
     }
 }

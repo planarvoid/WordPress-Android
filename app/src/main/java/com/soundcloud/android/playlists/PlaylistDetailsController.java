@@ -8,10 +8,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -50,7 +50,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         subscribeToContentUpdate();
     }
 
-    static interface Listener {
+    interface Listener {
         void onPlaylistContentChanged();
     }
 
@@ -62,7 +62,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         trackRenderer.setRemoveTrackListener(this);
     }
 
-    public void showTrackRemovalOptions(final Urn urn, Listener listener){
+    public void showTrackRemovalOptions(final Urn urn, Listener listener) {
         this.playlistUrn = urn;
         this.listener = listener;
     }
@@ -78,7 +78,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         });
     }
 
-    public Urn getPlaylistUrn(){
+    public Urn getPlaylistUrn() {
         return playlistUrn;
     }
 
@@ -101,7 +101,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
 
     private void subscribeToContentUpdate() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackRenderer)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new LegacyUpdatePlayingTrackSubscriber(adapter, trackRenderer)),
                 eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );

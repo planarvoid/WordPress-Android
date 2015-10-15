@@ -28,7 +28,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
@@ -56,7 +55,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private SoundStreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private TrackItemRenderer trackRenderer;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
@@ -82,7 +80,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 facebookInvitesDialogPresenter);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
-        when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
@@ -192,7 +189,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
 
-        verify(trackRenderer).setPlayingTrack(playingTrack);
+        adapter.updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -203,7 +200,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
-        verify(trackRenderer).setPlayingTrack(playingTrack);
+        adapter.updateNowPlaying(playingTrack);
     }
 
     @Test

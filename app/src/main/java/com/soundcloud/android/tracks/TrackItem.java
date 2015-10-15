@@ -15,6 +15,8 @@ import java.util.List;
 
 public class TrackItem extends PlayableItem {
 
+    private boolean isPlaying;
+
     public static TrackItem from(PropertySet trackState) {
         return new TrackItem(trackState);
     }
@@ -86,6 +88,14 @@ public class TrackItem extends PlayableItem {
     String getGenre() {
         final Optional<String> optionalGenre = source.get(TrackProperty.GENRE);
         return optionalGenre.isPresent() ? optionalGenre.get() : ScTextUtils.EMPTY_STRING;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
     }
 
     @Override

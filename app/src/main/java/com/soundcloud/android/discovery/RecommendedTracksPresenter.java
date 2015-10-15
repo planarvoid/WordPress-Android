@@ -67,7 +67,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
         super.onViewCreated(fragment, view, savedInstanceState);
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK,
-                        new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                        new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
                         new UpdateEntityListSubscriber(adapter)));
     }

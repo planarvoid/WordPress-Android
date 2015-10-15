@@ -19,8 +19,8 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -104,7 +104,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new LegacyUpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
     }
 
