@@ -26,6 +26,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -237,6 +238,19 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
+    }
+
+    @Test
+    public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
+        TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
+        VisualAdImpressionEvent event = new VisualAdImpressionEvent(TestPropertySets.audioAdProperties(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
+
+        when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForVisualAdImpression");
     }
 
     @Test
