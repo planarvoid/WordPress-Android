@@ -126,6 +126,16 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="PlayerShareBase">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_marginRight">36dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:background">@drawable/btn_player_share</item>
+    </style>
+
+    <style name="PlayerShare" parent="PlayerShareBase" />
+
     <style name="Waveform">
         <item name="barWidth">@dimen/waveform_bar_width</item>
         <item name="spaceWidth">@dimen/waveform_space_width</item>

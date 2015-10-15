@@ -189,7 +189,8 @@ public abstract class TestPropertySets {
                 PlaylistProperty.TRACK_COUNT.bind(4),
                 PlaylistProperty.LIKES_COUNT.bind(2),
                 PlaylistProperty.IS_PRIVATE.bind(false),
-                PostProperty.CREATED_AT.bind(new Date()));
+                PostProperty.CREATED_AT.bind(new Date()),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"));
     }
 
     public static PropertySet expectedFollowingForFollowingsScreen(long position) {

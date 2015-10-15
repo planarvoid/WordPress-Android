@@ -68,6 +68,11 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1" />
 
+        <Button
+            android:id="@+id/track_page_share"
+            style="@style/PlayerShare"
+            android:visibility="gone" />
+
         <ToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLike" />

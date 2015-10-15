@@ -9,4 +9,8 @@
         <item name="android:stateListAnimator">@null</item>
     </style>
 
+    <style name="PlayerShare" parent="PlayerShareBase">
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
 </resources>
