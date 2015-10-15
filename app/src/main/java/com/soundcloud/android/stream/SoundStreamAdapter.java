@@ -7,7 +7,7 @@ import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
-import com.soundcloud.android.tracks.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;

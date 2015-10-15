@@ -8,7 +8,7 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.tracks.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;

@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.tracks.NowPlayingAdapter;
 import com.soundcloud.android.tracks.TrackItem;
 
 import android.support.v7.widget.RecyclerView;

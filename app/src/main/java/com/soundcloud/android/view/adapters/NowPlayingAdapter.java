@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracks;
+package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.model.Urn;
 

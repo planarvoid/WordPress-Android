@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
