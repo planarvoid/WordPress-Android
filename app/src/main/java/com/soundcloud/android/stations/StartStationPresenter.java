@@ -58,8 +58,8 @@ public class StartStationPresenter {
 
     public void startStation(Context context, Urn stationUrn) {
         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = dialogBuilder
-                .setLoadingMessage(context.getString(R.string.starting_radio))
-                .setOnErrorToastText(context.getString(R.string.unable_to_start_radio))
+                .setLoadingMessage(context.getString(R.string.loading_station))
+                .setOnErrorToastText(context.getString(R.string.unable_to_start_station))
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {

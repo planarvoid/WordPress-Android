@@ -57,7 +57,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         final VisualPlayerElement playerElement = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(playerElement, is(not(visible())));
-        assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_radio)));
+        assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_start_station)));
 
         networkManagerClient.switchWifiOn();
     }

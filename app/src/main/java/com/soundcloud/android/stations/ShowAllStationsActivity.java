@@ -51,7 +51,7 @@ public class ShowAllStationsActivity extends ScActivity {
             case StationsCollectionsTypes.SAVED:
                 return getString(R.string.stations_collection_title_saved_stations);
             case StationsCollectionsTypes.RECENT:
-                return getString(R.string.stations_collection_title_recently_played_stations);
+                return getString(R.string.stations_collection_title_recent_stations);
             case StationsCollectionsTypes.CURATOR_RECOMMENDATIONS:
                 return getString(R.string.stations_collection_title_curator_recommendations);
             case StationsCollectionsTypes.GENRE_RECOMMENDATIONS:

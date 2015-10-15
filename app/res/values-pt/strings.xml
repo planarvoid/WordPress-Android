@@ -435,10 +435,6 @@
     <item>De 12 em 12 horas</item>
     <item>De 24 em 24 horas</item>
   </string-array>
-  <!--__STATIONS-->
-  <string name="start_radio">Iniciar rádio</string>
-  <string name="unable_to_start_radio">Não é possível iniciar o rádio</string>
-  <string name="starting_radio">Iniciando rádio...</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
   <string name="format_abbreviated_minutes">%d min.</string>

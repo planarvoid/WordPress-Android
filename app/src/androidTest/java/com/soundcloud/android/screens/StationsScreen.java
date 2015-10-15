@@ -25,7 +25,7 @@ public class StationsScreen extends Screen {
     }
 
     public StationsBucketElement getRecentStationsBucket() {
-        return getBucket(With.text(testDriver.getString(R.string.stations_collection_title_recently_played_stations)));
+        return getBucket(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
     }
 
     public StationsBucketElement getTrackRecommendationsBucket() {

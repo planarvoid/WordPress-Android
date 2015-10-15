@@ -7,11 +7,6 @@
     <LinearLayout style="@style/ListItemNotificationLayout">
 
         <TextView
-            android:id="@+id/title"
-            style="@style/ListItemNotificationTitle"
-            android:text="@string/stations_onboarding_stream_title" />
-
-        <TextView
             android:id="@+id/description"
             style="@style/ListItemNotificationDescription"
             android:text="@string/stations_onboarding_stream_text" />
