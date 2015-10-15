@@ -60,6 +60,13 @@ public class VisualPlayerElement extends Element {
         assertTrue(isExpandedPlayerPlaying());
     }
 
+    public VisualPlayerElement ensureUnliked() {
+        if (likeButton().isChecked()) {
+            likeButton().click();
+        }
+        return this;
+    }
+
     private ViewElement playButton() {
         return solo.findElement(With.id(R.id.player_play));
     }
@@ -346,6 +353,14 @@ public class VisualPlayerElement extends Element {
         } else {
             clickFullbleedAdArtwork();
         }
+    }
+
+    public ViewElement likeButton() {
+        return solo.findElement(With.id(R.id.track_page_like));
+    }
+
+    public ViewElement shareButton() {
+        return solo.findElement(With.id(R.id.track_page_share));
     }
 
     public boolean isCenteredAd() {
