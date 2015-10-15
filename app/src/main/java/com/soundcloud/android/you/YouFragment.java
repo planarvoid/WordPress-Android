@@ -25,7 +25,7 @@ public class YouFragment extends LightCycleSupportFragment implements ScrollCont
 
     @Override
     public void resetScroll() {
-        // TODO
+        presenter.resetScroll();
     }
 
     @Override

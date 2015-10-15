@@ -23,7 +23,6 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -66,7 +65,7 @@ class GeneralSettings implements OnPreferenceClickListener {
 
     public void addTo(final PreferenceFragment settings) {
         this.settings = settings;
-        settings.addPreferencesFromResource(R.xml.settings_general);
+        settings.addPreferencesFromResource(R.xml.settings_general_legacy);
         setupOfflineSync(settings);
         setupListeners(settings);
         setupVersion(settings);

@@ -25,6 +25,9 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.NotificationSettingsActivity;
+import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 
@@ -118,6 +121,23 @@ public class Navigator {
 
     public void openRecord(Context context, Recording recording) {
         context.startActivity(createRecordIntent(context, recording));
+    }
+
+    public void openOfflineSettings(Context context) {
+        context.startActivity(new Intent(context, OfflineSettingsActivity.class));
+    }
+
+    public void openNotificationSettings(Context context) {
+        context.startActivity(new Intent(context, NotificationSettingsActivity.class));
+    }
+
+    public void openLegal(Context context) {
+        context.startActivity(new Intent(context, LegalActivity.class));
+    }
+
+    public void openHelpCenter(Context context) {
+        context.startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse(context.getString(R.string.url_support))));
     }
 
     public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {

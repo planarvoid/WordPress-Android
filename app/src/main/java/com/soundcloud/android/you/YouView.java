@@ -4,65 +4,146 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.main.ScrollContent;
 
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
-public class YouView {
+public class YouView implements ScrollContent {
 
-    private final Navigator navigator;
+    private Listener listener;
 
     @Bind(R.id.header_layout) View headerLayout;
     @Bind(R.id.image) ImageView profileImageView;
     @Bind(R.id.username) TextView username;
+    @Bind(R.id.you_version_text) TextView versionText;
+    @Bind(R.id.you_offline_sync_settings_link) View offlineSettingsView;
+    @Bind(R.id.scroll_view) View scrollView;
 
-    YouView(@Provided Navigator navigator, View view) {
-        this.navigator = navigator;
+    YouView(View view, final Listener listener) {
+        this.listener = listener;
         ButterKnife.bind(this, view);
+
+        setAppVersionString(view.getResources());
     }
 
-    public void unbind(){
+    @Override
+    public void resetScroll() {
+        scrollView.scrollTo(0, 0);
+    }
+
+    private void setAppVersionString(Resources resources) {
+        final String appVersionString = resources.getString(R.string.you_app_version, BuildConfig.VERSION_NAME);
+        versionText.setText(appVersionString);
+    }
+
+    public void unbind() {
         ButterKnife.unbind(this);
+        this.listener = null;
     }
 
-    void setUrn(final Urn urn) {
-        headerLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigator.openProfile(view.getContext(), urn, Screen.YOU);
-            }
-        });
+    public void showOfflineSettings() {
+        offlineSettingsView.setVisibility(View.VISIBLE);
+    }
+
+    public void hideOfflineSettings() {
+        offlineSettingsView.setVisibility(View.GONE);
     }
 
     void setUsername(String username) {
         this.username.setText(username);
     }
 
+    @OnClick(R.id.header_layout)
+    void onHeaderLayoutClicked(View view) {
+        if (listener != null) {
+            listener.onProfileClicked(view);
+        }
+    }
+
     @OnClick(R.id.you_activity_link)
     void onActivityLinkClicked(View view) {
-        navigator.openActivities(view.getContext());
+        if (listener != null) {
+            listener.onActivitiesClicked(view);
+        }
     }
 
     @OnClick(R.id.you_record_link)
     void onRecordLinkClicked(View view) {
-        navigator.openRecord(view.getContext(), Screen.YOU);
+        if (listener != null) {
+            listener.onRecordClicked(view);
+        }
     }
 
-    @OnClick({ R.id.you_basic_settings_link, R.id.you_help_center_link, R.id.you_offline_sync_settings_link,
-    R.id.you_notification_settings_link, R.id.you_legal_link})
-    void onSettingsClicked(View view) {
-        navigator.openSettings(view.getContext());
+    @OnClick({R.id.you_offline_sync_settings_link})
+    void onOfflineSyncSettingsClicked(View view) {
+        if (listener != null) {
+            listener.onOfflineSettingsClicked(view);
+        }
+    }
+
+    @OnClick({R.id.you_notification_settings_link})
+    void onNotificationSettingsClicked(View view) {
+        if (listener != null) {
+            listener.onNotificationSettingsClicked(view);
+        }
+    }
+
+    @OnClick({R.id.you_basic_settings_link})
+    void onBasicSettingsClicked(View view) {
+        if (listener != null) {
+            listener.onBasicSettingsClicked(view);
+        }
+    }
+
+    @OnClick({R.id.you_help_center_link})
+    void onHelpCenterClicked(View view) {
+        if (listener != null) {
+            listener.onHelpCenterClicked(view);
+        }
+    }
+
+    @OnClick({R.id.you_legal_link})
+    void onLegalClicked(View view) {
+        if (listener != null) {
+            listener.onLegalClicked(view);
+        }
+    }
+
+    @OnClick({R.id.you_sign_out_link})
+    void onSignOutClicked(View view) {
+        if (listener != null) {
+            listener.onSignOutClicked(view);
+        }
     }
 
     ImageView getProfileImageView() {
         return profileImageView;
+    }
+
+    interface Listener {
+        void onProfileClicked(View view);
+
+        void onActivitiesClicked(View view);
+
+        void onRecordClicked(View view);
+
+        void onOfflineSettingsClicked(View view);
+
+        void onNotificationSettingsClicked(View view);
+
+        void onBasicSettingsClicked(View view);
+
+        void onHelpCenterClicked(View view);
+
+        void onLegalClicked(View view);
+
+        void onSignOutClicked(View view);
     }
 
 }
