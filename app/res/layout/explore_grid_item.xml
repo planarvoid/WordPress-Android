@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Delete this layout when Explore is gone -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.soundcloud.android.view.ParallaxImageView
+        android:id="@+id/image"
+        style="@style/GridItemImageView"
+        sc:focalPoint=".45" />
+
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/username"
+        style="@style/BlackOverlayText.RegularSubtext"
+        android:layout_above="@+id/title"
+        android:layout_marginLeft="@dimen/grid_item_padding" />
+
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/title"
+        style="@style/BlackOverlayText.Regular"
+        android:layout_alignBottom="@id/image"
+        android:layout_marginBottom="@dimen/grid_item_padding"
+        android:layout_marginLeft="@dimen/grid_item_padding"
+        android:layout_marginRight="@dimen/grid_item_padding"
+        android:layout_marginTop="4dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image"
+        android:clickable="true"
+        android:focusable="false">
+
+        <TextView
+            android:id="@+id/tag"
+            style="@style/GridItemTag"
+            android:layout_toLeftOf="@+id/extra_info" />
+
+        <TextView
+            android:id="@id/extra_info"
+            style="@style/GridItemExtra" />
+
+    </RelativeLayout>
+
+    <View
+        style="@style/HorizontalDivider"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>
+

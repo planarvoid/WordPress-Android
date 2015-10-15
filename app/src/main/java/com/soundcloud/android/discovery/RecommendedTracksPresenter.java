@@ -48,7 +48,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
                                TracksRecyclerItemAdapter adapter,
                                Provider<ExpandPlayerSubscriber> subscriberProvider,
                                PlaybackInitiator playbackInitiator, EventBus eventBus) {
-        super(swipeRefreshAttacher, Options.list());
+        super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;

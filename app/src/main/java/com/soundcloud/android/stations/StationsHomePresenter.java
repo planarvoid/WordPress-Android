@@ -51,7 +51,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
                                  StationsHomeAdapter adapter,
                                  StationsNowPlayingController stationsNowPlayingController,
                                  PlayQueueManager playQueueManager) {
-        super(swipeRefreshAttacher, Options.cards());
+        super(swipeRefreshAttacher, Options.defaults());
         this.resources = resources;
         this.operations = operations;
         this.adapter = adapter;

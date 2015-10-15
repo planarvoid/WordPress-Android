@@ -22,6 +22,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -29,20 +30,16 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
-import android.content.res.Resources;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.Arrays;
@@ -51,9 +48,10 @@ import java.util.List;
 
 public class SoundStreamPresenterTest extends AndroidUnitTest {
 
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
+
     private SoundStreamPresenter presenter;
 
-    @Mock private Resources resources;
     @Mock private SoundStreamOperations streamOperations;
     @Mock private SoundStreamAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -61,16 +59,13 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
-    @Mock private Fragment fragment;
-    @Mock private View view;
-    @Mock private RecyclerView recyclerView;
-    @Mock private EmptyView emptyView;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
     @Mock private Navigator navigator;
-    @Mock private FragmentActivity activity;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
+    @Mock private View view;
+
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -87,12 +82,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 facebookInvitesDialogPresenter);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
-        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
-        when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
-        when(view.getResources()).thenReturn(resources);
-        when(fragment.getActivity()).thenReturn(activity);
     }
 
     @Test
@@ -184,23 +175,11 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void configuresEmptyState() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        verify(emptyView).setImage(R.drawable.empty_stream);
-        verify(emptyView).setMessageText(R.string.list_empty_stream_message);
-        verify(emptyView).setActionText(R.string.list_empty_stream_action);
-    }
-
-    @Test
     public void unsubscribesFromEventBusOnDestroyView() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        when(recyclerView.getAdapter()).thenReturn(adapter);
-
-        presenter.onDestroyView(fragment);
+        presenter.onDestroyView(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
     }
@@ -208,8 +187,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void trackChangedEventUpdatesCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 0));
 
@@ -219,8 +198,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void newQueueEventUpdatesCurrentlyPlayingTrack() {
         final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack, Urn.NOT_SET, 0));
 
@@ -230,7 +209,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldPublishTrackingEventOnFacebookInvitesButtonClick() {
         final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
-        presenter.onCreate(fragment, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
         when(adapter.getItem(0)).thenReturn(item);
 
         presenter.onFacebookInvitesInviteButtonClicked(0);
@@ -242,11 +221,11 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void shouldOpenFacebookInvitesDialogOnFacebookInvitesButtonClick() {
         final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
         when(adapter.getItem(0)).thenReturn(item);
-        presenter.onCreate(fragment, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
 
         presenter.onFacebookInvitesInviteButtonClicked(0);
 
-        verify(facebookInvitesDialogPresenter).show(activity);
+        verify(facebookInvitesDialogPresenter).show(fragmentRule.getActivity());
     }
 
     @Test
@@ -263,11 +242,11 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void shouldNotOpenFacebookInvitesDialogOnFacebookInvitesCloseButtonClick() {
         final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
         when(adapter.getItem(0)).thenReturn(item);
-        presenter.onCreate(fragment, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
 
         presenter.onFacebookInvitesCloseButtonClicked(0);
 
-        verify(facebookInvitesDialogPresenter, never()).show(activity);
+        verify(facebookInvitesDialogPresenter, never()).show(fragmentRule.getActivity());
     }
 
     @Test
@@ -278,7 +257,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, 0);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-        verify(facebookInvitesDialogPresenter, never()).show(activity);
+        verify(facebookInvitesDialogPresenter, never()).show(fragmentRule.getActivity());
     }
 
     @Test

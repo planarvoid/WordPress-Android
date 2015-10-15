@@ -16,6 +16,8 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
+//Delete this class when Explore is gone
+@Deprecated
 public class TrackGridRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
@@ -29,7 +31,7 @@ public class TrackGridRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
+        View itemView = View.inflate(parent.getContext(), R.layout.explore_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);
         viewHolder.username = (TextView) itemView.findViewById(R.id.username);
