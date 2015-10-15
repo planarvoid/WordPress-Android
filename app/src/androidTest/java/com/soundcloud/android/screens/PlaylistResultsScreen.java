@@ -1,10 +1,12 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.search.SearchActivity;
 
-import android.widget.GridView;
+import android.support.v7.widget.RecyclerView;
 
 public class PlaylistResultsScreen extends Screen {
 
@@ -25,12 +27,11 @@ public class PlaylistResultsScreen extends Screen {
     }
 
     public int getResultsCount() {
-        return getList().getAdapter().getCount();
+        return resultList().getItemCount();
     }
 
     public PlaylistDetailsScreen clickOnPlaylist(int position) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.getSolo().clickInList(position);
+        resultList().getItemAt(position).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -39,9 +40,9 @@ public class PlaylistResultsScreen extends Screen {
         return new PlaylistTagsScreen(testDriver);
     }
 
-    private GridView getList() {
+    private RecyclerViewElement resultList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return testDriver.getCurrentGridView();
+        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
 }
