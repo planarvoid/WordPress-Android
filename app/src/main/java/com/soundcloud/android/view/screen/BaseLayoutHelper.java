@@ -31,7 +31,9 @@ public class BaseLayoutHelper {
     }
 
     public View setBaseTabsLayout(AppCompatActivity activity) {
-        return createLayout(activity, R.layout.base_with_tabs);
+        return createLayout(activity, applicationProperties.isDebugBuild()
+                ? R.layout.base_with_tabs_debug
+                : R.layout.base_with_tabs);
     }
 
     public View setBaseLayoutWithMargins(AppCompatActivity activity) {

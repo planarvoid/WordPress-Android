@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 @RunWith(MockitoJUnitRunner.class)
 public class BaseLayoutHelperTest {
 
-    private BaseLayoutHelper presenter;
+    private BaseLayoutHelper helper;
 
     @Mock private AppCompatActivity activity;
     @Mock private LayoutInflater inflater;
@@ -36,7 +36,7 @@ public class BaseLayoutHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new BaseLayoutHelper(applicationProperties);
+        helper = new BaseLayoutHelper(applicationProperties);
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
@@ -46,7 +46,7 @@ public class BaseLayoutHelperTest {
     public void shouldRequestActionBarOverlayFeatureOnSettingLayout() {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
 
-        presenter.setBaseLayout(activity);
+        helper.setBaseLayout(activity);
 
         verify(activity).supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
     }
@@ -55,7 +55,7 @@ public class BaseLayoutHelperTest {
     public void shouldSetActivityLayoutOnSetBaseLayout() {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
 
-        presenter.setBaseLayout(activity);
+        helper.setBaseLayout(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -64,7 +64,7 @@ public class BaseLayoutHelperTest {
     public void shouldSetActivityLayoutOnSetBaseLayoutWithMargins() {
         when(inflater.inflate(R.layout.base_with_margins, null)).thenReturn(layout);
 
-        presenter.setBaseLayoutWithMargins(activity);
+        helper.setBaseLayoutWithMargins(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -73,7 +73,7 @@ public class BaseLayoutHelperTest {
     public void shouldSetActivityLayoutOnSetBaseDrawerLayout() {
         when(inflater.inflate(R.layout.base_with_drawer, null)).thenReturn(layout);
 
-        presenter.setBaseDrawerLayout(activity);
+        helper.setBaseDrawerLayout(activity);
 
         verify(activity).setContentView(layout);
     }
@@ -84,7 +84,7 @@ public class BaseLayoutHelperTest {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
         when(activity.findViewById(R.id.toolbar_id)).thenReturn(toolbar);
 
-        presenter.setBaseLayout(activity);
+        helper.setBaseLayout(activity);
 
         verify(activity).setSupportActionBar(toolbar);
     }
@@ -93,7 +93,7 @@ public class BaseLayoutHelperTest {
     public void shouldNotSetToolbarAsActionBarForTabLayout() {
         when(inflater.inflate(R.layout.base_with_tabs, null)).thenReturn(layout);
 
-        presenter.setBaseTabsLayout(activity);
+        helper.setBaseTabsLayout(activity);
 
         verify(activity, never()).setSupportActionBar(any(Toolbar.class));
     }
@@ -103,7 +103,7 @@ public class BaseLayoutHelperTest {
         when(inflater.inflate(R.layout.profile_content, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        presenter.setBaseLayoutWithContent(activity, R.layout.profile_content);
+        helper.setBaseLayoutWithContent(activity, R.layout.profile_content);
 
         verify(container).addView(layout);
     }
@@ -113,8 +113,30 @@ public class BaseLayoutHelperTest {
         when(inflater.inflate(R.layout.profile_content, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        presenter.setBaseDrawerLayoutWithContent(activity, R.layout.profile_content);
+        helper.setBaseDrawerLayoutWithContent(activity, R.layout.profile_content);
 
         verify(container).addView(layout);
+    }
+
+    @Test
+    public void shouldSetDebugContentViewOnDebugBuild() {
+        View debugLayout = mock(View.class);
+        when(inflater.inflate(R.layout.base_with_tabs_debug, null)).thenReturn(debugLayout);
+        when(applicationProperties.isDebugBuild()).thenReturn(true);
+
+        helper.setBaseTabsLayout(activity);
+
+        verify(activity).setContentView(debugLayout);
+    }
+
+    @Test
+    public void shouldSetDefaultContentViewOnNonDebugBuild() {
+        View defaultLayout = mock(View.class);
+        when(inflater.inflate(R.layout.base_with_tabs, null)).thenReturn(defaultLayout);
+        when(applicationProperties.isDebugBuild()).thenReturn(false);
+
+        helper.setBaseTabsLayout(activity);
+
+        verify(activity).setContentView(defaultLayout);
     }
 }
