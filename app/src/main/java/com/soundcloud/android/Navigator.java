@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -48,6 +49,10 @@ public class Navigator {
     @Inject
     public Navigator(FeatureFlags featureFlags) {
         this.featureFlags = featureFlags;
+    }
+
+    public void openHome(Context context) {
+        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     public void openUpgrade(Context context) {

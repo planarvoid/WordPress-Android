@@ -1,17 +1,16 @@
 package com.soundcloud.android.activities;
 
-import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -22,6 +21,7 @@ public class ActivitiesActivity extends ScActivity {
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject Navigator navigator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class ActivitiesActivity extends ScActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        navigator.openHome(this);
         finish();
         return true;
     }
