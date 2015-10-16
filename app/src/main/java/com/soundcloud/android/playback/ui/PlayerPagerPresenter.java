@@ -17,6 +17,8 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.stations.Station;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -58,6 +60,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final AdPagePresenter adPagePresenter;
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
+    private final StationsOperations stationsOperations;
     private final TrackPageRecycler trackPageRecycler;
 
     private final Map<View, TrackPageData> trackByViews = new HashMap<>(TRACK_VIEW_POOL_SIZE);
@@ -104,7 +107,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     PlayerPagerPresenter(PlayQueueManager playQueueManager,
                          PlaySessionStateProvider playSessionStateProvider,
                          TrackRepository trackRepository,
-                         TrackPagePresenter trackPagePresenter,
+                         StationsOperations stationsOperations, TrackPagePresenter trackPagePresenter,
                          AdPagePresenter adPagePresenter,
                          CastConnectionHelper castConnectionHelper,
                          EventBus eventBus) {
@@ -115,6 +118,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.adPagePresenter = adPagePresenter;
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
+        this.stationsOperations = stationsOperations;
 
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
@@ -311,6 +315,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
 
         foregroundSubscription.add(getTrackOrAdObservable(trackPageData)
+                .observeOn(AndroidSchedulers.mainThread())
                 .filter(isTrackRelatedToView(view))
                 .subscribe(new TrackSubscriber(presenter, view)));
 
@@ -336,14 +341,14 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         if (viewData.isAdPage()) {
             return getAdObservable(viewData.getTrackUrn(), viewData.getProperties())
                     .map(TO_PLAYER_AD);
-        } else if (viewData.hasRelatedTrack()) {
+        } else if (viewData.getCollectionUrn().isStation()) {
             return Observable.zip(
                     getTrackObservable(viewData.getTrackUrn(), viewData.getProperties()).map(toPlayerTrack),
-                    getTrackObservable(viewData.getRelatedTrackUrn()),
-                    new Func2<PlayerTrackState, PropertySet, PlayerItem>() {
+                    stationsOperations.station(viewData.getCollectionUrn()),
+                    new Func2<PlayerTrackState, Station, PlayerItem>() {
                         @Override
-                        public PlayerItem call(PlayerTrackState playerTrackState, PropertySet propertySet) {
-                            playerTrackState.setRelatedTrack(propertySet);
+                        public PlayerItem call(PlayerTrackState playerTrackState, Station station) {
+                            playerTrackState.setStation(station);
                             return playerTrackState;
                         }
                     }

@@ -3,9 +3,11 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +31,7 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
     private final boolean isForeground;
     private final ViewVisibilityProvider viewVisibilityProvider;
 
-    private PropertySet relatedTrack;
+    private Optional<Station> station = Optional.absent();
 
     PlayerTrackState(PropertySet source,
                      boolean isCurrentTrack,
@@ -57,20 +59,12 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return isForeground;
     }
 
-    public void setRelatedTrack(PropertySet relatedTrack) {
-        this.relatedTrack = relatedTrack;
+    public void setStation(Station station) {
+        this.station = Optional.of(station);
     }
 
-    public boolean hasRelatedTrack() {
-        return relatedTrack != null;
-    }
-
-    public String getRelatedTrackTitle() {
-        return relatedTrack.get(TrackProperty.TITLE);
-    }
-
-    public Urn getRelatedTrackUrn() {
-        return relatedTrack.get(TrackProperty.URN);
+    public Optional<Station> getStation() {
+        return station;
     }
 
     public Urn getUrn() {

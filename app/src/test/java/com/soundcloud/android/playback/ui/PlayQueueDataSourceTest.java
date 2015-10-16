@@ -27,19 +27,16 @@ public class PlayQueueDataSourceTest extends AndroidUnitTest {
         when(playQueueManager.getUrnAtPosition(1)).thenReturn(Urn.forTrack(456L));
         when(playQueueManager.getMetaDataAt(0)).thenReturn(PropertySet.create());
         when(playQueueManager.getMetaDataAt(1)).thenReturn(TestPropertySets.leaveBehindForPlayer());
-        when(playQueueManager.getRelatedEntity(0)).thenReturn(Urn.NOT_SET);
-        when(playQueueManager.getRelatedEntity(1)).thenReturn(Urn.forTrack(789));
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         playQueueDataSource = new PlayQueueDataSource(playQueueManager);
-
     }
 
     @Test
     public void getFullQueueReturnsFullPlayQueue() throws Exception {
-
         List<TrackPageData> queue = playQueueDataSource.getFullQueue();
         assertThat(queue).hasSize(2);
-        checkTrackPageData(queue.get(0), 0, Urn.forTrack(123L), PropertySet.create(), Urn.NOT_SET);
-        checkTrackPageData(queue.get(1), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(789));
+        checkTrackPageData(queue.get(0), 0, Urn.NOT_SET, Urn.forTrack(123L), PropertySet.create());
+        checkTrackPageData(queue.get(1), 1, Urn.NOT_SET, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer());
     }
 
     @Test
@@ -47,18 +44,21 @@ public class PlayQueueDataSourceTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(456L));
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
-        when(playQueueManager.getCurrentRelatedEntity()).thenReturn(Urn.forTrack(789));
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
 
         List<TrackPageData> queue = playQueueDataSource.getCurrentTrackAsQueue();
         assertThat(queue).hasSize(1);
-        checkTrackPageData(queue.get(0), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(789));
+        checkTrackPageData(queue.get(0), 1, Urn.NOT_SET, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer());
     }
 
     private void checkTrackPageData(TrackPageData trackPageData,
-                                    int position, Urn trackUrn, PropertySet propertySet, Urn relatedEntity){
+                                    int position,
+                                    Urn collectionUrn,
+                                    Urn trackUrn,
+                                    PropertySet propertySet){
         assertThat(trackPageData.getPositionInPlayQueue()).isSameAs(position);
         assertThat(trackPageData.getTrackUrn()).isEqualTo(trackUrn);
         assertThat(trackPageData.getProperties()).isEqualTo(propertySet);
-        assertThat(trackPageData.getRelatedTrackUrn()).isEqualTo(relatedEntity);
+        assertThat(trackPageData.getCollectionUrn()).isEqualTo(collectionUrn);
     }
 }

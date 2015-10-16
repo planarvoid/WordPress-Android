@@ -59,8 +59,8 @@
         <item name="android:clickable">false</item>
     </style>
 
-    <style name="PlayerTitleBase" parent="FooterTitle">
-        <item name="android:textSize">18sp</item>
+    <style name="PlayerPrimaryHeading" parent="FooterTitle">
+        <item name="android:textSize">20sp</item>
         <item name="jagged_background">@color/overlay_text_background</item>
         <item name="android:lineSpacingExtra">2dp</item>
         <item name="android:paddingLeft">6dp</item>
@@ -69,23 +69,18 @@
         <item name="android:paddingBottom">2dp</item>
     </style>
 
-    <style name="PlayerTitle" parent="PlayerTitleBase">
+    <style name="PlayerTitle" parent="PlayerPrimaryHeading">
         <item name="android:singleLine">false</item>
         <item name="android:maxLines">3</item>
     </style>
 
-    <style name="PlayerRelatedTo" parent="PlayerUser">
+    <style name="PlayerContext" parent="PlayerPrimaryHeading">
+        <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:text">@string/player_related_to</item>
-        <item name="android:background">@color/overlay_text_background</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-
-    <style name="PlayerRelatedToTrack" parent="PlayerTitle">
-        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:background">@color/overlay_text_background</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/clickable_overlay_text</item>
     </style>
 
     <style name="PlayerCastDeviceName">

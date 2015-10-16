@@ -1,13 +1,10 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -19,10 +16,8 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -34,8 +29,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
@@ -67,9 +60,9 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     private PlayerPresenter controller;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
-    private final List<TrackPageData> adQueueData = newArrayList(new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD, Urn.NOT_SET));
-    private final List<TrackPageData> fullQueueData = newArrayList(new TrackPageData(1, TRACK_URN, PropertySet.create(), Urn.NOT_SET),
-            new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD, Urn.NOT_SET));
+    private final List<TrackPageData> adQueueData = newArrayList(new TrackPageData(2, AUDIO_AD_URN, Urn.NOT_SET, AUDIO_AD));
+    private final List<TrackPageData> fullQueueData = newArrayList(new TrackPageData(1, TRACK_URN, Urn.NOT_SET, PropertySet.create()),
+            new TrackPageData(2, AUDIO_AD_URN, Urn.NOT_SET, AUDIO_AD));
 
     @Before
     public void setUp() {

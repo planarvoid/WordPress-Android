@@ -31,6 +31,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -67,6 +68,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
+    @Mock private StationsOperations stationsOperations;
 
     @Mock private PlayerTrackPager playerTrackPager;
 
@@ -90,10 +92,10 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private PagerAdapter adapter;
 
     private List<TrackPageData> trackPageData = newArrayList(
-            new TrackPageData(0, TRACK1_URN, PropertySet.create(), Urn.NOT_SET),
-            new TrackPageData(1, TRACK2_URN, PropertySet.create(), TRACK2_RELATED_URN),
-            new TrackPageData(2, AD_URN, getAudioAd(), Urn.NOT_SET),
-            new TrackPageData(3, MONETIZABLE_TRACK_URN, TestPropertySets.interstitialForPlayer(), Urn.NOT_SET));
+            new TrackPageData(0, TRACK1_URN, Urn.NOT_SET, PropertySet.create()),
+            new TrackPageData(1, TRACK2_URN, Urn.NOT_SET, PropertySet.create()),
+            new TrackPageData(2, AD_URN, Urn.NOT_SET, getAudioAd()),
+            new TrackPageData(3, MONETIZABLE_TRACK_URN, Urn.NOT_SET, TestPropertySets.interstitialForPlayer()));
 
     @Before
     public void setUp() throws Exception {
@@ -105,10 +107,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter = new PlayerPagerPresenter(playQueueManager,
                 playSessionStateProvider,
                 trackRepository,
+                stationsOperations,
                 trackPagePresenter,
                 adPagePresenter,
                 castConnectionHelper,
-                eventBus);
+                eventBus
+        );
 
         when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
@@ -377,8 +381,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
         assertThat(captorPropertySet.getValue().isForeground()).isTrue();
         assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
-        assertThat(captorPropertySet.getValue().getRelatedTrackUrn()).isEqualTo(TRACK2_RELATED_URN);
-        assertThat(captorPropertySet.getValue().getRelatedTrackTitle()).isEqualTo("related title");
     }
 
     @Test
@@ -605,6 +607,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupAudioAd(PropertySet propertySet) {
-        presenter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet, Urn.NOT_SET)));
+        presenter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, Urn.NOT_SET, propertySet)));
     }
 }

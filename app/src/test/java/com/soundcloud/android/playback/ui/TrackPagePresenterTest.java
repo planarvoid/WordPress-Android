@@ -14,7 +14,6 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -22,11 +21,11 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.Station;
+import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -84,9 +83,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, numberFormatter, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources(), featureFlags);
+                errorControllerFactory, castConnectionHelper, resources());
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -117,30 +116,21 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewLoadsRelatedTrack()  {
+    public void bindItemViewLoadsStationsContext()  {
         final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,viewVisibilityProvider);
-        final PropertySet relate = TestPropertySets.fromApiTrack();
-        trackState.setRelatedTrack(relate);
-
-        when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYER_CONTEXT)).thenReturn(true);
+        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        trackState.setStation(station);
 
         presenter.bindItemView(trackView, trackState);
 
-        assertThat(getHolder(trackView).relatedTo).isVisible();
-        assertThat(getHolder(trackView).relatedToTrack).isVisible();
-        assertThat(getHolder(trackView).relatedToTrack).containsText(relate.get(TrackProperty.TITLE));
-        assertThat(getHolder(trackView).relatedToTrackArtwork).isVisible();
-        verify(imageOperations).displayWithPlaceholder(relate.get(TrackProperty.URN), ApiImageSize.TINY_ARTWORK, getHolder(trackView).relatedToTrackArtwork);
+        assertThat(getHolder(trackView).trackContext).isVisible();
     }
 
     @Test
-    public void bindItemViewClearsRelatedTrack()  {
+    public void bindItemViewClearsStationsContextIfTrackIsNotFromStation()  {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).relatedTo).isNotVisible();
-        assertThat(getHolder(trackView).relatedToTrack).isNotVisible();
-        assertThat(getHolder(trackView).relatedToTrackArtwork).isNotVisible();
-        verify(imageOperations).cancelDisplayTask(getHolder(trackView).relatedToTrackArtwork);
+        assertThat(getHolder(trackView).trackContext).isNotVisible();
     }
 
     @Test
