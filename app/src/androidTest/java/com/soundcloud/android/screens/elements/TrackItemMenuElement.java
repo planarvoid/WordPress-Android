@@ -49,7 +49,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public VisualPlayerElement clickStartStation() {
-        clickItemWithText(testDriver.getString(R.string.start_radio));
+        clickItemWithText(testDriver.getString(R.string.start_track_station));
         return new VisualPlayerElement(testDriver);
     }
 }

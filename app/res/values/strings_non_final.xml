@@ -95,13 +95,10 @@
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
     <string name="stations_collection_title_saved_stations">Your stations</string>
-    <string name="stations_collection_title_recently_played_stations">Recent stations</string>
     <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
     <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
     <string name="station_bucket_action_text">View all</string>
-    <string name="stations_onboarding_stream_title">Start Station - Stop Discontent</string>
-    <string name="stations_onboarding_stream_text">Tap the 3 dots from your favorite track and start a station..</string>
 
     <!-- __COLLECTION -->
     <string name="side_menu_collection">Collection</string>
@@ -117,8 +114,6 @@
     <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
     <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
     <string name="collections_remove_filters">Remove Filters</string>
-    <string name="collections_notifications_title">Welcome to your unified collection.</string>
-    <string name="collections_notifications_description">All your likes and playlists in one place. Plus stations you recently listened to.</string>
 
     <!-- __DISCOVERY -->
     <string name="activity_title_search_results">Search</string>
