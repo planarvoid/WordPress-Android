@@ -117,7 +117,10 @@
           "deploy_alpha": {
             "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha; \n./gradlew deployAlpha ", 
             "manual": true,
-            "schedule": "H 3 * * 2-6"
+            "schedule": "H 3 * * 2-6",
+            "artifacts": [
+              "app/build/outputs/apk/app-prod-alpha.apk"
+            ]
           }
         }
       ]
