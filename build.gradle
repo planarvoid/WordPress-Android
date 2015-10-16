@@ -4,7 +4,6 @@ apply from: "${buildSrcDir}/dependencies.gradle"
 buildscript {
   repositories {
     mavenLocal()
-    mavenCentral()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
