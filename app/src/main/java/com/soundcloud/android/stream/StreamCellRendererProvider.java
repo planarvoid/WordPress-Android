@@ -4,7 +4,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.tracks.PlayingTrackRenderer;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import dagger.Lazy;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 class StreamCellRendererProvider {
 
-    private PlayingTrackRenderer trackItemRenderer;
+    private CellRenderer<TrackItem> trackItemRenderer;
     private CellRenderer<PlaylistItem> playlistItemRenderer;
 
     @Inject
@@ -31,7 +31,7 @@ class StreamCellRendererProvider {
         }
     }
 
-    public PlayingTrackRenderer getTrackItemRenderer() {
+    public CellRenderer<TrackItem> getTrackItemRenderer() {
         return trackItemRenderer;
     }
 

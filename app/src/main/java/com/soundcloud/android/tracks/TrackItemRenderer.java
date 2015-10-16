@@ -7,6 +7,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -23,7 +24,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class TrackItemRenderer implements PlayingTrackRenderer {
+public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
