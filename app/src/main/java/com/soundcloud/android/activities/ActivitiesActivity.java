@@ -8,7 +8,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -30,7 +29,7 @@ public class ActivitiesActivity extends ScActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES, Screen.ACTIVITIES)).commit();
+                    .add(getContentHolderViewId(), ScListFragment.newInstance()).commit();
         }
     }
 

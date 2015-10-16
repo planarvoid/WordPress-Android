@@ -6,7 +6,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
@@ -84,20 +83,6 @@ public class LegacyUserAssociationStorage {
         followingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, this.resolver);
     }
 
-    public Observable<UserAssociation> getFollowings() {
-        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
-            @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                RxUtils.emitIterable(userAssociationObserver,
-                        followingsDAO.buildQuery().
-                                where(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
-                );
-                userAssociationObserver.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-
-    }
-
     /* Persists user-followings information to the database. Will create a user association,
      * update the followers count of the target user, and commit to the database.
      *
@@ -115,29 +100,6 @@ public class LegacyUserAssociationStorage {
 
                 }
                 userAssociationObserver.onNext(following);
-                userAssociationObserver.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-
-    }
-
-    /**
-     * Add the users passed in as followings. This will not take into account the current status of the logged in
-     * user's association, but will just create or update the current status
-     *
-     * @param users The users to be followed
-     * @return the UserAssociations inserted
-     */
-    public Observable<UserAssociation> followList(final List<PublicApiUser> users) {
-        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
-            @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<>(users.size());
-                for (PublicApiUser user : users) {
-                    userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
-                }
-                followingsDAO.createCollection(userAssociations);
-                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
         }).subscribeOn(scheduler);
@@ -163,27 +125,6 @@ public class LegacyUserAssociationStorage {
                 } else {
                     userAssociationObserver.onError(new Exception("Update failed"));
                 }
-            }
-        }).subscribeOn(scheduler);
-    }
-
-    /**
-     * Create or update user associations of type FOLLOWING as marked for removal. This will ignore any current user
-     * associations and do a bulk insert.
-     *
-     * @param users the users to mark for removal
-     * @return the number of insertions/updates performed
-     */
-    public Observable<Void> unfollowList(final List<PublicApiUser> users) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
-            @Override
-            public void call(Subscriber<? super Void> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<>(users.size());
-                for (PublicApiUser user : users) {
-                    userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
-                }
-                followingsDAO.createCollection(userAssociations);
-                userAssociationObserver.onCompleted();
             }
         }).subscribeOn(scheduler);
     }

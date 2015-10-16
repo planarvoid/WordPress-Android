@@ -50,10 +50,6 @@ public class ScModelManager {
         resolver = c.getContentResolver();
     }
 
-    public PublicApiTrack getCachedTrackFromCursor(Cursor cursor) {
-        return getCachedTrackFromCursor(cursor, TableColumns.Sounds._ID);
-    }
-
     public PublicApiTrack getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         PublicApiTrack track = trackCache.get(id);
@@ -64,10 +60,6 @@ public class ScModelManager {
             trackCache.put(track);
         }
         return track;
-    }
-
-    public PublicApiPlaylist getCachedPlaylistFromCursor(Cursor cursor) {
-        return getCachedPlaylistFromCursor(cursor, TableColumns.Sounds._ID);
     }
 
     public PublicApiPlaylist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
@@ -91,10 +83,6 @@ public class ScModelManager {
             userCache.put(user);
         }
         return user;
-    }
-
-    public PublicApiUser getCachedUserFromCursor(Cursor cursor) {
-        return getCachedUserFromCursor(cursor, TableColumns.Users._ID);
     }
 
     public PublicApiUser getCachedUserFromCursor(Cursor cursor, String col) {
@@ -209,10 +197,6 @@ public class ScModelManager {
         return u;
     }
 
-
-    public PublicApiTrack getCachedTrack(long id) {
-        return trackCache.get(id);
-    }
 
     public PublicApiUser getCachedUser(long id) {
         return userCache.get(id);

@@ -8,17 +8,10 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.Request;
-import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -31,16 +24,12 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
 
-import android.content.Context;
-import android.os.SystemClock;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public class FollowingOperations {
 
@@ -116,24 +105,6 @@ public class FollowingOperations {
 
     }
 
-    public Observable<Boolean> waitForActivities(final Context context) {
-        return getFollowingsNeedingSync().toList().flatMap(new Func1<List<UserAssociation>, Observable<Collection<UserAssociation>>>() {
-            @Override
-            public Observable<Collection<UserAssociation>> call(List<UserAssociation> userAssociations) {
-                return bulkFollowAssociations(userAssociations);
-            }
-        }).flatMap(new Func1<Collection<UserAssociation>, Observable<Boolean>>() {
-            @Override
-            public Observable<Boolean> call(Collection<UserAssociation> userAssociations) {
-                return fetchActivities(PublicApi.getInstance(context));
-            }
-        });
-    }
-
-    public Set<Long> getFollowedUserIds() {
-        return followStatus.getFollowedUserIds();
-    }
-
     public boolean isFollowing(Urn urn) {
         return followStatus.isFollowing(urn);
     }
@@ -171,11 +142,6 @@ public class FollowingOperations {
         }
     }
 
-    private Observable<Void> removeFollowings(final List<PublicApiUser> users) {
-        updateLocalStatus(false, ScModel.getIdList(users));
-        return legacyUserAssociationStorage.unfollowList(users);
-    }
-
     @Nullable
     private ApiRequest createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
         final Collection<UserAssociation> associationsWithTokens = MoreCollections.filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
@@ -187,46 +153,6 @@ public class FollowingOperations {
                     .build();
         }
         return null;
-    }
-
-    //TODO: didn't have enough time porting this over, next time :)
-    // couldn't write tests either since Activities.fetch isn't mockable :(
-    private Observable<Boolean> fetchActivities(final PublicApi api) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                try {
-                    boolean hasActivities = false;
-                    int attempts = 15;
-                    final long backoffTime = 2000;
-                    while (!hasActivities && attempts > 0) {
-                        Log.d(LOG_TAG, "Fetching activities; tries left = " + attempts);
-                        attempts--;
-                        Activities activities = Activities.fetch(api, Request.to(TempEndpoints.e1.MY_STREAM));
-                        hasActivities = activities != null && !activities.isEmpty();
-                        Log.d(LOG_TAG, "Has activities = " + hasActivities);
-                        if (!hasActivities) {
-                            Log.d(LOG_TAG, "Sleeping for " + backoffTime);
-                            SystemClock.sleep(backoffTime);
-                        }
-                    }
-                    subscriber.onNext(hasActivities);
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
-            }
-        }).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
-    }
-
-    private Observable<UserAssociation> getFollowingsNeedingSync() {
-        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
-            @Override
-            public void call(Subscriber<? super UserAssociation> subscriber) {
-                RxUtils.emitIterable(subscriber, legacyUserAssociationStorage.getFollowingsNeedingSync());
-                subscriber.onCompleted();
-            }
-        });
     }
 
     public interface FollowStatusChangedListener {

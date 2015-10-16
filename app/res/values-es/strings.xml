@@ -215,7 +215,6 @@
   <string name="dashboard_notifications_activity_message_comment_two">Comentarios de %1$s y %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Comentarios de %1$s, %2$s y otros</string>
   <!--__ONBOARDING-->
-  <string name="and_conjunction">%1$s y %2$s</string>
   <string name="try_again">Inténtalo de nuevo</string>
   <string name="age">Edad</string>
   <string name="enter_age_hint">Introduce tu edad</string>

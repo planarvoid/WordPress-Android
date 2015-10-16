@@ -2,24 +2,17 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.java.collections.PropertySet;
@@ -41,6 +34,8 @@ import java.util.List;
 public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     private final ActivitiesStorage activitiesStorage;
+    private final Content content = Content.ME_ACTIVITIES;
+    private final Uri contentUri = content.uri;
 
     @Inject ImageOperations imageOperations;
     @Inject PlaybackInitiator playbackInitiator;
@@ -49,15 +44,14 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Inject Navigator navigator;
 
 
-    public ActivitiesAdapter(Uri uri) {
-        super(uri);
+    public ActivitiesAdapter() {
         activitiesStorage = new ActivitiesStorage();
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackInitiator playbackInitiator, ActivityItemRenderer itemRenderer) {
-        super(uri);
+    ActivitiesAdapter(ImageOperations imageOperations, PlaybackInitiator playbackInitiator,
+                      ActivityItemRenderer itemRenderer) {
         this.activitiesStorage = new ActivitiesStorage();
         this.imageOperations = imageOperations;
         this.playbackInitiator = playbackInitiator;
@@ -110,9 +104,13 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         return propertySets;
     }
 
-    @Override
     public CollectionParams getParams(boolean refresh) {
-        CollectionParams params = super.getParams(refresh);
+        CollectionParams params = new CollectionParams();
+        params.loadModel = content.modelType;
+        params.isRefresh = refresh;
+        params.maxToLoad = Consts.LIST_PAGE_SIZE;
+        params.startIndex = refresh ? 0 : page * Consts.LIST_PAGE_SIZE;
+        params.contentUri = contentUri;
         if (data.size() > 0) {
             Activity first = getItem(0);
             Activity last = getItem(getItemCount() - 1);
@@ -137,62 +135,32 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         // do nothing for now. new items will be merged and sorted with the existing items
     }
 
-    @Override
-    public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void handleListItemClick(Context context, int position, long id) {
 
         Type type = Type.values()[getItemViewType(position)];
         switch (type) {
-            case TRACK:
-            case TRACK_SHARING:
-            case PLAYLIST:
-            case PLAYLIST_SHARING:
-                playTrackOrStartPlaylistFragment(context, position);
-                return ItemClickResults.LEAVING;
-
             case COMMENT:
             case USER_MENTION:
                 context.startActivity(new Intent(context, TrackCommentsActivity.class)
                         .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, getItem(position).getPlayable().toPropertySet()));
-                return ItemClickResults.LEAVING;
+                break;
 
             case TRACK_LIKE:
             case TRACK_REPOST:
-                if (content == Content.ME_ACTIVITIES) {
-                    navigator.openProfile(context, getItem(position).getUser().getUrn());
-                } else {
-                    playTrackOrStartPlaylistFragment(context, position);
-                }
-                return ItemClickResults.LEAVING;
+                navigator.openProfile(context, getItem(position).getUser().getUrn());
+                break;
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
-                if (content == Content.ME_ACTIVITIES) {
-                    navigator.openProfile(context, getItem(position).getUser().getUrn());
-                } else {
-                    playTrackOrStartPlaylistFragment(context, position);
-                }
-                return ItemClickResults.LEAVING;
+                navigator.openProfile(context, getItem(position).getUser().getUrn());
+                break;
 
             case AFFILIATION:
                 navigator.openProfile(context, getItem(position).getUser().getUrn());
-                return ItemClickResults.LEAVING;
+                break;
 
             default:
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
-        }
-        return ItemClickResults.IGNORE;
-    }
-
-    private void playTrackOrStartPlaylistFragment(Context context, int position) {
-        Playable playable = data.get(position).getPlayable();
-        if (playable instanceof PublicApiTrack) {
-            List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
-            int adjustedPosition = filterPlayables(data.subList(0, position)).size();
-            Urn initialTrack = trackUrns.get(adjustedPosition);
-            playbackInitiator
-                    .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.STREAM))
-                    .subscribe(subscriberProvider.get());
-        } else if (playable instanceof PublicApiPlaylist) {
-            PlaylistDetailActivity.start(context, playable.getUrn(), Screen.ACTIVITIES);
+                break;
         }
     }
 

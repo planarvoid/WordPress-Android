@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;

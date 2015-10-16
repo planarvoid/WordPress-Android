@@ -100,12 +100,6 @@ public class ActivitiesStorage {
     }
 
     @Deprecated
-    public int getCountSince(long since, Content content) {
-        String selection = TableColumns.ActivityView.CONTENT_ID + " = ? AND " + TableColumns.ActivityView.CREATED_AT + "> ?";
-        return activitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
-    }
-
-    @Deprecated
     public int clear(@Nullable Content content) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {

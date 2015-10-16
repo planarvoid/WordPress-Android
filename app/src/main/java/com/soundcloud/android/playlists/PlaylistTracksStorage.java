@@ -20,7 +20,7 @@ import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables.OfflineContent;

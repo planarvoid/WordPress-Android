@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.activities.ActivityProperty;
-import com.soundcloud.android.api.ApiDateFormat;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.SharingNote;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
@@ -18,13 +16,11 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -44,14 +40,10 @@ import java.util.UUID;
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AffiliationActivity.class, name = "affiliation"),
-        @JsonSubTypes.Type(value = PlaylistActivity.class, name = "playlist"),
         @JsonSubTypes.Type(value = PlaylistLikeActivity.class, name = "playlist-like"),
         @JsonSubTypes.Type(value = PlaylistRepostActivity.class, name = "playlist-repost"),
-        @JsonSubTypes.Type(value = PlaylistSharingActivity.class, name = "playlist-sharing"),
-        @JsonSubTypes.Type(value = TrackActivity.class, name = "track"),
         @JsonSubTypes.Type(value = TrackLikeActivity.class, name = "track-like"),
         @JsonSubTypes.Type(value = TrackRepostActivity.class, name = "track-repost"),
-        @JsonSubTypes.Type(value = TrackSharingActivity.class, name = "track-sharing"),
         @JsonSubTypes.Type(value = UserMentionActivity.class, name = "user-mention"),
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
@@ -65,11 +57,8 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     @JsonProperty public String uuid;
     @JsonProperty public String tags;
-    @JsonProperty public SharingNote sharing_note;
 
     static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
-    // cache human readable elapsed time
-    private String _elapsedTime;
 
     protected Date createdAt;
 
@@ -82,10 +71,6 @@ public abstract class Activity extends ScModel implements Parcelable,
     public Activity(Parcel in) {
         createdAt = new Date(in.readLong());
         tags = in.readString();
-        sharing_note = new SharingNote();
-        sharing_note.text = in.readString();
-        final long milliseconds = in.readLong();
-        sharing_note.created_at = milliseconds == -1l ? null : new Date(milliseconds);
     }
 
     public Activity(Cursor c) {
@@ -93,10 +78,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         uuid = c.getString(c.getColumnIndex(TableColumns.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(TableColumns.ActivityView.TAGS));
         createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.CREATED_AT)));
-
-        sharing_note = new SharingNote();
-        sharing_note.created_at = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_CREATED_AT)));
-        sharing_note.text = c.getString(c.getColumnIndex(TableColumns.ActivityView.SHARING_NOTE_TEXT));
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
@@ -113,22 +94,6 @@ public abstract class Activity extends ScModel implements Parcelable,
     @Override
     public long getListItemId() {
         return toUUID().hashCode();
-    }
-
-    public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null) {
-            refreshTimeSinceCreated(context);
-        }
-        return _elapsedTime;
-    }
-
-    public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), createdAt.getTime());
-    }
-
-    public String getDateString() {
-        return createdAt == null ? null :
-                ApiDateFormat.formatDate(createdAt.getTime());
     }
 
     public UUID toUUID() {
@@ -163,10 +128,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         cv.put(TableColumns.Activities.UUID, uuid);
         cv.put(TableColumns.Activities.TAGS, tags);
         cv.put(TableColumns.Activities.TYPE, getType().type);
-        if (sharing_note != null) {
-            cv.put(TableColumns.Activities.SHARING_NOTE_TEXT, sharing_note.text);
-            cv.put(TableColumns.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
-        }
 
         if (createdAt != null) {
             cv.put(TableColumns.Activities.CREATED_AT, createdAt.getTime());
@@ -243,8 +204,6 @@ public abstract class Activity extends ScModel implements Parcelable,
     public void writeToParcel(Parcel out, int flags) {
         out.writeLong(createdAt.getTime());
         out.writeString(tags == null ? "" : tags);
-        out.writeString(sharing_note == null ? "" : sharing_note.text);
-        out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
     public abstract Type getType();
@@ -273,19 +232,15 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     // todo : row types, upgrade DB
     public enum Type {
-        TRACK("track", TrackActivity.class),
         TRACK_LIKE("track-like", TrackLikeActivity.class),
         TRACK_REPOST("track-repost", TrackRepostActivity.class),
-        TRACK_SHARING("track-sharing", TrackSharingActivity.class),
-        PLAYLIST("playlist", PlaylistActivity.class),
         PLAYLIST_LIKE("playlist-like", PlaylistLikeActivity.class),
         PLAYLIST_REPOST("playlist-repost", PlaylistRepostActivity.class),
-        PLAYLIST_SHARING("playlist-sharing", PlaylistSharingActivity.class),
         COMMENT("comment", CommentActivity.class),
         USER_MENTION("user-mention", UserMentionActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
 
-        public static final EnumSet<Type> PLAYLIST_TYPES = EnumSet.of(PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING);
+        public static final EnumSet<Type> PLAYLIST_TYPES = EnumSet.of(PLAYLIST_LIKE, PLAYLIST_REPOST);
 
         Type(String type, Class<? extends Activity> activityClass) {
             this.type = type;

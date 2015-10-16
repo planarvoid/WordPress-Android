@@ -77,11 +77,6 @@
     <item quantity="one">Seguido por você e por %s outra pessoa</item>
     <item quantity="other">Seguido por você e por %s outras pessoas</item>
   </plurals>
-  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
-  <plurals name="number_of_others">
-    <item quantity="one">e %d outro</item>
-    <item quantity="other">e %d outros</item>
-  </plurals>
   <!--__TIME-->
   <plurals name="elapsed_days">
     <item quantity="one">%d dia</item>

@@ -64,10 +64,6 @@
   <plurals name="number_of_liked_tracks_you_liked">
     <item quantity="other">Anda suka %d lagu-lagu</item>
   </plurals>
-  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
-  <plurals name="number_of_others">
-    <item quantity="other">dan %d lain</item>
-  </plurals>
   <!--__TIME-->
   <plurals name="elapsed_days">
     <item quantity="other">%d hari</item>

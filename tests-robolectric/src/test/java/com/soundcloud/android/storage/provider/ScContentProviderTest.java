@@ -54,25 +54,6 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldIncludeUserPermalinkInTrackView() throws Exception {
-        Activities activities = getActivities("/com/soundcloud/android/sync/e1_stream_1.json");
-
-        for (Playable t : activities.getUniquePlayables()) {
-            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
-            expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
-        }
-
-        expect(Content.TRACK).toHaveCount(20);
-        expect(Content.USERS).toHaveCount(11);
-        PublicApiTrack t = SoundCloudApplication.sModelManager.getTrack(61350393l);
-
-        expect(t).not.toBeNull();
-        expect(t.user.permalink).toEqual("westafricademocracyradio");
-        expect(t.permalink).toEqual("info-chez-vous-2012-27-09");
-    }
-
-
-    @Test
     public void shouldGetCurrentUserId() throws Exception {
         Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
@@ -89,22 +70,6 @@ public class ScContentProviderTest {
 
         Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
         expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
-    }
-
-    @Test
-    public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        ApiTrack track = testFixtures.insertLikedTrack(new Date());
-
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.TrackMetadata._ID, track.getUrn().getNumericId());
-        cv.put(TableColumns.TrackMetadata.CACHED, 1);
-        resolver.insert(Content.TRACK_METADATA.uri, cv);
-
-        Uri uri = Content.ME_LIKES.withQuery(CACHED, "1");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
-        expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(track.getUrn().getNumericId());
     }
 
     @Test

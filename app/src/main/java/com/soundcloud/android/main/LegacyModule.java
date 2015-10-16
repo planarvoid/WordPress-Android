@@ -6,18 +6,12 @@ import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.android.view.adapters.PostsAdapter;
-import com.soundcloud.android.view.adapters.SoundAdapter;
-import com.soundcloud.android.view.adapters.UserAdapter;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 ScListFragment.class,
-                UserAdapter.class,
                 ActivitiesAdapter.class,
-                SoundAdapter.class,
-                PostsAdapter.class,
                 ApiSyncer.class,
                 UploadService.class
         }, includes = AssociationsModule.class)

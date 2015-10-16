@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;

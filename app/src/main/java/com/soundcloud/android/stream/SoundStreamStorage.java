@@ -8,7 +8,7 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;

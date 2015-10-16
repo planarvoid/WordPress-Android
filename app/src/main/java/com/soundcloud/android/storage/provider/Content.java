@@ -21,7 +21,6 @@ import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.sync.SyncConfig;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
@@ -30,8 +29,6 @@ import android.net.Uri;
 import android.util.SparseArray;
 
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 public enum Content {
     ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.Users),
@@ -139,10 +136,8 @@ public enum Content {
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static final private SparseArray<Content> sMap = new SparseArray<>();
-    static final private Map<Uri, Content> sUris = new HashMap<>();
 
     public static final int SYNCABLE_CEILING = 190;
-    public static final int MINE_CEILING = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
             Content.ME_ACTIVITIES,
@@ -155,23 +150,11 @@ public enum Content {
             Content.ME_FOLLOWERS
     );
 
-    public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(
-            Content.ME_SOUND_STREAM,
-            Content.ME_ACTIVITIES,
-            Content.ME_SOUNDS,
-            Content.USER_SOUNDS,
-            Content.ME_LIKES,
-            Content.USER_LIKES,
-            Content.ME_PLAYLISTS,
-            Content.USER_PLAYLISTS
-    );
-
     static {
         for (Content c : Content.values()) {
             if (c.id >= 0 && c.uri != null) {
                 sMatcher.addURI(ScContentProvider.AUTHORITY, c.uriPath, c.id);
                 sMap.put(c.id, c);
-                sUris.put(c.uri, c);
             }
         }
     }
@@ -184,24 +167,8 @@ public enum Content {
         return table == Table.Activities || table == Table.ActivityView;
     }
 
-    public boolean isMine() {
-        return id < MINE_CEILING && id > 0;
-    }
-
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
-    }
-
-    public Uri withQuery(String... args) {
-        if (args.length % 2 != 0) {
-            throw new IllegalArgumentException("need even params");
-        }
-
-        Uri.Builder builder = buildUpon();
-        for (int i = 0; i < args.length; i += 2) {
-            builder.appendQueryParameter(args[i], args[i + 1]);
-        }
-        return builder.build();
     }
 
     public Uri forId(long id) {
@@ -260,10 +227,6 @@ public enum Content {
         return remoteUri != null;
     }
 
-    public boolean shouldListenForPlaylistChanges() {
-        return LISTEN_FOR_PLAYLIST_CHANGES.contains(this);
-    }
-
     @Override
     public String toString() {
         return "Content." + name();
@@ -290,26 +253,8 @@ public enum Content {
         }
     }
 
-    public static
-    @Nullable
-    Content byUri(Uri uri) {
-        return sUris.get(uri);
-    }
-
     public boolean isUserBased() {
         return PublicApiUser.class.equals(modelType) || UserAssociation.class.equals(modelType);
-    }
-
-    public boolean isStale(long lastSync) {
-        // do not auto refresh users when the list opens, because users are always changing
-        if (isUserBased()) {
-            return lastSync <= 0;
-        }
-        final long staleTime = (modelType == PublicApiTrack.class) ? SyncConfig.TRACK_STALE_TIME :
-                (modelType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
-                        SyncConfig.DEFAULT_STALE_TIME;
-
-        return System.currentTimeMillis() - lastSync > staleTime;
     }
 
     @Nullable
