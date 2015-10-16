@@ -7,10 +7,8 @@ import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -30,10 +28,10 @@ public class SoundStreamAdapter
     private final StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer;
 
     @Inject
-    public SoundStreamAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer, FacebookInvitesItemRenderer facebookInvitesItemRenderer,
+    public SoundStreamAdapter(StreamCellRendererProvider rendererProvider, FacebookInvitesItemRenderer facebookInvitesItemRenderer,
                               StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer) {
-        super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackRenderer),
-                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer),
+        super(new CellRendererBinding<>(TRACK_ITEM_TYPE, rendererProvider.getTrackItemRenderer()),
+                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, rendererProvider.getPlaylistItemRenderer()),
                 new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookInvitesItemRenderer),
                 new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer));
         this.facebookInvitesItemRenderer = facebookInvitesItemRenderer;

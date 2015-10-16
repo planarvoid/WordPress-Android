@@ -25,7 +25,8 @@ public enum Flag {
     DISCOVERY(BuildConfig.FEATURE_DISCOVERY),
     DISCOVERY_RECOMMENDATIONS(BuildConfig.FEATURE_DISCOVERY_RECOMMENDATIONS),
     DISCOVERY_CHARTS(BuildConfig.FEATURE_DISCOVERY_CHARTS),
-    TABS(BuildConfig.FEATURE_TABS);
+    TABS(BuildConfig.FEATURE_TABS),
+    NEW_STREAM(BuildConfig.FEATURE_NEW_STREAM);
 
     private final boolean value;
 
