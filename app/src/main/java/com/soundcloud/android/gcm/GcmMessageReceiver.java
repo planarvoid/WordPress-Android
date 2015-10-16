@@ -14,6 +14,6 @@ public class GcmMessageReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         SoundCloudApplication.getObjectGraph().inject(this);
-        gcmMessageHandler.handleMessage(intent);
+        gcmMessageHandler.handleMessage(context, intent);
     }
 }

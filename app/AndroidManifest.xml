@@ -421,6 +421,14 @@
             android:exported="false">
         </service>
 
+        <receiver android:name="com.soundcloud.android.gcm.GcmMessageReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.soundcloud.android" />
+            </intent-filter>
+        </receiver>
+
         <!-- Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
             <intent-filter>

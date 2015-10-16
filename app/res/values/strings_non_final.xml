@@ -140,4 +140,7 @@
     <string name="you_sign_out">Sign out</string>
     <string name="you_view_public_profile">View Public Profile</string>
     <string name="you_app_version">App Version %s</string>
+
+    <!-- __YOU -->
+    <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
 </resources>
