@@ -3,19 +3,22 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -38,10 +41,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     public static final String SHARE_TYPE = "text/plain";
 
+    private final FeatureFlags featureFlags;
     private final FragmentActivity activity;
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
     private final RepostOperations repostOperations;
+    private final StartStationPresenter startStationPresenter;
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
@@ -50,15 +55,19 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     private long commentPosition;
 
-    private TrackPageMenuController(PlayQueueManager playQueueManager,
+    private TrackPageMenuController(FeatureFlags featureFlags,
+                                    PlayQueueManager playQueueManager,
                                     RepostOperations repostOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
+                                    StartStationPresenter startStationPresenter,
                                     EventBus eventBus) {
+        this.featureFlags = featureFlags;
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
+        this.startStationPresenter = startStationPresenter;
         this.eventBus = eventBus;
         this.commentAtUnformatted = activity.getString(R.string.comment_at);
         setupMenu();
@@ -93,6 +102,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void setupMenu() {
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
+        popupMenuWrapper.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
     }
 
     @Override
@@ -115,6 +125,9 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 return true;
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog(track);
+                return true;
+            case R.id.start_station:
+                startStationPresenter.startStationForTrack(context, track.getUrn());
                 return true;
             default:
                 return false;
@@ -203,26 +216,32 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     static class Factory {
+        private final FeatureFlags featureFlags;
         private final PlayQueueManager playQueueManager;
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
+        private final StartStationPresenter startStationPresenter;
 
         @Inject
-        Factory(PlayQueueManager playQueueManager,
+        Factory(FeatureFlags featureFlags,
+                PlayQueueManager playQueueManager,
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                StartStationPresenter startStationPresenter,
                 EventBus eventBus) {
+            this.featureFlags = featureFlags;
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
+            this.startStationPresenter = startStationPresenter;
             this.eventBus = eventBus;
         }
 
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackPageMenuController(playQueueManager, repostOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
+            return new TrackPageMenuController(featureFlags, playQueueManager, repostOperations,
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), startStationPresenter, eventBus);
         }
     }
 

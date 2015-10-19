@@ -18,6 +18,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -44,6 +46,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
 
+    @Mock private FeatureFlags featureFlags;
+    @Mock private StartStationPresenter startStationPresenter;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
@@ -65,7 +69,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostSubject);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
 
-        controller = new TrackPageMenuController.Factory(playQueueManager, repostOperations, popupMenuWrapperFactory, eventBus)
+        controller = new TrackPageMenuController.Factory(featureFlags, playQueueManager, repostOperations, popupMenuWrapperFactory, startStationPresenter, eventBus)
                 .create(textView);
         controller.setTrack(track);
     }
