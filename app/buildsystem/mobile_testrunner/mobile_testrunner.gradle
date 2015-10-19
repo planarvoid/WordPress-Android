@@ -292,6 +292,16 @@ task runLollipopTests << {
     runTestsForLabel("Lollipop", excludeAnnotations, null)
 }
 
+task runLollipopTestsRelease << {
+    def excludeAnnotations = [
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.AdsTest",
+            "com.soundcloud.android.framework.annotation.EventTrackingTest",
+            "com.soundcloud.android.framework.annotation.StationsTest"
+    ] as String[]
+    runTestsForLabel("Lollipop", excludeAnnotations, null)
+}
+
 task runKitkatTests << {
     def excludeAnnotations = [
             "com.soundcloud.android.framework.annotation.Ignore"
