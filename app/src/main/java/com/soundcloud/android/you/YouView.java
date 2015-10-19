@@ -11,6 +11,7 @@ import com.soundcloud.android.main.ScrollContent;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
@@ -23,7 +24,7 @@ public class YouView implements ScrollContent {
     @Bind(R.id.username) TextView username;
     @Bind(R.id.you_version_text) TextView versionText;
     @Bind(R.id.you_offline_sync_settings_link) View offlineSettingsView;
-    @Bind(R.id.scroll_view) View scrollView;
+    @Bind(R.id.scroll_view) ScrollView scrollView;
 
     YouView(View view, final Listener listener) {
         this.listener = listener;
@@ -34,7 +35,7 @@ public class YouView implements ScrollContent {
 
     @Override
     public void resetScroll() {
-        scrollView.scrollTo(0, 0);
+        scrollView.smoothScrollTo(0, 0);
     }
 
     private void setAppVersionString(Resources resources) {
