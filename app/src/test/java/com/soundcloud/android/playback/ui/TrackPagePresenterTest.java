@@ -366,6 +366,15 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void doNotDisplayUnknownLikeCounts() {
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, -1);
+
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
+
+        assertThat(getHolder(trackView).likeToggle).hasText("");
+    }
+
+    @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
         final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
 

@@ -29,6 +29,7 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
@@ -315,7 +316,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(numberFormatter.format(count));
+        holder.likeToggle.setText(count > 0 ? numberFormatter.format(count) : Strings.EMPTY);
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
