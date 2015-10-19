@@ -18,6 +18,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
@@ -61,6 +62,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
 
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
     private final FollowingOperations followingOperations;
+    private final NextFollowingOperations nextFollowingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
@@ -68,21 +70,23 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context, AccountOperations accountOperations,
-                                 FollowingOperations followingOperations, NotificationManager notificationManager,
+                                 FollowingOperations followingOperations, NextFollowingOperations nextFollowingOperations,
+                                 NotificationManager notificationManager,
                                  JsonTransformer jsonTransformer, Navigator navigator) {
         this(context, context.getContentResolver(),
                 new LegacyUserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
-                followingOperations, accountOperations, notificationManager, jsonTransformer, navigator);
+                followingOperations, accountOperations, nextFollowingOperations, notificationManager, jsonTransformer, navigator);
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, LegacyUserAssociationStorage legacyUserAssociationStorage,
                                     FollowingOperations followingOperations, AccountOperations accountOperations,
-                                    NotificationManager notificationManager, JsonTransformer jsonTransformer,
+                                    NextFollowingOperations nextFollowingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer,
                                     Navigator navigator) {
         super(context, resolver, accountOperations);
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.followingOperations = followingOperations;
+        this.nextFollowingOperations = nextFollowingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
@@ -211,7 +215,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private void forbiddenUserPushHandler(UserAssociation userAssociation, FollowErrors errors) {
         Notification notification = getForbiddenNotification(userAssociation, errors);
         notificationManager.notify(userAssociation.getUser().getUrn().toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
-        DefaultSubscriber.fireAndForget(followingOperations.removeFollowing(userAssociation.getUser()));
+        DefaultSubscriber.fireAndForget(nextFollowingOperations.toggleFollowing(userAssociation.getUser().getUrn(), false));
     }
 
     private Notification getForbiddenNotification(UserAssociation userAssociation, FollowErrors errors) {
