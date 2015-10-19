@@ -82,6 +82,9 @@ public class StationsOperations {
         return new Func1<StationRecord, StationRecord>() {
             @Override
             public StationRecord call(StationRecord station) {
+                if (station.getTracks().isEmpty()) {
+                    return station;
+                }
                 return Station.stationWithSeedTrack(station, seed);
             }
         };
