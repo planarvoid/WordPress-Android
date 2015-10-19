@@ -74,7 +74,7 @@
             } 
           },
           { "acceptance_tests": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runKitKatTestsRelease", 
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runLollipopTestsRelease", 
               "test-reports": "results/xml/*.xml",
               "plugins": {
                 "htmlReports": [

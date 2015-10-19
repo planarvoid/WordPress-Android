@@ -83,7 +83,7 @@
                 "app/build/outputs/apk/androidnetworkmanager-*.apk", 
                 "app/src/androidTest/res/values/test_properties.xml"
               ], 
-                "cmd": "./gradlew runKitKatTests", 
+                "cmd": "./gradlew runLollipopTests", 
                 "plugins": {
                   "htmlReports": [
                     {
