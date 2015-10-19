@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 
@@ -101,6 +102,8 @@ public class MainTabsPresenter extends NavigationPresenter {
 
     private void setupViews(AppCompatActivity activity) {
         pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
+        pager.setPageMarginDrawable(R.color.page_background);
         bindPagerWithTabs(createTabs());
     }
 

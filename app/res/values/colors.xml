@@ -146,11 +146,10 @@
     <color name="collections_kill_filter_text_color">#999999</color>
 
     <!-- You -->
-    <color name="you_background">#e5e5e5</color>
+    <color name="page_background">#e5e5e5</color>
     <color name="you_version_text">@color/gray_text</color>
 
     <!-- Stream -->
     <color name="stream_home_background">#e5e5e5</color>
-
 
 </resources>
