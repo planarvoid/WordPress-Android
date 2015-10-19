@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.Expect.expect;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;
@@ -15,28 +16,23 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.util.Arrays;
 import java.util.Locale;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistItemRendererTest {
+public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     private PlaylistItemRenderer renderer;
 
@@ -47,7 +43,7 @@ public class PlaylistItemRendererTest {
     @Mock private Navigator navigator;
 
     private final CondensedNumberFormatter numberFormatter =
-            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+            CondensedNumberFormatter.create(Locale.US, resources());
 
     private View itemView;
 
@@ -66,143 +62,142 @@ public class PlaylistItemRendererTest {
         );
         playlistItem = PlaylistItem.from(propertySet);
 
-        final Context context = Robolectric.application;
-        final LayoutInflater layoutInflater = LayoutInflater.from(context);
-        itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, numberFormatter,
+        final LayoutInflater layoutInflater = LayoutInflater.from(context());
+        itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
+        renderer = new PlaylistItemRenderer(resources(), imageOperations, numberFormatter,
                 playlistItemMenuPresenter, eventBus, screenProvider, navigator);
     }
 
     @Test
     public void shouldBindTitleToView() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
+        assertThat(textView(R.id.list_item_subheader).getText()).isEqualTo("title");
     }
 
     @Test
     public void shouldBindCreatorToView() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_header).getText()).toEqual("creator");
+        assertThat(textView(R.id.list_item_header).getText()).isEqualTo("creator");
     }
 
     @Test
     public void shouldBindTrackCountToView() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_right_info).getText()).toEqual("11 tracks");
+        assertThat(textView(R.id.list_item_right_info).getText()).isEqualTo("11 tracks");
     }
 
     @Test
     public void shouldShowLikesCountToViewIfAny() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.list_item_counter).getText()).toEqual("5");
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.list_item_counter).getText()).isEqualTo("5");
     }
 
     @Test
     public void shouldHideLikesCountToViewIfPlaylistHasZeroLikes() {
         propertySet.put(PlayableProperty.LIKES_COUNT, 0);
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldNotBindLikesCountToViewIfLikesCountNotSet() {
         propertySet.put(PlayableProperty.LIKES_COUNT, Consts.NOT_SET);
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldBindLikeStatusToView() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
-        expect(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).toEqual(0);
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(0);
 
         propertySet.put(PlayableProperty.IS_LIKED, true);
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
-        expect(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).toEqual(1);
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(1);
     }
 
     @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(PlayableProperty.REPOSTER, "reposter");
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.reposter).getVisibility()).toBe(View.VISIBLE);
-        expect(textView(R.id.reposter).getText()).toEqual("reposter");
+        assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.reposter).getText()).isEqualTo("reposter");
     }
 
     @Test
     public void shouldNotBindReposterIfNone() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.reposter).getVisibility()).toBe(View.GONE);
+        assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
         propertySet.put(PlayableProperty.IS_PRIVATE, true);
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
         propertySet.put(PlayableProperty.IS_PRIVATE, false);
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
+        assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPromoted() {
         PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
 
-        renderer.bindItemView(0, itemView, Arrays.asList(item));
+        renderer.bindItemView(0, itemView, singletonList(item));
 
-        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldHideLikesCountIfPlaylistIsPromoted() {
         PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
 
-        renderer.bindItemView(0, itemView, Arrays.asList(item));
+        renderer.bindItemView(0, itemView, singletonList(item));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void shouldShowPromotedLabelWithPromoterIfPlaylistIsPromotedByPromoter() {
         PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
 
-        renderer.bindItemView(0, itemView, Arrays.asList(item));
+        renderer.bindItemView(0, itemView, singletonList(item));
 
-        expect(textView(R.id.promoted_playlist).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.promoted_playlist).getText()).toEqual("Promoted by SoundCloud");
+        assertThat(textView(R.id.promoted_playlist).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.promoted_playlist).getText()).isEqualTo("Promoted by SoundCloud");
     }
 
     @Test
     public void shouldShowPromotedLabelWithoutPromoterIfPlaylistIsPromotedWithoutPromoter() {
         PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylistWithoutPromoter());
 
-        renderer.bindItemView(0, itemView, Arrays.asList(item));
+        renderer.bindItemView(0, itemView, singletonList(item));
 
-        expect(textView(R.id.promoted_playlist).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.promoted_playlist).getText()).toEqual("Promoted");
+        assertThat(textView(R.id.promoted_playlist).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.promoted_playlist).getText()).isEqualTo("Promoted");
     }
 
     @Test
     public void shouldLoadIcon() {
-        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forPlaylist(123),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),

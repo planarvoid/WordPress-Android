@@ -99,7 +99,7 @@ public abstract class PlayableItem implements StreamItem {
         return source.get(PlayableProperty.CREATED_AT);
     }
 
-    public int getLikeCount() {
+    public int getLikesCount() {
         return source.getOrElse(PlayableProperty.LIKES_COUNT, 0);
     }
 

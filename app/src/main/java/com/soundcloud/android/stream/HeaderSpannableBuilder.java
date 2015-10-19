@@ -16,8 +16,9 @@ import javax.inject.Inject;
 class HeaderSpannableBuilder {
 
     private final Resources resources;
-    private int spanStart;
+
     private SpannableString spannedString;
+    private int spanStart;
 
     @Inject
     HeaderSpannableBuilder(Resources resources) {
@@ -28,18 +29,12 @@ class HeaderSpannableBuilder {
         return spannedString;
     }
 
-    HeaderSpannableBuilder withUserAction(String userName, String action) {
-        spanStart = userName.length();
+    HeaderSpannableBuilder playlistUserAction(String userName, String action) {
+        return userActionSpannedString(userName, action, false);
+    }
 
-        final String headerText = resources.getString(R.string.stream_track_header_text, userName, action);
-        final int spanEnd = spanStart + action.length() + 1;
-
-        spannedString = new SpannableString(headerText);
-        spannedString.setSpan(new ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
-                spanStart,
-                spanEnd,
-                SPAN_EXCLUSIVE_EXCLUSIVE);
-        return this;
+    HeaderSpannableBuilder trackUserAction(String userName, String action) {
+        return userActionSpannedString(userName, action, true);
     }
 
     HeaderSpannableBuilder withIconSpan(StreamItemViewHolder trackView) {
@@ -50,5 +45,21 @@ class HeaderSpannableBuilder {
         return this;
     }
 
+    private HeaderSpannableBuilder userActionSpannedString(String userName, String action, boolean isTrack) {
+        spanStart = userName.length();
 
+        final String headerText = resources.getString(headerTextResId(isTrack), userName, action);
+        final int spanEnd = spanStart + action.length() + 1;
+
+        spannedString = new SpannableString(headerText);
+        spannedString.setSpan(new ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
+                spanStart,
+                spanEnd,
+                SPAN_EXCLUSIVE_EXCLUSIVE);
+        return this;
+    }
+
+    private int headerTextResId(boolean isTrack) {
+        return isTrack ? R.string.stream_track_header_text : R.string.stream_playlist_header_text;
+    }
 }

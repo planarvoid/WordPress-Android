@@ -77,6 +77,12 @@
         <item quantity="other">%d tracks</item>
     </plurals>
 
+    <!-- __PLAYLIST IN NEW STREAM -->
+    <plurals name="number_of_tracks">
+        <item quantity="one">TRACK</item>
+        <item quantity="other">TRACKS</item>
+    </plurals>
+
     <!-- __PROFILE -->
     <plurals name="number_of_followers">
         <item quantity="one">%d follower</item>

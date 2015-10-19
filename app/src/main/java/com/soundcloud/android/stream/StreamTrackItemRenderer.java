@@ -72,11 +72,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
         setHeaderText(trackView, trackItem);
         showCreatedAt(trackView, trackItem.getCreatedAt());
-        showPrivateIndicator(trackView, trackItem.isPrivate());
-    }
-
-    private void showPrivateIndicator(StreamItemViewHolder trackView, boolean isPrivate) {
-        trackView.togglePrivateIndicator(isPrivate);
+        trackView.togglePrivateIndicator(trackItem.isPrivate());
     }
 
     private void setHeaderText(StreamItemViewHolder trackView, TrackItem trackItem) {
@@ -84,7 +80,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         final String userName = trackItem.getReposter().or(trackItem.getCreatorName());
         final String action = resources.getString(isRepost ? R.string.stream_reposted_action : R.string.stream_posted_action);
 
-        headerSpannableBuilder.withUserAction(userName, action);
+        headerSpannableBuilder.trackUserAction(userName, action);
         if (isRepost) {
             headerSpannableBuilder.withIconSpan(trackView);
         }
@@ -98,9 +94,11 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void setupEngagementBar(StreamItemViewHolder trackView, final TrackItem track, final int position) {
+        trackView.resetAdditionalInformation();
+
         showPlayCountOrNowPlaying(trackView, track);
-        showLikes(trackView, track);
-        showReposts(trackView, track);
+        trackView.showLikeStats(numberFormatter.format(track.getLikesCount()));
+        trackView.showRepostStats(numberFormatter.format(track.getRepostCount()));
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
@@ -126,20 +124,11 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void showPlayCountOrNowPlaying(StreamItemViewHolder itemView, TrackItem track) {
-        itemView.resetAdditionalInformation();
         if (track.isPlaying()) {
             itemView.showNowPlaying();
         } else {
             showPlayCount(itemView, track);
         }
-    }
-
-    private void showLikes(StreamItemViewHolder itemView, TrackItem track) {
-        itemView.showLikeStats(numberFormatter.format(track.getLikeCount()));
-    }
-
-    private void showReposts(StreamItemViewHolder itemView, TrackItem track) {
-        itemView.showRepostStats(numberFormatter.format(track.getRepostCount()));
     }
 
     private void showPlayCount(StreamItemViewHolder itemView, TrackItem track) {
@@ -152,5 +141,4 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     private boolean hasPlayCount(int playCount) {
         return playCount > 0;
     }
-
 }
