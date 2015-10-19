@@ -3,6 +3,7 @@ package com.soundcloud.android.associations;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
@@ -55,7 +56,7 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
                 .whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId()))
                 .first(Integer.class);
 
-        if (isFollowing(propeller, params.targetUrn) == params.following) {
+        if (isFollowing(propeller, params.targetUrn) == params.following || count == Consts.NOT_SET) {
             return count;
         } else {
             return params.following ? count + 1 : count - 1;
@@ -68,7 +69,7 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
                 .whereEq(TableColumns.UserAssociations.TARGET_ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER)
                 .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
-                .whereNotNull(TableColumns.UserAssociations.ADDED_AT)).getResultCount();
+                .whereNull(TableColumns.UserAssociations.REMOVED_AT)).getResultCount();
 
         return followingCount == 1;
     }

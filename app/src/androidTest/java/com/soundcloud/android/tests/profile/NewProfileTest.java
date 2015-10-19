@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.profile;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -47,6 +48,10 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
         assertThat(screen.website().getText(), is(equalTo("Google")));
         assertThat(screen.discogs().getText(), is(equalTo("Discogs")));
         assertThat(screen.myspace().getText(), is(equalTo("Myspace")));
+    }
+
+    public void testShowsExpandedImage() {
+        assertThat(screen.touchProfileImage(), is(visible()));
     }
 
     public void ignore_testReflectsFollowingChanges() {

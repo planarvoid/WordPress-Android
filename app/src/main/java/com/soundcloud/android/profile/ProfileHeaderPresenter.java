@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -11,6 +12,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
@@ -36,7 +38,7 @@ class ProfileHeaderPresenter {
 
     private Urn lastUser;
 
-    public ProfileHeaderPresenter(Activity profileActivity, ImageOperations imageOperations,
+    public ProfileHeaderPresenter(final Activity profileActivity, final ImageOperations imageOperations,
                                   CondensedNumberFormatter numberFormatter, AccountOperations accountOperations,
                                   final Urn user, final NextFollowingOperations followingOperations) {
         this.imageOperations = imageOperations;
@@ -54,6 +56,13 @@ class ProfileHeaderPresenter {
                 }
             });
         }
+
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new FullImageDialog(profileActivity, user, imageOperations).show();
+            }
+        });
     }
 
     public void setUserDetails(ProfileUser user) {

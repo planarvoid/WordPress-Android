@@ -24,6 +24,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -62,6 +63,7 @@ public class UserAssociationSyncerTest {
     @Mock private UserAssociation userAssociation;
     @Mock private PublicApiUser user;
     @Mock private FollowingOperations followingOperations;
+    @Mock private NextFollowingOperations nextFollowingOperations;
     @Mock private ApiResponse apiResponse;
     @Mock private NotificationManager notificationManager;
     @Mock private JsonTransformer jsonTransformer;
@@ -71,7 +73,8 @@ public class UserAssociationSyncerTest {
     public void before() {
         TestHelper.setUserId(133201L);
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, followingOperations, accountOperations, notificationManager, jsonTransformer, navigator);
+                resolver, userAssociationStorage, followingOperations, accountOperations, nextFollowingOperations,
+                notificationManager, jsonTransformer, navigator);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -314,7 +317,7 @@ public class UserAssociationSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
         UserAssociationSyncer syncer = new UserAssociationSyncer(
-                Robolectric.application, accountOperations, followingOperations, notificationManager, jsonTransformer,
+                Robolectric.application, accountOperations, followingOperations, nextFollowingOperations, notificationManager, jsonTransformer,
                 navigator);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }

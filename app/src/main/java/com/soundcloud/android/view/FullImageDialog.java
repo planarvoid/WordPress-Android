@@ -67,6 +67,7 @@ public class FullImageDialog extends Dialog {
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                 if (isShowing()) {
                     progress.setVisibility(View.GONE);
+                    image.setVisibility(View.VISIBLE);
                 }
             }
         });
