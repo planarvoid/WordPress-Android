@@ -69,6 +69,7 @@ public class DatabaseFixtures {
     public void insertFollowing(Urn followedUrn, int position){
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.UserAssociations.POSITION, position);
@@ -82,6 +83,7 @@ public class DatabaseFixtures {
     public void insertFollowing(Urn followedUrn, long follwedAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, follwedAt);
         cv.put(TableColumns.UserAssociations.POSITION, 0);
@@ -91,6 +93,7 @@ public class DatabaseFixtures {
     public void insertFollowingPendingRemoval(Urn followedUrn) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.UserAssociations.REMOVED_AT, System.currentTimeMillis());
@@ -100,6 +103,7 @@ public class DatabaseFixtures {
     public void insertFollower(Urn userUrn, long followedAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWER);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, userUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, followedAt);
         cv.put(TableColumns.UserAssociations.POSITION, 0);
@@ -109,6 +113,7 @@ public class DatabaseFixtures {
     public void insertFollower(Urn userUrn, int position) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWER);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, userUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
         cv.put(TableColumns.UserAssociations.POSITION, position);

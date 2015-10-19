@@ -14,6 +14,7 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.v7.widget.RecyclerView;
@@ -158,6 +159,15 @@ public class ProfileScreen extends Screen {
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers).toUpperCase()).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
+    }
+
+    public ExpandedProfileImageScreen touchProfileImage() {
+        profileImage().click();
+        return new ExpandedProfileImageScreen(testDriver);
+    }
+
+    private ViewElement profileImage() {
+        return testDriver.findElement(With.id(R.id.image));
     }
 
     private SlidingTabs tabs() {

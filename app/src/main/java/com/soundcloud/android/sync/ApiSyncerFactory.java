@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
@@ -27,6 +28,7 @@ import javax.inject.Provider;
 public class ApiSyncerFactory {
 
     private final Provider<FollowingOperations> followingOpsProvider;
+    private final Provider<NextFollowingOperations> nextFollowingOperationsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
@@ -38,13 +40,14 @@ public class ApiSyncerFactory {
     private final Navigator navigator;
 
     @Inject
-    public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
+    public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<NextFollowingOperations> nextFollowingOperationsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator) {
         this.followingOpsProvider = followingOpsProvider;
+        this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
@@ -69,7 +72,8 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(),
+                        context, accountOpsProvider.get(), followingOpsProvider.get(),
+                        nextFollowingOperationsProvider.get(), notificationManagerProvider.get(),
                         jsonTransformer, navigator);
 
             case ME_PLAYLISTS:

@@ -14,7 +14,9 @@ public class ApiUserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiUser(Urn.forUser(runningId++));
+            final ApiUser apiUser = new ApiUser(Urn.forUser(runningId++));
+            apiUser.setFollowersCount(100);
+            return apiUser;
         }
     };
 
@@ -28,8 +30,5 @@ public class ApiUserBlueprint {
 
     @Default
     String country = "Country";
-
-    @Default
-    int followersCount = 100;
 
 }
