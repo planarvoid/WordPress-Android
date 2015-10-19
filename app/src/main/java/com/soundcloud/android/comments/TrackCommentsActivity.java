@@ -2,13 +2,13 @@ package com.soundcloud.android.comments;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -19,7 +19,6 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,12 +44,6 @@ public class TrackCommentsActivity extends ScActivity {
         if (bundle == null) {
             attachCommentsFragment(commentedTrack);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        configureMainOptionMenuItems(menu);
-        return true;
     }
 
     private void attachCommentsFragment(PropertySet commentedTrack) {

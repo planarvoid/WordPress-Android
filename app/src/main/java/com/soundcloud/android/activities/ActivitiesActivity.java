@@ -12,7 +12,6 @@ import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
-import android.view.Menu;
 
 import javax.inject.Inject;
 
@@ -31,12 +30,6 @@ public class ActivitiesActivity extends ScActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(getContentHolderViewId(), ScListFragment.newInstance()).commit();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        configureMainOptionMenuItems(menu);
-        return true;
     }
 
     @Override
