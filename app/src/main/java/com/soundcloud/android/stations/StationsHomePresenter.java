@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -101,7 +102,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
     }
 
     private Observable<StationBucket> bucket(int type, String title) {
-        final Func1<Station, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
+        final Func1<StationRecord, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
 
         return operations
                 .collection(type)
@@ -111,10 +112,10 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
                 .map(StationBucket.fromStationViewModels(title, type, maxStationsPerBucket()));
     }
 
-    private Func1<Station, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
-        return new Func1<Station, StationViewModel>() {
+    private Func1<StationRecord, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
+        return new Func1<StationRecord, StationViewModel>() {
             @Override
-            public StationViewModel call(Station station) {
+            public StationViewModel call(StationRecord station) {
                 return new StationViewModel(station, currentlyPlayingCollection.equals(station.getUrn()));
             }
         };

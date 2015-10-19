@@ -12,13 +12,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -336,7 +336,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playStationResumesIfStationAlreadyStarted() {
         final Urn stationUrn = Urn.forTrackStation(123L);
-        final Station station = StationFixtures.getStation(stationUrn);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
 
         when(playQueueManager.isCurrentTrack(station.getTracks().get(0))).thenReturn(true);
@@ -350,7 +350,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playStationShouldStartFromZeroOnFirstPlay() {
         final Urn stationUrn = Urn.forTrackStation(123L);
-        final Station station = StationFixtures.getStation(stationUrn);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
         when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
@@ -363,7 +363,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playStationShouldStartFromTheNextTrack() {
         final Urn stationUrn = Urn.forTrackStation(123L);
-        final Station station = StationFixtures.getStation(stationUrn, 2);
+        final StationRecord station = StationFixtures.getStation(stationUrn, 2);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
         when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
@@ -376,7 +376,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playStationShouldRestartFromZeroWhenReachingTheEnd() {
         final Urn stationUrn = Urn.forTrackStation(123L);
-        final Station station = StationFixtures.getStation(stationUrn);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
         when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 

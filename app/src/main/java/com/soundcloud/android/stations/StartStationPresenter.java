@@ -4,6 +4,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -23,10 +24,10 @@ import android.content.DialogInterface;
 import javax.inject.Inject;
 
 public class StartStationPresenter {
-    private final Func1<Station, Observable<PlaybackResult>> toPlaybackResult = new Func1<Station, Observable<PlaybackResult>>() {
+    private final Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult = new Func1<StationRecord, Observable<PlaybackResult>>() {
         @Override
-        public Observable<PlaybackResult> call(Station station) {
-            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
+        public Observable<PlaybackResult> call(StationRecord station) {
+            checkArgument(!station.getTracks().isEmpty(), "The stationWithSeed does not have any tracks.");
             final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn());
             return playbackInitiator.playStation(station.getUrn(), station.getTracks(), playSessionSource, station.getPreviousPosition());
         }
@@ -57,6 +58,15 @@ public class StartStationPresenter {
     }
 
     public void startStation(Context context, Urn stationUrn) {
+        startStation(context, stationsOperations.station(stationUrn));
+    }
+
+    public void startStationForTrack(Context context, final Urn seed) {
+        final Urn station = Urn.forTrackStation(seed.getNumericId());
+        startStation(context, stationsOperations.stationWithSeed(station, seed));
+    }
+
+    private void startStation(Context context, Observable<StationRecord> station) {
         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = dialogBuilder
                 .setLoadingMessage(context.getString(R.string.loading_station))
                 .setOnErrorToastText(context.getString(R.string.unable_to_start_station))
@@ -69,8 +79,7 @@ public class StartStationPresenter {
                 .create()
                 .show(context);
 
-        subscription = stationsOperations
-                .station(stationUrn)
+        subscription = station
                 .flatMap(toPlaybackResult)
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));
     }

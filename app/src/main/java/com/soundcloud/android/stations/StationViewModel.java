@@ -1,15 +1,17 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.api.model.StationRecord;
+
 class StationViewModel {
-    private final Station station;
+    private final StationRecord station;
     private boolean isPlaying;
 
-    StationViewModel(Station station, boolean isPlaying) {
+    StationViewModel(StationRecord station, boolean isPlaying) {
         this.station = station;
         this.isPlaying = isPlaying;
     }
 
-    Station getStation() {
+    StationRecord getStation() {
         return station;
     }
 

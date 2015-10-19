@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -15,7 +16,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -161,7 +161,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void bindStationsContext(PlayerTrackState trackState, TrackPageHolder holder) {
-        final Optional<Station> station = trackState.getStation();
+        final Optional<StationRecord> station = trackState.getStation();
 
         if (station.isPresent()) {
             holder.trackContext.setVisibility(View.VISIBLE);

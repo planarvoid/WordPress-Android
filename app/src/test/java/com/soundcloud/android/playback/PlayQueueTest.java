@@ -3,9 +3,9 @@ package com.soundcloud.android.playback;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.java.collections.PropertySet;
@@ -199,7 +199,7 @@ public class PlayQueueTest {
     @Test
     public void playStationReturnsQueueWithStationPlayQueueItems() {
         final Urn stationUrn = Urn.forTrackStation(123L);
-        final Station station = StationFixtures.getStation(stationUrn);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
         final List<Urn> tracks = station.getTracks();
         PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
 

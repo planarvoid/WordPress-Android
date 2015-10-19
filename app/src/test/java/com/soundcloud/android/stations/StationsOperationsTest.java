@@ -1,9 +1,11 @@
 package com.soundcloud.android.stations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
@@ -27,12 +29,12 @@ public class StationsOperationsTest {
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
     @Mock StoreTracksCommand storeTracksCommand;
-    @Mock StoreApiStationCommand storeApiStationCommand;
+    @Mock StoreStationCommand storeStationCommand;
     @Mock StationsSyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
     private StationsOperations operations;
-    private Station stationFromDisk;
+    private StationRecord stationFromDisk;
     private ApiStation apiStation;
 
     @Before
@@ -41,7 +43,7 @@ public class StationsOperationsTest {
                 stationsStorage,
                 stationsApi,
                 storeTracksCommand,
-                storeApiStationCommand,
+                storeStationCommand,
                 syncInitiator,
                 Schedulers.immediate()
         );
@@ -55,7 +57,7 @@ public class StationsOperationsTest {
 
     @Test
     public void getStationShouldReturnAStationFromDiskIfDataIsAvailableInDatabase() {
-        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(Collections.singletonList(stationFromDisk));
@@ -63,9 +65,9 @@ public class StationsOperationsTest {
 
     @Test
     public void getStationShouldFallbackToNetwork() {
-        when(stationsStorage.station(station)).thenReturn(Observable.<Station>empty());
+        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
 
-        final TestSubscriber<Station> subscriber  = new TestSubscriber<>();
+        final TestSubscriber<StationRecord> subscriber  = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
@@ -74,8 +76,8 @@ public class StationsOperationsTest {
 
     @Test
     public void collectionShouldReturnFromStorageIfAvailable() {
-        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         final PublishSubject<SyncResult> syncResults = PublishSubject.create();
 
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
@@ -106,11 +108,11 @@ public class StationsOperationsTest {
 
     @Test
     public void collectionShouldTriggerSyncerIfNothingInLocalDatabase() {
-        final Observable<Station> storageStations1 = Observable.empty();
+        final Observable<StationRecord> storageStations1 = Observable.empty();
         final PublishSubject<SyncResult> syncResults = PublishSubject.create();
-        final Station station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final Observable<Station> storageStations2 = Observable.just(station);
-        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final Observable<StationRecord> storageStations2 = Observable.just(station);
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
 
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
                 .thenReturn(storageStations1, storageStations2);
@@ -127,12 +129,12 @@ public class StationsOperationsTest {
 
     @Test
     public void shouldPersistApiStation() {
-        when(stationsStorage.station(station)).thenReturn(Observable.<Station>empty());
+        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
 
         final TestSubscriber<Object> subscriber  = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         verify(storeTracksCommand).call(apiStation.getTrackRecords());
-        verify(storeApiStationCommand).call(apiStation);
+        verify(storeStationCommand).call(eq(apiStation));
     }
 }
