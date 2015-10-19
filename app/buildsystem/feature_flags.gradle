@@ -49,8 +49,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY, TRUE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, TRUE   //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
@@ -58,7 +56,8 @@ android {
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
+      buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
+      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE   //FEATURE_DISCOVERY must be enable as well    buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
     }
 
