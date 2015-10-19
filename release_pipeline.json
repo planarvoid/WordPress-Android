@@ -44,26 +44,7 @@
                 "app/src/androidTest/res/values/test_properties.xml"
               ]
             }
-          },
-          {
-            "compile_beta_apk": {
-              "cmd": "BUILD_TYPE=beta ./gradlew clean updateVersion buildBetaCI",
-              "artifacts": [
-                "app/res/values/app_properties.xml", 
-                "app/build/outputs/apk/soundcloud-android*beta.apk" 
-              ] 
-            }
-          },
-          {
-            "compile_release_apk": {
-              "cmd": "BUILD_TYPE=release ./gradlew clean updateVersion buildReleaseCI",
-              "artifacts": [
-                "app/res/values/app_properties.xml", 
-                "app/build/outputs/apk/soundcloud-android-*-release.apk"
-              ]   
-            }
           }
-
         ]
       ],
       "next-stages": [ "test" ]
@@ -113,23 +94,50 @@
               "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk"
             }
           }
-        ]
+        ],
+        {
+          "create_regression_tests_tasks": {
+          "cmd": "bundle install && bundle exec rake github:regression_tests ",
+          "manual": true,
+          "localBranch": true
+          }
+        }
       ],
       "next-stages": [ "deploy" ]
     }, 
     {
       "name": "deploy",
       "jobs": [
+        {
+          "compile_beta_apk": {
+            "cmd": "BUILD_TYPE=beta ./gradlew clean updateVersion buildBetaCI",
+            "artifacts": [
+              "app/res/values/app_properties.xml", 
+              "app/build/outputs/apk/soundcloud-android*beta.apk" 
+            ] 
+          }
+        },
         { "deploy_beta": {
-            "cmd": "BUILD_TYPE=beta bundle install && ./gradlew deployBeta", 
-            "manual": true, 
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json; \nBUILD_TYPE=beta bundle install; \nBUILD_TYPE=beta ./gradlew deployBeta", 
+            "manual": true,
+            "localBranch": true, 
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud*.apk"]
           } 
         },
+        {
+          "compile_release_apk": {
+            "cmd": "BUILD_TYPE=release ./gradlew clean updateVersion buildReleaseCI",
+            "artifacts": [
+              "app/res/values/app_properties.xml", 
+              "app/build/outputs/apk/soundcloud-android*-release.apk"
+            ]   
+          }
+        },
         { 
           "rollout_release_1_percent": {
-            "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployOnePercent", 
+            "cmd": "BUILD_TYPE=release bundle install && BUILD_TYPE=release ./gradlew clean updateVersion buildReleaseCI;\n./gradlew deployOnePercent", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
@@ -137,6 +145,7 @@
           "rollout_release_5_percent": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployFivePercent", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
@@ -144,6 +153,7 @@
           "deploy_release": {
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew rolloutFull", 
             "manual": true,
+            "localBranch": true,
             "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         }
@@ -156,7 +166,7 @@
     "git-url": "git@github.com:soundcloud/SoundCloud-Android.git", 
     "github-url": "https://github.com/soundcloud/SoundCloud-Android/", 
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net", 
-    "owner-emails": "slawomir@soundcloud.com", 
+    "owner-emails": "android-dev@soundcloud.com", 
     "slave-label": "mobile-slave"
   }
 }
