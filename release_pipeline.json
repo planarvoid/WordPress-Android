@@ -94,13 +94,7 @@
               "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk"
             }
           }
-        ],
-        {
-          "create_regression_tests_tasks": {
-          "cmd": "bundle install && bundle exec rake github:regression_tests ",
-          "manual": true
-          }
-        }
+        ]
       ],
       "next-stages": [ "deploy" ]
     }, 
