@@ -113,6 +113,11 @@ public class StreamItemViewHolder {
         privateIndicator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
+    public void showDuration(String playlistDuration) {
+        this.duration.setText(playlistDuration);
+        this.duration.setVisibility(View.VISIBLE);
+    }
+
     public interface OverflowListener {
         void onOverflow(View overflowButton);
     }

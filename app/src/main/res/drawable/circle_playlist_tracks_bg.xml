@@ -1,0 +1,8 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <solid android:color="@color/overlay_text_background" />
+    <size
+        android:width="@dimen/stream_playlist_track_size"
+        android:height="@dimen/stream_playlist_track_size" />
+</shape>
