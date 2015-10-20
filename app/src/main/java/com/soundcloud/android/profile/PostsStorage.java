@@ -50,7 +50,7 @@ public class PostsStorage {
         public List<PropertySet> call(List<PropertySet> propertySets, String username) {
             for (PropertySet propertySet : propertySets) {
                 if (propertySet.getOrElse(PlayableProperty.IS_REPOSTED, false)) {
-                    propertySet.put(PlayableProperty.REPOSTER, username);
+                    propertySet.put(PostProperty.REPOSTER, username);
                 }
             }
             return propertySets;
@@ -200,7 +200,7 @@ public class PostsStorage {
                 propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
             }
             if (TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE))){
-                propertySet.put(TrackProperty.REPOSTER_URN, accountOperations.getLoggedInUserUrn());
+                propertySet.put(PostProperty.REPOSTER_URN, accountOperations.getLoggedInUserUrn());
             }
             return propertySet;
         }

@@ -62,7 +62,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
 
         assertThat(observer.getOnNextEvents()).containsExactly(
                 Arrays.asList(
-                        post3.slice(TrackProperty.URN).put(TrackProperty.REPOSTER_URN, user.getUrn()),
+                        post3.slice(TrackProperty.URN).put(PostProperty.REPOSTER_URN, user.getUrn()),
                         post2.slice(TrackProperty.URN))
         );
     }
@@ -158,7 +158,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
         ApiTrack track = createTrackAt(createdAt);
         createTrackRepostWithId(track.getUrn().getNumericId(), postedAt);
         return createTrackPostPropertySet(track).put(TrackProperty.IS_REPOSTED, true)
-                .put(TrackProperty.REPOSTER, user.getUsername());
+                .put(PostProperty.REPOSTER, user.getUsername());
     }
 
     private PropertySet createPlaylistPostAt(Date postedAt) {
@@ -176,7 +176,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
         createPlaylistRepostWithId(playlist.getUrn().getNumericId(), postedAt);
         return createPlaylistPostPropertySet(playlist)
                 .put(TrackProperty.IS_REPOSTED, true)
-                .put(TrackProperty.REPOSTER, user.getUsername());
+                .put(PostProperty.REPOSTER, user.getUsername());
     }
 
     private PropertySet createPlaylistPostPropertySet(ApiPlaylist playlist) {

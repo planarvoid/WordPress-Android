@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -149,8 +149,8 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     private TrackItem repostedTrack() {
         final PropertySet track = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        track.put(PlayableProperty.REPOSTER, "reposter");
-        track.put(PlayableProperty.REPOSTER_URN, Urn.forUser(123L));
+        track.put(PostProperty.REPOSTER, "reposter");
+        track.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
 
         return TrackItem.from(track);
     }

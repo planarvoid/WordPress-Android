@@ -11,7 +11,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,7 +71,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemView.setDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
 
         showRelevantAdditionalInformation(trackItemView, track);
-        toggleReposterView(trackItemView, track);
 
         loadArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position);
@@ -95,15 +93,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         imageOperations.displayInAdapterView(
                 track.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
                 itemView.getImage());
-    }
-
-    private void toggleReposterView(TrackItemView itemView, TrackItem track) {
-        final Optional<String> optionalReposter = track.getReposter();
-        if (optionalReposter.isPresent()) {
-            itemView.showReposter(optionalReposter.get());
-        } else {
-            itemView.hideReposter();
-        }
     }
 
     private void showRelevantAdditionalInformation(TrackItemView itemView, TrackItem track) {

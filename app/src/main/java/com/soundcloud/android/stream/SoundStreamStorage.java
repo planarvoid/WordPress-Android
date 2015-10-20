@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -143,9 +144,10 @@ class SoundStreamStorage {
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            addOptionalPlaylistLike(cursorReader, propertySet);
-            addOptionalLikesCount(cursorReader, propertySet);
-            addOptionalRepostsCount(cursorReader, propertySet);
+
+            addUserLike(cursorReader, propertySet);
+            addUserRepost(cursorReader, propertySet);
+
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
@@ -168,24 +170,20 @@ class SoundStreamStorage {
             }
         }
 
-        private void addOptionalPlaylistLike(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
-                propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
-            }
+        private void addUserLike(CursorReader cursorReader, PropertySet propertySet) {
+            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
+            propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
+        }
+
+        private void addUserRepost(CursorReader cursorReader, PropertySet propertySet) {
+            propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+            propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
         }
 
         private void addOptionalPlayCount(CursorReader cursorReader, PropertySet propertySet) {
             if (getSoundType(cursorReader) == Sounds.TYPE_TRACK) {
                 propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
             }
-        }
-
-        private void addOptionalLikesCount(CursorReader cursorReader, PropertySet propertySet) {
-            propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
-        }
-
-        private void addOptionalRepostsCount(CursorReader cursorReader, PropertySet propertySet) {
-            propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
         }
 
         private void addOptionalTrackCount(CursorReader cursorReader, PropertySet propertySet) {
@@ -197,8 +195,8 @@ class SoundStreamStorage {
         private void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (Strings.isNotBlank(reposter)) {
-                propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
-                propertySet.put(PlayableProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
             }
         }
 
@@ -219,7 +217,7 @@ class SoundStreamStorage {
                     TrackProperty.URN.bind(Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID)))
             );
             if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
-                propertySet.put(TrackProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
             return propertySet;
         }
