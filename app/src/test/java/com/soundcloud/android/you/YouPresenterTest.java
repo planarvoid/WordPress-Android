@@ -16,10 +16,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -51,6 +53,8 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineSettingsOperations offlineSettingsOperations;
     @Mock private Navigator navigator;
+    @Mock private BugReporter bugReporter;
+    @Mock private ApplicationProperties appProperties;
 
     @Captor private ArgumentCaptor<YouView.Listener> listenerArgumentCaptor;
 
@@ -59,7 +63,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineSettingsOperations, navigator);
+                eventBus, featureOperations, offlineSettingsOperations, navigator, bugReporter, appProperties);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -145,6 +149,15 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void showsShowsReportBugForConfiguredBuilds() {
+        when(appProperties.shouldAllowFeedback()).thenReturn(true);
+
+        setupForegroundFragment();
+
+        verify(youView).showReportBug();
+    }
+
+    @Test
     public void onOfflineSettingsClickSendsUpsellClickEventIfUpselling() {
         when(featureOperations.upsellMidTier()).thenReturn(true);
 
@@ -210,6 +223,14 @@ public class YouPresenterTest extends AndroidUnitTest {
         listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
 
         verify(navigator).openSettings(context());
+    }
+
+    @Test
+    public void OnBugReportClickedShowsReportDialog() {
+        setupForegroundFragment();
+        listenerArgumentCaptor.getValue().onReportBugClicked(new View(context()));
+
+        verify(bugReporter).showGeneralFeedbackDialog(context());
     }
 
     @Test

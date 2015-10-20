@@ -89,6 +89,14 @@
         <View style="@style/You.Divider" />
 
         <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/you_report_bug"
+            style="@style/You.NavItem"
+            android:text="@string/you_report_bug"
+            android:visibility="gone" />
+
+        <View style="@style/Divider.Horizontal" />
+
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_help_center_link"
             style="@style/You.NavItem"
             android:text="@string/you_help_center" />

@@ -12,9 +12,11 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -40,6 +42,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final FeatureOperations featureOperations;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final Navigator navigator;
+    private final BugReporter bugReporter;
+    private final ApplicationProperties appProperties;
 
     private Optional<YouView> youViewOpt = Optional.absent();
     private Optional<PropertySet> youOpt = Optional.absent();
@@ -53,7 +57,9 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         EventBus eventBus,
                         FeatureOperations featureOperations,
                         OfflineSettingsOperations offlineSettingsOperations,
-                        Navigator navigator) {
+                        Navigator navigator,
+                        BugReporter bugReporter,
+                        ApplicationProperties appProperties) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -63,6 +69,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.featureOperations = featureOperations;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.navigator = navigator;
+        this.bugReporter = bugReporter;
+        this.appProperties = appProperties;
     }
 
     @Override
@@ -80,6 +88,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         youViewOpt = Optional.of(youView);
 
         setupOfflineSync(youView);
+        setupFeedback(youView);
         bindUserIfPresent();
     }
 
@@ -98,6 +107,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
         } else {
             youView.hideOfflineSettings();
+        }
+    }
+
+    private void setupFeedback(YouView youView) {
+        if (appProperties.shouldAllowFeedback()) {
+            youView.showReportBug();
         }
     }
 
@@ -165,6 +180,11 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     @Override
     public void onBasicSettingsClicked(View view) {
         navigator.openSettings(view.getContext());
+    }
+
+    @Override
+    public void onReportBugClicked(View view) {
+        bugReporter.showGeneralFeedbackDialog(view.getContext());
     }
 
     @Override

@@ -24,6 +24,7 @@ public class YouView implements ScrollContent {
     @Bind(R.id.username) TextView username;
     @Bind(R.id.you_version_text) TextView versionText;
     @Bind(R.id.you_offline_sync_settings_link) View offlineSettingsView;
+    @Bind(R.id.you_report_bug) View reportBug;
     @Bind(R.id.scroll_view) ScrollView scrollView;
 
     YouView(View view, final Listener listener) {
@@ -56,6 +57,10 @@ public class YouView implements ScrollContent {
         offlineSettingsView.setVisibility(View.GONE);
     }
 
+    public void showReportBug() {
+        reportBug.setVisibility(View.VISIBLE);
+    }
+
     void setUsername(String username) {
         this.username.setText(username);
     }
@@ -81,42 +86,49 @@ public class YouView implements ScrollContent {
         }
     }
 
-    @OnClick({R.id.you_offline_sync_settings_link})
+    @OnClick(R.id.you_offline_sync_settings_link)
     void onOfflineSyncSettingsClicked(View view) {
         if (listener != null) {
             listener.onOfflineSettingsClicked(view);
         }
     }
 
-    @OnClick({R.id.you_notification_settings_link})
+    @OnClick(R.id.you_notification_settings_link)
     void onNotificationSettingsClicked(View view) {
         if (listener != null) {
             listener.onNotificationSettingsClicked(view);
         }
     }
 
-    @OnClick({R.id.you_basic_settings_link})
+    @OnClick(R.id.you_basic_settings_link)
     void onBasicSettingsClicked(View view) {
         if (listener != null) {
             listener.onBasicSettingsClicked(view);
         }
     }
 
-    @OnClick({R.id.you_help_center_link})
+    @OnClick(R.id.you_report_bug)
+    void onReportBugClicked(View view) {
+        if (listener != null) {
+            listener.onReportBugClicked(view);
+        }
+    }
+
+    @OnClick(R.id.you_help_center_link)
     void onHelpCenterClicked(View view) {
         if (listener != null) {
             listener.onHelpCenterClicked(view);
         }
     }
 
-    @OnClick({R.id.you_legal_link})
+    @OnClick(R.id.you_legal_link)
     void onLegalClicked(View view) {
         if (listener != null) {
             listener.onLegalClicked(view);
         }
     }
 
-    @OnClick({R.id.you_sign_out_link})
+    @OnClick(R.id.you_sign_out_link)
     void onSignOutClicked(View view) {
         if (listener != null) {
             listener.onSignOutClicked(view);
@@ -129,21 +141,14 @@ public class YouView implements ScrollContent {
 
     interface Listener {
         void onProfileClicked(View view);
-
         void onActivitiesClicked(View view);
-
         void onRecordClicked(View view);
-
         void onOfflineSettingsClicked(View view);
-
         void onNotificationSettingsClicked(View view);
-
         void onBasicSettingsClicked(View view);
-
+        void onReportBugClicked(View view);
         void onHelpCenterClicked(View view);
-
         void onLegalClicked(View view);
-
         void onSignOutClicked(View view);
     }
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,17 +34,17 @@ public class BugReporter {
         this.resources = resources;
     }
 
-    public void showGeneralFeedbackDialog(final Activity activity) {
-        showFeedbackDialog(activity, R.array.feedback_general);
+    public void showGeneralFeedbackDialog(final Context context) {
+        showFeedbackDialog(context, R.array.feedback_general);
     }
 
-    public void showSignInFeedbackDialog(final Activity activity) {
-        showFeedbackDialog(activity, R.array.feedback_sign_in);
+    public void showSignInFeedbackDialog(final Context context) {
+        showFeedbackDialog(context, R.array.feedback_sign_in);
     }
 
-    private void showFeedbackDialog(final Activity activity, @ArrayRes int options) {
+    private void showFeedbackDialog(final Context context, @ArrayRes int options) {
         final String[] feedbackOptions = resources.getStringArray(options);
-        new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
+        new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -55,7 +54,7 @@ public class BugReporter {
                         final String feedbackEmail = feedbackOption.equals(resources.getString(R.string.feedback_playback_issue)) ?
                                 applicationProperties.getPlaybackFeedbackEmail() : applicationProperties.getFeedbackEmail();
 
-                        sendLogs(activity, feedbackEmail, subject, deviceHelper.getUserAgent(), actionChooser);
+                        sendLogs(context, feedbackEmail, subject, deviceHelper.getUserAgent(), actionChooser);
                     }
                 }).show();
     }
