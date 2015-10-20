@@ -110,7 +110,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.share:
-                shareOperations.shareTrack(context, track.getTrackUrn(), playQueueManager.getScreenTag());
+                shareOperations.share(context, track.getSource(), playQueueManager.getScreenTag());
                 return true;
             case R.id.repost:
                 handleRepostToggle(true, track.getUrn());

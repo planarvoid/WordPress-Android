@@ -76,7 +76,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        verify(shareOperations).shareTrack(activityContext, track.getUrn(), "screen");
+        verify(shareOperations).share(activityContext, track.getSource(), "screen");
     }
 
     @Test
@@ -170,12 +170,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.show();
 
         verify(popupMenuWrapper, never()).show();
-    }
-
-    private void expectUIEvent(UIEvent expectedEvent) {
-        UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(uiEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private MenuItem mockMenuItem(int menuteItemId) {

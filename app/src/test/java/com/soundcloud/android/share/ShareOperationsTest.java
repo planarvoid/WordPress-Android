@@ -25,9 +25,9 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123l);
     private static final String SCREEN_TAG = "screen_tag";
-    private static final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-    private static final PropertySet privateTrack = TestPropertySets.expectedPrivateTrackForPlayer();
-    public static final PropertySet playlist = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
+    private static final PropertySet TRACK = TestPropertySets.expectedTrackForPlayer();
+    private static final PropertySet PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
+    public static final PropertySet PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
     private static final Urn PRIVATE_TRACK_URN = Urn.forTrack(234l);
 
     @Mock TrackRepository trackRepository;
@@ -37,12 +37,12 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
-    public void SetUp() {
+    public void setUp() {
         activityContext = new Activity();
         operations = new ShareOperations(eventBus, trackRepository);
 
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
-        when(trackRepository.track(PRIVATE_TRACK_URN)).thenReturn(Observable.just(privateTrack));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.track(PRIVATE_TRACK_URN)).thenReturn(Observable.just(PRIVATE_TRACK));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     @Test
     public void sharePlayableStartsShareActivity() throws Exception {
-        operations.share(activityContext, playlist, SCREEN_TAG);
+        operations.share(activityContext, PLAYLIST, SCREEN_TAG);
 
         Assertions.assertThat(activityContext)
                 .nextStartedIntent()
