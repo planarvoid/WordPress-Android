@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -45,10 +46,11 @@ public class PlayPublisher {
     private Func1<Player.StateTransition, Observable<ApiResponse>> toApiResponse = new Func1<Player.StateTransition, Observable<ApiResponse>>() {
         @Override
         public Observable<ApiResponse> call(Player.StateTransition stateTransition) {
+            final Payload payload = createPayload(stateTransition);
             final ApiRequest apiRequest = ApiRequest
                     .post(ApiEndpoints.PLAY_PUBLISH.path())
                     .forPublicApi()
-                    .withContent(createPayload(stateTransition))
+                    .withContent(payload)
                     .build();
 
             return apiClient.response(apiRequest).subscribeOn(scheduler);
@@ -89,7 +91,9 @@ public class PlayPublisher {
 
     @SuppressWarnings("unused")
     static class Payload {
+        @JsonProperty("gateway_id")
         public final String gatewayId = "android/prod"; // this may move to properties if its variable
+        @JsonProperty("registration_id")
         public final String registrationId;
         public final long timestamp;
         public final Urn track;
