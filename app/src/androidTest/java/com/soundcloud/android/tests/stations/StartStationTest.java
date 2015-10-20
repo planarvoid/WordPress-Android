@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.stations;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -8,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.StationsTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
@@ -44,11 +44,22 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testStartStation() {
+    public void testStartStationFromTrackItem() {
         final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(player, is(visible()));
     }
+
+    public void testStartStationFromPlayer() {
+        final VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
+        final String originalTitle = player.getTrackTitle();
+
+        player.clickMenu().clickStartStation();
+        player.swipeNext();
+
+        assertThat(player.getTrackPageContext(), containsString(originalTitle));
+    }
+
 
     public void testStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
         toastObserver.observe();

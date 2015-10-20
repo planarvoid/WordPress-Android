@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -28,6 +29,10 @@ public class PlayerMenuElement extends PopupMenuElement {
         return new AddCommentScreen(testDriver);
     }
 
+    public void clickStartStation() {
+        startStation().click();
+    }
+
     private ViewElement addToPlaylistItem() {
         return getRootMenuElements().get(0);
     }
@@ -42,6 +47,10 @@ public class PlayerMenuElement extends PopupMenuElement {
 
     private ViewElement comment() {
         return getRootMenuElements().get(3);
+    }
+
+    private ViewElement startStation() {
+        return container().findElement(With.text(testDriver.getString(R.string.start_track_station)));
     }
 
     private ViewElement info() {

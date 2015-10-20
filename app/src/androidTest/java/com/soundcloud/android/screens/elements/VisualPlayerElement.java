@@ -104,6 +104,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.track_page_user));
     }
 
+    private ViewElement trackPageContext() {
+        return solo.findElement(With.id(R.id.track_page_context));
+    }
+
     private ViewElement footerUser() {
         return solo.findElement(With.id(R.id.footer_user));
     }
@@ -226,6 +230,10 @@ public class VisualPlayerElement extends Element {
 
     public String getTrackCreator() {
         return new TextElement(creator()).getText();
+    }
+
+    public String getTrackPageContext() {
+        return new TextElement(trackPageContext()).getText();
     }
 
     public String getFooterTrackCreator() {
