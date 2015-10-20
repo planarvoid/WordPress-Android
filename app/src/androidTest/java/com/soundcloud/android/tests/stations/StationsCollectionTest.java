@@ -15,12 +15,14 @@ import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.TrackItemElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTest
 @Ignore // Disabling since collection is not up and running on the CI yet.
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionsScreen collectionsScreen;
+    private String stationNameInPlayer;
 
     public StationsCollectionTest() {
         super(LauncherActivity.class);
@@ -46,12 +48,14 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
-        final String stationTitle = startStationAndReturnTitle();
+        final String stationTrackTitle = startStationAndReturnTitle();
 
         final ViewAllStationsScreen viewAllStationsScreen = collectionsScreen.clickRecentStations();
 
-        assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
-        assertThat(viewAllStationsScreen.getFirstStation().click(), is(visible()));
+        assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTrackTitle)));
+        VisualPlayerElement player = viewAllStationsScreen.getFirstStation().click();
+        assertThat(player, is(visible()));
+        assertThat(player.getStationName(), is(equalTo(this.stationNameInPlayer)));
     }
 
     private String startStationAndReturnTitle() {
@@ -63,7 +67,9 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         final TrackItemElement track = playlistDetailsScreen.getTrack(1);
         final String title = track.getTitle();
 
-        track.clickOverflowButton().clickStartStation().pressBackToCollapse();
+        VisualPlayerElement player = track.clickOverflowButton().clickStartStation();
+        this.stationNameInPlayer = player.getStationName();
+        player.pressBackToCollapse();
         solo.goBack();
 
         return title;

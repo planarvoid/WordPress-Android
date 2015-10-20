@@ -120,6 +120,10 @@ public class VisualPlayerElement extends Element {
         return new TextElement(solo.findElement(With.id(R.id.track_page_title)));
     }
 
+    private TextElement stationName() {
+        return new TextElement(solo.findElement(With.id(R.id.track_page_context)));
+    }
+
     private ViewElement footerPlayer() {
         return solo.findElement(footerPlayerPredicate);
     }
@@ -222,6 +226,10 @@ public class VisualPlayerElement extends Element {
 
     public String getTrackTitle() {
         return trackTitle().getText();
+    }
+
+    public String getStationName() {
+        return stationName().getText();
     }
 
     public String interstitalNowPlayingText() {
