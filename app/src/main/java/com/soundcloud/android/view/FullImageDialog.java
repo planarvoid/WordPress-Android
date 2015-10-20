@@ -51,24 +51,18 @@ public class FullImageDialog extends Dialog {
         imageOperations.displayInFullDialogView(resourceUrn, ApiImageSize.T500, image, new ImageListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
-                if (isShowing()) {
-                    progress.setVisibility(View.VISIBLE);
-                }
+                progress.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onLoadingFailed(String s, View view, String failedReason) {
-                if (isShowing()) {
-                    handler.post(imageError);
-                }
+                handler.post(imageError);
             }
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                if (isShowing()) {
-                    progress.setVisibility(View.GONE);
-                    image.setVisibility(View.VISIBLE);
-                }
+                progress.setVisibility(View.GONE);
+                image.setVisibility(View.VISIBLE);
             }
         });
 
