@@ -50,9 +50,9 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
+      buildConfigField BOOLEAN, FEATURE_TABS, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
