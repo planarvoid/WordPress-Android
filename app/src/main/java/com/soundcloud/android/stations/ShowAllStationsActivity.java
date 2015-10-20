@@ -40,7 +40,7 @@ public class ShowAllStationsActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STATIONS_SHOW_ALL));
+            eventBus.publish(EventQueue.TRACKING, getScreenEventFromIntent());
         }
     }
 
@@ -61,6 +61,14 @@ public class ShowAllStationsActivity extends ScActivity {
             default:
                 throw new IllegalStateException("Unknown StationsCollectionsType: " + type);
         }
+    }
+
+    private ScreenEvent getScreenEventFromIntent() {
+        final int type = getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET);
+        if (type == StationsCollectionsTypes.RECENT) {
+            return ScreenEvent.create(Screen.STATIONS_RECENT);
+        }
+        return ScreenEvent.create(Screen.STATIONS_SHOW_ALL);
     }
 
     private void attachFragment() {
