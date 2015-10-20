@@ -1,19 +1,19 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.schedulers.Schedulers;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AdIdHelperTest {
+// Had to use AndroidUnitTest because otherwise the observeOn(mainThread) isn't working
+public class AdIdHelperTest extends AndroidUnitTest {
 
     @Mock private AdIdWrapper adIdWrapper;
 
@@ -31,8 +31,7 @@ public class AdIdHelperTest {
     public void adIdIsLoadedIfPlayServicesIsAvailable() {
         adIdHelper.init();
 
-        expect(adIdHelper.isAvailable()).toBeTrue();
-        expect(adIdHelper.getAdId()).toEqual("my-adid");
+        assertThat(adIdHelper.getAdId()).isEqualTo(Optional.of("my-adid"));
     }
 
     @Test
@@ -41,20 +40,20 @@ public class AdIdHelperTest {
 
         adIdHelper.init();
 
-        expect(adIdHelper.isAvailable()).toBeFalse();
+        assertThat(adIdHelper.getAdId().isPresent()).isFalse();
     }
 
     @Test
     public void googleTrackingBooleanIsInvertedToMatchAppleEquivalent() {
         adIdHelper.init();
 
-        expect(adIdHelper.isAvailable()).toBeTrue();
-        expect(adIdHelper.getAdIdTracking()).toBeTrue();
+        assertThat(adIdHelper.getAdId().isPresent()).isTrue();
+        assertThat(adIdHelper.getAdIdTracking()).isTrue();
     }
 
     @Test
     public void adIdIsNotAvailableUntilLoaded() {
-        expect(adIdHelper.isAvailable()).toBeFalse();
+        assertThat(adIdHelper.getAdId().isPresent()).isFalse();
     }
 
     @Test
@@ -63,7 +62,7 @@ public class AdIdHelperTest {
 
         adIdHelper.init();
 
-        expect(adIdHelper.isAvailable()).toBeFalse();
+        assertThat(adIdHelper.getAdId().isPresent()).isFalse();
     }
     
 }

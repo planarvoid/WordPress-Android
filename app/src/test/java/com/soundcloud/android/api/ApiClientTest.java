@@ -24,6 +24,7 @@ import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.MultipartBuilder;
@@ -62,9 +63,8 @@ public class ApiClientTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("");
-        when(deviceHelper.hasUdid()).thenReturn(true);
         when(deviceHelper.getUdid()).thenReturn("my-udid");
-        when(adIdHelper.getAdId()).thenReturn("my-adid");
+        when(adIdHelper.getAdId()).thenReturn(Optional.of("my-adid"));
         when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
@@ -175,20 +175,7 @@ public class ApiClientTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOmitUDIDHeaderIfUnavailable() throws IOException {
-        when(deviceHelper.hasUdid()).thenReturn(false);
-        when(deviceHelper.getUdid()).thenReturn("");
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
-        mockSuccessfulResponseFor(request);
-
-        apiClient.fetchResponse(request);
-
-        assertThat(httpRequestCaptor.getValue().headers("UDID")).isEmpty();
-    }
-
-    @Test
     public void shouldAddAdIdHeadersIfAvailable() throws IOException {
-        when(adIdHelper.isAvailable()).thenReturn(true);
         ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
         mockSuccessfulResponseFor(request);
 
@@ -200,7 +187,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldOmitAdIdHeadersIfUnvailable() throws IOException {
-        when(adIdHelper.isAvailable()).thenReturn(false);
+        when(adIdHelper.getAdId()).thenReturn(Optional.<String>absent());
         ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
         mockSuccessfulResponseFor(request);
 

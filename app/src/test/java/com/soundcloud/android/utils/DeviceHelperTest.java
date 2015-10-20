@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 
 public class DeviceHelperTest extends AndroidUnitTest {
 
@@ -23,7 +22,6 @@ public class DeviceHelperTest extends AndroidUnitTest {
 
     @Mock Context context;
     @Mock ContentResolver contentResolver;
-    @Mock TelephonyManager telephonyManager;
     @Mock PackageManager packageManager;
     @Mock BuildHelper buildHelper;
 
@@ -43,17 +41,13 @@ public class DeviceHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getUniqueDeviceIdReturnsDeviceIdFromTelephonyManager() throws Exception {
-        when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
-        when(telephonyManager.getDeviceId()).thenReturn("MYID");
-
+    public void getUdidIsDefaultsToUnknownIfCannotBeObtained() {
         deviceHelper = new DeviceHelper(context, buildHelper);
-
-        assertThat(deviceHelper.getUdid()).isEqualTo("04ddf8a23b64c654b938b95a50a486f0");
+        assertThat(deviceHelper.getUdid()).isEqualTo("unknown");
     }
 
     @Test
-    public void shouldGetUniqueDeviceIdWithoutTelephonyManager() throws Exception {
+    public void shouldGetHashedDeviceFromAndroidId() throws Exception {
         Settings.Secure.putString(contentResolver, Settings.Secure.ANDROID_ID, "foobar");
 
         deviceHelper = new DeviceHelper(context, buildHelper);
