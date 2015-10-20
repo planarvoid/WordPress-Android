@@ -43,7 +43,7 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
@@ -64,7 +64,7 @@ android {
 
     beta {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
@@ -89,7 +89,7 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
       buildConfigField BOOLEAN, FEATURE_FOLLOW_USER_SEARCH, TRUE
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, TRUE
@@ -111,7 +111,7 @@ android {
     end2end {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
@@ -133,7 +133,7 @@ android {
 
     release {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
@@ -157,7 +157,7 @@ android {
 
     releaseNoProguard {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
@@ -180,7 +180,7 @@ android {
 
     release_non_play_store {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
 
