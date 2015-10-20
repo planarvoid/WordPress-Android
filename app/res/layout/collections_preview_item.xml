@@ -20,14 +20,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         soundcloud:collectionTitle="@string/collections_your_liked_tracks"
-        soundcloud:collectionIcon="@drawable/collections_likes_icon" />
+        soundcloud:collectionIcon="@drawable/ic_collection_likes" />
 
 
     <com.soundcloud.android.collections.CollectionPreviewView
         android:id="@+id/collection_recent_stations_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        soundcloud:collectionIcon="@drawable/sidebar_stations_icon"
+        soundcloud:collectionIcon="@drawable/ic_collection_stations"
         soundcloud:collectionTitle="@string/stations_collection_title_recent_stations" />
 
     <View
