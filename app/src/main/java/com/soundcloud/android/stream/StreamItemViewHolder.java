@@ -8,6 +8,7 @@ import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class StreamItemViewHolder {
 
@@ -22,8 +23,8 @@ public class StreamItemViewHolder {
 
     private final TextView playCount;
     private final TextView duration;
-    private final TextView likeButton;
-    private final TextView repostButton;
+    private final ToggleButton likeButton;
+    private final ToggleButton repostButton;
     private final View nowPlaying;
     private OverflowListener overflowListener;
 
@@ -74,9 +75,8 @@ public class StreamItemViewHolder {
     }
 
     public void resetAdditionalInformation() {
-        playCount.setVisibility(View.INVISIBLE);
-        nowPlaying.setVisibility(View.INVISIBLE);
-        privateIndicator.setVisibility(View.GONE);
+        playCount.setVisibility(View.GONE);
+        nowPlaying.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
 
@@ -97,12 +97,16 @@ public class StreamItemViewHolder {
         return title.getContext();
     }
 
-    public void showLikeStats(String likesCount) {
-        likeButton.setText(likesCount);
+    public void showLikeStats(String likesCount, boolean isUserLike) {
+        likeButton.setTextOn(likesCount);
+        likeButton.setTextOff(likesCount);
+        likeButton.setChecked(isUserLike);
     }
 
-    public void showRepostStats(String repostsCount) {
-        repostButton.setText(repostsCount);
+    public void showRepostStats(String repostsCount, boolean isUserReposted) {
+        repostButton.setTextOn(repostsCount);
+        repostButton.setTextOff(repostsCount);
+        repostButton.setChecked(isUserReposted);
     }
 
     public void setCreatedAt(String formattedTime) {

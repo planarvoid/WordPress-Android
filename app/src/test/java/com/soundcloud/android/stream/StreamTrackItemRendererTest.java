@@ -133,8 +133,8 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         TrackItem postedTrack = postedTrack();
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        verify(viewHolder).showLikeStats(formattedStats(postedTrack.getLikesCount()));
-        verify(viewHolder).showRepostStats(formattedStats(postedTrack.getRepostCount()));
+        verify(viewHolder).showLikeStats(formattedStats(postedTrack.getLikesCount()), postedTrack.isLiked());
+        verify(viewHolder).showRepostStats(formattedStats(postedTrack.getRepostCount()), postedTrack.isReposted());
         verify(viewHolder).showPlayCount(formattedStats(postedTrack.getPlayCount()));
     }
 

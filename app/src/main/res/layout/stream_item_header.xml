@@ -1,6 +1,6 @@
 <RelativeLayout
     android:id="@+id/header_container"
-    style="@style/Stream.Card.Bar"
+    style="@style/Stream.Card.Header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -29,9 +29,9 @@
         android:id="@+id/private_indicator"
         style="@style/Stream.SecondaryHeaderText"
         android:layout_below="@id/header_text"
-        android:layout_toRightOf="@id/creation_date"
         android:layout_marginLeft="8dp"
-        android:text="@string/private_indicator"
-        android:visibility="visible" />
+        android:layout_toRightOf="@id/creation_date"
+        android:drawableLeft="@drawable/ic_private"
+        android:text="@string/private_indicator" />
 
 </RelativeLayout>

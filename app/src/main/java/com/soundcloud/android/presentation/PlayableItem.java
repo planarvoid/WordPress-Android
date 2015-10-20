@@ -87,6 +87,10 @@ public abstract class PlayableItem implements StreamItem {
         return source.getOrElse(PlayableProperty.IS_LIKED, false);
     }
 
+    public boolean isReposted() {
+        return source.getOrElse(PlayableProperty.IS_REPOSTED, false);
+    }
+
     public boolean isRepost() {
         return source.getOrElse(PostProperty.IS_REPOST, false);
     }

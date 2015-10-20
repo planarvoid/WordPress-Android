@@ -142,8 +142,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
-        verify(viewHolder).showLikeStats(formattedStats(playlistItem.getLikesCount()));
-        verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()));
+        verify(viewHolder).showLikeStats(formattedStats(playlistItem.getLikesCount()), playlistItem.isLiked());
+        verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()), playlistItem.isReposted());
     }
 
     private PlaylistItem repostedPlaylist() {
