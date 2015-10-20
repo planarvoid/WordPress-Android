@@ -15,17 +15,17 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -317,7 +317,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void shouldReturnTrackSourceInfoWithReposterSetIfSet() {
         final PropertySet track = Urn.forTrack(1L).toPropertySet();
-        track.put(TrackProperty.REPOSTER_URN, Urn.forUser(2L));
+        track.put(PostProperty.REPOSTER_URN, Urn.forUser(2L));
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackList(Arrays.asList(track), playlistSessionSource), playlistSessionSource, 0);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();

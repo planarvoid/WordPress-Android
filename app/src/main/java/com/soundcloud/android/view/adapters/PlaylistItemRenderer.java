@@ -12,7 +12,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -68,7 +67,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
 
         showTrackCount(itemView, playlist);
-        showReposter(itemView, playlist);
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
@@ -92,17 +90,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         final int trackCount = playlist.getTrackCount();
         final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
         getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
-    }
-
-    private void showReposter(View itemView, PlaylistItem playlist) {
-        final TextView reposterView = getTextView(itemView, R.id.reposter);
-        final Optional<String> optionalReposter = playlist.getReposter();
-        if (optionalReposter.isPresent()) {
-            reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(optionalReposter.get());
-        } else {
-            reposterView.setVisibility(View.GONE);
-        }
     }
 
     private void showAdditionalInformation(View itemView, PlaylistItem playlist) {
@@ -177,7 +164,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         return likesCount > 0;
     }
 
-    private TextView getTextView(final View convertView, final int id) {
+    protected TextView getTextView(final View convertView, final int id) {
         return (TextView) convertView.findViewById(id);
     }
 }

@@ -8,7 +8,6 @@ import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.os.Bundle;
@@ -24,7 +23,7 @@ class MyPostsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     @Inject
     MyPostsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                      ImagePauseOnScrollListener imagePauseOnScrollListener,
-                     MixedPlayableRecyclerItemAdapter adapter,
+                     PostsRecyclerItemAdapter adapter,
                      MixedItemClickListener.Factory clickListenerFactory,
                      PlayableListUpdater.Factory updaterFactory,
                      MyProfileOperations profileOperations) {

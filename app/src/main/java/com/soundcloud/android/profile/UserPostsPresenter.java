@@ -10,7 +10,6 @@ import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 
 import android.os.Bundle;
 import android.view.View;
@@ -24,7 +23,7 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     @Inject
     UserPostsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
-                       MixedPlayableRecyclerItemAdapter adapter,
+                       PostsRecyclerItemAdapter adapter,
                        MixedItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
                        UserProfileOperations profileOperations) {
