@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="PlayerLike" parent="PlayerLikeBase">
+    <style name="PlayerLikeBase.PlayerLike" parent="PlayerLikeBase">
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="PlayerMore" parent="PlayerMoreBase">
+    <style name="PlayerMoreBase.PlayerMore" parent="PlayerMoreBase">
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="PlayerShare" parent="PlayerShareBase">
+    <style name="PlayerShareBase.PlayerShare" parent="PlayerShareBase">
         <item name="android:stateListAnimator">@null</item>
     </style>
 

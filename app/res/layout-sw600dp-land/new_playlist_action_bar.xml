@@ -8,10 +8,10 @@
 
     <ToggleButton
         android:id="@+id/toggle_like"
-        style="@style/PlayerLike" />
+        style="@style/PlayerLikeBase.PlayerLike" />
 
     <Button
         android:id="@+id/playlist_details_overflow_button"
-        style="@style/PlayerMore" />
+        style="@style/PlayerMoreBase.PlayerMore" />
 
 </LinearLayout>
