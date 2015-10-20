@@ -16,7 +16,7 @@
 
         <com.soundcloud.android.view.ParallaxImageView
             android:id="@id/image"
-            style="@style/Stream.PlaylistImage" />
+            style="@style/Stream.Image.Playlist" />
 
         <com.soundcloud.android.view.JaggedTextView
             android:id="@id/creator"

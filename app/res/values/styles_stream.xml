@@ -31,11 +31,11 @@
         <item name="ariv_aspectRatioEnabled">true</item>
     </style>
 
-    <style name="Stream.TrackImage" parent="Stream.Image">
+    <style name="Stream.Image.Track" parent="Stream.Image">
         <item name="ariv_aspectRatio">.50</item>
     </style>
 
-    <style name="Stream.PlaylistImage" parent="Stream.Image">
+    <style name="Stream.Image.Playlist" parent="Stream.Image">
         <item name="ariv_aspectRatio">.83</item>
     </style>
 
