@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.stations;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -55,7 +56,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTrackTitle)));
         VisualPlayerElement player = viewAllStationsScreen.getFirstStation().click();
         assertThat(player, is(visible()));
-        assertThat(player.getStationName(), is(equalTo(this.stationNameInPlayer)));
+        assertThat(player.getTrackPageContext(), containsString(stationTrackTitle));
     }
 
     private String startStationAndReturnTitle() {
@@ -67,9 +68,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         final TrackItemElement track = playlistDetailsScreen.getTrack(1);
         final String title = track.getTitle();
 
-        VisualPlayerElement player = track.clickOverflowButton().clickStartStation();
-        this.stationNameInPlayer = player.getStationName();
-        player.pressBackToCollapse();
+        track.clickOverflowButton().clickStartStation().pressBackToCollapse();
         solo.goBack();
 
         return title;
