@@ -4,7 +4,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -67,8 +66,8 @@ class UserProfileOperations {
                 public PagedRemoteCollection call(PagedRemoteCollection remoteCollection, PropertySet propertySet) {
                     for (PropertySet post : remoteCollection) {
                         if (post.getOrElse(PostProperty.IS_REPOST, false)) {
-                            post.put(PlayableProperty.REPOSTER, propertySet.get(UserProperty.USERNAME));
-                            post.put(PlayableProperty.REPOSTER_URN, propertySet.get(UserProperty.URN));
+                            post.put(PostProperty.REPOSTER, propertySet.get(UserProperty.USERNAME));
+                            post.put(PostProperty.REPOSTER_URN, propertySet.get(UserProperty.URN));
                         }
                     }
                     return remoteCollection;
@@ -160,7 +159,7 @@ class UserProfileOperations {
                 TrackProperty.URN.bind(playableItem.getEntityUrn())
         );
         if (playableItem.isRepost()) {
-            postForPlayback.put(TrackProperty.REPOSTER_URN, playableItem.getReposterUrn());
+            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn());
         }
         return postForPlayback;
     }

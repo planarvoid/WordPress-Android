@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -93,7 +94,7 @@ public final class PlayQueueItem {
 
         public Builder(PropertySet track) {
             this(track.get(TrackProperty.URN),
-                    track.getOrElse(TrackProperty.REPOSTER_URN, Urn.NOT_SET));
+                    track.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
         }
 
         public Builder(Urn track, Urn reposter) {

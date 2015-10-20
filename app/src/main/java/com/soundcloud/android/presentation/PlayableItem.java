@@ -76,7 +76,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public Optional<String> getReposter() {
-        return Optional.fromNullable(source.getOrElseNull(PlayableProperty.REPOSTER));
+        return Optional.fromNullable(source.getOrElseNull(PostProperty.REPOSTER));
     }
 
     public boolean isPrivate() {
@@ -92,7 +92,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public Urn getReposterUrn() {
-        return source.get(PlayableProperty.REPOSTER_URN);
+        return source.get(PostProperty.REPOSTER_URN);
     }
 
     public Date getCreatedAt() {

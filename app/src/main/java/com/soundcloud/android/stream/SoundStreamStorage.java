@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -197,8 +198,9 @@ class SoundStreamStorage {
         private void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (Strings.isNotBlank(reposter)) {
-                propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
-                propertySet.put(PlayableProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.IS_REPOST, true);
+                propertySet.put(PostProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
             }
         }
 
@@ -219,7 +221,7 @@ class SoundStreamStorage {
                     TrackProperty.URN.bind(Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID)))
             );
             if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
-                propertySet.put(TrackProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
             return propertySet;
         }
