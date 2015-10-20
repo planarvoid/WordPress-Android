@@ -30,7 +30,6 @@ import android.widget.ImageView;
 
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
@@ -162,14 +161,6 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     private String formattedDate(Date createdAt) {
         return ScTextUtils.formatTimeElapsedSince(resources(), createdAt.getTime(), true);
-    }
-
-    private String tracksString(int trackCount) {
-        return resources().getQuantityString(R.plurals.number_of_tracks, trackCount);
-    }
-
-    private String formattedTime(long time) {
-        return ScTextUtils.formatTimestamp(time, TimeUnit.MILLISECONDS);
     }
 
     private String formattedStats(int stat) {

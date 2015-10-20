@@ -48,7 +48,7 @@ public class HeaderSpannableBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void buildsSpannableStringHeaderWithIcon(){
+    public void buildsSpannableStringHeaderWithIcon() {
         final SpannableString spannableString = builder
                 .playlistUserAction(USERNAME, ACTION)
                 .withIconSpan(trackView)
