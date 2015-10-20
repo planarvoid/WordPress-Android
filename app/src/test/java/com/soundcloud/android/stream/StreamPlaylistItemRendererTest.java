@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
@@ -148,8 +148,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     private PlaylistItem repostedPlaylist() {
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        playlist.put(PlayableProperty.REPOSTER, "reposter");
-        playlist.put(PlayableProperty.REPOSTER_URN, Urn.forUser(123L));
+        playlist.put(PostProperty.REPOSTER, "reposter");
+        playlist.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
 
         return PlaylistItem.from(playlist);
     }

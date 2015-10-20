@@ -124,22 +124,6 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBindReposterIfAny() {
-        propertySet.put(PlayableProperty.REPOSTER, "reposter");
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(textView(R.id.reposter).getText()).isEqualTo("reposter");
-    }
-
-    @Test
-    public void shouldNotBindReposterIfNone() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.GONE);
-    }
-
-    @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
         propertySet.put(PlayableProperty.IS_PRIVATE, true);
         renderer.bindItemView(0, itemView, singletonList(playlistItem));

@@ -47,5 +47,4 @@ public class PostedTrackItemRenderer extends TrackItemRenderer {
             itemView.hideReposter();
         }
     }
-
 }

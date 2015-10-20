@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -90,8 +91,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         final PropertySet trackRepost =
                 createTrackPropertySet(track)
-                        .put(PlayableProperty.REPOSTER, reposter.getUsername())
-                        .put(PlayableProperty.REPOSTER_URN, reposter.getUrn());
+                        .put(PostProperty.REPOSTER, reposter.getUsername())
+                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
 
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
@@ -112,8 +113,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         final PropertySet trackRepost =
                 createTrackPropertySet(track, new Date(repostedTimestamp))
-                        .put(PlayableProperty.REPOSTER, reposter.getUsername())
-                        .put(PlayableProperty.REPOSTER_URN, reposter.getUrn());
+                        .put(PostProperty.REPOSTER, reposter.getUsername())
+                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
 
         verify(observer, never()).onNext(trackPost);
         verify(observer).onNext(trackRepost);
@@ -133,13 +134,13 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         final PropertySet trackRepostOld =
                 createTrackPropertySet(track, new Date(repostedTimestampOld))
-                        .put(PlayableProperty.REPOSTER, reposter.getUsername())
-                        .put(PlayableProperty.REPOSTER_URN, reposter.getUrn());
+                        .put(PostProperty.REPOSTER, reposter.getUsername())
+                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
 
         final PropertySet trackRepostNew =
                 createTrackPropertySet(track, new Date(repostedTimestampNew))
-                        .put(PlayableProperty.REPOSTER, reposter.getUsername())
-                        .put(PlayableProperty.REPOSTER_URN, reposter.getUrn());
+                        .put(PostProperty.REPOSTER, reposter.getUsername())
+                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
 
         storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
@@ -171,8 +172,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         PropertySet playlistRepost =
                 createPlaylistPropertySet(playlist)
-                        .put(PlayableProperty.REPOSTER, reposter.getUsername())
-                        .put(PlayableProperty.REPOSTER_URN, reposter.getUrn());
+                        .put(PostProperty.REPOSTER, reposter.getUsername())
+                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -186,6 +187,20 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
                 .put(PlayableProperty.IS_LIKED, true);
+
+        verify(observer).onNext(playlistRepost);
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldIncludeRepostStateForPlaylist() {
+        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistPost(playlist.getId(), TIMESTAMP, true);
+        testFixtures().insertStreamPlaylistPost(playlist.getId(), TIMESTAMP);
+        storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
+
+        PropertySet playlistRepost = createPlaylistPropertySet(playlist)
+                .put(PlayableProperty.IS_REPOSTED, true);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -281,7 +296,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.tracksForPlayback().subscribe(observer);
         assertThat(observer.getOnNextEvents()).containsExactly(
                 trackOne.getUrn().toPropertySet(),
-                trackTwo.getUrn().toPropertySet().put(TrackProperty.REPOSTER_URN, reposter.getUrn()));
+                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()));
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track) {
@@ -296,7 +311,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(track.getUser().getUrn()),
+                PlayableProperty.IS_LIKED.bind(false),
                 PlayableProperty.LIKES_COUNT.bind(track.getLikesCount()),
+                PlayableProperty.IS_REPOSTED.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
@@ -311,7 +328,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),
+                PlayableProperty.IS_LIKED.bind(false),
                 PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
+                PlayableProperty.IS_REPOSTED.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(playlist.getStats().getRepostsCount()),
                 PlayableProperty.IS_LIKED.bind(false),
                 PlayableProperty.IS_PRIVATE.bind(false),
