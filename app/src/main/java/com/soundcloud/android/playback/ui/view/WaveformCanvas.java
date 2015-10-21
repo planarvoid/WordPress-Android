@@ -97,15 +97,14 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
             float y;
 
             final int length = waveformData.samples.length;
-            final int v = (int) (length * unplayableFromPosition);
-
-            for (int bar = 0; bar < v; bar++) {
+            final int playableBars = (int) (length * unplayableFromPosition);
+            for (int bar = 0; bar < playableBars; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
                 drawBar(canvas, x, y, abovePaint, belowPaint);
                 x += w;
             }
 
-            for (int bar = v; bar < length; bar++) {
+            for (int bar = playableBars; bar < length; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
                 drawBar(canvas, x, y, abovePaintTransparent, belowPaintTransparent);
                 x += w;
