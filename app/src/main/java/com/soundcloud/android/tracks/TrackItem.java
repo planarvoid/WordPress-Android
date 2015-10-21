@@ -77,7 +77,7 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
     }
 
-    public boolean isCreatorOptOut() {
+    public boolean isUnavailableOffline() {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE) == OfflineState.UNAVAILABLE;
     }
 
