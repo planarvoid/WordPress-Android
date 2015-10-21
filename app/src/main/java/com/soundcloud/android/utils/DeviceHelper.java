@@ -4,13 +4,11 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.java.hashing.Hashing;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,46 +16,34 @@ import javax.inject.Singleton;
 @Singleton
 public class DeviceHelper {
 
-    private static final String UNKNOWN_DEVICE = "unknown device";
+    private static final String MISSING_DEVICE_NAME = "unknown device";
+    private static final String MISSING_UDID = "unknown";
 
     private final Context context;
     private final BuildHelper buildHelper;
-
-    private String udid;
+    private final String udid;
 
     @Inject
     public DeviceHelper(Context context, BuildHelper buildHelper) {
         this.context = context;
         this.buildHelper = buildHelper;
-        generateUdid();
-    }
-
-    private void generateUdid() {
-        String id = getUniqueDeviceId();
-        if (Strings.isNotBlank(id)) {
-            udid = Hashing.md5(id);
+        final String deviceId = getUniqueDeviceId();
+        if (deviceId != null) {
+            this.udid = Hashing.md5(deviceId);
+        } else {
+            this.udid = MISSING_UDID;
         }
-    }
-
-    public boolean hasUdid() {
-        return Strings.isNotBlank(udid);
-    }
-
-    /**
-     * @return a unique id for this device (MD5 of IMEI / {@link android.provider.Settings.Secure#ANDROID_ID}) or null
-     */
-    @Nullable
-    public String getUdid() {
-        return udid;
     }
 
     private String getUniqueDeviceId() {
-        TelephonyManager tmgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String id = tmgr == null ? null : tmgr.getDeviceId();
-        if (Strings.isBlank(id)) {
-            id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        }
-        return id;
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    /**
+     * @return a unique id for this device (MD5 of {@link android.provider.Settings.Secure#ANDROID_ID}) or "unknown"
+     */
+    public String getUdid() {
+        return udid;
     }
 
     public String getDeviceName() {
@@ -72,7 +58,7 @@ public class DeviceHelper {
         } else if (Strings.isNotBlank(manufacturer)) {
             return manufacturer;
         } else {
-            return UNKNOWN_DEVICE;
+            return MISSING_DEVICE_NAME;
         }
     }
 

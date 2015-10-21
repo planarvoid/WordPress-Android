@@ -6,12 +6,11 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,7 +25,7 @@ public class AdIdHelper {
     private final AdIdWrapper adIdWrapper;
     private final Scheduler scheduler;
 
-    private volatile String adId;
+    private volatile Optional<String> adId = Optional.absent();
     private volatile boolean adIdTracking;
 
     @Inject
@@ -44,12 +43,7 @@ public class AdIdHelper {
         }
     }
 
-    public boolean isAvailable() {
-        return adId != null;
-    }
-
-    @Nullable
-    public String getAdId() {
+    public Optional<String> getAdId() {
         return adId;
     }
 
@@ -74,14 +68,9 @@ public class AdIdHelper {
     private class AdInfoSubscriber extends DefaultSubscriber<AdvertisingIdClient.Info> {
         @Override
         public void onNext(AdvertisingIdClient.Info adInfo) {
-            adId = adInfo.getId();
+            adId = Optional.of(adInfo.getId());
             adIdTracking = !adInfo.isLimitAdTrackingEnabled(); // We reverse this value to match the iOS param
             Log.i(TAG, "Loaded ADID: " + adId + "\nTracking:" + adIdTracking);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Log.e(TAG, "Failed to load ADID", e);
         }
     }
 
