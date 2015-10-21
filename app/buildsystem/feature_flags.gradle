@@ -20,6 +20,7 @@ def FEATURE_DAILY_POLICY_UPDATES = "FEATURE_DAILY_POLICY_UPDATES"
 def FEATURE_APPBOY = "FEATURE_APPBOY"
 def FEATURE_TABS = "FEATURE_TABS"
 def FEATURE_NEW_STREAM = "FEATURE_NEW_STREAM"
+def FEATURE_PROFILE_API_MOBILE = "FEATURE_PROFILE_API_MOBILE"
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -53,6 +54,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
       buildConfigField BOOLEAN, FEATURE_TABS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -70,6 +72,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -99,6 +102,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -118,6 +122,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -142,6 +147,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -167,6 +173,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -191,6 +198,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_PROFILE, TRUE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE

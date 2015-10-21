@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -10,6 +11,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ModelCollection<T> implements Iterable<T> {
 
@@ -62,5 +64,23 @@ public class ModelCollection<T> implements Iterable<T> {
 
     public Optional<Link> getNextLink() {
         return Optional.fromNullable(links.get(NEXT_LINK_REL));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ModelCollection)) {
+            return false;
+        }
+        ModelCollection<?> that = (ModelCollection<?>) o;
+        return MoreObjects.equal(collection, that.collection) &&
+                MoreObjects.equal(links, that.links);
+    }
+
+    @Override
+    public int hashCode() {
+        return MoreObjects.hashCode(collection, links);
     }
 }

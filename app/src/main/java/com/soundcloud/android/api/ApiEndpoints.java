@@ -57,6 +57,7 @@ public enum ApiEndpoints {
 
     // profile
     MY_DOB("/you/profile/dob"),
+    USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
 
     // playlist
     PLAYLISTS_CREATE("/playlists"),

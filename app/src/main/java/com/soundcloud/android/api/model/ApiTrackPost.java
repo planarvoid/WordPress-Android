@@ -1,5 +1,7 @@
 package com.soundcloud.android.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -10,7 +12,8 @@ public class ApiTrackPost implements PropertySetSource, TrackRecordHolder {
 
     private final ApiTrack apiTrack;
 
-    public ApiTrackPost(ApiTrack apiTrack) {
+    @JsonCreator
+    public ApiTrackPost(@JsonProperty("track") ApiTrack apiTrack) {
         this.apiTrack = apiTrack;
     }
 
