@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.stream;
 
 import static com.soundcloud.android.framework.TestUser.streamUser;
+import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.greaterThan;
@@ -38,5 +39,9 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
         int itemsBeforePaging = streamScreen.getItemCount();
         streamScreen.scrollToBottomOfPage();
         assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
+    }
+
+    public void testStreamHasRepostedItems() {
+        assertThat(new StreamScreen(solo).clickFirstRepostedTrack(), is(expanded()));
     }
 }

@@ -2,11 +2,11 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.profile.PostedPlaylistItemRenderer;
+import com.soundcloud.android.profile.PostedTrackItemRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import dagger.Lazy;
 
 import javax.inject.Inject;
@@ -18,8 +18,8 @@ class StreamCellRendererProvider {
 
     @Inject
     StreamCellRendererProvider(FeatureFlags featureFlags,
-                               Lazy<TrackItemRenderer> listTrackRenderer,
-                               Lazy<PlaylistItemRenderer> listPlaylistRenderer,
+                               Lazy<PostedTrackItemRenderer> listTrackRenderer,
+                               Lazy<PostedPlaylistItemRenderer> listPlaylistRenderer,
                                Lazy<StreamTrackItemRenderer> cardTrackRenderer,
                                Lazy<StreamPlaylistItemRenderer> cardPlaylistRenderer) {
         if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
