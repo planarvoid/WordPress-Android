@@ -30,7 +30,6 @@
             android:id="@id/title"
             style="@style/Stream.TitleText"
             android:layout_below="@id/creator"
-            android:layout_marginTop="4dp"
             tools:text="Playlist Title"/>
 
         <LinearLayout
