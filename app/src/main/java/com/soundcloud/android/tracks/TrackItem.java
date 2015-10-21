@@ -5,9 +5,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class TrackItem extends PlayableItem {
     }
 
     public boolean isUnavailableOffline() {
-        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE) == OfflineState.UNAVAILABLE;
+        return getDownloadedState() == OfflineState.UNAVAILABLE;
     }
 
     public int getPlayCount() {
@@ -86,8 +85,7 @@ public class TrackItem extends PlayableItem {
     }
 
     String getGenre() {
-        final Optional<String> optionalGenre = source.get(TrackProperty.GENRE);
-        return optionalGenre.isPresent() ? optionalGenre.get() : ScTextUtils.EMPTY_STRING;
+        return source.get(TrackProperty.GENRE).or(Strings.EMPTY);
     }
 
     public void setIsPlaying(boolean isPlaying) {
