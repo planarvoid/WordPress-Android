@@ -8,12 +8,14 @@ import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class StreamItemViewHolder {
 
     private final ImageView userImage;
     private final TextView headerText;
     private final View privateIndicator;
+    private final View privateSeparator;
     private final TextView createdAt;
 
     private final ImageView image;
@@ -22,8 +24,8 @@ public class StreamItemViewHolder {
 
     private final TextView playCount;
     private final TextView duration;
-    private final TextView likeButton;
-    private final TextView repostButton;
+    private final ToggleButton likeButton;
+    private final ToggleButton repostButton;
     private final View nowPlaying;
     private OverflowListener overflowListener;
 
@@ -32,6 +34,7 @@ public class StreamItemViewHolder {
         headerText = ButterKnife.findById(view, R.id.header_text);
         createdAt = ButterKnife.findById(view, R.id.creation_date);
         privateIndicator = ButterKnife.findById(view, R.id.private_indicator);
+        privateSeparator = ButterKnife.findById(view, R.id.private_separator);
 
         image = ButterKnife.findById(view, R.id.image);
         title = ButterKnife.findById(view, R.id.title);
@@ -74,9 +77,8 @@ public class StreamItemViewHolder {
     }
 
     public void resetAdditionalInformation() {
-        playCount.setVisibility(View.INVISIBLE);
-        nowPlaying.setVisibility(View.INVISIBLE);
-        privateIndicator.setVisibility(View.GONE);
+        playCount.setVisibility(View.GONE);
+        nowPlaying.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
 
@@ -97,12 +99,16 @@ public class StreamItemViewHolder {
         return title.getContext();
     }
 
-    public void showLikeStats(String likesCount) {
-        likeButton.setText(likesCount);
+    public void showLikeStats(String likesCount, boolean isUserLike) {
+        likeButton.setTextOn(likesCount);
+        likeButton.setTextOff(likesCount);
+        likeButton.setChecked(isUserLike);
     }
 
-    public void showRepostStats(String repostsCount) {
-        repostButton.setText(repostsCount);
+    public void showRepostStats(String repostsCount, boolean isUserReposted) {
+        repostButton.setTextOn(repostsCount);
+        repostButton.setTextOff(repostsCount);
+        repostButton.setChecked(isUserReposted);
     }
 
     public void setCreatedAt(String formattedTime) {
@@ -111,6 +117,7 @@ public class StreamItemViewHolder {
 
     public void togglePrivateIndicator(boolean isPrivate) {
         privateIndicator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
+        privateSeparator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
     public void showDuration(String playlistDuration) {

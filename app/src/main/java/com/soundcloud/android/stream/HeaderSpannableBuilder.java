@@ -1,7 +1,6 @@
 package com.soundcloud.android.stream;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
-import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
 import static android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM;
 
 import com.soundcloud.android.R;
@@ -39,9 +38,9 @@ class HeaderSpannableBuilder {
 
     HeaderSpannableBuilder withIconSpan(StreamItemViewHolder trackView) {
         spannedString.setSpan(new ImageSpan(trackView.getContext(), R.drawable.stats_repost, ALIGN_BOTTOM),
-                spanStart,
                 spanStart + 1,
-                SPAN_INCLUSIVE_EXCLUSIVE);
+                spanStart + 2,
+                SPAN_EXCLUSIVE_EXCLUSIVE);
         return this;
     }
 

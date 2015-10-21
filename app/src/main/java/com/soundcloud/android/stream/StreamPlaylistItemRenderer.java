@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import butterknife.ButterKnife;
+import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -80,11 +81,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
         setHeaderText(itemView, playlistItem);
         showCreatedAt(itemView, playlistItem.getCreatedAt());
-        showPrivateIndicator(itemView, playlistItem.isPrivate());
-    }
-
-    private void showPrivateIndicator(StreamPlaylistViewHolder trackView, boolean isPrivate) {
-        trackView.togglePrivateIndicator(isPrivate);
+        itemView.togglePrivateIndicator(playlistItem.isPrivate());
     }
 
     private void setHeaderText(StreamPlaylistViewHolder playableView, PlaylistItem playlistItem) {
@@ -109,14 +106,23 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         playlistView.resetAdditionalInformation();
 
         playlistView.showDuration(ScTextUtils.formatTimestamp(playlistItem.getDuration(), TimeUnit.MILLISECONDS));
-        playlistView.showLikeStats(numberFormatter.format(playlistItem.getLikesCount()));
-        playlistView.showRepostStats(numberFormatter.format(playlistItem.getRepostCount()));
+        playlistView.showLikeStats(getCountString(playlistItem.getLikesCount()), playlistItem.isLiked());
+
+        playlistView.showRepostStats(getCountString(playlistItem.getRepostCount()), playlistItem.isReposted());
         playlistView.setOverflowListener(new StreamPlaylistViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
                 playlistItemMenuPresenter.show(overflowButton, playlistItem, false);
             }
         });
+    }
+
+    private String getCountString(int count) {
+        if (count > 0) {
+            return numberFormatter.format(count);
+        } else {
+            return StringUtils.EMPTY_STRING;
+        }
     }
 
     protected void loadAvatar(StreamPlaylistViewHolder itemView, Urn userUrn) {
@@ -146,7 +152,5 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
             this.trackCount.setText(numberOfTracks);
             this.tracksView.setText(tracksString);
         }
-
     }
-
 }

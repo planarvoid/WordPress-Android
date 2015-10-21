@@ -3,6 +3,7 @@
 <LinearLayout
     android:id="@+id/track_list_item"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -20,12 +21,14 @@
         <com.soundcloud.android.view.JaggedTextView
             android:id="@id/creator"
             style="@style/Stream.ArtistText"
-            android:layout_above="@id/title" />
+            android:layout_above="@id/title"
+            tools:text="Artist"/>
 
         <com.soundcloud.android.view.JaggedTextView
             android:id="@id/title"
             style="@style/Stream.TitleText"
-            android:layout_alignBottom="@id/image" />
+            android:layout_alignBottom="@id/image"
+            tools:text="Track title" />
     </RelativeLayout>
 
     <include layout="@layout/stream_item_footer" />

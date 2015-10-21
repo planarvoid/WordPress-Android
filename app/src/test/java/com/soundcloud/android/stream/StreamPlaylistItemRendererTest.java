@@ -74,7 +74,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         InOrder inOrder = Mockito.inOrder(spannableBuilder);
-        inOrder.verify(spannableBuilder).playlistUserAction("reposter", "reposted");
+        inOrder.verify(spannableBuilder)
+                .playlistUserAction(playlistItem.getReposter().get(), repostedString());
         inOrder.verify(spannableBuilder).withIconSpan(viewHolder);
         inOrder.verify(spannableBuilder).get();
     }
@@ -142,8 +143,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
-        verify(viewHolder).showLikeStats(formattedStats(playlistItem.getLikesCount()));
-        verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()));
+        verify(viewHolder).showLikeStats(formattedStats(playlistItem.getLikesCount()), playlistItem.isLiked());
+        verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()), playlistItem.isReposted());
     }
 
     private PlaylistItem repostedPlaylist() {
@@ -164,6 +165,10 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     private String tracksString(int trackCount) {
         return resources().getQuantityString(R.plurals.number_of_tracks, trackCount);
+    }
+
+    private String repostedString() {
+        return resources().getString(R.string.stream_reposted_action);
     }
 
     private String formattedTime(long time) {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -97,14 +98,22 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         trackView.resetAdditionalInformation();
 
         showPlayCountOrNowPlaying(trackView, track);
-        trackView.showLikeStats(numberFormatter.format(track.getLikesCount()));
-        trackView.showRepostStats(numberFormatter.format(track.getRepostCount()));
+        trackView.showLikeStats(getCountString(track.getLikesCount()), track.isLiked());
+        trackView.showRepostStats(getCountString(track.getRepostCount()), track.isReposted());
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
                 showTrackItemMenu(overflowButton, track, position);
             }
         });
+    }
+
+    private String getCountString(int count) {
+        if (count > 0) {
+            return numberFormatter.format(count);
+        } else {
+            return StringUtils.EMPTY_STRING;
+        }
     }
 
     protected void showTrackItemMenu(View button, TrackItem track, int position) {

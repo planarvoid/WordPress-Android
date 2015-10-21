@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hyphen">-</string>
+    <string name="bullet">\u2022</string>
 
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string-array name="feedback_general">

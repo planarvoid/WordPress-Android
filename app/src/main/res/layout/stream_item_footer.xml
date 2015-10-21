@@ -1,5 +1,5 @@
 <RelativeLayout
-    style="@style/Stream.Card.Bar"
+    style="@style/Stream.Card.Footer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -9,26 +9,24 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="-10dp"
+        android:layout_marginRight="-8dp"
+        android:layout_marginLeft="4dp"
         android:background="@drawable/btn_engagements_overflow" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <ToggleButton
         android:id="@+id/toggle_like"
-        style="@style/Stream.StatsItem"
-        android:layout_marginRight="16dp"
+        style="@style/Stream.ToggleButton"
+        android:layout_marginLeft="8dp"
         android:layout_toLeftOf="@id/overflow_button"
-        android:drawableLeft="@drawable/stats_likes_grey"
-        android:drawablePadding="4dp"
-        tools:text="2134" />
+        android:drawableLeft="@drawable/ic_toggle_player_like_states"
+        tools:textOff="2134" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <ToggleButton
         android:id="@+id/toggle_repost"
-        style="@style/Stream.StatsItem"
-        android:layout_marginRight="8dp"
+        style="@style/Stream.ToggleButton"
         android:layout_toLeftOf="@id/toggle_like"
-        android:drawableLeft="@drawable/stats_repost"
-        android:drawablePadding="4dp"
-        tools:text="2134" />
+        android:drawableLeft="@drawable/ic_toggle_player_repost_states"
+        tools:textOff="123"/>
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/play_count"
@@ -46,7 +44,8 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/now_playing"
         style="@style/Stream.NowPlaying"
+        android:drawableLeft="@drawable/ic_now_playing"
         android:text="@string/title_now_playing"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
 </RelativeLayout>

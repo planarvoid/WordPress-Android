@@ -7,7 +7,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">16dp</item>
         <item name="android:background">@color/stream_home_background</item>
-        <item name="android:clickable">false</item>
+        <item name="android:clickable">true</item>
         <item name="android:focusable">false</item>
     </style>
 
@@ -18,9 +18,14 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="Stream.Card.Bar">
+    <style name="Stream.Card.Header">
         <item name="android:paddingBottom">16dp</item>
         <item name="android:paddingTop">16dp</item>
+    </style>
+
+    <style name="Stream.Card.Footer">
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingTop">12dp</item>
     </style>
 
     <style name="Stream.Image">
@@ -51,6 +56,7 @@
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:layout_marginRight">24dp</item>
         <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginTop">4dp</item>
     </style>
 
     <style name="Stream.PlaylistTracks">
@@ -76,17 +82,33 @@
         <item name="android:layout_marginTop">0dp</item>
     </style>
 
-    <style name="Stream.SecondaryHeaderText" parent="ListItemText.SecondaryText" />
+    <style name="Stream.SecondaryHeaderText" parent="ListItemText.SecondaryText"/>
+
+    <style name="Stream.SecondaryHeaderText.Separator">
+        <item name="android:layout_marginLeft">6dp</item>
+    </style>
 
     <style name="Stream.StatsItem" parent="ListItemText">
         <item name="android:layout_centerVertical">true</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
 
-    <style name="Stream.NowPlaying" parent="ListItemText">
-        <item name="android:layout_centerVertical">true</item>
+    <style name="Stream.ToggleButton" parent="ListItemText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:textColor">@color/toggle_button_text_states</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+    </style>
+
+    <style name="Stream.NowPlaying" parent="Stream.StatsItem">
+        <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/ak_sc_orange</item>
         <item name="android:textSize">12sp</item>
+        <item name="android:drawablePadding">2dp</item>
     </style>
 
 </resources>

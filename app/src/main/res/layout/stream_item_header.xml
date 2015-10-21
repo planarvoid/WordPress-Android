@@ -1,6 +1,6 @@
 <RelativeLayout
     android:id="@+id/header_container"
-    style="@style/Stream.Card.Bar"
+    style="@style/Stream.Card.Header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -25,13 +25,25 @@
         android:layout_toRightOf="@id/user_image"
         tools:text="12 min ago" />
 
+    <TextView
+        android:id="@+id/private_separator"
+        style="@style/Stream.SecondaryHeaderText.Separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header_text"
+        android:layout_toRightOf="@id/creation_date"
+        android:text="@string/bullet"
+        android:visibility="gone"/>
+
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/private_indicator"
         style="@style/Stream.SecondaryHeaderText"
         android:layout_below="@id/header_text"
-        android:layout_toRightOf="@id/creation_date"
-        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/private_separator"
+        android:drawableLeft="@drawable/ic_private"
+        android:layout_marginLeft="4dp"
+        android:drawablePadding="4dp"
         android:text="@string/private_indicator"
-        android:visibility="visible" />
+        android:visibility="gone"/>
 
 </RelativeLayout>
