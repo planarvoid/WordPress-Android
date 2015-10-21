@@ -104,7 +104,8 @@ public enum Screen {
 
     // Stations
     STATIONS_HOME("stations:home"),
-    STATIONS_SHOW_ALL("stations:show_all");
+    STATIONS_SHOW_ALL("stations:show_all"),
+    STATIONS_RECENT("stations:recent_stations");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

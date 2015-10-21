@@ -13,7 +13,7 @@ expected_events:
     action: play
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
-    page_name: stations:show_all
+    page_name: stations:recent_stations
     user: soundcloud:users:161646357
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -36,7 +36,7 @@ expected_events:
     action: pause
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
-    page_name: stations:show_all
+    page_name: stations:recent_stations
     user: soundcloud:users:161646357
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
