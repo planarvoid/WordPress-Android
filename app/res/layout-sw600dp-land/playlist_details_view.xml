@@ -33,7 +33,8 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title_private"
         style="@style/BlackOverlayText.Regular"
-        android:drawableLeft="@drawable/ic_private_playlist"
+        android:drawableLeft="@drawable/ic_private_playlist_lock"
+        android:drawablePadding="4dp"
         android:layout_below="@id/username"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
