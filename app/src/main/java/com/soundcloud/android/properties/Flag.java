@@ -12,7 +12,7 @@ public enum Flag {
     OFFLINE_SYNC(BuildConfig.FEATURE_OFFLINE_SYNC),
     NEW_PROFILE(BuildConfig.FEATURE_NEW_PROFILE),
     FOLLOW_USER_SEARCH(BuildConfig.FEATURE_FOLLOW_USER_SEARCH),
-    PLAY_RELATED_TRACKS(BuildConfig.FEATURE_PLAY_RELATED_TRACKS),
+    PLAY_RELATED_TRACKS(BuildConfig.FEATURE_PLAY_RELATED_TRACKS && !BuildConfig.FEATURE_STATIONS_SOFT_LAUNCH),
     // When removing this feature flag, make sure the ci does not exclude tests annotated with @StationsTest
     STATIONS_SOFT_LAUNCH(BuildConfig.FEATURE_STATIONS_SOFT_LAUNCH),
     STATIONS_HOME(BuildConfig.FEATURE_STATIONS_HOME && BuildConfig.FEATURE_STATIONS_SOFT_LAUNCH),
