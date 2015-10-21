@@ -163,7 +163,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShareEvents() {
-        UIEvent event = UIEvent.fromShare("screen", Urn.forTrack(123l), metadata);
+        UIEvent event = UIEvent.fromShare("screen", "page", Urn.forTrack(123l), Urn.forTrack(123l), null, metadata);
 
         eventHandler.handleEvent(event);
 

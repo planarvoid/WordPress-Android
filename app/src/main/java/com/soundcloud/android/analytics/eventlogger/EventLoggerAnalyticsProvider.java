@@ -162,6 +162,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
             case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
             case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
+            case UIEvent.KIND_SHARE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

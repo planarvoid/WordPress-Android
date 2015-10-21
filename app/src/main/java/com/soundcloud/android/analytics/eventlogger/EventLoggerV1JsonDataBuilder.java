@@ -76,6 +76,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("collection_to_offline::add", event));
             case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
                 return transform(buildClickEvent("collection_to_offline::remove", event));
+            case UIEvent.KIND_SHARE:
+                return transform(buildEngagementEvent("share", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -102,6 +104,17 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
                 .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN));
+    }
+
+    private EventLoggerEventData buildEngagementEvent(String clickName, UIEvent event) {
+        EventLoggerEventData eventData = buildClickEvent(clickName, event)
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT);
+
+        if (!event.get(AdTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(event.get(AdTrackingKeys.KEY_PAGE_URN));
+        }
+
+        return eventData;
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {

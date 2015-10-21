@@ -110,7 +110,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.share:
-                shareOperations.share(context, track.getSource(), playQueueManager.getScreenTag());
+                handleShare(context);
                 return true;
             case R.id.repost:
                 handleRepostToggle(true, track.getUrn());
@@ -133,6 +133,16 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
             default:
                 return false;
         }
+    }
+
+    public void handleShare(Context context) {
+        Urn trackUrn = track.getUrn();
+        shareOperations.share(context,
+                track.getSource(),
+                playQueueManager.getScreenTag(),
+                Screen.PLAYER_MAIN.get(),
+                trackUrn,
+                playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
     private void handleComment() {

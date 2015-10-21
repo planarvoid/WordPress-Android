@@ -855,7 +855,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromTrackShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromShare("screen", "page", TRACK_URN, TRACK_URN, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("track");
@@ -868,7 +868,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromPlaylistShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromShare("screen", "page", PLAYLIST_URN, PLAYLIST_URN, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.get("context")).isEqualTo("screen");
         assertThat(uiEvent.get("resource")).isEqualTo("playlist");

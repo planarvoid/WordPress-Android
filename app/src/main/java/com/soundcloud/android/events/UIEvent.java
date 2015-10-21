@@ -134,11 +134,15 @@ public final class UIEvent extends TrackingEvent {
                 .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShare(String screenTag, @NonNull Urn resourceUrn, @NonNull PlayableMetadata playable) {
+    public static UIEvent fromShare(String screenTag, String pageName, @NonNull Urn resourceUrn, @NonNull Urn pageUrn, @Nullable PromotedSourceInfo promotedSourceInfo, @NonNull PlayableMetadata playable) {
         return new UIEvent(KIND_SHARE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
+                .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
     }
 
