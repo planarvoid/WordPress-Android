@@ -104,6 +104,7 @@
         </LinearLayout>
 
         <com.soundcloud.android.view.JaggedTextView
+            android:drawableLeft="@drawable/ic_stations_player_context"
             android:id="@+id/track_page_context"
             style="@style/PlayerContext" />
     </LinearLayout>
