@@ -13,7 +13,7 @@
         android:layout_marginLeft="4dp"
         android:background="@drawable/btn_engagements_overflow" />
 
-    <com.soundcloud.android.view.CustomToggleButton
+    <ToggleButton
         android:id="@+id/toggle_like"
         style="@style/Stream.ToggleButton"
         android:layout_marginLeft="8dp"
@@ -21,7 +21,7 @@
         android:drawableLeft="@drawable/ic_toggle_player_like_states"
         tools:textOff="2134" />
 
-    <com.soundcloud.android.view.CustomToggleButton
+    <ToggleButton
         android:id="@+id/toggle_repost"
         style="@style/Stream.ToggleButton"
         android:layout_toLeftOf="@id/toggle_like"
