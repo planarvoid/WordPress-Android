@@ -51,6 +51,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
       buildConfigField BOOLEAN, FEATURE_TABS, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -59,7 +60,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE   //FEATURE_DISCOVERY must be enable as well    buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
     }
 
     beta {
