@@ -30,7 +30,7 @@ public class ScrubController {
     private Float pendingSeek;
     private int scrubState;
     private boolean dragging;
-    private long duration;
+    private long apiDuration;
 
     public boolean isDragging() {
         return dragging;
@@ -40,8 +40,8 @@ public class ScrubController {
         pendingSeek = seekPos;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
+    public void setFullDuration(long duration) {
+        this.apiDuration = duration;
     }
 
     public interface OnScrubListener {
@@ -50,7 +50,7 @@ public class ScrubController {
     }
 
     void finishSeek(Float seekPercentage) {
-        final long position = (long) (seekPercentage * duration);
+        final long position = (long) (seekPercentage * apiDuration);
         playSessionController.seek(position);
         setScrubState(SCRUB_STATE_NONE);
         pendingSeek = null;

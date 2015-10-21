@@ -88,11 +88,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     @Override
     public void displayScrubPosition(float scrubPosition) {
-        if (lastProgress.isEmpty()) {
-            updateCommentPosition((long) (scrubPosition * track.getDuration()));
-        } else {
-            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
-        }
+        updateCommentPosition((long) (scrubPosition * track.getFullDuration()));
     }
 
     private void updateCommentPosition(long position) {

@@ -51,7 +51,8 @@ public abstract class TestPropertySets {
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
-                PlayableProperty.DURATION.bind(20000L),
+                PlayableProperty.PLAY_DURATION.bind(20000L),
+                TrackProperty.FULL_DURATION.bind(30000L),
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.REPOSTS_COUNT.bind(1),
@@ -78,7 +79,7 @@ public abstract class TestPropertySets {
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
                 TrackProperty.PERMALINK_URL.bind("http://permalink.url"),
-                TrackProperty.DURATION.bind(10L),
+                TrackProperty.PLAY_DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -112,7 +113,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.TITLE.bind("squirlex galore"),
                 TrackProperty.CREATOR_NAME.bind("avieciie"),
-                TrackProperty.DURATION.bind(10L),
+                TrackProperty.PLAY_DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -161,7 +162,7 @@ public abstract class TestPropertySets {
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TITLE.bind("squirlex galore part 2"),
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
-                PlaylistProperty.DURATION.bind(123456L),
+                PlaylistProperty.PLAY_DURATION.bind(123456L),
                 PlaylistProperty.LIKES_COUNT.bind(2),
                 PlaylistProperty.IS_PRIVATE.bind(false),
                 PostProperty.CREATED_AT.bind(new Date()));
@@ -198,7 +199,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.CREATOR_URN.bind(creatorUrn),
                 TrackProperty.POLICY.bind(policy),
-                PlayableProperty.DURATION.bind(duration)
+                PlayableProperty.PLAY_DURATION.bind(duration)
         );
     }
 
@@ -218,7 +219,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 PlayableProperty.TITLE.bind(apiTrack.getTitle()),
-                PlayableProperty.DURATION.bind(apiTrack.getDuration()),
+                PlayableProperty.PLAY_DURATION.bind(apiTrack.getDuration()),
                 TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
@@ -257,7 +258,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
-                PlayableProperty.DURATION.bind(apiPlaylist.getDuration()),
+                PlayableProperty.PLAY_DURATION.bind(apiPlaylist.getDuration()),
                 PlayableProperty.CREATOR_NAME.bind(apiPlaylist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(apiPlaylist.getUser().getUrn()),
                 PlayableProperty.LIKES_COUNT.bind(apiPlaylist.getStats().getLikesCount()),

@@ -155,14 +155,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.displayScrubPosition(0.75f);
 
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:30");
-    }
-
-    @Test
-    public void displayScrubPositionSetsCommentTimeInMenuWithoutPlayback() {
-        controller.displayScrubPosition(0.5f);
-
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:10");
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
     }
 
     @Test

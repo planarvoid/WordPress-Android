@@ -1,8 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
@@ -15,11 +16,9 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
@@ -28,8 +27,8 @@ import android.widget.ImageView;
 
 import javax.inject.Provider;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayerArtworkControllerTest {
+public class PlayerArtworkControllerTest extends AndroidUnitTest {
+    private static final int FULL_DURATION = 10000;
     private PlayerArtworkController playerArtworkController;
 
     @Mock private ProgressController.Factory animationControllerFactory;
@@ -47,7 +46,7 @@ public class PlayerArtworkControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        artworkHolder = new FrameLayout(Robolectric.application);
+        artworkHolder = new FrameLayout(context());
 
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
@@ -62,6 +61,7 @@ public class PlayerArtworkControllerTest {
         };
 
         playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoaderProvider).create(playerTrackArtworkView);
+        playerArtworkController.setFullDuration(FULL_DURATION);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class PlayerArtworkControllerTest {
 
         playerArtworkController.showIdleState(progress);
 
-        verify(progressController).setPlaybackProgress(progress);
+        verify(progressController).setPlaybackProgress(progress, FULL_DURATION);
     }
 
     @Test
@@ -114,20 +114,20 @@ public class PlayerArtworkControllerTest {
 
         playerArtworkController.showIdleState(PlaybackProgress.empty());
 
-        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
      public void setProgressSetsProgressOnController() {
         playerArtworkController.setProgress(playbackProgress);
-        verify(progressController).setPlaybackProgress(playbackProgress);
+        verify(progressController).setPlaybackProgress(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void setProgressDoesNotSetProgressOnControllerWhileScrubbing() {
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         playerArtworkController.setProgress(playbackProgress);
-        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
@@ -154,14 +154,14 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.getWidth()).thenReturn(10);
         playerArtworkController.onArtworkSizeChanged();
         playerArtworkController.displayScrubPosition(.5f);
-        expect(artworkHolder.getTranslationX()).toEqual(-5F);
+        assertThat(artworkHolder.getTranslationX()).isEqualTo(-5F);
     }
 
     @Test
     public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
         final Urn urn = Urn.forTrack(123L);
-        when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
-        when(wrappedImageView.getContext()).thenReturn(Robolectric.application);
+        when(wrappedImageView.getResources()).thenReturn(resources());
+        when(wrappedImageView.getContext()).thenReturn(context());
 
         playerArtworkController.loadArtwork(urn, true, viewVisibilityProvider);
         verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), eq(true), same(viewVisibilityProvider));

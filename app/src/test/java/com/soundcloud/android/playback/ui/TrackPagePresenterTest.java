@@ -50,7 +50,8 @@ import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
-    private static final int DURATION = 20000;
+    private static final int PLAY_DURATION = 20000;
+    private static final int FULL_DURATION = 30000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private WaveformOperations waveformOperations;
@@ -102,7 +103,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bindItemViewSetsDurationOnWaveformController()  {
         populateTrackPage();
-        verify(waveformViewController).setDuration(DURATION);
+        verify(waveformViewController).setDurations(PLAY_DURATION, FULL_DURATION);
     }
 
     @Test

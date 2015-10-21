@@ -307,7 +307,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         return PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
-                PlayableProperty.DURATION.bind(track.getDuration()),
+                PlayableProperty.PLAY_DURATION.bind(track.getDuration()),
                 PlayableProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(track.getUser().getUrn()),
@@ -324,7 +324,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         return PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
-                PlayableProperty.DURATION.bind(playlist.getDuration()),
+                PlayableProperty.PLAY_DURATION.bind(playlist.getDuration()),
                 PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),

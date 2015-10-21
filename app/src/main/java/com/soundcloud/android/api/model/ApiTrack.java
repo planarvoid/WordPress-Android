@@ -109,6 +109,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
         this.duration = duration;
     }
 
+    @JsonProperty("full_duration")
     public void setFullDuration(long fullDuration) {
         this.fullDuration = fullDuration;
     }
@@ -318,7 +319,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
                 TrackProperty.CREATED_AT.bind(getCreatedAt()),
-                TrackProperty.DURATION.bind(getDuration()),
+                TrackProperty.PLAY_DURATION.bind(getDuration()),
                 TrackProperty.FULL_DURATION.bind(getFullDuration()),
                 TrackProperty.IS_PRIVATE.bind(isPrivate()),
                 TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),

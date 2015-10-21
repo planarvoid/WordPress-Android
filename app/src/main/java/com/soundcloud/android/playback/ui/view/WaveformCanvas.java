@@ -11,10 +11,16 @@ import android.util.AttributeSet;
 import android.view.TextureView;
 
 public class WaveformCanvas extends TextureView implements TextureView.SurfaceTextureListener {
+    private static final int TWENTY_PERCENT_OF_255 = 51;
     private WaveformData waveformData;
-    private Paint abovePaint, belowPaint;
+    private Paint abovePaint;
+    private Paint belowPaint;
+    private Paint abovePaintTransparent;
+    private Paint belowPaintTransparent;
     private int barWidth, spaceWidth, baseline;
     private boolean surfaceAvailable = false;
+
+    private float unplayableFromPosition = 1.0f;
 
     public WaveformCanvas(Context context) {
         this(context, null);
@@ -37,6 +43,18 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         this.barWidth = barWidth;
         this.spaceWidth = spaceWidth;
         this.baseline = baseline;
+
+        abovePaintTransparent = new Paint(abovePaint);
+        abovePaintTransparent.setAlpha(TWENTY_PERCENT_OF_255);
+
+        belowPaintTransparent = new Paint(belowPaint);
+        belowPaintTransparent.setAlpha(TWENTY_PERCENT_OF_255);
+
+        drawCanvas();
+    }
+
+    public void setUnplayableFromPosition(float unplayableFromPosition) {
+        this.unplayableFromPosition = unplayableFromPosition;
         drawCanvas();
     }
 
@@ -78,9 +96,18 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
             int x = 0;
             float y;
 
-            for (int bar = 0; bar < waveformData.samples.length; bar++) {
+            final int length = waveformData.samples.length;
+            final int v = (int) (length * unplayableFromPosition);
+
+            for (int bar = 0; bar < v; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
                 drawBar(canvas, x, y, abovePaint, belowPaint);
+                x += w;
+            }
+
+            for (int bar = v; bar < length; bar++) {
+                y = Math.max(spaceWidth, waveformData.samples[bar]);
+                drawBar(canvas, x, y, abovePaintTransparent, belowPaintTransparent);
                 x += w;
             }
         }

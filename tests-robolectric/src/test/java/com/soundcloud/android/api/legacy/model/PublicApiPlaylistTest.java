@@ -157,7 +157,7 @@ public class PublicApiPlaylistTest {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         PropertySet propertySet = playlist.toPropertySet();
 
-        Expect.expect(propertySet.get(PlayableProperty.DURATION)).toEqual(playlist.duration);
+        Expect.expect(propertySet.get(PlayableProperty.PLAY_DURATION)).toEqual(playlist.duration);
         expect(propertySet.get(PlayableProperty.TITLE)).toEqual(playlist.title);
         expect(propertySet.get(PlayableProperty.URN)).toEqual(playlist.getUrn());
         expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(playlist.getUser().getUrn());

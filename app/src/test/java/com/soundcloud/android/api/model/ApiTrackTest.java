@@ -37,7 +37,7 @@ public class ApiTrackTest extends AndroidUnitTest {
         assertThat(propertySet.get(TrackProperty.URN)).isEqualTo(track.getUrn());
         assertThat(propertySet.get(TrackProperty.TITLE)).isEqualTo(track.getTitle());
         assertThat(propertySet.get(TrackProperty.CREATED_AT)).isEqualTo(track.getCreatedAt());
-        assertThat(propertySet.get(TrackProperty.DURATION)).isEqualTo(track.getDuration());
+        assertThat(propertySet.get(TrackProperty.PLAY_DURATION)).isEqualTo(track.getDuration());
         assertThat(propertySet.get(TrackProperty.IS_PRIVATE)).isEqualTo(track.isPrivate());
         assertThat(propertySet.get(TrackProperty.WAVEFORM_URL)).isEqualTo(track.getWaveformUrl());
         assertThat(propertySet.get(TrackProperty.PERMALINK_URL)).isEqualTo(track.getPermalinkUrl());

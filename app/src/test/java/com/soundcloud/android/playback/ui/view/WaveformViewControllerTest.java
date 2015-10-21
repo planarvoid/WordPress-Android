@@ -180,22 +180,23 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
     @Test
     public void setProgressSetsProgressOnAnimationControllers() {
+        waveformViewController.setDurations(1, 2);
         waveformViewController.setProgress(playbackProgress);
-        verify(leftAnimationController).setPlaybackProgress(playbackProgress);
-        verify(rightAnimationController).setPlaybackProgress(playbackProgress);
-        verify(dragAnimationController).setPlaybackProgress(playbackProgress);
+        verify(leftAnimationController).setPlaybackProgress(playbackProgress, 2);
+        verify(rightAnimationController).setPlaybackProgress(playbackProgress, 2);
+        verify(dragAnimationController).setPlaybackProgress(playbackProgress, 2);
     }
 
     @Test
-    public void setProgressSetsDurationOnScrubController() {
-        waveformViewController.setProgress(playbackProgress);
-        verify(scrubController).setDuration(playbackProgress.getDuration());
+    public void setDurationsSetsDurationOnScrubController() {
+        waveformViewController.setDurations(123, 456);
+        verify(scrubController).setFullDuration(456);
     }
 
     @Test
     public void setProgressDoesNotSetDurationOnScrubControllerIfProgressEmpty() {
         waveformViewController.setProgress(PlaybackProgress.empty());
-        verify(scrubController, never()).setDuration(anyLong());
+        verify(scrubController, never()).setFullDuration(anyLong());
     }
 
     @Test
@@ -208,15 +209,15 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void setProgressDoesNotSetProgressOnAnimationControllersIfScrubbing() {
         waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         waveformViewController.setProgress(playbackProgress);
-        verify(leftAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
-        verify(rightAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
-        verify(dragAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+        verify(leftAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
+        verify(rightAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
+        verify(dragAnimationController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
     public void onWaveformWidthChangedConfiguresWaveformsToWidthTimesRatio() {
         waveformViewController.onWaveformViewWidthChanged(500);
-        verify(waveformView).setWaveformWidths(1000);
+        verify(waveformView).setWaveformWidths(1000, 1);
     }
 
     @Test

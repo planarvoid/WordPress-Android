@@ -13,6 +13,8 @@ public class ProgressController {
     private static final int PROGRESS_SYNC_TOLERANCE = 1; // allow animation to stray 1 pixel before correcting it
 
     private PlaybackProgress playbackProgress;
+    private long fullDuration;
+
     private ProgressAnimator progressAnimator;
 
     private View progressView;
@@ -49,7 +51,7 @@ public class ProgressController {
             progressAnimator.addListener(resetProgressListener);
             progressAnimator.cancel();
         } else {
-            setPlaybackProgress(PlaybackProgress.empty());
+            setPlaybackProgress(PlaybackProgress.empty(), 0);
         }
     }
 
@@ -70,9 +72,10 @@ public class ProgressController {
         }
     }
 
-    public void setPlaybackProgress(PlaybackProgress playbackProgress) {
+    public void setPlaybackProgress(PlaybackProgress playbackProgress, long fullDuration) {
         this.playbackProgress = playbackProgress;
-        final float progressProportion = playbackProgress.getProgressProportion();
+        this.fullDuration = fullDuration;
+        final float progressProportion = getProgressProportion();
         if (hasRunningAnimation()) {
             final float expectedValue = helper.getValueFromProportion(progressProportion);
             if (progressAnimator.getDifferenceFromCurrentValue(expectedValue) > PROGRESS_SYNC_TOLERANCE) {
@@ -87,13 +90,29 @@ public class ProgressController {
         if (progressAnimator != null){
             progressAnimator.cancel();
         }
-        progressAnimator = helper.createAnimator(progressView, playbackProgress.getProgressProportion());
+        progressAnimator = helper.createAnimator(progressView, getProgressProportion());
         if (progressAnimator != null) {
-            progressAnimator.setDuration(playbackProgress.getTimeLeft());
+            progressAnimator.setDuration(getTimeLeft());
             progressAnimator.start();
             // this needs to happen after start, even though the documentation leads me to believe otherwise : JS
-            progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
+            progressAnimator.setCurrentPlayTime(getTimeSinceCreation());
         }
+    }
+
+    public float getProgressProportion() {
+        if (fullDuration == 0) {
+            return 0.0f;
+        } else {
+            return ((float) playbackProgress.getPosition()) / fullDuration;
+        }
+    }
+
+    public long getTimeLeft() {
+        return Math.max(fullDuration - playbackProgress.getPosition(), 0L);
+    }
+
+    public long getTimeSinceCreation() {
+        return playbackProgress.getTimeSinceCreation();
     }
 
     public static class Factory {

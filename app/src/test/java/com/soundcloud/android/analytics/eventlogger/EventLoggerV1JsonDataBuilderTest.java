@@ -96,7 +96,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.DURATION))
+                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .reposter(Urn.forUser(456L))
@@ -128,7 +128,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.DURATION))
+                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .reposter(Urn.forUser(456L))
@@ -159,7 +159,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.DURATION))
+                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -192,7 +192,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.DURATION))
+                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -221,7 +221,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
+                .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
                 .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -255,7 +255,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(audioAdTrack.get(PlayableProperty.DURATION))
+                .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
                 .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(true)
@@ -290,7 +290,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.DURATION))
+                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)

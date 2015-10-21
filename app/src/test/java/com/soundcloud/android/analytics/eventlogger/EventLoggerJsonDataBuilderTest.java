@@ -447,7 +447,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(PlayableProperty.DURATION))
+                .duration(track.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
                 .trigger("manual")
                 .action("play")
@@ -475,7 +475,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(PlayableProperty.DURATION))
+                .duration(track.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
                 .trigger("manual")
                 .action("stop")
@@ -502,7 +502,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(audioAdTrack.get(PlayableProperty.DURATION))
+                .duration(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
                 .trigger("manual")
                 .action("play")
@@ -533,7 +533,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(audioAdTrack.get(PlayableProperty.DURATION))
+                .duration(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
                 .action("stop")
                 .reason("buffering")
@@ -565,7 +565,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(PlayableProperty.DURATION))
+                .duration(track.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
                 .trigger("manual")
                 .action("play")

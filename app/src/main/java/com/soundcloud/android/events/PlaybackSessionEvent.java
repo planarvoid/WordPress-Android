@@ -98,7 +98,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         put(CONNECTION_TYPE, connectionType);
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
-        this.duration = track.get(PlayableProperty.DURATION);
+        this.duration = track.get(PlayableProperty.PLAY_DURATION);
         EntityMetadata.from(track).addToTrackingEvent(this);
     }
 

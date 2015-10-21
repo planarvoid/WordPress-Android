@@ -30,7 +30,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
             TrackProperty.URN.bind(TRACK_URN),
             TrackProperty.CREATOR_URN.bind(CREATOR_URN),
             TrackProperty.POLICY.bind("allow"),
-            PlayableProperty.DURATION.bind(DURATION)
+            PlayableProperty.PLAY_DURATION.bind(DURATION)
     );
     private static final AudioAd AUDIO_AD_DATA = AdFixtures.getAudioAd(Urn.forTrack(123L));
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();

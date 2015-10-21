@@ -121,9 +121,6 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
     @Override
     public void setProgress(PlaybackProgress progress) {
-        if (progress.isDurationValid() && progress.getDuration() != duration) {
-            duration = progress.getDuration();
-        }
         if (!isScrubbing) {
             progressText.setText(format(progress.getPosition()));
             durationText.setText(format(duration));

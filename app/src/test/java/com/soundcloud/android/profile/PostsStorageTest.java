@@ -199,7 +199,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 TrackProperty.CREATOR_NAME,
                 TrackProperty.LIKES_COUNT,
                 TrackProperty.PLAY_COUNT,
-                TrackProperty.DURATION,
+                TrackProperty.PLAY_DURATION,
                 TrackProperty.IS_PRIVATE
         ).put(PostProperty.CREATED_AT, track.getCreatedAt())
                 .put(PlayableProperty.IS_LIKED, false)

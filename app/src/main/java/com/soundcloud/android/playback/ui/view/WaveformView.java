@@ -47,6 +47,7 @@ public class WaveformView extends FrameLayout {
 
     private final WaveformCanvas leftWaveform;
     private final WaveformCanvas rightWaveform;
+
     private final ImageView leftLine;
     private final ImageView rightLine;
 
@@ -230,13 +231,18 @@ public class WaveformView extends FrameLayout {
         return objectAnimator;
     }
 
-    void setWaveformWidths(int waveformWidth) {
+    void setWaveformWidths(int waveformWidth, float playableProportion) {
         leftWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         leftLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         rightWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         rightLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
-        dragView.setWidth(waveformWidth + getWidth());
+        setPlayableWidth(waveformWidth, playableProportion);
+    }
 
+    public void setPlayableWidth(int waveformWidth, float playableProportion) {
+        dragView.setWidth((int) (waveformWidth * playableProportion + getWidth()));
+        rightWaveform.setUnplayableFromPosition(playableProportion);
+        rightLine.setImageDrawable(createLoadingDrawable(unplayedColor, playableProportion));
         post(layoutWaveformsRunnable);
     }
 
@@ -249,7 +255,11 @@ public class WaveformView extends FrameLayout {
     }
 
     private Drawable createLoadingDrawable(int color) {
-        return new ProgressLineDrawable(color, baseline, spaceWidth);
+        return createLoadingDrawable(color, 1);
+    }
+
+    private Drawable createLoadingDrawable(int color, float playableProportion) {
+        return new ProgressLineDrawable(color, baseline, spaceWidth, playableProportion);
     }
 
 

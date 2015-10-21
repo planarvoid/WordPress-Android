@@ -36,6 +36,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private static final int IS_CREATION_PENDING = 4;
 
     private static final BitSet SHOULD_CREATE_WAVEFORM = trueSet(NUM_FLAGS);
+    public static final int DEFAULT_PLAYABLE_PROPORTION = 1;
     private final BitSet createState = new BitSet(NUM_FLAGS);
 
     private final WaveformView waveformView;
@@ -61,6 +62,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
     private Player.PlayerState currentState = IDLE;
+    private long fullDuration;
+    private long playDuration;
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
@@ -102,13 +105,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
-        if (!progress.isEmpty()) {
-            scrubController.setDuration(progress.getDuration());
-        }
         if (!suppressProgress) {
-            leftProgressController.setPlaybackProgress(progress);
-            rightProgressController.setPlaybackProgress(progress);
-            dragProgressController.setPlaybackProgress(progress);
+            leftProgressController.setPlaybackProgress(progress, fullDuration);
+            rightProgressController.setPlaybackProgress(progress, fullDuration);
+            dragProgressController.setPlaybackProgress(progress, fullDuration);
 
             if (currentState == IDLE) {
                 waveformView.showIdleLinesAtWaveformPositions();
@@ -119,7 +119,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     @Override
     public void onWaveformViewWidthChanged(int newWidth) {
         adjustedWidth = (int) (waveformWidthRatio * newWidth);
-        waveformView.setWaveformWidths(adjustedWidth);
+        waveformView.setWaveformWidths(adjustedWidth, getPlayableProportion(latestProgress));
 
         final int middle = newWidth / 2;
         waveformView.setWaveformTranslations(middle, 0);
@@ -160,10 +160,25 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void showPlayingState(PlaybackProgress progress) {
+        if (progress.isDurationValid()) {
+            waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(progress));
+        }
+
+        progress.setDuration(fullDuration);
         currentState = PLAYING;
         showWaveform();
         if (!suppressProgress) {
             startProgressAnimations(progress);
+        }
+    }
+
+    private float getPlayableProportion(PlaybackProgress progress) {
+        if (progress.isDurationValid()) {
+            return ((float) progress.getDuration()) / fullDuration;
+        } else if (playDuration > 0 && fullDuration > 0){
+            return ((float) playDuration) / fullDuration;
+        } else {
+            return DEFAULT_PLAYABLE_PROPORTION;
         }
     }
 
@@ -222,8 +237,11 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         waveformView.setVisibility(View.GONE);
     }
 
-    public void setDuration(long duration) {
-        scrubController.setDuration(duration);
+    public void setDurations(long playDuration, long fullDuration) {
+        this.playDuration = playDuration;
+        this.fullDuration = fullDuration;
+        scrubController.setFullDuration(fullDuration);
+        waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(latestProgress));
     }
 
     public void onBackground() {
@@ -295,5 +313,4 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         bitSet.set(0, numFlags);
         return bitSet;
     }
-
 }

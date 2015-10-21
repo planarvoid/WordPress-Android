@@ -32,6 +32,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
     private boolean isPlaying;
+    private long fullDuration;
 
     public PlayerArtworkController(PlayerTrackArtworkView artworkView,
                                    ProgressController.Factory animationControllerFactory,
@@ -45,11 +46,15 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         artworkView.setOnWidthChangedListener(this);
     }
 
+    public void setFullDuration(long fullDuration) {
+        this.fullDuration = fullDuration;
+    }
+
     @Override
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
         if (!suppressProgress) {
-            progressController.setPlaybackProgress(progress);
+            progressController.setPlaybackProgress(progress, fullDuration);
         }
     }
 

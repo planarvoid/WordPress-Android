@@ -18,7 +18,8 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
             TrackProperty.TITLE.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.CREATOR_NAME.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
-            TrackProperty.DURATION.bind(0L),
+            TrackProperty.PLAY_DURATION.bind(0L),
+            TrackProperty.FULL_DURATION.bind(0L),
             TrackProperty.WAVEFORM_URL.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.IS_LIKED.bind(false),
             TrackProperty.IS_REPOSTED.bind(false),
@@ -83,8 +84,14 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
     }
 
-    long getDuration() {
-        return source.get(PlayableProperty.DURATION);
+    long getPlayableDuration() {
+        return source.get(TrackProperty.PLAY_DURATION);
+    }
+
+    long getFullDuration() {
+        // public api does not return full duration. Back this by play duration until we are off it
+        final Long fullDuration = source.get(TrackProperty.FULL_DURATION);
+        return fullDuration > 0 ? fullDuration : source.get(TrackProperty.PLAY_DURATION);
     }
 
     @Nullable

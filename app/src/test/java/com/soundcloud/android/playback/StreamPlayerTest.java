@@ -36,7 +36,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private Urn trackUrn = Urn.forTrack(123L);
     private PropertySet track = PropertySet.from(
             TrackProperty.URN.bind(trackUrn),
-            TrackProperty.DURATION.bind(456L)
+            TrackProperty.PLAY_DURATION.bind(456L)
     );
 
     @Before

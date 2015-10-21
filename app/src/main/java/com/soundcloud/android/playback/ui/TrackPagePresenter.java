@@ -143,12 +143,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
 
-        holder.timestamp.setInitialProgress(trackState.getDuration());
+        holder.timestamp.setInitialProgress(trackState.getFullDuration());
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
                 trackState.getWaveformUrl()), trackState.isForeground());
 
-        holder.waveformController.setDuration(trackState.getDuration());
+        holder.artworkController.setFullDuration(trackState.getFullDuration());
+        holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
         setLikeCount(holder, trackState.getLikeCount());
         holder.likeToggle.setChecked(trackState.isUserLike());

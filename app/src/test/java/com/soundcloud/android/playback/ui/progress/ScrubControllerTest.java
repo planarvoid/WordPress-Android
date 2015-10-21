@@ -42,7 +42,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
 
         scrubController = new ScrubController(scrollView, playSessionController, seekHandlerFactory);
-        scrubController.setDuration(100);
+        scrubController.setFullDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);
 
