@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -14,8 +13,10 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineTrackContext;
@@ -62,6 +63,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
+    private final PlayableMetadata playableMetadata = PlayableMetadata.from(PropertySet.create());
 
     @Before
     public void setUp() throws Exception {
@@ -401,6 +403,21 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                         .appVersion(APP_VERSION)
                         .eventType("desync")
                         .eventStage("complete")
+        );
+    }
+
+    @Test
+    public void createsJsonForShareEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
         );
     }
 

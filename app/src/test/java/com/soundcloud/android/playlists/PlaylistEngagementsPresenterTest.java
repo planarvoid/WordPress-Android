@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
@@ -155,14 +156,14 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onShare();
 
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.UNKNOWN.get());
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.UNKNOWN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         onEngagementListener.onShare();
 
-        verify(shareOperations, never()).share(any(Context.class), any(PropertySet.class), any(String.class));
+        verify(shareOperations, never()).share(any(Context.class), any(PropertySet.class), any(String.class), any(String.class), any(Urn.class), any(PromotedSourceInfo.class));
     }
 
     @Test
@@ -285,7 +286,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onShare();
 
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.SEARCH_MAIN.get());
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.SEARCH_MAIN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
     }
 
     @Test

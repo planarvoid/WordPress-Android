@@ -7,7 +7,6 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -17,7 +16,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -65,7 +63,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
-    private final ShareOperations shareOperations;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -79,8 +76,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               AdOverlayController.Factory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
-                              Resources resources,
-                              ShareOperations shareOperations) {
+                              Resources resources) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.numberFormatter = numberFormatter;
@@ -92,7 +88,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
-        this.shareOperations = shareOperations;
     }
 
     @Override
@@ -556,8 +551,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Urn trackUrn = (Urn) view.getTag();
-                shareOperations.shareTrack(view.getContext(), trackUrn, Screen.PLAYER_MAIN.get());
+                holder.menuController.handleShare(view.getContext());
             }
         });
 

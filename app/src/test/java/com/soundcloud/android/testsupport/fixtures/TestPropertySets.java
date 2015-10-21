@@ -129,6 +129,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
+                TrackProperty.PERMALINK_URL.bind("http://permalink.url"),
                 TrackProperty.DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),

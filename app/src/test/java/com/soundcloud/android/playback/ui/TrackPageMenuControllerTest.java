@@ -13,6 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -76,7 +77,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        verify(shareOperations).share(activityContext, track.getSource(), "screen");
+        verify(shareOperations).share(activityContext, track.getSource(), "screen", Screen.PLAYER_MAIN.get(), track.getUrn(), null);
     }
 
     @Test
@@ -86,7 +87,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.onMenuItemClick(repost, activityContext);
 
         verify(repostOperations).toggleRepost(track.getUrn(), true);
-
     }
 
     @Test

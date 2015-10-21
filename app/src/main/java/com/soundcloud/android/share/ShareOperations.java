@@ -1,18 +1,16 @@
 package com.soundcloud.android.share;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,26 +22,16 @@ public class ShareOperations {
     private static final String SHARE_TYPE = "text/plain";
 
     private final EventBus eventBus;
-    private final TrackRepository trackRepository;
 
     @Inject
-    public ShareOperations(EventBus eventBus,
-                           TrackRepository trackRepository) {
+    public ShareOperations(EventBus eventBus) {
         this.eventBus = eventBus;
-        this.trackRepository = trackRepository;
     }
 
-    public void shareTrack(Context context, final Urn trackUrn, final String screenTag) {
-        trackRepository
-                .track(trackUrn)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ShareSubscriber(context, screenTag));
-    }
-
-    public void share(Context context, PropertySet playable, String screenTag) {
+    public void share(Context context, PropertySet playable, String screenTag, String pageName, Urn pageUrn, PromotedSourceInfo promotedSourceInfo) {
         if (!playable.get(PlayableProperty.IS_PRIVATE)) {
             startShareActivity(context, playable);
-            publishShareTracking(playable, screenTag);
+            publishShareTracking(playable, screenTag, pageName, pageUrn, promotedSourceInfo);
         }
     }
 
@@ -51,9 +39,14 @@ public class ShareOperations {
         context.startActivity(buildShareIntent(context, playable));
     }
 
-    private void publishShareTracking(PropertySet playable, String screen) {
-        Urn urn = playable.get(EntityProperty.URN);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(screen, urn, PlayableMetadata.from(playable)));
+    private void publishShareTracking(PropertySet playable, String screen, String pageName, Urn pageUrn, PromotedSourceInfo promotedSourceInfo) {
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(
+                screen,
+                pageName,
+                playable.get(EntityProperty.URN),
+                pageUrn,
+                promotedSourceInfo,
+                PlayableMetadata.from(playable)));
     }
 
     private Intent buildShareIntent(Context context, PropertySet playable) {
@@ -79,20 +72,4 @@ public class ShareOperations {
             return context.getString(R.string.share_track_on_soundcloud, title, permalink);
         }
     }
-
-    class ShareSubscriber extends DefaultSubscriber<PropertySet> {
-        private final Context context;
-        private final String screenTag;
-
-        ShareSubscriber(Context context, String screenTag) {
-            this.context = context;
-            this.screenTag = screenTag;
-        }
-
-        @Override
-        public void onNext(PropertySet track) {
-            share(context, track, screenTag);
-        }
-    }
-
 }

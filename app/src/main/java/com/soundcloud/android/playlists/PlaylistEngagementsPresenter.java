@@ -319,7 +319,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onShare() {
         if (playlistWithTracks != null) {
-            shareOperations.share(context, playlistWithTracks.getSourceSet(), originProvider.getScreenTag());
+            shareOperations.share(context,
+                    playlistWithTracks.getSourceSet(),
+                    originProvider.getScreenTag(),
+                    Screen.PLAYLIST_DETAILS.get(),
+                    playlistWithTracks.getUrn(),
+                    playSessionSourceInfo.getPromotedSourceInfo());
         }
     }
 
