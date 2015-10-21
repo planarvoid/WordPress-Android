@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -70,6 +71,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ShareOperations shareOperations;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -85,7 +87,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources());
+                errorControllerFactory, castConnectionHelper, resources(), shareOperations);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

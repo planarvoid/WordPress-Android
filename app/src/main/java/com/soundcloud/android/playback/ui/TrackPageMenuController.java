@@ -19,14 +19,13 @@ import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +38,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
 
-    public static final String SHARE_TYPE = "text/plain";
 
     private final FeatureFlags featureFlags;
     private final FragmentActivity activity;
@@ -48,6 +46,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private final RepostOperations repostOperations;
     private final StartStationPresenter startStationPresenter;
     private final EventBus eventBus;
+    private final ShareOperations shareOperations;
     private final String commentAtUnformatted;
 
     private PlayerTrackState track = PlayerTrackState.EMPTY;
@@ -61,7 +60,8 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     StartStationPresenter startStationPresenter,
-                                    EventBus eventBus) {
+                                    EventBus eventBus,
+                                    ShareOperations shareOperations) {
         this.featureFlags = featureFlags;
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
@@ -69,6 +69,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         this.popupMenuWrapper = popupMenuWrapper;
         this.startStationPresenter = startStationPresenter;
         this.eventBus = eventBus;
+        this.shareOperations = shareOperations;
         this.commentAtUnformatted = activity.getString(R.string.comment_at);
         setupMenu();
     }
@@ -109,7 +110,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.share:
-                handleShare(track);
+                shareOperations.share(context, track.getSource(), playQueueManager.getScreenTag());
                 return true;
             case R.id.repost:
                 handleRepostToggle(true, track.getUrn());
@@ -137,13 +138,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void handleComment() {
         final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), commentPosition, playQueueManager.getScreenTag());
         fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
-    }
-
-    private void handleShare(PlayerTrackState track) {
-        if (!track.isPrivate()) {
-            activity.startActivity(buildShareIntent(track));
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn(), PlayableMetadata.from(track)));
-        }
     }
 
     private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {
@@ -198,23 +192,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         // no-op
     }
 
-    private Intent buildShareIntent(PlayerTrackState track) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, activity.getString(R.string.share_subject, track.getTitle()));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, buildText(track));
-        return shareIntent;
-    }
-
-    private String buildText(PlayerTrackState track) {
-        if (Strings.isNotBlank(track.getUserName())) {
-            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(),
-                    track.getUserName(), track.getPermalinkUrl());
-        }
-        return activity.getString(R.string.share_track_on_soundcloud, track.getTitle(), track.getPermalinkUrl());
-    }
-
     static class Factory {
         private final FeatureFlags featureFlags;
         private final PlayQueueManager playQueueManager;
@@ -222,6 +199,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
         private final StartStationPresenter startStationPresenter;
+        private final ShareOperations shareOperations;
 
         @Inject
         Factory(FeatureFlags featureFlags,
@@ -229,19 +207,22 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationPresenter startStationPresenter,
-                EventBus eventBus) {
+                EventBus eventBus,
+                ShareOperations shareOperations) {
             this.featureFlags = featureFlags;
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.startStationPresenter = startStationPresenter;
             this.eventBus = eventBus;
+            this.shareOperations = shareOperations;
         }
 
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
             return new TrackPageMenuController(featureFlags, playQueueManager, repostOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), startStationPresenter, eventBus);
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), 
+                    startStationPresenter, eventBus, shareOperations);
         }
     }
 

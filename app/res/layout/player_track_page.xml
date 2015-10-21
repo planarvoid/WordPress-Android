@@ -68,13 +68,18 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1" />
 
+        <Button
+            android:id="@+id/track_page_share"
+            style="@style/PlayerShareBase.PlayerShare"
+            android:visibility="gone" />
+
         <ToggleButton
             android:id="@+id/track_page_like"
-            style="@style/PlayerLike" />
+            style="@style/PlayerLikeBase.PlayerLike" />
 
         <Button
             android:id="@+id/track_page_more"
-            style="@style/PlayerMore" />
+            style="@style/PlayerMoreBase.PlayerMore" />
     </LinearLayout>
 
     <include layout="@layout/player_play_controls" />

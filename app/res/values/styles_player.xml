@@ -102,7 +102,7 @@
         <item name="android:background">@drawable/btn_player_like</item>
     </style>
 
-    <style name="PlayerLike" parent="PlayerLikeBase"/>
+    <style name="PlayerLikeBase.PlayerLike" />
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
         <item name="android:layout_width">wrap_content</item>
@@ -116,7 +116,7 @@
         <item name="android:background">@drawable/btn_player_more</item>
     </style>
 
-    <style name="PlayerMore" parent="PlayerMoreBase"/>
+    <style name="PlayerMoreBase.PlayerMore" />
 
     <style name="PlayerClose">
         <item name="android:layout_width">32dp</item>
@@ -126,6 +126,16 @@
         <item name="android:clickable">false</item>
         <item name="android:visibility">gone</item>
     </style>
+
+    <style name="PlayerShareBase">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_marginRight">36dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:background">@drawable/btn_player_share</item>
+    </style>
+
+    <style name="PlayerShareBase.PlayerShare" />
 
     <style name="Waveform">
         <item name="barWidth">@dimen/waveform_bar_width</item>
