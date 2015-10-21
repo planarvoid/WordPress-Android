@@ -38,8 +38,8 @@ class HeaderSpannableBuilder {
 
     HeaderSpannableBuilder withIconSpan(StreamItemViewHolder trackView) {
         spannedString.setSpan(new ImageSpan(trackView.getContext(), R.drawable.stats_repost, ALIGN_BOTTOM),
-                spanStart,
                 spanStart + 1,
+                spanStart + 2,
                 SPAN_EXCLUSIVE_EXCLUSIVE);
         return this;
     }

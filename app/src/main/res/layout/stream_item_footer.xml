@@ -46,6 +46,6 @@
         style="@style/Stream.NowPlaying"
         android:drawableLeft="@drawable/ic_now_playing"
         android:text="@string/title_now_playing"
-        android:visibility="visible" />
+        android:visibility="gone"/>
 
 </RelativeLayout>

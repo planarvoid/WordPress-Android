@@ -15,6 +15,7 @@ public class StreamItemViewHolder {
     private final ImageView userImage;
     private final TextView headerText;
     private final View privateIndicator;
+    private final View privateSeparator;
     private final TextView createdAt;
 
     private final ImageView image;
@@ -33,6 +34,7 @@ public class StreamItemViewHolder {
         headerText = ButterKnife.findById(view, R.id.header_text);
         createdAt = ButterKnife.findById(view, R.id.creation_date);
         privateIndicator = ButterKnife.findById(view, R.id.private_indicator);
+        privateSeparator = ButterKnife.findById(view, R.id.private_separator);
 
         image = ButterKnife.findById(view, R.id.image);
         title = ButterKnife.findById(view, R.id.title);
@@ -115,6 +117,7 @@ public class StreamItemViewHolder {
 
     public void togglePrivateIndicator(boolean isPrivate) {
         privateIndicator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
+        privateSeparator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
     public void showDuration(String playlistDuration) {
