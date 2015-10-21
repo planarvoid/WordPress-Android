@@ -69,7 +69,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(repostedTrack));
 
         InOrder inOrder = Mockito.inOrder(spannableBuilder);
-        inOrder.verify(spannableBuilder).trackUserAction("reposter", "reposted");
+        inOrder.verify(spannableBuilder).trackUserAction(repostedTrack.getReposter().get(), repostedString());
         inOrder.verify(spannableBuilder).withIconSpan(viewHolder);
         inOrder.verify(spannableBuilder).get();
     }
@@ -153,6 +153,10 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         track.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
 
         return TrackItem.from(track);
+    }
+
+    private String repostedString() {
+        return resources().getString(R.string.stream_reposted_action);
     }
 
     private TrackItem postedTrack() {
