@@ -21,7 +21,7 @@ import javax.inject.Inject;
 
 public class ShareOperations {
 
-    public static final String SHARE_TYPE = "text/plain";
+    private static final String SHARE_TYPE = "text/plain";
 
     private final EventBus eventBus;
     private final TrackRepository trackRepository;

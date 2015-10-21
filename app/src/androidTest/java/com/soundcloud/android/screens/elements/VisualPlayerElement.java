@@ -60,7 +60,7 @@ public class VisualPlayerElement extends Element {
         assertTrue(isExpandedPlayerPlaying());
     }
 
-    public VisualPlayerElement ensureUnliked() {
+    public VisualPlayerElement unlike() {
         if (likeButton().isChecked()) {
             likeButton().click();
         }

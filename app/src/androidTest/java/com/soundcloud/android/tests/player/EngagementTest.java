@@ -47,7 +47,7 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         VisualPlayerElement player = menuScreen.open()
                 .clickExplore()
                 .playFirstTrack()
-                .ensureUnliked();
+                .unlike();
 
         assertThat(player.shareButton(), is(not(visible())));
         player.likeButton().click();
