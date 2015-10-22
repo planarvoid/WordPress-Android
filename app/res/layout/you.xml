@@ -12,6 +12,7 @@
         tools:ignore="MergeRootFrame">
 
         <View style="@style/You.Divider" />
+        <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
             android:id="@+id/header_layout"
@@ -44,7 +45,9 @@
             </LinearLayout>
         </LinearLayout>
 
+        <View style="@style/Divider.Horizontal" />
         <View style="@style/You.Divider" />
+        <View style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_explore_link"
@@ -65,7 +68,9 @@
             style="@style/You.NavItem"
             android:text="@string/you_record" />
 
+        <View style="@style/Divider.Horizontal" />
         <View style="@style/You.Divider" />
+        <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
             android:id="@+id/you_offline_sync_settings_link"
@@ -94,7 +99,9 @@
             style="@style/You.NavItem"
             android:text="@string/you_basic_settings" />
 
+        <View style="@style/Divider.Horizontal" />
         <View style="@style/You.Divider" />
+        <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
             android:id="@+id/you_report_bug"
@@ -123,12 +130,16 @@
             style="@style/You.NavItem"
             android:text="@string/you_legal" />
 
+        <View style="@style/Divider.Horizontal" />
         <View style="@style/You.Divider" />
+        <View style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_sign_out_link"
             style="@style/You.NavItem"
             android:text="@string/you_sign_out" />
+        
+        <View style="@style/Divider.Horizontal" />
 
         <TextView
             android:id="@+id/you_version_text"

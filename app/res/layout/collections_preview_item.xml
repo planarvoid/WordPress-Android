@@ -9,7 +9,7 @@
     <View
         android:layout_height="16dp"
         android:layout_width="match_parent"
-        android:background="@color/collections_home_background"
+        android:background="@color/page_background"
         android:clickable="false"
         android:focusable="false" />
 
@@ -33,7 +33,7 @@
     <View
         android:layout_height="16dp"
         android:layout_width="match_parent"
-        android:background="@color/collections_home_background"
+        android:background="@color/page_background"
         android:clickable="false"
         android:focusable="false" />
 

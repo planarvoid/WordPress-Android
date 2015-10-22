@@ -54,7 +54,7 @@
     </style>
 
     <style name="Collections.ListContainer">
-        <item name="android:background">@color/collections_home_background</item>
+        <item name="android:background">@color/page_background</item>
     </style>
 
     <style name="Collections.OptionsToggle">
