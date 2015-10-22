@@ -31,7 +31,7 @@ Run the [Android SDK Manager][] to install packages.
 
     $ android
 
-You don't need to install everything. To get started, you can install the following:
+Get started:
 
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
 2. From the `SDK Tools` tab, install the latest versions:<br>
