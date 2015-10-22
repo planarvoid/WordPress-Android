@@ -16,6 +16,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.hamcrest.CoreMatchers;
 
 @StationsTest
 public class StartStationTest extends ActivityTest<LauncherActivity> {
@@ -83,11 +84,12 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         final String expectedTitle = player.getTrackTitle();
         player.swipePrevious();
-        waiter.waitForPlaybackToBePlaying();
+        assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
         player.pressBackToCollapse();
 
         // Start a new play queue
         playlistDetailsScreen.clickFirstTrack();
+        assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
         player.pressBackToCollapse();
 
         final String resumedTrackTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
