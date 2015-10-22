@@ -13,42 +13,36 @@
 
         <View style="@style/You.Divider" />
 
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/header_layout"
+            style="@style/You.Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foreground="?attr/selectableItemBackground">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:background="?attr/selectableItemBackground">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/image"
+                style="@style/You.HeaderImage" />
 
             <LinearLayout
-                style="@style/You.Header"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                tools:ignore="UselessParent">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/image"
-                    style="@style/You.HeaderImage" />
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/username"
+                    style="@style/You.HeaderText.Username" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/profile_link"
+                    style="@style/You.HeaderText.ProfileLink"
+                    android:text="@string/you_view_public_profile" />
 
-                    <com.soundcloud.android.view.CustomFontTextView
-                        android:id="@+id/username"
-                        style="@style/You.HeaderText.Username" />
-
-                    <com.soundcloud.android.view.CustomFontTextView
-                        android:id="@+id/profile_link"
-                        style="@style/You.HeaderText.ProfileLink"
-                        android:text="@string/you_view_public_profile" />
-
-                </LinearLayout>
             </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
 
         <View style="@style/You.Divider" />
 
@@ -66,13 +60,20 @@
 
         <View style="@style/You.Divider" />
 
-        <com.soundcloud.android.view.CustomFontTextView
+        <LinearLayout
             android:id="@+id/you_offline_sync_settings_link"
-            style="@style/You.NavItem"
-            android:text="@string/you_offline_sync_settings"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
-        <View style="@style/Divider.Horizontal" />
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItem"
+                android:duplicateParentState="true"
+                android:text="@string/you_offline_sync_settings" />
+
+            <View style="@style/Divider.Horizontal" />
+        </LinearLayout>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_notification_settings_link"
@@ -88,13 +89,20 @@
 
         <View style="@style/You.Divider" />
 
-        <com.soundcloud.android.view.CustomFontTextView
+        <LinearLayout
             android:id="@+id/you_report_bug"
-            style="@style/You.NavItem"
-            android:text="@string/you_report_bug"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
-        <View style="@style/Divider.Horizontal" />
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/You.NavItem"
+                android:duplicateParentState="true"
+                android:text="@string/you_report_bug" />
+
+            <View style="@style/Divider.Horizontal" />
+        </LinearLayout>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_help_center_link"
