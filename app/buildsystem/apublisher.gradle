@@ -1,11 +1,11 @@
-import static groovy.io.FileType.FILES
+apply from: "${project.('ext').buildSrcDir}/apk_finder.gradle"
 
 task uploadBeta {
   description = 'Uploads app to Google Play Store Beta track.'
 
   doLast {
     executeCmd(
-            ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("debug"), '-t', 'beta'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("debug"), '-t', 'beta'],
             "Upload app to Google Play Store Beta Track failed"
     )
   }
@@ -16,7 +16,7 @@ task rolloutOnePercent {
 
   doLast {
     executeCmd(
-            ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout'],
             "Rollout to 1% failed"
     )
   }
@@ -27,7 +27,8 @@ task rolloutFivePercent {
 
   doLast {
     executeCmd(
-            ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0.05'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout',
+             '--fraction', '0.05'],
             "Rollout to 5% failed"
     )
   }
@@ -38,7 +39,8 @@ task rolloutFull {
 
   doLast {
     executeCmd(
-            ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout',
+             '--fraction', '0'],
             "Rollout to 100% failed"
     )
   }
@@ -57,16 +59,4 @@ def executeCmd(cmd, errorMessage) {
   }
 
   System.out.println(new String(standardOut.toByteArray()))
-}
-
-def String findApkPath(buildType) {
-  def baseDir = new File("$project.ext.outputsDir")
-  def names = []
-  def pattern = "soundcloud-android-.*-${buildType}.apk"
-
-  baseDir.eachFileMatch FILES, ~/${pattern}/, { names << it.name }
-  if (names.size() != 1) {
-    throw new Exception("Unable to find apk path for buildType ${buildType}")
-  }
-  return new File("${project.ext.outputsDir}", "${names[0]}")
 }
