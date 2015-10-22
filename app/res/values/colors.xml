@@ -96,7 +96,6 @@
     <color name="light_gray_text">#cccccc</color>
     <color name="gray_text">#999999</color>
     <color name="dark_gray_text">#333333</color>
-    <color name="dark_gray_background">#333333</color>
     <color name="tab_bar_divider">#dddddd</color>
     <color name="darker_gray">#aaaaaa</color>
     <color name="gray_background">#f3f3f3</color>
