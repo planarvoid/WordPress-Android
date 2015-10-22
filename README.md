@@ -34,7 +34,7 @@ Run the [Android SDK Manager][] to install packages.
 You don't need to install everything. To get started, you can install the following:
 
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
-2. Install the latest versions of `Android SDK Tools` and `Android SDK Platform-tools` and the version of `Android SDK Build-tools` specified by the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).
+2. From the `SDK Tools` tab, install the latest versions of `Android SDK Tools`, `Android SDK Platform-Tools`&mdash;specified by the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle), and `Android SDK Build-Tools`.
 3. Install the release we are targeting, which is currently `Android 5.0.1 (API 21)`.<br>You can check by
 looking for `android:targetSdkVersion` in [AndroidManifest.xml](app/AndroidManifest.xml).
 4. Install all of the release packages except for the system images, because we will use [Genymotion][] for managing the emulators.
