@@ -55,7 +55,7 @@ Prerequisites:
    * `Android SDK Platform-Tools`<br>Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).<br>
    * `Android SDK Build-Tools`<br>
 3. Install the targetted release, based on the API level.<br>Refer to the `android:targetSdkVersion` variable in [AndroidManifest.xml](app/AndroidManifest.xml).
-4. Install all of the release packages, except for the system images.<br>You will use [Genymotion][] to manage the emulators.
+4. YOU MIGHT NOT HAVE TO DO THIS STEP; I HAVE NO IDEA. --URSULA Install all of the release packages, except for the system images.<br>You will use [Genymotion][] to manage the emulators.
 5. From `Extras`, install the latest versions:
    * `Android Support Repository`
    * `Android Support Library`
