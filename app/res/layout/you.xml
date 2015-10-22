@@ -47,6 +47,13 @@
         <View style="@style/You.Divider" />
 
         <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/you_explore_link"
+            style="@style/You.NavItem"
+            android:text="@string/you_explore" />
+
+        <View style="@style/Divider.Horizontal" />
+
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_activity_link"
             style="@style/You.NavItem"
             android:text="@string/you_activity" />

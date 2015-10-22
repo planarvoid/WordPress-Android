@@ -71,7 +71,7 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-            <!-- TODO: Remove the EXPLORE filter once we switch over to tabs -->
+            <!-- TODO: Move the EXPLORE filter to ExploreActivity once we switch over to tabs -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -175,6 +175,7 @@
 
         <meta-data android:name="android.app.default_searchable" android:value=".search.CombinedSearchActivity"/>
 
+        <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity"/>
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 
         <activity android:label="@string/side_menu_activity" android:name=".activities.ActivitiesActivity">

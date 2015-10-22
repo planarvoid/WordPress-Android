@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -196,6 +197,28 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsAction(Actions.STREAM)
                 .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void opensLegacyExplore() {
+        when(flags.isEnabled(Flag.TABS)).thenReturn(false);
+
+        navigator.openExplore(activityContext, Screen.DEEPLINK);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.EXPLORE)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void opensStandaloneExplore() {
+        when(flags.isEnabled(Flag.TABS)).thenReturn(true);
+
+        navigator.openExplore(activityContext, Screen.YOU);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(ExploreActivity.class)
+                .containsScreen(Screen.YOU);
     }
 
     @Test

@@ -2,8 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -12,8 +10,11 @@ import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
+import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
@@ -166,7 +167,7 @@ public class Navigator {
     }
 
     public void openExplore(Context context, Screen screen) {
-        context.startActivity(createExploreIntent(screen));
+        context.startActivity(createExploreIntent(context, screen));
     }
 
     public void openSearch(Context context, Uri uri, Screen screen) {
@@ -224,8 +225,10 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createExploreIntent(Screen screen) {
-        Intent intent = new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
+    private Intent createExploreIntent(Context context, Screen screen) {
+        Intent intent = featureFlags.isEnabled(Flag.TABS)
+                ? new Intent(context, ExploreActivity.class)
+                : new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
     }
@@ -268,7 +271,6 @@ public class Navigator {
         screen.addToIntent(intent);
         return intent;
     }
-
 
     private Intent createLauncherIntent(Context context) {
         return new Intent(context, LauncherActivity.class);

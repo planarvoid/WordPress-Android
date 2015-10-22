@@ -139,7 +139,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                 headerView.getProfileImageView());
     }
 
-    private class YouSubscriber extends  DefaultSubscriber<PropertySet>{
+    private class YouSubscriber extends DefaultSubscriber<PropertySet>{
         @Override
         public void onNext(PropertySet user) {
             youOpt = Optional.of(user);
@@ -152,6 +152,11 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         if (youOpt.isPresent()) {
             navigator.openProfile(view.getContext(), youOpt.get().get(UserProperty.URN));
         }
+    }
+
+    @Override
+    public void onExploreClicked(View view) {
+        navigator.openExplore(view.getContext(), Screen.YOU);
     }
 
     @Override
