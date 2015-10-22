@@ -23,6 +23,11 @@ task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${proj
 }
 staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
 
+task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
+  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
+}
+updateVersion.mustRunAfter('clean')
+
 // *********************************************************************************************************************
 // DEBUG BUILDS
 // *********************************************************************************************************************
@@ -30,13 +35,12 @@ staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
 task buildDebugCI(dependsOn: ['clean', 'assembleProdDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
-buildDebugCI.mustRunAfter('updateVersion')
 
-task buildEnd2endCI(dependsOn: ['assembleEnd2end']) {
+task buildEnd2endCI(dependsOn: ['updateVersion','assembleEnd2end']) {
   description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
-buildEnd2endCI.mustRunAfter('updateVersion')
+assembleEnd2end.mustRunAfter('updateVersion')
 
 // *********************************************************************************************************************
 // ALPHA BUILDS
@@ -59,15 +63,15 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task buildBetaCI(dependsOn: ['clean', 'assembleBeta']) {
+task buildBetaCI(dependsOn: ['clean', 'updateVersion', 'assembleBeta']) {
   description = 'Assembles Beta build for CI.'
 }
-buildBetaCI.mustRunAfter('updateVersion')
+assembleBeta.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployBeta(dependsOn: ['uploadGithub', 'uploadBeta']) {
   description = 'Deploy Beta build to playstore and github.'
 }
-deployBeta.mustRunAfter('buildBetaCI')
+uploadBeta.mustRunAfter('uploadGithub')
 
 // *********************************************************************************************************************
 // RELEASE BUILDS
@@ -76,20 +80,18 @@ deployBeta.mustRunAfter('buildBetaCI')
 task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
-buildReleaseNoProguardCI.mustRunAfter('updateVersion')
+assembleReleaseNoProguard.mustRunAfter('clean')
+staticAnalysis.mustRunAfter('assembleReleaseNoProguard')
 
-task buildReleaseCI(dependsOn: ['clean', 'assembleRelease']) {
+task buildReleaseCI(dependsOn: ['clean', 'updateVersion', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
-buildReleaseCI.mustRunAfter('updateVersion')
+assembleRelease.mustRunAfter('updateVersion')
 
-// NOTE: Uploading to Play Store's beta track is the expected operation here, due to differences in the way we version
-// releases versus how Google versions releases. We must upload the release apk (with a version code bump!) to the beta
-// track and then manually bump that apk to the release track in the play store.
-task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployRelease(dependsOn: ['uploadGithub', 'rolloutOnePercent']) {
   description = 'Deploy Release build to playstore and github.'
 }
-deployReleaseCI.mustRunAfter('buildReleaseCI')
+rolloutOnePercent.mustRunAfter('uploadGithub')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
@@ -98,10 +100,6 @@ task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_sto
 // *********************************************************************************************************************
 // HELPERS
 // *********************************************************************************************************************
-
-task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
-  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
-}
 
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
