@@ -123,28 +123,60 @@ task uploadStoreBeta(type: Exec) {
   commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
 }
 
-task newUploadStoreBeta(type: Exec) {
-  description = 'Uploads apk to Google Play Store.'
+task newUploadStoreBeta {
+  description = 'Uploads apk to Google Play Store Beta Track.'
 
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', findApkPath("debug"), '-t', 'beta'
+  doLast {
+    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("debug"), '-t', 'beta']
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+      throw new Exception("Uploads apk to Google Play Store Beta Track failed: ($cmd) exitValue: $exitValue")
+    }
+  }
 }
 
-task rolloutOnePercent(type: Exec) {
-  description = 'Rolls the app up to 1% of user base'
+task rolloutOnePercent {
+  description = 'Rolls the app out to 1% of user base'
 
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout'
+  doLast {
+    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout']
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+      throw new Exception("Rollout to 1% failed: ($cmd) exitValue: $exitValue")
+    }
+  }
 }
 
-task rolloutFivePercent(type: Exec) {
-  description = 'Rolls the app up to 5% of user base'
+task rolloutFivePercent {
+  description = 'Rolls the app out to 5% of user base'
 
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0.05'
+  doLast {
+    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0.05']
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+      throw new Exception("Rollout to 5% failed: ($cmd) exitValue: $exitValue")
+    }
+  }
 }
 
-task rolloutFull(type: Exec) {
-  description = 'Rolls the app up to 100% of user base'
+task rolloutFull {
+  description = 'Rolls the app out to 100% of user base'
 
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0'
+  doLast {
+    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0']
+    def p = cmd.execute()
+    p.waitFor()
+    def exitValue = p.exitValue()
+    if (exitValue != 0) {
+      throw new Exception("Rollout to 100% failed: ($cmd) exitValue: $exitValue")
+    }
+  }
 }
 
 task slog(type: Exec) {
