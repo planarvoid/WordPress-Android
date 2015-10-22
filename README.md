@@ -84,7 +84,7 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Opening the project in Android Studio
 
-Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
+Open Android Studio, select `File` &rarr; `New` &rarr; `Import project`, and select `build.gradle` from the root project directory.
 
 Select `Next` and confirm the import of the parent project. If you are asked to use the `gradle wrapper`, select `Yes`.
 
