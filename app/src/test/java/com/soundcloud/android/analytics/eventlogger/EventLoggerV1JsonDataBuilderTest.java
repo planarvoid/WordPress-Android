@@ -61,7 +61,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
-    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
+    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
     private final PlayableMetadata playableMetadata = PlayableMetadata.from(PropertySet.create());
 

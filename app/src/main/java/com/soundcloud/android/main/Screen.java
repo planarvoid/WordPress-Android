@@ -20,8 +20,8 @@ public enum Screen {
     // core screens
     SIDE_MENU_DRAWER("drawer"),
     STREAM("stream:main"),
-    SIDE_MENU_LIKES("collection:likes"),
-    SIDE_MENU_PLAYLISTS("collection:playlists"),
+    LIKES("collection:likes"),
+    PLAYLISTS("collection:playlists"),
     COLLECTIONS("collections"),
 
     // onboarding

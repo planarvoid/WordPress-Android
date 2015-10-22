@@ -316,10 +316,10 @@ class LegacyMainPresenter extends NavigationPresenter {
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
                 break;
             case LIKES:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_LIKES));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.LIKES));
                 break;
             case PLAYLISTS:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_PLAYLISTS));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYLISTS));
                 break;
             case STATIONS:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STATIONS_HOME));

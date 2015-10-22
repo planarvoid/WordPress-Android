@@ -66,7 +66,7 @@ public class PlaylistLikesPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(mock(View.class), 0);
 
         verify(navigator).openPlaylist(
-                any(Context.class), eq(clickedPlaylist.get(PlaylistProperty.URN)), eq(Screen.SIDE_MENU_PLAYLISTS));
+                any(Context.class), eq(clickedPlaylist.get(PlaylistProperty.URN)), eq(Screen.PLAYLISTS));
     }
 
     @Test

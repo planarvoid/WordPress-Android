@@ -95,6 +95,6 @@ public class PlaylistPostsPresenter extends RecyclerViewPresenter<PlaylistItem> 
     @Override
     public void onItemClicked(View view, int position) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
-        navigator.openPlaylist(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
+        navigator.openPlaylist(view.getContext(), playlistUrn, Screen.PLAYLISTS);
     }
 }
