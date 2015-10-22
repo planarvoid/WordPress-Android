@@ -82,13 +82,12 @@ If you encounter problems, check and update the [troubleshooting page](https://g
 
 You can also ask questions on the `#android-newbies` Slack channel.
 
-## Opening the project in Android Studio
+## Open the project in Android Studio
 
-From within Android Studio, select `File` &rarr; `New` &rarr; `Import project`, and select `build.gradle` from the root project directory. If you see the message, `Unregistered VCS root detected`, and you are not sure what to do, click `Add root`.
-
-Select `Next` and confirm the import of the parent project. If you are asked to use the `gradle wrapper`, select `Yes`.
-
-Android Studio will automatically download and manage dependencies. When the download completes, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
+1. From within Android Studio, select `File` &rarr; `New` &rarr; `Import project`, and select `build.gradle` from the root project directory.<br>(If you see the message, `Unregistered VCS root detected`, and you are not sure what to do, click `Add root`.)
+2. Select `Next` and confirm the import of the parent project.<br>Android Studio automatically downloads and manages dependencies.<br>(If you are asked to use the `gradle wrapper`, select `Yes`.)<br>
+3. After the download completes, click <code>Install <i>n</i> packages...</code>.<br>The installation might take several minutes to complete.
+4. Reload the project.
 
 ## Set up code style
 
