@@ -14,7 +14,7 @@ public class PlaybackUtils {
         if (startPosition < playQueue.size() && playQueue.getUrn(startPosition).equals(initialTrack)) {
             return startPosition;
         } else {
-            return playQueue.indexOf(initialTrack);
+            return playQueue.indexOfTrackUrn(initialTrack);
         }
     }
 
@@ -40,8 +40,8 @@ public class PlaybackUtils {
     }
 
     /**
-     * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
-     * Returns the new startPosition
+     * Remove duplicates and non-track items from playqueue, preserving the ordering with regards to the item they clicked on
+     * Returns the new startPosition.
      */
     // TODO: This method should return de-duplicated list, instead of mutating the original one
     private static int getDeduplicatedList(PlayQueue trackUrns, int startPosition) {
@@ -53,7 +53,9 @@ public class PlaybackUtils {
         int adjustedPosition = startPosition;
         while (iterator.hasNext()) {
             final PlayQueueItem track = iterator.next();
-            if (i != adjustedPosition && (seenTracks.contains(track) || track.getTrackUrn().equals(playedTrack))) {
+            if (i != adjustedPosition && (seenTracks.contains(track) ||
+                    !track.isTrack() ||
+                    track.getUrn().equals(playedTrack))) {
                 iterator.remove();
                 if (i < adjustedPosition) {
                     adjustedPosition--;

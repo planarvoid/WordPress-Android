@@ -1,10 +1,12 @@
 package com.soundcloud.android.playback.notification;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
@@ -126,12 +128,12 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
     private void startStrategy() {
         subscriptions.unsubscribe();
         subscriptions = new CompositeSubscription(
-                eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new CurrentTrackSubscriber(activeStrategy)),
+                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM).subscribe(new CurrentTrackSubscriber(activeStrategy)),
                 eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlaybackStateSubscriber(playbackService, activeStrategy))
         );
     }
 
-    private static class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private static class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         private final Strategy strategy;
 
         public CurrentTrackSubscriber(Strategy strategy) {
@@ -139,11 +141,9 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         }
 
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
-            PropertySet trackData = event
-                    .getCurrentMetaData()
-                    .put(EntityProperty.URN, event.getCurrentTrackUrn());
-
+        public void onNext(CurrentPlayQueueItemEvent event) {
+            final TrackQueueItem trackQueueItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
+            PropertySet trackData = trackQueueItem.getMetaData().put(EntityProperty.URN, trackQueueItem.getTrackUrn());
             strategy.setTrack(trackData);
         }
     }

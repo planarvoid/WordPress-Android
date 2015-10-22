@@ -11,11 +11,12 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Predicate;
+
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -33,12 +34,6 @@ public class AdsOperations {
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
-    private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
-        @Override
-        public boolean apply(PropertySet input) {
-            return input.contains(AdProperty.AD_URN);
-        }
-    };
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
@@ -161,26 +156,27 @@ public class AdsOperations {
     }
 
     public boolean isCurrentTrackAudioAd() {
-        return isAudioAdAtPosition(playQueueManager.getCurrentPosition());
+        return !playQueueManager.isQueueEmpty() && isAudioAdAtPosition(playQueueManager.getCurrentPosition());
     }
 
     public boolean isAudioAdAtPosition(int position) {
-        return !playQueueManager.isQueueEmpty() && position < playQueueManager.getQueueSize() &&
-                playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN) &&
-                playQueueManager.getMetaDataAt(position).get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
+        final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
+        return playQueueItem.getMetaData().contains(AdProperty.AD_URN) &&
+                playQueueItem.getMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
     public void clearAllAds() {
-        playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
+        playQueueManager.removeTracksWithMetaData(AdFunctions.HAS_AD_URN,
+                PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 
-    public List<Urn> getAdUrnsInQueue() {
-        return playQueueManager.filterTrackUrnsWithMetadata(hasAdUrn);
+    public List<PlayQueueItem> getAdPlayQueueItemsInQueue() {
+        return playQueueManager.filterQueueItemsWithMetadata(AdFunctions.HAS_AD_URN);
     }
 
     public PropertySet getMonetizableTrackMetaData() {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
-        return playQueueManager.getMetaDataAt(monetizableTrackPosition);
+        return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getMetaData();
     }
 
     private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition, Urn monetizableTrack) {

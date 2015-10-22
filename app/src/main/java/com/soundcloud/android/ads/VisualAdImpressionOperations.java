@@ -2,12 +2,13 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -23,13 +24,13 @@ public class VisualAdImpressionOperations {
     private final AccountOperations accountOperations;
     private final AdsOperations adsOperations;
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
-    private final Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
+    private final Observable<CurrentPlayQueueItemEvent> currentTrackQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
 
     private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
         public VisualAdImpressionEvent call(State state) {
-            return new VisualAdImpressionEvent(playQueueManager.getCurrentMetaData(), state.currentTrackUrn,
+            return new VisualAdImpressionEvent(playQueueManager.getCurrentPlayQueueItem().getMetaData(), state.currentTrackUrn,
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
         }
     };
@@ -41,9 +42,9 @@ public class VisualAdImpressionOperations {
         }
     };
 
-    private final Action1<CurrentPlayQueueTrackEvent> unlockCurrentImpression = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<CurrentPlayQueueItemEvent> unlockCurrentImpression = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
-        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+        public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             impressionEventEmitted = false;
         }
     };
@@ -55,12 +56,12 @@ public class VisualAdImpressionOperations {
         }
     };
 
-    private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combineFunction =
-            new Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
+    private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State> combineFunction =
+            new Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
         @Override
-        public State call(ActivityLifeCycleEvent event, CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent, PlayerUIEvent playerUIEvent) {
+        public State call(ActivityLifeCycleEvent event, CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
             return new State(
-                    currentPlayQueueTrackEvent.getCurrentTrackUrn(),
+                    currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
                     adsOperations.isCurrentTrackAudioAd(),
                     playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
@@ -76,7 +77,7 @@ public class VisualAdImpressionOperations {
         this.accountOperations = accountOperations;
         this.adsOperations = adsOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        this.currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
+        this.currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
     }
 

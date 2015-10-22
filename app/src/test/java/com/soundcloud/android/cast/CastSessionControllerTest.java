@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -102,10 +103,10 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
     public void onConnectedToReceiverAppExpandsPlayerWhenLocalQueueIsPopulated() throws Exception {
         castSessionController.startListening();
         PlaybackResult playbackResult = PlaybackResult.success();
-        when(playSessionStateProvider.getLastProgressForTrack(URN)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack()).thenReturn(new PlaybackProgress(123L, 456L));
         when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(URN));
 
         callOnConnectedToReceiverApp();
 

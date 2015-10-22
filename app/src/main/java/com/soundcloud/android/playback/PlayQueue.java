@@ -5,12 +5,12 @@ import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
@@ -22,10 +22,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static final String DEFAULT_SOURCE_VERSION = "default";
     private final List<PlayQueueItem> playQueueItems;
-    private final Function<PlayQueueItem, Urn> toUrn = new Function<PlayQueueItem, Urn>() {
+    private final Function<PlayQueueItem, Integer> toHashes = new Function<PlayQueueItem, Integer>() {
         @Override
-        public Urn apply(PlayQueueItem playQueueItem) {
-            return playQueueItem.getTrackUrn();
+        public Integer apply(PlayQueueItem playQueueItem) {
+            return playQueueItem.hashCode();
         }
     };
 
@@ -49,22 +49,16 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         this.playQueueItems = playQueueItems;
     }
 
-    public void addTrack(Urn trackUrn, String source, String sourceVersion) {
-        playQueueItems.add(new PlayQueueItem.Builder(trackUrn)
-                .fromSource(source, sourceVersion)
-                .build());
+    public PlayQueueItem getPlayQueueItem(int position) {
+        checkElementIndex(position, size());
+        return playQueueItems.get(position);
     }
 
     public void insertTrack(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
-        checkArgument(position >= 0 && position <= size(), String.format("Cannot insert track at position:%d, size:%d", position, playQueueItems.size()));
-        playQueueItems.add(position, new PlayQueueItem.Builder(trackUrn)
+        insertPlayQueueItem(position, new TrackQueueItem.Builder(trackUrn)
                 .withAdData(metaData)
                 .persist(shouldPersist)
                 .build());
-    }
-
-    public void remove(int position) {
-        playQueueItems.remove(position);
     }
 
     public boolean hasPreviousTrack(int position) {
@@ -92,32 +86,46 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return !playQueueItems.isEmpty();
     }
 
-    public Urn getUrn(int position) {
-        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : Urn.NOT_SET;
-    }
-
-    public int indexOf(Urn initialTrack) {
-        return transform(playQueueItems, toUrn).indexOf(initialTrack);
-    }
-
     @Deprecated
-    public long getTrackId(int position) {
-        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().getNumericId() : Consts.NOT_SET;
-    }
-
-    public PropertySet getMetaData(int position) {
+    public Urn getUrn(int position) {
         checkElementIndex(position, size());
 
-        return playQueueItems.get(position).getMetaData();
+        final PlayQueueItem playQueueItem = playQueueItems.get(position);
+        return playQueueItem.isTrack() ?
+                playQueueItem.getUrn() : Urn.NOT_SET;
+    }
+
+    public int indexOfTrackUrn(final Urn trackUrn) {
+        return Iterables.indexOf(playQueueItems, new Predicate<PlayQueueItem>() {
+            @Override
+            public boolean apply(PlayQueueItem input) {
+                return input.isTrack()
+                        && input.getUrn().equals(trackUrn);
+            }
+        });
+    }
+
+    public List<Urn> getTrackItemUrns() {
+        final List<Urn> trackItemUrns = new ArrayList<>();
+        for (PlayQueueItem item : playQueueItems) {
+            if (item.isTrack()) {
+                trackItemUrns.add(item.getUrn());
+            }
+        }
+        return trackItemUrns;
     }
 
     public boolean shouldPersistTrackAt(int position) {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
+    public PropertySet getMetaData(int position) {
+        checkElementIndex(position, size());
+        return playQueueItems.get(position).getMetaData();
+    }
+
     public void setMetaData(int position, PropertySet metadata) {
         checkElementIndex(position, size());
-
         playQueueItems.get(position).setMetaData(metadata);
     }
 
@@ -130,7 +138,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public static PlayQueue fromStation(Urn stationUrn, List<Urn> tracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (Urn track : tracks) {
-            final PlayQueueItem.Builder builder = new PlayQueueItem.Builder(track)
+            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(track)
                     .relatedEntity(stationUrn)
                     .fromSource(PlaySessionSource.DiscoverySource.STATIONS.value(), DEFAULT_SOURCE_VERSION);
             playQueueItems.add(builder.build());
@@ -141,7 +149,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public static PlayQueue fromRecommendations(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (ApiTrack relatedTrack : relatedTracks) {
-            final PlayQueueItem.Builder builder = new PlayQueueItem.Builder(relatedTrack.getUrn())
+            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)
                     .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion());
             playQueueItems.add(builder.build());
@@ -151,8 +159,13 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
         PlayQueue playQueue = fromRecommendations(seedTrack, relatedTracks);
-        playQueue.playQueueItems.add(0, new PlayQueueItem.Builder(seedTrack).build());
+        playQueue.playQueueItems.add(0, new TrackQueueItem.Builder(seedTrack).build());
         return playQueue;
+    }
+
+    void insertPlayQueueItem(int position, PlayQueueItem playQueueItem) {
+        checkArgument(position >= 0 && position <= size(), String.format("Cannot insert item at position:%d, size:%d", position, playQueueItems.size()));
+        playQueueItems.add(position, playQueueItem);
     }
 
     void addPlayQueueItem(PlayQueueItem playQueueItem) {
@@ -163,30 +176,8 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         Iterables.addAll(playQueueItems, somePlayQueueItems);
     }
 
-    Urn getReposter(int position) {
-        return playQueueItems.get(position).getReposter();
-    }
-
-    String getTrackSource(int position) {
-        return playQueueItems.get(position).getSource();
-    }
-
-    String getSourceVersion(int position) {
-        return playQueueItems.get(position).getSourceVersion();
-    }
-
-    List<Long> getTrackIds() {
-        List<Long> trackIds = transform(playQueueItems, new Function<PlayQueueItem, Long>() {
-            @Override
-            public Long apply(PlayQueueItem input) {
-                return input.getTrackUrn().getNumericId();
-            }
-        });
-        return trackIds;
-    }
-
-    List<Urn> getTrackUrns() {
-        return transform(playQueueItems, toUrn);
+    List<Integer> getQueueHashes() {
+        return transform(playQueueItems, toHashes);
     }
 
     private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
@@ -196,7 +187,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {
-                return new PlayQueueItem.Builder(track)
+                return new TrackQueueItem.Builder(track)
                         .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
                         .build();
             }
@@ -207,7 +198,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return newArrayList(transform(trackIds, new Function<PropertySet, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(PropertySet track) {
-                return new PlayQueueItem.Builder(track)
+                return new TrackQueueItem.Builder(track)
                         .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion()).build();
             }
         }));

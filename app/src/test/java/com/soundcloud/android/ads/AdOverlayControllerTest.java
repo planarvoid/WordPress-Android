@@ -16,6 +16,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -62,9 +63,10 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         AdOverlayController.Factory factory = new AdOverlayController.Factory(imageOperations,
                 context, deviceHelper, eventBus, playQueueManager, accountOperations);
         controller = factory.create(trackView, listener);
+
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
-        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.leaveBehindForPlayer()));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(context.getResources()).thenReturn(resources);

@@ -1,6 +1,6 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -25,7 +25,7 @@ class StationsNowPlayingController extends DefaultSupportFragmentLightCycle<Frag
 
     @Override
     public void onResume(Fragment fragment) {
-        subscription = eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new Subscriber());
+        subscription = eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new Subscriber());
     }
 
     @Override
@@ -37,9 +37,9 @@ class StationsNowPlayingController extends DefaultSupportFragmentLightCycle<Frag
         this.adapter = adapter;
     }
 
-    private class Subscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private class Subscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
+        public void onNext(CurrentPlayQueueItemEvent event) {
             if (adapter != null) {
                 adapter.updateNowPlaying(event.getCollectionUrn());
             }

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -57,9 +57,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private boolean isResumed;
     private boolean setPlayQueueAfterScroll;
 
-    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
-        public Boolean call(CurrentPlayQueueTrackEvent ignored) {
+        public Boolean call(CurrentPlayQueueItemEvent ignored) {
             return adsOperations.isCurrentTrackAudioAd();
         }
     };
@@ -78,31 +78,31 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private final Action1<CurrentPlayQueueTrackEvent> allowScrollAfterTimeout = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterTimeout = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
-        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+        public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread()).subscribe(getRestoreQueueSubscriber());
         }
     };
 
-    private final Action1<CurrentPlayQueueTrackEvent> onTrackChanged = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<CurrentPlayQueueItemEvent> onTrackChanged = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
-        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+        public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             presenter.onTrackChange();
             unblockPagerSubscription.unsubscribe();
         }
     };
 
-    private final Func1<CurrentPlayQueueTrackEvent, Boolean> notWaitingForScroll = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+    private final Func1<CurrentPlayQueueItemEvent, Boolean> notWaitingForScroll = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
-        public Boolean call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+        public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
             return !setPlayQueueAfterScroll;
         }
     };
 
-    private final DefaultSubscriber<CurrentPlayQueueTrackEvent> setPagerPositionFromPlayQueueManager = new DefaultSubscriber<CurrentPlayQueueTrackEvent>() {
+    private final DefaultSubscriber<CurrentPlayQueueItemEvent> setPagerPositionFromPlayQueueManager = new DefaultSubscriber<CurrentPlayQueueItemEvent>() {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent args) {
+        public void onNext(CurrentPlayQueueItemEvent args) {
             setQueuePosition(playQueueManager.getCurrentPosition());
         }
     };
@@ -166,14 +166,14 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
 
         // setup audio ad
-        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .doOnNext(onTrackChanged)
                 .filter(isCurrentTrackAudioAd)
                 .doOnNext(allowScrollAfterTimeout)
                 .subscribe(new ShowAudioAdSubscriber()));
 
         // set position from track change
-        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+        subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .filter(notWaitingForScroll)
                 .subscribe(setPagerPositionFromPlayQueueManager));
     }
@@ -287,9 +287,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     }
 
-    private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>  {
+    private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent>  {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent ignored) {
+        public void onNext(CurrentPlayQueueItemEvent ignored) {
             showAudioAd();
         }
     }

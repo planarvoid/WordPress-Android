@@ -118,13 +118,15 @@ class PlaybackSessionAnalyticsController {
                         logInvalidAudioAdProgress();
                     }
 
-                    lastPlayAudioAd = playQueueManager.getCurrentMetaData();
+                    lastPlayAudioAd = playQueueManager.getCurrentPlayQueueItem().getMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
-                    final Urn trackUrn = playQueueManager.getCurrentTrackUrn();
+                    final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
                     PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
 
-                    if (playQueueManager.isTrackFromCurrentPromotedItem(trackUrn) && playSource.getPromotedSourceInfo().isFirstPlay()) {
+                    if (currentPlayQueueItem.isTrack()
+                            && playQueueManager.isTrackFromCurrentPromotedItem(currentPlayQueueItem.getUrn())
+                            && playSource.getPromotedSourceInfo().isFirstPlay()) {
                         PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
                         lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
 

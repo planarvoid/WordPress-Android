@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
@@ -45,15 +45,18 @@ public class PlaySessionStateProvider {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK,  new PlayQueueTrackSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,  new PlayQueueTrackSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(ignoreDefaultStateFilter)
                 .subscribe(new PlayStateSubscriber());
     }
 
     public boolean isPlayingCurrentPlayQueueTrack(){
-        return isPlayingTrack(playQueueManager.getCurrentTrackUrn());
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return currentPlayQueueItem.isTrack() &&
+                isPlayingTrack(currentPlayQueueItem.getUrn());
     }
 
+    @Deprecated
     public boolean isPlayingTrack(PublicApiTrack track) {
         return isPlayingTrack(track.getUrn());
     }
@@ -71,7 +74,9 @@ public class PlaySessionStateProvider {
     }
 
     public PlaybackProgress getLastProgressEventForCurrentPlayQueueTrack() {
-        return getLastProgressForTrack(playQueueManager.getCurrentTrackUrn());
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return currentPlayQueueItem.isTrack() ?
+                getLastProgressForTrack(currentPlayQueueItem.getUrn()) : PlaybackProgress.empty();
     }
 
     public PlaybackProgress getLastProgressForTrack(Urn urn) {
@@ -129,9 +134,9 @@ public class PlaySessionStateProvider {
         }
     }
 
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
+        public void onNext(CurrentPlayQueueItemEvent event) {
             if (lastStateTransition.playSessionIsActive()) {
                 progressMap.clear();
             }

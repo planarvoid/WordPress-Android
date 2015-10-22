@@ -23,6 +23,7 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -34,7 +35,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -72,7 +72,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 playSessionController);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK1);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
 
         observer = new TestObserver<>();
@@ -263,7 +263,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), anyBoolean(), eq(playSessionSource));
         final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
-        assertThat(toList(actualQueue)).contains(TRACK1, TRACK2, TRACK3);
+        assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
     }
 
     @Test
@@ -399,13 +399,5 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     private PlayQueue createPlayQueue(PlaySessionSource playSessionSource, PropertySet... tracks) {
         return PlayQueue.fromTrackList(Arrays.asList(tracks), playSessionSource);
-    }
-
-    private List<Urn> toList(PlayQueue actualQueue) {
-        final ArrayList<Urn> result = new ArrayList<>();
-        for (PlayQueueItem playQueueItem : actualQueue) {
-            result.add(playQueueItem.getTrackUrn());
-        }
-        return result;
     }
 }

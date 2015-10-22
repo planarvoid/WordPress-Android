@@ -1,12 +1,13 @@
 package com.soundcloud.android.tracks;
 
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 @Deprecated // use UpdatePlayingTrackSubscriber instead
-public final class LegacyUpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+public final class LegacyUpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
     private final ItemAdapter adapter;
     private final TrackItemRenderer trackRenderer;
 
@@ -16,8 +17,9 @@ public final class LegacyUpdatePlayingTrackSubscriber extends DefaultSubscriber<
     }
 
     @Override
-    public void onNext(CurrentPlayQueueTrackEvent event) {
-        trackRenderer.setPlayingTrack(event.getCurrentTrackUrn());
+    public void onNext(CurrentPlayQueueItemEvent event) {
+        PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
+        trackRenderer.setPlayingTrack(playQueueItem.getUrnOrNotSet());
         adapter.notifyDataSetChanged();
     }
 }

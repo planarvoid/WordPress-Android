@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -163,7 +163,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private void setupClearAdOverlaySubscriber() {
         backgroundSubscription.add(eventBus
-                .queue(EventQueue.PLAY_QUEUE_TRACK)
+                .queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ClearAdOverlaySubscriber()));
     }
@@ -509,9 +509,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>{
+    private final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent>{
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent ignored) {
+        public void onNext(CurrentPlayQueueItemEvent ignored) {
             for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
                 final TrackPageData trackPageData = entry.getValue();
                 final PlayerPagePresenter presenter = pagePresenter(trackPageData);

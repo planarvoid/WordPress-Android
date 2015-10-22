@@ -2,10 +2,11 @@ package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -38,7 +39,7 @@ public class PeripheralsController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateChangedSubscriber());
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueChangedSubscriber());
+        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).subscribe(new PlayQueueChangedSubscriber());
     }
 
     private void notifyPlayStateChanged(boolean isPlaying) {
@@ -88,10 +89,15 @@ public class PeripheralsController {
         }
     }
 
-    private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
-            trackRepository.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
+        public void onNext(CurrentPlayQueueItemEvent event) {
+            PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
+            if (playQueueItem.isTrack()) {
+                trackRepository.track(playQueueItem.getUrn()).subscribe(new CurrentTrackSubscriber());
+            } else {
+                resetTrackInformation();
+            }
         }
     }
 

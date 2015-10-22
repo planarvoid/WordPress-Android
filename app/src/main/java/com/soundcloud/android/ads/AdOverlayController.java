@@ -4,6 +4,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -84,9 +85,10 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     private void sendTrackingEvent() {
+        final PlayQueueItem playQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(
-                playQueueManager.getCurrentMetaData(),
-                playQueueManager.getCurrentTrackUrn(),
+                playQueueItem.getMetaData(),
+                playQueueItem.getUrn(),
                 accountOperations.getLoggedInUserUrn(),
                 playQueueManager.getCurrentTrackSourceInfo());
         eventBus.publish(EventQueue.TRACKING, event);
@@ -128,7 +130,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     private void onAdVisible() {
         if (presenter != null) {
-            presenter.onAdVisible(playQueueManager.getCurrentTrackUrn(), data, playQueueManager.getCurrentTrackSourceInfo());
+            presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(), data, playQueueManager.getCurrentTrackSourceInfo());
             listener.onAdOverlayShown(presenter.isFullScreen());
         }
     }

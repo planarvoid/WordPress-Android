@@ -3,18 +3,22 @@ package com.soundcloud.android.playback.widget;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueFunctions;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -43,10 +47,10 @@ public class PlayerWidgetController {
     private final LikeOperations likeOperations;
     private final EngagementsTracking engagementsTracking;
 
-    private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
+    private final Func1<TrackQueueItem, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<TrackQueueItem, Observable<PropertySet>>() {
         @Override
-        public Observable<PropertySet> call(CurrentPlayQueueTrackEvent event) {
-            return loadTrackWithAdMeta(event.getCurrentTrackUrn(), event.getCurrentMetaData());
+        public Observable<PropertySet> call(TrackQueueItem playQueueItem) {
+            return loadTrackWithAdMeta(playQueueItem);
         }
     };
 
@@ -70,8 +74,9 @@ public class PlayerWidgetController {
         eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackChangedSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
-
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                .filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM)
+                .map(PlayQueueFunctions.TO_TRACK_QUEUE_ITEM)
                 .flatMap(onPlayQueueEventFunc).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CurrentTrackSubscriber());
     }
@@ -86,34 +91,37 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
-        Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        if (Urn.NOT_SET.equals(currentTrackUrn)) {
-            presenter.reset(context);
-        } else {
-            loadTrackWithAdMeta(currentTrackUrn, playQueueManager.getCurrentMetaData())
+        if (!playQueueManager.isQueueEmpty() && playQueueManager.getCurrentPlayQueueItem().isTrack()) {
+            loadTrackWithAdMeta((TrackQueueItem) playQueueManager.getCurrentPlayQueueItem())
                     .map(updateFunc)
                     .subscribe(new CurrentTrackSubscriber());
+        } else {
+            presenter.reset(context);
         }
     }
 
-    private Observable<PropertySet> loadTrackWithAdMeta(Urn urn, PropertySet metaData) {
-        return trackRepository.track(urn).map(PropertySetFunctions.mergeWith(metaData));
+    private Observable<PropertySet> loadTrackWithAdMeta(TrackQueueItem currentTrackQueueItem) {
+            return trackRepository.track(currentTrackQueueItem.getTrackUrn())
+                    .map(PropertySetFunctions.mergeWith(currentTrackQueueItem.getMetaData()));
     }
 
     public void handleToggleLikeAction(final boolean addLike) {
-        final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        if (currentPlayQueueItem.isTrack()) {
+            final Urn currentTrackUrn = currentPlayQueueItem.getUrn();
+            fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
-
-        engagementsTracking.likeTrackUrn(currentTrackUrn,
-                addLike,
-                Screen.WIDGET.get(),
-                playQueueManager.getScreenTag(),
-                Screen.WIDGET.get(),
-                Urn.NOT_SET,
-                playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
+            engagementsTracking.likeTrackUrn(currentTrackUrn,
+                    addLike,
+                    Screen.WIDGET.get(),
+                    playQueueManager.getScreenTag(),
+                    Screen.WIDGET.get(),
+                    Urn.NOT_SET,
+                    playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
+        } else {
+            ErrorUtils.handleSilentException(new IllegalStateException("Tried to like a track from widget with invalid playQueue item"));
+        }
     }
-
 
     /**
      * Listens for track changes emitted from our application layer via Rx and updates the widget
@@ -122,7 +130,7 @@ public class PlayerWidgetController {
     private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(final EntityStateChangedEvent event) {
-            if (playQueueManager.isCurrentTrack(event.getFirstUrn())) {
+            if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(event.getFirstUrn())) {
                 updatePlayableInformation(PropertySetFunctions.mergeWith(event.getNextChangeSet()));
             }
         }
@@ -153,5 +161,4 @@ public class PlayerWidgetController {
             presenter.updateTrackInformation(context, track);
         }
     }
-
 }
