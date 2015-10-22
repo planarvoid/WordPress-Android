@@ -34,7 +34,7 @@ public class ExploreActivity extends ScActivity {
 
     @Override
     protected void setActivityContentView() {
-        baseLayoutHelper.setBaseLayoutWithMargins(this);
+        baseLayoutHelper.setBaseLayout(this);
     }
 
     @Override
