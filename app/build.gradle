@@ -144,7 +144,6 @@ dependencies {
 
   /* 3rd Party Libraries */
   compile libraries.autoParcel
-  compile libraries.autoFactory
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger
