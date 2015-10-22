@@ -185,33 +185,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="" android:name=".profile.MeActivity" android:theme="@style/Theme.SoundCloud.NoBg">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOU"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_INFO"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWERS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWINGS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
         <activity android:exported="true" android:label="@string/app_name" android:name=".onboarding.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".onboarding.auth.RecoverActivity" android:theme="@style/Theme.ScAuth"/>
 

@@ -101,10 +101,6 @@ public abstract class PublicApiResource
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
-    public Intent getViewIntent() {
-        return null;
-    }
-
     public static class ResourceHolder<T extends PublicApiResource> extends CollectionHolder<T> {
 
         public ResourceHolder() {

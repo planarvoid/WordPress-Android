@@ -14,8 +14,7 @@ public enum SyncContent {
     MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyPlaylists (Content.ME_PLAYLISTS,  SyncConfig.PLAYLIST_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
-    MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
-    MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS);
+    MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS);
 
     SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
@@ -28,10 +27,6 @@ public enum SyncContent {
     public final Content content;
     public final long syncDelay;
     public final int[] backoffMultipliers;
-
-    public boolean isEnabled() {
-        return this != MyFollowers; // Handled by push
-    }
 
     public boolean shouldSync(int misses, long lastSync) {
         if (backoffMultipliers == null){

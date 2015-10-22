@@ -29,7 +29,7 @@ public class LegacySyncRequestTest {
 
     @Test
     public void shouldCreateCollectionSyncRequests() throws Exception {
-        LegacySyncRequest req = new LegacySyncRequest(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), collectionSyncRequestFactory);
+        LegacySyncRequest req = new LegacySyncRequest(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri), collectionSyncRequestFactory);
 
         expect(req.getPendingJobs().size()).toEqual(1);
     }
@@ -39,7 +39,7 @@ public class LegacySyncRequestTest {
         final Intent intent = new Intent(Intent.ACTION_SYNC);
 
         ArrayList<Uri> uris = new ArrayList<>();
-        uris.add(Content.ME_FOLLOWERS.uri);
+        uris.add(Content.ME_FOLLOWINGS.uri);
         uris.add(Content.ME_LIKES.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, uris);
@@ -61,7 +61,7 @@ public class LegacySyncRequestTest {
     @Test
     public void shouldCallResultReceiverWhenAllRequestsHaveBeenExecuted() throws Exception {
         final Boolean[] executed = new Boolean[1];
-        final Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri);
+        final Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri);
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(null) {
             @Override protected void onReceiveResult(int resultCode, Bundle resultData) {
                 executed[0] = true;
@@ -69,7 +69,7 @@ public class LegacySyncRequestTest {
         });
 
         final LegacySyncJob legacySyncItem = new LegacySyncJob(
-                Robolectric.application, Content.ME_FOLLOWERS.uri, null, false, apiSyncerFactory, syncStateManager);
+                Robolectric.application, Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager);
         when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(legacySyncItem);
 
         LegacySyncRequest req = new LegacySyncRequest(intent, collectionSyncRequestFactory);

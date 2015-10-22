@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
@@ -182,33 +181,17 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.username));
     }
 
-    private ViewElement location() {
-        return testDriver.findElement(With.id(R.id.location));
-    }
-
-    private ViewElement followersMessage() {
-        return testDriver.findElement(With.id(R.id.followers_message));
-    }
-
     private String getFollowButtonText() {
         return testDriver.getString(R.string.btn_following);
     }
 
     @Override
     protected Class getActivity() {
-        return BuildConfig.FEATURE_NEW_PROFILE ? ProfileActivity.class : LegacyProfileActivity.class;
+        return ProfileActivity.class;
     }
 
     public String getUserName() {
         return new TextElement(userName()).getText();
-    }
-
-    public String getLocation() {
-        return new TextElement(location()).getText();
-    }
-
-    public String getFollowersMessage() {
-        return new TextElement(followersMessage()).getText();
     }
 
     public ProfileScreen clickFollowToggle() {

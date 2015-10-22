@@ -1,35 +1,26 @@
 package com.soundcloud.android.sync.content;
 
-import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
-import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.rx.observers.SuccessSubscriber;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -50,18 +41,16 @@ import android.support.v4.app.NotificationCompat;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UserAssociationSyncer extends LegacySyncStrategy {
+public class MyFollowingsSyncer extends LegacySyncStrategy {
 
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
-    private final FollowingOperations followingOperations;
     private final NextFollowingOperations nextFollowingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
@@ -69,23 +58,22 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
 
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
-    public UserAssociationSyncer(Context context, AccountOperations accountOperations,
-                                 FollowingOperations followingOperations, NextFollowingOperations nextFollowingOperations,
-                                 NotificationManager notificationManager,
-                                 JsonTransformer jsonTransformer, Navigator navigator) {
+    public MyFollowingsSyncer(Context context, AccountOperations accountOperations,
+                              NextFollowingOperations nextFollowingOperations,
+                              NotificationManager notificationManager,
+                              JsonTransformer jsonTransformer, Navigator navigator) {
         this(context, context.getContentResolver(),
                 new LegacyUserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
-                followingOperations, accountOperations, nextFollowingOperations, notificationManager, jsonTransformer, navigator);
+                accountOperations, nextFollowingOperations, notificationManager, jsonTransformer, navigator);
     }
 
     @VisibleForTesting
-    protected UserAssociationSyncer(Context context, ContentResolver resolver, LegacyUserAssociationStorage legacyUserAssociationStorage,
-                                    FollowingOperations followingOperations, AccountOperations accountOperations,
-                                    NextFollowingOperations nextFollowingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer,
-                                    Navigator navigator) {
+    protected MyFollowingsSyncer(Context context, ContentResolver resolver, LegacyUserAssociationStorage legacyUserAssociationStorage,
+                                 AccountOperations accountOperations,
+                                 NextFollowingOperations nextFollowingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer,
+                                 Navigator navigator) {
         super(context, resolver, accountOperations);
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
-        this.followingOperations = followingOperations;
         this.nextFollowingOperations = nextFollowingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
@@ -94,26 +82,23 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException {
+    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException {
         if (!isLoggedIn()) {
             Log.w(TAG, "Invalid user id, skipping sync ");
-            return new ApiSyncResult(uri);
+            return new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
 
         } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
-            return pushUserAssociations(Content.match(uri));
+            return pushUserAssociations();
         } else {
-            return syncLocalToRemote(Content.match(uri), accountOperations.getLoggedInUserId());
+            return syncLocalToRemote(accountOperations.getLoggedInUserId());
         }
     }
 
-    private ApiSyncResult syncLocalToRemote(Content content, final long userId) throws IOException {
-        ApiSyncResult result = new ApiSyncResult(content.uri);
-        if (!Content.ID_BASED.contains(content)) {
-            return result;
-        }
+    private ApiSyncResult syncLocalToRemote(final long userId) throws IOException {
+        ApiSyncResult result = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
 
-        List<Long> local = legacyUserAssociationStorage.getStoredIds(content.uri);
-        List<Long> remote = api.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
+        List<Long> local = legacyUserAssociationStorage.getStoredIds(Content.ME_FOLLOWINGS.uri);
+        List<Long> remote = api.readFullCollection(Request.to(Content.ME_FOLLOWINGS.remoteUri + "/ids"), IdHolder.class);
 
         if (!isLoggedIn()) {
             return result;
@@ -122,7 +107,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size());
 
-        if (checkUnchanged(content, result, local, remote)) {
+        if (checkUnchanged(result, local, remote)) {
             result.success = true;
             return result;
         }
@@ -130,35 +115,31 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<>(local);
         itemDeletions.removeAll(remote);
-        legacyUserAssociationStorage.deleteAssociations(content.uri, itemDeletions);
+        legacyUserAssociationStorage.deleteAssociations(Content.ME_FOLLOWINGS.uri, itemDeletions);
 
         int startPosition = 1;
         int added = 0;
-        switch (content) {
-            case ME_FOLLOWERS:
-            case ME_FOLLOWINGS:
-                // load the first page of items to get proper last_seen ordering
-                // parse and add first items
-                List<PublicApiResource> resources = api.readList(Request.to(content.remoteUri)
-                        .add(PublicApi.LINKED_PARTITIONING, "1")
-                        .add("limit", Consts.LIST_PAGE_SIZE));
 
-                if (!isLoggedIn()) {
-                    return new ApiSyncResult(content.uri);
-                }
+        // load the first page of items to get proper last_seen ordering
+        // parse and add first items
+        List<PublicApiResource> resources = api.readList(Request.to(Content.ME_FOLLOWINGS.remoteUri)
+                .add(PublicApi.LINKED_PARTITIONING, "1")
+                .add("limit", Consts.LIST_PAGE_SIZE));
 
-                added = legacyUserAssociationStorage.insertAssociations(resources, content.uri, userId);
-
-                // remove items from master remote list and adjust start index
-                for (PublicApiResource u : resources) {
-                    remote.remove(u.getId());
-                }
-                startPosition = resources.size();
-                break;
+        if (!isLoggedIn()) {
+            return new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         }
 
+        added = legacyUserAssociationStorage.insertAssociations(resources, Content.ME_FOLLOWINGS.uri, userId);
+
+        // remove items from master remote list and adjust start index
+        for (PublicApiResource u : resources) {
+            remote.remove(u.getId());
+        }
+        startPosition = resources.size();
+
         log("Added " + added + " new items for this endpoint");
-        legacyUserAssociationStorage.insertInBatches(content, userId, remote, startPosition, bulkInsertBatchSize);
+        legacyUserAssociationStorage.insertInBatches(userId, remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;
     }
@@ -278,81 +259,29 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         }
     }
 
-    private boolean checkUnchanged(Content content, ApiSyncResult result, List<Long> local, List<Long> remote) {
-        switch (content) {
-            case ME_FOLLOWERS:
-            case ME_FOLLOWINGS:
-                Set<Long> localSet = new HashSet<>(local);
-                Set<Long> remoteSet = new HashSet<>(remote);
-                if (!localSet.equals(remoteSet)) {
-                    result.change = ApiSyncResult.CHANGED;
-                    result.extra = REQUEST_NO_BACKOFF; // reset sync misses
-                } else {
-                    result.change = remoteSet.isEmpty() ? ApiSyncResult.UNCHANGED : ApiSyncResult.REORDERED; // always mark users as reordered so we get the first page
-                }
-                break;
-            default:
-                if (!local.equals(remote)) {
-                    // items have been added or removed (not just ordering) so this is a sync hit
-                    result.change = ApiSyncResult.CHANGED;
-                    result.extra = REQUEST_NO_BACKOFF; // reset sync misses
-                } else {
-                    result.change = ApiSyncResult.UNCHANGED;
-                    log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
-                }
+    private boolean checkUnchanged(ApiSyncResult result, List<Long> local, List<Long> remote) {
+        Set<Long> localSet = new HashSet<>(local);
+        Set<Long> remoteSet = new HashSet<>(remote);
+        if (!localSet.equals(remoteSet)) {
+            result.change = ApiSyncResult.CHANGED;
+            result.extra = REQUEST_NO_BACKOFF; // reset sync misses
+        } else {
+            result.change = remoteSet.isEmpty() ? ApiSyncResult.UNCHANGED : ApiSyncResult.REORDERED; // always mark users as reordered so we get the first page
         }
         return result.change == ApiSyncResult.UNCHANGED;
     }
 
-    private ApiSyncResult pushUserAssociations(Content content) {
-        final ApiSyncResult result = new ApiSyncResult(content.uri);
+    private ApiSyncResult pushUserAssociations() {
+        final ApiSyncResult result = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         result.success = true;
-        if (content == Content.ME_FOLLOWINGS && legacyUserAssociationStorage.hasFollowingsNeedingSync()) {
+        if (legacyUserAssociationStorage.hasFollowingsNeedingSync()) {
             List<UserAssociation> associationsNeedingSync = legacyUserAssociationStorage.getFollowingsNeedingSync();
             for (UserAssociation userAssociation : associationsNeedingSync) {
                 if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)) {
                     result.success = false;
                 }
             }
-
-            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, legacyUserAssociationStorage, followingOperations);
-            followingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
-            if (!observer.wasSuccess()) {
-                result.success = false;
-            }
         }
         return result;
-    }
-
-    protected static class BulkFollowSubscriber extends SuccessSubscriber {
-
-        private final FollowingOperations followingOperations;
-        private final LegacyUserAssociationStorage legacyUserAssociationStorage;
-        private final Collection<UserAssociation> userAssociations;
-
-        public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, LegacyUserAssociationStorage legacyUserAssociationStorage, FollowingOperations followingOperations) {
-            this.userAssociations = userAssociations;
-            this.legacyUserAssociationStorage = legacyUserAssociationStorage;
-            this.followingOperations = followingOperations;
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            if (e instanceof ApiRequestException && ((ApiRequestException) e).reason() == NOT_ALLOWED) {
-                /*
-                 Tokens were expired. Delete the user associations and followings from memory.
-                 TODO : retry logic somehow
-                  */
-                final Collection<PublicApiUser> users = MoreCollections.transform(userAssociations, new Function<UserAssociation, PublicApiUser>() {
-                    @Override
-                    public PublicApiUser apply(UserAssociation input) {
-                        return input.getUser();
-                    }
-                });
-                followingOperations.updateLocalStatus(false, ScModel.getIdList(new ArrayList<ScModel>(users)));
-                legacyUserAssociationStorage.deleteFollowings(userAssociations);
-            }
-            super.onError(e);
-        }
     }
 }

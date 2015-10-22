@@ -214,11 +214,6 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
     }
 
     @Override
-    public Intent getViewIntent() {
-        return PlaylistDetailActivity.getIntent(getUrn(), Screen.DEEPLINK);
-    }
-
-    @Override
     public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.PLAYLIST;
     }

@@ -261,7 +261,7 @@ class LegacyMainPresenter extends NavigationPresenter {
     }
 
     private void displayProfile() {
-        navigator.openMyProfile(activity, accountOperations.getLoggedInUserUrn());
+        navigator.openProfile(activity, accountOperations.getLoggedInUserUrn());
     }
 
     private void displayPlaylists() {

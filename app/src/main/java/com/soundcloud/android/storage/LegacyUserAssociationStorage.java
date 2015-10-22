@@ -169,7 +169,7 @@ public class LegacyUserAssociationStorage {
     }
 
     @Deprecated//TODO: batching logic should be centralized somewhere, e.g. in BaseDAO
-    public void insertInBatches(final Content content, final long ownerId, final List<Long> targetIds,
+    public void insertInBatches(final long ownerId, final List<Long> targetIds,
                                 final int startPosition, int batchSize) {
         // insert in batches so as to not hold a write lock in a single transaction for too long
         int positionOffset = startPosition;
@@ -185,7 +185,7 @@ public class LegacyUserAssociationStorage {
                 cv[j].put(TableColumns.UserAssociations.OWNER_ID, ownerId);
             }
             positionOffset += idBatch.size();
-            resolver.bulkInsert(content.uri, cv);
+            resolver.bulkInsert(Content.ME_FOLLOWINGS.uri, cv);
         }
     }
 

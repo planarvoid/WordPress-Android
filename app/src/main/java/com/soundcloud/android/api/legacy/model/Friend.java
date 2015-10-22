@@ -33,11 +33,6 @@ public class Friend extends PublicApiResource implements Refreshable, RelatesToU
     }
 
     @Override
-    public Intent getViewIntent() {
-        return getUser().getViewIntent();
-    }
-
-    @Override
     public PublicApiUser getUser() {
         return user;
     }

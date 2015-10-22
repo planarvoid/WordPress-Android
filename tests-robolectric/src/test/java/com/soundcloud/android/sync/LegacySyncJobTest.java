@@ -62,13 +62,13 @@ public class LegacySyncJobTest {
     @Test
     public void shouldHaveEquals() throws Exception {
         LegacySyncJob r1 = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
         LegacySyncJob r2 = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
         LegacySyncJob r3 = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWER.uri, "someOtherAction", false, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, "someOtherAction", false, apiSyncerFactory, syncStateManager);
 
         expect(r1).toEqual(r2);
         expect(r3).not.toEqual(r2);
@@ -77,19 +77,19 @@ public class LegacySyncJobTest {
     @Test
     public void shouldSetTheBackgroundParameterIfNonUiRequest() throws Exception {
         LegacySyncJob nonUi = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
         LegacySyncJob ui = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, true, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, true, apiSyncerFactory, syncStateManager);
 
         ui.onQueued();
         nonUi.onQueued();
 
-        Robolectric.addHttpResponseRule("/me/followers/ids?linked_partitioning=1"
+        Robolectric.addHttpResponseRule("/me/followings/ids?linked_partitioning=1"
                 + NON_INTERACTIVE, "whatevs");
 
         nonUi.run();
         Robolectric.clearHttpResponseRules();
-        Robolectric.addHttpResponseRule("/me/followers/ids?linked_partitioning=1", "whatevs");
+        Robolectric.addHttpResponseRule("/me/followings/ids?linked_partitioning=1", "whatevs");
         ui.run();
     }
 

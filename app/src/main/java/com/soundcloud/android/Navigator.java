@@ -21,8 +21,6 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.profile.LegacyProfileActivity;
-import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -66,10 +64,6 @@ public class Navigator {
 
     public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
-    }
-
-    public void openMyProfile(Context context, Urn user) {
-        context.startActivity(createMyProfileIntent(context, user));
     }
 
     public void openProfile(Context context, Urn user) {
@@ -244,20 +238,14 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    private Intent createProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : LegacyProfileActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
+    public Intent createProfileIntent(Context context, Urn user) {
+        return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 
-    private Intent createProfileIntent(Context context, Urn user, Screen screen) {
+    public Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
         return intent;
-    }
-
-    private Intent createMyProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
     private Intent createRecordIntent(Context context, Recording recording) {
