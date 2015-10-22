@@ -9,27 +9,21 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +31,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter menuPresenter;
-    @Mock private HeaderSpannableBuilder spannableBuilder;
+    @Mock private StreamItemHeaderViewPresenter headerViewPresenter;
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
 
     private final CondensedNumberFormatter numberFormatter =
@@ -47,68 +41,20 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.stream_playlist_item, new FrameLayout(context()), false);
         itemView.setTag(viewHolder);
 
-
         renderer = new StreamPlaylistItemRenderer(
-                imageOperations, numberFormatter, menuPresenter, resources(), spannableBuilder);
+                imageOperations, numberFormatter, menuPresenter, resources(), headerViewPresenter);
     }
 
     @Test
-    public void bindsHeaderAvatarForPlaylistWithReposter() {
-        PlaylistItem playlistItem = repostedPlaylist();
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        verify(imageOperations)
-                .displayInAdapterView(
-                        eq(playlistItem.getReposterUrn()), any(ApiImageSize.class),
-                        any(ImageView.class));
-    }
-
-    @Test
-    public void buildsRepostedHeaderStringForPlaylistWithReposter() {
-        PlaylistItem playlistItem = repostedPlaylist();
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        InOrder inOrder = Mockito.inOrder(spannableBuilder);
-        inOrder.verify(spannableBuilder)
-                .playlistUserAction(playlistItem.getReposter().get(), repostedString());
-        inOrder.verify(spannableBuilder).withIconSpan(viewHolder);
-        inOrder.verify(spannableBuilder).get();
-    }
-
-    @Test
-    public void bindsHeaderViewPropertiesToViewHolder() {
-        PlaylistItem playlistItem = repostedPlaylist();
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        verify(viewHolder).setCreatedAt(formattedDate(playlistItem.getCreatedAt()));
-        verify(viewHolder).togglePrivateIndicator(playlistItem.isPrivate());
-    }
-
-    @Test
-    public void bindsHeaderAvatarForPostedPlaylist() {
+    public void bindsHeaderPresenter() {
         PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        verify(imageOperations)
-                .displayInAdapterView(
-                        eq(playlistItem.getCreatorUrn()),
-                        any(ApiImageSize.class),
-                        any(ImageView.class));
-    }
-
-    @Test
-    public void buildsPostedHeaderStringForPostedPlaylist() {
-        PlaylistItem playlistItem = postedPlaylist();
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-
-        InOrder inOrder = Mockito.inOrder(spannableBuilder);
-        inOrder.verify(spannableBuilder).playlistUserAction(playlistItem.getCreatorName(), "posted");
-        inOrder.verify(spannableBuilder).get();
+        verify(headerViewPresenter).setupHeaderView(viewHolder, playlistItem);
     }
 
     @Test
@@ -147,28 +93,12 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()), playlistItem.isReposted());
     }
 
-    private PlaylistItem repostedPlaylist() {
-        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        playlist.put(PostProperty.REPOSTER, "reposter");
-        playlist.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
-
-        return PlaylistItem.from(playlist);
-    }
-
     private PlaylistItem postedPlaylist() {
         return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
     }
 
-    private String formattedDate(Date createdAt) {
-        return ScTextUtils.formatTimeElapsedSince(resources(), createdAt.getTime(), true);
-    }
-
     private String tracksString(int trackCount) {
         return resources().getQuantityString(R.plurals.number_of_tracks, trackCount);
-    }
-
-    private String repostedString() {
-        return resources().getString(R.string.stream_reposted_action);
     }
 
     private String formattedTime(long time) {

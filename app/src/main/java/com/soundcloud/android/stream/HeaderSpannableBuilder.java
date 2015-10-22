@@ -1,14 +1,13 @@
 package com.soundcloud.android.stream;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
-import static android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM;
 
+import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 
 import javax.inject.Inject;
 
@@ -17,7 +16,6 @@ class HeaderSpannableBuilder {
     private final Resources resources;
 
     private SpannableString spannedString;
-    private int spanStart;
 
     @Inject
     HeaderSpannableBuilder(Resources resources) {
@@ -28,28 +26,31 @@ class HeaderSpannableBuilder {
         return spannedString;
     }
 
-    HeaderSpannableBuilder playlistUserAction(String userName, String action) {
-        return userActionSpannedString(userName, action, false);
+    HeaderSpannableBuilder promotedSpannedString(boolean isTrack) {
+        final String playable = playableString(isTrack);
+        final String headerText = resources.getString(R.string.stream_promoted_playable, playable);
+        final int spanEnd = headerText.length() - playable.length();
+
+        return createSpannedString(headerText, 0, spanEnd);
     }
 
-    HeaderSpannableBuilder trackUserAction(String userName, String action) {
-        return userActionSpannedString(userName, action, true);
-    }
+    HeaderSpannableBuilder actionSpannedString(String action, boolean isTrack) {
+        final String headerText = resources.getString(userActionTextId(isTrack), StringUtils.EMPTY_STRING, action);
+        final int spanEnd = action.length() + 1;
 
-    HeaderSpannableBuilder withIconSpan(StreamItemViewHolder trackView) {
-        spannedString.setSpan(new ImageSpan(trackView.getContext(), R.drawable.stats_repost, ALIGN_BOTTOM),
-                spanStart + 1,
-                spanStart + 2,
-                SPAN_EXCLUSIVE_EXCLUSIVE);
+        createSpannedString(headerText, 0, spanEnd);
         return this;
     }
 
-    private HeaderSpannableBuilder userActionSpannedString(String userName, String action, boolean isTrack) {
-        spanStart = userName.length();
+    HeaderSpannableBuilder userActionSpannedString(String user, String action, boolean isTrack) {
+        final String headerText = resources.getString(userActionTextId(isTrack), user, action);
+        final int spanEnd = user.length() + action.length() + 1;
 
-        final String headerText = resources.getString(headerTextResId(isTrack), userName, action);
-        final int spanEnd = spanStart + action.length() + 1;
+        createSpannedString(headerText, user.length(), spanEnd);
+        return this;
+    }
 
+    private HeaderSpannableBuilder createSpannedString(String headerText, int spanStart, int spanEnd) {
         spannedString = new SpannableString(headerText);
         spannedString.setSpan(new ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
                 spanStart,
@@ -58,7 +59,11 @@ class HeaderSpannableBuilder {
         return this;
     }
 
-    private int headerTextResId(boolean isTrack) {
+    private int userActionTextId(boolean isTrack) {
         return isTrack ? R.string.stream_track_header_text : R.string.stream_playlist_header_text;
+    }
+
+    private String playableString(boolean isTrack) {
+        return resources.getString(isTrack ? R.string.stream_track : R.string.stream_playlist);
     }
 }

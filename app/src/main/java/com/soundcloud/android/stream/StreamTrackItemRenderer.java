@@ -4,12 +4,10 @@ import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
 
 class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
@@ -26,19 +23,21 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
+    private final StreamItemHeaderViewPresenter headerViewPresenter;
+
     private final Resources resources;
-    private final HeaderSpannableBuilder headerSpannableBuilder;
 
     @Inject
     public StreamTrackItemRenderer(ImageOperations imageOperations,
                                    CondensedNumberFormatter numberFormatter,
                                    TrackItemMenuPresenter trackItemMenuPresenter,
-                                   Resources resources, HeaderSpannableBuilder builder) {
+                                   Resources resources,
+                                   StreamItemHeaderViewPresenter headerViewPresenter) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.resources = resources;
-        this.headerSpannableBuilder = builder;
+        this.headerViewPresenter = headerViewPresenter;
     }
 
     @Override
@@ -53,7 +52,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         final TrackItem track = trackItems.get(position);
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
 
-        setupHeaderView(trackView, track);
+        headerViewPresenter.setupHeaderView(trackView, track);
         setupArtworkView(trackView, track);
         setupEngagementBar(trackView, track, position);
     }
@@ -62,36 +61,6 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         loadArtwork(trackView, trackItem);
         trackView.setTitle(trackItem.getTitle());
         trackView.setCreator(trackItem.getCreatorName());
-    }
-
-    private void setupHeaderView(StreamItemViewHolder trackView, TrackItem trackItem) {
-        if (trackItem.getReposter().isPresent()) {
-            loadAvatar(trackView, trackItem.getReposterUrn());
-        } else {
-            loadAvatar(trackView, trackItem.getCreatorUrn());
-        }
-
-        setHeaderText(trackView, trackItem);
-        showCreatedAt(trackView, trackItem.getCreatedAt());
-        trackView.togglePrivateIndicator(trackItem.isPrivate());
-    }
-
-    private void setHeaderText(StreamItemViewHolder trackView, TrackItem trackItem) {
-        boolean isRepost = trackItem.getReposter().isPresent();
-        final String userName = trackItem.getReposter().or(trackItem.getCreatorName());
-        final String action = resources.getString(isRepost ? R.string.stream_reposted_action : R.string.stream_posted_action);
-
-        headerSpannableBuilder.trackUserAction(userName, action);
-        if (isRepost) {
-            headerSpannableBuilder.withIconSpan(trackView);
-        }
-
-        trackView.setHeaderText(headerSpannableBuilder.get());
-    }
-
-    private void showCreatedAt(StreamItemViewHolder trackView, Date createdAt) {
-        final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, createdAt.getTime(), true);
-        trackView.setCreatedAt(formattedTime);
     }
 
     private void setupEngagementBar(StreamItemViewHolder trackView, final TrackItem track, final int position) {
@@ -118,12 +87,6 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
         trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
-    }
-
-    protected void loadAvatar(StreamItemViewHolder itemView, Urn userUrn) {
-        imageOperations.displayInAdapterView(
-                userUrn, ApiImageSize.getListItemImageSize(resources),
-                itemView.getUserImage());
     }
 
     protected void loadArtwork(StreamItemViewHolder itemView, TrackItem track) {
