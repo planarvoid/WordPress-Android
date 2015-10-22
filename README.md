@@ -102,14 +102,14 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
 
-Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
+Select `Next` and confirm the import of the parent project. If you are asked to use the `gradle wrapper`, select `Yes`.
 
-Android Studio will automatically download and manage dependencies. When that download is complete, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
+Android Studio will automatically download and manage dependencies. When the download completes, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
 
-## Setup code style
+## Set up code style
 
 Make sure you are using SoundCloud code style on Android Studio by going to:
-File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
+File &rarr; Other Settings &rarr; Default Settings &rarr; Code Style and apply: `SoundCloud-Android` scheme.
 
 If it doesn't appear in the list, try the following. Tailor the path for your version of AndroidStudio. The link source MUST be an absolute path.
 
