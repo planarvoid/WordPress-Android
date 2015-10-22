@@ -16,22 +16,37 @@ Prerequisites:
 
 ### Install the [Android SDK][] and [Android Studio][] 1.4
 
-#### On Mac OS X:
+**On Mac OS X:**
 
-    $ brew install android-sdk android-ndk maven
+1. Install the following packages:
 
-Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
+    `$ brew install android-sdk android-ndk maven`
+    
+2. Add the following lines to your shell's start-up script (e.g. .bash_profile, .zshrc):
 
-    ANDROID_HOME=/usr/local/opt/android-sdk/
+    ```
+    ANDROID_HOME=/usr/local/opt/android-sdk/ #Or another location`
     export ANDROID_HOME=$ANDROID_HOME
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
+    ```
 
-Run the [Android SDK Manager][] to install packages.
+3. Run the [Android SDK Manager][] to install packages:
 
-    $ android
+    `$ android`
 
-Get started:
+**On Linux:**
+
+1. Install [Android Studio][], which contains [Android SDK][].
+2. Add the follwing lines to your shell's start-up script (e.g. .bash_profile, .zshrc):
+
+    ```
+    ANDROID_HOME=/usr/local/opt/android-sdk/ #Or another location
+    export ANDROID_HOME=$ANDROID_HOME
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    export ANDROID_SDK_HOME=$ANDROID_HOME
+    ```
+Continue with the setup:
 
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
 2. From the `SDK Tools` tab, install the latest versions:<br>
@@ -49,10 +64,6 @@ Get started:
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
 
 Install [Android Studio][].
-
-#### On Linux:
-
-Install [Android Studio][], which contains [Android SDK][].
 
 ### Clone and build the project
 
