@@ -42,6 +42,7 @@ apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
 apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
+apply from: "${buildSrcDir}/apublisher.gradle"
 
 apply plugin: 'com.android.application'
 //disable Gandalf until this is fixed: https://github.com/soundcloud/gandalf/issues/6

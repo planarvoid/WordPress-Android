@@ -105,78 +105,10 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
   description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
 }
 
-def String findApkPath(buildType) {
-  def baseDir = new File("$project.ext.outputsDir")
-  def names = []
-  def pattern = "soundcloud-android-.*-${buildType}.apk"
-
-  baseDir.eachFileMatch FILES, ~/${pattern}/, { names << it.name }
-  if (names.size() != 1) {
-    throw new GradleException("unable to find apk path for buildType ${buildType}")
-  }
-  return "$project.ext.outputsDir/${names[0]}"
-}
-
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
 
   commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
-}
-
-task newUploadStoreBeta {
-  description = 'Uploads apk to Google Play Store Beta Track.'
-
-  doLast {
-    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("debug"), '-t', 'beta']
-    def p = cmd.execute()
-    p.waitFor()
-    def exitValue = p.exitValue()
-    if (exitValue != 0) {
-      throw new Exception("Uploads apk to Google Play Store Beta Track failed: ($cmd) exitValue: $exitValue")
-    }
-  }
-}
-
-task rolloutOnePercent {
-  description = 'Rolls the app out to 1% of user base'
-
-  doLast {
-    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout']
-    def p = cmd.execute()
-    p.waitFor()
-    def exitValue = p.exitValue()
-    if (exitValue != 0) {
-      throw new Exception("Rollout to 1% failed: ($cmd) exitValue: $exitValue")
-    }
-  }
-}
-
-task rolloutFivePercent {
-  description = 'Rolls the app out to 5% of user base'
-
-  doLast {
-    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0.05']
-    def p = cmd.execute()
-    p.waitFor()
-    def exitValue = p.exitValue()
-    if (exitValue != 0) {
-      throw new Exception("Rollout to 5% failed: ($cmd) exitValue: $exitValue")
-    }
-  }
-}
-
-task rolloutFull {
-  description = 'Rolls the app out to 100% of user base'
-
-  doLast {
-    def cmd = ['apublisher', '-n', rootProject.applicationId, '-a', findApkPath("release"), '-t', 'rollout', '--fraction', '0']
-    def p = cmd.execute()
-    p.waitFor()
-    def exitValue = p.exitValue()
-    if (exitValue != 0) {
-      throw new Exception("Rollout to 100% failed: ($cmd) exitValue: $exitValue")
-    }
-  }
 }
 
 task slog(type: Exec) {
