@@ -28,6 +28,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder viewHolder;
+    @Mock private StreamItemEngagementsPresenter engagementsPresenter;
     @Mock private StreamItemHeaderViewPresenter headerViewPresenter;
 
     private final CondensedNumberFormatter numberFormatter =
@@ -42,7 +43,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         itemView.setTag(viewHolder);
 
         renderer = new StreamTrackItemRenderer(
-                imageOperations, numberFormatter, null, resources(), headerViewPresenter);
+                imageOperations, numberFormatter, null, engagementsPresenter, headerViewPresenter, resources());
     }
 
     @Test
@@ -69,21 +70,20 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void resetsEngagementsBar() {
+    public void bindsPlayCountAndOverflow() {
         TrackItem postedTrack = postedTrack();
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        verify(viewHolder).resetAdditionalInformation();
+        verify(viewHolder).showPlayCount(formattedStats(postedTrack.getPlayCount()));
+        verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
     }
 
     @Test
-    public void bindsEngagementsBar() {
+    public void bindsEngagementsPresenter() {
         TrackItem postedTrack = postedTrack();
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        verify(viewHolder).showLikeStats(formattedStats(postedTrack.getLikesCount()), postedTrack.isLiked());
-        verify(viewHolder).showRepostStats(formattedStats(postedTrack.getRepostCount()), postedTrack.isReposted());
-        verify(viewHolder).showPlayCount(formattedStats(postedTrack.getPlayCount()));
+        engagementsPresenter.bind(viewHolder, postedTrack);
     }
 
     @Test

@@ -32,6 +32,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter menuPresenter;
     @Mock private StreamItemHeaderViewPresenter headerViewPresenter;
+    @Mock private StreamItemEngagementsPresenter engagementsPresenter;
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
 
     private final CondensedNumberFormatter numberFormatter =
@@ -45,8 +46,9 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         itemView = layoutInflater.inflate(R.layout.stream_playlist_item, new FrameLayout(context()), false);
         itemView.setTag(viewHolder);
 
+
         renderer = new StreamPlaylistItemRenderer(
-                imageOperations, numberFormatter, menuPresenter, resources(), headerViewPresenter);
+                imageOperations, menuPresenter, headerViewPresenter, engagementsPresenter, resources());
     }
 
     @Test
@@ -76,21 +78,20 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void resetsEngagementsBar() {
+    public void bindsEngagementsPresenter() {
         PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        verify(viewHolder).resetAdditionalInformation();
+        engagementsPresenter.bind(viewHolder, playlistItem);
     }
 
     @Test
-    public void bindsEngagementsBar() {
+    public void bindsDurationAndOverflow() {
         PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
-        verify(viewHolder).showLikeStats(formattedStats(playlistItem.getLikesCount()), playlistItem.isLiked());
-        verify(viewHolder).showRepostStats(formattedStats(playlistItem.getRepostCount()), playlistItem.isReposted());
+        verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
     }
 
     private PlaylistItem postedPlaylist() {
@@ -105,7 +106,4 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         return ScTextUtils.formatTimestamp(time, TimeUnit.MILLISECONDS);
     }
 
-    private String formattedStats(int stat) {
-        return numberFormatter.format(stat);
-    }
 }
