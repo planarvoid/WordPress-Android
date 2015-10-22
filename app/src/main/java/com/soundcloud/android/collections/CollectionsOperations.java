@@ -150,9 +150,12 @@ public class CollectionsOperations {
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {
-        return Observable
-                .zip(myPlaylists(options).materialize(), tracksLiked().materialize(), recentStations().materialize(), TO_MY_COLLECTIONS_OR_ERROR)
-                .dematerialize();
+        return Observable.zip(
+                myPlaylists(options).materialize(),
+                tracksLiked().materialize(),
+                recentStations().materialize(),
+                TO_MY_COLLECTIONS_OR_ERROR
+        ).dematerialize();
     }
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
@@ -184,8 +187,7 @@ public class CollectionsOperations {
                     public Observable<List<Urn>> call(Boolean hasSynced) {
                         if (hasSynced) {
                             return loadTracksLiked();
-                        }
-                        else {
+                        } else {
                             return refreshLikesAndLoadTracksLiked();
                         }
                     }
@@ -196,9 +198,13 @@ public class CollectionsOperations {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
                 refreshLikesAndLoadTracksLiked(),
-                recentStations(),
+                refreshRecentStationsAndLoad(),
                 TO_MY_COLLECTIONS
         );
+    }
+
+    private Observable<List<StationRecord>> refreshRecentStationsAndLoad() {
+        return stationsOperations.sync().flatMap(continueWith(recentStations()));
     }
 
     private Observable<List<Urn>> refreshLikesAndLoadTracksLiked() {
