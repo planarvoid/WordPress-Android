@@ -89,15 +89,15 @@ You can also ask questions on the `#android-newbies` Slack channel.
 3. After the download completes, click <code>Install <i>n</i> packages...</code>.<br>The installation might take several minutes to complete.
 4. Reload the project.
 
-## Set up code style
+## Set up the SoundCloud code style
 
-Make sure you are using SoundCloud code style on Android Studio by going to:
-File &rarr; Other Settings &rarr; Default Settings &rarr; Code Style and apply: `SoundCloud-Android` scheme.
+1. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
+2. Select `SoundCloud-Android`.<br>If it doesn't display in the list, try changing the path to your version of Android Studio. The link source <i>must</i> be an absolute path:
 
-If it doesn't appear in the list, try the following. Tailor the path for your version of AndroidStudio. The link source MUST be an absolute path.
-
+    ```
     $ mkdir ~/Library/Preferences/AndroidStudio1.2/codestyles
     $ ln -sf ~/sc/SoundCloud-Android/.idea-codestyle.xml ~/Library/Preferences/AndroidStudio1.2/codestyles/SoundCloud-Android.xml
+    ```
 
 ![Android code style][Android code style]
 
