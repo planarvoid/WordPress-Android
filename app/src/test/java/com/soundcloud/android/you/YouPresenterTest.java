@@ -86,7 +86,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedBindsUserToViewWhenLoadedAfterViewCreated() {
-        final PublishSubject<PropertySet> subject = PublishSubject.<PropertySet>create();
+        final PublishSubject<PropertySet> subject = PublishSubject.create();
         when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
 
         setupForegroundFragment();
@@ -170,7 +170,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnOfflineSettingsClickSendsNoUpsellClickEventIfNotUpselling() {
+    public void onOfflineSettingsClickSendsNoUpsellClickEventIfNotUpselling() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
@@ -178,7 +178,15 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnActivitiesClickedNavigatesToActivities() {
+    public void onExploreClickedNavigatesToExplore() {
+        setupForegroundFragment();
+        listenerArgumentCaptor.getValue().onExploreClicked(new View(context()));
+
+        verify(navigator).openExplore(context(), Screen.YOU);
+    }
+
+    @Test
+    public void onActivitiesClickedNavigatesToActivities() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onActivitiesClicked(new View(context()));
 
@@ -186,7 +194,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnRecordClickedNavigatesToRecord() {
+    public void onRecordClickedNavigatesToRecord() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onRecordClicked(new View(context()));
 
@@ -194,7 +202,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnProfileClickedNavigatesToProfile() {
+    public void onProfileClickedNavigatesToProfile() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onProfileClicked(new View(context()));
 
@@ -202,7 +210,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnOfflineSettingsClickedShowsOfflineSettings() {
+    public void onOfflineSettingsClickedShowsOfflineSettings() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
@@ -210,7 +218,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnNotificationSettingsClickedShowsNotificationSettings() {
+    public void onNotificationSettingsClickedShowsNotificationSettings() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onNotificationSettingsClicked(new View(context()));
 
@@ -218,7 +226,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnBasicSettingsClickedShowsSettings() {
+    public void onBasicSettingsClickedShowsSettings() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
 
@@ -226,7 +234,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnBugReportClickedShowsReportDialog() {
+    public void onBugReportClickedShowsReportDialog() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onReportBugClicked(new View(context()));
 
@@ -234,7 +242,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnHelpCenterClickedShowsHelpCenter() {
+    public void onHelpCenterClickedShowsHelpCenter() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(context()));
 
@@ -242,7 +250,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void OnLegalClickedShowsLegal() {
+    public void onLegalClickedShowsLegal() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onLegalClicked(new View(context()));
 
@@ -251,7 +259,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unbindsHeaderViewInOnDestroyView() {
-        final PublishSubject<PropertySet> subject = PublishSubject.<PropertySet>create();
+        final PublishSubject<PropertySet> subject = PublishSubject.create();
         when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(subject);
 
         setupForegroundFragment();

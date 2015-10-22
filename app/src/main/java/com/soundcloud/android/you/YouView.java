@@ -72,6 +72,13 @@ public class YouView implements ScrollContent {
         }
     }
 
+    @OnClick(R.id.you_explore_link)
+    void onExploreLinkClicked(View view) {
+        if (listener != null) {
+            listener.onExploreClicked(view);
+        }
+    }
+
     @OnClick(R.id.you_activity_link)
     void onActivityLinkClicked(View view) {
         if (listener != null) {
@@ -141,6 +148,7 @@ public class YouView implements ScrollContent {
 
     interface Listener {
         void onProfileClicked(View view);
+        void onExploreClicked(View view);
         void onActivitiesClicked(View view);
         void onRecordClicked(View view);
         void onOfflineSettingsClicked(View view);
