@@ -92,7 +92,7 @@ You can also ask questions on the `#android-newbies` Slack channel.
 ## Set up the SoundCloud code style
 
 1. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
-2. Select `SoundCloud-Android`.<br>If it doesn't display in the list, try changing the path to your version of Android Studio. The link source <i>must</i> be an absolute path:
+2. From the `Scheme` drop-down menu, select `SoundCloud-Android`.<br>If it doesn't display in the list, try changing the path to your version of Android Studio. The link source <i>must</i> be an absolute path:
 
     ```
     $ mkdir ~/Library/Preferences/AndroidStudio1.2/codestyles
