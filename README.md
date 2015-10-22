@@ -46,7 +46,8 @@ Prerequisites:
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
     ```
-Continue with the setup:
+    
+### Continue with the setup:
 
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
 2. From the `SDK Tools` tab, install the latest versions:<br>
