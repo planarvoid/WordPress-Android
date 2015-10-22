@@ -175,7 +175,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         screenProvider.subscribe();
         castSessionController.startListening();
 
-        if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)) {
+        if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
             playPublisher.subscribe();
         }
 
