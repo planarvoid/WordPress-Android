@@ -36,7 +36,7 @@ You don't need to install everything. To get started, you can install the follow
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
 2. From the `SDK Tools` tab, install the latest versions:<br>
    a. `Android SDK Tools`<br>
-   b. `Android SDK Platform-Tools`<br>&nbsp;&nbsp;&nbsp;&nbsp;(Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).)<br>
+   b. `Android SDK Platform-Tools`<br>&nbsp;&nbsp;&nbsp;&nbsp;Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).<br>
    c. `Android SDK Build-Tools`<br>
 3. Install the release we are targeting, which is currently `Android 5.0.1 (API 21)`.<br>You can check by
 looking for `android:targetSdkVersion` in [AndroidManifest.xml](app/AndroidManifest.xml).
