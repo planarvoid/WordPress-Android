@@ -1,6 +1,10 @@
 package com.soundcloud.android.collections;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,8 +17,11 @@ import javax.inject.Inject;
 
 public class CollectionsPlaylistOptionsPresenter {
 
+    private final EventBus eventBus;
+
     @Inject
-    public CollectionsPlaylistOptionsPresenter() {
+    public CollectionsPlaylistOptionsPresenter(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
     public interface Listener {
@@ -51,5 +58,7 @@ public class CollectionsPlaylistOptionsPresenter {
             }
         });
         builder.show();
+
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYLISTS_FILTER));
     }
 }

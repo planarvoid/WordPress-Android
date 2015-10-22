@@ -17,12 +17,14 @@ public enum Screen {
     AUTH_USER_DETAILS("auth:user_details"),
     AUTH_FORGOT_PASSWORD("auth:forgot_password"),
 
-    // core screens
     SIDE_MENU_DRAWER("drawer"),
     STREAM("stream:main"),
+
+    // collection
+    COLLECTIONS("collections"),
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
-    COLLECTIONS("collections"),
+    PLAYLISTS_FILTER("collection:playlists:filter"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
