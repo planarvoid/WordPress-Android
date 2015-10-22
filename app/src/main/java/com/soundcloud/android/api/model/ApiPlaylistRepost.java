@@ -1,5 +1,7 @@
 package com.soundcloud.android.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -13,7 +15,9 @@ public class ApiPlaylistRepost implements PropertySetSource, PlaylistRecordHolde
     private final ApiPlaylist apiPlaylist;
     private final Date createdAt;
 
-    public ApiPlaylistRepost(ApiPlaylist apiPlaylist, Date createdAt) {
+    @JsonCreator
+    public ApiPlaylistRepost(@JsonProperty("playlist") ApiPlaylist apiPlaylist,
+                             @JsonProperty("created_at") Date createdAt) {
         this.apiPlaylist = apiPlaylist;
         this.createdAt = createdAt;
     }
