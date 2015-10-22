@@ -35,13 +35,16 @@ You don't need to install everything. To get started, you can install the follow
 
 1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
 2. From the `SDK Tools` tab, install the latest versions:<br>
-   a. `Android SDK Tools`<br>
-   b. `Android SDK Platform-Tools`<br>&nbsp;&nbsp;&nbsp;&nbsp;Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).<br>
-   c. `Android SDK Build-Tools`<br>
+   * `Android SDK Tools`<br>
+   * `Android SDK Platform-Tools`<br>&nbsp;&nbsp;&nbsp;&nbsp;Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).<br>
+   * `Android SDK Build-Tools`<br>
 3. Install the targetted release, based on the API level.<br>Refer to the `android:targetSdkVersion` variable in [AndroidManifest.xml](app/AndroidManifest.xml).
 4. Install all of the release packages, except for the system images.<br>You will use [Genymotion][] to manage the emulators.
-5. From `Extras`, install the latest versions of `Android Support Repository`, `Android Support Library`,
-`Google Play services` and `Google Repository`.
+5. From `Extras`, install the latest versions:
+   * `Android Support Repository`
+   * `Android Support Library`
+   * `Google Play services`
+   * `Google Repository`
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
 
