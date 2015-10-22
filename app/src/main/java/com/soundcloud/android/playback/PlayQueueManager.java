@@ -125,9 +125,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public boolean isCurrentTrack(@NotNull Urn trackUrn) {
-        PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
-        return currentPlayQueueItem.isTrack() &&
-                currentPlayQueueItem.getUrn().equals(trackUrn);
+        return isTrackAt(trackUrn, getCurrentPosition());
     }
 
     public boolean isTrackAt(@NotNull Urn trackUrn, int currentPosition) {

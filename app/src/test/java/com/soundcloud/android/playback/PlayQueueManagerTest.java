@@ -990,6 +990,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.isTrackAt(Urn.forTrack(3L), 5)).isFalse();
     }
 
+    @Test
+    public void isCurrentTrackShouldReturnFalseWhenPlayQueueIsEmpty() {
+        assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).isFalse();
+    }
+
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
         assertThat(playQueueManager.getQueueSize()).isEqualTo(playQueue.size());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {
