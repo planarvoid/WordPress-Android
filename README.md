@@ -14,7 +14,7 @@ Prerequisites:
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
-### Install the [Android SDK][] and [Android Studio][]
+### Install the [Android SDK][] and [Android Studio][] 1.4
 
 #### On Mac OS X:
 
