@@ -59,11 +59,14 @@ Prerequisites:
 3. Install the targetted release, based on the API level.<br>Refer to the `android:targetSdkVersion` variable in [AndroidManifest.xml](app/AndroidManifest.xml).
 4. From the `SDK Platforms` tab, select the checkbox `Show Package Details`.
 5. Unselect all system images.<br>You will use [Genymotion][] rather than Android Studio to manage the emulators.
-6. From `Extras`, install the latest versions:
+6. From the SDK Manager, click `Launch Standalone SDK Manager` and scroll down to the `Extras` menu item.
+7. Install the latest versions:
    * `Android Support Repository`
    * `Android Support Library`
    * `Google Play services`
    * `Google Repository`
+   
+   To avoid installing extra packages other than those listed, select the `Reject` radio button.
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
 
