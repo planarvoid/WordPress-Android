@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.promoted;
 
-import static com.soundcloud.android.Expect.expect;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -20,7 +20,7 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -28,14 +28,12 @@ import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PromotedAnalyticsProviderTest {
+public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     private PromotedAnalyticsProvider analyticsProvider;
 
@@ -67,13 +65,13 @@ public class PromotedAnalyticsProviderTest {
         final TrackingRecord event1 = trackingRecords.get(0);
         final TrackingRecord event2 = trackingRecords.get(1);
 
-        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event1.getTimeStamp()).toEqual(12345L);
-        expect(event1.getData()).toEqual("url1");
+        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event1.getTimeStamp()).isEqualTo(12345L);
+        assertThat(event1.getData()).isEqualTo("url1");
 
-        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event2.getTimeStamp()).toEqual(12345L);
-        expect(event2.getData()).toEqual("url2");
+        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event2.getTimeStamp()).isEqualTo(12345L);
+        assertThat(event2.getData()).isEqualTo("url2");
     }
 
     @Test
@@ -87,14 +85,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
-        expect(allValues.size()).toEqual(2);
+        assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(adEvent.getData()).toEqual("click1");
+        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(adEvent.getData()).isEqualTo("click1");
 
-        expect(allValues.get(1).getData()).toEqual("click2");
+        assertThat(allValues.get(1).getData()).isEqualTo("click2");
     }
 
     @Test
@@ -108,14 +106,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
-        expect(allValues.size()).toEqual(2);
+        assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(adEvent.getData()).toEqual("skip1");
+        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(adEvent.getData()).isEqualTo("skip1");
 
-        expect(allValues.get(1).getData()).toEqual("skip2");
+        assertThat(allValues.get(1).getData()).isEqualTo("skip2");
     }
 
     @Test
@@ -139,14 +137,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
-        expect(allValues.size()).toEqual(2);
+        assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(adEvent.getData()).toEqual("finish1");
+        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(adEvent.getData()).isEqualTo("finish1");
 
-        expect(allValues.get(1).getData()).toEqual("finish2");
+        assertThat(allValues.get(1).getData()).isEqualTo("finish2");
     }
 
     @Test
@@ -162,14 +160,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event1.getTimeStamp()).toEqual(333l);
-        expect(event1.getData()).toEqual("visual1");
+        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event1.getTimeStamp()).isEqualTo(333l);
+        assertThat(event1.getData()).isEqualTo("visual1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event2.getTimeStamp()).toEqual(333l);
-        expect(event2.getData()).toEqual("visual2");
+        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event2.getTimeStamp()).isEqualTo(333l);
+        assertThat(event2.getData()).isEqualTo("visual2");
     }
 
     @Test
@@ -184,14 +182,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event1.getTimeStamp()).toEqual(333l);
-        expect(event1.getData()).toEqual("leaveBehindTrackingImpressionUrl1");
+        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event1.getTimeStamp()).isEqualTo(333l);
+        assertThat(event1.getData()).isEqualTo("leaveBehindTrackingImpressionUrl1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event2.getTimeStamp()).toEqual(333l);
-        expect(event2.getData()).toEqual("leaveBehindTrackingImpressionUrl2");
+        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event2.getTimeStamp()).isEqualTo(333l);
+        assertThat(event2.getData()).isEqualTo("leaveBehindTrackingImpressionUrl2");
     }
 
     @Test
@@ -205,14 +203,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event1.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(event1.getData()).toEqual("promoted1");
+        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event1.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(event1.getData()).isEqualTo("promoted1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event2.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(event2.getData()).toEqual("promoted2");
+        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event2.getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(event2.getData()).isEqualTo("promoted2");
     }
 
     @Test
@@ -229,14 +227,14 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event1.getTimeStamp()).toEqual(12345L);
-        expect(event1.getData()).toEqual("promoPlay1");
+        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event1.getTimeStamp()).isEqualTo(12345L);
+        assertThat(event1.getData()).isEqualTo("promoPlay1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(event2.getTimeStamp()).toEqual(12345L);
-        expect(event2.getData()).toEqual("promoPlay2");
+        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(event2.getTimeStamp()).isEqualTo(12345L);
+        assertThat(event2.getData()).isEqualTo("promoPlay2");
     }
 
     @Test
