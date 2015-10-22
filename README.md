@@ -34,6 +34,8 @@ Prerequisites:
 3. Run the [Android SDK Manager][] to install packages:
 
     `$ android`
+    
+4. Install [Android Studio][].
 
 **On Linux:**
 
@@ -64,8 +66,6 @@ Prerequisites:
    * `Google Repository`
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
-
-(Mac OS X only) Install [Android Studio][].
 
 ### Clone and build the project
 
