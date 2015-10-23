@@ -1,23 +1,23 @@
 package com.soundcloud.android.sync.stream;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
+import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
-public class StreamSyncStorageTest {
+import android.content.Context;
+
+public class StreamSyncStorageTest extends AndroidUnitTest {
 
     private StreamSyncStorage storage;
 
     @Before
     public void setUp() throws Exception {
-        storage = new StreamSyncStorage(new ScTestSharedPreferences());
+        storage = new StreamSyncStorage(sharedPreferences(StorageModule.STREAM_SYNC, Context.MODE_PRIVATE));
     }
 
     @Test
@@ -27,16 +27,16 @@ public class StreamSyncStorageTest {
 
         storage.clear();
 
-        expect(storage.hasNextPageUrl()).toBeFalse();
-        expect(storage.isMissingFuturePageUrl()).toBeTrue();
+        assertThat(storage.hasNextPageUrl()).isFalse();
+        assertThat(storage.isMissingFuturePageUrl()).isTrue();
     }
 
     @Test
     public void setNextPageUrlStoresLinkIfExists() {
         storage.storeNextPageUrl(Optional.of(new Link("next")));
 
-        expect(storage.hasNextPageUrl()).toBeTrue();
-        expect(storage.getNextPageUrl()).toEqual("next");
+        assertThat(storage.hasNextPageUrl()).isTrue();
+        assertThat(storage.getNextPageUrl()).isEqualTo("next");
     }
 
     @Test
@@ -45,15 +45,15 @@ public class StreamSyncStorageTest {
 
         storage.storeNextPageUrl(Optional.<Link>absent());
 
-        expect(storage.hasNextPageUrl()).toBeFalse();
+        assertThat(storage.hasNextPageUrl()).isFalse();
     }
 
     @Test
     public void setFuturePageUrlStoresLink() {
         storage.storeFuturePageUrl(new Link("future"));
 
-        expect(storage.isMissingFuturePageUrl()).toBeFalse();
-        expect(storage.getFuturePageUrl()).toEqual("future");
+        assertThat(storage.isMissingFuturePageUrl()).isFalse();
+        assertThat(storage.getFuturePageUrl()).isEqualTo("future");
     }
 
 }

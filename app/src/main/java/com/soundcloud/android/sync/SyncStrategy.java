@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.sync.ApiSyncResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

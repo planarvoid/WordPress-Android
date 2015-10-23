@@ -36,6 +36,7 @@ import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
+import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -305,6 +306,11 @@ public class TestApplicationModule {
     @Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER)
     PostsSyncer provideMyPlaylistPostsSyncer() {
         return mock(PostsSyncer.class);
+    }
+
+    @Provides
+    SoundStreamSyncer provideSoundStreamSyncer() {
+        return mock(SoundStreamSyncer.class);
     }
 
     @Provides
