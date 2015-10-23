@@ -8,6 +8,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.TabLayout;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class ExploreFragment extends Fragment {
 
+    @Inject Resources resources;
     @Inject EventBus eventBus;
     @Inject ExplorePagerAdapterFactory pagerAdapterFactory;
 
@@ -34,7 +36,8 @@ public class ExploreFragment extends Fragment {
     }
 
     @VisibleForTesting
-    ExploreFragment(ExplorePagerAdapterFactory pagerAdapterFactory, EventBus eventBus) {
+    ExploreFragment(Resources resources, ExplorePagerAdapterFactory pagerAdapterFactory, EventBus eventBus) {
+        this.resources = resources;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.eventBus = eventBus;
     }
@@ -49,7 +52,7 @@ public class ExploreFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         pagerAdapter = pagerAdapterFactory.create(this.getChildFragmentManager());
         pager.setAdapter(pagerAdapter);

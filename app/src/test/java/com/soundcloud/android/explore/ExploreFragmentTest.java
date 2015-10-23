@@ -1,7 +1,7 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.explore.ExploreFragment.ExplorePagerScreenListener;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
@@ -11,25 +11,21 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.TableLayout;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ExploreFragmentTest {
+public class ExploreFragmentTest extends AndroidUnitTest {
 
     @Mock private View mockLayout;
-    @Mock private TableLayout mockTabLayout;
+    @Mock private TabLayout mockTabLayout;
     @Mock private ViewPager mockViewPager;
     @Mock private ExplorePagerAdapterFactory adapterFactory;
     @Mock private ExplorePagerAdapter pagerAdapter;
@@ -43,9 +39,7 @@ public class ExploreFragmentTest {
         when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
         when(adapterFactory.create(any(FragmentManager.class))).thenReturn(pagerAdapter);
 
-        fragment = new ExploreFragment(adapterFactory, eventBus);
-        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
-        Robolectric.shadowOf(fragment).setAttached(true);
+        fragment = new ExploreFragment(resources(), adapterFactory, eventBus);
 
         fragment.onCreate(null);
     }
@@ -54,7 +48,7 @@ public class ExploreFragmentTest {
     public void shouldAddListenerToViewPagerForTrackingScreenEvents() {
         when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
         fragment.onViewCreated(mockLayout, null);
-        verify(mockViewPager).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
+        verify(mockViewPager).addOnPageChangeListener(isA(ExplorePagerScreenListener.class));
     }
 
     @Test
@@ -62,7 +56,7 @@ public class ExploreFragmentTest {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(0);
         TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:genres");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("explore:genres");
     }
 
     @Test
@@ -70,7 +64,7 @@ public class ExploreFragmentTest {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(1);
         TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:trending_music");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("explore:trending_music");
     }
 
     @Test
@@ -78,7 +72,7 @@ public class ExploreFragmentTest {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(2);
         TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:trending_audio");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("explore:trending_audio");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,4 +80,5 @@ public class ExploreFragmentTest {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(3);
     }
+
 }

@@ -5,7 +5,6 @@
     <dimen name="full_image_margin">40dp</dimen>
 
     <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
-    <dimen name="tab_text_size">16sp</dimen>
 
     <dimen name="list_icon_size">80dp</dimen>
     <dimen name="header_icon_size">@dimen/list_icon_size</dimen>

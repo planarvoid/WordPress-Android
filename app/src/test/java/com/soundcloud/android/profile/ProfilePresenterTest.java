@@ -81,7 +81,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileHeaderPresenterFactory.create(activity, USER_URN)).thenReturn(profileHeaderPresenter);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
-
         profilePresenter = new ProfilePresenter(profileScrollHelper, profileHeaderPresenterFactory,
                 profileOperations, eventBus, accountOperations);
     }

@@ -4,6 +4,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
 public class Tabs {
+
     private final ViewElement tabLayout;
 
     public Tabs(ViewElement parentView) {
@@ -15,6 +16,6 @@ public class Tabs {
     }
 
     public ViewElement getTabAt(int index) {
-        return tabLayout.getChildAt(index);
+        return tabLayout.getChildAt(index).getChildAt(0);
     }
 }
