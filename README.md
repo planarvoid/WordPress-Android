@@ -103,8 +103,9 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Running the app on Genymotion
 
-Install [Genymotion][] and add a virtual device. A Google Nexus phone is a good one, eg. Google Nexus 6.
-Click Play to start the device.
+1. Install [Genymotion][].<br>If you see a similar error message, follow its instructions to resolve it: ![screenshot from 2015-10-23 09 31 09](https://cloud.githubusercontent.com/assets/1639324/10687056/705aec32-796a-11e5-85f2-d228e5bf0b6f.png)
+2. Add a virtual device. A Google Nexus phone is a good one, eg. Google Nexus 6.
+Click `Play` to start the device.
 
 Install the Genymotion plugin for Android Studio in Preferences -> Plugins and search for Genymotion.
 
