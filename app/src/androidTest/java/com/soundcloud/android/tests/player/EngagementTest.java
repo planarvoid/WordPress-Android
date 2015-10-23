@@ -43,13 +43,12 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         assertThat(menu.shareItem(), is(Enabled()));
     }
 
-    public void testLikeAnUnlikedTrackShowsShareButtonThatOpensShareDialog() {
+    public void testLikeTrackAlwaysShowsTheShareButton() {
         VisualPlayerElement player = menuScreen.open()
                 .clickExplore()
                 .playFirstTrack()
                 .unlike();
 
-        assertThat(player.shareButton(), is(not(visible())));
         player.likeButton().click();
         assertThat(player.shareButton(), is(visible()));
     }
