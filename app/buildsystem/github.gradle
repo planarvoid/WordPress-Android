@@ -1,54 +1,60 @@
-import groovy.json.JsonSlurper
-import groovy.json.StringEscapeUtils
+import groovy.json.JsonOutput
 
-import java.nio.file.Files
-import java.nio.file.Paths
+apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
+apply from: "${project.('buildSrcDir')}/curl.gradle"
 
-def tag   = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
-def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
-def owner = 'soundcloud'
-def repo  = 'soundcloud-android'
+task uploadGithubBeta {
+  description = 'Creates a tag and release on Github for beta apk.'
 
-task uploadGithub << {
-
-  // make sure we have an apk to upload
-  def apkDir = Paths.get(project.ext.apkPath).getParent()
-  println "apkDir: $apkDir"
-  def files = Files.newDirectoryStream(apkDir, "*.apk").asList()
-  if (files.size() == 0) {
-      throw new GradleException("No apks to upload in $apkDir")
+  doLast {
+    uploadGithub('beta')
   }
-  if (files.size() > 1) {
-      throw new GradleException("Multiple apks to upload in $apkDir, so nothing will be uploaded")
-  }
-  def apkPath = files[0]
+}
 
-  // Create a new github release
-  tag = StringEscapeUtils.escapeJavaScript(tag)
-  def commitish = StringEscapeUtils.escapeJavaScript(project.ext.gitBranch)
-  def releaseName = StringEscapeUtils.escapeJavaScript(project.ext.releaseName)
-  def releaseBody = StringEscapeUtils.escapeJavaScript(project.ext.releaseBody)
-  def json = /{"tag_name" : "$tag", "target_commitish" : "$commitish", "name" : "$releaseName", "body" : "$releaseBody"}/
+task uploadGithubRelease {
+  description = 'Creates a tag and release on Github for release apk.'
+
+  doLast {
+    uploadGithub('release')
+  }
+}
+
+def uploadGithub(String buildType){
+  def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
+  def owner = 'soundcloud'
+  def repo  = 'soundcloud-android'
+
+  def releaseId = createRelease(buildType, owner, repo, token)
+  uploadApkToRelease(buildType, owner, repo, token, releaseId)
+}
+
+class Release { String tag_name; String target_commitish; String name; String body }
+
+def String createRelease(String buildType, owner, repo, token) {
+  def release = new Release(
+          tag_name: findApkFilenameMinusExtension(buildType),
+          target_commitish: project.('gitBranch'),
+          name: project.('releaseName'),
+          body: project.('releaseBody')
+  )
+  def jsonRelease = JsonOutput.toJson(release)
+
   def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
-  def result = ['curl', '-vsi', '--data', json, url].execute().text
-  if (!result.contains("Status: 201 Created")) {
-    throw new GradleException("Could not create a new github release\n\nurl: $url\n\njson post:\n$json\n\nresponse:\n$result")
+
+  def result = executePostWithData(url, jsonRelease, "")
+  if (result == "") {
+    throw new Exception("Unable to create github release")
   }
+  return result.id
+}
 
-  def jsonIndex = result.indexOf("{")
-  def jsonizableResult = result.substring(jsonIndex)
-  def jsonResult = new JsonSlurper().parseText(jsonizableResult)
-  def releaseId = jsonResult.get('id')
+def uploadApkToRelease(String buildType, owner, repo, token, releaseId) {
+  def url = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
+          "soundcloud-android.apk&access_token=$token"
+  def apkPath = findApkPath(buildType)
 
-  // upload apk -> .zip to github release
-  def uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
-          "soundcloud-android.zip&access_token=$token"
-  println "uploadUrl: $uploadUrl"
-
-  def cmd = ['curl', '-vsi', '-H', 'Content-Type: application/zip', '--data-binary', "@$apkPath", uploadUrl]
-  println "uploadCmd: $cmd"
-  def uploadResult = cmd.execute().text
-  if (!uploadResult.contains("HTTP/1.1 201 Created")) {
-    throw new GradleException("Could not upload APK to github release:\n\nurl: $uploadUrl\n\nresponse:\n$uploadResult")
+  def result = executePostWithApk(url, apkPath, 0)
+  if (result == 0) {
+    throw new Exception("Unable to upload $buildType apk to github release")
   }
 }

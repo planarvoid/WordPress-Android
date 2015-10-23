@@ -68,10 +68,10 @@ task buildBetaCI(dependsOn: ['clean', 'updateVersion', 'assembleBeta']) {
 }
 assembleBeta.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['uploadGithub', 'uploadBeta']) {
+task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta']) {
   description = 'Deploy Beta build to playstore and github.'
 }
-uploadBeta.mustRunAfter('uploadGithub')
+uploadBeta.mustRunAfter('uploadGithubBeta')
 
 // *********************************************************************************************************************
 // RELEASE BUILDS
@@ -81,17 +81,17 @@ task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 assembleReleaseNoProguard.mustRunAfter('clean')
-staticAnalysis.mustRunAfter('assembleReleaseNoProguard')
+staticAnalysis.dependsOn('assembleReleaseNoProguard')
 
 task buildReleaseCI(dependsOn: ['clean', 'updateVersion', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
-assembleRelease.mustRunAfter('updateVersion')
+assembleRelease.dependsOn('updateVersion')
 
-task deployRelease(dependsOn: ['uploadGithub', 'rolloutOnePercent']) {
+task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
   description = 'Deploy Release build to playstore and github.'
 }
-rolloutOnePercent.mustRunAfter('uploadGithub')
+rolloutOnePercent.dependsOn('uploadGithubRelease')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
@@ -101,15 +101,9 @@ task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_sto
 // HELPERS
 // *********************************************************************************************************************
 
-task uploadStoreBeta(type: Exec) {
-  description = 'Uploads apk to Google Play Store.'
-
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
-}
-
 task slog(type: Exec) {
   description = 'Slog changes'
-  version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
+  version = "$project.ext.versionName-$project.buildType"
 
   commandLine 'curl', '--data', "channel=#android&message=slog: Released #android $version&username=The Release Captain", 'http://unslacked/'
 }
