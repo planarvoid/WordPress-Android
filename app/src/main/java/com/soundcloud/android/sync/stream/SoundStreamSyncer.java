@@ -11,7 +11,7 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.reflect.TypeToken;

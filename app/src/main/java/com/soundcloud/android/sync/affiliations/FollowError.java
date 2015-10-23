@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.affiliations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

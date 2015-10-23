@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync;
 
 import com.soundcloud.android.sync.ApiSyncResult;
 import org.jetbrains.annotations.NotNull;

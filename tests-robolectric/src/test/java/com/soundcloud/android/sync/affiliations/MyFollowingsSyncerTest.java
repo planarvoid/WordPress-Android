@@ -1,11 +1,10 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.affiliations;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addCannedResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addIdResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertFirstIdToBe;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,8 +43,8 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class MyFollowingsSyncerTest {
-    private static final long USER_ID = 133201L;
-    MyFollowingsSyncer userAssociationSyncer;
+
+    private MyFollowingsSyncer userAssociationSyncer;
 
     @Mock private ContentResolver resolver;
     @Mock private LegacyUserAssociationStorage userAssociationStorage;

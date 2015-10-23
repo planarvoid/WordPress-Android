@@ -1,19 +1,16 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.sync.LegacySyncJobTest.NON_INTERACTIVE;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,34 +53,6 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         expect(doPerformSyncWithValidToken(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
     }
 
-    @Test
-    @Ignore
-    public void shouldSyncLocalCollections() throws Exception {
-        TestHelper.addCannedResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1" + NON_INTERACTIVE, "me_sounds_mini.json");
-
-        // dashboard
-        addCannedActivities("empty_collection.json");
-
-        doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
-
-        final SyncStateManager syncStateManager = new SyncStateManager(DefaultTestRunner.application);
-        LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
-        expect(lc.extra).toBeNull();
-        expect(lc.size).toEqual(50);
-        expect(lc.last_sync_success).toBeGreaterThan(0L);
-
-        // reset sync time & rerun sync
-        addCannedActivities("empty_collection.json");
-
-        syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);
-
-        doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
-
-        lc = syncStateManager.fromContent(Content.ME_SOUNDS);
-        expect(lc.extra).toEqual(String.valueOf(1)); // incremented sync miss for backoff
-        expect(lc.size).toEqual(50);
-        expect(lc.last_sync_success).toBeGreaterThan(0L);
-    }
 
     @Test
     public void performSyncShouldReturnFalseIfNoSyncStarted() throws Exception {

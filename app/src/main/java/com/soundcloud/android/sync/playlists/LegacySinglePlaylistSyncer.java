@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.playlists;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.SyncStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -22,19 +21,15 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -42,7 +37,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
