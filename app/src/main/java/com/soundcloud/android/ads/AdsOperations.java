@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.utils.Log.ADS_TAG;
-import static com.soundcloud.java.checks.Preconditions.checkState;
+import android.util.Log;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
@@ -13,19 +12,24 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+
+import java.util.Arrays;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 
-import android.util.Log;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.Arrays;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 public class AdsOperations {
 
@@ -33,23 +37,27 @@ public class AdsOperations {
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
+    private final FeatureFlags featureFlags;
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
-            if (apiAdsForTrack.hasAudioAd()) {
-                final ApiTrack track = apiAdsForTrack.audioAd().getApiTrack();
+            final Optional<ApiAudioAd> audioAd = apiAdsForTrack.audioAd();
+            if (audioAd.isPresent()) {
+                final ApiTrack track = audioAd.get().getApiTrack();
                 storeTracksCommand.toAction().call(Arrays.asList(track));
             }
         }
     };
 
     @Inject
-    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, ApiClientRx apiClientRx,
-                  @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
+                  ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                  FeatureFlags featureFlags) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
+        this.featureFlags = featureFlags;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
@@ -72,20 +80,7 @@ public class AdsOperations {
         return new Action1<ApiAdsForTrack>() {
             @Override
             public void call(ApiAdsForTrack apiAdWrappers) {
-                StringBuilder msg = new StringBuilder(100);
-                msg.append("Retrieved ads for ")
-                        .append(sourceUrn.toString())
-                        .append(": ");
-                if (apiAdWrappers.hasAudioAd()) {
-                    msg.append("audio ad, ");
-                    if (apiAdWrappers.audioAd().hasApiLeaveBehind()) {
-                        msg.append("leave behind, ");
-                    }
-                }
-                if (apiAdWrappers.hasInterstitialAd()) {
-                    msg.append("interstitial");
-                }
-                Log.i(ADS_TAG, msg.toString());
+                Log.i(ADS_TAG, "Retrieved ads for " + sourceUrn.toString() + ": " + apiAdWrappers.contentString());
             }
         };
     }
@@ -102,18 +97,21 @@ public class AdsOperations {
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
         final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
-        if (ads.hasInterstitialAd()) {
-            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
-        } else if (ads.hasAudioAd()) {
-            insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
+
+        if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
+            Log.i(ADS_TAG, "Should insert video ad for " + monetizableTrack.toString());
+        } else if (ads.interstitialAd().isPresent()) {
+            applyInterstitialAd(ads.interstitialAd().get(), currentMonetizablePosition, monetizableTrack);
+        } else if (ads.audioAd().isPresent()) {
+            insertAudioAd(monetizableTrack, ads.audioAd().get(), currentMonetizablePosition);
         }
     }
 
     public void applyInterstitialToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
         final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
-        if (ads.hasInterstitialAd()) {
-            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
+        if (ads.interstitialAd().isPresent()) {
+            applyInterstitialAd(ads.interstitialAd().get(), currentMonetizablePosition, monetizableTrack);
         }
     }
 
@@ -121,7 +119,6 @@ public class AdsOperations {
         PropertySet adMetaData = apiAudioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
-
 
         if (apiAudioAd.hasApiLeaveBehind()) {
             insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, currentMonetizablePosition);

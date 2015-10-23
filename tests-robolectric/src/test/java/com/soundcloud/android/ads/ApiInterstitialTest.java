@@ -14,7 +14,7 @@ public class ApiInterstitialTest {
 
     @Test
     public void shouldResolveToPropertySet() throws CreateModelException {
-        ApiInterstitial apiInterstitial = ModelFixtures.create(ApiInterstitial.class);
+        ApiInterstitial apiInterstitial = AdFixtures.getApiInterstitial();
 
         final PropertySet propertySet = apiInterstitial.toPropertySet();
 

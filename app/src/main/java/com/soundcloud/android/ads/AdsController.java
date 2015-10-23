@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.utils.Log.ADS_TAG;
+import android.util.Log;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
@@ -18,6 +18,15 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -25,14 +34,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import android.util.Log;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 @Singleton
 public class AdsController {
@@ -52,7 +54,7 @@ public class AdsController {
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
-    private Optional<ApiAdsForTrack> adsForNextTrack;
+    private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
     private ActivityLifeCycleEvent currentLifeCycleEvent;
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
@@ -94,7 +96,7 @@ public class AdsController {
         }
     };
 
-    private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAudioAd = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
+    private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAds = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(PropertySet propertySet) {
             return adsOperations.ads(propertySet.get(TrackProperty.URN));
@@ -185,16 +187,25 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
+        final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
         if (playQueueManager.hasNextTrack() &&
                 !adsOperations.isNextTrackAudioAd() &&
-                adsForNextTrack.isPresent() &&
-                adsForNextTrack.get().hasAudioAd() &&
+                nextTrackAudioAd.isPresent() &&
                 currentLifeCycleEvent.isNotForeground()) {
-
             final int nextTrackPosition = playQueueManager.getCurrentPosition() + 1;
             final Urn nextTrackUrn = playQueueManager.getNextPlayQueueItem().getUrn();
-            adsOperations.insertAudioAd(nextTrackUrn, adsForNextTrack.get().audioAd(), nextTrackPosition);
+            adsOperations.insertAudioAd(nextTrackUrn, nextTrackAudioAd.get(), nextTrackPosition);
         }
+    }
+
+    private Optional<ApiAudioAd> getAudioAdForNextTrack() {
+        if (adsForNextTrack.isPresent()) {
+            ApiAdsForTrack ads = adsForNextTrack.get();
+            if (ads.audioAd().isPresent()) {
+                return ads.audioAd();
+            }
+        }
+        return Optional.absent();
     }
 
     private boolean alreadyFetchedAdForTrack(PlayQueueItem playQueueItem) {
@@ -219,13 +230,13 @@ public class AdsController {
         }
     }
 
-    private void createAdsFetchObservable(Urn trackUrn, DefaultSubscriber<ApiAdsForTrack> audioAdSubscriber) {
+    private void createAdsFetchObservable(Urn trackUrn, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = trackRepository.track(trackUrn)
                 .filter(IS_MONETIZABLE)
-                .flatMap(fetchAudioAd)
+                .flatMap(fetchAds)
                 .observeOn(AndroidSchedulers.mainThread());
 
-        currentAdsFetches.put(trackUrn, new AdsFetchOperation(apiAdsForTrack.subscribe(audioAdSubscriber)));
+        currentAdsFetches.put(trackUrn, new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
 
     private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueItemEvent> {

@@ -1,10 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import com.soundcloud.android.ads.ApiAudioAdBlueprint;
-import com.soundcloud.android.ads.ApiCompanionAdBlueprint;
-import com.soundcloud.android.ads.ApiDisplayPropertiesBlueprint;
-import com.soundcloud.android.ads.ApiInterstitialBlueprint;
-import com.soundcloud.android.ads.ApiLeaveBehindBlueprint;
 import com.soundcloud.android.api.legacy.model.AffiliationActivityBlueprint;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
@@ -78,11 +73,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(AssignmentBlueprint.class);
             modelFactory.registerBlueprint(PublicApiCommentBlueprint.class);
             modelFactory.registerBlueprint(AffiliationActivityBlueprint.class);
-            modelFactory.registerBlueprint(ApiAudioAdBlueprint.class);
-            modelFactory.registerBlueprint(ApiCompanionAdBlueprint.class);
-            modelFactory.registerBlueprint(ApiDisplayPropertiesBlueprint.class);
-            modelFactory.registerBlueprint(ApiLeaveBehindBlueprint.class);
-            modelFactory.registerBlueprint(ApiInterstitialBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackPostBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackRepostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);

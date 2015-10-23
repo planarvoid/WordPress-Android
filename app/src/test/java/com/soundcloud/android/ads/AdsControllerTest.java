@@ -95,7 +95,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.ads(CURRENT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.interstitialAd().toPropertySet()), Urn.NOT_SET, 0));
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.interstitialAd().get().toPropertySet()), Urn.NOT_SET, 0));
 
         verify(adsOperations).applyInterstitialToTrack(CURRENT_TRACK_URN, apiAdsForTrack);
     }
@@ -146,7 +146,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, apiAdsForTrack.audioAd(), 1);
+        verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, apiAdsForTrack.audioAd().get(), 1);
     }
 
     @Test
@@ -518,6 +518,6 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.subscribe();
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.audioAd().toPropertySet()), Urn.NOT_SET, 0));
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.audioAd().get().toPropertySet()), Urn.NOT_SET, 0));
     }
 }
