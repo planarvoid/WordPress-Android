@@ -8,7 +8,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.reflect.TypeToken;
@@ -28,20 +27,20 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     private final ApiClient apiClient;
     private final Command<Iterable<TimelineModel>, ?> storeItemsCommand;
     private final Command<Iterable<TimelineModel>, ?> replaceItemsCommand;
-    private final StreamSyncStorage streamSyncStorage;
+    private final TimelineSyncStorage timelineSyncStorage;
     private final TypeToken<ModelCollection<TimelineModel>> collectionTypeToken;
 
     protected TimelineSyncer(ApiEndpoints endpoint, Uri contentUri, ApiClient apiClient,
                              Command<Iterable<TimelineModel>, ?> storeItemsCommand,
                              Command<Iterable<TimelineModel>, ?> replaceItemsCommand,
-                             StreamSyncStorage streamSyncStorage,
+                             TimelineSyncStorage timelineSyncStorage,
                              TypeToken<ModelCollection<TimelineModel>> collectionTypeToken) {
         this.endpoint = endpoint;
         this.contentUri = contentUri;
         this.apiClient = apiClient;
         this.storeItemsCommand = storeItemsCommand;
         this.replaceItemsCommand = replaceItemsCommand;
-        this.streamSyncStorage = streamSyncStorage;
+        this.timelineSyncStorage = timelineSyncStorage;
         this.collectionTypeToken = collectionTypeToken;
     }
 
@@ -52,7 +51,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             return append();
-        } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action) || streamSyncStorage.isMissingFuturePageUrl()) {
+        } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action) || timelineSyncStorage.isMissingFuturePageUrl()) {
             return refresh();
         } else {
             return safePrepend();
@@ -65,7 +64,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         } catch (ApiRequestException exception) {
             if (!exception.isNetworkError()) {
                 // we may have had a bad cursor in the future url, so clear it for the next sync
-                streamSyncStorage.clear();
+                timelineSyncStorage.clear();
             }
             throw exception;
         }
@@ -85,27 +84,27 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         ModelCollection<TimelineModel> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(),
                 collectionTypeToken);
         replaceItemsCommand.call(streamItems.getCollection());
-        streamSyncStorage.storeNextPageUrl(streamItems.getNextLink());
+        timelineSyncStorage.storeNextPageUrl(streamItems.getNextLink());
 
         final Map<String, Link> links = streamItems.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {
-            streamSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
+            timelineSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
         }
 
         return ApiSyncResult.fromSuccessfulChange(contentUri);
     }
 
     private ApiSyncResult append() throws Exception {
-        if (streamSyncStorage.hasNextPageUrl()) {
+        if (timelineSyncStorage.hasNextPageUrl()) {
 
-            final String nextPageUrl = streamSyncStorage.getNextPageUrl();
+            final String nextPageUrl = timelineSyncStorage.getNextPageUrl();
             Log.d(this, "Building request from stored next link " + nextPageUrl);
 
             final ApiRequest.Builder requestBuilder = ApiRequest.get(nextPageUrl).forPrivateApi(1);
 
             ModelCollection<TimelineModel> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(),
                     collectionTypeToken);
-            streamSyncStorage.storeNextPageUrl(streamItems.getNextLink());
+            timelineSyncStorage.storeNextPageUrl(streamItems.getNextLink());
 
             if (streamItems.getCollection().isEmpty()) {
                 return ApiSyncResult.fromSuccessWithoutChange(contentUri);
@@ -123,7 +122,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     }
 
     private ApiSyncResult prepend() throws Exception {
-        final String previousPageUrl = streamSyncStorage.getFuturePageUrl();
+        final String previousPageUrl = timelineSyncStorage.getFuturePageUrl();
         Log.d(this, "Building request from stored future link " + previousPageUrl);
 
         final ApiRequest.Builder requestBuilder = ApiRequest.get(previousPageUrl).forPrivateApi(1);
@@ -132,7 +131,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
                 collectionTypeToken);
         final Map<String, Link> links = items.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {
-            streamSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
+            timelineSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
         }
 
         if (items.getCollection().isEmpty()) {

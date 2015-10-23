@@ -16,7 +16,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -51,7 +50,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
     @Mock private Command<Iterable<Object>, ?> replaceCommand;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
-    @Mock private StreamSyncStorage streamSyncStorage;
+    @Mock private TimelineSyncStorage timelineSyncStorage;
 
     private Object streamItem1 = new Object();
     private Object streamItem2 = new Object();
@@ -66,7 +65,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
 
         timelineSyncer = new TimelineSyncer<>(ENDPOINT, CONTENT_URI, apiClient, insertCommand, replaceCommand,
-                streamSyncStorage, new TypeToken<ModelCollection<Object>>() {
+                timelineSyncStorage, new TypeToken<ModelCollection<Object>>() {
         });
     }
 
@@ -88,7 +87,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
 
-        verify(streamSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_URL)));
+        verify(timelineSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_URL)));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
 
-        verify(streamSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
+        verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
 
     @Test
@@ -113,8 +112,8 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void appendUsesStorageToInsertStreamItems() throws Exception {
-        when(streamSyncStorage.hasNextPageUrl()).thenReturn(true);
-        when(streamSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+        when(timelineSyncStorage.hasNextPageUrl()).thenReturn(true);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
@@ -126,8 +125,8 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void appendReturnsSuccessResult() throws Exception {
-        when(streamSyncStorage.hasNextPageUrl()).thenReturn(true);
-        when(streamSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+        when(timelineSyncStorage.hasNextPageUrl()).thenReturn(true);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
@@ -140,8 +139,8 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void appendReturnsUnchangedResultWhenEmptyCollectionReturned() throws Exception {
-        when(streamSyncStorage.hasNextPageUrl()).thenReturn(true);
-        when(streamSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+        when(timelineSyncStorage.hasNextPageUrl()).thenReturn(true);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(new ArrayList<>()));
 
@@ -154,7 +153,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void appendReturnsUnchangedResultWhenNoNextUrlPresent() throws Exception {
-        when(streamSyncStorage.hasNextPageUrl()).thenReturn(false);
+        when(timelineSyncStorage.hasNextPageUrl()).thenReturn(false);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
@@ -167,20 +166,20 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void appendSetsTheNextPageUrl() throws Exception {
-        when(streamSyncStorage.hasNextPageUrl()).thenReturn(true);
-        when(streamSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+        when(timelineSyncStorage.hasNextPageUrl()).thenReturn(true);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithNextLink(NEXT_NEXT_URL));
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
 
-        verify(streamSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_NEXT_URL)));
+        verify(timelineSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_NEXT_URL)));
     }
 
     @Test
     public void softRefreshResultingIn400ClearsFutureLinkAndReportsError() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
-        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenThrow(ApiRequestException.badRequest(null, null, null));
 
@@ -191,13 +190,13 @@ public class TimelineSyncerTest extends AndroidUnitTest {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.BAD_REQUEST);
         }
 
-        verify(streamSyncStorage).clear();
+        verify(timelineSyncStorage).clear();
     }
 
     @Test
     public void softRefreshResultingIn404ClearsFutureLinkAndReportsError() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
-        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenThrow(ApiRequestException.notFound(null, null));
 
@@ -208,13 +207,13 @@ public class TimelineSyncerTest extends AndroidUnitTest {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.NOT_FOUND);
         }
 
-        verify(streamSyncStorage).clear();
+        verify(timelineSyncStorage).clear();
     }
 
     @Test
     public void softRefreshResultingIn500ClearsFutureLinkAndReportsError() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
-        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenThrow(ApiRequestException.serverError(null, null));
 
@@ -225,24 +224,24 @@ public class TimelineSyncerTest extends AndroidUnitTest {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.SERVER_ERROR);
         }
 
-        verify(streamSyncStorage).clear();
+        verify(timelineSyncStorage).clear();
     }
 
     @Test
     public void softRefreshWithoutFutureUrlStoresNewFutureUrl() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(true);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithFutureLink());
 
         timelineSyncer.syncContent(CONTENT_URI, null);
 
-        verify(streamSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
+        verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
 
     @Test
     public void softRefreshWithFutureUrlInsertsNewStreamItems() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
-        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
@@ -255,15 +254,15 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
     @Test
     public void softRefreshWithFutureUrlSetsNewFutureUrl() throws Exception {
-        when(streamSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
-        when(streamSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.isMissingFuturePageUrl()).thenReturn(false);
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithFutureLink());
 
         timelineSyncer.syncContent(CONTENT_URI, null);
 
-        verify(streamSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
+        verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
 
     private ModelCollection<?> itemsWithoutLinks() {

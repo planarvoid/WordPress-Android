@@ -19,9 +19,9 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
@@ -51,16 +51,16 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private ClearTableCommand clearTableCommand;
-    @Mock private StreamSyncStorage streamSyncStorage;
+    @Mock private SyncCleanupAction syncCleanupAction;
     @Mock private PlanStorage planStorage;
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionsOperations collectionsOperations;
 
     @Before
     public void setup() {
-        action = new AccountCleanupAction(syncStateManager,
+        action = new AccountCleanupAction(
                 activitiesStorage, legacyUserAssociationStorage, tagStorage, soundRecorder,
-                featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, streamSyncStorage, planStorage,
+                featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations, collectionsOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
@@ -72,7 +72,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearSyncState() {
         action.call();
-        verify(syncStateManager).clear();
+        verify(syncCleanupAction).clear();
     }
 
     @Test
@@ -115,12 +115,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearFeatureStorage() {
         action.call();
         verify(featureStorage).clear();
-    }
-
-    @Test
-    public void shouldClearStreamSyncStorage() {
-        action.call();
-        verify(streamSyncStorage).clear();
     }
 
     @Test
