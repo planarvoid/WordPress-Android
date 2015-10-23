@@ -8,6 +8,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.service.LocalBinder;
@@ -123,7 +125,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Finished");
         expect(notification).toHaveText("testing has been uploaded");
         expect(notification).toHaveTitle("Upload Finished");
-        expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
+        expect(notification).toMatchIntent(new Intent(Robolectric.application, ProfileActivity.class));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
 
         PublicApiTrack t = SoundCloudApplication.sModelManager.getTrack(12345l);
@@ -148,7 +150,7 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Finished");
         expect(notification).toHaveText("testing has been uploaded");
         expect(notification).toHaveTitle("Upload Finished");
-        expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
+        expect(notification).toMatchIntent(new Intent(Robolectric.application, ProfileActivity.class));
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload2 = RecordingTestHelper.getValidRecording();
@@ -245,12 +247,12 @@ public class UploadServiceTest {
         expect(first).toHaveTicker("Transcoding Error");
         expect(first).toHaveText("There was an error transcoding recording on sunday night");
         expect(first).toHaveTitle("Transcoding Error");
-        expect(first).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
+        expect(first).toMatchIntent(new Intent(Robolectric.application, ProfileActivity.class));
 
         expect(second).toHaveTicker("Upload Finished");
         expect(second).toHaveText("testing has been uploaded");
         expect(second).toHaveTitle("Upload Finished");
-        expect(second).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
+        expect(second).toMatchIntent(new Intent(Robolectric.application, ProfileActivity.class));
 
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }

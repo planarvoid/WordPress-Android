@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.CollectionsOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -89,7 +88,6 @@ class AccountCleanupAction implements Action0 {
         soundRecorder.reset();
         stationsOperations.clearData();
         discoveryOperations.clearData();
-        FollowingOperations.clearState();
         collectionsOperations.clearData();
     }
 

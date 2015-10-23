@@ -100,7 +100,7 @@ public class MenuScreen {
     public ProfileScreen clickUserProfile() {
         userProfileMenuItem().click();
         waiter.waitForDrawerToClose();
-        return new MyProfileScreen(testDriver);
+        return new ProfileScreen(testDriver);
     }
 
     public ExploreScreen clickExplore() {

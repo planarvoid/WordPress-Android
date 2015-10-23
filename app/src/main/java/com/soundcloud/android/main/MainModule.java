@@ -7,8 +7,6 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.UploadActivity;
 import com.soundcloud.android.creators.upload.MetadataFragment;
-import com.soundcloud.android.profile.LegacyProfileActivity;
-import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -21,7 +19,6 @@ import dagger.Provides;
         injects = {
                 MainActivity.class,
                 TrackedActivity.class,
-                MeActivity.class,
                 RecordActivity.class,
                 UploadActivity.class,
                 MetadataFragment.class,
@@ -31,7 +28,6 @@ import dagger.Provides;
                 EmailOptInDialogFragment.class,
                 SearchActivity.class,
                 TrackCommentsActivity.class,
-                LegacyProfileActivity.class,
                 VerifyAgeActivity.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule {

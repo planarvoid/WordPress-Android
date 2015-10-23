@@ -20,7 +20,7 @@ public class SyncContentTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
 
-    private static final int NON_ACTIVITY_ACTIVE_SYNC_CONTENT = SyncContent.NON_ACTIVITIES.size() - 1; /* follower disabled */
+    private static final int NON_ACTIVITY_ACTIVE_SYNC_CONTENT = SyncContent.NON_ACTIVITIES.size(); /* follower disabled */
 
     @Before
     public void before() {

@@ -33,21 +33,6 @@ public class LegacyUserStorage {
         this.scheduler = scheduler;
     }
 
-    public PublicApiUser store(PublicApiUser user) {
-        userDAO.create(user.buildContentValues());
-        return user;
-    }
-
-    public Observable<PublicApiUser> storeAsync(final PublicApiUser user) {
-        return Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
-            @Override
-            public void call(Subscriber<? super PublicApiUser> observer) {
-                observer.onNext(store(user));
-                observer.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-    }
-
     public PublicApiUser createOrUpdate(PublicApiUser user) {
         userDAO.createOrUpdate(user.getId(), user.buildContentValues());
         return user;
@@ -66,9 +51,4 @@ public class LegacyUserStorage {
     public PublicApiUser getUser(long id) {
         return userDAO.queryById(id);
     }
-
-    public PublicApiUser getUserByUri(Uri uri) {
-        return userDAO.queryByUri(uri);
-    }
-
 }

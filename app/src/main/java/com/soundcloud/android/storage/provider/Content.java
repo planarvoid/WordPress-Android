@@ -35,8 +35,6 @@ public enum Content {
     ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.Comments),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.UserAssociations),
     ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
-    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, UserAssociation.class, FOLLOWER, Table.UserAssociations),
-    ME_FOLLOWER("me/followers/#", null, 106, PublicApiUser.class, -1, null),
     ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.Likes),
     ME_LIKE("me/likes/#", null, 108, PublicApiTrack.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.CollectionItems),
@@ -142,12 +140,6 @@ public enum Content {
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
             Content.ME_ACTIVITIES,
             Content.ME_SOUND_STREAM
-    );
-
-
-    public static final EnumSet<Content> ID_BASED = EnumSet.of(
-            Content.ME_FOLLOWINGS,
-            Content.ME_FOLLOWERS
     );
 
     static {

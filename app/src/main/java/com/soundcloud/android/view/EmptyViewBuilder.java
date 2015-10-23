@@ -88,12 +88,6 @@ public class EmptyViewBuilder {
                 messageText = getTextForUser(context, R.string.empty_user_likes_text, username);
                 break;
 
-            case ME_FOLLOWERS:
-                image = R.drawable.empty_followers;
-                secondaryText = context.getString(R.string.list_empty_you_followers_secondary);
-                messageText = context.getString(R.string.list_empty_you_followers_message);
-                break;
-
             case USER_FOLLOWERS:
                 image = R.drawable.empty_followers;
                 messageText = getTextForUser(context, R.string.empty_user_followers_text, username);

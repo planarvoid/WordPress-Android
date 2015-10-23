@@ -3,12 +3,11 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.android.sync.content.UserAssociationSyncer;
+import com.soundcloud.android.sync.content.MyFollowingsSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
@@ -27,7 +26,6 @@ import javax.inject.Provider;
 @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
-    private final Provider<FollowingOperations> followingOpsProvider;
     private final Provider<NextFollowingOperations> nextFollowingOperationsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
@@ -40,13 +38,12 @@ public class ApiSyncerFactory {
     private final Navigator navigator;
 
     @Inject
-    public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<NextFollowingOperations> nextFollowingOperationsProvider, Provider<AccountOperations> accountOpsProvider,
+    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator) {
-        this.followingOpsProvider = followingOpsProvider;
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
@@ -70,10 +67,10 @@ public class ApiSyncerFactory {
                 return lazyMyLikesSyncer.get();
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
-                return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(),
-                        nextFollowingOperationsProvider.get(), notificationManagerProvider.get(),
+                return new MyFollowingsSyncer(
+                        context, accountOpsProvider.get(),
+                        nextFollowingOperationsProvider.get(),
+                        notificationManagerProvider.get(),
                         jsonTransformer, navigator);
 
             case ME_PLAYLISTS:

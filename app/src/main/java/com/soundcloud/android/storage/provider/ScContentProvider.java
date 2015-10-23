@@ -128,7 +128,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
                 table = Table.UserAssociations;
                 extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
                 break;
@@ -326,7 +325,6 @@ public class ScContentProvider extends ContentProvider {
                 }
                 break;
 
-            case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 /* XXX special case for now. we  need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
@@ -605,7 +603,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
                 whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId
                         + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend

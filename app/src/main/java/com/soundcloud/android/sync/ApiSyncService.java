@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
@@ -50,14 +49,6 @@ public class ApiSyncService extends Service {
 
     public ApiSyncService() {
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        // We have to make sure the follow cache is instantiated on the UI thread, or the syncer could cause a crash
-        // TODO, remove this once we get rid of FollowStatus
-        FollowingOperations.init();
     }
 
     public void onStart(Intent intent, int startId) {

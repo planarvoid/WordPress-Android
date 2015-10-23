@@ -13,7 +13,6 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
@@ -89,7 +88,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Inject ImageOperations imageOperations;
     @Inject EventBus eventBus;
     @Inject PullToRefreshController pullToRefreshController;
-    @Inject FollowingOperations followingOperations;
 
     @Nullable private ListView listView;
     private ActivitiesAdapter adapter;
@@ -365,11 +363,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
 
         if (adapter != null && getActivity() != null) {
-            if (userRefresh) {
-                if (adapter instanceof FollowingOperations.FollowStatusChangedListener) {
-                    followingOperations.requestUserFollowings((FollowingOperations.FollowStatusChangedListener) adapter);
-                }
-            }
             if (!isSyncable()) {
                 executeRefreshTask();
                 adapter.notifyDataSetChanged();
