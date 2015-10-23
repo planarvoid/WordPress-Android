@@ -2,16 +2,16 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -31,7 +31,6 @@ public class TabbedSearchFragment extends Fragment {
     @Inject Resources resources;
 
     private ViewPager pager;
-
 
     public static TabbedSearchFragment newInstance(String query) {
         TabbedSearchFragment fragment = new TabbedSearchFragment();
@@ -78,9 +77,9 @@ public class TabbedSearchFragment extends Fragment {
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        tabIndicator.setViewPager(pager);
-        tabIndicator.setOnPageChangeListener(new SearchPagerScreenListener(eventBus));
+        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.sliding_tabs);
+        tabIndicator.setupWithViewPager(pager);
+        pager.addOnPageChangeListener(new SearchPagerScreenListener(eventBus));
     }
 
     @Override

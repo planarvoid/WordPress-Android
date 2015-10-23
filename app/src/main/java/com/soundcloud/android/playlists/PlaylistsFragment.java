@@ -3,11 +3,11 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -60,7 +60,7 @@ public class PlaylistsFragment extends LightCycleSupportFragment {
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        tabIndicator.setViewPager(pager);
+        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.sliding_tabs);
+        tabIndicator.setupWithViewPager(pager);
     }
 }

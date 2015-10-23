@@ -102,8 +102,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public String currentTabTitle() {
-        // toUppercase since SlidingTabLayout does the same
-        return getViewPager().getCurrentTabText().toUpperCase();
+        return getViewPager().getCurrentTabText();
     }
 
     private ViewPagerElement getViewPager() {

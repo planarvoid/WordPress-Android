@@ -100,20 +100,20 @@ public class BaseLayoutHelperTest {
 
     @Test
     public void shouldAddContentToContainerOnSetBaseLayoutWithContent() {
-        when(inflater.inflate(R.layout.new_profile, null)).thenReturn(content);
+        when(inflater.inflate(R.layout.profile, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        helper.setBaseLayoutWithContent(activity, R.layout.new_profile);
+        helper.setBaseLayoutWithContent(activity, R.layout.profile);
 
         verify(container).addView(layout);
     }
 
     @Test
     public void shouldAddContentToContainerOnSetBaseDrawerLayoutWithContent() {
-        when(inflater.inflate(R.layout.new_profile, null)).thenReturn(content);
+        when(inflater.inflate(R.layout.profile, null)).thenReturn(content);
         when(inflater.inflate(anyInt(), any(ViewGroup.class))).thenReturn(layout);
 
-        helper.setBaseDrawerLayoutWithContent(activity, R.layout.new_profile);
+        helper.setBaseDrawerLayoutWithContent(activity, R.layout.profile);
 
         verify(container).addView(layout);
     }

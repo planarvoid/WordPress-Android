@@ -2,15 +2,15 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -54,9 +54,9 @@ public class ExploreFragment extends Fragment {
         pagerAdapter = pagerAdapterFactory.create(this.getChildFragmentManager());
         pager.setAdapter(pagerAdapter);
 
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        tabIndicator.setViewPager(pager);
-        tabIndicator.setOnPageChangeListener(new ExplorePagerScreenListener(eventBus));
+        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.sliding_tabs);
+        tabIndicator.setupWithViewPager(pager);
+        pager.addOnPageChangeListener(new ExplorePagerScreenListener(eventBus));
 
         if (savedInstanceState == null) {
             pager.setCurrentItem(1);
