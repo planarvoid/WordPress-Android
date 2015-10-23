@@ -24,7 +24,7 @@ def executePostWithData(url, json, defaultReturnValue) {
 }
 
 def executePostWithApk(url, apkPath, defaultReturnValue) {
-  def cmd = ['curl', '-X', 'POST', '-H', 'Content-Type: application/zip', '--data-binary', "@$apkPath", url]
+  def cmd = ['curl', '-H', 'Content-Type: application/zip', '--data-binary', "@$apkPath", url]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
