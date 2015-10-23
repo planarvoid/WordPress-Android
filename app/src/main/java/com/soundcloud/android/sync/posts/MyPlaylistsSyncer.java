@@ -11,7 +11,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;

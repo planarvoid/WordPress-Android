@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.affiliations;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
@@ -19,6 +19,7 @@ import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.LegacySyncStrategy;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.reflect.TypeToken;

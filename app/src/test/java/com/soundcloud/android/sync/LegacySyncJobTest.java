@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -9,88 +9,55 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.android.api.legacy.InvalidTokenException;
-import com.soundcloud.android.api.legacy.Request;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.SharedPreferences;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 
-@RunWith(SoundCloudTestRunner.class)
-public class LegacySyncJobTest {
+public class LegacySyncJobTest extends AndroidUnitTest {
 
     public static final String SOME_ACTION = "someAction";
 
-    LegacySyncJob legacySyncItem;
+    private LegacySyncJob legacySyncItem;
 
-    @Mock
-    private ApiSyncerFactory apiSyncerFactory;
-    @Mock
-    private SyncStateManager syncStateManager;
-    @Mock
-    private SyncStrategy SyncStrategy;
-    @Mock
-    private LocalCollection localCollection;
-    @Mock
-    private SharedPreferences sharedPreferences;
+    @Mock private ApiSyncerFactory apiSyncerFactory;
+    @Mock private SyncStateManager syncStateManager;
+    @Mock private SyncStrategy SyncStrategy;
+    @Mock private LocalCollection localCollection;
+    @Mock private SharedPreferences sharedPreferences;
 
-    static final String NON_INTERACTIVE =
-            "&" + URLEncoder.encode(PublicApi.BACKGROUND_PARAMETER) + "=1";
     private ApiSyncResult apiSyncResult;
 
     @Before
     public void setup() {
-        legacySyncItem = new LegacySyncJob(Robolectric.application,
+        legacySyncItem = new LegacySyncJob(context(),
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
     }
 
     @Test
     public void shouldHaveEquals() throws Exception {
-        LegacySyncJob r1 = new LegacySyncJob(Robolectric.application,
+        LegacySyncJob r1 = new LegacySyncJob(context(),
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        LegacySyncJob r2 = new LegacySyncJob(Robolectric.application,
+        LegacySyncJob r2 = new LegacySyncJob(context(),
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        LegacySyncJob r3 = new LegacySyncJob(Robolectric.application,
+        LegacySyncJob r3 = new LegacySyncJob(context(),
                 Content.ME_FOLLOWINGS.uri, "someOtherAction", false, apiSyncerFactory, syncStateManager);
 
-        expect(r1).toEqual(r2);
-        expect(r3).not.toEqual(r2);
-    }
-
-    @Test
-    public void shouldSetTheBackgroundParameterIfNonUiRequest() throws Exception {
-        LegacySyncJob nonUi = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
-        LegacySyncJob ui = new LegacySyncJob(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, true, apiSyncerFactory, syncStateManager);
-
-        ui.onQueued();
-        nonUi.onQueued();
-
-        Robolectric.addHttpResponseRule("/me/followings/ids?linked_partitioning=1"
-                + NON_INTERACTIVE, "whatevs");
-
-        nonUi.run();
-        Robolectric.clearHttpResponseRules();
-        Robolectric.addHttpResponseRule("/me/followings/ids?linked_partitioning=1", "whatevs");
-        ui.run();
+        assertThat(r1).isEqualTo(r2);
+        assertThat(r3).isNotEqualTo(r2);
     }
 
     @Test
@@ -103,7 +70,7 @@ public class LegacySyncJobTest {
     public void shouldNotSyncIfLocalCollectionUpdateFails() throws Exception {
         when(syncStateManager.fromContent(Content.ME_FOLLOWINGS.uri)).thenReturn(localCollection);
         when(localCollection.getId()).thenReturn(1L);
-        when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(context(), Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(false);
 
         legacySyncItem.onQueued();
@@ -120,8 +87,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(1L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -132,8 +99,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(1L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -144,8 +111,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -156,8 +123,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(1L);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(1L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -168,8 +135,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -180,8 +147,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(1L);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(1L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -192,8 +159,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -204,8 +171,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -216,8 +183,8 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -228,9 +195,9 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
-        expect(legacySyncItem.getResult().syncResult.delayUntil).toBeGreaterThan(0l);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.delayUntil).isGreaterThan(0l);
     }
 
     @Test
@@ -242,7 +209,7 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -253,7 +220,7 @@ public class LegacySyncJobTest {
         legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
     }
 
     @Test
@@ -281,7 +248,7 @@ public class LegacySyncJobTest {
     private void setupSync() {
         when(syncStateManager.fromContent(Content.ME_FOLLOWINGS.uri)).thenReturn(localCollection);
         when(localCollection.getId()).thenReturn(1L);
-        when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(context(), Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(true);
     }
 }

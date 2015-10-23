@@ -1,12 +1,10 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.storage.LocalCollectionDAO;
-import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
 
 import android.content.ContentResolver;
