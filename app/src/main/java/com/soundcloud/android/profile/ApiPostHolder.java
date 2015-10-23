@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiPlaylistRepost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
@@ -27,22 +28,17 @@ public class ApiPostHolder {
         this.playlistRepost = playlistRepost;
     }
 
-    boolean isValid() {
-        return getPost() != null;
-    }
-
-    @Nullable
-    PropertySetSource getPost() {
+    Optional<PropertySetSource> getPost() {
         if (trackPost != null) {
-            return trackPost;
+            return Optional.<PropertySetSource>of(trackPost);
         } else if (trackRepost != null) {
-            return trackRepost;
+            return Optional.<PropertySetSource>of(trackRepost);
         } else if (playlistPost != null) {
-            return playlistPost;
+            return Optional.<PropertySetSource>of(playlistPost);
         } else if (playlistRepost != null) {
-            return playlistRepost;
+            return Optional.<PropertySetSource>of(playlistRepost);
         } else {
-            return null;
+            return Optional.absent();
         }
     }
 
