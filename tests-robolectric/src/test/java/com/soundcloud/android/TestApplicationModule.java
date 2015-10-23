@@ -29,6 +29,7 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
+import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.entities.EntitySyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncModule;
@@ -336,6 +337,11 @@ public class TestApplicationModule {
     @Provides
     AppboyWrapper provideAppboyWrapper() {
         return mock(AppboyWrapper.class);
+    }
+
+    @Provides
+    SyncCleanupAction syncCleanupAction() {
+        return mock(SyncCleanupAction.class);
     }
 }
 
