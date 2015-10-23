@@ -18,7 +18,7 @@
 
     <item
         android:id="@+id/action_activity"
-        android:title="@string/side_menu_activity"
+        android:title="@string/side_menu_notifications"
         soundcloud:showAsAction="never" />
 
     <item

@@ -209,22 +209,22 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
     private Notification buildBlockedFollowNotification(UserAssociation userAssociation, String userName) {
         String title = context.getString(R.string.follow_blocked_title);
-        String content = context.getString(R.string.follow_blocked_content, userName);
-        String contentLong = context.getString(R.string.follow_blocked_content_long, userName);
+        String content = context.getString(R.string.follow_blocked_content_username, userName);
+        String contentLong = context.getString(R.string.follow_blocked_content_long_username, userName);
         return buildNotification(title, content, contentLong, buildReturnToProfileIntent(userAssociation));
     }
 
     private Notification buildUnknownAgeNotification(UserAssociation userAssociation, String userName) {
         String title = context.getString(R.string.follow_age_unknown_title);
-        String content = context.getString(R.string.follow_age_unknown_content, userName);
-        String contentLong = context.getString(R.string.follow_age_unknown_content_long, userName);
+        String content = context.getString(R.string.follow_age_unknown_content_username, userName);
+        String contentLong = context.getString(R.string.follow_age_unknown_content_long_username, userName);
         return buildNotification(title, content, contentLong, buildVerifyAgeIntent(userAssociation));
     }
 
     private Notification buildUnderAgeNotification(UserAssociation userAssociation, FollowErrors errors, String userName) {
         String title = context.getString(R.string.follow_age_restricted_title);
-        String content = context.getString(R.string.follow_age_restricted_content, errors.getAge(), userName);
-        String contentLong = context.getString(R.string.follow_age_restricted_content_long, errors.getAge(), userName);
+        String content = context.getString(R.string.follow_age_restricted_content_age_username, errors.getAge(), userName);
+        String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username, errors.getAge(), userName);
         return buildNotification(title, content, contentLong, buildReturnToProfileIntent(userAssociation));
     }
 

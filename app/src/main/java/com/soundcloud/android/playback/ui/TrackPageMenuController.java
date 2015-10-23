@@ -70,7 +70,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         this.startStationPresenter = startStationPresenter;
         this.eventBus = eventBus;
         this.shareOperations = shareOperations;
-        this.commentAtUnformatted = activity.getString(R.string.comment_at);
+        this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
         setupMenu();
     }
 

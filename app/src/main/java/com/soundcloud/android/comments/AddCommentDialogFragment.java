@@ -74,12 +74,12 @@ public class AddCommentDialogFragment extends DialogFragment {
 
         final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
         final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
-        input.setHint(getString(R.string.comment_at, timeFormatted));
+        input.setHint(getString(R.string.comment_at_time, timeFormatted));
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(getString(R.string.comment_on, track.get(TrackProperty.TITLE)))
+                .setTitle(getString(R.string.comment_on_tracktitle, track.get(TrackProperty.TITLE)))
                 .setView(dialogView)
-                .setPositiveButton(R.string.post, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.btn_post, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         final String commentText = input.getText().toString();
@@ -89,7 +89,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                         }
                     }
                 })
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.btn_cancel, null)
                 .create();
     }
 
@@ -129,7 +129,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         @Override
         public void onNext(PublicApiComment comment) {
             new UndoBar(activity)
-                    .message(R.string.your_comment_has_been_posted)
+                    .message(R.string.comment_posted)
                     .style(createViewCommentBarStyle())
                     .listener(this)
                     .show();
@@ -138,11 +138,11 @@ public class AddCommentDialogFragment extends DialogFragment {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            Toast.makeText(activity, activity.getString(R.string.comment_could_not_be_created_at_this_time), Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.comment_error), Toast.LENGTH_SHORT).show();
         }
 
         private UndoBarStyle createViewCommentBarStyle() {
-            return new UndoBarStyle(R.drawable.undobar_button, R.string.view)
+            return new UndoBarStyle(R.drawable.undobar_button, R.string.btn_view)
                     .setAnim(AnimationUtils.loadAnimation(activity, android.R.anim.fade_in),
                             AnimationUtils.loadAnimation(activity, android.R.anim.fade_out));
         }

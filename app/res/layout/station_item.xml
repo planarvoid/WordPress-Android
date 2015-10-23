@@ -37,7 +37,7 @@
             style="@style/Stations.ItemNowPlaying"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/now_playing"
+            android:text="@string/ads_now_playing"
             android:visibility="gone" />
 
     </LinearLayout>

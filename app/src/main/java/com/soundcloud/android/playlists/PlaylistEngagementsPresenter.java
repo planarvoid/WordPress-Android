@@ -137,7 +137,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         final String trackCount = context.getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlistWithTracks.getTrackCount(), playlistWithTracks.getTrackCount());
-        playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text,
+        playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
                 trackCount, playlistWithTracks.getDuration()));
 
         playlistEngagementsView.updateLikeItem(this.playlistWithTracks.getLikesCount(), this.playlistWithTracks.isLikedByUser());

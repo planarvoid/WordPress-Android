@@ -67,9 +67,9 @@ public class ShareOperations {
         String permalink = playable.get(PlayableProperty.PERMALINK_URL);
 
         if (Strings.isNotBlank(username)) {
-            return context.getString(R.string.share_track_by_artist_on_soundcloud, title, username, permalink);
+            return context.getString(R.string.share_tracktitle_artist_link, title, username, permalink);
         } else {
-            return context.getString(R.string.share_track_on_soundcloud, title, permalink);
+            return context.getString(R.string.share_tracktitle_link, title, permalink);
         }
     }
 }

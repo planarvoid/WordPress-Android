@@ -28,11 +28,11 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     }
 
     public boolean isLiked() {
-        return getElementText(likeItem()).equals(testDriver.getString(R.string.unlike));
+        return getElementText(likeItem()).equals(testDriver.getString(R.string.btn_unlike));
     }
 
     private ViewElement likeItem() {
-        return findElement(With.text(testDriver.getString(R.string.like), testDriver.getString(R.string.unlike)));
+        return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     public ViewElement getMakeAvailableOfflineItem() {

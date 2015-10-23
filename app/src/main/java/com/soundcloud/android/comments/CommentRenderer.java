@@ -49,7 +49,7 @@ public class CommentRenderer implements CellRenderer<Comment> {
     private void setUserName(View itemView, Comment comment) {
         final TextView userName = textView(itemView, R.id.username);
         userName.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        userName.setText(resources.getString(R.string.user_commented_at, comment.getUsername(),
+        userName.setText(resources.getString(R.string.user_commented_at_timestamp, comment.getUsername(),
                 ScTextUtils.formatTimestamp(comment.getTimeStamp(), TimeUnit.MILLISECONDS)));
     }
 

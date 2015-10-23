@@ -53,8 +53,8 @@ public class EmptyViewBuilder {
 
             case ME_ACTIVITIES:
                 image = R.drawable.empty_activity;
-                messageText = context.getString(R.string.list_empty_activity_message);
-                secondaryText = context.getString(R.string.list_empty_activity_secondary);
+                messageText = context.getString(R.string.list_empty_notification_message);
+                secondaryText = context.getString(R.string.list_empty_notification_secondary);
                 break;
 
             // profile specific

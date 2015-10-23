@@ -150,13 +150,13 @@
                 android:layout_height="@dimen/tour_buttons_height"
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
-                android:text="@string/cancel" />
+                android:text="@string/btn_cancel" />
 
             <Button
                 android:id="@+id/btn_signup"
                 style="@style/Tour.NextButton"
                 android:layout_height="@dimen/tour_buttons_height"
-                android:text="@string/done" />
+                android:text="@string/btn_done" />
         </LinearLayout>
 
         <TextView

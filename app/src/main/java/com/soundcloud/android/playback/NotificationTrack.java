@@ -23,7 +23,7 @@ public class NotificationTrack {
 
     public String getCreatorName() {
         if (isAnAdvertisement()) {
-            return resources.getString(R.string.advertisement);
+            return resources.getString(R.string.ads_advertisement);
         }
         return source.get(PlayableProperty.CREATOR_NAME);
     }

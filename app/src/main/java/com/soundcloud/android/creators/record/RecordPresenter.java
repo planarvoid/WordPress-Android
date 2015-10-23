@@ -509,8 +509,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     private void showRemoveRecordingDialog(int message) {
         new AlertDialog.Builder(recordFragment.getActivity())
                 .setMessage(message)
-                .setNegativeButton(R.string.no, null)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.btn_no, null)
+                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         recorder.reset(true);
@@ -524,8 +524,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     private void showRevertRecordingDialog() {
         new AlertDialog.Builder(recordFragment.getActivity())
                 .setMessage(R.string.dialog_revert_recording_message)
-                .setNegativeButton(R.string.no, null)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.btn_no, null)
+                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         recorder.revertFile();

@@ -85,7 +85,7 @@ public class UploadNotificationControllerTest {
         notificationController.showUploadFinished(recording);
 
         verify(notificationBuilder).setContentTitle(Robolectric.application.getString(R.string.cloud_uploader_notification_finished_title));
-        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_finished_message, recording.getTitle()));
+        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded, recording.getTitle()));
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setAutoCancel(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -98,7 +98,7 @@ public class UploadNotificationControllerTest {
         notificationController.showUploadError(recording);
 
         verify(notificationBuilder).setContentTitle(Robolectric.application.getString(R.string.cloud_uploader_notification_error_title));
-        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_error_message, recording.getTitle()));
+        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_error_message_tracktitle, recording.getTitle()));
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setAutoCancel(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

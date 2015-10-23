@@ -67,9 +67,9 @@ public class InterstitialPresenter extends AdOverlayPresenter {
         if (data.contains(TrackProperty.TITLE) && data.contains(TrackProperty.CREATOR_NAME)){
             final String nowPlayingTitle = data.get(TrackProperty.TITLE);
             final String nowPlayingCreator = data.get(TrackProperty.CREATOR_NAME);
-            nowPlayingTitleView.setText(resources.getString(R.string.now_playing_with_args, nowPlayingTitle, nowPlayingCreator));
+            nowPlayingTitleView.setText(resources.getString(R.string.ads_now_playing_tracktitle_username, nowPlayingTitle, nowPlayingCreator));
         } else {
-            nowPlayingTitleView.setText(R.string.now_playing);
+            nowPlayingTitleView.setText(R.string.ads_now_playing);
             // we are missing certain track data here, just before launching.
             // Need to look at these reports and find the path that causes this. It seems to be when a monetizable track
             // has an audio ad, then an interstitial when the same playlist is started over

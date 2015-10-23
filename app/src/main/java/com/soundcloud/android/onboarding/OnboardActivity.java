@@ -931,7 +931,7 @@ public class OnboardActivity extends FragmentActivity
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(R.string.authentication_captcha_message)
                 .setPositiveButton(getString(R.string.try_again), spamDialogOnClickListener)
-                .setNeutralButton(getString(R.string.cancel), spamDialogOnClickListener);
+                .setNeutralButton(getString(R.string.btn_cancel), spamDialogOnClickListener);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupServeCaptcha());
     }
 
@@ -982,7 +982,7 @@ public class OnboardActivity extends FragmentActivity
                         login(loginBundle);
                     }
                 })
-                .setNegativeButton(R.string.cancel, null);
+                .setNegativeButton(R.string.btn_cancel, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictOnLogin());
     }
 

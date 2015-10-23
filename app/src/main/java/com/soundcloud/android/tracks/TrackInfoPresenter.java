@@ -100,7 +100,7 @@ public class TrackInfoPresenter {
 
     private void bindUploadedSinceText(View view, PropertySet propertySet) {
         final String timeElapsed = ScTextUtils.formatTimeElapsedSince(resources, propertySet.get(PlayableProperty.CREATED_AT).getTime(), true);
-        setTextAndShow(view, R.id.uploaded_at, resources.getString(R.string.uploaded_at, timeElapsed));
+        setTextAndShow(view, R.id.uploaded_at, resources.getString(R.string.uploaded_xtimeago, timeElapsed));
     }
 
     private void configureStats(View view, PropertySet propertySet) {

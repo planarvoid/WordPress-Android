@@ -50,7 +50,7 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     private ViewElement startStation() {
-        return container().findElement(With.text(testDriver.getString(R.string.start_track_station)));
+        return container().findElement(With.text(testDriver.getString(R.string.stations_start_track_station)));
     }
 
     private ViewElement info() {
