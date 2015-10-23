@@ -3,7 +3,7 @@ import static groovy.io.FileType.FILES
 def String findApkPath(buildType) {
   def baseDir = new File("$project.ext.outputsDir")
   def names = []
-  def pattern = "soundcloud-android-.*-${buildType}.apk"
+  def pattern = "soundcloud-android-.*-.*-.*-${buildType}.apk"
 
   baseDir.eachFileMatch FILES, ~/${pattern}/, { names << it.name }
   if (names.size() != 1) {
