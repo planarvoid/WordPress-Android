@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.search.TabbedSearchFragment;
@@ -18,14 +19,13 @@ public class SearchResultsActivity extends ScActivity {
     public static final String EXTRA_SEARCH_QUERY = "searchQuery";
 
     @Inject @LightCycle PlayerController playerController;
+    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setTitle(R.string.activity_title_search_results);
 
         if (savedInstanceState == null) {
             createFragmentForSearchResults();
@@ -49,4 +49,12 @@ public class SearchResultsActivity extends ScActivity {
     protected void setActivityContentView() {
         baseLayoutHelper.setBaseLayout(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
 }
