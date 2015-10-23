@@ -51,13 +51,6 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowWhenAppModulusOfOpenTimes() throws Exception {
-        when(storage.getTimesAppOpened()).thenReturn(openCount*7);
-
-        assertThat(operations.canShow()).isTrue();
-    }
-
-    @Test
     public void shouldNotShowWhenAppInviteDialogIsFalse() throws Exception {
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(false);
 
@@ -79,10 +72,10 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotShowWhenAppNotModulusOfOpenTimes() throws Exception {
+    public void shouldPersistAfterAppOpenedEnoughTimes() throws Exception {
         when(storage.getTimesAppOpened()).thenReturn(openCount + 1);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShow()).isTrue();
     }
 
     @Test
