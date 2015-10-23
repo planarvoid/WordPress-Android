@@ -54,7 +54,7 @@ public class ExploreFragment extends Fragment {
         pagerAdapter = pagerAdapterFactory.create(this.getChildFragmentManager());
         pager.setAdapter(pagerAdapter);
 
-        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.sliding_tabs);
+        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
         pager.addOnPageChangeListener(new ExplorePagerScreenListener(eventBus));
 

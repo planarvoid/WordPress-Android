@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -16,7 +15,6 @@ import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,7 +28,7 @@ class ProfileHeaderPresenter {
     private final CondensedNumberFormatter numberFormatter;
 
     @Bind(R.id.header_info_layout) View headerInfoLayout;
-    @Bind(R.id.indicator) View tabs;
+    @Bind(R.id.tab_indicator) View tabs;
     @Bind(R.id.username) TextView username;
     @Bind(R.id.image) ImageView image;
     @Bind(R.id.followers_count) TextView followerCount;

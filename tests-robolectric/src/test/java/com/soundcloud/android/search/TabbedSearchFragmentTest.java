@@ -12,7 +12,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.view.SlidingTabLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,17 +29,14 @@ public class TabbedSearchFragmentTest {
     private TabbedSearchFragment fragment;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private View mockLayout;
-    @Mock
-    private SlidingTabLayout mockTabIndicator;
-    @Mock
-    private ViewPager mockViewPager;
+    @Mock private View mockLayout;
+    @Mock private View mockTabLayout;
+    @Mock private ViewPager mockViewPager;
 
     @Before
     public void setUp() throws Exception {
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
-        when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabIndicator);
+        when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
 
         fragment = new TabbedSearchFragment(eventBus, Robolectric.application.getResources());
         Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
@@ -51,7 +47,7 @@ public class TabbedSearchFragmentTest {
         fragment.setArguments(new Bundle());
 
         fragment.onViewCreated(mockLayout, null);
-        verify(mockTabIndicator).setOnPageChangeListener(isA(TabbedSearchFragment.SearchPagerScreenListener.class));
+        verify(mockViewPager).setOnPageChangeListener(isA(TabbedSearchFragment.SearchPagerScreenListener.class));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -9,11 +8,10 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
-import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.v7.widget.RecyclerView;
@@ -143,7 +141,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen touchFollowingsTab() {
-        final SlidingTabs tabs = tabs();
+        final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followings).toUpperCase()).click();
@@ -152,7 +150,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen touchFollowersTab() {
-        final SlidingTabs tabs = tabs();
+        final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
         tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers).toUpperCase()).click();
@@ -169,8 +167,8 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.image));
     }
 
-    private SlidingTabs tabs() {
-        return testDriver.findElement(With.id(R.id.indicator)).toSlidingTabs();
+    private Tabs tabs() {
+        return testDriver.findElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
     private ViewElement followButton() {

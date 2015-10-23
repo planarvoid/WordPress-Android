@@ -1,6 +1,5 @@
 package com.soundcloud.android.explore;
 
-
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.explore.ExploreFragment.ExplorePagerScreenListener;
 import static org.mockito.Matchers.any;
@@ -14,7 +13,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.view.SlidingTabLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,12 +23,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.TableLayout;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreFragmentTest {
 
     @Mock private View mockLayout;
-    @Mock private SlidingTabLayout mockTabLayout;
+    @Mock private TableLayout mockTabLayout;
     @Mock private ViewPager mockViewPager;
     @Mock private ExplorePagerAdapterFactory adapterFactory;
     @Mock private ExplorePagerAdapter pagerAdapter;
@@ -41,7 +40,7 @@ public class ExploreFragmentTest {
     @Before
     public void setUp() throws Exception {
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
-        when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockTabLayout);
+        when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
         when(adapterFactory.create(any(FragmentManager.class))).thenReturn(pagerAdapter);
 
         fragment = new ExploreFragment(adapterFactory, eventBus);
@@ -53,9 +52,9 @@ public class ExploreFragmentTest {
 
     @Test
     public void shouldAddListenerToViewPagerForTrackingScreenEvents() {
-        when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabLayout);
+        when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
         fragment.onViewCreated(mockLayout, null);
-        verify(mockTabLayout).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
+        verify(mockViewPager).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
     }
 
     @Test

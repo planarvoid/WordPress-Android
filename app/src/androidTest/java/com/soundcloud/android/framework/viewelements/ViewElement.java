@@ -4,7 +4,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.Tabs;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -46,7 +46,7 @@ public abstract class ViewElement {
 
     public abstract RecyclerViewElement toRecyclerView();
 
-    public abstract SlidingTabs toSlidingTabs();
+    public abstract Tabs toTabs();
 
     public abstract ViewParent getParent();
 

@@ -73,7 +73,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getResources()).thenReturn(resources);
-        when(activity.findViewById(R.id.indicator)).thenReturn(tabLayout);
+        when(activity.findViewById(R.id.tab_indicator)).thenReturn(tabLayout);
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);

@@ -7,7 +7,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
@@ -124,8 +124,8 @@ public class SearchResultsScreen extends Screen {
         return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
-    private SlidingTabs tabs() {
-        return testDriver.findElement(With.id(R.id.sliding_tabs)).toSlidingTabs();
+    private Tabs tabs() {
+        return testDriver.findElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
     @Override

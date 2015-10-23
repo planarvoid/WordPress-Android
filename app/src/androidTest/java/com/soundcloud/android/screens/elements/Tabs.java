@@ -3,18 +3,18 @@ package com.soundcloud.android.screens.elements;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
-public class SlidingTabs {
-    private final ViewElement tabsStrip;
+public class Tabs {
+    private final ViewElement tabLayout;
 
-    public SlidingTabs(ViewElement parentView) {
-        tabsStrip = parentView.getChildAt(0);
+    public Tabs(ViewElement parentView) {
+        tabLayout = parentView.getChildAt(0);
     }
 
     public ViewElement getTabWithText(String tabText) {
-        return tabsStrip.findElement(With.text(tabText));
+        return tabLayout.findElement(With.text(tabText));
     }
 
     public ViewElement getTabAt(int index) {
-        return tabsStrip.getChildAt(index);
+        return tabLayout.getChildAt(index);
     }
 }

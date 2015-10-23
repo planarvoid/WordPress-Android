@@ -79,7 +79,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.indicator);
+        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
         tabLayout.setupWithViewPager(pager);
 
         pager.setCurrentItem(ProfilePagerAdapter.TAB_POSTS);

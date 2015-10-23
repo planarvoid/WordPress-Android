@@ -60,7 +60,7 @@ public class PlaylistsFragment extends LightCycleSupportFragment {
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.sliding_tabs);
+        TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
     }
 }
