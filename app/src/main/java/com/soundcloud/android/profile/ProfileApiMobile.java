@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
@@ -19,23 +20,43 @@ import java.util.List;
 
 public class ProfileApiMobile implements ProfileApi {
 
-    private final TypeToken<ModelCollection<ApiPostHolder>> apiPostItemHolderToken =
+    private final TypeToken<ModelCollection<ApiPostHolder>> apiPostHolderToken =
             new TypeToken<ModelCollection<ApiPostHolder>>() {};
 
-    private static final Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>> POST_ITEM_HOLDER_TO_POST_ITEMS =
+    private final TypeToken<ModelCollection<ApiLikeHolder>> apiLikeHolderToken =
+            new TypeToken<ModelCollection<ApiLikeHolder>>() {};
+
+    private static final Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>> POST_HOLDER_TO_POST_COLLECTION =
             new Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>>() {
         @Override
         public ModelCollection<PropertySetSource> call(ModelCollection<ApiPostHolder> postItemHolderCollection) {
             final List<ApiPostHolder> collection = postItemHolderCollection.getCollection();
             List<PropertySetSource> posts = new ArrayList<>(collection.size());
             for (ApiPostHolder postHolder : collection) {
-                if (postHolder.isValid()) {
-                    posts.add(postHolder.getPost());
+                final Optional<PropertySetSource> post = postHolder.getPost();
+                if (post.isPresent()) {
+                    posts.add(post.get());
                 }
             }
             return new ModelCollection(posts, postItemHolderCollection.getLinks());
         }
     };
+
+    private static final Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>> LIKE_HOLDER_TO_LIKES_COLLECTION =
+            new Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>>() {
+                @Override
+                public ModelCollection<PropertySetSource> call(ModelCollection<ApiLikeHolder> postItemHolderCollection) {
+                    final List<ApiLikeHolder> collection = postItemHolderCollection.getCollection();
+                    List<PropertySetSource> likes = new ArrayList<>(collection.size());
+                    for (ApiLikeHolder postHolder : collection) {
+                        final Optional<PropertySetSource> like = postHolder.getLike();
+                        if (like.isPresent()) {
+                            likes.add(like.get());
+                        }
+                    }
+                    return new ModelCollection(likes, postItemHolderCollection.getLinks());
+                }
+            };
 
 
     private final ApiClientRx apiClientRx;
@@ -62,7 +83,7 @@ public class ProfileApiMobile implements ProfileApi {
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, apiPostItemHolderToken).map(POST_ITEM_HOLDER_TO_POST_ITEMS);
+        return apiClientRx.mappedResponse(request, apiPostHolderToken).map(POST_HOLDER_TO_POST_COLLECTION);
     }
 
     @Override
@@ -77,12 +98,22 @@ public class ProfileApiMobile implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return getLikesCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi(1)
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, apiLikeHolderToken).map(LIKE_HOLDER_TO_LIKES_COLLECTION);
     }
 
     @Override

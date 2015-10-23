@@ -107,7 +107,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
-        return getPostsCollection(ApiEndpoints.USER_SOUNDS.path(user.getNumericId()));
+        return getPostsCollection(ApiEndpoints.LEGACY_USER_SOUNDS.path(user.getNumericId()));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
-        return getLikesCollection(ApiEndpoints.USER_LIKES.path(user.getNumericId()));
+        return getLikesCollection(ApiEndpoints.LEGACY_USER_LIKES.path(user.getNumericId()));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
-        return getPlaylists(ApiEndpoints.USER_PLAYLISTS.path(user.getNumericId()));
+        return getPlaylists(ApiEndpoints.LEGACY_USER_PLAYLISTS.path(user.getNumericId()));
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowings(Urn user) {
-        return getUsers(ApiEndpoints.USER_FOLLOWINGS.path(user.getNumericId()));
+        return getUsers(ApiEndpoints.LEGACY_USER_FOLLOWINGS.path(user.getNumericId()));
     }
 
     @Override
@@ -147,7 +147,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(Urn user) {
-        return getUsers(ApiEndpoints.USER_FOLLOWERS.path(user.getNumericId()));
+        return getUsers(ApiEndpoints.LEGACY_USER_FOLLOWERS.path(user.getNumericId()));
     }
 
     @Override

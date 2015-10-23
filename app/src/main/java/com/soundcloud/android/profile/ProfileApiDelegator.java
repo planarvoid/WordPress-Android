@@ -53,12 +53,16 @@ public class ProfileApiDelegator implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
-        return profileApiPublic.get().userLikes(user);
+        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
+                ? profileApiMobile.get().userLikes(user)
+                : profileApiPublic.get().userLikes(user);
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
-        return profileApiPublic.get().userLikes(nextPageLink);
+        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
+                ? profileApiMobile.get().userLikes(nextPageLink)
+                : profileApiPublic.get().userLikes(nextPageLink);
     }
 
     @Override
