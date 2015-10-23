@@ -2,12 +2,14 @@ package com.soundcloud.android.gcm;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -32,15 +34,20 @@ public class GcmMessageHandler {
     private final GcmDecryptor gcmDecryptor;
     private final PlaySessionController playSessionController;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final AccountOperations accountOperations;
 
     @Inject
-    public GcmMessageHandler(Resources resources, FeatureFlags featureFlags, GcmDecryptor gcmDecryptor,
-                             PlaySessionController playSessionController, PlaySessionStateProvider playSessionStateProvider) {
+    public GcmMessageHandler(Resources resources, FeatureFlags featureFlags,
+                             GcmDecryptor gcmDecryptor,
+                             PlaySessionController playSessionController,
+                             PlaySessionStateProvider playSessionStateProvider,
+                             AccountOperations accountOperations) {
         this.resources = resources;
         this.featureFlags = featureFlags;
         this.gcmDecryptor = gcmDecryptor;
         this.playSessionController = playSessionController;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.accountOperations = accountOperations;
     }
 
     public void handleMessage(Context context, Intent intent) {
@@ -59,14 +66,29 @@ public class GcmMessageHandler {
             Log.i(TAG, "Received SC Message : " + decryptedString);
             final JSONObject jsonPayload = new JSONObject(decryptedString);
             if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) &&
-                    SC_ACTION_STOP.equals(jsonPayload.getString("action")) &&
-                    playSessionStateProvider.isPlaying()){
-                playSessionController.pause();
-                Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
+                    isStopAction(jsonPayload) &&
+                    isLoggedInUser(jsonPayload) &&
+                    playSessionStateProvider.isPlaying()) {
+
+                // TODO : tracking event here
+
+                if (!jsonPayload.optBoolean("stealth")) {
+                    playSessionController.pause();
+                    Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
+                }
+
             }
 
         } catch (Exception e) {
             ErrorUtils.handleSilentException(e, "payload", payload);
         }
+    }
+
+    private boolean isLoggedInUser(JSONObject jsonPayload) throws JSONException {
+        return accountOperations.getLoggedInUserUrn().getNumericId() == jsonPayload.getLong("user_id");
+    }
+
+    private boolean isStopAction(JSONObject jsonPayload) throws JSONException {
+        return SC_ACTION_STOP.equals(jsonPayload.getString("action"));
     }
 }

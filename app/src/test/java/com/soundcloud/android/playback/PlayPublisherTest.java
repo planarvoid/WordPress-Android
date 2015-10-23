@@ -6,6 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
@@ -23,7 +24,8 @@ import rx.subjects.PublishSubject;
 
 public class PlayPublisherTest extends AndroidUnitTest {
 
-    public static final Urn TRACK_URN = Urn.forTrack(123);
+    private static final Urn TRACK_URN = Urn.forTrack(123);
+
     private PlayPublisher playPublisher;
 
     @Mock private GcmStorage gcmStorage;
@@ -33,7 +35,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playPublisher = new PlayPublisher(gcmStorage, new TestDateProvider(123L), eventBus, Schedulers.immediate(), apiClient);
+        playPublisher = new PlayPublisher(resources(), gcmStorage, new TestDateProvider(123L), eventBus, Schedulers.immediate(), apiClient);
         playPublisher.subscribe();
 
         when(gcmStorage.getToken()).thenReturn("token");
@@ -43,7 +45,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
     public void playEventCausesPlayPublishApiRequest() {
         final PublishSubject<ApiResponse> apiResponseSubject = PublishSubject.create();
         when(apiClient.response(argThat(isPublicApiRequestTo("POST", "/tpub")
-                .withContent(new PlayPublisher.Payload("token", 123L, TRACK_URN))))).thenReturn(apiResponseSubject);
+                .withContent(new PlayPublisher.Payload(resources().getString(R.string.gcm_gateway_id), "token", 123L, TRACK_URN))))).thenReturn(apiResponseSubject);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN));
