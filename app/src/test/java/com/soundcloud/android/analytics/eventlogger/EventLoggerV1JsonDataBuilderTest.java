@@ -37,6 +37,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
@@ -68,7 +69,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         jsonDataBuilder = new EventLoggerV1JsonDataBuilder(context().getResources(),
-                deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations);
+                deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations, experimentOperations);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
@@ -419,6 +420,31 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                         .pageName(PAGE_NAME)
                         .pageUrn(TRACK_URN.toString())
         );
+    }
+
+    @Test
+    public void addsCurrentExperimentJson() throws Exception {
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+        setupExperiments();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .experiment("exp_android_listening", 2345)
+                        .experiment("exp_android_ui", 3456)
+                        .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+    private void setupExperiments() {
+        HashMap<String, Integer> activeExperiments = new HashMap<>();
+        activeExperiments.put("exp_android_listening", 2345);
+        activeExperiments.put("exp_android_ui", 3456);
+        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {

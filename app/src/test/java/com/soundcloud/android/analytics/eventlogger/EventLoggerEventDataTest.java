@@ -61,4 +61,13 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         assertThat(data.payload.containsKey(EventLoggerParam.CLICK_OBJECT)).isFalse();
     }
 
+    @Test
+    public void addsExperimentToPayload() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.experiment("exp_android_listening", 12345);
+
+        assertThat(data.payload.get("exp_android_listening")).isEqualTo(String.valueOf(12345));
+    }
+
 }

@@ -51,6 +51,7 @@ import android.net.Uri;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 
 public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
@@ -804,6 +805,21 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .impressionName("consumer_sub_upgrade_success"));
     }
 
+    @Test
+    public void addsCurrentExperimentJson() throws Exception {
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
+        setupExperiments();
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .experiment("exp_android_listening", 2345)
+                .experiment("exp_android_ui", 3456)
+                .pageName(PAGE_NAME));
+    }
+
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {
         return getEventData("audio_performance", "v0.0.0", event.getTimestamp())
                 .latency(1000L)
@@ -816,6 +832,13 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventData(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp);
+    }
+
+    private void setupExperiments() {
+        HashMap<String, Integer> activeExperiments = new HashMap<>();
+        activeExperiments.put("exp_android_listening", 2345);
+        activeExperiments.put("exp_android_ui", 3456);
+        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
     }
 
 }

@@ -309,6 +309,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData experiment(String layerTrackingName, int variantId) {
+        addToPayload(layerTrackingName, variantId);
+        return this;
+    }
+
     // EventLogger v0
     @Deprecated
     public EventLoggerEventData duration(long duration) {
