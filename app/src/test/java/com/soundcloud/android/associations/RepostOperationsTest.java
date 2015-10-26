@@ -1,9 +1,7 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulChange;
-import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulInsert;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -19,17 +17,13 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
@@ -38,9 +32,10 @@ import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 
-@RunWith(SoundCloudTestRunner.class)
-public class RepostOperationsTest {
+public class RepostOperationsTest extends AndroidUnitTest {
 
+    private static final int REPOST_COUNT = 3;
+    private static final int UNPOST_COUNT = 2;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
@@ -49,8 +44,8 @@ public class RepostOperationsTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private RepostStorage repostStorage;
-    @Mock private Command<Urn, InsertResult> addRepost;
-    @Mock private Command<Urn, ChangeResult> removeRepost;
+    @Mock private Command<Urn, Integer> addRepost;
+    @Mock private Command<Urn, Integer> removeRepost;
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteResult writeResult;
 
@@ -58,60 +53,65 @@ public class RepostOperationsTest {
     public void setUp() throws Exception {
         operations = new RepostOperations(repostStorage, apiClientRx, Schedulers.immediate(), eventBus);
         when(repostStorage.addRepost()).thenReturn(addRepost);
+        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(REPOST_COUNT));
+        when(addRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(REPOST_COUNT));
+
         when(repostStorage.removeRepost()).thenReturn(removeRepost);
+        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(UNPOST_COUNT));
+        when(removeRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(UNPOST_COUNT));
+
     }
 
     @Test
     public void shouldStoreTrackRepostAndPushToApi() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(PropertySet.from(
+        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_REPOSTED.bind(true)
+                PlayableProperty.IS_REPOSTED.bind(true),
+                PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
         ));
     }
 
     @Test
     public void shouldStorePlaylistRepostAndPushToApi() throws Exception {
-        when(addRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(successfulInsert()));
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
 
-        expect(testObserver.getOnNextEvents()).toContainExactly(PropertySet.from(
+        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_REPOSTED.bind(true)
+                PlayableProperty.IS_REPOSTED.bind(true),
+                PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
         ));
     }
 
     @Test
-    public void shouldPublishEntityChangedEventAfterSuccesfulPushToApi() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
+    public void shouldPublishEntityChangedEventAfterSuccessfulPushToAdi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(true)
+                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
                 )
         );
     }
 
     @Test
     public void shouldNotPushRepostToApiIfStorageCallFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<InsertResult>error(mock(PropellerWriteException.class)));
-        when(removeRepost.call(TRACK_URN)).thenReturn(successfulChange());
+        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
 
         PublishSubject<ApiResponse> subject = PublishSubject.create();
         when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
@@ -119,98 +119,20 @@ public class RepostOperationsTest {
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
         subject.onNext(TestApiResponses.ok()); // this must not propagate
 
-        expect(testObserver.getOnNextEvents()).toBeEmpty();
+        assertThat(testObserver.getOnNextEvents()).isEmpty();
+        assertThat(testObserver.getOnErrorEvents()).isNotEmpty();
     }
 
     @Test
-    public void shouldPublishNotRepostedEventIfInsertFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<InsertResult>error(mock(PropellerWriteException.class)));
-        when(removeRepost.call(TRACK_URN)).thenReturn(successfulChange());
+    public void shouldNotPublishRepostedEventIfInsertFailed() throws Exception {
+        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
-                PropertySet.from(
-                        TrackProperty.URN.bind(TRACK_URN),
-                        TrackProperty.IS_REPOSTED.bind(false)
-                )
-        );
-    }
-
-    @Test
-    public void shouldRollbackStoredRepostAfterFailedApiCall() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
-
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
-
-        verify(removeRepost).call(TRACK_URN);
-    }
-
-    @Test
-    public void shouldPublishNotRepostedEventAfterFailedApiCall() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
-
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
-
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
-                PropertySet.from(
-                        TrackProperty.URN.bind(TRACK_URN),
-                        TrackProperty.IS_REPOSTED.bind(false)
-                )
-        );
-    }
-
-    @Test
-    public void shouldStoreTrackUnpostAndPushToApi() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
-        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
-
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
-
-        expect(testObserver.getOnNextEvents()).toContainExactly(PropertySet.from(
-                PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_REPOSTED.bind(false)
-        ));
-    }
-
-    @Test
-    public void shouldStorePlaylistUnpostAndPushToApi() throws Exception {
-        when(removeRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(successfulChange()));
-        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
-
-        operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
-
-        expect(testObserver.getOnNextEvents()).toContainExactly(PropertySet.from(
-                PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_REPOSTED.bind(false)
-        ));
-    }
-
-    @Test
-    public void shouldPublishEntityChangedEventForUnpostAfterSuccesfulPushToApi() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
-
-        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
-
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
-
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
                         PlayableProperty.IS_REPOSTED.bind(false)
@@ -219,62 +141,135 @@ public class RepostOperationsTest {
     }
 
     @Test
-    public void shouldNotDeleteRepostFromApiIfStorageCallFailed() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.<ChangeResult>error(mock(PropellerWriteException.class)));
+    public void shouldRollbackStoredRepostAfterFailedApiCall() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+                .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
-        PublishSubject<ApiResponse> subject = PublishSubject.create();
-        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
+        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
-        subject.onNext(TestApiResponses.ok()); // this must not propagate
-
-        expect(testObserver.getOnNextEvents()).toBeEmpty();
+        verify(removeRepost).toObservable(TRACK_URN);
+        assertThat(testObserver.getOnNextEvents()).containsExactly(
+                PropertySet.from(
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
+                ));
     }
 
     @Test
-    public void shouldPublishRepostedEventIfRepostRemovalFailed() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.<ChangeResult>error(mock(PropellerWriteException.class)));
+    public void shouldPublishUnpostedEventAfterRepostFailedApiCall() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+                .thenReturn(Observable.<ApiResponse>error(new IOException()));
+
+        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
+                PropertySet.from(
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
+                )
+        );
+    }
+
+    @Test
+    public void shouldStoreTrackUnpostAndPushToApi() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+                .thenReturn(Observable.just(TestApiResponses.status(200)));
+
+        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+
+        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
+                PlayableProperty.URN.bind(TRACK_URN),
+                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
+        ));
+    }
+
+    @Test
+    public void shouldStorePlaylistUnpostAndPushToApi() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
+                .thenReturn(Observable.just(TestApiResponses.status(200)));
+
+        operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
+
+        assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
+                PlayableProperty.URN.bind(PLAYLIST_URN),
+                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
+        ));
+    }
+
+    @Test
+    public void shouldPublishEntityChangedEventForUnboltAfterSuccessfulPushToApi() throws Exception {
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+                .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
-                        TrackProperty.URN.bind(TRACK_URN),
-                        TrackProperty.IS_REPOSTED.bind(true)
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
+                )
+        );
+    }
+
+    @Test
+    public void shouldPublishRepostedEventIfRepostRemovalFailed() throws Exception {
+        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
+
+        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
+                PropertySet.from(
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(true)
                 )
         );
     }
 
     @Test
     public void shouldRollbackRepostRemovalAfterFailedRemoteRemoval() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        verify(addRepost).call(TRACK_URN);
+        verify(addRepost).toObservable(TRACK_URN);
+        assertThat(testObserver.getOnNextEvents()).containsExactly(
+                PropertySet.from(
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
+                ));
     }
 
     @Test
     public void shouldPublishRepostedEventAfterFailedRemoteRemoval() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
-        when(removeRepost.call(TRACK_URN)).thenReturn(successfulChange());
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.REPOST);
-        expect(event.getFirstUrn()).toEqual(TRACK_URN);
-        expect(event.getChangeMap().get(TRACK_URN)).toEqual(
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.REPOST);
+        assertThat(event.getFirstUrn()).isEqualTo(TRACK_URN);
+        assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
-                        TrackProperty.URN.bind(TRACK_URN),
-                        TrackProperty.IS_REPOSTED.bind(true)
+                        PlayableProperty.URN.bind(TRACK_URN),
+                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
                 )
         );
     }

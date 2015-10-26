@@ -281,6 +281,14 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.SoundView.LIKES_COUNT, newLikesCount)), counts(1));
     }
 
+    public void assertRepostCount(Urn urn, int newRepostCount) {
+        assertThat(select(from(Table.SoundView.name())
+                .whereEq(TableColumns.SoundView._ID, urn.getNumericId())
+                .whereEq(TableColumns.SoundView._TYPE, urn.isTrack()
+                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.SoundView.REPOSTS_COUNT, newRepostCount)), counts(1));
+    }
+
     private void assertLikedPendingAddition(Urn targetUrn, int type) {
         assertThat(select(from(Table.Likes.name())
                 .whereEq(TableColumns.Likes._ID, targetUrn.getNumericId())

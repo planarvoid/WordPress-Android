@@ -1,6 +1,9 @@
 package com.soundcloud.android.associations;
 
-import com.soundcloud.android.model.Urn;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
@@ -10,48 +13,69 @@ import java.util.Date;
 
 public class RepostStorageTest extends StorageIntegrationTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123L);
-    private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Date CREATED_AT = new Date();
 
     private RepostStorage repostStorage;
-    private TestDateProvider dateProvider;
+    private ApiPlaylist playlist;
+    private ApiTrack track;
 
     @Before
     public void setUp() throws Exception {
-        dateProvider = new TestDateProvider(CREATED_AT);
-        repostStorage = new RepostStorage(propeller(), dateProvider);
+        playlist = testFixtures().insertPlaylist();
+        track = testFixtures().insertTrack();
+
+        repostStorage = new RepostStorage(propeller(), new TestDateProvider(CREATED_AT));
     }
 
     @Test
-    public void shouldInsertTrackRepost() throws Exception {
-        repostStorage.addRepost().call(TRACK_URN);
+    public void shouldInsertTrackRepost() {
+        repostStorage.addRepost().call(track.getUrn());
 
-        databaseAssertions().assertTrackRepostInserted(TRACK_URN, CREATED_AT);
+        databaseAssertions().assertTrackRepostInserted(track.getUrn(), CREATED_AT);
     }
 
     @Test
-    public void shouldInsertPlaylistRepost() throws Exception {
-        repostStorage.addRepost().call(PLAYLIST_URN);
+    public void shouldInsertPlaylistRepost() {
+        repostStorage.addRepost().call(playlist.getUrn());
 
-        databaseAssertions().assertPlaylistRepostInserted(PLAYLIST_URN, CREATED_AT);
+        databaseAssertions().assertPlaylistRepostInserted(playlist.getUrn(), CREATED_AT);
     }
 
     @Test
-    public void shouldRemoveTrackRepost() throws Exception {
-        testFixtures().insertTrackRepost(TRACK_URN.getNumericId(), CREATED_AT.getTime());
+    public void shouldRemoveTrackRepost() {
+        testFixtures().insertTrackRepost(track.getUrn().getNumericId(), CREATED_AT.getTime());
 
-        repostStorage.removeRepost().call(TRACK_URN);
+        repostStorage.removeRepost().call(track.getUrn());
 
-        databaseAssertions().assertTrackRepostNotExistent(TRACK_URN);
+        databaseAssertions().assertTrackRepostNotExistent(track.getUrn());
     }
 
     @Test
-    public void shouldRemovePlaylistRepost() throws Exception {
-        testFixtures().insertPlaylistRepost(PLAYLIST_URN.getNumericId(), CREATED_AT.getTime());
+    public void shouldReturnUpdatedRepostCountForRepost() {
+        testFixtures().insertPlaylistRepost(playlist.getId(), CREATED_AT.getTime());
 
-        repostStorage.removeRepost().call(PLAYLIST_URN);
+        final int updatedRepostCount = repostStorage.addRepost().call(playlist.getUrn());
 
-        databaseAssertions().assertPlaylistRepostNotExistent(PLAYLIST_URN);
+        assertThat(updatedRepostCount).isEqualTo(playlist.getRepostsCount() + 1);
+        databaseAssertions().assertRepostCount(playlist.getUrn(), playlist.getRepostsCount() + 1);
+    }
+
+    @Test
+    public void shouldReturnUpdatedRepostCountForUnpost() {
+        testFixtures().insertPlaylistRepost(playlist.getId(), CREATED_AT.getTime());
+
+        final int updatedRepostCount = repostStorage.removeRepost().call(playlist.getUrn());
+
+        assertThat(updatedRepostCount).isEqualTo(playlist.getRepostsCount() - 1);
+        databaseAssertions().assertRepostCount(playlist.getUrn(), playlist.getRepostsCount() - 1);
+    }
+
+    @Test
+    public void shouldRemovePlaylistRepost() {
+        testFixtures().insertPlaylistRepost(playlist.getUrn().getNumericId(), CREATED_AT.getTime());
+
+        repostStorage.removeRepost().call(playlist.getUrn());
+
+        databaseAssertions().assertPlaylistRepostNotExistent(playlist.getUrn());
     }
 }
