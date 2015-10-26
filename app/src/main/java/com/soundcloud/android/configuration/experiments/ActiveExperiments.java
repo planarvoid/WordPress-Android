@@ -1,13 +1,13 @@
 package com.soundcloud.android.configuration.experiments;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class ActiveExperiments {
 
     private static final String[] LAYERS = { "android_listening" };
-    private static final List<String> EXPERIMENTS = Arrays.asList(ShareButtonExperiment.NAME);
+    private static final List<String> EXPERIMENTS = Collections.singletonList(ShareButtonExperiment.NAME);
 
     @Inject
     ActiveExperiments() {}
