@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration.experiments;
 
+import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.functions.Action1;
 
@@ -53,10 +54,19 @@ public class ExperimentOperations {
         return assignment;
     }
 
+    public String getExperimentVariant(String experiment) {
+        for (Layer layer : assignment.getLayers()) {
+            if (experiment.equals(layer.getExperimentName())) {
+                return layer.getVariantName();
+            }
+        }
+        return Strings.EMPTY;
+    }
+
     public Map<String, Integer> getTrackingParams() {
         HashMap<String, Integer> params = new HashMap<>();
         for (Layer layer : assignment.getLayers()) {
-            if (activeExperiments.isActive(layer.getExperimentId())) {
+            if (activeExperiments.isActive(layer.getExperimentName())) {
                 params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());
             }
         }

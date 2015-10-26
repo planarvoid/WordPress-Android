@@ -27,6 +27,7 @@ import com.soundcloud.android.utils.DeviceHelper;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class EventLoggerJsonDataBuilder {
 
@@ -387,7 +388,15 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        return new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), timestamp);
+        EventLoggerEventData eventData = new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), timestamp);
+        addExperiments(eventData);
+        return eventData;
+    }
+
+    private void addExperiments(EventLoggerEventData eventData) {
+        for (Map.Entry<String, Integer> pair : experimentOperations.getTrackingParams().entrySet()) {
+            eventData.experiment(pair.getKey(), pair.getValue());
+        }
     }
 
     private String getAnonymousId() {

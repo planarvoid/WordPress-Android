@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -20,6 +21,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class EventLoggerV1JsonDataBuilder {
 
@@ -33,15 +35,18 @@ public class EventLoggerV1JsonDataBuilder {
     private final NetworkConnectionHelper connectionHelper;
     private final AccountOperations accountOperations;
     private final FeatureOperations featureOperations;
+    private final ExperimentOperations experimentOperations;
     private final JsonTransformer jsonTransformer;
 
     @Inject
     public EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
                                         NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
-                                        JsonTransformer jsonTransformer, FeatureOperations featureOperations) {
+                                        JsonTransformer jsonTransformer, FeatureOperations featureOperations,
+                                        ExperimentOperations experimentOperations) {
         this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
+        this.experimentOperations = experimentOperations;
         this.appId = resources.getInteger(R.integer.app_id);
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
@@ -197,8 +202,16 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        return new EventLoggerEventDataV1(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(),
+        EventLoggerEventDataV1 eventData = new EventLoggerEventDataV1(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(),
                 timestamp, connectionHelper.getCurrentConnectionType().getValue());
+        addExperiments(eventData);
+        return eventData;
+    }
+
+    private void addExperiments(EventLoggerEventData eventData) {
+        for (Map.Entry<String, Integer> pair : experimentOperations.getTrackingParams().entrySet()) {
+            eventData.experiment(pair.getKey(), pair.getValue());
+        }
     }
 
     private String getAnonymousId() {

@@ -1,7 +1,7 @@
 package com.soundcloud.android.configuration.experiments;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ public class ExperimentOperationsTest {
     public void shouldGenerateTrackingParametersMapForActiveExperiments() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
-        when(activeExperiments.isActive(anyInt())).thenReturn(true);
+        when(activeExperiments.isActive(anyString())).thenReturn(true);
 
         operations.loadAssignment().subscribe();
 
@@ -88,7 +88,7 @@ public class ExperimentOperationsTest {
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
-        when(activeExperiments.isActive(5)).thenReturn(true);
+        when(activeExperiments.isActive("experiment 5")).thenReturn(true);
 
         operations.loadAssignment().subscribe();
 
