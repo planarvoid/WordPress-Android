@@ -55,7 +55,7 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.offline_likes_dialog_title)
                 .setMessage(R.string.offline_likes_dialog_message)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.btn_cancel, null)
                 .setPositiveButton(R.string.make_offline_available, OfflineLikesDialog.this)
                 .create();
     }

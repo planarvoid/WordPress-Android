@@ -33,6 +33,6 @@ public class CollectionsPlaylistOptionsDialogElement extends Element {
     }
 
     public void clickDone() {
-        solo.findElement(text(solo.getString(R.string.done))).click();
+        solo.findElement(text(solo.getString(R.string.btn_done))).click();
     }
 }

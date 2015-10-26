@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
                 android:padding="@dimen/ad_overlay_padding"
-                android:text="@string/advertisement" />
+                android:text="@string/ads_advertisement" />
 
         <Button
             style="@style/AdOverlayClose"

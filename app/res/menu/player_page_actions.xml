@@ -10,10 +10,10 @@
     <item android:id="@+id/unpost"
           android:title="@string/unpost" />
     <item android:id="@+id/comment"
-          android:title="@string/comment_at"/>
+          android:title="@string/comment_at_time"/>
     <item android:id="@+id/start_station"
         android:visible="false"
-        android:title="@string/start_track_station"/>
+        android:title="@string/stations_start_track_station"/>
     <item android:id="@+id/info"
           android:title="@string/info"/>
 </menu>

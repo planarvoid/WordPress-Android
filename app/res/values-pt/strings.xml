@@ -2,15 +2,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--__MISC / LOST&FOUND / UNSORTED-->
   <string name="app_name">SoundCloud</string>
-  <string name="yes">Sim</string>
-  <string name="no">Não</string>
-  <string name="post">Publicar</string>
-  <string name="view">Exibir</string>
+  <string name="btn_yes">Sim</string>
+  <string name="btn_no">Não</string>
+  <string name="btn_post">Publicar</string>
+  <string name="btn_view">Exibir</string>
   <string name="btn_apply">Aplicar</string>
-  <string name="cancel">Cancelar</string>
-  <string name="upload">Upload</string>
-  <string name="shuffle">Shuffle</string>
-  <string name="done">Concluído</string>
+  <string name="btn_cancel">Cancelar</string>
+  <string name="btn_upload">Upload</string>
+  <string name="btn_shuffle">Shuffle</string>
+  <string name="btn_done">Concluído</string>
   <string name="email">Email</string>
   <string name="password">Senha</string>
   <string name="btn_continue">Continuar</string>
@@ -23,20 +23,20 @@
   <string name="contact_support">Contatar suporte</string>
   <string name="version">Versão</string>
   <string name="copyright_information">Informações sobre direitos autorais</string>
-  <string name="started_following_you">começou a seguir você</string>
+  <string name="notification_username_started_following_you">começou a seguir você</string>
   <string name="account_one_active">Você pode ter apenas uma conta ativa</string>
   <string name="btn_follow">Seguir</string>
   <string name="btn_following">Seguindo</string>
   <string name="btn_save">Salvar</string>
   <string name="btn_skip">Pular</string>
-  <string name="delete">Excluir</string>
+  <string name="btn_delete">Excluir</string>
   <string name="comments">Comentários</string>
-  <string name="sounds_from">Faixas de %s</string>
+  <string name="record_default_title_sounds_from_day_time_of_day">Faixas de %s</string>
   <string name="this_user">Este usuário</string>
   <string name="display_name">Nome do perfil</string>
   <string name="website">Site</string>
-  <string name="like">Curtir</string>
-  <string name="unlike">Deixar de curtir</string>
+  <string name="btn_like">Curtir</string>
+  <string name="btn_unlike">Deixar de curtir</string>
   <string name="unlimited">ilimitado</string>
   <string name="play_related_tracks">Reproduzir faixas relacionadas</string>
   <string name="unable_to_play_related_tracks">Não é possível reproduzir as faixas relacionadas</string>
@@ -47,22 +47,22 @@
   <string name="accessibility_stats_user_liked">Curtido por você</string>
   <string name="accessibility_like_action">Curtir</string>
   <!--__ACTIVITIES-->
-  <string name="liked">curtiu %s</string>
-  <string name="reposted">republicou %s</string>
-  <string name="commented_on">comentou %s</string>
-  <string name="mentioned_you_on">mencionou você em %s</string>
+  <string name="notification_username_liked_tracktitle">curtiu %s</string>
+  <string name="notification_username_reposted_tracktitle">republicou %s</string>
+  <string name="notification_username_commented_on_tracktitle">comentou %s</string>
+  <string name="notification_username_mentioned_you_on_tracktitle">mencionou você em %s</string>
   <!--__ADS-->
-  <string name="advertisement">Anúncio</string>
-  <string name="learn_more">SAIBA MAIS</string>
-  <string name="why_ads">Por que anúncios?</string>
-  <string name="why_ads_dialog_message">Sempre que vir ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais nos permitem continuar a apoiar os artistas e a manter a SoundCloud gratuita para os ouvintes.</string>
-  <string name="skip_ad">Pular anúncio</string>
-  <string name="next_up">Próximo: %1$s (%2$s)</string>
-  <string name="ad_in_progress">Anúncio em andamento</string>
-  <string name="ad_resume_playing_to_continue">Retomar a reprodução do anúncio para continuar</string>
-  <string name="ad_skip">Pular em: %s</string>
-  <string name="now_playing">Reproduzindo agora</string>
-  <string name="now_playing_with_args">Reproduzindo agora: %1$s (%2$s)</string>
+  <string name="ads_advertisement">Anúncio</string>
+  <string name="ads_learn_more">SAIBA MAIS</string>
+  <string name="ads_why_ads">Por que anúncios?</string>
+  <string name="ads_why_ads_dialog_message">Sempre que vir ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais nos permitem continuar a apoiar os artistas e a manter a SoundCloud gratuita para os ouvintes.</string>
+  <string name="ads_skip_ad">Pular anúncio</string>
+  <string name="ads_next_up_tracktitle_creatorname">Próximo: %1$s (%2$s)</string>
+  <string name="ads_ad_in_progress">Anúncio em andamento</string>
+  <string name="ads_resume_playing_ad_to_continue">Retomar a reprodução do anúncio para continuar</string>
+  <string name="ads_skip_in_time">Pular em: %s</string>
+  <string name="ads_now_playing">Reproduzindo agora</string>
+  <string name="ads_now_playing_tracktitle_username">Reproduzindo agora: %1$s (%2$s)</string>
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Esqueceu sua senha?</string>
   <string name="authentication_add_info_add_image_msg">Sorria! Esta imagem aparecerá em seu perfil.</string>
@@ -121,8 +121,8 @@
   <string name="info_empty_other_message">Esta pessoa ainda não adicionou uma descrição de perfil.</string>
   <string name="info_empty_you_message">Seu perfil está vazio</string>
   <string name="info_empty_you_secondary">Logue-se na SoundCloud em seu desktop para editar o perfil</string>
-  <string name="list_empty_activity_message">Você ainda não tem nenhuma atividade</string>
-  <string name="list_empty_activity_secondary">Saiba mais sobre o compartilhamento de faixas com nossos 101s</string>
+  <string name="list_empty_notification_message">Você ainda não tem nenhuma atividade</string>
+  <string name="list_empty_notification_secondary">Saiba mais sobre o compartilhamento de faixas com nossos 101s</string>
   <string name="list_empty_stream_action">Encontrar pessoas para seguir</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes</string>
   <string name="list_empty_user_following_action">Encontrar pessoas para seguir</string>
@@ -151,14 +151,14 @@
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Opa! Não foi possível inscrevê-lo. Tente atualizar o app ou inscreva-se em SoundCloud.com.</string>
   <string name="follow_blocked_title">Seguir bloqueado</string>
-  <string name="follow_blocked_content">%s bloqueou você.</string>
-  <string name="follow_blocked_content_long">%s nos solicitou que sua conta fosse impossibilitada de segui-lo(a).</string>
+  <string name="follow_blocked_content_username">%s bloqueou você.</string>
+  <string name="follow_blocked_content_long_username">%s nos solicitou que sua conta fosse impossibilitada de segui-lo(a).</string>
   <string name="follow_age_restricted_title">Seguir bloqueado</string>
-  <string name="follow_age_restricted_content">Os usuários %1$s+ podem seguir %2$s.</string>
-  <string name="follow_age_restricted_content_long">Somente usuários com %1$s anos ou mais podem seguir %2$s.</string>
+  <string name="follow_age_restricted_content_age_username">Os usuários %1$s+ podem seguir %2$s.</string>
+  <string name="follow_age_restricted_content_long_age_username">Somente usuários com %1$s anos ou mais podem seguir %2$s.</string>
   <string name="follow_age_unknown_title">Verifique a sua idade</string>
-  <string name="follow_age_unknown_content">Insira sua idade para seguir %s.</string>
-  <string name="follow_age_unknown_content_long">Para seguir %s, confirme que você tem a idade exigida.</string>
+  <string name="follow_age_unknown_content_username">Insira sua idade para seguir %s.</string>
+  <string name="follow_age_unknown_content_long_username">Para seguir %s, confirme que você tem a idade exigida.</string>
   <!--__EXPLORE-->
   <string name="explore_genres">Gêneros</string>
   <string name="explore_genre_header_music">Música</string>
@@ -174,9 +174,9 @@
   <string name="use_existing_image">Imagem existente</string>
   <string name="use_existing_image_error">Não foi possível usar uma imagem existente</string>
   <!--__NAVIGATION-->
-  <string name="navigation_drawer_open">Abrir guia de navegação</string>
-  <string name="navigation_drawer_close">Fechar guia de navegação</string>
-  <string name="side_menu_activity">Atividade</string>
+  <string name="accessibility_navigation_drawer_open">Abrir guia de navegação</string>
+  <string name="accessibility_navigation_drawer_close">Fechar guia de navegação</string>
+  <string name="side_menu_notifications">Atividade</string>
   <string name="side_menu_record">Gravar</string>
   <string name="side_menu_stream">Stream</string>
   <string name="side_menu_you">Você</string>
@@ -270,15 +270,15 @@
   <string name="share">Compartilhar</string>
   <string name="repost">Republicar</string>
   <string name="unpost">Excluir publicação</string>
-  <string name="comment_at">Comentário às %s</string>
-  <string name="comment_on">Comentário em %s</string>
-  <string name="your_comment_has_been_posted">O seu comentário foi publicado</string>
-  <string name="comment_could_not_be_created_at_this_time">Não foi possível criar o comentário neste momento</string>
-  <string name="share_track_by_artist_on_soundcloud">Ouça %1$s de %2$s #np na #SoundCloud\n%3$s</string>
-  <string name="share_track_on_soundcloud">Ouça %1$s #np na #SoundCloud\n%2$s</string>
+  <string name="comment_at_time">Comentário às %s</string>
+  <string name="comment_on_tracktitle">Comentário em %s</string>
+  <string name="comment_posted">O seu comentário foi publicado</string>
+  <string name="comment_error">Não foi possível criar o comentário neste momento</string>
+  <string name="share_tracktitle_artist_link">Ouça %1$s de %2$s #np na #SoundCloud\n%3$s</string>
+  <string name="share_tracktitle_link">Ouça %1$s #np na #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
   <string name="info">Informações</string>
-  <string name="uploaded_at">Carregado %s</string>
+  <string name="uploaded_xtimeago">Carregado %s</string>
   <string name="track_info_no_description">Sem descrição disponível</string>
   <string name="playback_error">Não é reproduzível</string>
   <string name="playback_error_connection">Verifique sua conexão. Toque para tentar novamente.</string>
@@ -289,14 +289,14 @@
   <string name="previous">Anterior</string>
   <string name="next">Seguinte</string>
   <!--__COMMENTS-->
-  <string name="user_commented_at">%1$s às %2$s</string>
+  <string name="user_commented_at_timestamp">%1$s às %2$s</string>
   <!--__PLAYLISTS-->
   <string name="tab_title_user_playlists">Playlists</string>
   <string name="activity_title_playlist">Playlist</string>
   <string name="your_playlists_tab">Suas playlists</string>
   <string name="liked_playlists_tab">Playlists curtidas</string>
   <string name="playlist_load_error">Não foi possível carregar esta playlist</string>
-  <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+  <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist aleatória</string>
   <string name="add_to_playlist">Adicionar à playlist</string>
   <string name="remove_from_playlist">Remover da playlist</string>
@@ -325,15 +325,15 @@
   <string name="record_insert_sd_card">Insira um cartão SD para gravar.</string>
   <string name="record_instructions">Gravar</string>
   <string name="record_storage_is_full">Armazenamento cheio</string>
-  <string name="recorded_afternoon">%s tarde</string>
-  <string name="recorded_evening">%s entardecer</string>
-  <string name="recorded_morning">%s manhã</string>
-  <string name="recorded_night">%s noite</string>
+  <string name="recorded_dayofweek_afternoon">%s tarde</string>
+  <string name="recorded_dayofweek_evening">%s entardecer</string>
+  <string name="recorded_dayofweek_morning">%s manhã</string>
+  <string name="recorded_dayofweek_night">%s noite</string>
   <string name="dialog_confirm_delete_recording_message">Tem certeza de que deseja excluir esta gravação?</string>
   <string name="btn_revert_to_original">Reverter para o original</string>
   <string name="fade_toggle_on">Aumentar/diminuir gradualmente</string>
   <string name="dialog_revert_recording_message">Todas as edições serão perdidas. Continuar?</string>
-  <string name="cloud_recorder_event_message">Gravação de %s</string>
+  <string name="cloud_recorder_event_message_recordtime">Gravação de %s</string>
   <string name="cloud_recorder_event_title">Gravação em andamento</string>
   <string name="cloud_recorder_playback_event_title">Reprodução em andamento</string>
   <string name="record_track_title">Título da faixa</string>
@@ -365,7 +365,7 @@
   <string name="activity_title_discovery">Pesquisar</string>
   <string name="activity_title_recommendations">Recomendado para você</string>
   <string name="recommendation_view_all">Exibir todas as %1$d</string>
-  <string name="recommendation_reason_because_you">Porque você %1$s %2$s</string>
+  <string name="recommendation_reason_because_you_reason_tracktitle">Porque você %1$s %2$s</string>
   <string name="recommendation_reason_liked">curtida</string>
   <string name="recommendation_reason_listened_to">reproduzida</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
@@ -410,8 +410,8 @@
   <string name="pref_notifications_comments">Comentários</string>
   <string name="pref_notifications_comments_description">Receba atualizações sobre novos comentários em suas faixas</string>
   <string name="pref_notifications_description">Quais atualizações você gostaria de receber?</string>
-  <string name="pref_notifications_favoritings">Curtidas</string>
-  <string name="pref_notifications_favoritings_description">Receba atualizações sobre novas curtidas em suas faixas</string>
+  <string name="pref_notifications_likes">Curtidas</string>
+  <string name="pref_notifications_likes_description">Receba atualizações sobre novas curtidas em suas faixas</string>
   <string name="pref_notifications_followers">Seguidores</string>
   <string name="pref_notifications_followers_description">Receba atualizações quando ganhar um novo seguidor</string>
   <string name="pref_notifications_frequency">Frequência das notificações</string>
@@ -447,10 +447,10 @@
   <string name="uploader_event_uploading_percent">Fazendo upload: %d %%</string>
   <string name="uploader_event_cancelling">Cancelando</string>
   <string name="cloud_upload_clear_artwork">Mantenha pressionado para excluir a arte</string>
-  <string name="cloud_uploader_notification_error_message">Houve um erro ao fazer upload de %s</string>
+  <string name="cloud_uploader_notification_error_message_tracktitle">Houve um erro ao fazer upload de %s</string>
   <string name="cloud_uploader_notification_error_ticker">Erro no upload</string>
   <string name="cloud_uploader_notification_error_title">Erro no upload</string>
-  <string name="cloud_uploader_notification_finished_message">%s foi carregado</string>
+  <string name="cloud_uploader_notification_tracktitle_has_been_uploaded">%s foi carregado</string>
   <string name="cloud_uploader_notification_finished_ticker">Upload finalizado</string>
   <string name="cloud_uploader_notification_finished_title">Upload finalizado</string>
   <string name="dialog_cancel_upload_message">Cancelar o upload?</string>
@@ -467,8 +467,8 @@
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Não é possível transmitir a faixa</string>
   <!--__PROMOTED TRACKS-->
-  <string name="promoted_label">Promovida</string>
-  <string name="promoted_by_label">Promovida por %s</string>
+  <string name="promoted">Promovida</string>
+  <string name="promoted_by_promotorname">Promovida por %s</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Convidar amigos para o SoundCloud</string>
   <string name="facebook_invites_description">Compartilhar é cuidar. Convide seus amigos para

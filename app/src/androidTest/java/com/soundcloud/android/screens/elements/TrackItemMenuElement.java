@@ -39,7 +39,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return findElement(With.text(testDriver.getString(R.string.like), testDriver.getString(R.string.unlike)));
+        return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     private void clickItemWithText(String text) {
@@ -49,7 +49,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public VisualPlayerElement clickStartStation() {
-        clickItemWithText(testDriver.getString(R.string.start_track_station));
+        clickItemWithText(testDriver.getString(R.string.stations_start_track_station));
         return new VisualPlayerElement(testDriver);
     }
 }

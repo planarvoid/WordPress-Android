@@ -76,7 +76,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.create_new_playlist)
                 .setView(dialogView)
-                .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.btn_done, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         final String playlistTitle = input.getText().toString().trim();
@@ -89,7 +89,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                         }
                     }
                 })
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.btn_cancel, null)
                 .create();
     }
 

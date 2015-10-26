@@ -2,9 +2,9 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/add_to_likes"
-          android:title="@string/like" />
+          android:title="@string/btn_like" />
     <item android:id="@+id/start_station"
-        android:title="@string/start_track_station"
+        android:title="@string/stations_start_track_station"
         android:visible="false" />
     <item android:id="@+id/play_related_tracks"
         android:title="@string/play_related_tracks"

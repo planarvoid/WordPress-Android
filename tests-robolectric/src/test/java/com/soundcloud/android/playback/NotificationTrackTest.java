@@ -32,7 +32,7 @@ public class NotificationTrackTest {
     public void creatorNameShouldBeAdvertisementWhenTrackIsAnAd() {
         NotificationTrack viewModel = new NotificationTrack(resources, trackProperties.merge(adProperties));
 
-        expect(viewModel.getCreatorName()).toEqual(resources.getString(R.string.advertisement));
+        expect(viewModel.getCreatorName()).toEqual(resources.getString(R.string.ads_advertisement));
     }
 
     @Test

@@ -39,7 +39,7 @@
                 style="@style/AdText.NextUp.Skip"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/skip_ad"
+                android:text="@string/ads_skip_ad"
                 android:visibility="gone"/>
 
     </FrameLayout>

@@ -91,7 +91,7 @@ public class UploadNotificationController {
         final Intent profileIntent = navigator.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_finished_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_finished_message, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded, recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_finished_ticker));
         finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, profileIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();
@@ -100,7 +100,7 @@ public class UploadNotificationController {
     private Notification createUploadErrorNotification(Recording recording) {
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_error_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message_tracktitle, recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_error_ticker));
         finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, getMonitorIntent(recording), PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();

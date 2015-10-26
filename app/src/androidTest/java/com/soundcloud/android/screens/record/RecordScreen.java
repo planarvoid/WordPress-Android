@@ -115,7 +115,7 @@ public class RecordScreen extends Screen {
     }
 
     private RecordScreen acceptDeleteRecording() {
-        testDriver.findElement(text(testDriver.getString(R.string.yes))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.btn_yes))).click();
         testDriver.waitForDialogToClose(1000l);
         return this;
     }

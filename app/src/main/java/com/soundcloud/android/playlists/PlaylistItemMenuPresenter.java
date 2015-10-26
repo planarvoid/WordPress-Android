@@ -159,9 +159,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void updateLikeActionTitle(PopupMenuWrapper menu, boolean isLiked) {
         final MenuItem item = menu.findItem(R.id.add_to_likes);
         if (isLiked) {
-            item.setTitle(R.string.unlike);
+            item.setTitle(R.string.btn_unlike);
         } else {
-            item.setTitle(R.string.like);
+            item.setTitle(R.string.btn_like);
         }
     }
 

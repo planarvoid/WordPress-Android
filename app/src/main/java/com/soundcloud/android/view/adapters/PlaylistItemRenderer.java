@@ -111,10 +111,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void showPromotedLabel(View itemView, PromotedPlaylistItem promoted) {
         if (promoted.hasPromoter()) {
-            String label = resources.getString(R.string.promoted_by_label, promoted.getPromoterName().get());
+            String label = resources.getString(R.string.promoted_by_promotorname, promoted.getPromoterName().get());
             setPromoterClickable(showPromotedLabel(itemView, label), promoted);
         } else {
-            showPromotedLabel(itemView, resources.getString(R.string.promoted_label));
+            showPromotedLabel(itemView, resources.getString(R.string.promoted));
         }
     }
 

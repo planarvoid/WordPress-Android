@@ -73,7 +73,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
         super.onCreate(fragment, savedInstanceState);
 
         uploadMonitorFragment = (UploadMonitorFragment) fragment;
-        uploadMonitorFragment.getActivity().setTitle(R.string.upload);
+        uploadMonitorFragment.getActivity().setTitle(R.string.btn_upload);
     }
 
     @Override
@@ -225,7 +225,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
         new AlertDialog.Builder(uploadMonitorFragment.getActivity())
                 .setTitle(null)
                 .setMessage(R.string.dialog_cancel_upload_message)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (isUploading) {
@@ -235,7 +235,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
                         }
                     }
                 })
-                .setNegativeButton(R.string.no, null)
+                .setNegativeButton(R.string.btn_no, null)
                 .create()
                 .show();
     }

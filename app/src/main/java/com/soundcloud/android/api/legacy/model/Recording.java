@@ -224,7 +224,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
     }
 
     public String defaultSharingNote(Resources res) {
-        return res.getString(R.string.sounds_from, recordingDateString(res));
+        return res.getString(R.string.record_default_title_sounds_from_day_time_of_day, recordingDateString(res));
     }
 
     public boolean isLegacyRecording() {
@@ -483,13 +483,13 @@ public class Recording implements Comparable<Recording>, Parcelable {
         time.set(lastModified());
         final int id;
         if (time.hour <= 12) {
-            id = R.string.recorded_morning;
+            id = R.string.recorded_dayofweek_morning;
         } else if (time.hour <= 17) {
-            id = R.string.recorded_afternoon;
+            id = R.string.recorded_dayofweek_afternoon;
         } else if (time.hour <= 21) {
-            id = R.string.recorded_evening;
+            id = R.string.recorded_dayofweek_evening;
         } else {
-            id = R.string.recorded_night;
+            id = R.string.recorded_dayofweek_night;
         }
         return res.getString(id, time.format("%A"));
     }

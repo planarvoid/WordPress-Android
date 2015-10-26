@@ -178,7 +178,7 @@
         <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity"/>
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 
-        <activity android:label="@string/side_menu_activity" android:name=".activities.ActivitiesActivity">
+        <activity android:label="@string/side_menu_notifications" android:name=".activities.ActivitiesActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACTIVITY"/>
                 <category android:name="android.intent.category.DEFAULT"/>

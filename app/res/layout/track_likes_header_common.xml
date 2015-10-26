@@ -17,7 +17,7 @@
         android:enabled="false"
         android:paddingLeft="@dimen/likes_shuffle_button_padding"
         android:paddingRight="@dimen/likes_shuffle_button_padding"
-        android:text="@string/shuffle"
+        android:text="@string/btn_shuffle"
         android:textAllCaps="false" />
 
     <ImageView

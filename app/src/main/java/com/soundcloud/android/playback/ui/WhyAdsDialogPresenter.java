@@ -28,8 +28,8 @@ class WhyAdsDialogPresenter {
 
     public void show(final Context context) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.why_ads)
-                .setMessage(R.string.why_ads_dialog_message);
+                .setTitle(R.string.ads_why_ads)
+                .setMessage(R.string.ads_why_ads_dialog_message);
         configureButtons(context, dialog);
         dialog.create().show();
     }

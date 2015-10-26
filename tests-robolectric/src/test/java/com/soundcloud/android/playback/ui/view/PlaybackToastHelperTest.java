@@ -32,7 +32,7 @@ public class PlaybackToastHelperTest {
 
         toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_in_progress);
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ads_ad_in_progress);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class PlaybackToastHelperTest {
 
         toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ads_resume_playing_ad_to_continue);
     }
 
     @Test

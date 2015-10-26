@@ -55,23 +55,23 @@ public class ActivityItemRenderer implements CellRenderer<PropertySet> {
         final int iconId;
         switch (propertySet.get(ActivityProperty.TYPE)) {
             case ActivityProperty.TYPE_FOLLOWER :
-                titleText = resources.getString(R.string.started_following_you);
+                titleText = resources.getString(R.string.notification_username_started_following_you);
                 iconId = R.drawable.stats_followers;
                 break;
             case ActivityProperty.TYPE_LIKE :
-                titleText = String.format(resources.getString(R.string.liked), propertySet.get(ActivityProperty.SOUND_TITLE));
+                titleText = String.format(resources.getString(R.string.notification_username_liked_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
                 iconId = R.drawable.stats_likes_grey;
                 break;
             case ActivityProperty.TYPE_REPOST :
-                titleText = String.format(resources.getString(R.string.reposted), propertySet.get(ActivityProperty.SOUND_TITLE));
+                titleText = String.format(resources.getString(R.string.notification_username_reposted_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
                 iconId = R.drawable.stats_repost;
                 break;
             case ActivityProperty.TYPE_COMMENT :
-                titleText = String.format(resources.getString(R.string.commented_on), propertySet.get(ActivityProperty.SOUND_TITLE));
+                titleText = String.format(resources.getString(R.string.notification_username_commented_on_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
                 iconId = R.drawable.stats_comment;
                 break;
             case ActivityProperty.TYPE_USER_MENTION :
-                titleText = String.format(resources.getString(R.string.mentioned_you_on), propertySet.get(ActivityProperty.SOUND_TITLE));
+                titleText = String.format(resources.getString(R.string.notification_username_mentioned_you_on_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
                 iconId = R.drawable.stats_comment;
                 break;
             default:

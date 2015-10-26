@@ -1,20 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- __MISC / LOST&FOUND / UNSORTED -->
+    <!-- __MISC -->
     <string name="app_name">SoundCloud</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="post">Post</string>
-    <string name="view">View</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_no">No</string>
+    <string name="btn_post">Post</string>
+    <string name="btn_view">View</string>
     <string name="btn_apply">Apply</string>
-    <string name="cancel">Cancel</string>
-    <string name="upload">Upload</string>
-    <string name="shuffle">Shuffle</string>
-    <string name="done">Done</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_done">Done</string>
+    <string name="btn_upload">Upload</string>
+    <string name="btn_shuffle">Shuffle</string>
+    <string name="btn_follow">Follow</string>
+    <string name="btn_following">Following</string>
+    <string name="btn_like">Like</string>
+    <string name="btn_unlike">Unlike</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_skip">Skip</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="btn_continue">Continue</string>
+    <string name="website">Website</string>
     <string name="imprint">Imprint</string>
     <string name="privacy">Privacy</string>
     <string name="legal">Legal</string>
@@ -22,23 +30,18 @@
     <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="contact_support">Contact support</string>
-    <string name="version">Version</string>
     <string name="copyright_information">Copyright information</string>
-    <string name="started_following_you">started following you</string>
+    <string name="version">Version</string>
+    <!-- @Todo from l10n: please explain -->
     <string name="account_one_active">You can only have one active account</string>
-    <string name="btn_follow">Follow</string>
-    <string name="btn_following">Following</string>
-    <string name="btn_save">Save</string>
-    <string name="btn_skip">Skip</string>
-    <string name="delete">Delete</string>
     <string name="comments">Comments</string>
-    <string name="sounds_from">Sounds from %s</string>
+    <!-- @Todo from l10n: please explain -->
     <string name="this_user">This user</string>
     <string name="display_name">Display Name</string>
-    <string name="website">Website</string>
-    <string name="like">Like</string>
-    <string name="unlike">Unlike</string>
+    <!-- @Todo from l10n: probably move to non-final since related to offline sync? -->
     <string name="unlimited">unlimited</string>
+
+    <!-- __RELATED TRACKS -->
     <string name="play_related_tracks">Play related tracks</string>
     <string name="unable_to_play_related_tracks">Unable to play related tracks</string>
     <string name="loading_related_tracks">Loading related tracks...</string>
@@ -49,25 +52,25 @@
     <string name="accessibility_search">Search SoundCloud</string>
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_like_action">Like</string>
-
-    <!-- __ACTIVITIES -->
-    <string name="liked">liked %s</string>
-    <string name="reposted">reposted %s</string>
-    <string name="commented_on">commented on %s</string>
-    <string name="mentioned_you_on">mentioned you on %s</string>
+    <string name="accessibility_navigation_drawer_open">Open navigation drawer</string>
+    <string name="accessibility_navigation_drawer_close">Close navigation drawer</string>
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">%d like</item>
+        <item quantity="other">%d likes</item>
+    </plurals>
 
     <!-- __ADS -->
-    <string name="advertisement">Advertisement</string>
-    <string name="learn_more">LEARN MORE</string>
-    <string name="why_ads">Why ads?</string>
-    <string name="why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
-    <string name="skip_ad">Skip Ad</string>
-    <string name="next_up">Next up: %1$s (%2$s)</string>
-    <string name="ad_in_progress">Advertisement in progress</string>
-    <string name="ad_resume_playing_to_continue">Resume playing ad to continue</string>
-    <string name="ad_skip">Skip in: %s</string>
-    <string name="now_playing">Now Playing</string>
-    <string name="now_playing_with_args">Now Playing: %1$s (%2$s)</string>
+    <string name="ads_advertisement">Advertisement</string>
+    <string name="ads_learn_more">LEARN MORE</string>
+    <string name="ads_why_ads">Why ads?</string>
+    <string name="ads_why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
+    <string name="ads_skip_ad">Skip Ad</string>
+    <string name="ads_next_up_tracktitle_creatorname">Next up: %1$s (%2$s)</string>
+    <string name="ads_ad_in_progress">Advertisement in progress</string>
+    <string name="ads_resume_playing_ad_to_continue">Resume playing ad to continue</string>
+    <string name="ads_skip_in_time">Skip in: %s</string>
+    <string name="ads_now_playing">Now Playing</string>
+    <string name="ads_now_playing_tracktitle_username">Now Playing: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Forgot your password?</string>
@@ -92,8 +95,10 @@
     <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Create account</string>
-    <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
+    <string name="authentication_signup_error_message">There seems to be a problem. Please try creating an account at SoundCloud.com.</string>
     <string name="authentication_signup_facebook_email_required">We need your permission for Facebook to share your email with us in order to create an account.</string>
+
+    <!-- @Todo from l10n: can we get rid of this instance? We already have "terms_of_use" -->
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
@@ -109,12 +114,13 @@
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
     <string name="authentication_recover_password_visit_our_Help_Center">visit our Help Center</string>
     <string name="authentication_recover_password_send">Send</string>
-    <string name="authentication_blocked_title">We couldn\'t sign you up</string>
+    <string name="authentication_blocked_title">We couldn\'t create an account for you</string>
     <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you believe this to be a mistake, please contact our support.</string>
+    <!-- @Todo from l10n: we don't have sign-in on mobi anymore. Also unclear if this is still used? -->
     <string name="authentication_captcha_message">We\'re having some trouble signing you in. Please sign in through our mobile website and before signing in again.</string>
     <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided.</string>
+    <string name="authentication_email_other_error_message">Sorry we couldn\'t create an account for you with the details you provided.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link</string>
@@ -130,8 +136,8 @@
     <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty</string>
     <string name="info_empty_you_secondary">Please sign in to SoundCloud on your desktop to edit your profile</string>
-    <string name="list_empty_activity_message">You don\'t have any activities yet</string>
-    <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
+    <string name="list_empty_notification_message">You don\'t have any notifications yet</string>
+    <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks</string>
     <string name="list_empty_stream_action">Find people to follow</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks</string>
     <string name="list_empty_user_following_action">Find people to follow</string>
@@ -139,8 +145,8 @@
     <string name="empty_playlist_description">This playlist has no tracks yet</string>
     <string name="list_empty_liked_playlists_message">Like your favorite playlists to hear them again</string>
 
-    <string name="list_empty_you_sounds_message">Repost sounds to share with your followers.</string>
-    <string name="list_empty_you_playlists_message">Create Playlists to make mixes of your favorite sounds.</string>
+    <string name="list_empty_you_sounds_message">Repost tracks to share with your followers.</string>
+    <string name="list_empty_you_playlists_message">Create playlists to make mixes of your favorite tracks.</string>
     <string name="list_empty_you_likes_message">Like your favorite sounds to hear them again.</string>
     <string name="list_empty_you_following_message">Follow your favorite artists, bands and curators to hear their latest tracks.</string>
     <string name="list_empty_you_followers_message">You don\'t have any followers yet.</string>
@@ -156,10 +162,12 @@
     <string name="new_empty_user_posts_message">This user hasn\'t uploaded\nany public sounds yet.</string>
     <string name="new_empty_user_playlists_message">This user currently has no playlists.</string>
     <string name="new_empty_user_likes_text">This user hasn\'t chosen any likes yet.</string>
+    <!-- @Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\'t followed by anyone yet." -->
     <string name="new_empty_user_followers_text">This user isn\'t being followed by anyone yet.</string>
     <string name="new_empty_user_followings_text">This user isn\'t following anyone yet.</string>
 
     <!-- __ERRORS -->
+    <!-- @Todo from l10n: move these error messages to other categories -->
     <string name="error_unauthorized_message">We\'re having a problem with your account and need you to sign back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
     <string name="error_loading_url">There was a problem loading that url</string>
@@ -170,14 +178,14 @@
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 
     <string name="follow_blocked_title">Follow Blocked</string>
-    <string name="follow_blocked_content">%s has blocked you.</string>
-    <string name="follow_blocked_content_long">%s has asked us to block your account from following them.</string>
+    <string name="follow_blocked_content_username">%s has blocked you.</string>
+    <string name="follow_blocked_content_long_username">%s has asked us to block your account from following them.</string>
     <string name="follow_age_restricted_title">Follow Blocked</string>
-    <string name="follow_age_restricted_content">Users %1$s+ can follow %2$s.</string>
-    <string name="follow_age_restricted_content_long">Sorry, only users %1$s years and older are allowed to follow %2$s.</string>
+    <string name="follow_age_restricted_content_age_username">Users %1$s+ can follow %2$s.</string>
+    <string name="follow_age_restricted_content_long_age_username">Sorry, only users %1$s years and older are allowed to follow %2$s.</string>
     <string name="follow_age_unknown_title">Please verify your age</string>
-    <string name="follow_age_unknown_content">Enter age to follow %s.</string>
-    <string name="follow_age_unknown_content_long">To follow %s, confirm you\'re of the required age.</string>
+    <string name="follow_age_unknown_content_username">Enter age to follow %s.</string>
+    <string name="follow_age_unknown_content_long_username">To follow %s, confirm you\'re of the required age.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">GENRES</string>
@@ -196,9 +204,7 @@
     <string name="use_existing_image_error">Could not use existing image</string>
 
     <!-- __NAVIGATION -->
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="side_menu_activity">Activity</string>
+    <string name="side_menu_notifications">Notifications</string>
     <string name="side_menu_record">Record</string>
     <string name="side_menu_stream">Stream</string>
     <string name="side_menu_you">You</string>
@@ -210,39 +216,6 @@
     <string name="title_search">Search</string>
     <string name="title_settings">Settings</string>
     <string name="title_feedback">Send bug report</string>
-
-    <!-- _NOTIFICATION_AGGREGATIONS -->
-    <string name="dashboard_notifications_message_incoming">from %s</string>
-    <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
-    <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
-    <string name="dashboard_notifications_activity_message_repost_one">on %1$s</string>
-    <string name="dashboard_notifications_activity_message_repost_two">on %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_repost_other">on %1$s, %2$s and other sounds</string>
-
-    <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">from %1$s on %2$s</string>
-    <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">from %1$s</string>
-    <string name="dashboard_notifications_activity_message_activity_two">Comments and likes from %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_activity_other">Comments and likes from %1$s, %2$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_comment_single_track_one">new comment on %1$s from %2$s</string>
-    <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d new comments on %2$s from %3$s and %4$s</string>
-    <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d new comments on %2$s from %3$s, %4$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
-    <string name="dashboard_notifications_activity_message_like_one">on %1$s</string>
-    <string name="dashboard_notifications_activity_message_like_two">on %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_like_other">on %1$s, %2$s and other sounds</string>
-
-    <string name="dashboard_notifications_activity_message_follow_one">%1$s followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_two">%1$s and %2$s followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_three">%1$s, %2$s and 1 other followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_many">%1$s, %2$s and %3$s others followed you</string>
-
-    <string name="dashboard_notifications_activity_message_comment_one">Comments from %s</string>
-    <string name="dashboard_notifications_activity_message_comment_two">Comments from %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_comment_other">Comments from %1$s, %2$s and others</string>
 
     <!-- __ONBOARDING -->
     <string name="try_again">Try Again</string>
@@ -256,6 +229,16 @@
     <string name="onboarding_gender_option_male">Male</string>
     <string name="onboarding_gender_option_custom">Custom</string>
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
+
+    <!-- __TOUR -->
+    <string name="tour_title_1">Hear the world\'s sounds</string>
+    <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
+    <string name="tour_title_2">Discover</string>
+    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
+    <string name="tour_title_3">Connect &amp; Share</string>
+    <string name="tour_text_3">Find music &amp; audio creators\nto hear and follow,\nshare the sounds you love</string>
+    <string name="tour_signup_button">Sign up with your email address</string>
+    <string name="tour_login_header">Or sign in with your account</string>
 
     <!-- __ONBOARDING CATEGORIES -->
     <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook Friends</string>
@@ -303,34 +286,39 @@
     <string name="share">Share</string>
     <string name="repost">Repost</string>
     <string name="unpost">Unpost</string>
-    <string name="comment_at">Comment at %s</string>
-    <string name="comment_on">Comment on %s</string>
-    <string name="your_comment_has_been_posted">Your comment has been posted</string>
-    <string name="comment_could_not_be_created_at_this_time">Comment could not be created at this time</string>
-    <string name="share_track_by_artist_on_soundcloud">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>
-    <string name="share_track_on_soundcloud">Listen to %1$s #np on #SoundCloud\n%2$s</string>
+    <string name="comment_at_time">Comment at %s</string>
+    <string name="comment_on_tracktitle">Comment on %s</string>
+    <string name="comment_posted">Your comment has been posted</string>
+    <string name="comment_error">Comment could not be created at this time</string>
+    <string name="share_tracktitle_artist_link">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>
+    <string name="share_tracktitle_link">Listen to %1$s #np on #SoundCloud\n%2$s</string>
     <string name="share_subject">%s - SoundCloud</string>
     <string name="info">Info</string>
-    <string name="uploaded_at">Uploaded %s</string>
+    <string name="uploaded_xtimeago">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
-    <string name="playback_error">Not playable</string>
-    <string name="playback_error_connection">Please check your connection. Tap to try again.</string>
-    <string name="playback_error_unable_to_play">Track cannot be streamed</string>
-    <string name="playback_missing_playable_tracks">Missing playable tracks</string>
-    <string name="play">Play</string>
-    <string name="pause">Pause</string>
-    <string name="previous">Previous</string>
-    <string name="next">Next</string>
+    <!-- @Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this? -->
+   <string name="playback_error">Not playable</string>
+   <string name="playback_error_connection">Please check your connection. Tap to try again.</string>
+   <string name="playback_error_unable_to_play">This track cannot be streamed</string>
+   <string name="playback_missing_playable_tracks">Missing playable tracks</string>
+   <string name="play">Play</string>
+   <string name="pause">Pause</string>
+   <string name="previous">Previous</string>
+   <string name="next">Next</string>
 
-    <!-- __COMMENTS -->
-    <string name="user_commented_at">%1$s at %2$s</string>
+   <!-- __COMMENTS -->
+    <string name="user_commented_at_timestamp">%1$s at %2$s</string>
+    <plurals name="trackinfo_comments">
+        <item quantity="one">%d comment on this track</item>
+        <item quantity="other">%d comments on this track</item>
+    </plurals>
 
     <!-- __PLAYLISTS -->
     <string name="activity_title_playlist">Playlist</string>
     <string name="your_playlists_tab">YOUR PLAYLISTS</string>
     <string name="liked_playlists_tab">LIKED PLAYLISTS</string>
     <string name="playlist_load_error">Could not load this playlist</string>
-    <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+    <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="remove_from_playlist">Remove from playlist</string>
@@ -343,6 +331,16 @@
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
     <string name="add_playlist_offline">Available Offline</string>
+    <plurals name="number_of_sounds">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+
+    <!-- __PLAYLIST IN NEW STREAM -->
+    <plurals name="number_of_tracks">
+        <item quantity="one">TRACK</item>
+        <item quantity="other">TRACKS</item>
+    </plurals>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">INFO</string>
@@ -351,8 +349,30 @@
     <string name="tab_title_user_playlists">PLAYLISTS</string>
     <string name="tab_title_user_followers">FOLLOWERS</string>
     <string name="tab_title_user_followings">FOLLOWING</string>
-    <string name="discogs">Discogs</string>
-    <string name="myspace">Myspace</string>
+    <!-- @Todo from l10n: can we get rid of these Discogs and Myspace strings? -->
+   <string name="discogs">Discogs</string>
+   <string name="myspace">Myspace</string>
+   <plurals name="number_of_followers">
+       <item quantity="one">%d follower</item>
+       <item quantity="other">%d followers</item>
+   </plurals>
+
+   <!-- The number is formatted to a string with thousands separator (for example: 1,536,391) -->
+    <plurals name="followers_message">
+        <item quantity="one">Followed by %s person</item>
+        <item quantity="other">Followed by %s people</item>
+    </plurals>
+
+    <!-- The number is formatted to a string with thousands separator (for example: 1,536,391) -->
+    <plurals name="following_message">
+        <item quantity="one">Followed by you and %s other person</item>
+        <item quantity="other">Followed by you and %s other people</item>
+    </plurals>
+
+    <plurals name="number_of_liked_tracks_you_liked">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
 
     <!-- __RECORD -->
     <string name="rec_title_idle_rec">Record</string>
@@ -362,16 +382,17 @@
     <string name="rec_title_editing">Edit</string>
     <string name="record_insert_sd_card">Please insert an SD card to record.</string>
     <string name="record_instructions">Record</string>
+    <string name="record_default_title_sounds_from_day_time_of_day">Sounds from %s</string>
     <string name="record_storage_is_full">Storage is full</string>
-    <string name="recorded_afternoon">%s afternoon</string>
-    <string name="recorded_evening">%s evening</string>
-    <string name="recorded_morning">%s morning</string>
-    <string name="recorded_night">%s night</string>
+    <string name="recorded_dayofweek_afternoon">%s afternoon</string>
+    <string name="recorded_dayofweek_evening">%s evening</string>
+    <string name="recorded_dayofweek_morning">%s morning</string>
+    <string name="recorded_dayofweek_night">%s night</string>
     <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
     <string name="btn_revert_to_original">Revert to original</string>
     <string name="fade_toggle_on">Fade in/out</string>
-    <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
-    <string name="cloud_recorder_event_message">Recording for %s</string>
+    <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed anyway?</string>
+    <string name="cloud_recorder_event_message_recordtime">Recording for %s</string>
     <string name="cloud_recorder_event_title">Recording in progress</string>
     <string name="cloud_recorder_playback_event_title">Playback in progress</string>
     <string name="record_track_title">Track title</string>
@@ -379,12 +400,28 @@
     <string name="recording_uploading">Uploading...</string>
     <string name="recording_upload_failed">Upload failed</string>
     <string name="recording_upload_finished">Upload finished</string>
-    <string name="record_privacy_header">Track will be</string>
+    <string name="record_privacy_header">Track will be:</string>
     <string name="record_tap_to_post">Tap to post your recording</string>
     <string name="record_change_artwork">Change Artwork</string>
     <string name="record_tap_to_record">Tap to start recording</string>
     <string name="record_tap_to_pause">Tap to pause recording</string>
     <string name="record_tap_to_resume">Tap to resume recording</string>
+
+    <!-- __UPLOAD -->
+    <string name="uploader_event_processing">Processing</string>
+    <string name="uploader_event_processing_your_sound">Processing your sound</string>
+    <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
+    <string name="uploader_event_cancelling">Cancelling</string>
+    <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
+    <string name="cloud_uploader_notification_error_message_tracktitle">There was an error uploading %s</string>
+    <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
+    <string name="cloud_uploader_notification_error_title">Upload Error</string>
+    <string name="cloud_uploader_notification_tracktitle_has_been_uploaded">%s has been uploaded</string>
+    <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
+    <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
+    <string name="dialog_cancel_upload_message">Cancel upload?</string>
+    <string name="sc_upload_private">\u00A0Private</string>
+    <string name="sc_upload_public">\u00A0Public</string>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
@@ -404,8 +441,10 @@
     <!-- __DISCOVERY -->
     <string name="activity_title_discovery">Search</string>
     <string name="activity_title_recommendations">Recommended for you</string>
+    <!-- @Todo from l10n: what is filled in here? -->
     <string name="recommendation_view_all">View all %1$d</string>
-    <string name="recommendation_reason_because_you">Because you %1$s %2$s</string>
+    <!-- @Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s" -->
+    <string name="recommendation_reason_because_you_reason_tracktitle">Because you %1$s %2$s</string>
     <string name="recommendation_reason_liked">liked</string>
     <string name="recommendation_reason_listened_to">played</string> <!-- https://github.com/soundcloud/personalized-tracks/ -->
     <string name="recommendation_seeds_header">Recommended for you</string>
@@ -422,7 +461,7 @@
     <string name="pref_help_desc">Access the SoundCloud support site</string>
     <string name="pref_autoplay_related">Autoplay related tracks</string>
     <string name="pref_autoplay_related_desc">When a playlist ends, play tracks based on the last track</string>
-    <string name="pref_revoke_access">Sign Out</string>
+    <string name="pref_revoke_access">Sign out</string>
     <string name="pref_revoke_desc">Sign out current user</string>
     <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
     <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
@@ -430,7 +469,7 @@
     <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
-    <string name="playback_error_logging">Playback error logging : %s</string>
+    <string name="playback_error_logging">Playback error logging: %s</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="wifi_settings">Wireless &amp; network settings</string>
@@ -441,22 +480,22 @@
 
     <!-- __SETTINGS SIGN OUT -->
     <string name="sign_out_title">Clear user data?</string>
-    <string name="sign_out_description">You will have to re-connect your SoundCloud account.</string>
+    <string name="sign_out_description">You will have to sign in to your SoundCloud account again.</string>
 
     <!-- __SETTINGS NAVIGATION -->
     <string name="title_about">About</string>
     <string name="title_legal">Legal</string>
     <string name="title_offline_settings">Offline Sync Settings</string>
-    <string name="title_notification_settings">Notification Settings</string>
+    <string name="title_notification_settings">Push notifications</string>
 
-    <!-- __SETTINGS NOTIFICATIONS -->
-    <string name="pref_notifications">Notifications</string>
+    <!-- __SETTINGS (PUSH) NOTIFICATIONS -->
+    <string name="pref_notifications">Push notifications</string>
     <string name="pref_notifications_activity">Activity</string>
     <string name="pref_notifications_comments">Comments</string>
     <string name="pref_notifications_comments_description">Receive updates on new comments on your sounds</string>
-    <string name="pref_notifications_description">Which updates would you like to receive?</string>
-    <string name="pref_notifications_favoritings">Likes</string>
-    <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
+    <string name="pref_notifications_description">What updates would you like to receive?</string>
+    <string name="pref_notifications_likes">Likes</string>
+    <string name="pref_notifications_likes_description">Receive updates on new likes on your sounds</string>
     <string name="pref_notifications_followers">Followers</string>
     <string name="pref_notifications_followers_description">Receive updates when you have a new follower</string>
     <string name="pref_notifications_frequency">Notifications Frequency</string>
@@ -476,9 +515,9 @@
     </string-array>
 
     <!-- __STATIONS -->
-    <string name="start_track_station">Start track station</string>
-    <string name="unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
-    <string name="loading_station">Loading station. Stay tuned.</string>
+    <string name="stations_start_track_station">Start track station</string>
+    <string name="stations_unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
+    <string name="stations_loading_station">Loading station. Stay tuned.</string>
     <string name="stations_collection_title_recent_stations">Recent stations</string>
     <string name="stations_onboarding_stream_title">Start a station to hear a series of similar tracks. It’s just like radio.</string>
     <string name="stations_onboarding_stream_description">Just tap the three dots next to any track to get started.</string>
@@ -489,32 +528,54 @@
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
-
-    <!-- __TOUR -->
-    <string name="tour_title_1">Hear the world\'s sounds</string>
-    <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
-    <string name="tour_title_2">Discover</string>
-    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
-    <string name="tour_title_3">Connect &amp; Share</string>
-    <string name="tour_text_3">Find music &amp; audio creators\nto hear and follow,\nshare the sounds you love</string>
-    <string name="tour_signup_button">Sign up with your email address</string>
-    <string name="tour_login_header">Or sign in with your account</string>
-
-    <!-- __UPLOAD -->
-    <string name="uploader_event_processing">Processing</string>
-    <string name="uploader_event_processing_your_sound">Processing your Sound</string>
-    <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
-    <string name="uploader_event_cancelling">Cancelling</string>
-    <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
-    <string name="cloud_uploader_notification_error_message">There was an error uploading %s</string>
-    <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
-    <string name="cloud_uploader_notification_error_title">Upload Error</string>
-    <string name="cloud_uploader_notification_finished_message">%s has been uploaded</string>
-    <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
-    <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
-    <string name="dialog_cancel_upload_message">Cancel upload?</string>
-    <string name="sc_upload_private">\u00A0Private</string>
-    <string name="sc_upload_public">\u00A0Public</string>
+    <plurals name="elapsed_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="elapsed_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="elapsed_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="elapsed_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="elapsed_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">%d second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    <plurals name="elapsed_years">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
@@ -530,12 +591,120 @@
     <string name="cast_unable_play_track">Unable to cast track</string>
 
     <!-- __PROMOTED TRACKS -->
-    <string name="promoted_label">Promoted</string>
-    <string name="promoted_by_label">Promoted by %s</string>
+    <string name="promoted">Promoted</string>
+    <string name="promoted_by_promotorname">Promoted by %s</string>
 
     <!-- __FACEBOOK INVITES -->
     <string name="facebook_invites_title">Invite friends to SoundCloud</string>
     <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
     <string name="facebook_invites_button">Invite friends</string>
 
+    <!-- __OFFLINE_SYNC -->
+    <plurals name="downloading_track_of_tracks">
+        <item quantity="one">%1$d track</item>
+        <item quantity="other">%1$d of %2$d tracks</item>
+    </plurals>
+
+    <plurals name="offline_dialog_go_online_warning_title">
+        <item quantity="one">You have %d day to go back online</item>
+        <item quantity="other">You have %d days to go back online</item>
+    </plurals>
+
+    <plurals name="offline_dialog_go_online_warning_content">
+        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d day to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+        <item quantity="other">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d days to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+    </plurals>
+
+
+    <!-- __NOTIFICATIONS (prev. ACTIVITIES) -->
+    <!--
+        @Todo from l10n: please add %s for username in the notification since this might be cause translation issues
+        ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>
+    -->
+    <string name="notification_username_liked_tracktitle">liked %s</string>
+    <string name="notification_username_reposted_tracktitle">reposted %s</string>
+    <string name="notification_username_commented_on_tracktitle">commented on %s</string>
+    <string name="notification_username_mentioned_you_on_tracktitle">mentioned you on %s</string>
+    <string name="notification_username_started_following_you">started following you</string>
+
+    <!-- _NOTIFICATION_AGGREGATIONS -->
+    <string name="dashboard_notifications_message_incoming">from %s</string>
+    <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
+    <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
+
+    <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
+    <string name="dashboard_notifications_activity_message_repost_one">on %1$s</string>
+    <string name="dashboard_notifications_activity_message_repost_two">on %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_repost_other">on %1$s, %2$s and other sounds</string>
+
+    <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">from %1$s on %2$s</string>
+    <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">from %1$s</string>
+    <string name="dashboard_notifications_activity_message_activity_two">Comments and likes from %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_activity_other">Comments and likes from %1$s, %2$s and others</string>
+
+    <string name="dashboard_notifications_activity_message_comment_single_track_one">new comment on %1$s from %2$s</string>
+    <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d new comments on %2$s from %3$s and %4$s</string>
+    <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d new comments on %2$s from %3$s, %4$s and others</string>
+
+    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
+    <string name="dashboard_notifications_activity_message_like_one">on %1$s</string>
+    <string name="dashboard_notifications_activity_message_like_two">on %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_like_other">on %1$s, %2$s and other sounds</string>
+
+    <string name="dashboard_notifications_activity_message_follow_one">%1$s followed you</string>
+    <string name="dashboard_notifications_activity_message_follow_two">%1$s and %2$s followed you</string>
+    <string name="dashboard_notifications_activity_message_follow_three">%1$s, %2$s and 1 other followed you</string>
+    <string name="dashboard_notifications_activity_message_follow_many">%1$s, %2$s and %3$s others followed you</string>
+
+    <string name="dashboard_notifications_activity_message_comment_one">Comments from %s</string>
+    <string name="dashboard_notifications_activity_message_comment_two">Comments from %1$s and %2$s</string>
+    <string name="dashboard_notifications_activity_message_comment_other">Comments from %1$s, %2$s and others</string>
+
+    <plurals name="dashboard_notifications_activity_ticker_repost">
+        <item quantity="one">%d new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">%d new activity</item>
+        <item quantity="other">%d new activities</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">%d new comment</item>
+        <item quantity="other">%d new comments</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">%d new like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">%d new activity</item>
+        <item quantity="other">%d new activities</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">%d new comment</item>
+        <item quantity="other">%d new comments</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">%d new like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_repost">
+        <item quantity="one">%d new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_follower">
+        <item quantity="one">%d new follower</item>
+        <item quantity="other">%d new followers</item>
+    </plurals>
+    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
+    <plurals name="dashboard_notifications_ticker">
+        <item quantity="one">%s new sound</item>
+        <item quantity="other">%s new sounds</item>
+    </plurals>
+
+    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
+    <plurals name="dashboard_notifications_title">
+        <item quantity="one">%s new sound</item>
+        <item quantity="other">%s new sounds</item>
+    </plurals>
 </resources>
