@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.Locale;
+
 public class SearchPagerAdapter extends FragmentPagerAdapter {
 
     protected static final int TAB_ALL = 0;
@@ -45,13 +47,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_ALL:
-                return resources.getString(R.string.search_type_all);
+                return toUpperCase(resources.getString(R.string.search_type_all));
             case TAB_TRACKS:
-                return resources.getString(R.string.search_type_tracks);
+                return toUpperCase(resources.getString(R.string.search_type_tracks));
             case TAB_PLAYLISTS:
-                return resources.getString(R.string.search_type_playlists);
+                return toUpperCase(resources.getString(R.string.search_type_playlists));
             case TAB_PEOPLE:
-                return resources.getString(R.string.search_type_people);
+                return toUpperCase(resources.getString(R.string.search_type_people));
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
@@ -60,6 +62,10 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return 4;
+    }
+
+    private String toUpperCase(String title) {
+        return title.toUpperCase(Locale.getDefault());
     }
 
 }

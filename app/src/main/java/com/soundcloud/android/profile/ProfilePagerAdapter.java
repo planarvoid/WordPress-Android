@@ -12,6 +12,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
+import java.util.Locale;
+
 class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     public static final int FRAGMENT_COUNT = 6;
@@ -91,17 +93,17 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_INFO:
-                return resources.getString(R.string.tab_title_user_info);
+                return toUpperCase(resources.getString(R.string.tab_title_user_info));
             case TAB_POSTS:
-                return resources.getString(R.string.tab_title_user_posts);
+                return toUpperCase(resources.getString(R.string.tab_title_user_posts));
             case TAB_PLAYLISTS:
-                return resources.getString(R.string.tab_title_user_playlists);
+                return toUpperCase(resources.getString(R.string.tab_title_user_playlists));
             case TAB_LIKES:
-                return resources.getString(R.string.tab_title_user_likes);
+                return toUpperCase(resources.getString(R.string.tab_title_user_likes));
             case TAB_FOLLOWINGS:
-                return resources.getString(R.string.tab_title_user_followings);
+                return toUpperCase(resources.getString(R.string.tab_title_user_followings));
             case TAB_FOLLOWERS:
-                return resources.getString(R.string.tab_title_user_followers);
+                return toUpperCase(resources.getString(R.string.tab_title_user_followers));
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
@@ -110,6 +112,10 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return FRAGMENT_COUNT;
+    }
+
+    private String toUpperCase(String title) {
+        return title.toUpperCase(Locale.getDefault());
     }
 
 }

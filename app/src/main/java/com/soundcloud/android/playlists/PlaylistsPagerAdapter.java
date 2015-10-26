@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.Locale;
+
 public class PlaylistsPagerAdapter extends FragmentPagerAdapter {
 
     private static final int TAB_YOUR_PLAYLISTS = 0;
@@ -35,9 +37,9 @@ public class PlaylistsPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_YOUR_PLAYLISTS:
-                return resources.getString(R.string.your_playlists_tab);
+                return toUpperCase(resources.getString(R.string.your_playlists_tab));
             case TAB_LIKED_PLAYLISTS:
-                return resources.getString(R.string.liked_playlists_tab);
+                return toUpperCase(resources.getString(R.string.liked_playlists_tab));
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
@@ -46,6 +48,10 @@ public class PlaylistsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return 2;
+    }
+
+    private String toUpperCase(String title) {
+        return title.toUpperCase(Locale.getDefault());
     }
 
 }
