@@ -37,11 +37,14 @@ public class ApiSyncerFactory {
     private final Navigator navigator;
 
     @Inject
-    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider, Provider<AccountOperations> accountOpsProvider,
+    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider,
+                            Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
-                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
+                            Lazy<MyLikesSyncer> lazyMyLikesSyncer,
+                            Lazy<MyPostsSyncer> lazyMyPostsSyncer,
+                            SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
         this.accountOpsProvider = accountOpsProvider;

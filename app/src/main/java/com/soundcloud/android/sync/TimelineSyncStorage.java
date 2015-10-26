@@ -1,25 +1,22 @@
-package com.soundcloud.android.sync.stream;
+package com.soundcloud.android.sync;
 
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.SharedPreferences;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
-public class StreamSyncStorage {
+// Stores sync meta-data pertaining to content based on our Timeline services, i.e.
+// the sound stream and activities
+public class TimelineSyncStorage {
 
     private static final String PREFS_NEXT_URL = "next_url";
     private static final String PREFS_FUTURE_URL = "future_url";
 
     private SharedPreferences prefs;
 
-    @Inject
-    public StreamSyncStorage(@Named(StorageModule.STREAM_SYNC) SharedPreferences prefs) {
+    public TimelineSyncStorage(SharedPreferences prefs) {
         this.prefs = prefs;
     }
 
