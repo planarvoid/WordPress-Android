@@ -180,11 +180,11 @@
     <string name="follow_age_unknown_content_long">To follow %s, confirm you\'re of the required age.</string>
 
     <!-- __EXPLORE -->
-    <string name="explore_genres">Genres</string>
+    <string name="explore_genres">GENRES</string>
     <string name="explore_genre_header_music">Music</string>
     <string name="explore_genre_header_audio">Audio</string>
-    <string name="explore_category_trending_music">Music</string>
-    <string name="explore_category_trending_audio">Audio</string>
+    <string name="explore_category_trending_music">MUSIC</string>
+    <string name="explore_category_trending_audio">AUDIO</string>
 
     <!-- __IMAGES -->
     <string name="add_image">Add\nImage</string>
@@ -326,10 +326,9 @@
     <string name="user_commented_at">%1$s at %2$s</string>
 
     <!-- __PLAYLISTS -->
-    <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
-    <string name="your_playlists_tab">Your Playlists</string>
-    <string name="liked_playlists_tab">Liked Playlists</string>
+    <string name="your_playlists_tab">YOUR PLAYLISTS</string>
+    <string name="liked_playlists_tab">LIKED PLAYLISTS</string>
     <string name="playlist_load_error">Could not load this playlist</string>
     <string name="playlist_new_info_header_text">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>
@@ -346,11 +345,12 @@
     <string name="add_playlist_offline">Available Offline</string>
 
     <!-- __PROFILE -->
-    <string name="tab_title_user_info">Info</string>
-    <string name="tab_title_user_posts">Posts</string>
-    <string name="tab_title_user_likes">Likes</string>
-    <string name="tab_title_user_followers">Followers</string>
-    <string name="tab_title_user_followings">Following</string>
+    <string name="tab_title_user_info">INFO</string>
+    <string name="tab_title_user_posts">POSTS</string>
+    <string name="tab_title_user_likes">LIKES</string>
+    <string name="tab_title_user_playlists">PLAYLISTS</string>
+    <string name="tab_title_user_followers">FOLLOWERS</string>
+    <string name="tab_title_user_followings">FOLLOWING</string>
     <string name="discogs">Discogs</string>
     <string name="myspace">Myspace</string>
 
@@ -389,10 +389,10 @@
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
     <string name="search_settings_description">Search sounds</string>
-    <string name="search_type_all">All</string>
-    <string name="search_type_tracks">Tracks</string>
-    <string name="search_type_playlists">Playlists</string>
-    <string name="search_type_people">People</string>
+    <string name="search_type_all">ALL</string>
+    <string name="search_type_tracks">TRACKS</string>
+    <string name="search_type_playlists">PLAYLISTS</string>
+    <string name="search_type_people">PEOPLE</string>
     <string name="search_recent_tags">RECENT</string>
     <string name="search_popular_tags">POPULAR TAGS</string>
     <string name="search_tags_title">Choose your favorite tag</string>

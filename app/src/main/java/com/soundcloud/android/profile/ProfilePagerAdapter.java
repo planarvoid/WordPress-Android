@@ -1,8 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ProfileScrollHelper;
 
@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
-
-import java.util.Locale;
 
 class ProfilePagerAdapter extends FragmentPagerAdapter {
 
@@ -93,17 +91,17 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_INFO:
-                return toUpperCase(resources.getString(R.string.tab_title_user_info));
+                return resources.getString(R.string.tab_title_user_info);
             case TAB_POSTS:
-                return toUpperCase(resources.getString(R.string.tab_title_user_posts));
+                return resources.getString(R.string.tab_title_user_posts);
             case TAB_PLAYLISTS:
-                return toUpperCase(resources.getString(R.string.tab_title_user_playlists));
+                return resources.getString(R.string.tab_title_user_playlists);
             case TAB_LIKES:
-                return toUpperCase(resources.getString(R.string.tab_title_user_likes));
+                return resources.getString(R.string.tab_title_user_likes);
             case TAB_FOLLOWINGS:
-                return toUpperCase(resources.getString(R.string.tab_title_user_followings));
+                return resources.getString(R.string.tab_title_user_followings);
             case TAB_FOLLOWERS:
-                return toUpperCase(resources.getString(R.string.tab_title_user_followers));
+                return resources.getString(R.string.tab_title_user_followers);
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
@@ -112,10 +110,6 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return FRAGMENT_COUNT;
-    }
-
-    private String toUpperCase(String title) {
-        return title.toUpperCase(Locale.getDefault());
     }
 
 }

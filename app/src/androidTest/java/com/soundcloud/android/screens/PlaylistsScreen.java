@@ -47,14 +47,14 @@ public class PlaylistsScreen extends Screen {
 
     //TODO: Wait for the tab to be displayed
     public PlaylistsScreen touchLikedPlaylistsTab() {
-        touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
+        touchTab(testDriver.getString(R.string.liked_playlists_tab));
         waiter.waitTwoSeconds();
         return this;
     }
 
     //TODO: Wait for the tab to be displayed
     public PlaylistsScreen touchPostedPlaylistsTab() {
-        touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
+        touchTab(testDriver.getString(R.string.your_playlists_tab));
         waiter.waitTwoSeconds();
         return this;
     }

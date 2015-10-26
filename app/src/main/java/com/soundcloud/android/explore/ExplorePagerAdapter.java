@@ -8,8 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import java.util.Locale;
-
 public class ExplorePagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_GENRES = 0;
     protected static final int TAB_TRENDING_MUSIC = 1;
@@ -50,18 +48,14 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_GENRES:
-                return toUpperCase(resources.getString(R.string.explore_genres));
+                return resources.getString(R.string.explore_genres);
             case TAB_TRENDING_MUSIC:
-                return toUpperCase(resources.getString(R.string.explore_category_trending_music));
+                return resources.getString(R.string.explore_category_trending_music);
             case TAB_TRENDING_AUDIO:
-                return toUpperCase(resources.getString(R.string.explore_category_trending_audio));
+                return resources.getString(R.string.explore_category_trending_audio);
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
-    }
-
-    private String toUpperCase(String title) {
-        return title.toUpperCase(Locale.getDefault());
     }
 
 }
