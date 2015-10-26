@@ -128,7 +128,11 @@
     <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
     <string name="stream_track_header_text">%1$s %2$s a track</string>
     <string name="stream_posted_action">posted</string>
-    <string name="stream_reposted_action">\u200B reposted</string>
+    <string name="stream_reposted_action">reposted</string>
+    <string name="stream_promoted_action">promoted</string>
+    <string name="stream_track">track</string>
+    <string name="stream_playlist">playlist</string>
+    <string name="stream_promoted_playable">Promoted %s</string>
 
     <!-- __YOU -->
     <string name="you_explore">Explore</string>

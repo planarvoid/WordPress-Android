@@ -11,7 +11,6 @@ import org.mockito.Mock;
 
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 
 public class HeaderSpannableBuilderTest extends AndroidUnitTest {
 
@@ -30,7 +29,7 @@ public class HeaderSpannableBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsUserActionStringForATrack() {
         final SpannableString spannableString = builder
-                .trackUserAction(USERNAME, ACTION)
+                .userActionSpannedString(USERNAME, ACTION, true)
                 .get();
 
         assertThat(spannableString.toString()).isEqualTo("username posted a track");
@@ -40,27 +39,11 @@ public class HeaderSpannableBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsUserActionStringForAPlaylist() {
         final SpannableString spannableString = builder
-                .playlistUserAction(USERNAME, ACTION)
+                .userActionSpannedString(USERNAME, ACTION, false)
                 .get();
 
         assertThat(spannableString.toString()).isEqualTo("username posted a playlist");
         assertThatHasForegroundSpan(spannableString);
-    }
-
-    @Test
-    public void buildsSpannableStringHeaderWithIcon() {
-        final SpannableString spannableString = builder
-                .playlistUserAction(USERNAME, ACTION)
-                .withIconSpan(trackView)
-                .get();
-
-        assertThat(spannableString.toString()).isEqualTo("username posted a playlist");
-        assertThatHasForegroundSpan(spannableString);
-        assertThatHasImageSpan(spannableString);
-    }
-
-    private void assertThatHasImageSpan(SpannableString spanned) {
-        assertThat(spanned.getSpans(0, spanned.length(), ImageSpan.class)).isNotEmpty();
     }
 
     private void assertThatHasForegroundSpan(SpannableString spanned) {
