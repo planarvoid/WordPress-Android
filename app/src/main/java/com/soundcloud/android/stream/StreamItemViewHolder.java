@@ -1,6 +1,8 @@
 package com.soundcloud.android.stream;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -12,60 +14,61 @@ import android.widget.ToggleButton;
 
 public class StreamItemViewHolder {
 
-    private final ImageView userImage;
-    private final TextView headerText;
-    private final TextView reposter;
-    private final View privateIndicator;
-    private final View privateSeparator;
-    private final TextView createdAt;
+    @Bind(R.id.user_image) ImageView userImage;
+    @Bind(R.id.header_text) TextView headerText;
+    @Bind(R.id.reposter) TextView reposter;
+    @Bind(R.id.creation_date) TextView createdAt;
+    @Bind(R.id.private_indicator) View privateIndicator;
+    @Bind(R.id.private_separator) View privateSeparator;
+    
+    @Bind(R.id.single_line_header_text) TextView singleLineHeaderText;
+    @Bind(R.id.promoter) TextView promoter;
 
-    private final TextView singleLineHeaderText;
-    private final TextView promoter;
+    @Bind(R.id.image) ImageView image;
+    @Bind(R.id.title) TextView title;
+    @Bind(R.id.creator) TextView creator;
 
-    private final ImageView image;
-    private final TextView title;
-    private final TextView creator;
+    @Bind(R.id.play_count) TextView playCount;
+    @Bind(R.id.playlist_duration) TextView duration;
+    @Bind(R.id.toggle_like) ToggleButton likeButton;
+    @Bind(R.id.toggle_repost) ToggleButton repostButton;
+    @Bind(R.id.now_playing) View nowPlaying;
+    @Bind(R.id.overflow_button) View overflowButton;
 
-    private final TextView playCount;
-    private final TextView duration;
-    private final ToggleButton likeButton;
-    private final ToggleButton repostButton;
-    private final View nowPlaying;
     private OverflowListener overflowListener;
+    private CardEngagementClickListener clickListener;
 
     public StreamItemViewHolder(View view) {
-        userImage = ButterKnife.findById(view, R.id.user_image);
-        headerText = ButterKnife.findById(view, R.id.header_text);
-        reposter = ButterKnife.findById(view, R.id.reposter);
-        createdAt = ButterKnife.findById(view, R.id.creation_date);
-        privateIndicator = ButterKnife.findById(view, R.id.private_indicator);
-        privateSeparator = ButterKnife.findById(view, R.id.private_separator);
+        ButterKnife.bind(this, view);
+    }
+    
+    @OnClick(R.id.toggle_like)
+    public void like() {
+        if (clickListener != null) {
+            clickListener.onLikeClick(likeButton);
+        }
+    }
+    
+    @OnClick(R.id.toggle_repost)
+    public void repost() {
+        if (clickListener != null) {
+            clickListener.onRepostClick(repostButton);
+        }
+    }
 
-        singleLineHeaderText = ButterKnife.findById(view, R.id.single_line_header_text);
-        promoter = ButterKnife.findById(view, R.id.promoter);
-
-        image = ButterKnife.findById(view, R.id.image);
-        title = ButterKnife.findById(view, R.id.title);
-        creator = ButterKnife.findById(view, R.id.creator);
-
-        nowPlaying = ButterKnife.findById(view, R.id.now_playing);
-        playCount = ButterKnife.findById(view, R.id.play_count);
-        duration = ButterKnife.findById(view, R.id.playlist_duration);
-        likeButton = ButterKnife.findById(view, R.id.toggle_like);
-        repostButton = ButterKnife.findById(view, R.id.toggle_repost);
-
-        view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (overflowListener != null) {
-                    overflowListener.onOverflow(v);
-                }
-            }
-        });
+    @OnClick(R.id.overflow_button)
+    public void showOverflow() {
+        if (overflowListener != null) {
+            overflowListener.onOverflow(overflowButton);
+        }
     }
 
     public void setOverflowListener(OverflowListener overflowListener) {
         this.overflowListener = overflowListener;
+    }
+
+    public void setEngagementClickListener(CardEngagementClickListener overflowListener) {
+        this.clickListener = overflowListener;
     }
 
     public void setHeaderText(SpannableString headerString) {
@@ -186,4 +189,9 @@ public class StreamItemViewHolder {
         void onOverflow(View overflowButton);
     }
 
+    public interface CardEngagementClickListener {
+        void onLikeClick(View likeButton);
+
+        void onRepostClick(View repostButton);
+    }
 }

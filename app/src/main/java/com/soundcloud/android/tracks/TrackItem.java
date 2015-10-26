@@ -96,6 +96,10 @@ public class TrackItem extends PlayableItem {
         return isPlaying;
     }
 
+    public boolean hasPlayCount() {
+        return getPlayCount() > 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof TrackItem && ((TrackItem) o).source.equals(this.source);
