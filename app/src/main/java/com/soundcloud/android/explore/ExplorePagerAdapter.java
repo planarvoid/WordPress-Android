@@ -48,11 +48,11 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case TAB_GENRES:
-                return resources.getString(R.string.explore_genres);
+                return resources.getString(R.string.explore_genres).toUpperCase();
             case TAB_TRENDING_MUSIC:
-                return resources.getString(R.string.explore_category_trending_music);
+                return resources.getString(R.string.explore_category_trending_music).toUpperCase();
             case TAB_TRENDING_AUDIO:
-                return resources.getString(R.string.explore_category_trending_audio);
+                return resources.getString(R.string.explore_category_trending_audio).toUpperCase();
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }

@@ -20,6 +20,6 @@ public class ProfileActivity extends ScActivity {
 
     @Override
     protected void setActivityContentView() {
-        baseLayoutHelper.createActionBarLayout(this, R.layout.new_profile);
+        baseLayoutHelper.createActionBarLayout(this, R.layout.profile);
     }
 }

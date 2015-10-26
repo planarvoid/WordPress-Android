@@ -1,8 +1,7 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,40 +9,32 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.view.SlidingTabLayout;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TabbedSearchFragmentTest {
+public class TabbedSearchFragmentTest extends AndroidUnitTest {
 
     private TabbedSearchFragment fragment;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private View mockLayout;
-    @Mock
-    private SlidingTabLayout mockTabIndicator;
-    @Mock
-    private ViewPager mockViewPager;
+    @Mock private View mockLayout;
+    @Mock private TabLayout mockTabLayout;
+    @Mock private ViewPager mockViewPager;
 
     @Before
     public void setUp() throws Exception {
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
-        when(mockLayout.findViewById(R.id.sliding_tabs)).thenReturn(mockTabIndicator);
+        when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
 
-        fragment = new TabbedSearchFragment(eventBus, Robolectric.application.getResources());
-        Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
+        fragment = new TabbedSearchFragment(eventBus, resources());
     }
 
     @Test
@@ -51,7 +42,7 @@ public class TabbedSearchFragmentTest {
         fragment.setArguments(new Bundle());
 
         fragment.onViewCreated(mockLayout, null);
-        verify(mockTabIndicator).setOnPageChangeListener(isA(TabbedSearchFragment.SearchPagerScreenListener.class));
+        verify(mockViewPager).addOnPageChangeListener(isA(TabbedSearchFragment.SearchPagerScreenListener.class));
     }
 
     @Test
@@ -59,7 +50,7 @@ public class TabbedSearchFragmentTest {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(0);
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:everything");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("search:everything");
     }
 
     @Test
@@ -67,7 +58,7 @@ public class TabbedSearchFragmentTest {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(1);
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:tracks");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("search:tracks");
     }
 
     @Test
@@ -75,7 +66,7 @@ public class TabbedSearchFragmentTest {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(2);
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:playlists");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("search:playlists");
     }
 
     @Test
@@ -83,6 +74,7 @@ public class TabbedSearchFragmentTest {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(3);
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:people");
+        assertThat(event.get(ScreenEvent.KEY_SCREEN)).isEqualTo("search:people");
     }
+
 }

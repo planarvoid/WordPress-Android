@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.Tabs;
 
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -97,8 +97,8 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public SlidingTabs toSlidingTabs() {
-        return new SlidingTabs(this);
+    public Tabs toTabs() {
+        return new Tabs(this);
     }
 
     @Override

@@ -30,6 +30,24 @@
         <item name="colorAccent">@color/ak_sc_orange</item>
     </style>
 
+    <style name="TabsTheme" parent="Widget.Design.TabLayout">
+        <item name="tabSelectedTextColor">?android:colorAccent</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:elevation">@dimen/appbar_elevation</item>
+    </style>
+
+    <style name="TabsTheme.Fixed">
+        <item name="tabPaddingStart">4dp</item>
+        <item name="tabPaddingEnd">4dp</item>
+        <item name="tabMode">fixed</item>
+    </style>
+
+    <style name="TabsTheme.Scrollable">
+        <item name="tabPaddingStart">24dp</item>
+        <item name="tabPaddingEnd">24dp</item>
+        <item name="tabMode">scrollable</item>
+    </style>
+
     <style name="SearchView.SoundCloud" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@drawable/ic_search</item>
     </style>
