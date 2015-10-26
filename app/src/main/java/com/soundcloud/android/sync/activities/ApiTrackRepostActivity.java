@@ -7,16 +7,16 @@ import com.soundcloud.android.api.model.ApiUser;
 
 import java.util.Date;
 
-public class ApiTrackRepost {
+public class ApiTrackRepostActivity {
 
     private final ApiTrack track;
     private final ApiUser reposter;
     private final Date createdAt;
 
     @JsonCreator
-    public ApiTrackRepost(@JsonProperty("track") ApiTrack track,
-                          @JsonProperty("user") ApiUser reposter,
-                          @JsonProperty("created_at") Date createdAt) {
+    public ApiTrackRepostActivity(@JsonProperty("track") ApiTrack track,
+                                  @JsonProperty("user") ApiUser reposter,
+                                  @JsonProperty("created_at") Date createdAt) {
         this.track = track;
         this.reposter = reposter;
         this.createdAt = createdAt;

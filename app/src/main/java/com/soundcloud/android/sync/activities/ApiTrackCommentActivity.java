@@ -7,16 +7,16 @@ import com.soundcloud.android.comments.ApiComment;
 
 import java.util.Date;
 
-public class ApiTrackComment {
+public class ApiTrackCommentActivity {
 
     private final ApiTrack track;
     private final ApiComment comment;
     private final Date createdAt;
 
     @JsonCreator
-    public ApiTrackComment(@JsonProperty("track") ApiTrack track,
-                           @JsonProperty("comment") ApiComment comment,
-                           @JsonProperty("created_at") Date createdAt) {
+    public ApiTrackCommentActivity(@JsonProperty("track") ApiTrack track,
+                                   @JsonProperty("comment") ApiComment comment,
+                                   @JsonProperty("created_at") Date createdAt) {
         this.track = track;
         this.comment = comment;
         this.createdAt = createdAt;

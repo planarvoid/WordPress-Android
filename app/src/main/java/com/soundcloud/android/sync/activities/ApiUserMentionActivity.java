@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 
 import java.util.Date;
 
-public class ApiUserMention {
+public class ApiUserMentionActivity {
 
     private final Urn commentUrn;
     private final ApiTrack track;
@@ -18,11 +18,11 @@ public class ApiUserMention {
     private final Date createdAt;
 
     @JsonCreator
-    public ApiUserMention(@JsonProperty("target_urn") Urn commentUrn,
-                          @JsonProperty("track") ApiTrack track,
-                          @JsonProperty("comment") ApiComment comment,
-                          @JsonProperty("user") ApiUser user,
-                          @JsonProperty("created_at") Date createdAt) {
+    public ApiUserMentionActivity(@JsonProperty("target_urn") Urn commentUrn,
+                                  @JsonProperty("track") ApiTrack track,
+                                  @JsonProperty("comment") ApiComment comment,
+                                  @JsonProperty("user") ApiUser user,
+                                  @JsonProperty("created_at") Date createdAt) {
         this.commentUrn = commentUrn;
         this.track = track;
         this.comment = comment;

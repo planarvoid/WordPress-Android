@@ -5,22 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ApiActivityItem {
 
-    private final ApiTrackLike trackLike;
-    private final ApiTrackRepost trackRepost;
-    private final ApiTrackComment trackComment;
-    private final ApiPlaylistLike playlistLike;
-    private final ApiPlaylistRepost playlistRepost;
-    private final ApiUserFollow userFollow;
-    private final ApiUserMention userMention;
+    private final ApiTrackLikeActivity trackLike;
+    private final ApiTrackRepostActivity trackRepost;
+    private final ApiTrackCommentActivity trackComment;
+    private final ApiPlaylistLikeActivity playlistLike;
+    private final ApiPlaylistRepostActivity playlistRepost;
+    private final ApiUserFollowActivity userFollow;
+    private final ApiUserMentionActivity userMention;
 
     @JsonCreator
-    public ApiActivityItem(@JsonProperty("track_like") ApiTrackLike trackLike,
-                           @JsonProperty("track_repost") ApiTrackRepost trackRepost,
-                           @JsonProperty("track_comment") ApiTrackComment trackComment,
-                           @JsonProperty("playlist_like") ApiPlaylistLike playlistLike,
-                           @JsonProperty("playlist_repost") ApiPlaylistRepost playlistRepost,
-                           @JsonProperty("user_follow") ApiUserFollow userFollow,
-                           @JsonProperty("user_mention") ApiUserMention userMention) {
+    public ApiActivityItem(@JsonProperty("track_like") ApiTrackLikeActivity trackLike,
+                           @JsonProperty("track_repost") ApiTrackRepostActivity trackRepost,
+                           @JsonProperty("track_comment") ApiTrackCommentActivity trackComment,
+                           @JsonProperty("playlist_like") ApiPlaylistLikeActivity playlistLike,
+                           @JsonProperty("playlist_repost") ApiPlaylistRepostActivity playlistRepost,
+                           @JsonProperty("user_follow") ApiUserFollowActivity userFollow,
+                           @JsonProperty("user_mention") ApiUserMentionActivity userMention) {
         this.trackLike = trackLike;
         this.trackRepost = trackRepost;
         this.trackComment = trackComment;
@@ -30,31 +30,31 @@ public class ApiActivityItem {
         this.userMention = userMention;
     }
 
-    public ApiTrackLike getTrackLike() {
+    public ApiTrackLikeActivity getTrackLike() {
         return trackLike;
     }
 
-    public ApiTrackRepost getTrackRepost() {
+    public ApiTrackRepostActivity getTrackRepost() {
         return trackRepost;
     }
 
-    public ApiTrackComment getTrackComment() {
+    public ApiTrackCommentActivity getTrackComment() {
         return trackComment;
     }
 
-    public ApiPlaylistLike getPlaylistLike() {
+    public ApiPlaylistLikeActivity getPlaylistLike() {
         return playlistLike;
     }
 
-    public ApiPlaylistRepost getPlaylistRepost() {
+    public ApiPlaylistRepostActivity getPlaylistRepost() {
         return playlistRepost;
     }
 
-    public ApiUserFollow getUserFollow() {
+    public ApiUserFollowActivity getUserFollow() {
         return userFollow;
     }
 
-    public ApiUserMention getUserMention() {
+    public ApiUserMentionActivity getUserMention() {
         return userMention;
     }
 }

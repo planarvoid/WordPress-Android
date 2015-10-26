@@ -7,18 +7,18 @@ import com.soundcloud.android.api.model.ApiUser;
 
 import java.util.Date;
 
-public class ApiPlaylistLike {
+public class ApiPlaylistRepostActivity {
 
     private final ApiPlaylist playlist;
-    private final ApiUser user;
+    private final ApiUser reposter;
     private final Date createdAt;
 
     @JsonCreator
-    public ApiPlaylistLike(@JsonProperty("playlist") ApiPlaylist playlist,
-                           @JsonProperty("user") ApiUser user,
-                           @JsonProperty("created_at") Date createdAt) {
+    public ApiPlaylistRepostActivity(@JsonProperty("playlist") ApiPlaylist playlist,
+                                     @JsonProperty("user") ApiUser reposter,
+                                     @JsonProperty("created_at") Date createdAt) {
         this.playlist = playlist;
-        this.user = user;
+        this.reposter = reposter;
         this.createdAt = createdAt;
     }
 
@@ -26,11 +26,12 @@ public class ApiPlaylistLike {
         return playlist;
     }
 
-    public ApiUser getUser() {
-        return user;
+    public ApiUser getReposter() {
+        return reposter;
     }
 
     public Date getCreatedAt() {
         return createdAt;
     }
+
 }

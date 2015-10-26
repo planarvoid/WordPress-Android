@@ -2,28 +2,28 @@ package com.soundcloud.android.sync.activities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 
 import java.util.Date;
 
-public class ApiTrackLike {
+public class ApiPlaylistLikeActivity {
 
-    private final ApiTrack track;
+    private final ApiPlaylist playlist;
     private final ApiUser user;
     private final Date createdAt;
 
     @JsonCreator
-    public ApiTrackLike(@JsonProperty("track") ApiTrack track,
-                        @JsonProperty("user") ApiUser user,
-                        @JsonProperty("created_at") Date createdAt) {
-        this.track = track;
+    public ApiPlaylistLikeActivity(@JsonProperty("playlist") ApiPlaylist playlist,
+                                   @JsonProperty("user") ApiUser user,
+                                   @JsonProperty("created_at") Date createdAt) {
+        this.playlist = playlist;
         this.user = user;
         this.createdAt = createdAt;
     }
 
-    public ApiTrack getTrack() {
-        return track;
+    public ApiPlaylist getPlaylist() {
+        return playlist;
     }
 
     public ApiUser getUser() {
