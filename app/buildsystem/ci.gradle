@@ -21,7 +21,7 @@ task renameApk << {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
+staticAnalysis.dependsOn("assembleProd${project.buildType.capitalize()}")
 
 task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
   description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
@@ -81,17 +81,16 @@ task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 assembleReleaseNoProguard.mustRunAfter('clean')
-staticAnalysis.dependsOn('assembleReleaseNoProguard')
 
 task buildReleaseCI(dependsOn: ['clean', 'updateVersion', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
-assembleRelease.dependsOn('updateVersion')
+assembleRelease.mustRunAfter('updateVersion')
 
 task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
   description = 'Deploy Release build to playstore and github.'
 }
-rolloutOnePercent.dependsOn('uploadGithubRelease')
+rolloutOnePercent.mustRunAfter('uploadGithubRelease')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
