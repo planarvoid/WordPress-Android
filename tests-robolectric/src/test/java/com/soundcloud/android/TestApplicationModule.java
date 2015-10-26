@@ -30,6 +30,7 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.SyncCleanupAction;
+import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.entities.EntitySyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncModule;
@@ -312,6 +313,11 @@ public class TestApplicationModule {
     @Provides
     SoundStreamSyncer provideSoundStreamSyncer() {
         return mock(SoundStreamSyncer.class);
+    }
+
+    @Provides
+    ActivitiesSyncer provideActivitiesSyncer() {
+        return mock(ActivitiesSyncer.class);
     }
 
     @Provides
