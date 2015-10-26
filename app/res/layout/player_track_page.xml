@@ -68,7 +68,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1" />
 
-        <Button
+        <ImageButton
             android:id="@+id/track_page_share"
             style="@style/PlayerShareBase.PlayerShare"
             android:visibility="gone" />

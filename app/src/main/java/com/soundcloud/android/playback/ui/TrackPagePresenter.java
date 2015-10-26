@@ -325,6 +325,24 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         return animation;
     }
 
+    private void hideShareButton(View shareButton, boolean isLiked) {
+        Context context = shareButton.getContext();
+        boolean visibleOnLoad = shareButtonExperiment.isVisibleOnLoad(isLiked);
+
+        if(shareButton.isShown()) {
+            if(!visibleOnLoad) {
+                shareButton.setVisibility(View.GONE);
+                shareButton.startAnimation(hideAnimation(context));
+            }
+        }
+    }
+
+    private Animation hideAnimation(Context context) {
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_fade_out);
+        animation.setInterpolator(new DecelerateInterpolator(2.0f));
+        return animation;
+    }
+
     private void setLikeCount(TrackPageHolder holder, int count) {
         holder.likeToggle.setText(count > 0 ? numberFormatter.format(count) : Strings.EMPTY);
     }
@@ -580,6 +598,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (isLiked(view)) {
                     revealShareButton(holder.shareButton);
+                } else {
+                    hideShareButton(holder.shareButton, false);
                 }
             }
         });
