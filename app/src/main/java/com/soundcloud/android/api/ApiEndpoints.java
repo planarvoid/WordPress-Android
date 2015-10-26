@@ -72,6 +72,10 @@ public enum ApiEndpoints {
     STATION("/stations/%s/station_and_tracks"),
     STATIONS("/stations"),
 
+    // timeline features
+    STREAM("/stream"),
+    ACTIVITIES("/activities"),
+
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
@@ -79,7 +83,6 @@ public enum ApiEndpoints {
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
-    STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
 
