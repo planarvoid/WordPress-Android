@@ -14,7 +14,7 @@ public class TimelineSyncStorage {
     private static final String PREFS_NEXT_URL = "next_url";
     private static final String PREFS_FUTURE_URL = "future_url";
 
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public TimelineSyncStorage(SharedPreferences prefs) {
         this.prefs = prefs;
