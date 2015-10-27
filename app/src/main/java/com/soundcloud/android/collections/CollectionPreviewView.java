@@ -22,11 +22,11 @@ import java.util.List;
 public class CollectionPreviewView extends FrameLayout {
     @VisibleForTesting
     static final int EXTRA_HOLDER_VIEWS = 1;
-    static final int MAX_IMAGES = 3;
 
     @Inject ImageOperations imageOperations;
     private ViewGroup holder;
     private LayoutInflater inflater;
+    private int numThumbnails;
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -53,32 +53,47 @@ public class CollectionPreviewView extends FrameLayout {
         holder = (ViewGroup) findViewById(R.id.holder);
     }
 
-    void populateArtwork(List<Urn> entities) {
-        final int imagesToDisplay = Math.min(MAX_IMAGES, entities.size());
+    public void refreshThumbnails(List<Urn> entities, int numThumbnails) {
+        final int numEmptyThumbnails = Math.max(numThumbnails - entities.size(), 0);
+        this.numThumbnails = numThumbnails;
 
-        for (int i = 0; i < imagesToDisplay; i++) {
-            if (needsViewForIndex(i)) {
-                inflateImageViewIntoHolder();
-            }
-            ImageView icon = (ImageView) holder.getChildAt(i + EXTRA_HOLDER_VIEWS);
-            imageOperations.displayWithPlaceholder(entities.get(i), ApiImageSize.getListItemImageSize(holder.getResources()), icon);
+        clearThumbnails();
+        populateEmptyThumbnails(numEmptyThumbnails);
+        populateArtwork(entities, numEmptyThumbnails);
+    }
+
+    void populateEmptyThumbnails(int numEmptyThumbnails) {
+        for (int i = 0; i < numEmptyThumbnails; i++) {
+            inflateThumbnailViewIntoHolder();
         }
-
-        removeExtraImageViews(imagesToDisplay);
     }
 
-    private boolean needsViewForIndex(int i) {
-        return holder.getChildCount() == i + EXTRA_HOLDER_VIEWS;
+    void populateArtwork(List<Urn> entities, int numEmptyThumbnails) {
+        final int numImages = numThumbnails - numEmptyThumbnails;
+
+        for (int j = 0; j < numImages; j++) {
+            inflateThumbnailViewIntoHolder();
+
+            ImageView thumbnail = (ImageView) holder.getChildAt(j + numEmptyThumbnails + EXTRA_HOLDER_VIEWS);
+            imageOperations.displayWithPlaceholder(entities.get(j), ApiImageSize.getListItemImageSize(holder.getResources()), thumbnail);
+        }
     }
 
-    private void inflateImageViewIntoHolder() {
+    private void inflateThumbnailViewIntoHolder() {
         inflater.inflate(R.layout.collections_preview_item_icon_sm, holder);
+
+        if (isLastThumbnailView()) {
+            holder.getChildAt(holder.getChildCount() - 1).setBackgroundResource(R.drawable.bg_collection_empty_slot_end);
+        }
     }
 
-    private void removeExtraImageViews(int displayedImages) {
-        int extraPosition = displayedImages + EXTRA_HOLDER_VIEWS;
-        while (extraPosition < holder.getChildCount()){
-            holder.removeViewAt(extraPosition);
+    private boolean isLastThumbnailView() {
+        return holder.getChildCount() - EXTRA_HOLDER_VIEWS == numThumbnails;
+    }
+
+    void clearThumbnails() {
+        while (EXTRA_HOLDER_VIEWS < holder.getChildCount()){
+            holder.removeViewAt(EXTRA_HOLDER_VIEWS);
         }
     }
 }

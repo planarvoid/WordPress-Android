@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import java.util.List;
 class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
 
     private final Navigator navigator;
+    private final Resources resources;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
         @Override
@@ -32,8 +34,9 @@ class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
     };
 
     @Inject
-    public CollectionsPreviewRenderer(Navigator navigator) {
+    public CollectionsPreviewRenderer(Navigator navigator, Resources resources) {
         this.navigator = navigator;
+        this.resources = resources;
     }
 
     @Override
@@ -60,11 +63,6 @@ class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
     }
 
     private void bindPreviewView(List<Urn> entities, CollectionPreviewView previewView) {
-        if (entities.isEmpty()) {
-            previewView.setVisibility(View.GONE);
-        } else {
-            previewView.setVisibility(View.VISIBLE);
-            previewView.populateArtwork(entities);
-        }
+        previewView.refreshThumbnails(entities, resources.getInteger(R.integer.collection_preview_thumbnail_count));
     }
 }

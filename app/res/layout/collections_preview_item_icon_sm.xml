@@ -4,4 +4,5 @@
     style="@style/Collections.CollectionPreviewArtwork"
     android:layout_width="@dimen/liked_track_icon_dimension"
     android:layout_height="@dimen/liked_track_icon_dimension"
-    tools:showIn="@layout/collection_liked_tracks_item" />
+    tools:showIn="@layout/collection_liked_tracks_item"
+    android:background="@drawable/bg_collection_empty_slot" />
