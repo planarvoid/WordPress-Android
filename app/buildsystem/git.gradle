@@ -1,17 +1,16 @@
-// TODO: make this nice'n'purrrty
 task commitVersionBump(type: Exec) {
   description = 'Commits/Pushes versionCode and versionName bump to Github.'
-  def message = "\'VersionCode bumped to: \'"
+  def message = "\'VersionCode bumped to: ${project.('followUpBetaVersionCode')}\'"
   commandLine 'git', 'commit', '-a', '-m', message
 }
 commitVersionBump.finalizedBy('gitPush')
 
 task gitPush(type: Exec, dependsOn: ['gitPull']) {
   description = 'Pushes any staged commits to github repo specifed by GIT_BRANCH environment variable.'
-  commandLine 'git', 'push', 'origin', project.ext.gitBranch
+  commandLine 'git', 'push', 'origin', project.('gitBranch')
 }
 
 task gitPull(type: Exec) {
   description = 'Checkout most recent files from github repo specifed by GIT_BRANCH environment variable.'
-  commandLine 'git', 'pull', '--rebase', 'origin', project.ext.gitBranch
+  commandLine 'git', 'pull', '--rebase', 'origin', project.('gitBranch')
 }
