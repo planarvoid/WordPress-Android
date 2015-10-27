@@ -21,14 +21,14 @@ task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${proj
 
 task assembleDebugWrapper(dependsOn: 'assembleProdDebug')
 
-task buildDebugCI(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper', 'staticAnalysis']) {
+task buildDebug(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 assembleDebugWrapper.mustRunAfter('versionizeDebug')
 
 task assembleEnd2endWrapper(dependsOn: 'assembleProdEnd2end')
 
-task buildEnd2endCI(dependsOn: ['clean', 'versionizeDebug','assembleEnd2endWrapper']) {
+task buildEnd2end(dependsOn: ['clean', 'versionizeDebug','assembleEnd2endWrapper']) {
   description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
@@ -41,7 +41,7 @@ assembleEnd2endWrapper.mustRunAfter('versionizeDebug')
 task assembleAlphaWrapper(dependsOn: 'assembleProdAlpha')
 
 task buildAlpha(dependsOn: ['clean', 'versionizeAlpha', 'assembleAlphaWrapper']) {
-  description = 'Assembles Alpha package.'
+  description = 'Assembles Alpha package for CI.'
 }
 assembleAlphaWrapper.mustRunAfter('versionizeAlpha')
 
@@ -55,7 +55,7 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
 
 task assembleBetaWrapper(dependsOn: 'assembleProdBeta')
 
-task buildBetaCI(dependsOn: ['clean', 'versionizeBeta', 'assembleBetaWrapper']) {
+task buildBeta(dependsOn: ['clean', 'versionizeBeta', 'assembleBetaWrapper']) {
   description = 'Assembles Beta build for CI.'
 }
 assembleBetaWrapper.mustRunAfter('versionizeBeta')
@@ -81,14 +81,14 @@ uploadFollowUpBeta.mustRunAfter('uploadGithubFollowUpBeta')
 
 task assembleReleaseNoProguardWrapper(dependsOn: 'assembleProdReleaseNoProguard')
 
-task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguardWrapper', 'staticAnalysis']) {
+task buildReleaseNoProguard(dependsOn: ['clean', 'assembleReleaseNoProguardWrapper', 'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 assembleReleaseNoProguard.mustRunAfter('clean')
 
 task assembleReleaseWrapper(dependsOn: 'assembleProdRelease')
 
-task buildReleaseCI(dependsOn: ['clean', 'versionizeRelease', 'assembleReleaseWrapper']) {
+task buildRelease(dependsOn: ['clean', 'versionizeRelease', 'assembleReleaseWrapper']) {
   description = 'Assembles Release build for CI.'
 }
 assembleReleaseWrapper.mustRunAfter('versionizeRelease')
@@ -99,7 +99,7 @@ task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
 rolloutOnePercent.mustRunAfter('uploadGithubRelease')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
-  description = 'Assembles Release for Non Google Play Stores.'
+  description = 'Assembles Release for Non Google Play Stores for CI.'
 }
 
 // *********************************************************************************************************************
