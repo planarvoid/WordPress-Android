@@ -620,6 +620,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.hideViews(holder.hideOnAdViews);
+                    holder.shareButton.setVisibility(View.GONE);
+                    castConnectionHelper.removeMediaRouterButton(holder.mediaRouteButton);
                 }
             }
 
@@ -631,6 +633,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.showViews(holder.hideOnAdViews);
+                    hideShareButton(holder.shareButton, isLiked(holder.likeToggle));
+                    castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
                 }
             }
         };
@@ -700,7 +704,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, mediaRouteButton, castDeviceName, shareButton);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, castDeviceName);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 
