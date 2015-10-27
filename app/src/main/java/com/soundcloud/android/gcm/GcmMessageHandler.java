@@ -65,14 +65,9 @@ public class GcmMessageHandler {
             final String decryptedString = gcmDecryptor.decrypt(payload);
             Log.i(TAG, "Received SC Message : " + decryptedString);
             final JSONObject jsonPayload = new JSONObject(decryptedString);
-            if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) &&
-                    isStopAction(jsonPayload) &&
-                    isLoggedInUser(jsonPayload) &&
-                    playSessionStateProvider.isPlaying()) {
-
+            if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload) && playSessionStateProvider.isPlaying()) {
                 // TODO : tracking event here
-
-                if (!jsonPayload.optBoolean("stealth")) {
+                if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) && !jsonPayload.optBoolean("stealth")) {
                     playSessionController.pause();
                     Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
                 }
