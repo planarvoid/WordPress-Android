@@ -90,11 +90,10 @@ public class StationsOperations {
         };
     }
 
-    public Observable<ChangeResult> saveRecentlyPlayedStation(Urn stationUrn) {
-        return stationsStorage
-                .saveUnsyncedRecentlyPlayedStation(stationUrn)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(scheduler);
+    public ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {
+        final ChangeResult result = stationsStorage.saveUnsyncedRecentlyPlayedStation(stationUrn);
+        syncInitiator.requestSystemSync();
+        return result;
     }
 
     public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {
@@ -138,10 +137,8 @@ public class StationsOperations {
                 .doOnNext(storeTracks);
     }
 
-    Observable<ChangeResult> saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
-        return stationsStorage
-                .saveLastPlayedTrackPosition(collectionUrn, position)
-                .subscribeOn(scheduler);
+    ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
+        return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
     }
 
     public Observable<StationRecord> collection(final int type) {

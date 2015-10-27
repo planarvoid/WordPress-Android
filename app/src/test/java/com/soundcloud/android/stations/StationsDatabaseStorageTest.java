@@ -91,14 +91,14 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
         final int position = 20;
         final Urn station = testFixtures().insertStation(0).getUrn();
 
-        storage.saveLastPlayedTrackPosition(station, position).subscribe();
+        storage.saveLastPlayedTrackPosition(station, position);
 
         databaseAssertions().assertStationPlayQueuePosition(station, position);
     }
 
     @Test
     public void shouldSaveRecentlyPlayedStation() {
-        storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
+        storage.saveUnsyncedRecentlyPlayedStation(stationUrn);
 
         databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
     }
@@ -107,7 +107,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
     public void shouldUpdateRecentlyPlayedStartedAtWhenStationPlayedAgain() {
         final int previousStartedAt = 0;
         testFixtures().insertRecentlyPlayedStationAtPosition(stationUrn, previousStartedAt);
-        storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
+        storage.saveUnsyncedRecentlyPlayedStation(stationUrn);
 
         databaseAssertions().assertRecentStationsContains(stationUrn, previousStartedAt, 0);
         databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);

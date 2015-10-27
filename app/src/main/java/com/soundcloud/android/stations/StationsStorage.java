@@ -148,16 +148,16 @@ class StationsStorage {
                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
 
-    Observable<ChangeResult> saveLastPlayedTrackPosition(Urn stationUrn, int position) {
-        return propellerRx.update(
+    ChangeResult saveLastPlayedTrackPosition(Urn stationUrn, int position) {
+        return propellerDatabase.update(
                 Stations.TABLE,
                 ContentValuesBuilder.values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get(),
                 filter().whereEq(Stations.STATION_URN, stationUrn.toString())
         );
     }
 
-    Observable<ChangeResult> saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
-        return propellerRx.upsert(
+    ChangeResult saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
+        return propellerDatabase.upsert(
                 StationsCollections.TABLE,
                 ContentValuesBuilder
                         .values()

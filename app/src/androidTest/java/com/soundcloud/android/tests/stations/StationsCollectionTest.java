@@ -68,7 +68,9 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         final TrackItemElement track = playlistDetailsScreen.getTrack(1);
         final String title = track.getTitle();
 
-        track.clickOverflowButton().clickStartStation().pressBackToCollapse();
+        final VisualPlayerElement player = track.clickOverflowButton().clickStartStation();
+        assertTrue(waiter.waitForPlaybackToBePlaying());
+        player.pressBackToCollapse();
         solo.goBack();
 
         return title;
