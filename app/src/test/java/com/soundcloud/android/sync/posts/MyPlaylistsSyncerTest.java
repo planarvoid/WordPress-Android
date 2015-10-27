@@ -2,6 +2,7 @@ package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -32,6 +33,7 @@ import android.support.v4.util.ArrayMap;
 import android.util.Pair;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +58,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnChangedResultIfPostsSyncerReturnsTrue() throws Exception {
-        when(postsSyncer.call()).thenReturn(true);
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
         final ApiSyncResult syncResult = syncer.syncContent(URI, null);
         assertThat(syncResult.change).isEqualTo(ApiSyncResult.CHANGED);
         assertThat(syncResult.uri).isEqualTo(URI);
@@ -64,7 +66,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnUnchangedResultIfPostsSyncerReturnsTrue() throws Exception {
-        when(postsSyncer.call()).thenReturn(false);
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(false);
         final ApiSyncResult syncResult = syncer.syncContent(URI, null);
         assertThat(syncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
         assertThat(syncResult.uri).isEqualTo(URI);
@@ -105,6 +107,15 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_CREATE_PLAYLIST);
         assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(newPlaylist.getTitle());
         assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_URN)).isEqualTo(newPlaylist.getUrn().toString());
+    }
+
+    @Test
+    public void shouldCallSyncerWithListOfUrnsPosted() throws Exception {
+        final ApiPlaylist newPlaylist = setupNewPlaylistCreation();
+
+        syncer.syncContent(URI, null);
+
+        verify(postsSyncer).call(Collections.singletonList(newPlaylist.getUrn()));
     }
 
     private ApiPlaylist setupNewPlaylistCreation() throws Exception {
