@@ -44,17 +44,17 @@ public class ToolBarElement extends Element {
     }
 
     public ActivitiesScreen clickActivityOverflowButton() {
-        clickOverflowButton("Activity");
+        clickOverflowButton(testDriver.getString(R.string.side_menu_notifications));
         return new ActivitiesScreen(testDriver);
     }
 
     public SettingsScreen clickSettingsOverflowButton() {
-        clickOverflowButton("Settings");
+        clickOverflowButton(testDriver.getString(R.string.title_settings));
         return new SettingsScreen(testDriver);
     }
 
     public RecordScreen clickRecordButton() {
-        clickOverflowButton("Record");
+        clickOverflowButton(testDriver.getString(R.string.side_menu_record));
         return new RecordScreen(testDriver);
     }
 
@@ -71,7 +71,7 @@ public class ToolBarElement extends Element {
     }
 
     public String getSearchQuery() {
-        return searchInputField().getText().toString();
+        return searchInputField().getText();
     }
 
     public void setSearchQuery(final String query) {
