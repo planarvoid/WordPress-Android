@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.model.StationRecord;
@@ -25,6 +26,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -40,10 +42,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment>
         implements CastConnectionHelper.OnConnectionChangeListener {
@@ -52,6 +56,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
     private static final int TRACK_CACHE_SIZE = 10;
+    private static final int PLAYBACK_STATE_CHANGE_DEBOUNCE_RATE = 150;
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
@@ -61,6 +66,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
+    private final Scheduler scheduler;
     private final TrackPageRecycler trackPageRecycler;
 
     private final Map<View, TrackPageData> trackByViews = new HashMap<>(TRACK_VIEW_POOL_SIZE);
@@ -110,7 +116,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          StationsOperations stationsOperations, TrackPagePresenter trackPagePresenter,
                          AdPagePresenter adPagePresenter,
                          CastConnectionHelper castConnectionHelper,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
@@ -119,6 +126,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
+        this.scheduler = scheduler;
 
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
@@ -197,9 +205,12 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private void setupPlaybackStateSubscriber() {
-        foregroundSubscription.add(eventBus
-                .subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
-                        new PlayerPagerPresenter.PlaybackStateSubscriber()));
+        foregroundSubscription.add(
+                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                        // Debounced so the player doesn't flicker frenetically between states
+                        .debounce(PLAYBACK_STATE_CHANGE_DEBOUNCE_RATE, TimeUnit.MILLISECONDS, scheduler)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PlayerPagerPresenter.PlaybackStateSubscriber()));
     }
 
     private void setupPlaybackProgressSubscriber() {
@@ -279,16 +290,16 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         if (trackPageRecycler.hasExistingPage(urn)){
             view = trackPageRecycler.removePageByUrn(urn);
             trackByViews.put(view, trackPageData);
-            if (isForeground){
-                trackPagePresenter.onForeground(view);
-            } else {
+            if (!isForeground){
                 trackPagePresenter.onBackground(view);
             }
         } else {
             view = trackPageRecycler.getRecycledPage();
-            bindView(position, view);
+            final PlayerPagePresenter presenter = pagePresenter(trackPageData);
+            presenter.clearItemView(view);
         }
 
+        bindView(position, view);
         onTrackPageSet(view, position);
         return view;
     }
@@ -307,7 +318,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         trackByViews.put(view, trackPageData);
 
         final PlayerPagePresenter presenter = pagePresenter(trackPageData);
-        presenter.clearItemView(view);
 
         if (isForeground){
             // this will attach the cast button
