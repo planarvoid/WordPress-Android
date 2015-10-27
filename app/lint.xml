@@ -11,6 +11,8 @@
         <ignore path="**/com.google.auto.factory/**/*"/>
         <ignore regexp=".*okio.*" />
     </issue>
+
+    <issue id="PrivateResource" severity="informational"/>
      
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
