@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
@@ -10,6 +9,7 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItemRenderer.OnFacebookInvitesClickListener;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -104,7 +104,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         configureEmptyView();
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }

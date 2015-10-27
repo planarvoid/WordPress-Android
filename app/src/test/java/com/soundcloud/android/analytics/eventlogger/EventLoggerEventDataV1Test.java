@@ -41,4 +41,13 @@ public class EventLoggerEventDataV1Test extends AndroidUnitTest {
         assertThat(data.payload.get(EventLoggerParam.LOCAL_STORAGE_PLAYBACK)).isEqualTo(true);
     }
 
+    @Test
+    public void addsExperimentAsInteger() {
+        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345, "conn-type");
+
+        data.experiment("exp_android_listening", 12345);
+
+        assertThat(data.payload.get("exp_android_listening")).isEqualTo(12345);
+    }
+
 }

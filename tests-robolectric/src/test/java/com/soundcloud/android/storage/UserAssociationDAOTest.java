@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes;
 
+import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -78,43 +79,14 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     }
 
     @Test
-    public void shouldInsertFollower() {
-        PublicApiUser user = new PublicApiUser(1);
-        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWER, user);
-        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
-        getDAO().create(ua);
-
-        expect(Content.ME_FOLLOWERS).toHaveCount(1);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWER);
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, PublicApiUser.TYPE);
-    }
-
-    @Test
     public void shouldRemoveFollowing() {
         UserAssociation following = TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), UserAssociation.Type.FOLLOWING);
         TestHelper.insertAsUserAssociation(new PublicApiUser(123L), SoundAssociation.Type.FOLLOWER);
-        expect(Content.ME_FOLLOWERS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(2);
 
         expect(getDAO().delete(following)).toBeTrue();
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
-        expect(Content.ME_FOLLOWERS).toHaveCount(1);
-    }
-
-    @Test
-    public void shouldRemoveFollower() {
-        UserAssociation follower = TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), UserAssociation.Type.FOLLOWER);
-        TestHelper.insertAsUserAssociation(new PublicApiUser(123L), SoundAssociation.Type.FOLLOWING);
-        expect(Content.ME_FOLLOWERS).toHaveCount(1);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(2);
-
-        expect(getDAO().delete(follower)).toBeTrue();
-        expect(Content.ME_FOLLOWERS).toHaveCount(0);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
     }
 
     private void insertUser() {

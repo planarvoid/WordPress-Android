@@ -40,10 +40,6 @@
         <attr name="gradientEndColor" format="reference|color" />
     </declare-styleable>
 
-    <declare-styleable name="SlidingTabLayout">
-        <attr name="fixedTabs" format="boolean" />
-    </declare-styleable>
-
     <declare-styleable name="WaveformView">
         <attr name="progressAboveStart" format="color" />
         <attr name="progressAboveEnd" format="color" />

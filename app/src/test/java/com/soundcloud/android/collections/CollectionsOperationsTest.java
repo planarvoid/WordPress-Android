@@ -4,6 +4,7 @@ import static com.soundcloud.android.collections.CollectionsOperations.PLAYLIST_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -13,7 +14,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -94,7 +94,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         final RuntimeException exception = new RuntimeException("Test");
         when(loadLikedTrackUrnsCommand.toObservable()).thenReturn(Observable.<List<Urn>>error(exception));
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
-        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<Station>error(exception));
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 
@@ -107,7 +107,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         final RuntimeException exception = new RuntimeException("Test");
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
-        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<Station>error(exception));
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 

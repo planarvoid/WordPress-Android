@@ -108,7 +108,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
                         }
                     }
                 })
-                .setPositiveButton(R.string.cancel, null)
+                .setPositiveButton(R.string.btn_cancel, null)
                 .create();
     }
 

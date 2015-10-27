@@ -1,11 +1,12 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -56,11 +57,11 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
     };
 
-    private final Func2<CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
+    private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
         @Override
-        public State call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent, PlayerUIEvent playerUIEvent) {
+        public State call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
             return new State(adsOperations.isCurrentTrackAudioAd(),
-                    currentPlayQueueTrackEvent.getCurrentTrackUrn(),
+                    currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     playerUIEvent.getKind());
         }
     };
@@ -75,7 +76,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     public void onResume(AppCompatActivity activity) {
         subscription = Observable
                 .combineLatest(
-                        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK),
+                        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
                         combine)
                 .doOnNext(setAdHasBeenSeen)

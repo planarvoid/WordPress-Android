@@ -6,7 +6,7 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
-import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.Tabs;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -47,14 +47,14 @@ public class PlaylistsScreen extends Screen {
 
     //TODO: Wait for the tab to be displayed
     public PlaylistsScreen touchLikedPlaylistsTab() {
-        touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
+        touchTab(testDriver.getString(R.string.liked_playlists_tab));
         waiter.waitTwoSeconds();
         return this;
     }
 
     //TODO: Wait for the tab to be displayed
     public PlaylistsScreen touchPostedPlaylistsTab() {
-        touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
+        touchTab(testDriver.getString(R.string.your_playlists_tab));
         waiter.waitTwoSeconds();
         return this;
     }
@@ -96,7 +96,7 @@ public class PlaylistsScreen extends Screen {
         tabs().getTabWithText(tabText).click();
     }
 
-    private SlidingTabs tabs(){
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.sliding_tabs)).toSlidingTabs();
+    private Tabs tabs() {
+        return testDriver.findElement(With.id(com.soundcloud.android.R.id.tab_indicator)).toTabs();
     }
 }

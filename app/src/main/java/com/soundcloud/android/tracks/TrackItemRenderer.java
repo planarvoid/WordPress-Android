@@ -11,7 +11,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,7 +71,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemView.setDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
 
         showRelevantAdditionalInformation(trackItemView, track);
-        toggleReposterView(trackItemView, track);
 
         loadArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position);
@@ -97,24 +95,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                 itemView.getImage());
     }
 
-    private void toggleReposterView(TrackItemView itemView, TrackItem track) {
-        final Optional<String> optionalReposter = track.getReposter();
-        if (optionalReposter.isPresent()) {
-            itemView.showReposter(optionalReposter.get());
-        } else {
-            itemView.hideReposter();
-        }
-    }
-
     private void showRelevantAdditionalInformation(TrackItemView itemView, TrackItem track) {
         itemView.resetAdditionalInformation();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
-        } else if (track.getEntityUrn().equals(playingTrack)) {
+        } else if (track.isPlaying() || track.getEntityUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
         } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
             itemView.showUpsell();
-        } else if (featureOperations.isOfflineContentEnabled() && track.isCreatorOptOut()){
+        } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
         } else if (track.isPrivate()) {
             itemView.showPrivateIndicator();
@@ -126,10 +115,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void showPromoted(TrackItemView itemView, final PromotedTrackItem track) {
         final Context context = itemView.getContext();
         if (track.hasPromoter()) {
-            itemView.showPromotedTrack(context.getString(R.string.promoted_by_label, track.getPromoterName().get()));
+            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.getPromoterName().get()));
             itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
-            itemView.showPromotedTrack(context.getString(R.string.promoted_label));
+            itemView.showPromotedTrack(context.getString(R.string.promoted));
         }
     }
 
@@ -144,6 +133,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         return playCount > 0;
     }
 
+    @Deprecated // use isPlaying from trackItem
     public void setPlayingTrack(@NotNull Urn playingTrack) {
         this.playingTrack = playingTrack;
     }

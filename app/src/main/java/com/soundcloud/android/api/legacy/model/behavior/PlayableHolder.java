@@ -1,3 +1,3 @@
 package com.soundcloud.android.api.legacy.model.behavior;
 
-public interface PlayableHolder extends Creation, RelatesToPlayable {}
+public interface PlayableHolder extends RelatesToPlayable {}

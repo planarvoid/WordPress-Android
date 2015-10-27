@@ -2,6 +2,8 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -19,6 +21,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
@@ -28,6 +31,7 @@ public class PlayPublisher {
 
     private static final String TAG = "PlayPublisher";
 
+    private final Resources resources;
     private final GcmStorage gcmStorage;
     private final DateProvider dateProvider;
     private final EventBus eventBus;
@@ -45,10 +49,11 @@ public class PlayPublisher {
     private Func1<Player.StateTransition, Observable<ApiResponse>> toApiResponse = new Func1<Player.StateTransition, Observable<ApiResponse>>() {
         @Override
         public Observable<ApiResponse> call(Player.StateTransition stateTransition) {
+            final Payload payload = createPayload(stateTransition);
             final ApiRequest apiRequest = ApiRequest
                     .post(ApiEndpoints.PLAY_PUBLISH.path())
                     .forPublicApi()
-                    .withContent(createPayload(stateTransition))
+                    .withContent(payload)
                     .build();
 
             return apiClient.response(apiRequest).subscribeOn(scheduler);
@@ -56,8 +61,9 @@ public class PlayPublisher {
     };
 
     @Inject
-    public PlayPublisher(GcmStorage gcmStorage, CurrentDateProvider dateProvider, EventBus eventBus,
+    public PlayPublisher(Resources resources, GcmStorage gcmStorage, CurrentDateProvider dateProvider, EventBus eventBus,
                          @Named(HIGH_PRIORITY) Scheduler scheduler, ApiClientRx apiClient) {
+        this.resources = resources;
         this.gcmStorage = gcmStorage;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
@@ -74,7 +80,7 @@ public class PlayPublisher {
 
     @NonNull
     private Payload createPayload(Player.StateTransition stateTransition) {
-        return new Payload(
+        return new Payload(resources.getString(R.string.gcm_gateway_id),
                 gcmStorage.getToken(),
                 dateProvider.getCurrentTime(),
                 stateTransition.getTrackUrn());
@@ -89,12 +95,15 @@ public class PlayPublisher {
 
     @SuppressWarnings("unused")
     static class Payload {
-        public final String gatewayId = "android/prod"; // this may move to properties if its variable
+        @JsonProperty("gateway_id")
+        public final String gatewayId;
+        @JsonProperty("registration_id")
         public final String registrationId;
         public final long timestamp;
         public final Urn track;
 
-        Payload(String registrationId, long timestamp, Urn track) {
+        Payload(String gatewayId, String registrationId, long timestamp, Urn track) {
+            this.gatewayId = gatewayId;
             this.registrationId = registrationId;
             this.timestamp = timestamp;
             this.track = track;

@@ -12,7 +12,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -68,7 +67,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
 
         showTrackCount(itemView, playlist);
-        showReposter(itemView, playlist);
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
@@ -94,17 +92,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
     }
 
-    private void showReposter(View itemView, PlaylistItem playlist) {
-        final TextView reposterView = getTextView(itemView, R.id.reposter);
-        final Optional<String> optionalReposter = playlist.getReposter();
-        if (optionalReposter.isPresent()) {
-            reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(optionalReposter.get());
-        } else {
-            reposterView.setVisibility(View.GONE);
-        }
-    }
-
     private void showAdditionalInformation(View itemView, PlaylistItem playlist) {
         hideAllAdditionalInformation(itemView);
         if (playlist instanceof PromotedPlaylistItem) {
@@ -124,10 +111,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void showPromotedLabel(View itemView, PromotedPlaylistItem promoted) {
         if (promoted.hasPromoter()) {
-            String label = resources.getString(R.string.promoted_by_label, promoted.getPromoterName().get());
+            String label = resources.getString(R.string.promoted_by_promotorname, promoted.getPromoterName().get());
             setPromoterClickable(showPromotedLabel(itemView, label), promoted);
         } else {
-            showPromotedLabel(itemView, resources.getString(R.string.promoted_label));
+            showPromotedLabel(itemView, resources.getString(R.string.promoted));
         }
     }
 
@@ -177,7 +164,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         return likesCount > 0;
     }
 
-    private TextView getTextView(final View convertView, final int id) {
+    protected TextView getTextView(final View convertView, final int id) {
         return (TextView) convertView.findViewById(id);
     }
 }

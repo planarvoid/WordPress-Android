@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;

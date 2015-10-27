@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -11,20 +10,24 @@ import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
+import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.profile.LegacyProfileActivity;
-import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.NotificationSettingsActivity;
+import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 
@@ -47,6 +50,10 @@ public class Navigator {
         this.featureFlags = featureFlags;
     }
 
+    public void openHome(Context context) {
+        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    }
+
     public void openUpgrade(Context context) {
         context.startActivity(new Intent(context, UpgradeActivity.class));
     }
@@ -57,10 +64,6 @@ public class Navigator {
 
     public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
-    }
-
-    public void openMyProfile(Context context, Urn user) {
-        context.startActivity(createMyProfileIntent(context, user));
     }
 
     public void openProfile(Context context, Urn user) {
@@ -120,6 +123,23 @@ public class Navigator {
         context.startActivity(createRecordIntent(context, recording));
     }
 
+    public void openOfflineSettings(Context context) {
+        context.startActivity(new Intent(context, OfflineSettingsActivity.class));
+    }
+
+    public void openNotificationSettings(Context context) {
+        context.startActivity(new Intent(context, NotificationSettingsActivity.class));
+    }
+
+    public void openLegal(Context context) {
+        context.startActivity(new Intent(context, LegalActivity.class));
+    }
+
+    public void openHelpCenter(Context context) {
+        context.startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse(context.getString(R.string.url_support))));
+    }
+
     public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {
         context.startActivity(createOnboardingIntent(context, screen, deeplinkUrn));
     }
@@ -141,7 +161,7 @@ public class Navigator {
     }
 
     public void openExplore(Context context, Screen screen) {
-        context.startActivity(createExploreIntent(screen));
+        context.startActivity(createExploreIntent(context, screen));
     }
 
     public void openSearch(Context context, Uri uri, Screen screen) {
@@ -199,8 +219,10 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createExploreIntent(Screen screen) {
-        Intent intent = new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
+    private Intent createExploreIntent(Context context, Screen screen) {
+        Intent intent = featureFlags.isEnabled(Flag.TABS)
+                ? new Intent(context, ExploreActivity.class)
+                : new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
     }
@@ -216,20 +238,14 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    private Intent createProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : LegacyProfileActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
+    public Intent createProfileIntent(Context context, Urn user) {
+        return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 
-    private Intent createProfileIntent(Context context, Urn user, Screen screen) {
+    public Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
         return intent;
-    }
-
-    private Intent createMyProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
     private Intent createRecordIntent(Context context, Recording recording) {
@@ -243,7 +259,6 @@ public class Navigator {
         screen.addToIntent(intent);
         return intent;
     }
-
 
     private Intent createLauncherIntent(Context context) {
         return new Intent(context, LauncherActivity.class);

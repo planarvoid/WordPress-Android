@@ -5,7 +5,9 @@
     style="@style/Stations.Item"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,7 +37,7 @@
             style="@style/Stations.ItemNowPlaying"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/now_playing"
+            android:text="@string/ads_now_playing"
             android:visibility="gone" />
 
     </LinearLayout>

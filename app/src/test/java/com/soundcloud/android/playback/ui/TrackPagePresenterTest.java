@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -12,9 +13,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -22,11 +24,10 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -71,6 +72,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ShareButtonExperiment shareButtonExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -84,9 +86,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, imageOperations, numberFormatter, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources(), featureFlags);
+                errorControllerFactory, castConnectionHelper, resources(), shareButtonExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -117,30 +119,21 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewLoadsRelatedTrack()  {
+    public void bindItemViewLoadsStationsContext()  {
         final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,viewVisibilityProvider);
-        final PropertySet relate = TestPropertySets.fromApiTrack();
-        trackState.setRelatedTrack(relate);
-
-        when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYER_CONTEXT)).thenReturn(true);
+        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        trackState.setStation(station);
 
         presenter.bindItemView(trackView, trackState);
 
-        assertThat(getHolder(trackView).relatedTo).isVisible();
-        assertThat(getHolder(trackView).relatedToTrack).isVisible();
-        assertThat(getHolder(trackView).relatedToTrack).containsText(relate.get(TrackProperty.TITLE));
-        assertThat(getHolder(trackView).relatedToTrackArtwork).isVisible();
-        verify(imageOperations).displayWithPlaceholder(relate.get(TrackProperty.URN), ApiImageSize.TINY_ARTWORK, getHolder(trackView).relatedToTrackArtwork);
+        assertThat(getHolder(trackView).trackContext).isVisible();
     }
 
     @Test
-    public void bindItemViewClearsRelatedTrack()  {
+    public void bindItemViewClearsStationsContextIfTrackIsNotFromStation()  {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).relatedTo).isNotVisible();
-        assertThat(getHolder(trackView).relatedToTrack).isNotVisible();
-        assertThat(getHolder(trackView).relatedToTrackArtwork).isNotVisible();
-        verify(imageOperations).cancelDisplayTask(getHolder(trackView).relatedToTrackArtwork);
+        assertThat(getHolder(trackView).trackContext).isNotVisible();
     }
 
     @Test
@@ -411,6 +404,15 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickShareOnTrackCallsListenerWithShare() {
+        populateTrackPage();
+
+        getHolder(trackView).shareButton.performClick();
+
+        verify(trackPageMenuController).handleShare(context());
+    }
+
+    @Test
     public void clickUsernameCallsListenerOnClickUsernameWithActivityContext() {
         populateTrackPage();
 
@@ -490,6 +492,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.onPageChange(trackView);
 
         verify(trackPageMenuController).dismiss();
+    }
+
+    @Test
+    public void onPageChangeShareButtonVisibilityIsResetted() throws Exception {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
+        populateTrackPage();
+        getHolder(trackView).likeToggle.performClick();
+
+        presenter.onPageChange(trackView);
+
+        assertThat(getHolder(trackView).shareButton).isNotVisible();
     }
 
     @Test
@@ -612,6 +625,43 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
         getHolder(trackView).more.performClick();
         verify(trackPageMenuController).show();
+    }
+
+    @Test
+    public void shareButtonIsInitiallyShownWhenExperimentSaysSo() {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(true);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isVisible();
+    }
+
+    @Test
+    public void shareButtonIsInitiallyHiddenWhenExperimentSaysSo() {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isNotVisible();
+    }
+
+    @Test
+    public void shouldShowShareButtonAfterTogglingLike() {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
+
+        getHolder(trackView).likeToggle.performClick();
+
+        assertThat(getHolder(trackView).shareButton).isVisible();
+    }
+
+    @Test
+    public void setCollapsedShouldResetShareButtonVisibility() {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
+        getHolder(trackView).likeToggle.performClick();
+
+        presenter.setCollapsed(trackView);
+
+        assertThat(getHolder(trackView).shareButton).isNotVisible();
     }
 
     private TrackPageHolder getHolder(View trackView) {

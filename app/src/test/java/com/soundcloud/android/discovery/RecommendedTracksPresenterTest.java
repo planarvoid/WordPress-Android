@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -17,14 +17,14 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.TracksRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -59,7 +59,6 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private TracksRecyclerItemAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Bundle bundle;
-    @Mock private TrackItemRenderer trackItemRenderer;
 
     private RecommendedTracksPresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
@@ -76,8 +75,6 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
 
         when(fragment.getArguments()).thenReturn(bundle);
         when(bundle.getLong(RecommendedTracksPresenter.EXTRA_LOCAL_SEED_ID)).thenReturn(SEED_ID);
-        when(adapter.getTrackRenderer()).thenReturn(trackItemRenderer);
-
 
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -113,12 +110,10 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, bundle);
         presenter.onViewCreated(fragment, view, null);
 
-        final Urn playingTrack = Urn.forTrack(123L);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 1));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
 
-        InOrder inOrder = Mockito.inOrder(trackItemRenderer, adapter);
-        inOrder.verify(trackItemRenderer).setPlayingTrack(playingTrack);
-        inOrder.verify(adapter).notifyDataSetChanged();
+        verify(adapter).updateNowPlaying(Urn.forTrack(123L));
     }
 
     @Test
@@ -127,11 +122,10 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
 
-        final Urn playingTrack = Urn.forTrack(123L);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack, Urn.NOT_SET, 1));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
 
-        verify(trackItemRenderer, never()).setPlayingTrack(any(Urn.class));
-        verify(adapter, never()).notifyDataSetChanged();
+        verify(adapter, never()).updateNowPlaying(Urn.forTrack(123L));
     }
 
     @Test

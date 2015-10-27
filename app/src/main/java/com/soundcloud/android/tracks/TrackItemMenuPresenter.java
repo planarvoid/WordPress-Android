@@ -177,7 +177,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 );
                 return true;
             case R.id.start_station:
-                startStationPresenter.startStation(context, Urn.forTrackStation(track.getEntityUrn().getNumericId()));
+                startStationPresenter.startStationForTrack(context, track.getEntityUrn());
                 return true;
             default:
                 return false;
@@ -253,9 +253,9 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         private void updateLikeActionTitle(boolean isLiked) {
             final MenuItem item = menu.findItem(R.id.add_to_likes);
             if (isLiked) {
-                item.setTitle(R.string.unlike);
+                item.setTitle(R.string.btn_unlike);
             } else {
-                item.setTitle(R.string.like);
+                item.setTitle(R.string.btn_like);
             }
         }
     }

@@ -23,8 +23,13 @@ def executePostWithData(url, json, defaultReturnValue) {
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
+def executePostWithApk(url, apkPath, defaultReturnValue) {
+  def cmd = ['curl', '-H', 'Content-Type: application/zip', '--data-binary', "@$apkPath", url]
+  executeCurlCommand(cmd, defaultReturnValue)
+}
+
 def executeGet(url, defaultReturnValue) {
-  def cmd = ['curl',  '-X', 'GET', '-m', '20', url]
+  def cmd = ['curl', '-X', 'GET', '-m', '20', url]
   executeCurlCommand(cmd, defaultReturnValue)
 }
 
@@ -32,5 +37,6 @@ def executeGet(url, defaultReturnValue) {
 ext{
   executeCurlCommand = this.&executeCurlCommand
   executePostWithData = this.&executePostWithData
+  executePostWithApk = this.&executePostWithApk
   executeGet = this.&executeGet
 }

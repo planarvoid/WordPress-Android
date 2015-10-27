@@ -13,7 +13,8 @@ import dagger.Provides;
                 ExploreTracksCategoryActivity.class,
                 ExploreFragment.class,
                 ExploreTracksFragment.class,
-                ExploreGenresFragment.class
+                ExploreGenresFragment.class,
+                ExploreActivity.class
         })
 public class ExploreModule {
 

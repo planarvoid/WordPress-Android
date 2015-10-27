@@ -261,7 +261,7 @@ class LegacyMainPresenter extends NavigationPresenter {
     }
 
     private void displayProfile() {
-        navigator.openMyProfile(activity, accountOperations.getLoggedInUserUrn());
+        navigator.openProfile(activity, accountOperations.getLoggedInUserUrn());
     }
 
     private void displayPlaylists() {
@@ -313,13 +313,13 @@ class LegacyMainPresenter extends NavigationPresenter {
             case EXPLORE:
                 // Publish event for default page in the explore fragment
                 // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
                 break;
             case LIKES:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_LIKES));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.LIKES));
                 break;
             case PLAYLISTS:
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_PLAYLISTS));
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYLISTS));
                 break;
             case STATIONS:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.STATIONS_HOME));

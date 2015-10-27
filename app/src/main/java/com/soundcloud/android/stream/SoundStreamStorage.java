@@ -8,8 +8,9 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -33,24 +34,27 @@ import java.util.List;
 
 class SoundStreamStorage {
 
-    private static final Object[] STREAM_SELECTION = new Object[] {
+    private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
             SoundStreamView.SOUND_TYPE,
             SoundView.TITLE,
             SoundView.USERNAME,
+            SoundView.USER_ID,
             SoundView.DURATION,
             SoundView.PLAYBACK_COUNT,
             SoundView.TRACK_COUNT,
             SoundView.LIKES_COUNT,
+            SoundView.REPOSTS_COUNT,
             SoundView.SHARING,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundView.POLICIES_SUB_MID_TIER,
             SoundStreamView.REPOSTER_USERNAME,
+            SoundStreamView.REPOSTER_ID,
             exists(likeQuery()).as(SoundView.USER_LIKE),
             exists(repostQuery()).as(SoundView.USER_REPOST),
     };
 
-    private static final Object[] PROMOTED_EXTRAS = new Object[] {
+    private static final Object[] PROMOTED_EXTRAS = new Object[]{
             field(Table.PromotedTracks.field(PromotedTracks.AD_URN)).as(PromotedTracks.AD_URN),
             PromotedTracks.PROMOTER_ID,
             PromotedTracks.PROMOTER_NAME,
@@ -61,12 +65,13 @@ class SoundStreamStorage {
             PromotedTracks.TRACKING_PROFILE_CLICKED_URLS
     };
 
-    private static final Object[] TRACKS_FOR_PLAYBACK_SELECTION = new Object[] {
+    private static final Object[] TRACKS_FOR_PLAYBACK_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
             SoundStreamView.REPOSTER_ID
     };
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
+
     private static Object[] buildPromotedSelection() {
         Object[] promotedSelection = new Object[STREAM_SELECTION.length + PROMOTED_EXTRAS.length];
         System.arraycopy(STREAM_SELECTION, 0, promotedSelection, 0, STREAM_SELECTION.length);
@@ -135,11 +140,14 @@ class SoundStreamStorage {
             addTitle(cursorReader, propertySet);
             propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
+            propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getInt(SoundView.USER_ID)));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            addOptionalPlaylistLike(cursorReader, propertySet);
-            addOptionalLikesCount(cursorReader, propertySet);
+
+            addUserLike(cursorReader, propertySet);
+            addUserRepost(cursorReader, propertySet);
+
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
@@ -153,7 +161,7 @@ class SoundStreamStorage {
 
         private void addTitle(CursorReader cursorReader, PropertySet propertySet) {
             final String string = cursorReader.getString(SoundView.TITLE);
-            if (string == null){
+            if (string == null) {
                 ErrorUtils.handleSilentException("urn : " + readSoundUrn(cursorReader),
                         new IllegalStateException("Unexpected null title in stream"));
                 propertySet.put(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
@@ -162,21 +170,19 @@ class SoundStreamStorage {
             }
         }
 
-        private void addOptionalPlaylistLike(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
-                propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
-            }
+        private void addUserLike(CursorReader cursorReader, PropertySet propertySet) {
+            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
+            propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
+        }
+
+        private void addUserRepost(CursorReader cursorReader, PropertySet propertySet) {
+            propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+            propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
         }
 
         private void addOptionalPlayCount(CursorReader cursorReader, PropertySet propertySet) {
             if (getSoundType(cursorReader) == Sounds.TYPE_TRACK) {
                 propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
-            }
-        }
-
-        private void addOptionalLikesCount(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
-                propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             }
         }
 
@@ -189,7 +195,8 @@ class SoundStreamStorage {
         private void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (Strings.isNotBlank(reposter)) {
-                propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
+                propertySet.put(PostProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
             }
         }
 
@@ -209,8 +216,8 @@ class SoundStreamStorage {
             final PropertySet propertySet = PropertySet.from(
                     TrackProperty.URN.bind(Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID)))
             );
-            if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)){
-                propertySet.put(TrackProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+            if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
+                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
             return propertySet;
         }

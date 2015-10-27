@@ -10,7 +10,7 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -173,7 +173,7 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
     }
 
@@ -261,7 +261,8 @@ public class PlaySessionController {
 
     private void publishSkipEventIfAudioAd() {
         if (adsOperations.isCurrentTrackAudioAd()) {
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getCurrentMetaData(), playQueueManager.getCurrentTrackUrn(),
+            final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(trackQueueItem.getMetaData(), trackQueueItem.getTrackUrn(),
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, event);
         }
@@ -337,13 +338,14 @@ public class PlaySessionController {
         }
     }
 
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
+        public void onNext(CurrentPlayQueueItemEvent event) {
             if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
-                if (currentQueueAllowsRecommendations()) {
+                final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
+                if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
                     loadRecommendedSubscription = playQueueOperations
-                            .relatedTracksPlayQueue(playQueueManager.getLastTrackUrn(), fromContinuousPlay())
+                            .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay())
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnNext(appendUniquePlayQueueItems)
                             .subscribe(new UpcomingTracksSubscriber());
@@ -357,10 +359,14 @@ public class PlaySessionController {
             }
 
             currentTrackSubscription.unsubscribe();
-            currentTrackSubscription = trackRepository
-                    .track(event.getCurrentTrackUrn())
-                    .map(PropertySetFunctions.mergeInto(event.getCurrentMetaData()))
-                    .subscribe(new CurrentTrackSubscriber());
+
+            final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
+            if (playQueueItem.isTrack() ) {
+                currentTrackSubscription = trackRepository
+                        .track(playQueueItem.getUrn())
+                        .map(PropertySetFunctions.mergeInto(playQueueItem.getMetaData()))
+                        .subscribe(new CurrentTrackSubscriber());
+            }
         }
     }
 

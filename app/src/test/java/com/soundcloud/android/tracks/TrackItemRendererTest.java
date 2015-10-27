@@ -103,21 +103,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBindReposterIfAny() {
-        propertySet.put(TrackProperty.REPOSTER, "reposter");
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
-
-        verify(trackItemView).showReposter("reposter");
-    }
-
-    @Test
-    public void shouldNotBindReposterIfNone() {
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
-
-        verify(trackItemView).hideReposter();
-    }
-
-    @Test
     public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
         propertySet.put(TrackProperty.IS_PRIVATE, true);
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));

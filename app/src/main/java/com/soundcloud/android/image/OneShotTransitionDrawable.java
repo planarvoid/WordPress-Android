@@ -5,6 +5,10 @@ import android.graphics.drawable.TransitionDrawable;
 
 public class OneShotTransitionDrawable extends TransitionDrawable {
 
+    // This is required because of CircleImageView library bug that requires width and height
+    // for everything that is not a ColorDrawable
+    private final static int DIMENSION = 2;
+
     private boolean hasStarted;
 
     public OneShotTransitionDrawable(Drawable[] layers) {
@@ -17,5 +21,15 @@ public class OneShotTransitionDrawable extends TransitionDrawable {
             hasStarted = true;
             super.startTransition(durationMillis);
         }
+    }
+
+    @Override
+    public int getIntrinsicWidth() {
+        return DIMENSION;
+    }
+
+    @Override
+    public int getIntrinsicHeight() {
+        return DIMENSION;
     }
 }

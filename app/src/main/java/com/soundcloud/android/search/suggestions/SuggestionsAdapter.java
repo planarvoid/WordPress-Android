@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -60,7 +59,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SuggestionsAdapter extends CursorAdapter implements DetachableResultReceiver.Receiver {
-    private final ContentResolver contentResolver;
     private final Context context;
 
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
@@ -95,6 +93,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private final SuggestionsHandler suggestionsHandler;
     private final Handler newSuggestionsHandler = new Handler();
     private final HandlerThread suggestionsHandlerThread;
+    private final ShortcutsStorage shortcutsStorage;
     private String currentConstraint;
     private Pattern currentPattern;
 
@@ -102,11 +101,11 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
     @Inject
-    public SuggestionsAdapter(Context context, PublicApi api, ContentResolver contentResolver) {
+    public SuggestionsAdapter(Context context, PublicApi api, ShortcutsStorage shortcutsStorage) {
         super(context, null, 0);
-        this.contentResolver = contentResolver;
         this.context = context;
         imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        this.shortcutsStorage = shortcutsStorage;
 
         suggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         suggestionsHandlerThread.start();
@@ -116,11 +115,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     public void onDestroy() {
         suggestionsHandler.removeMessages(0);
         suggestionsHandlerThread.getLooper().quit();
-    }
-
-    @VisibleForTesting
-    Looper getApiTaskLooper() {
-        return suggestionsHandlerThread.getLooper();
     }
 
     @Override
@@ -331,19 +325,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private SearchSuggestions fetchLocalSuggestions(String constraint, int max) {
-        final Cursor cursor = contentResolver.query(
-                Content.ANDROID_SEARCH_SUGGEST.uri
-                        .buildUpon()
-                        .appendQueryParameter("limit", String.valueOf(max))
-                        .build(),
-                null,
-                null,
-                new String[]{constraint},
-                null);
-
-        SearchSuggestions suggestions = new SearchSuggestions(cursor);
-        cursor.close();
-        return suggestions;
+        final List<Shortcut> shortcuts = shortcutsStorage.getShortcuts(constraint, max);
+        return new SearchSuggestions(shortcuts);
     }
 
     private Cursor withHeader(Cursor c1) {

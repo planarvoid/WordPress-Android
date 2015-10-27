@@ -1,6 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;

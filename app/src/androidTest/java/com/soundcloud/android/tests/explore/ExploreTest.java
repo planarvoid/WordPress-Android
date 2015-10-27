@@ -48,7 +48,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
     }
 
-    public void testTendingMusicLoadsNextPage(){
+    public void testTendingMusicLoadsNextPage() {
         exploreScreen.touchTrendingMusicTab();
         int exploreTracksCountBefore = exploreScreen.getItemsOnTrendingMusicList();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
@@ -78,12 +78,11 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(greaterThan(0)));
     }
 
-    public void testTendingAudioLoadsNextPage(){
+    public void testTendingAudioLoadsNextPage() {
         exploreScreen.touchTrendingAudioTab();
         int exploreTracksCountBefore = exploreScreen.getItemsOnTrendingAudioList();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
         assertThat(exploreTracksCountBefore, is(lessThan(exploreScreen.getItemsOnTrendingAudioList())));
-
     }
 
     private ExploreScreen openExploreFromMenu() {

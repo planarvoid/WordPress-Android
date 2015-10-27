@@ -13,13 +13,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
@@ -28,6 +27,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -37,6 +37,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -51,7 +52,6 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
@@ -74,6 +74,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private Navigator navigator;
+    @Mock private ShareOperations shareOperations;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
@@ -83,7 +84,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
                 engagementsView, featureOperations, offlineContentOperations, offlinePlaybackOperations,
-                playbackToastHelper, navigator);
+                playbackToastHelper, navigator, shareOperations);
         when(rootView.getContext()).thenReturn(context);
         when(context.getResources()).thenReturn(resources());
 
@@ -155,47 +156,14 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onShare();
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.UNKNOWN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         onEngagementListener.onShare();
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-    }
 
-    @Test
-    public void shouldSendShareIntentWhenSharingPlayable() {
-        String expectedTitle = "Title";
-        String expectedShareText = "ShareText";
-
-        when(context.getString(R.string.share_subject, playlistWithTracks.getTitle())).thenReturn(expectedTitle);
-        when(context.getString(R.string.share_track_by_artist_on_soundcloud,
-                playlistWithTracks.getTitle(), playlistWithTracks.getCreatorName(),
-                playlistWithTracks.getPermalinkUrl())).thenReturn(expectedShareText);
-
-        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-
-        onEngagementListener.onShare();
-
-        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(context).startActivity(argumentCaptor.capture());
-
-        Intent shareIntent = argumentCaptor.getValue();
-        assertThat(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).isEqualTo(expectedTitle);
-        assertThat(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).contains(expectedShareText);
-    }
-
-    @Test
-    public void shouldNotSendShareIntentWhenSharingPrivatePlaylist() {
-        playlistWithTracks = createPlaylistInfoWithSharing(Sharing.PRIVATE);
-        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-
-        onEngagementListener.onShare();
-
-        verify(context, never()).startActivity(any(Intent.class));
+        verify(shareOperations, never()).share(any(Context.class), any(PropertySet.class), any(String.class), any(String.class), any(Urn.class), any(PromotedSourceInfo.class));
     }
 
     @Test
@@ -318,8 +286,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onShare();
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.SEARCH_MAIN.get());
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.SEARCH_MAIN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
     }
 
     @Test

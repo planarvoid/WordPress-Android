@@ -14,41 +14,61 @@ Prerequisites:
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
-### Install the [Android SDK][] and [Android Studio][]
+### Install the [Android SDK][] and [Android Studio][] 1.4
 
-#### On Mac OS X:
+**On Mac OS X:**
 
-    $ brew install android-sdk android-ndk maven
+1. Install the following packages:
 
-Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
+    `$ brew install android-sdk android-ndk maven`
+    
+2. Add the following lines to your shell's start-up script (e.g. .bash_profile, .zshrc):
 
-    ANDROID_HOME=/usr/local/opt/android-sdk/
+    ```
+    ANDROID_HOME=/usr/local/opt/android-sdk/ #Or another location`
     export ANDROID_HOME=$ANDROID_HOME
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
+    ```
 
-Run the [Android SDK Manager][] to install packages.
+3. Run the [Android SDK Manager][] to install packages:
 
-    $ android
+    `$ android`
+    
+4. Install [Android Studio][].
 
-You don't need to install everything. To get started, you can install the following:
+**On Linux:**
 
-* From `Tools`, install the latest versions of `Android SDK Tools` and `Android SDK Platform-tools`
-and the version of `Android SDK Build-tools` specified by the `androidBuildToolsVersion` variable in
-[buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).
-* Install the release we are targeting, which is currently `Android 5.0.1 (API 21)`. You can check by
-looking for `android:targetSdkVersion` in [AndroidManifest.xml](app/AndroidManifest.xml). Install
-all release packages except for the system images, because we will use [Genymotion][] for managing emulators.
-* From `Extras`, install the latest versions of `Android Support Repository`, `Android Support Library`,
-`Google Play services` and `Google Repository`.
+1. Install [Android Studio][], which contains [Android SDK][].
+2. Add the follwing lines to your shell's start-up script (e.g. .bash_profile, .zshrc):
+
+    ```
+    ANDROID_HOME=/usr/local/opt/android-sdk/ #Or another location
+    export ANDROID_HOME=$ANDROID_HOME
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    export ANDROID_SDK_HOME=$ANDROID_HOME
+    ```
+    
+### Continue with the setup:
+
+1. From within Android Studio, go to `Tools` &rarr; `Android` &rarr; `SDK Manager`.
+2. From the `SDK Tools` tab, install the latest versions:<br>
+   * `Android SDK Tools`<br>
+   * `Android SDK Platform-Tools`<br>Refer to the `androidBuildToolsVersion` variable in [buildsystem/dependencies.gradle](buildsystem/dependencies.gradle).<br>
+   * `Android SDK Build-Tools`<br>
+3. Install the targetted release, based on the API level.<br>Refer to the `android:targetSdkVersion` variable in [AndroidManifest.xml](app/AndroidManifest.xml).
+4. From the `SDK Platforms` tab, select the checkbox `Show Package Details`.
+5. Unselect all system images.<br>You will use [Genymotion][] rather than Android Studio to manage the emulators.
+6. From the SDK Manager, click `Launch Standalone SDK Manager` and scroll down to the `Extras` menu item.
+7. Install the latest versions:
+   * `Android Support Repository`
+   * `Android Support Library`
+   * `Google Play services`
+   * `Google Repository`
+   
+   To avoid installing extra packages other than those listed, select the `Reject` radio button.
 
 If you need to test against other Android Release versions, you can return to the Android SDK Manager later.
-
-Install [Android Studio][].
-
-#### On Linux:
-
-Install [Android Studio][], which contains [Android SDK][].
 
 ### Clone and build the project
 
@@ -58,53 +78,34 @@ Make sure you are on the VPN:
     $ cd SoundCloud-Android
     $ ./gradlew assembleDebug
 
-You might encounter the following error:
-
-```
-Parallel execution with configuration on demand is an incubating feature.
-
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-A problem occurred configuring project ':app'.
-> SDK location not found. Define location with sdk.dir in the local.properties file or with an ANDROID_HOME environment variable.
-
-* Try:
-Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
-
-BUILD FAILED
-
-Total time: 1.753 secs
-```
-
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
 You can also ask questions on the `#android-newbies` Slack channel.
 
-## Opening the project in Android Studio
+## Open the project in Android Studio
 
-Open Android Studio, select `File` > `New` > `Import project`, and select `build.gradle` from the root project directory.
+1. From within Android Studio, select `File` &rarr; `New` &rarr; `Import project`, and select `build.gradle` from the root project directory.<br>(If you see the message, `Unregistered VCS root detected`, and you are not sure what to do, click `Add root`.)
+2. Select `Next` and confirm the import of the parent project.<br>Android Studio automatically downloads and manages dependencies.<br>(If you are asked to use the `gradle wrapper`, select `Yes`.)<br>
+3. After the download completes, click <code>Install <i>n</i> packages...</code>.<br>The installation might take several minutes to complete.
+4. Reload the project.
 
-Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
+## Set up the SoundCloud code style
 
-Android Studio will automatically download and manage dependencies. When that download is complete, click <code>Install <i>n</i> packages...</code>. The installation might take several minutes to complete. Finally, reload the project.
+1. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
+2. From the `Scheme` drop-down menu, select `SoundCloud-Android`.<br>If it doesn't display in the list, try changing the path to your version of Android Studio. The link source <i>must</i> be an absolute path:
 
-## Setup code style
-
-Make sure you are using SoundCloud code style on Android Studio by going to:
-File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
-
-If it doesn't appear in the list, try the following. Tailor the path for your version of AndroidStudio. The link source MUST be an absolute path.
-
+    ```
     $ mkdir ~/Library/Preferences/AndroidStudio1.2/codestyles
     $ ln -sf ~/sc/SoundCloud-Android/.idea-codestyle.xml ~/Library/Preferences/AndroidStudio1.2/codestyles/SoundCloud-Android.xml
+    ```
 
 ![Android code style][Android code style]
 
 ## Running the app on Genymotion
 
-Install [Genymotion][] and add a virtual device. A Google Nexus phone is a good one, eg. Google Nexus 6.
-Click Play to start the device.
+1. Install [Genymotion][].<br>If you see a similar error message, follow its instructions to resolve it: ![screenshot from 2015-10-23 09 31 09](https://cloud.githubusercontent.com/assets/1639324/10687056/705aec32-796a-11e5-85f2-d228e5bf0b6f.png)
+2. Add a virtual device. A Google Nexus phone is a good one, eg. Google Nexus 6.
+Click `Play` to start the device.
 
 Install the Genymotion plugin for Android Studio in Preferences -> Plugins and search for Genymotion.
 

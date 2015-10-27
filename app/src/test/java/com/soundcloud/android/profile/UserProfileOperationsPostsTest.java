@@ -15,6 +15,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -164,7 +165,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
         subscriber.assertValues(
                 Arrays.asList(
                         PropertySet.from(TrackProperty.URN.bind(trackPostItem.getEntityUrn())),
-                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getEntityUrn()), TrackProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
+                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getEntityUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
                 )
         );
     }
@@ -190,8 +191,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @NonNull
     private PropertySet attachRepostInfo(PropertySet propertySet) {
         return propertySet
-                .put(PlayableProperty.REPOSTER_URN, USER_URN)
-                .put(PlayableProperty.REPOSTER, USER.get(UserProperty.USERNAME));
+                .put(PostProperty.REPOSTER_URN, USER_URN)
+                .put(PostProperty.REPOSTER, USER.get(UserProperty.USERNAME));
     }
 
     private void assertItemsEmitted(PropertySet... propertySets) {

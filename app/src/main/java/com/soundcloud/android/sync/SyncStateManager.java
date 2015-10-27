@@ -169,7 +169,7 @@ public class SyncStateManager {
     public List<Uri> getCollectionsDueForSync(EnumSet<SyncContent> syncContentEnumSet, boolean force) {
         List<Uri> urisToSync = new ArrayList<>();
         for (SyncContent sc : syncContentEnumSet) {
-            if (sc.isEnabled() && (force || isContentDueForSync(sc))) {
+            if (force || isContentDueForSync(sc)) {
                 urisToSync.add(sc.content.uri);
             }
         }

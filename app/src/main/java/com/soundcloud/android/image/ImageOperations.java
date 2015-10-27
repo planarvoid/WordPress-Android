@@ -190,10 +190,6 @@ public class ImageOperations {
         imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
     }
 
-    public void cancelDisplayTask(ImageView imageView){
-        imageLoader.cancelDisplayTask(imageView);
-    }
-
     private void load(Uri uri, ImageListener imageListener) {
         imageLoader.loadImage(uri.toString(), new ImageListenerUILAdapter(imageListener));
     }

@@ -53,8 +53,8 @@ public class EmptyViewBuilder {
 
             case ME_ACTIVITIES:
                 image = R.drawable.empty_activity;
-                messageText = context.getString(R.string.list_empty_activity_message);
-                secondaryText = context.getString(R.string.list_empty_activity_secondary);
+                messageText = context.getString(R.string.list_empty_notification_message);
+                secondaryText = context.getString(R.string.list_empty_notification_secondary);
                 break;
 
             // profile specific
@@ -86,12 +86,6 @@ public class EmptyViewBuilder {
             case USER_LIKES:
                 image = R.drawable.empty_like;
                 messageText = getTextForUser(context, R.string.empty_user_likes_text, username);
-                break;
-
-            case ME_FOLLOWERS:
-                image = R.drawable.empty_followers;
-                secondaryText = context.getString(R.string.list_empty_you_followers_secondary);
-                messageText = context.getString(R.string.list_empty_you_followers_message);
                 break;
 
             case USER_FOLLOWERS:

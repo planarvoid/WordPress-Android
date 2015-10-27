@@ -27,7 +27,7 @@ public class PlayerAd extends PlayerItem {
     String getPreviewTitle(Resources resources) {
         final String nextTrackTitle = source.get(AdProperty.MONETIZABLE_TRACK_TITLE);
         final String nextTrackCreator = source.get(AdProperty.MONETIZABLE_TRACK_CREATOR);
-        return resources.getString(R.string.next_up, nextTrackTitle, nextTrackCreator);
+        return resources.getString(R.string.ads_next_up_tracktitle_creatorname, nextTrackTitle, nextTrackCreator);
     }
 
     Urn getMonetizableTrack() {

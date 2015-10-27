@@ -59,8 +59,8 @@
         <item name="android:clickable">false</item>
     </style>
 
-    <style name="PlayerTitleBase" parent="FooterTitle">
-        <item name="android:textSize">18sp</item>
+    <style name="PlayerPrimaryHeading" parent="FooterTitle">
+        <item name="android:textSize">20sp</item>
         <item name="jagged_background">@color/overlay_text_background</item>
         <item name="android:lineSpacingExtra">2dp</item>
         <item name="android:paddingLeft">6dp</item>
@@ -69,23 +69,19 @@
         <item name="android:paddingBottom">2dp</item>
     </style>
 
-    <style name="PlayerTitle" parent="PlayerTitleBase">
+    <style name="PlayerTitle" parent="PlayerPrimaryHeading">
         <item name="android:singleLine">false</item>
         <item name="android:maxLines">3</item>
     </style>
 
-    <style name="PlayerRelatedTo" parent="PlayerUser">
+    <style name="PlayerContext" parent="PlayerPrimaryHeading">
+        <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:text">@string/player_related_to</item>
-        <item name="android:background">@color/overlay_text_background</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-
-    <style name="PlayerRelatedToTrack" parent="PlayerTitle">
-        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:background">@color/overlay_text_background</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/clickable_overlay_text</item>
+        <item name="android:drawablePadding">6dp</item>
     </style>
 
     <style name="PlayerCastDeviceName">
@@ -100,13 +96,14 @@
     <style name="PlayerLikeBase" parent="CustomToggle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:layout_marginRight">8dp</item>
         <item name="android:paddingLeft">36dp</item> <!-- Padding from left of view to right of text -->
         <item name="android:minWidth">0dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/btn_player_like</item>
     </style>
 
-    <style name="PlayerLike" parent="PlayerLikeBase"/>
+    <style name="PlayerLikeBase.PlayerLike" />
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
         <item name="android:layout_width">wrap_content</item>
@@ -120,7 +117,7 @@
         <item name="android:background">@drawable/btn_player_more</item>
     </style>
 
-    <style name="PlayerMore" parent="PlayerMoreBase"/>
+    <style name="PlayerMoreBase.PlayerMore" />
 
     <style name="PlayerClose">
         <item name="android:layout_width">32dp</item>
@@ -130,6 +127,16 @@
         <item name="android:clickable">false</item>
         <item name="android:visibility">gone</item>
     </style>
+
+    <style name="PlayerShareBase">
+        <item name="android:layout_width">64dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_marginRight">28dp</item>
+        <item name="android:src">@drawable/btn_player_share</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="PlayerShareBase.PlayerShare" />
 
     <style name="Waveform">
         <item name="barWidth">@dimen/waveform_bar_width</item>

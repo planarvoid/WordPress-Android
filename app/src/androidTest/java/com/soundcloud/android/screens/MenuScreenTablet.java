@@ -12,9 +12,9 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public MyProfileScreen clickUserProfile() {
+    public ProfileScreen clickUserProfile() {
         userProfileMenuItem().click();
-        return new MyProfileScreen(testDriver);
+        return new ProfileScreen(testDriver);
     }
 
     @Override

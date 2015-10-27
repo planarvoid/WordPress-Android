@@ -128,7 +128,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
                 table = Table.UserAssociations;
                 extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
                 break;
@@ -140,11 +139,6 @@ public class ScContentProvider extends ContentProvider {
                 deleteUri = true; // clean out table first
                 table = Table.PlaylistTracks;
                 extraCV = new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID, uri.getPathSegments().get(1)};
-                break;
-
-            case ME_SHORTCUTS:
-                recreateTable = true;
-                table = content.table;
                 break;
 
             default:
@@ -181,13 +175,6 @@ public class ScContentProvider extends ContentProvider {
                 }
             }
 
-            if (content == Content.ME_SHORTCUTS) {
-                db.execSQL("INSERT OR IGNORE INTO " + Table.Users.name() + " (_id, username, avatar_url, permalink_url) " +
-                        " SELECT id, text, icon_url, permalink_url FROM " + Table.Suggestions.name() + " where kind = 'following'");
-                db.execSQL("INSERT OR IGNORE INTO " + Table.Sounds.name() + " (_id, title, artwork_url, permalink_url, _type) " +
-                        " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.Suggestions.name() + " where kind = 'like'");
-            }
-
             if (!failed) {
                 db.setTransactionSuccessful();
             }
@@ -207,10 +194,6 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         switch (Content.match(uri)) {
-            case ANDROID_SEARCH_SUGGEST:
-            case ANDROID_SEARCH_SUGGEST_PATH:
-                return SearchManager.SUGGEST_MIME_TYPE;
-
             case USER:
                 return "vnd.soundcloud/user";
 
@@ -342,7 +325,6 @@ public class ScContentProvider extends ContentProvider {
                 }
                 break;
 
-            case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 /* XXX special case for now. we  need to not join in the users table on an id only request, because
                 it is an inner join and will not return ids with missing users. Switching to a left join is possible
@@ -366,7 +348,6 @@ public class ScContentProvider extends ContentProvider {
                             sortOrder : TableColumns.UserAssociationView.USER_ASSOCIATION_POSITION);
                 }
                 break;
-
 
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID}, 1);
@@ -457,23 +438,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name());
                 break;
 
-            case ANDROID_SEARCH_SUGGEST:
-            case ANDROID_SEARCH_SUGGEST_PATH:
-                return suggest(uri, columns, selection, selectionArgs);
-
-            case ANDROID_SEARCH_REFRESH:
-            case ANDROID_SEARCH_REFRESH_PATH:
-                return refresh(uri, columns, selection, selectionArgs, sortOrder);
-
-            case ME_SHORTCUT:
-                qb.setTables(content.table.name());
-                qb.appendWhere(Table.Suggestions.id + " = " + uri.getLastPathSegment());
-                break;
-
-            case ME_SHORTCUTS:
-                qb.setTables(content.table.name());
-                break;
-
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -526,7 +490,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_ASSOCIATIONS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
-            case ME_SHORTCUTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_LIKES:
@@ -640,7 +603,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
                 whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId
                         + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
@@ -683,53 +645,6 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-    }
-
-    /**
-     * Suggest tracks and users based on partial user input.
-     *
-     * @return a cursor with search suggestions. See {@link SearchManager} for documentation
-     * on schema etc.
-     * @see <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
-     * Building a suggestion table</a>
-     */
-    private Cursor suggest(Uri uri, String[] columns, String selection, String[] selectionArgs) {
-        log("suggest(" + uri + "," + Arrays.toString(columns) + "," + selection + "," + Arrays.toString(selectionArgs) + ")");
-        if (selectionArgs == null) {
-            throw new IllegalArgumentException("selectionArgs must be provided for the Uri: " + uri);
-        }
-        SQLiteDatabase db = databaseManager.getReadableDatabase();
-        SCQueryBuilder qb = new SCQueryBuilder();
-        qb.setTables(Table.Suggestions.name());
-
-        qb.appendWhere(TableColumns.Suggestions.TEXT + " LIKE '" + selectionArgs[0] + "%' OR " + TableColumns.Suggestions.TEXT +
-                " LIKE '% " + selectionArgs[0] + "%'");
-
-        final String limit = uri.getQueryParameter(Parameter.LIMIT);
-        final String query = qb.buildQuery(
-                new String[]{
-                        BaseColumns._ID,
-                        TableColumns.Suggestions.ID,
-                        SearchManager.SUGGEST_COLUMN_TEXT_1,
-                        SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                        TableColumns.Suggestions.ICON_URL,
-                        "'content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/' || _id" + " AS "
-                                + SearchManager.SUGGEST_COLUMN_ICON_1,
-                        "'" + SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT + "' AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID
-                },
-                null, null, null, null, null, limit);
-
-        log("suggest: query=" + query);
-        return db.rawQuery(query, null);
-    }
-
-    /**
-     * Called when suggest returns {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID}.
-     * Currently not used.
-     */
-    @SuppressWarnings({"UnusedParameters", "PMD.UnusedFormalParameter"})
-    private Cursor refresh(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
     }
 
     // New likes don't have all the fields expected to load into SoundAssociation in legacy ScListFragments etc.

@@ -28,7 +28,7 @@
         android:paddingRight="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:src="@drawable/ic_collections_options"
+        android:src="@drawable/ic_collection_playlists_filter"
         android:layout_below="@id/divider"
         android:layout_alignParentRight="true" />
 

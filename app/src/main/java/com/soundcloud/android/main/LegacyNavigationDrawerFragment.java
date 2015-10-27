@@ -70,8 +70,8 @@ public class LegacyNavigationDrawerFragment extends LegacyNavigationFragment {
         drawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 drawerLayout,                    /* DrawerLayout object */
-                R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
-                R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
+                R.string.accessibility_navigation_drawer_open,  /* "open drawer" description for accessibility */
+                R.string.accessibility_navigation_drawer_close  /* "close drawer" description for accessibility */
         ) {
             @Override
             public void onDrawerClosed(View drawerView) {

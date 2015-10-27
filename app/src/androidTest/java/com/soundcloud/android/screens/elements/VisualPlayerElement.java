@@ -60,6 +60,13 @@ public class VisualPlayerElement extends Element {
         assertTrue(isExpandedPlayerPlaying());
     }
 
+    public VisualPlayerElement unlike() {
+        if (likeButton().isChecked()) {
+            likeButton().click();
+        }
+        return this;
+    }
+
     private ViewElement playButton() {
         return solo.findElement(With.id(R.id.player_play));
     }
@@ -102,6 +109,10 @@ public class VisualPlayerElement extends Element {
 
     private ViewElement creator() {
         return solo.findElement(With.id(R.id.track_page_user));
+    }
+
+    private ViewElement trackPageContext() {
+        return solo.findElement(With.id(R.id.track_page_context));
     }
 
     private ViewElement footerUser() {
@@ -228,6 +239,10 @@ public class VisualPlayerElement extends Element {
         return new TextElement(creator()).getText();
     }
 
+    public String getTrackPageContext() {
+        return new TextElement(trackPageContext()).getText();
+    }
+
     public String getFooterTrackCreator() {
         return new TextElement(footerUser()).getText();
     }
@@ -330,6 +345,14 @@ public class VisualPlayerElement extends Element {
         } else {
             clickFullbleedAdArtwork();
         }
+    }
+
+    public ViewElement likeButton() {
+        return solo.findElement(With.id(R.id.track_page_like));
+    }
+
+    public ViewElement shareButton() {
+        return solo.findElement(With.id(R.id.track_page_share));
     }
 
     public boolean isCenteredAd() {

@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -89,8 +88,13 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     @Override
     public Observable<Void> playCurrent() {
-        final Urn urn = playQueueManager.getCurrentTrackUrn();
-        return trackRepository.track(urn).doOnNext(play(urn)).map(RxUtils.TO_VOID);
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        if (currentPlayQueueItem.isTrack()) {
+            final Urn trackUrn = currentPlayQueueItem.getUrn();
+            return trackRepository.track(trackUrn).doOnNext(play(trackUrn)).map(RxUtils.TO_VOID);
+        } else {
+            return Observable.just(null);
+        }
     }
 
     @NonNull
@@ -98,7 +102,6 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         return new Action1<PropertySet>() {
             @Override
             public void call(PropertySet track) {
-                final Long duration = track.get(TrackProperty.DURATION);
                 if (adsOperations.isCurrentTrackAudioAd()) {
                     serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
                 } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {

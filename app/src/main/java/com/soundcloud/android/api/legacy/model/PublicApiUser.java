@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.users.UserProperty;
@@ -339,10 +338,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @JsonProperty("primary_email_confirmed")
     public void setPrimaryEmailConfirmed(boolean val) {
         primary_email_confirmed = val;
-    }
-
-    public Intent getViewIntent() {
-        return new Intent(Actions.USER_BROWSER).putExtra(LegacyProfileActivity.EXTRA_USER, this);
     }
 
     public boolean addAFollower() {

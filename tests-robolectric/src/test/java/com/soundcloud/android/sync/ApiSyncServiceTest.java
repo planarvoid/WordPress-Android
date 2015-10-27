@@ -154,7 +154,7 @@ public class ApiSyncServiceTest {
         ArrayList<Uri> urisToSync = new ArrayList<>();
         urisToSync.add(Content.ME_SOUNDS.uri);
         urisToSync.add(Content.ME_LIKES.uri);
-        urisToSync.add(Content.ME_FOLLOWERS.uri);
+        urisToSync.add(Content.ME_FOLLOWINGS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
 
@@ -172,9 +172,6 @@ public class ApiSyncServiceTest {
 
         svc.enqueueRequest(request2);
         expect(svc.pendingJobs.size()).toBe(3);
-
-        svc.enqueueRequest(request3);
-        expect(svc.pendingJobs.size()).toBe(4);
 
         // make sure favorites is queued on front
         expect(((LegacySyncJob) svc.pendingJobs.peek()).getContentUri()).toBe(Content.ME_LIKES.uri);

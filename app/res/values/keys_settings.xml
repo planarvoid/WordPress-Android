@@ -33,19 +33,6 @@
     <string name="key_offline_storage_limit">offline.storageLimit</string>
     <string name="key_offline_remove_all_offline_content">offline.removeAllOfflineContent</string>
 
-    <!-- Dev settings -->
-    <string name="key_dev_recording_type">dev.defaultRecordingType</string>
-    <string name="key_dev_clear_notifications">dev.clearNotifications</string>
-    <string name="key_dev_rewind_notifications">dev.rewindNotifications</string>
-    <string name="key_dev_sync_now">dev.syncNow</string>
-    <string name="key_dev_crash">dev.crash</string>
-    <string name="key_dev_http_proxy">dev.http.proxy</string>
-    <string name="key_dev_flush_eventlogger_instantly">dev.flushEventloggerInstantly</string>
-    <string-array name="pref_dev_record_type_values"
-                  tools:ignore="MissingTranslation">
-        <item>compressed</item>
-        <item>raw</item>
-    </string-array>
     <string-array name="pref_notifications_frequency_values"
                   tools:ignore="MissingTranslation">
         <item>3600000</item>

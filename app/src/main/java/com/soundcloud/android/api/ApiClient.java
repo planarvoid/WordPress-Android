@@ -13,6 +13,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.net.HttpHeaders;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.java.strings.Charsets;
 import com.squareup.okhttp.MediaType;
@@ -129,11 +130,10 @@ public class ApiClient {
         }
 
         // user identifiers
-        if (deviceHelper.hasUdid()) {
-            builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
-        }
-        if (adIdHelper.isAvailable()) {
-            builder.header(ApiHeaders.ADID, adIdHelper.getAdId());
+        builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
+        final Optional<String> maybeAdId = adIdHelper.getAdId();
+        if (maybeAdId.isPresent()) {
+            builder.header(ApiHeaders.ADID, maybeAdId.get());
             builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
         }
 

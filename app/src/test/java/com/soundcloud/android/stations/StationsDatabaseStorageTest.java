@@ -3,6 +3,7 @@ package com.soundcloud.android.stations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -19,7 +20,7 @@ import java.util.List;
 public class StationsDatabaseStorageTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private StationsStorage storage;
-    private TestSubscriber<Station> subscriber = new TestSubscriber<>();
+    private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
     private final Urn stationUrn = Urn.forTrackStation(123L);
 
     @Before
@@ -81,7 +82,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
 
         storage.station(apiStation.getUrn()).subscribe(subscriber);
 
-        final Station station = StationFixtures.getStation(apiStation);
+        final StationRecord station = StationFixtures.getStation(apiStation);
         subscriber.assertReceivedOnNext(Collections.singletonList(station));
     }
 
@@ -90,14 +91,14 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
         final int position = 20;
         final Urn station = testFixtures().insertStation(0).getUrn();
 
-        storage.saveLastPlayedTrackPosition(station, position).subscribe();
+        storage.saveLastPlayedTrackPosition(station, position);
 
         databaseAssertions().assertStationPlayQueuePosition(station, position);
     }
 
     @Test
     public void shouldSaveRecentlyPlayedStation() {
-        storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
+        storage.saveUnsyncedRecentlyPlayedStation(stationUrn);
 
         databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
     }
@@ -106,7 +107,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
     public void shouldUpdateRecentlyPlayedStartedAtWhenStationPlayedAgain() {
         final int previousStartedAt = 0;
         testFixtures().insertRecentlyPlayedStationAtPosition(stationUrn, previousStartedAt);
-        storage.saveUnsyncedRecentlyPlayedStation(stationUrn).subscribe();
+        storage.saveUnsyncedRecentlyPlayedStation(stationUrn);
 
         databaseAssertions().assertRecentStationsContains(stationUrn, previousStartedAt, 0);
         databaseAssertions().assertRecentStationsContains(stationUrn, dateProvider.getCurrentTime(), 1);
@@ -122,7 +123,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
         testFixtures().insertLocallyPlayedRecentStation(secondStation.getUrn(), System.currentTimeMillis());
         testFixtures().insertRecentlyPlayedStationAtPosition(thirdStation.getUrn(), 1);
 
-        final TestSubscriber<Station> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         storage.getStationsCollection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
 
         subscriber.assertValues(

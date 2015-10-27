@@ -1,8 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ProfileScrollHelper;
 

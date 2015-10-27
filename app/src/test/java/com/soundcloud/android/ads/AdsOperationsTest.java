@@ -20,6 +20,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -75,14 +76,16 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
         when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getMetaDataAt(0)).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getPlayQueueItemAtPosition(0))
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isAudioAdAtPosition(0)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
-        when(playQueueManager.getMetaDataAt(1)).thenReturn(PropertySet.create());
+        when(playQueueManager.getPlayQueueItemAtPosition(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
+
         assertThat(adsOperations.isAudioAdAtPosition(1)).isFalse();
     }
 

@@ -5,15 +5,16 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TrackItem extends PlayableItem {
+
+    private boolean isPlaying;
 
     public static TrackItem from(PropertySet trackState) {
         return new TrackItem(trackState);
@@ -75,17 +76,28 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
     }
 
-    public boolean isCreatorOptOut() {
-        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE) == OfflineState.UNAVAILABLE;
+    public boolean isUnavailableOffline() {
+        return getDownloadedState() == OfflineState.UNAVAILABLE;
     }
 
-    int getPlayCount() {
+    public int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
     }
 
     String getGenre() {
-        final Optional<String> optionalGenre = source.get(TrackProperty.GENRE);
-        return optionalGenre.isPresent() ? optionalGenre.get() : ScTextUtils.EMPTY_STRING;
+        return source.get(TrackProperty.GENRE).or(Strings.EMPTY);
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public boolean hasPlayCount() {
+        return getPlayCount() > 0;
     }
 
     @Override

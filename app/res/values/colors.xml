@@ -88,6 +88,7 @@
 
     <!-- Misc -->
     <color name="dark_bg">#252525</color>
+    <color name="page_background">#f3f3f3</color>
 
     <color name="primary">#252525</color>
     <color name="primary_dark">#1d1d1d</color>
@@ -96,7 +97,6 @@
     <color name="light_gray_text">#cccccc</color>
     <color name="gray_text">#999999</color>
     <color name="dark_gray_text">#333333</color>
-    <color name="dark_gray_background">#333333</color>
     <color name="tab_bar_divider">#dddddd</color>
     <color name="darker_gray">#aaaaaa</color>
     <color name="gray_background">#f3f3f3</color>
@@ -141,11 +141,10 @@
     <color name="stations_bucket_action_text">#e5e5e5</color>
 
     <!-- Collections -->
-    <color name="collections_home_background">#e5e5e5</color>
     <color name="collections_options_dialog_header">#b3b3b3</color>
     <color name="collections_kill_filter_text_color">#999999</color>
 
     <!-- You -->
-    <color name="you_background">#e5e5e5</color>
+    <color name="you_version_text">@color/gray_text</color>
 
 </resources>

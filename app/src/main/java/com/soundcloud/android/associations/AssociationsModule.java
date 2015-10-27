@@ -12,10 +12,4 @@ import javax.inject.Singleton;
 )
 public class AssociationsModule {
 
-    @Singleton
-    @Provides
-    FollowStatus provideFollowStatus() {
-        return FollowStatus.get();
-    }
-
 }

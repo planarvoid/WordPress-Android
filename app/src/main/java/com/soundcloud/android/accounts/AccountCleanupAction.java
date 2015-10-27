@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.CollectionsOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -14,9 +13,8 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
@@ -32,11 +30,10 @@ class AccountCleanupAction implements Action0 {
     //TODO: PlaylistTagStorage collaborator can be removed here once recommendations feature is enabled.
     private final PlaylistTagStorage tagStorage;
     private final SoundRecorder soundRecorder;
-    private final SyncStateManager syncStateManager;
     private final FeatureStorage featureStorage;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final OfflineSettingsStorage offlineSettingsStorage;
-    private final StreamSyncStorage streamSyncStorage;
+    private final SyncCleanupAction syncCleanupAction;
     private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     private final DiscoveryOperations discoveryOperations;
@@ -45,17 +42,16 @@ class AccountCleanupAction implements Action0 {
     private final CollectionsOperations collectionsOperations;
 
     @Inject
-    AccountCleanupAction(SyncStateManager syncStateManager,
-                         ActivitiesStorage activitiesStorage, LegacyUserAssociationStorage legacyUserAssociationStorage,
+    AccountCleanupAction(ActivitiesStorage activitiesStorage, LegacyUserAssociationStorage legacyUserAssociationStorage,
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
+                         OfflineSettingsStorage offlineSettingsStorage,
+                         SyncCleanupAction syncCleanupAction,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
                          DiscoveryOperations discoveryOperations,
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionsOperations collectionsOperations) {
-        this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
@@ -63,7 +59,7 @@ class AccountCleanupAction implements Action0 {
         this.featureStorage = featureStorage;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.offlineSettingsStorage = offlineSettingsStorage;
-        this.streamSyncStorage = streamSyncStorage;
+        this.syncCleanupAction = syncCleanupAction;
         this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
         this.discoveryOperations = discoveryOperations;
@@ -78,18 +74,16 @@ class AccountCleanupAction implements Action0 {
 
         clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-        syncStateManager.clear();
         activitiesStorage.clear(null);
         legacyUserAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
         featureStorage.clear();
-        streamSyncStorage.clear();
+        syncCleanupAction.clear();
         planStorage.clear();
         soundRecorder.reset();
         stationsOperations.clearData();
         discoveryOperations.clearData();
-        FollowingOperations.clearState();
         collectionsOperations.clearData();
     }
 

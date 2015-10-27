@@ -113,45 +113,14 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertAssociations() throws Exception {
         List<PublicApiUser> items = ModelFixtures.create(PublicApiUser.class, 2);
-        expect(storage.insertAssociations(items, Content.ME_FOLLOWERS.uri, USER_ID)).toEqual(4); // 2 users, associations
-        expect(Content.ME_FOLLOWERS).toHaveCount(2);
-    }
-
-    @Test
-    public void shouldBulkInsertFollowings() throws Exception {
-        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        final List<UserAssociation> newAssociations = storage.followList(users).toList()
-                .toBlocking().firstOrDefault(Collections.<UserAssociation>emptyList());
-
-        expect(Lists.transform(newAssociations, new Function<UserAssociation, PublicApiUser>() {
-            @Override
-            public PublicApiUser apply(UserAssociation input) {
-                return input.getUser();
-            }
-        })).toEqual(users);
-
-        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
-        for (PublicApiUser user : users) {
-            expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
-                    .toBe(UserAssociation.LocalState.PENDING_ADDITION);
-        }
-    }
-
-    @Test
-    public void shouldBulkMarkFollowingsForRemoval() throws Exception {
-        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        storage.unfollowList(users).subscribe();
-        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
-        for (PublicApiUser user : users) {
-            expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
-                    .toBe(UserAssociation.LocalState.PENDING_REMOVAL);
-        }
+        expect(storage.insertAssociations(items, Content.ME_FOLLOWINGS.uri, USER_ID)).toEqual(4); // 2 users, associations
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
     }
 
     @Test
     public void shouldGetLocalIds() throws Exception {
-        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWERS.uri, 107, USER_ID);
-        List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
+        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107, USER_ID);
+        List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
         expect(localIds.size()).toEqual(107);
     }
 
@@ -171,15 +140,10 @@ public class UserAssociationStorageTest {
         PublicApiResource.ResourceHolder<PublicApiUser> followedUsers = TestHelper.readJson(PublicApiResource.ResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followings.json");
         TestHelper.bulkInsertToUserAssociations(followedUsers.collection, Content.ME_FOLLOWINGS.uri);
 
-        PublicApiResource.ResourceHolder<PublicApiUser> followers = TestHelper.readJson(PublicApiResource.ResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followers.json");
-        TestHelper.bulkInsertToUserAssociations(followers.collection, Content.ME_FOLLOWERS.uri);
-
         expect(Content.ME_FOLLOWINGS).toHaveCount(50);
-        expect(Content.ME_FOLLOWERS).toHaveCount(50);
 
         storage.clear();
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
-        expect(Content.ME_FOLLOWERS).toHaveCount(0);
     }
 
     @Test
@@ -187,8 +151,8 @@ public class UserAssociationStorageTest {
         List<Long> ids = Collections.singletonList(1L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
-        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
 
@@ -197,8 +161,8 @@ public class UserAssociationStorageTest {
         List<Long> ids = asList(1L, 2L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
-        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
 
@@ -208,10 +172,10 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
-        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
+        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());
         ContentValues[] contentValuesArr = argumentCaptor.getValue();
         int counter = 0;
         for (ContentValues contentValues : contentValuesArr) {
@@ -226,10 +190,10 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
-        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
+        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());
         List<ContentValues[]> contentValues = argumentCaptor.getAllValues();
         int counter = 0;
         for (ContentValues[] contentValue : contentValues) {
@@ -238,23 +202,6 @@ public class UserAssociationStorageTest {
             }
         }
         expect(counter).toEqual(ids.size());
-    }
-
-
-    @Test
-    public void shouldQueryFollowings() {
-        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        expect(Iterables.size(storage.getFollowings().toBlocking().toIterable())).toEqual(2);
-    }
-
-    @Test
-    public void shouldQueryFollowingsAndExemptFollowingsMarkedForDeletion() {
-        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
-        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
-        TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        expect(Iterables.size(storage.getFollowings().toBlocking().toIterable())).toEqual(1);
     }
 
     @Test
@@ -311,33 +258,6 @@ public class UserAssociationStorageTest {
         expect(followingsNeedingSync.size()).toEqual(2);
         expect(followingsNeedingSync.get(0).getToken()).toBeNull();
         expect(followingsNeedingSync.get(1).getToken()).toEqual(TOKEN);
-    }
-
-    @Test
-    public void shouldQueryUnsyncedFollowingAdditionAndRemoval() {
-        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        List<UserAssociation> userAssociations = newArrayList(storage.getFollowings().toBlocking().getIterator());
-
-        UserAssociation association = userAssociations.get(0);
-        association.markForAddition();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
-
-        association = userAssociations.get(1);
-        association.markForRemoval();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
-
-        expect(storage.getFollowingsNeedingSync().size()).toEqual(2);
-    }
-
-    @Test
-    public void shouldNotClearAnySyncFlag() {
-        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        UserAssociation association = storage.getFollowings().toBlocking().last();
-        expect(storage.setFollowingAsSynced(association)).toBeFalse();
     }
 
     @Test
@@ -431,11 +351,11 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldDeleteFollowers() {
-        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWERS.uri);
-        expect(Content.ME_FOLLOWERS).toHaveCount(2);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
-        storage.deleteAssociations(Content.ME_FOLLOWERS.uri, storedIds);
-        expect(Content.ME_FOLLOWERS).toHaveCount(0);
+        List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
+        storage.deleteAssociations(Content.ME_FOLLOWINGS.uri, storedIds);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
     }
 }

@@ -66,10 +66,6 @@ public class PlaylistItem extends PlayableItem {
         return source.get(PlaylistProperty.TRACK_COUNT);
     }
 
-    public int getLikesCount() {
-        return source.get(PlayableProperty.LIKES_COUNT);
-    }
-
     public Optional<Boolean> isMarkedForOffline() {
         return Optional.fromNullable(source.getOrElseNull(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE));
     }
@@ -89,6 +85,10 @@ public class PlaylistItem extends PlayableItem {
     public List<String> getTags() {
         final Optional<List<String>> optionalTags = source.get(PlaylistProperty.TAGS);
         return optionalTags.isPresent() ? optionalTags.get() : Collections.<String>emptyList();
+    }
+
+    public long getDuration() {
+        return source.get(PlayableProperty.DURATION);
     }
 
     @Override

@@ -57,6 +57,9 @@ public enum ApiEndpoints {
 
     // profile
     MY_DOB("/you/profile/dob"),
+    USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
+    USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
+    USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
     // playlist
     PLAYLISTS_CREATE("/playlists"),
@@ -69,6 +72,10 @@ public enum ApiEndpoints {
     STATION("/stations/%s/station_and_tracks"),
     STATIONS("/stations"),
 
+    // timeline features
+    STREAM("/stream"),
+    ACTIVITIES("/activities"),
+
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
@@ -76,7 +83,6 @@ public enum ApiEndpoints {
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
-    STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
 
@@ -95,11 +101,11 @@ public enum ApiEndpoints {
     LEGACY_USER("/users/%s"),
     TRACK_COMMENTS("/tracks/%s/comments"),
 
-    USER_SOUNDS("/e1/users/%s/sounds"),
-    USER_LIKES("/e1/users/%s/likes"),
-    USER_PLAYLISTS("/users/%s/playlists"),
-    USER_FOLLOWINGS("/users/%s/followings"),
-    USER_FOLLOWERS("/users/%s/followers"),
+    LEGACY_USER_SOUNDS("/e1/users/%s/sounds"),
+    LEGACY_USER_LIKES("/e1/users/%s/likes"),
+    LEGACY_USER_PLAYLISTS("/users/%s/playlists"),
+    LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
+    LEGACY_USER_FOLLOWERS("/users/%s/followers"),
 
     OAUTH2_TOKEN("/oauth2/token");
 

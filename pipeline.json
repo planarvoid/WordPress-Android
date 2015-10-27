@@ -7,10 +7,9 @@
           {
             "compile": { 
               "artifacts": [
-                "app/res/values/app_properties.xml", 
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
-              "cmd": "./gradlew clean updateVersion buildDebugCI", 
+              "cmd": "BUILD_TYPE=debug ./gradlew clean updateVersion buildDebugCI",
               "plugins": {
                 "androidLint": {
                 "failedTotalHigh": 0, 
@@ -37,11 +36,10 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
+              "cmd": "BUILD_TYPE=debug ./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
               "artifacts": [
-                "app/build/outputs/apk/*androidTest*.apk", 
-                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
-                "app/src/androidTest/res/values/test_properties.xml"
+                "app/build/outputs/apk/*androidTest*.apk",
+                "app/build/outputs/apk/androidnetworkmanager-*.apk"
               ]
             }
           }
@@ -80,10 +78,9 @@
             "acceptance_tests": {
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk", 
-                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
-                "app/src/androidTest/res/values/test_properties.xml"
+                "app/build/outputs/apk/androidnetworkmanager-*.apk"
               ], 
-                "cmd": "./gradlew runKitKatTests", 
+                "cmd": "./gradlew runLollipopTests", 
                 "plugins": {
                   "htmlReports": [
                     {
@@ -117,7 +114,10 @@
           "deploy_alpha": {
             "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha; \n./gradlew deployAlpha ", 
             "manual": true,
-            "schedule": "H 3 * * 2-6"
+            "schedule": "H 3 * * 2-6",
+            "artifacts": [
+              "app/build/outputs/apk/app-prod-alpha.apk"
+            ]
           }
         }
       ]
@@ -128,7 +128,7 @@
     "git-url": "git@github.com:soundcloud/SoundCloud-Android.git", 
     "github-url": "https://github.com/soundcloud/SoundCloud-Android/", 
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net", 
-    "owner-emails": "slawomir@soundcloud.com", 
+    "owner-emails": "android-dev@soundcloud.com", 
     "slave-label": "mobile-slave"
   }
 }

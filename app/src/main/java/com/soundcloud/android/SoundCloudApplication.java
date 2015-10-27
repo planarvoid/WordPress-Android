@@ -175,7 +175,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         screenProvider.subscribe();
         castSessionController.startListening();
 
-        if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)) {
+        if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
             playPublisher.subscribe();
         }
 
@@ -273,15 +273,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
-
-            // sync shortcuts so suggest works properly
-            Intent intent = new Intent(this, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(Content.ME_SHORTCUT.uri);
-            startService(intent);
-
             requestSetsSync();
-
             return true;
         } else {
             return false;

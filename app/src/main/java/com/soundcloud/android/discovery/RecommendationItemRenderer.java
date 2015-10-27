@@ -104,7 +104,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
     private Spannable getReasonText(RecommendationItem recommendationItem) {
         String reason = getReason(recommendationItem.getRecommendationReason());
-        String reasonText = resources.getString(R.string.recommendation_reason_because_you, reason,
+        String reasonText = resources.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
                 recommendationItem.getSeedTrackTitle());
 
         Spannable spannable = new SpannableString(reasonText);

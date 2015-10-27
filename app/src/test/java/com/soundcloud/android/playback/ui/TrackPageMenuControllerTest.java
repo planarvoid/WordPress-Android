@@ -12,16 +12,15 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -32,7 +31,6 @@ import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,11 +42,14 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
 
+    @Mock private FeatureFlags featureFlags;
+    @Mock private StartStationPresenter startStationPresenter;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private TextView textView;
+    @Mock private ShareOperations shareOperations;
 
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
@@ -65,7 +66,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostSubject);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
 
-        controller = new TrackPageMenuController.Factory(playQueueManager, repostOperations, popupMenuWrapperFactory, eventBus)
+        controller = new TrackPageMenuController.Factory(featureFlags, playQueueManager, repostOperations, popupMenuWrapperFactory, startStationPresenter, eventBus, shareOperations)
                 .create(textView);
         controller.setTrack(track);
     }
@@ -76,52 +77,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        Assertions.assertThat(activityContext)
-                .nextStartedIntent()
-                .containsExtra(Intent.EXTRA_SUBJECT, "dubstep anthem - SoundCloud")
-                .containsExtra(Intent.EXTRA_TEXT, "Listen to dubstep anthem by squirlex #np on #SoundCloud\\nhttp://permalink.url");
-    }
-
-    @Test
-    public void clickingShareMenuItemSendsShareIntentWithoutUser() {
-        MenuItem share = mockMenuItem(R.id.share);
-        PlayerTrackState withoutUser = new PlayerTrackState(PropertySet.from(
-                TrackProperty.URN.bind(Urn.forTrack(123L)),
-                PlayableProperty.TITLE.bind("dubstep anthem"),
-                PlayableProperty.CREATOR_URN.bind(Urn.forUser(123)),
-                PlayableProperty.CREATOR_NAME.bind(""),
-                PlayableProperty.IS_PRIVATE.bind(false),
-                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
-                PlayableProperty.IS_REPOSTED.bind(true)), false, false, null);
-        controller.setTrack(withoutUser);
-
-        controller.onMenuItemClick(share, activityContext);
-
-        Assertions.assertThat(activityContext)
-                .nextStartedIntent()
-                .containsExtra(Intent.EXTRA_SUBJECT, "dubstep anthem - SoundCloud")
-                .containsExtra(Intent.EXTRA_TEXT, "Listen to dubstep anthem #np on #SoundCloud\\nhttp://permalink.url");
-    }
-
-    @Test
-    public void doesNotSendShareIntentForPrivateTracks() {
-        MenuItem share = mockMenuItem(R.id.share);
-        controller.setTrack(privateTrack);
-
-        controller.onMenuItemClick(share, activityContext);
-
-        Assertions.assertThat(activityContext)
-                .hasNoNextStartedIntent();
-    }
-
-    @Test
-    public void clickingShareMenuItemEmitsShareEvent() {
-        MenuItem share = mockMenuItem(R.id.share);
-
-        controller.onMenuItemClick(share, activityContext);
-
-        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn(), PlayableMetadata.from(track));
-        expectUIEvent(expectedEvent);
+        verify(shareOperations).share(activityContext, track.getSource(), "screen", Screen.PLAYER_MAIN.get(), track.getUrn(), null);
     }
 
     @Test
@@ -131,7 +87,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.onMenuItemClick(repost, activityContext);
 
         verify(repostOperations).toggleRepost(track.getUrn(), true);
-
     }
 
     @Test
@@ -215,12 +170,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.show();
 
         verify(popupMenuWrapper, never()).show();
-    }
-
-    private void expectUIEvent(UIEvent expectedEvent) {
-        UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(expectedEvent.getKind());
-        assertThat(uiEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     private MenuItem mockMenuItem(int menuteItemId) {

@@ -24,6 +24,6 @@ public class InsertOperationTest {
     @Test
     public void operationShouldInsertAtTheGivenPosition() throws Exception {
         new PlayQueueManager.InsertOperation(1, Urn.forTrack(123L), PropertySet.create(), true).execute(playQueue);
-        expect(playQueue.getTrackIds()).toContainExactly(1L, 123L, 2L);
+        expect(playQueue.getTrackItemUrns()).toContainExactly(Urn.forTrack(1L), Urn.forTrack(123L), Urn.forTrack(2L));
     }
 }

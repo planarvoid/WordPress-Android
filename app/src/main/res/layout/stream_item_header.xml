@@ -1,0 +1,82 @@
+<RelativeLayout
+    android:id="@+id/header_container"
+    style="@style/Stream.Card.Header"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_image"
+        android:layout_width="@dimen/stream_avatar_size"
+        android:layout_height="@dimen/stream_avatar_size"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="6dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/header_text"
+        style="@style/Stream.PrimaryHeaderText"
+        android:layout_alignTop="@id/user_image"
+        android:layout_toRightOf="@id/user_image"
+        android:visibility="gone"
+        tools:text="User" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/reposter"
+        style="@style/Stream.PrimaryHeaderText"
+        android:layout_alignTop="@id/user_image"
+        android:layout_toRightOf="@id/header_text"
+        android:drawableLeft="@drawable/stats_repost"
+        android:visibility="gone"
+        tools:text="reposted a track or a playlist" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/creation_date"
+        style="@style/Stream.SecondaryHeaderText"
+        android:layout_below="@id/header_text"
+        android:layout_toRightOf="@id/user_image"
+        android:visibility="gone"
+        tools:text="12 min ago" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/single_line_header_text"
+        style="@style/Stream.PrimaryHeaderText"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="6dp"
+        android:layout_toRightOf="@id/user_image"
+        android:visibility="visible"
+        tools:text="User" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/promoter"
+        style="@style/Stream.PrimaryHeaderText"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="0dp"
+        android:layout_toRightOf="@id/single_line_header_text"
+        android:drawableLeft="@drawable/promoted_track_icon"
+        android:drawablePadding="4dp"
+        android:visibility="visible"
+        tools:text="promoted track or playlist" />
+
+    <TextView
+        android:id="@+id/private_separator"
+        style="@style/Stream.SecondaryHeaderText.Separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header_text"
+        android:layout_toRightOf="@id/creation_date"
+        android:text="@string/bullet"
+        android:visibility="gone" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/private_indicator"
+        style="@style/Stream.SecondaryHeaderText"
+        android:layout_below="@id/header_text"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@id/private_separator"
+        android:drawableLeft="@drawable/ic_private"
+        android:drawablePadding="4dp"
+        android:text="@string/private_indicator"
+        android:visibility="gone" />
+
+</RelativeLayout>

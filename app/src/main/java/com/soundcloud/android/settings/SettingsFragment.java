@@ -11,9 +11,7 @@ import javax.inject.Inject;
 public class SettingsFragment extends PreferenceFragment {
 
     @Inject ApplicationProperties appProperties;
-
     @Inject GeneralSettings generalSettings;
-    @Inject DeveloperSettings developerSettings;
 
     public static SettingsFragment create() {
         return new SettingsFragment();
@@ -27,10 +25,6 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         generalSettings.addTo(this);
-
-        if (appProperties.isDebugBuild()) {
-            developerSettings.addTo(this);
-        }
     }
 
 }

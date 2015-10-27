@@ -13,8 +13,6 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- needed for pre 2.2: automatic call muting -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -73,7 +71,7 @@
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-            <!-- TODO: Remove the EXPLORE filter once we switch over to tabs -->
+            <!-- TODO: Move the EXPLORE filter to ExploreActivity once we switch over to tabs -->
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -177,38 +175,12 @@
 
         <meta-data android:name="android.app.default_searchable" android:value=".search.CombinedSearchActivity"/>
 
+        <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity"/>
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 
-        <activity android:label="@string/side_menu_activity" android:name=".activities.ActivitiesActivity">
+        <activity android:label="@string/side_menu_notifications" android:name=".activities.ActivitiesActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACTIVITY"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity android:label="" android:name=".profile.MeActivity" android:theme="@style/Theme.SoundCloud.NoBg">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOU"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_INFO"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWERS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_FOLLOWINGS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -420,6 +392,14 @@
             android:name="com.soundcloud.android.gcm.GcmRegistrationService"
             android:exported="false">
         </service>
+
+        <receiver android:name="com.soundcloud.android.gcm.GcmMessageReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.soundcloud.android" />
+            </intent-filter>
+        </receiver>
 
         <!-- Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">

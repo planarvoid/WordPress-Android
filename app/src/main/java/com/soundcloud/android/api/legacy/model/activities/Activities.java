@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -28,12 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Activities extends CollectionHolder<Activity> {
     public static final int MAX_REQUESTS = 5;
@@ -122,10 +117,6 @@ public class Activities extends CollectionHolder<Activity> {
         return selectType(CommentActivity.class);
     }
 
-    public Activities sharings() {
-        return selectType(TrackSharingActivity.class);
-    }
-
     public Activities tracks() {
         return selectType(TrackActivity.class);
     }
@@ -136,20 +127,6 @@ public class Activities extends CollectionHolder<Activity> {
 
     public Activities followers() {
         return selectType(AffiliationActivity.class);
-    }
-
-    public Map<Playable, Activities> groupedByPlayable() {
-        Map<Playable, Activities> grouped = new HashMap<>();
-
-        for (Activity e : this) {
-            Activities activities = grouped.get(e.getPlayable());
-            if (activities == null) {
-                activities = new Activities();
-                grouped.put(e.getPlayable(), activities);
-            }
-            activities.add(e);
-        }
-        return grouped;
     }
 
     public void sort() {
@@ -277,20 +254,6 @@ public class Activities extends CollectionHolder<Activity> {
         return cv;
     }
 
-    public Set<String> artworkUrls() {
-        Set<String> artworkUrls = new HashSet<>();
-        for (Activity a : this) {
-            Playable playable = a.getPlayable();
-            if (playable != null) {
-                String artworkUrl = playable.getArtwork();
-                if (!TextUtils.isEmpty(artworkUrl)) {
-                    artworkUrls.add(artworkUrl);
-                }
-            }
-        }
-        return artworkUrls;
-    }
-
     public String getFirstAvailableAvatar() {
         for (PublicApiUser u : getUniqueUsers()) {
             if (u.shouldLoadIcon()) {
@@ -300,14 +263,4 @@ public class Activities extends CollectionHolder<Activity> {
         return null;
     }
 
-    public String getFirstAvailableArtwork() {
-        for (Activity a : this) {
-            Playable p = a.getPlayable();
-            if (p != null && p.shouldLoadArtwork()) {
-                return p.artwork_url;
-            }
-        }
-        // no artwork found, fall back to avatar
-        return getFirstAvailableAvatar();
-    }
 }

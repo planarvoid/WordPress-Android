@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
-import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -129,6 +129,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
+                TrackProperty.PERMALINK_URL.bind("http://permalink.url"),
                 TrackProperty.DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
@@ -189,7 +190,8 @@ public abstract class TestPropertySets {
                 PlaylistProperty.TRACK_COUNT.bind(4),
                 PlaylistProperty.LIKES_COUNT.bind(2),
                 PlaylistProperty.IS_PRIVATE.bind(false),
-                PostProperty.CREATED_AT.bind(new Date()));
+                PostProperty.CREATED_AT.bind(new Date()),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"));
     }
 
     public static PropertySet expectedFollowingForFollowingsScreen(long position) {

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -44,8 +45,8 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void onAdVisible(Urn playingUrn, PropertySet data, TrackSourceInfo trackSourceInfo) {
-        super.onAdVisible(playingUrn, data, trackSourceInfo);
+    public void onAdVisible(PlayQueueItem playQueueItem, PropertySet data, TrackSourceInfo trackSourceInfo) {
+        super.onAdVisible(playQueueItem, data, trackSourceInfo);
         interstitialImageHolder.setVisibility(View.VISIBLE);
         previewContainer.setVisibility(View.VISIBLE);
     }
@@ -66,9 +67,9 @@ public class InterstitialPresenter extends AdOverlayPresenter {
         if (data.contains(TrackProperty.TITLE) && data.contains(TrackProperty.CREATOR_NAME)){
             final String nowPlayingTitle = data.get(TrackProperty.TITLE);
             final String nowPlayingCreator = data.get(TrackProperty.CREATOR_NAME);
-            nowPlayingTitleView.setText(resources.getString(R.string.now_playing_with_args, nowPlayingTitle, nowPlayingCreator));
+            nowPlayingTitleView.setText(resources.getString(R.string.ads_now_playing_tracktitle_username, nowPlayingTitle, nowPlayingCreator));
         } else {
-            nowPlayingTitleView.setText(R.string.now_playing);
+            nowPlayingTitleView.setText(R.string.ads_now_playing);
             // we are missing certain track data here, just before launching.
             // Need to look at these reports and find the path that causes this. It seems to be when a monetizable track
             // has an audio ad, then an interstitial when the same playlist is started over

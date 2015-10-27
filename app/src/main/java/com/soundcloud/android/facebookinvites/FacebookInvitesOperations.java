@@ -62,8 +62,7 @@ public class FacebookInvitesOperations {
     }
 
     private boolean canShowAfterLastOpen() {
-        int timesAppOpened = facebookInvitesStorage.getTimesAppOpened();
-        return timesAppOpened > 0 && (timesAppOpened % SHOW_AFTER_OPENS_COUNT) == 0;
+        return facebookInvitesStorage.getTimesAppOpened() >= SHOW_AFTER_OPENS_COUNT;
     }
 
     private boolean canShowAfterLastClick() {

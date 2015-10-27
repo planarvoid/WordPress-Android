@@ -109,17 +109,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncMyShortcuts() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "all_shortcuts.json");
-        sync(Content.ME_SHORTCUTS.uri);
-        expect(Content.ME_SHORTCUTS).toHaveCount(461);
-
-        // make sure tracks+users got written
-        expect(Content.USERS).toHaveCount(318);
-        expect(Content.TRACKS).toHaveCount(143);
-    }
-
-    @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
         ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));

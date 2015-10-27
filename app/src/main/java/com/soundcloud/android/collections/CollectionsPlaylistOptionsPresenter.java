@@ -14,8 +14,7 @@ import javax.inject.Inject;
 public class CollectionsPlaylistOptionsPresenter {
 
     @Inject
-    public CollectionsPlaylistOptionsPresenter() {
-    }
+    public CollectionsPlaylistOptionsPresenter() {}
 
     public interface Listener {
         void onOptionsUpdated(PlaylistsOptions options);
@@ -34,7 +33,7 @@ public class CollectionsPlaylistOptionsPresenter {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(dialoglayout);
-        builder.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.btn_done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()

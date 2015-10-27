@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 57;
+    public static final int DATABASE_VERSION = 58;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -57,6 +57,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
             for (Table t : Table.values()) {
                 SchemaMigrationHelper.create(t, db);
             }
+
+            // views
+            db.execSQL(Tables.Shortcuts.SQL);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -74,11 +78,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
-
+        dropTable(Tables.Shortcuts.TABLE.name(), db);
         // legacy tables
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
         }
+
         onCreate(db);
     }
 
@@ -157,6 +162,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 57:
                             success = upgradeTo57(db, oldVersion);
+                            break;
+                        case 58:
+                            success = upgradeTo58(db, oldVersion);
                             break;
                         default:
                             break;
@@ -497,6 +505,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 57);
+        }
+        return false;
+    }
+
+    /**
+     * Create Shortcuts view for querying ShortCuts
+     */
+    private static boolean upgradeTo58(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.Shortcuts.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 58);
         }
         return false;
     }

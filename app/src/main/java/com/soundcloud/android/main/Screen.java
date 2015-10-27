@@ -17,12 +17,13 @@ public enum Screen {
     AUTH_USER_DETAILS("auth:user_details"),
     AUTH_FORGOT_PASSWORD("auth:forgot_password"),
 
-    // core screens
     SIDE_MENU_DRAWER("drawer"),
     STREAM("stream:main"),
-    SIDE_MENU_LIKES("collection:likes"),
-    SIDE_MENU_PLAYLISTS("collection:playlists"),
-    COLLECTIONS("collections"),
+
+    // collection
+    COLLECTIONS("collection:overview"),
+    LIKES("collection:likes"),
+    PLAYLISTS("collection:playlists"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
@@ -104,7 +105,8 @@ public enum Screen {
 
     // Stations
     STATIONS_HOME("stations:home"),
-    STATIONS_SHOW_ALL("stations:show_all");
+    STATIONS_SHOW_ALL("stations:show_all"),
+    STATIONS_RECENT("stations:recent_stations");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

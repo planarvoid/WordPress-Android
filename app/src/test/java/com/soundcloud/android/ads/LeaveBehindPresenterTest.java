@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -89,7 +90,7 @@ public class LeaveBehindPresenterTest extends AndroidUnitTest{
     public void sendAnEventWhenVisible() {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("screen", false);
         final PropertySet adMetaData = TestPropertySets.leaveBehindForPlayer();
-        presenter.onAdVisible(Urn.forTrack(123L), adMetaData, trackSourceInfo);
+        presenter.onAdVisible(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), adMetaData, trackSourceInfo);
 
         assertThat(eventBus.eventsOn(EventQueue.AD_OVERLAY)).hasSize(1);
         final AdOverlayEvent adOverlayEvent = eventBus.lastEventOn(EventQueue.AD_OVERLAY);

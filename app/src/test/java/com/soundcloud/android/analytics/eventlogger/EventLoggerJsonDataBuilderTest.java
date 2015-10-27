@@ -51,6 +51,7 @@ import android.net.Uri;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 
 public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
@@ -71,7 +72,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Mock private JsonTransformer jsonTransformer;
 
     private EventLoggerJsonDataBuilder jsonDataBuilder;
-    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
+    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
 
     @Before
@@ -102,7 +103,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
             .adUrn(audioAd.get(AdProperty.COMPANION_URN))
-            .pageName(Screen.SIDE_MENU_LIKES.get())
+            .pageName(Screen.LIKES.get())
             .clickName("clickthrough::companion_display")
             .clickTarget(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
             .clickObject(audioAdTrackUrn.toString())
@@ -121,7 +122,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
                 .adUrn(audioAd.get(AdProperty.AD_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .clickName("ad::skip")
                 .clickObject(audioAdTrackUrn.toString())
                 .externalMedia(audioAd.get(AdProperty.ARTWORK).toString())
@@ -138,7 +139,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
                 .adUrn(leaveBehind.get(LeaveBehindProperty.LEAVE_BEHIND_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .impressionName("leave_behind")
                 .impressionObject(leaveBehind.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString())
                 .externalMedia(leaveBehind.get(LeaveBehindProperty.IMAGE_URL))
@@ -156,7 +157,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
                 .adUrn(interstitial.get(InterstitialProperty.INTERSTITIAL_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .impressionName("interstitial")
                 .impressionObject(monetizedTrack.toString())
                 .externalMedia(interstitial.get(InterstitialProperty.IMAGE_URL))
@@ -174,7 +175,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
                 .adUrn(leaveBehind.get(LeaveBehindProperty.LEAVE_BEHIND_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .clickName("clickthrough::leave_behind")
                 .clickObject(leaveBehind.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString())
                 .clickTarget(String.valueOf(leaveBehind.get(LeaveBehindProperty.CLICK_THROUGH_URL)))
@@ -193,7 +194,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
                 .adUrn(interstitial.get(InterstitialProperty.INTERSTITIAL_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .clickName("clickthrough::interstitial")
                 .clickTarget(String.valueOf(interstitial.get(InterstitialProperty.CLICK_THROUGH_URL)))
                 .monetizedObject(monetizedTrack.toString())
@@ -212,7 +213,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
                 .adUrn(audioAd.get(AdProperty.COMPANION_URN))
-                .pageName(Screen.SIDE_MENU_LIKES.get())
+                .pageName(Screen.LIKES.get())
                 .impressionName("companion_display")
                 .impressionObject(audioAdTrackUrn.toString())
                 .monetizationType("audio_ad")
@@ -804,6 +805,21 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .impressionName("consumer_sub_upgrade_success"));
     }
 
+    @Test
+    public void addsCurrentExperimentJson() throws Exception {
+        final UIEvent event = UIEvent.fromToggleLike(true, SCREEN_TAG, CONTEXT_TAG, PAGE_NAME, Urn.forTrack(123), Urn.NOT_SET, null, PlayableMetadata.EMPTY);
+        setupExperiments();
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .experiment("exp_android_listening", 2345)
+                .experiment("exp_android_ui", 3456)
+                .pageName(PAGE_NAME));
+    }
+
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {
         return getEventData("audio_performance", "v0.0.0", event.getTimestamp())
                 .latency(1000L)
@@ -816,6 +832,13 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventData(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp);
+    }
+
+    private void setupExperiments() {
+        HashMap<String, Integer> activeExperiments = new HashMap<>();
+        activeExperiments.put("exp_android_listening", 2345);
+        activeExperiments.put("exp_android_ui", 3456);
+        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
     }
 
 }

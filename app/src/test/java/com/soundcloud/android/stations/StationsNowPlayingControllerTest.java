@@ -3,9 +3,11 @@ package com.soundcloud.android.stations;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,13 +20,13 @@ import android.support.v4.app.Fragment;
 @RunWith(MockitoJUnitRunner.class)
 public class StationsNowPlayingControllerTest {
     private static final Urn COLLECTION_URN = Urn.forTrackStation(456L);
-    private static final CurrentPlayQueueTrackEvent EVENT = CurrentPlayQueueTrackEvent
-            .fromNewQueue(Urn.forTrack(123L), COLLECTION_URN, 0);
+    private static final CurrentPlayQueueItemEvent EVENT = CurrentPlayQueueItemEvent
+            .fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), COLLECTION_URN, 0);
 
     private Fragment fragment = new Fragment();
     private StationsNowPlayingController controller;
     private TestEventBus eventBus;
-    @Mock StationsNowPlayingController.StationsNowPlayingAdapter adapter;
+    @Mock NowPlayingAdapter adapter;
 
     @Before
     public void setUp() {
@@ -36,7 +38,7 @@ public class StationsNowPlayingControllerTest {
     public void isFunctionalWhenAdapterNotSet() {
         controller.onResume(fragment);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, EVENT);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, EVENT);
     }
 
     @Test
@@ -44,7 +46,7 @@ public class StationsNowPlayingControllerTest {
         controller.setAdapter(adapter);
         controller.onResume(fragment);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, EVENT);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, EVENT);
 
         verify(adapter).updateNowPlaying(COLLECTION_URN);
     }
@@ -53,7 +55,7 @@ public class StationsNowPlayingControllerTest {
     public void doesNotUpdateAdapterWhenOnResumeIsNotCalled() {
         controller.setAdapter(adapter);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, EVENT);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, EVENT);
 
         verifyZeroInteractions(adapter);
     }
@@ -64,7 +66,7 @@ public class StationsNowPlayingControllerTest {
         controller.onResume(fragment);
         controller.onPause(fragment);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, EVENT);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, EVENT);
 
         verifyZeroInteractions(adapter);
     }

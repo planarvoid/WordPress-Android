@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -14,7 +15,6 @@ import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stations.Station;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncContent;
@@ -101,19 +101,19 @@ public class CollectionsOperations {
         }
     };
 
-    private static final Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, List<Urn>, List<Station>, MyCollections>() {
+    private static final Func3<List<PlaylistItem>, List<Urn>, List<StationRecord>, MyCollections> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, List<Urn>, List<StationRecord>, MyCollections>() {
         @Override
-        public MyCollections call(List<PlaylistItem> playlistItems, List<Urn> likes, List<Station> recentStations) {
-            return new MyCollections(likes, playlistItems, transform(recentStations, Station.TO_URN));
+        public MyCollections call(List<PlaylistItem> playlistItems, List<Urn> likes, List<StationRecord> recentStations) {
+            return new MyCollections(likes, playlistItems, transform(recentStations, StationRecord.TO_URN));
         }
     };
 
-    private static final Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<Station>>, Notification<MyCollections>> TO_MY_COLLECTIONS_OR_ERROR =
-            new Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<Station>>, Notification<MyCollections>>() {
+    private static final Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<StationRecord>>, Notification<MyCollections>> TO_MY_COLLECTIONS_OR_ERROR =
+            new Func3<Notification<List<PlaylistItem>>, Notification<List<Urn>>, Notification<List<StationRecord>>, Notification<MyCollections>>() {
                 @Override
                 public Notification<MyCollections> call(Notification<List<PlaylistItem>> playlists,
                                                         Notification<List<Urn>> likes,
-                                                        Notification<List<Station>> recentStations) {
+                                                        Notification<List<StationRecord>> recentStations) {
                     if (playlists.isOnError() && likes.isOnError() && recentStations.isOnError()) {
                         return Notification.createOnError(playlists.getThrowable());
                     }
@@ -123,7 +123,7 @@ public class CollectionsOperations {
                     return Notification.createOnNext(TO_MY_COLLECTIONS.call(
                             playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
                             likes.isOnError() ? Collections.<Urn>emptyList() : likes.getValue(),
-                            recentStations.isOnError() ? Collections.<Station>emptyList() : recentStations.getValue()
+                            recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue()
                     ));
                 }
     };
@@ -150,9 +150,12 @@ public class CollectionsOperations {
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {
-        return Observable
-                .zip(myPlaylists(options).materialize(), tracksLiked().materialize(), recentStations().materialize(), TO_MY_COLLECTIONS_OR_ERROR)
-                .dematerialize();
+        return Observable.zip(
+                myPlaylists(options).materialize(),
+                tracksLiked().materialize(),
+                recentStations().materialize(),
+                TO_MY_COLLECTIONS_OR_ERROR
+        ).dematerialize();
     }
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
@@ -184,8 +187,7 @@ public class CollectionsOperations {
                     public Observable<List<Urn>> call(Boolean hasSynced) {
                         if (hasSynced) {
                             return loadTracksLiked();
-                        }
-                        else {
+                        } else {
                             return refreshLikesAndLoadTracksLiked();
                         }
                     }
@@ -196,9 +198,13 @@ public class CollectionsOperations {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
                 refreshLikesAndLoadTracksLiked(),
-                recentStations(),
+                refreshRecentStationsAndLoad(),
                 TO_MY_COLLECTIONS
         );
+    }
+
+    private Observable<List<StationRecord>> refreshRecentStationsAndLoad() {
+        return stationsOperations.sync().flatMap(continueWith(recentStations()));
     }
 
     private Observable<List<Urn>> refreshLikesAndLoadTracksLiked() {
@@ -209,8 +215,8 @@ public class CollectionsOperations {
         return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
     }
 
-    private Observable<List<Station>> recentStations() {
-        final Observable<Station> stations;
+    private Observable<List<StationRecord>> recentStations() {
+        final Observable<StationRecord> stations;
         if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
             stations = stationsOperations.collection(StationsCollectionsTypes.RECENT);
         } else {

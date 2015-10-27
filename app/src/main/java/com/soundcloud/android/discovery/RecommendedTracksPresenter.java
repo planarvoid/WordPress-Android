@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
-import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
+import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -66,8 +66,8 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(PLAY_QUEUE_TRACK,
-                        new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
+                        new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
                         new UpdateEntityListSubscriber(adapter)));
     }

@@ -76,7 +76,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public Optional<String> getReposter() {
-        return Optional.fromNullable(source.getOrElseNull(PlayableProperty.REPOSTER));
+        return Optional.fromNullable(source.getOrElseNull(PostProperty.REPOSTER));
     }
 
     public boolean isPrivate() {
@@ -87,16 +87,27 @@ public abstract class PlayableItem implements StreamItem {
         return source.getOrElse(PlayableProperty.IS_LIKED, false);
     }
 
+    public boolean isReposted() {
+        return source.getOrElse(PlayableProperty.IS_REPOSTED, false);
+    }
+
     public boolean isRepost() {
         return source.getOrElse(PostProperty.IS_REPOST, false);
     }
 
     public Urn getReposterUrn() {
-        return source.get(PlayableProperty.REPOSTER_URN);
+        return source.get(PostProperty.REPOSTER_URN);
     }
 
     public Date getCreatedAt() {
         return source.get(PlayableProperty.CREATED_AT);
     }
 
+    public int getLikesCount() {
+        return source.getOrElse(PlayableProperty.LIKES_COUNT, 0);
+    }
+
+    public int getRepostCount() {
+        return source.getOrElse(PlayableProperty.REPOSTS_COUNT, 0);
+    }
 }

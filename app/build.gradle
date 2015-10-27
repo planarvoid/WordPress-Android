@@ -1,18 +1,19 @@
 import java.util.regex.Pattern
 
 ext {
-  versionCode = getNewVersionCode()
-  versionName = new Date().format('yy.MM.dd')
-  releaseBody = System.env.containsKey('RELEASE_BODY') ? System.env.RELEASE_BODY : '' //'' signals local build
-  releaseName = System.env.containsKey('RELEASE_NAME') ? System.env.RELEASE_NAME : '' //'' signals local build
-  buildNumber = System.env.containsKey('BUILD_NUMBER') ? System.env.BUILD_NUMBER : '0' // '0' signals local build
-  buildType   = System.env.containsKey('BUILD_TYPE') ? System.env.BUILD_TYPE : 'debug' // 'debug' signals local build
-  buildFlavor = System.env.containsKey('JENKINS_URL') ? 'prod' : 'dev' // 'prod' signals CI build; 'dev' signals local build
-  gitBranch   = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
+  versionCode     = getNewVersionCode()
+  versionName     = new Date().format('yyyy.MM.dd')
+  releaseBody     = System.env.containsKey('RELEASE_BODY') ? System.env.RELEASE_BODY : '' //'' signals local build
+  releaseName     = System.env.containsKey('RELEASE_NAME') ? System.env.RELEASE_NAME : '' //'' signals local build
+  pipelineVersion = System.env.containsKey('PIPELINE_VERSION') ? System.env.PIPELINE_VERSION : '0-0' // '0-0' signals local build
+  buildType       = System.env.containsKey('BUILD_TYPE') ? System.env.BUILD_TYPE : 'debug' // 'debug' signals local build
+  buildFlavor     = System.env.containsKey('JENKINS_URL') ? 'prod' : 'dev' // 'prod' signals CI build; 'dev' signals local build
+  gitBranch       = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
 
-  apkPath               = "$project.buildDir/outputs/apk/soundcloud-android-$versionName-${buildType}.apk" // only used by renameApk task (for CI)
-  testApkPath           = "$project.buildDir/outputs/apk/app-$buildFlavor-$buildType-androidTest-unaligned.apk"
-  networkManagerApkPath = "$project.buildDir/outputs/apk/androidnetworkmanager-${rootProject.ext.networkManager}.apk"
+  outputsDir            = "$project.buildDir/outputs/apk"
+  apkPath               = "$outputsDir/soundcloud-android-$versionName-$pipelineVersion-${buildType}.apk" // only used by renameApk task (for CI)
+  testApkPath           = "$outputsDir/app-$buildFlavor-$buildType-androidTest-unaligned.apk"
+  networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.ext.networkManager}.apk"
 
   buildSrcDir = 'buildsystem'
 }
@@ -20,9 +21,8 @@ ext {
 buildscript {
   repositories {
     mavenLocal()
-    mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
-    maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.19.2'
@@ -36,10 +36,11 @@ apply from: "${buildSrcDir}/feature_flags.gradle"
 apply from: "${buildSrcDir}/app_properties.gradle"
 apply from: "${buildSrcDir}/versionizer.gradle"
 apply from: "${buildSrcDir}/static_analysis.gradle"
-apply from: "${buildSrcDir}/ci.gradle"
-apply from: "${buildSrcDir}/networkmanager.gradle"
+apply from: "${buildSrcDir}/apublisher.gradle"
 apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
+apply from: "${buildSrcDir}/ci.gradle"
+apply from: "${buildSrcDir}/networkmanager.gradle"
 apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
 
@@ -144,7 +145,6 @@ dependencies {
 
   /* 3rd Party Libraries */
   compile libraries.autoParcel
-  compile libraries.autoFactory
   compile libraries.comscore
   compile libraries.adjustAndroid
   compile libraries.dagger

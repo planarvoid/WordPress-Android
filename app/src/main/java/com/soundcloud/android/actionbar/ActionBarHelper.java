@@ -2,20 +2,15 @@ package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -90,7 +85,4 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
         }
     }
 
-    private void startActivity(Activity activity, Class target) {
-        activity.startActivity(new Intent(activity, target));
-    }
 }

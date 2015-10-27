@@ -11,5 +11,5 @@
         android:title="@string/make_offline_unavailable"
         android:visible="false" />
     <item android:id="@+id/add_to_likes"
-        android:title="@string/like" />
+        android:title="@string/btn_like" />
 </menu>

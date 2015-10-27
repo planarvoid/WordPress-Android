@@ -30,17 +30,28 @@
         <item name="colorAccent">@color/ak_sc_orange</item>
     </style>
 
+    <style name="TabsThemeBase" parent="Widget.Design.TabLayout">
+        <item name="tabSelectedTextColor">?android:colorAccent</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="TabsTheme" parent="TabsThemeBase" />
+
+    <style name="TabsTheme.Fixed">
+        <item name="tabPaddingStart">4dp</item>
+        <item name="tabPaddingEnd">4dp</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabGravity">fill</item>
+    </style>
+
+    <style name="TabsTheme.Scrollable">
+        <item name="tabPaddingStart">24dp</item>
+        <item name="tabPaddingEnd">24dp</item>
+        <item name="tabMode">scrollable</item>
+    </style>
+
     <style name="SearchView.SoundCloud" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@drawable/ic_search</item>
-    </style>
-
-    <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid">
-        <item name="displayOptions">homeAsUp|showTitle</item>
-    </style>
-
-    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
-        <item name="popupMenuStyle">@style/PopupMenu</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView</item>
     </style>
 
     <style name="LightProgressTheme" parent="BaseTheme">
@@ -66,15 +77,6 @@
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
-    </style>
-
-    <style name="Theme.ScCreate" parent="Theme.SoundCloud">
-        <item name="android:windowBackground">@color/dark_gray_background</item>
-    </style>
-
-    <style name="Theme.Onboard" parent="Theme.SoundCloud">
-        <item name="actionButtonStyle">@style/OnboardActionButtonStyle</item>
-        <item name="android:actionButtonStyle">@style/OnboardActionButtonStyle</item>
     </style>
 
     <style name="Widget.CropImageView" parent="android:Widget">

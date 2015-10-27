@@ -205,7 +205,7 @@ public class PlaybackInitiator {
     }
 
     private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
-        return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) ||
+        return playQueueManager.isQueueEmpty() || !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) ||
                 !playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn());
     }
 

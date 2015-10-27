@@ -29,8 +29,8 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -42,15 +42,12 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
 
 public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
-
-    private static final String SHARE_TYPE = "text/plain";
 
     private Context context;
     private PlaylistWithTracks playlistWithTracks;
@@ -67,6 +64,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackToastHelper playbackToastHelper;
     private final Navigator navigator;
+    private final ShareOperations shareOperations;
 
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription offlineStateSubscription = new CompositeSubscription();
@@ -81,7 +79,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                                         OfflineContentOperations offlineOperations,
                                         OfflinePlaybackOperations offlinePlaybackOperations,
                                         PlaybackToastHelper playbackToastHelper,
-                                        Navigator navigator) {
+                                        Navigator navigator,
+                                        ShareOperations shareOperations) {
         this.eventBus = eventBus;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
@@ -92,6 +91,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.playbackToastHelper = playbackToastHelper;
         this.navigator = navigator;
+        this.shareOperations = shareOperations;
     }
 
     void bindView(View rootView) {
@@ -137,7 +137,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         final String trackCount = context.getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlistWithTracks.getTrackCount(), playlistWithTracks.getTrackCount());
-        playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text,
+        playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
                 trackCount, playlistWithTracks.getDuration()));
 
         playlistEngagementsView.updateLikeItem(this.playlistWithTracks.getLikesCount(), this.playlistWithTracks.isLikedByUser());
@@ -319,34 +319,13 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onShare() {
         if (playlistWithTracks != null) {
-            eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromShare(originProvider.getScreenTag(), playlistWithTracks.getUrn(), PlayableMetadata.from(playlistWithTracks)));
-            sendShareIntent();
+            shareOperations.share(context,
+                    playlistWithTracks.getSourceSet(),
+                    originProvider.getScreenTag(),
+                    Screen.PLAYLIST_DETAILS.get(),
+                    playlistWithTracks.getUrn(),
+                    playSessionSourceInfo.getPromotedSourceInfo());
         }
-    }
-
-    private void sendShareIntent() {
-        if (playlistWithTracks.isPrivate()) {
-            return;
-        }
-        context.startActivity(buildShareIntent());
-    }
-
-    private Intent buildShareIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistWithTracks.getTitle()));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareIntentText());
-        return shareIntent;
-    }
-
-    private String buildShareIntentText() {
-        if (Strings.isNotBlank(playlistWithTracks.getCreatorName())) {
-            return context.getString(R.string.share_track_by_artist_on_soundcloud,
-                    playlistWithTracks.getTitle(), playlistWithTracks.getCreatorName(), playlistWithTracks.getPermalinkUrl());
-        }
-        return context.getString(R.string.share_track_on_soundcloud, playlistWithTracks.getTitle(), playlistWithTracks.getPermalinkUrl());
     }
 
     private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {

@@ -2,8 +2,12 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -20,10 +24,11 @@ import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-public class MainTabsPresenter extends NavigationPresenter {
+public class MainTabsPresenter extends NavigationPresenter implements ViewPager.OnPageChangeListener {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
+    private final EventBus eventBus;
 
     private NavigationModel navigationModel;
 
@@ -32,10 +37,12 @@ public class MainTabsPresenter extends NavigationPresenter {
     private ViewPager pager;
 
     @Inject
-    MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper, MainPagerAdapter.Factory pagerAdapterFactory) {
+    MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
+                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -51,6 +58,16 @@ public class MainTabsPresenter extends NavigationPresenter {
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
         }
+    }
+
+    @Override
+    public void onResume(AppCompatActivity activity) {
+        pager.addOnPageChangeListener(this);
+    }
+
+    @Override
+    public void onPause(AppCompatActivity activity) {
+        pager.removeOnPageChangeListener(this);
     }
 
     @Override
@@ -101,6 +118,8 @@ public class MainTabsPresenter extends NavigationPresenter {
 
     private void setupViews(AppCompatActivity activity) {
         pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
+        pager.setPageMarginDrawable(R.color.page_background);
         bindPagerWithTabs(createTabs());
     }
 
@@ -169,8 +188,20 @@ public class MainTabsPresenter extends NavigationPresenter {
     }
 
     @Override
+    public void onPageSelected(int position) {
+        trackScreen();
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+    @Override
+    public void onPageScrollStateChanged(int state) {}
+
+    @Override
     public void trackScreen() {
-        // TODO: Track screens based on current tab selection
+        final Screen currentScreen = navigationModel.getItem(pager.getCurrentItem()).getScreen();
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(currentScreen));
     }
 
 }

@@ -1,8 +1,10 @@
 package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 
@@ -26,13 +28,17 @@ public class UploadNotificationController {
     private final NotificationManager notificationManager;
     private final NotificationCompat.Builder progressNotification;
     private final NotificationCompat.Builder finishedNotification;
+    private final Navigator navigator;
+    private final AccountOperations accountOperations;
 
     @Inject
     public UploadNotificationController(Context context, Resources resources, NotificationManager notificationManager,
-                                        Provider<NotificationCompat.Builder> notificationBuilderProvider) {
+                                        Provider<NotificationCompat.Builder> notificationBuilderProvider, Navigator navigator, AccountOperations accountOperations) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
+        this.navigator = navigator;
+        this.accountOperations = accountOperations;
         this.progressNotification = notificationBuilderProvider.get();
         this.finishedNotification = notificationBuilderProvider.get();
     }
@@ -82,18 +88,19 @@ public class UploadNotificationController {
     }
 
     private Notification createUploadFinishedNotification(Recording recording) {
+        final Intent profileIntent = navigator.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_finished_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_finished_message, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded, recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_finished_ticker));
-        finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(Actions.YOUR_SOUNDS), PendingIntent.FLAG_UPDATE_CURRENT));
+        finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, profileIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();
     }
 
     private Notification createUploadErrorNotification(Recording recording) {
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_error_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message_tracktitle, recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_error_ticker));
         finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, getMonitorIntent(recording), PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();

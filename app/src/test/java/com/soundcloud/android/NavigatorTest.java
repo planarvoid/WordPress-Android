@@ -4,6 +4,8 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.explore.ExploreActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -19,8 +21,7 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.profile.LegacyProfileActivity;
-import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -52,7 +53,14 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator = new Navigator(flags);
         appContext = context();
         activityContext = new Activity();
-        when(flags.isEnabled(Flag.NEW_PROFILE)).thenReturn(false);
+    }
+
+    @Test
+    public void openHome() {
+        navigator.openHome(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
     }
 
     @Test
@@ -92,21 +100,12 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensMyProfileActivity() {
-        navigator.openMyProfile(activityContext, USER_URN);
-
-        assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
-                .opensActivity(MeActivity.class);
-    }
-
-    @Test
     public void opensProfileActivity() {
         navigator.openProfile(activityContext, USER_URN);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
-                .opensActivity(LegacyProfileActivity.class);
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                .opensActivity(ProfileActivity.class);
     }
 
     @Test
@@ -114,9 +113,9 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProfile(activityContext, USER_URN, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsScreen(Screen.DEEPLINK)
-                .opensActivity(LegacyProfileActivity.class);
+                .opensActivity(ProfileActivity.class);
     }
 
     @Test
@@ -126,10 +125,10 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.DEEPLINK)
-                .opensActivity(LegacyProfileActivity.class);
+                .opensActivity(ProfileActivity.class);
     }
 
     @Test
@@ -139,10 +138,10 @@ public class NavigatorTest extends AndroidUnitTest {
         pendingIntent.send();
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .containsScreen(Screen.NOTIFICATION)
-                .opensActivity(LegacyProfileActivity.class);
+                .opensActivity(ProfileActivity.class);
     }
 
     @Test
@@ -152,9 +151,9 @@ public class NavigatorTest extends AndroidUnitTest {
         pendingIntent.send();
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(LegacyProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsScreen(Screen.WIDGET)
-                .opensActivity(LegacyProfileActivity.class);
+                .opensActivity(ProfileActivity.class);
 
     }
 
@@ -187,6 +186,28 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsAction(Actions.STREAM)
                 .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void opensLegacyExplore() {
+        when(flags.isEnabled(Flag.TABS)).thenReturn(false);
+
+        navigator.openExplore(activityContext, Screen.DEEPLINK);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.EXPLORE)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
+    public void opensStandaloneExplore() {
+        when(flags.isEnabled(Flag.TABS)).thenReturn(true);
+
+        navigator.openExplore(activityContext, Screen.YOU);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(ExploreActivity.class)
+                .containsScreen(Screen.YOU);
     }
 
     @Test

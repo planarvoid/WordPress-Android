@@ -13,7 +13,7 @@ subprojects {
 task renameApk << {
   project.('android').applicationVariants.all { variant ->
     variant.outputs.each { output ->
-      output.outputFile = new File(project.ext.apkPath)
+      output.outputFile = new File("${project.('ext').apkPath}")
     }
   }
 }
@@ -21,7 +21,12 @@ task renameApk << {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
+staticAnalysis.dependsOn("assembleProd${project.buildType.capitalize()}")
+
+task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
+  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
+}
+updateVersion.mustRunAfter('clean')
 
 // *********************************************************************************************************************
 // DEBUG BUILDS
@@ -30,13 +35,12 @@ staticAnalysis.mustRunAfter("assembleProd${project.buildType.capitalize()}")
 task buildDebugCI(dependsOn: ['clean', 'assembleProdDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
-buildDebugCI.mustRunAfter('updateVersion')
 
-task buildEnd2endCI(dependsOn: ['assembleEnd2end']) {
+task buildEnd2endCI(dependsOn: ['updateVersion','assembleEnd2end']) {
   description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
-buildEnd2endCI.mustRunAfter('updateVersion')
+assembleEnd2end.mustRunAfter('updateVersion')
 
 // *********************************************************************************************************************
 // ALPHA BUILDS
@@ -59,15 +63,15 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task buildBetaCI(dependsOn: ['clean', 'assembleBeta']) {
+task buildBetaCI(dependsOn: ['clean', 'updateVersion', 'assembleBeta']) {
   description = 'Assembles Beta build for CI.'
 }
-buildBetaCI.mustRunAfter('updateVersion')
+assembleBeta.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta']) {
   description = 'Deploy Beta build to playstore and github.'
 }
-deployBeta.mustRunAfter('buildBetaCI')
+uploadBeta.mustRunAfter('uploadGithubBeta')
 
 // *********************************************************************************************************************
 // RELEASE BUILDS
@@ -76,20 +80,17 @@ deployBeta.mustRunAfter('buildBetaCI')
 task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
-buildReleaseNoProguardCI.mustRunAfter('updateVersion')
+assembleReleaseNoProguard.mustRunAfter('clean')
 
-task buildReleaseCI(dependsOn: ['clean', 'assembleRelease']) {
+task buildReleaseCI(dependsOn: ['clean', 'updateVersion', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
-buildReleaseCI.mustRunAfter('updateVersion')
+assembleRelease.mustRunAfter('updateVersion')
 
-// NOTE: Uploading to Play Store's beta track is the expected operation here, due to differences in the way we version
-// releases versus how Google versions releases. We must upload the release apk (with a version code bump!) to the beta
-// track and then manually bump that apk to the release track in the play store.
-task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
   description = 'Deploy Release build to playstore and github.'
 }
-deployReleaseCI.mustRunAfter('buildReleaseCI')
+rolloutOnePercent.mustRunAfter('uploadGithubRelease')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
@@ -99,37 +100,9 @@ task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_sto
 // HELPERS
 // *********************************************************************************************************************
 
-task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
-  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
-}
-
-task uploadStoreBeta(type: Exec) {
-  description = 'Uploads apk to Google Play Store.'
-
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
-}
-
-task rolloutOnePercent(type: Exec) {
-  description = 'Rolls the app up to 1% of user base'
-
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'rollout'
-}
-
-task rolloutFivePercent(type: Exec) {
-  description = 'Rolls the app up to 5% of user base'
-
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'rollout', '--fraction', '0.05'
-}
-
-task rolloutFull(type: Exec) {
-  description = 'Rolls the app up to 100% of user base'
-
-  commandLine 'apublisher', '-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'rollout', '--fraction', '0'
-}
-
 task slog(type: Exec) {
   description = 'Slog changes'
-  version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
+  version = "$project.ext.versionName-$project.buildType"
 
   commandLine 'curl', '--data', "channel=#android&message=slog: Released #android $version&username=The Release Captain", 'http://unslacked/'
 }

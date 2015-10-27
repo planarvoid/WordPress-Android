@@ -2,12 +2,13 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 
 import android.view.View;
 
 import javax.inject.Inject;
 
-class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsViewHolder> implements StationsNowPlayingController.StationsNowPlayingAdapter {
+class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsViewHolder> implements NowPlayingAdapter {
     private static final int STATION_TYPE = 0;
 
     @Inject

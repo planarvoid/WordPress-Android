@@ -217,7 +217,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
     }
 
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
-        holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
+        holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
 
         holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder));
@@ -273,7 +273,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
 
     private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ad_skip, formattedTime));
+        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ads_skip_in_time, formattedTime));
     }
 
     private void setClickListener(View.OnClickListener listener, Iterable<View> views) {

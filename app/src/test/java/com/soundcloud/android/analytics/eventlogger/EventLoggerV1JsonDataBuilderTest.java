@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -14,8 +13,10 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineTrackContext;
@@ -36,6 +37,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
@@ -60,13 +62,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
-    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
+    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
+    private final PlayableMetadata playableMetadata = PlayableMetadata.from(PropertySet.create());
 
     @Before
     public void setUp() throws Exception {
         jsonDataBuilder = new EventLoggerV1JsonDataBuilder(context().getResources(),
-                deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations);
+                deviceHelper, connectionHelper, accountOperations, jsonTransformer, featureOperations, experimentOperations);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
@@ -402,6 +405,46 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                         .eventType("desync")
                         .eventStage("complete")
         );
+    }
+
+    @Test
+    public void createsJsonForShareEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+    @Test
+    public void addsCurrentExperimentJson() throws Exception {
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+        setupExperiments();
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .experiment("exp_android_listening", 2345)
+                        .experiment("exp_android_ui", 3456)
+                        .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+    private void setupExperiments() {
+        HashMap<String, Integer> activeExperiments = new HashMap<>();
+        activeExperiments.put("exp_android_listening", 2345);
+        activeExperiments.put("exp_android_ui", 3456);
+        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -8,6 +9,7 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
@@ -100,7 +102,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
     }
 
     private Observable<StationBucket> bucket(int type, String title) {
-        final Func1<Station, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
+        final Func1<StationRecord, StationViewModel> toViewModel = buildToViewModel(playQueueManager.getCollectionUrn());
 
         return operations
                 .collection(type)
@@ -110,10 +112,10 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
                 .map(StationBucket.fromStationViewModels(title, type, maxStationsPerBucket()));
     }
 
-    private Func1<Station, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
-        return new Func1<Station, StationViewModel>() {
+    private Func1<StationRecord, StationViewModel> buildToViewModel(final Urn currentlyPlayingCollection) {
+        return new Func1<StationRecord, StationViewModel>() {
             @Override
-            public StationViewModel call(Station station) {
+            public StationViewModel call(StationRecord station) {
                 return new StationViewModel(station, currentlyPlayingCollection.equals(station.getUrn()));
             }
         };
@@ -133,7 +135,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    static class StationsHomeAdapter extends RecyclerItemAdapter<StationBucket, StationsViewHolder> implements StationsNowPlayingController.StationsNowPlayingAdapter {
+    static class StationsHomeAdapter extends RecyclerItemAdapter<StationBucket, StationsViewHolder> implements NowPlayingAdapter {
 
         public static final int STATION_BUCKET_TYPE = 0;
 

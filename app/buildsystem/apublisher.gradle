@@ -1,0 +1,62 @@
+apply from: "${project.('ext').buildSrcDir}/apk_finder.gradle"
+
+task uploadBeta {
+  description = 'Uploads app to Google Play Store Beta track.'
+
+  doLast {
+    executeCmd(
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("debug"), '-t', 'beta'],
+            "Upload app to Google Play Store Beta Track failed"
+    )
+  }
+}
+
+task rolloutOnePercent {
+  description = 'Uploads app to Google Play Store Staged Rollout track and rolls the app out to 1% of user base.'
+
+  doLast {
+    executeCmd(
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout'],
+            "Rollout to 1% failed"
+    )
+  }
+}
+
+task rolloutFivePercent {
+  description = 'Rolls the app out to 5% of user base.'
+
+  doLast {
+    executeCmd(
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout',
+             '--fraction', '0.05'],
+            "Rollout to 5% failed"
+    )
+  }
+}
+
+task rolloutFull {
+  description = 'Rolls the app out to 100% of user base.'
+
+  doLast {
+    executeCmd(
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release"), '-t', 'rollout',
+             '--fraction', '0'],
+            "Rollout to 100% failed"
+    )
+  }
+}
+
+def executeCmd(cmd, errorMessage) {
+  def p = cmd.execute()
+  OutputStream standardOut = new ByteArrayOutputStream()
+  OutputStream standardError = new ByteArrayOutputStream()
+  p.waitForProcessOutput(standardOut, standardError)
+
+  def exitValue = p.exitValue()
+  if (exitValue != 0) {
+    System.err.println(new String(standardError.toByteArray()))
+    throw new Exception("$errorMessage: ($cmd) exitValue: $exitValue")
+  }
+
+  System.out.println(new String(standardOut.toByteArray()))
+}

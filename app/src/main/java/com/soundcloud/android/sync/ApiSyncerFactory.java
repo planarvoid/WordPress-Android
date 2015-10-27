@@ -3,12 +3,13 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.android.sync.content.UserAssociationSyncer;
+import com.soundcloud.android.sync.activities.ActivitiesSyncer;
+import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
@@ -27,36 +28,42 @@ import javax.inject.Provider;
 @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
-    private final Provider<FollowingOperations> followingOpsProvider;
     private final Provider<NextFollowingOperations> nextFollowingOperationsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
+    private final Lazy<ActivitiesSyncer> lazyActivitiesSyncer;
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<NextFollowingOperations> nextFollowingOperationsProvider, Provider<AccountOperations> accountOpsProvider,
+    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider,
+                            Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
-                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
-                            JsonTransformer jsonTransformer, Navigator navigator) {
-        this.followingOpsProvider = followingOpsProvider;
+                            Lazy<ActivitiesSyncer> lazyActivitiesSyncer,
+                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
+                            Lazy<MyLikesSyncer> lazyMyLikesSyncer,
+                            Lazy<MyPostsSyncer> lazyMyPostsSyncer,
+                            SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                            JsonTransformer jsonTransformer, Navigator navigator, FeatureFlags featureFlags) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
+        this.lazyActivitiesSyncer = lazyActivitiesSyncer;
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -66,14 +73,21 @@ public class ApiSyncerFactory {
             case ME_SOUND_STREAM:
                 return lazySoundStreamSyncer.get();
 
+            case ME_ACTIVITIES:
+                if (featureFlags.isEnabled(Flag.ACTIVITIES_REFACTOR)) {
+                    return lazyActivitiesSyncer.get();
+                } else {
+                    return new ApiSyncer(context, context.getContentResolver());
+                }
+
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
 
             case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
-                return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(),
-                        nextFollowingOperationsProvider.get(), notificationManagerProvider.get(),
+                return new MyFollowingsSyncer(
+                        context, accountOpsProvider.get(),
+                        nextFollowingOperationsProvider.get(),
+                        notificationManagerProvider.get(),
                         jsonTransformer, navigator);
 
             case ME_PLAYLISTS:

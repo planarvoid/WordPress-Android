@@ -26,6 +26,7 @@ public class StorageModule {
     public static final String OFFLINE_SETTINGS = "OfflineSettings";
     public static final String FEATURES = "Features";
     public static final String STREAM_SYNC = "StreamSync";
+    public static final String ACTIVITIES_SYNC = "ActivitiesSync";
     public static final String POLICY_SETTINGS = "Policies";
     public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
     public static final String GCM = "gcm";
@@ -41,6 +42,7 @@ public class StorageModule {
     private static final String PREFS_FEATURES = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
+    private static final String PREFS_ACTIVITIES_SYNC = "ActivitiesSync";
     private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
     private static final String PREFS_GCM = "gcm";
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
@@ -110,6 +112,12 @@ public class StorageModule {
     @Named(STREAM_SYNC)
     public SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(ACTIVITIES_SYNC)
+    public SharedPreferences provideActivitiesSyncPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_ACTIVITIES_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides

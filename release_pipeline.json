@@ -7,7 +7,6 @@
           { 
             "compile": { 
               "artifacts": [
-                "app/res/values/app_properties.xml", 
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
               "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean updateVersion buildReleaseNoProguardCI", 
@@ -40,8 +39,7 @@
               "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk", 
-                "app/build/outputs/apk/androidnetworkmanager-*.apk", 
-                "app/src/androidTest/res/values/test_properties.xml"
+                "app/build/outputs/apk/androidnetworkmanager-*.apk"
               ]
             }
           }
@@ -74,7 +72,7 @@
             } 
           },
           { "acceptance_tests": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runKitKatTestsRelease", 
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runLollipopTestsRelease", 
               "test-reports": "results/xml/*.xml",
               "plugins": {
                 "htmlReports": [
@@ -112,8 +110,7 @@
           "compile_beta_apk": {
             "cmd": "BUILD_TYPE=beta ./gradlew clean updateVersion buildBetaCI",
             "artifacts": [
-              "app/res/values/app_properties.xml", 
-              "app/build/outputs/apk/soundcloud-android*beta.apk" 
+              "app/build/outputs/apk/soundcloud-android*beta.apk"
             ] 
           }
         },
@@ -121,14 +118,13 @@
             "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json; \nBUILD_TYPE=beta bundle install; \nBUILD_TYPE=beta ./gradlew deployBeta", 
             "manual": true,
             "localBranch": true, 
-            "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud*.apk"]
+            "artifacts": ["app/build/outputs/apk/soundcloud*.apk"]
           } 
         },
         {
           "compile_release_apk": {
             "cmd": "BUILD_TYPE=release ./gradlew clean updateVersion buildReleaseCI",
             "artifacts": [
-              "app/res/values/app_properties.xml", 
               "app/build/outputs/apk/soundcloud-android*-release.apk"
             ]   
           }
@@ -138,7 +134,7 @@
             "cmd": "BUILD_TYPE=release bundle install && BUILD_TYPE=release ./gradlew clean updateVersion buildReleaseCI;\n./gradlew deployOnePercent", 
             "manual": true,
             "localBranch": true,
-            "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
+            "artifacts": ["app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
         { 
@@ -146,7 +142,7 @@
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew deployFivePercent", 
             "manual": true,
             "localBranch": true,
-            "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
+            "artifacts": ["app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         },
         { 
@@ -154,7 +150,7 @@
             "cmd": "BUILD_TYPE=release bundle install && ./gradlew rolloutFull", 
             "manual": true,
             "localBranch": true,
-            "artifacts": ["app/res/values/app_properties.xml", "app/build/outputs/apk/soundcloud-android-*-release.apk"]
+            "artifacts": ["app/build/outputs/apk/soundcloud-android-*-release.apk"]
           } 
         }
       ]   

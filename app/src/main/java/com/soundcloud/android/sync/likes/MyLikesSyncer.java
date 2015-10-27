@@ -3,7 +3,7 @@ package com.soundcloud.android.sync.likes;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.SyncStrategy;
 import dagger.Lazy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

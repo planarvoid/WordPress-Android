@@ -12,7 +12,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ProfileScrollHelper;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleBinder;
@@ -23,6 +22,7 @@ import rx.functions.Func1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -79,8 +79,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        SlidingTabLayout tabIndicator = (SlidingTabLayout) activity.findViewById(R.id.indicator);
-        tabIndicator.setViewPager(pager);
+        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        tabLayout.setupWithViewPager(pager);
 
         pager.setCurrentItem(ProfilePagerAdapter.TAB_POSTS);
 

@@ -77,11 +77,6 @@
     <item quantity="one">Le sigues tú y %s otra persona</item>
     <item quantity="other">Le sigues tú y %s otras personas</item>
   </plurals>
-  <!--__SINGLE_LINE_COLLECTION_TEXT_VIEW-->
-  <plurals name="number_of_others">
-    <item quantity="one">y %d más</item>
-    <item quantity="other">y %d más</item>
-  </plurals>
   <!--__TIME-->
   <plurals name="elapsed_days">
     <item quantity="one">%d día</item>

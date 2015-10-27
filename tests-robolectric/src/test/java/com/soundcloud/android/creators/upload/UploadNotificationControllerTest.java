@@ -5,8 +5,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -28,6 +30,8 @@ public class UploadNotificationControllerTest {
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
+    @Mock private Navigator navigator;
+    @Mock private AccountOperations accountOperations;
 
     private UploadNotificationController notificationController;
     private Provider<NotificationCompat.Builder> notificationBuilderProvider = new Provider<NotificationCompat.Builder>() {
@@ -45,7 +49,7 @@ public class UploadNotificationControllerTest {
                 Robolectric.application,
                 Robolectric.application.getResources(),
                 notificationManager,
-                notificationBuilderProvider);
+                notificationBuilderProvider, navigator, accountOperations);
     }
 
     @Test
@@ -81,7 +85,7 @@ public class UploadNotificationControllerTest {
         notificationController.showUploadFinished(recording);
 
         verify(notificationBuilder).setContentTitle(Robolectric.application.getString(R.string.cloud_uploader_notification_finished_title));
-        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_finished_message, recording.getTitle()));
+        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded, recording.getTitle()));
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setAutoCancel(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -94,7 +98,7 @@ public class UploadNotificationControllerTest {
         notificationController.showUploadError(recording);
 
         verify(notificationBuilder).setContentTitle(Robolectric.application.getString(R.string.cloud_uploader_notification_error_title));
-        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_error_message, recording.getTitle()));
+        verify(notificationBuilder).setContentText(Robolectric.application.getString(R.string.cloud_uploader_notification_error_message_tracktitle, recording.getTitle()));
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setAutoCancel(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

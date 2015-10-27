@@ -17,9 +17,9 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -32,6 +32,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -64,6 +65,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
     private final Urn LAST_URN = Urn.forTrack(987L);
 
+    private PlayQueueItem trackPlayQueueItem;
     private Urn trackUrn;
     private PropertySet track;
     private PropertySet trackWithAdMeta;
@@ -102,10 +104,11 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         track = expectedTrackForPlayer();
         trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
         trackUrn = track.get(TrackProperty.URN);
+        trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
-        when(playQueueManager.getLastTrackUrn()).thenReturn(LAST_URN);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(trackUrn);
+        when(playQueueManager.getLastPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(LAST_URN));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(Observable.just(recommendedPlayQueue));
@@ -120,7 +123,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangedHandlerCallsPlayCurrentIfThePlayerIsInPlaySession() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy).playCurrent();
     }
@@ -130,7 +133,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy, never()).playCurrent();
     }
@@ -139,12 +142,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferentAndPlaying() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        PropertySet previousCurrentTrack = setupTrackLoad(Urn.forTrack(5L));
-        PropertySet newCurrentTrack = setupTrackLoad(Urn.forTrack(6L));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(previousCurrentTrack.get(TrackProperty.URN), Urn.NOT_SET, 0));
-        Mockito.reset(playbackStrategy);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(newCurrentTrack.get(TrackProperty.URN), Urn.NOT_SET, 0));
+        final PropertySet previousCurrentTrack = setupTrackLoad(Urn.forTrack(5L));
+        final PropertySet newCurrentTrack = setupTrackLoad(Urn.forTrack(6L));
+        final PlayQueueItem previousPlayQueueItem = TestPlayQueueItem.createTrack(previousCurrentTrack.get(TrackProperty.URN));
+        final PlayQueueItem newPlayQueueItem = TestPlayQueueItem.createTrack(newCurrentTrack.get(TrackProperty.URN));
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(previousPlayQueueItem, Urn.NOT_SET, 0));
+        Mockito.reset(playbackStrategy);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(newPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy).playCurrent();
     }
@@ -153,10 +159,10 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangeWhenCastingDoesNotPlayTrackWhenCurrentTrackStaysTheSame() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         Mockito.reset(playbackStrategy);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy, never()).playCurrent();
     }
@@ -164,7 +170,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void playQueueTrackChangedHandlerDoesNotSetTrackOnAudioManagerIfTrackChangeNotSupported() {
         when(audioManager.isTrackChangeSupported()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(audioManager, never()).onTrackChanged(any(PropertySet.class), any(Bitmap.class));
     }
 
@@ -174,7 +180,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         inOrder.verify(audioManager).onTrackChanged(track, null);
         inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
     }
@@ -185,7 +191,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, audioAdProperties(Urn.forTrack(123L)), 0));
+        trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, audioAdProperties(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), eq(((Bitmap) null)));
         inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), any(Bitmap.class));
     }
@@ -195,13 +202,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(audioManager).onTrackChanged(track, null);
     }
 
     @Test
     public void shouldNotRespondToPlayQueueTrackChangesWhenPlayerIsNotPlaying() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy, never()).playCurrent();
     }
@@ -322,7 +329,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void appendsRecommendedTracksWhenAtTolerance() {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -331,7 +338,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void appendsRecommendedTracksWhenAtEnd() {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -346,7 +353,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(station);
         when(stationsOperations.fetchUpcomingTracks(station, queueSize)).thenReturn(Observable.just(playQueue));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, station, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, station, 0));
 
         verify(playQueueManager).appendPlayQueueItems(playQueue);
     }
@@ -356,7 +363,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(false);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verifyZeroInteractions(playQueueOperations);
     }
@@ -367,7 +374,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -378,7 +385,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -390,7 +397,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, false)).thenReturn(Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -398,7 +405,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void doesNotAppendRecommendedTracksWhenQueueIsEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verifyZeroInteractions(playQueueOperations);
     }
@@ -406,7 +413,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void doesNotAppendRecommendedTracksMoreThanTolerance() {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE + 1);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verifyZeroInteractions(playQueueOperations);
     }
@@ -418,8 +425,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -432,8 +439,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -444,8 +451,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager, never()).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -457,9 +464,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
     }
@@ -469,7 +476,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final PublishSubject<PlayQueue> recommendedSubject = PublishSubject.create();
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(recommendedSubject);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(recommendedSubject.hasObservers()).isTrue();
 
@@ -874,9 +881,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     private void setupAdInProgress(long currentProgress) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
+        final PropertySet adData = TestPropertySets.audioAdProperties(Urn.forTrack(456L));
+        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
+
         when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack()).thenReturn(progress);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456L)));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
     }
 
     private PropertySet setupTrackLoad(Urn urn) {

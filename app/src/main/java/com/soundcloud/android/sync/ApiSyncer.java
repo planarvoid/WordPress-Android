@@ -12,7 +12,6 @@ import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -22,19 +21,15 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -42,7 +37,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -120,11 +114,6 @@ public class ApiSyncer extends LegacySyncStrategy {
                 case TRACK:
                     // used from TrackRepository to fulfill single track requests
                     result = syncSingleTrack(uri);
-                    break;
-
-                case ME_SHORTCUTS:
-                    // still used
-                    result = syncSearchShortcuts(c);
                     break;
             }
         }
@@ -265,47 +254,6 @@ public class ApiSyncer extends LegacySyncStrategy {
             userStorage.createOrUpdate(user);
             result.change = ApiSyncResult.CHANGED;
             result.success = true;
-        }
-        return result;
-    }
-
-    /**
-     * Good for syncing any generic item that doesn't require special ordering or cache handling
-     * e.g. Shortcuts
-     *
-     * @param c the content to be synced
-     * @return the syncresult
-     * @throws IOException
-     */
-    private ApiSyncResult syncSearchShortcuts(Content c) throws IOException {
-        log("Syncing generic resource " + c.uri);
-
-        ApiSyncResult result = new ApiSyncResult(c.uri);
-        final Request request = c.request();
-        HttpResponse resp = api.get(request);
-
-        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            List<ScModel> models = api.getMapper().readValue(resp.getEntity().getContent(),
-                    api.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
-
-            List<ContentValues> cvs = new ArrayList<>(models.size());
-            for (ScModel model : models) {
-                ContentValues cv = model.buildContentValues();
-                if (cv != null) {
-                    cvs.add(cv);
-                }
-            }
-
-            int inserted = 0;
-            if (!cvs.isEmpty()) {
-                inserted = resolver.bulkInsert(c.uri, cvs.toArray(new ContentValues[cvs.size()]));
-                log("inserted " + inserted + " generic models");
-            }
-
-            result.setSyncData(System.currentTimeMillis(), inserted);
-            result.success = true;
-        } else {
-            Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
         }
         return result;
     }

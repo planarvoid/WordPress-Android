@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.player;
 
 import static com.soundcloud.android.framework.matcher.view.IsEnabled.Enabled;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -41,4 +42,15 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         assertThat(menu.repostItem(), is(Enabled()));
         assertThat(menu.shareItem(), is(Enabled()));
     }
+
+    public void testLikeTrackAlwaysShowsTheShareButton() {
+        VisualPlayerElement player = menuScreen.open()
+                .clickExplore()
+                .playFirstTrack()
+                .unlike();
+
+        player.likeButton().click();
+        assertThat(player.shareButton(), is(visible()));
+    }
+
 }

@@ -68,38 +68,51 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1" />
 
+        <ImageButton
+            android:id="@+id/track_page_share"
+            style="@style/PlayerShareBase.PlayerShare"
+            android:visibility="gone" />
+
         <ToggleButton
             android:id="@+id/track_page_like"
-            style="@style/PlayerLike" />
+            style="@style/PlayerLikeBase.PlayerLike" />
 
         <Button
             android:id="@+id/track_page_more"
-            style="@style/PlayerMore" />
+            style="@style/PlayerMoreBase.PlayerMore" />
     </LinearLayout>
 
     <include layout="@layout/player_play_controls" />
 
-    <RelativeLayout
-        android:id="@+id/profile_link"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="16dp"
         android:layout_marginTop="@dimen/player_title_top"
-        android:paddingLeft="16dp">
+        android:paddingLeft="16dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/profile_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/track_page_user"
+                style="@style/PlayerUser" />
+
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/track_page_title"
+                style="@style/PlayerTitle"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
 
         <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/track_page_user"
-            style="@style/PlayerUser" />
-
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/track_page_title"
-            style="@style/PlayerTitle"
-            android:layout_below="@id/track_page_user"
-            android:layout_marginTop="4dp" />
-
-        <include layout="@layout/player_related_track" />
-
-    </RelativeLayout>
+            android:drawableLeft="@drawable/ic_stations_player_context"
+            android:id="@+id/track_page_context"
+            style="@style/PlayerContext" />
+    </LinearLayout>
 
     <include layout="@layout/player_footer_controls" />
 

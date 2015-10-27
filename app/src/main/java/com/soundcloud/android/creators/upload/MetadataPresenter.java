@@ -59,7 +59,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     public void onCreate(Fragment fragment, @Nullable Bundle state) {
         super.onCreate(fragment, state);
         this.metadataFragment = (MetadataFragment) fragment;
-        metadataFragment.getActivity().setTitle(R.string.post);
+        metadataFragment.getActivity().setTitle(R.string.btn_post);
     }
 
     @Override
