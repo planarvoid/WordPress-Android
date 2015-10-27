@@ -217,7 +217,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
-                    && !adsOperations.isCurrentTrackAudioAd()) {
+                    && !adsOperations.isCurrentItemAudioAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
@@ -236,7 +236,7 @@ public class PlaySessionController {
     }
 
     public boolean shouldDisableSkipping() {
-        return adsOperations.isCurrentTrackAudioAd() &&
+        return adsOperations.isCurrentItemAudioAd() &&
                 playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
@@ -260,7 +260,7 @@ public class PlaySessionController {
     }
 
     private void publishSkipEventIfAudioAd() {
-        if (adsOperations.isCurrentTrackAudioAd()) {
+        if (adsOperations.isCurrentItemAudioAd()) {
             final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
             final UIEvent event = UIEvent.fromSkipAudioAdClick(trackQueueItem.getMetaData(), trackQueueItem.getTrackUrn(),
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());

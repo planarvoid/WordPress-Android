@@ -102,7 +102,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         return new Action1<PropertySet>() {
             @Override
             public void call(PropertySet track) {
-                if (adsOperations.isCurrentTrackAudioAd()) {
+                if (adsOperations.isCurrentItemAudioAd()) {
                     serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
                 } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(urn)));

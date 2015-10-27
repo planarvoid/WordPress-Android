@@ -69,7 +69,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final Func1<? super Integer, Boolean> noPageChangedScrollOnAd = new Func1<Integer, Boolean>() {
         @Override
         public Boolean call(Integer state) {
-            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentTrackAudioAd();
+            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentItemAudioAd();
         }
     };
 
@@ -97,9 +97,9 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     @Override
     public void onPageSelected(int position) {
         final int playQueuePosition = presenter.getPlayQueuePosition(position);
-        final boolean notAudioAd = !adsOperations.isAudioAdAtPosition(playQueuePosition);
+        final boolean notAd = !adsOperations.isAdAtPosition(playQueuePosition);
         final boolean currentPosition = playQueueManager.isCurrentPosition(playQueuePosition);
-        trackPager.setPagingEnabled(notAudioAd || currentPosition);
+        trackPager.setPagingEnabled(notAd || currentPosition);
         wasPageChange = true;
     }
 

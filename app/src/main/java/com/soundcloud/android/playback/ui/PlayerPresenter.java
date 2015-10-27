@@ -60,7 +60,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueItemEvent ignored) {
-            return adsOperations.isCurrentTrackAudioAd();
+            return adsOperations.isCurrentItemAudioAd();
         }
     };
 
@@ -222,7 +222,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setAdPlayQueue() {
-        presenter.setCurrentData(playQueueDataSource.getCurrentTrackAsQueue());
+        presenter.setCurrentData(playQueueDataSource.getCurrentItemAsQueue());
         trackPager.setCurrentItem(0, false);
     }
 
@@ -236,7 +236,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private boolean isShowingCurrentAudioAd() {
-        return adsOperations.isCurrentTrackAudioAd()
+        return adsOperations.isCurrentItemAudioAd()
                 && playQueueManager.isCurrentPosition(getDisplayedPositionInPlayQueue());
     }
 
@@ -262,7 +262,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private boolean isLookingAtAdWithFullQueue() {
-        return presenter.isAudioAdAtPosition(trackPager.getCurrentItem()) &&
+        return presenter.isAdPageAtPosition(trackPager.getCurrentItem()) &&
                 isResumed && trackPager.getAdapter().getCount() > 1;
     }
 
@@ -270,7 +270,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void onNext(Integer ignored) {
             if(setPlayQueueAfterScroll){
-                if (adsOperations.isCurrentTrackAudioAd()){
+                if (adsOperations.isCurrentItemAudioAd()){
                     setAdPlayQueue();
                 } else {
                     refreshPlayQueue();

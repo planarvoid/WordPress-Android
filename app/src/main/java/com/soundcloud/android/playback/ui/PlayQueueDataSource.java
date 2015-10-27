@@ -1,21 +1,20 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.java.collections.PropertySet;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
+
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 class PlayQueueDataSource {
 
     private final PlayQueueManager playQueueManager;
-    private final List<TrackPageData> fullQueue;
+    private final List<PlayerPageData> fullQueue;
 
     @Inject
     public PlayQueueDataSource(PlayQueueManager playQueueManager) {
@@ -23,33 +22,30 @@ class PlayQueueDataSource {
         this.fullQueue = createFullQueue();
     }
 
-    public List<TrackPageData> getFullQueue() {
+    public List<PlayerPageData> getFullQueue() {
         return fullQueue;
     }
 
-    public List<TrackPageData> getCurrentTrackAsQueue() {
-        final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
-
-        final TrackPageData adPageData = new TrackPageData(playQueueManager.getCurrentPosition(),
-                trackQueueItem.getTrackUrn(),
-                playQueueManager.getCollectionUrn(),
-                trackQueueItem.getMetaData());
-        return newArrayList(adPageData);
+    public List<PlayerPageData> getCurrentItemAsQueue() {
+        final PlayQueueItem playQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return newArrayList(transformPlayQueueItem(playQueueItem, playQueueManager.getCurrentPosition()));
     }
 
-    private List<TrackPageData> createFullQueue() {
-        List<TrackPageData> trackPageDataCollection = new ArrayList<>(playQueueManager.getQueueSize());
+    private List<PlayerPageData> createFullQueue() {
+        List<PlayerPageData> playerPageDataCollection = new ArrayList<>(playQueueManager.getQueueSize());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {
             final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(i);
-            if (playQueueItem.isTrack()) {
-                final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueItem;
-                final Urn trackUrn = trackQueueItem.getTrackUrn();
-                final PropertySet metaData = trackQueueItem.getMetaData();
-                final Urn collectionUrn = playQueueManager.getCollectionUrn();
-                trackPageDataCollection.add(new TrackPageData(i, trackUrn, collectionUrn, metaData));
-            }
+            playerPageDataCollection.add(transformPlayQueueItem(playQueueItem, i));
         }
-        return trackPageDataCollection;
+        return playerPageDataCollection;
     }
 
+    private PlayerPageData transformPlayQueueItem(PlayQueueItem playQueueItem, int position) {
+        if (playQueueItem.isTrack()) {
+            final Urn collectionUrn = playQueueManager.getCollectionUrn();
+            return new TrackPageData(position, playQueueItem.getUrn(), collectionUrn, playQueueItem.getMetaData());
+        } else {
+            return new VideoPageData(position, playQueueItem.getMetaData());
+        }
+    }
 }

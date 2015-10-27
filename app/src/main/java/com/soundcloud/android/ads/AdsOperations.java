@@ -99,7 +99,7 @@ public class AdsOperations {
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
 
         if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
-            Log.i(ADS_TAG, "Should insert video ad for " + monetizableTrack.toString());
+            insertVideoAd(monetizableTrack, ads.videoAd().get(), currentMonetizablePosition);
         } else if (ads.interstitialAd().isPresent()) {
             applyInterstitialAd(ads.interstitialAd().get(), currentMonetizablePosition, monetizableTrack);
         } else if (ads.audioAd().isPresent()) {
@@ -115,6 +115,26 @@ public class AdsOperations {
         }
     }
 
+    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition, Urn monetizableTrack) {
+        PropertySet interstitialPropertySet = interstitial.toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
+                .put(TrackProperty.URN, monetizableTrack);
+
+        playQueueManager.performPlayQueueUpdateOperations(
+                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
+        );
+    }
+
+    void insertVideoAd(Urn monetizableTrack, ApiVideoAd apiVideoAd, int currentMonetizablePosition) {
+        PropertySet adMetaData = apiVideoAd.toPropertySet()
+                .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
+
+        playQueueManager.performPlayQueueUpdateOperations(
+                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, PropertySet.create()),
+                new PlayQueueManager.InsertVideoOperation(currentMonetizablePosition, adMetaData)
+        );
+    }
+
     void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
         PropertySet adMetaData = apiAudioAd
                 .toPropertySet()
@@ -125,7 +145,7 @@ public class AdsOperations {
         } else {
             playQueueManager.performPlayQueueUpdateOperations(
                     new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, PropertySet.create()),
-                    new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
+                    new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
             );
         }
     }
@@ -140,28 +160,39 @@ public class AdsOperations {
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, audioAdTrack);
 
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.InsertOperation(currentMonetizablePosition, audioAdTrack, adMetaData, false),
+                new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, audioAdTrack, adMetaData, false),
                 new PlayQueueManager.SetMetadataOperation(newMonetizablePosition, leaveBehindProperties)
         );
     }
 
-    public boolean isNextTrackAudioAd() {
-       return playQueueManager.hasNextTrack() &&
-               getMonetizableTrackMetaData().contains(AdProperty.AD_URN) &&
-               getMonetizableTrackMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
+    public boolean isCurrentItemAd() {
+        return isAdAtPosition(playQueueManager.getCurrentPosition());
     }
 
-    public boolean isCurrentTrackAudioAd() {
+    public boolean isNextItemAd() {
+        return isAdAtPosition(playQueueManager.getCurrentPosition() + 1);
+    }
+
+    public boolean isAdAtPosition(int position) {
+        return isAudioAdAtPosition(position) || isVideoAdAtPosition(position);
+    }
+
+    public boolean isCurrentItemAudioAd() {
         return !playQueueManager.isQueueEmpty() && isAudioAdAtPosition(playQueueManager.getCurrentPosition());
     }
 
-    public boolean isAudioAdAtPosition(int position) {
+    private boolean isAudioAdAtPosition(int position) {
         final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
         return playQueueItem.getMetaData().contains(AdProperty.AD_URN) &&
                 playQueueItem.getMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
     }
 
-    public void clearAllAds() {
+    private boolean isVideoAdAtPosition(int position) {
+        final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
+        return playQueueItem.isVideo();
+    }
+
+    public void clearAllAdsFromQueue() {
         playQueueManager.removeTracksWithMetaData(AdFunctions.HAS_AD_URN,
                 PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
@@ -169,15 +200,5 @@ public class AdsOperations {
     public PropertySet getMonetizableTrackMetaData() {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
         return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getMetaData();
-    }
-
-    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition, Urn monetizableTrack) {
-        PropertySet interstitialPropertySet = interstitial.toPropertySet()
-                .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(TrackProperty.URN, monetizableTrack);
-
-        playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
-        );
     }
 }

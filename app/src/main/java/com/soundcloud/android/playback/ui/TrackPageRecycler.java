@@ -17,7 +17,7 @@ class TrackPageRecycler {
     private final Deque<View> scrapViews;
 
     TrackPageRecycler() {
-        recycledViews = new ArrayList<>(PlayerPagerPresenter.TRACK_VIEW_POOL_SIZE);
+        recycledViews = new ArrayList<>(PlayerPagerPresenter.PAGE_VIEW_POOL_SIZE);
         scrapViews = new LinkedList<>();
     }
 

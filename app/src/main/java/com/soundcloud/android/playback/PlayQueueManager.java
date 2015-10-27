@@ -458,14 +458,14 @@ public class PlayQueueManager implements OriginProvider {
         void execute(PlayQueue playQueue);
     }
 
-    public static class InsertOperation implements QueueUpdateOperation {
+    public static class InsertAudioOperation implements QueueUpdateOperation {
 
         private final int position;
         private final Urn trackUrn;
         private final PropertySet metaData;
         private final boolean shouldPersist;
 
-        public InsertOperation(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
+        public InsertAudioOperation(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
             this.position = position;
             this.trackUrn = trackUrn;
             this.metaData = metaData;
@@ -475,6 +475,22 @@ public class PlayQueueManager implements OriginProvider {
         @Override
         public void execute(PlayQueue playQueue) {
             playQueue.insertTrack(position, trackUrn, metaData, shouldPersist);
+        }
+    }
+
+    public static class InsertVideoOperation implements QueueUpdateOperation {
+
+        private final int position;
+        private final PropertySet metaData;
+
+        public InsertVideoOperation(int position, PropertySet metaData) {
+            this.position = position;
+            this.metaData = metaData;
+        }
+
+        @Override
+        public void execute(PlayQueue playQueue) {
+            playQueue.insertVideo(position, metaData);
         }
     }
 

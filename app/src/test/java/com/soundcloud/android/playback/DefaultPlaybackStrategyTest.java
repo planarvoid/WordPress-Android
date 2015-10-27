@@ -139,7 +139,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Test
     public void playCurrentPlaysAdSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 

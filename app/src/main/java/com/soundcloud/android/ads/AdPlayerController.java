@@ -60,7 +60,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
         @Override
         public State call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new State(adsOperations.isCurrentTrackAudioAd(),
+            return new State(adsOperations.isCurrentItemAudioAd(),
                     currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     playerUIEvent.getKind());
         }

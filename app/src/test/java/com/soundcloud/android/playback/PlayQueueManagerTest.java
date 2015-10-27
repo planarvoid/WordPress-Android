@@ -495,7 +495,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
         playQueueManager.setPosition(3);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -509,7 +509,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
         playQueueManager.setPosition(2);
 
         playQueueManager.saveCurrentProgress(12L);

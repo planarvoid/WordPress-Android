@@ -63,7 +63,7 @@ public class VisualAdImpressionOperations {
             return new State(
                     currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                    adsOperations.isCurrentTrackAudioAd(),
+                    adsOperations.isCurrentItemAudioAd(),
                     playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
         }
     };

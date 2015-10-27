@@ -109,7 +109,7 @@ class PlaybackSessionAnalyticsController {
                 lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo,
                         progress, protocol, playerType, connectionType, localStoragePlayback);
 
-                if (adsOperations.isCurrentTrackAudioAd()) {
+                if (adsOperations.isCurrentItemAudioAd()) {
                     lastPlayAudioAd = playQueueManager.getCurrentPlayQueueItem().getMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
