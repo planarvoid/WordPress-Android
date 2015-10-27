@@ -30,11 +30,12 @@
         <item name="colorAccent">@color/ak_sc_orange</item>
     </style>
 
-    <style name="TabsTheme" parent="Widget.Design.TabLayout">
+    <style name="TabsThemeBase" parent="Widget.Design.TabLayout">
         <item name="tabSelectedTextColor">?android:colorAccent</item>
         <item name="android:background">@color/white</item>
-        <item name="android:elevation">@dimen/appbar_elevation</item>
     </style>
+
+    <style name="TabsTheme" parent="TabsThemeBase" />
 
     <style name="TabsTheme.Fixed">
         <item name="tabPaddingStart">4dp</item>
