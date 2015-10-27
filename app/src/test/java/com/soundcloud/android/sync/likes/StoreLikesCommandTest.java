@@ -1,12 +1,10 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.utils.PropertySets.toPropertySets;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -18,11 +16,9 @@ import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StoreLikesCommandTest extends StorageIntegrationTest {
 
     private StoreLikesCommand command;
@@ -37,11 +33,11 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         final ApiLike trackLike = ModelFixtures.apiTrackLike();
         final ApiLike playlistLike = ModelFixtures.apiPlaylistLike();
 
-        command.with(PropertySets.toPropertySets(trackLike, playlistLike)).call();
+        command.call(PropertySets.toPropertySets(trackLike, playlistLike));
 
         assertThat(select(Query.from(Table.Likes.name())), counts(2));
-        assertLikeInserted(trackLike, TableColumns.Sounds.TYPE_TRACK);
-        assertLikeInserted(playlistLike, TableColumns.Sounds.TYPE_PLAYLIST);
+        databaseAssertions().assertLikeInserted(trackLike);
+        databaseAssertions().assertLikeInserted(playlistLike);
     }
 
     // we need to make sure we always fully replace local likes, since during a sync, we might find that a pending
@@ -49,7 +45,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldReplaceExistingEntries() throws PropellerWriteException {
         final PropertySet trackLike = ModelFixtures.apiTrackLike().toPropertySet();
-        command.with(Arrays.asList(trackLike)).call();
+        command.call(Arrays.asList(trackLike));
         // set the removal date
         propeller().update(Table.Likes, ContentValuesBuilder.values()
                         .put(TableColumns.Likes.REMOVED_AT, 123L)
@@ -58,7 +54,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
                 filter().whereEq("_id", trackLike.get(LikeProperty.TARGET_URN).getNumericId()));
 
         // replace the like, removal date should disappear
-        command.with(Arrays.asList(trackLike)).call();
+        command.call(Arrays.asList(trackLike));
 
         assertThat(select(Query.from(Table.Likes.name())), counts(1));
         assertThat(select(Query.from(Table.Likes.name())
@@ -68,16 +64,4 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
                 .whereNull(TableColumns.Likes.ADDED_AT)
                 .whereNull(TableColumns.Likes.REMOVED_AT)), counts(1));
     }
-
-    private void assertLikeInserted(ApiLike like, int likeType) {
-        assertLikeInserted(like.toPropertySet(), likeType);
-    }
-
-    private void assertLikeInserted(PropertySet like, int likeType) {
-        assertThat(select(Query.from(Table.Likes.name())
-                .whereEq(TableColumns.Likes._ID, like.get(LikeProperty.TARGET_URN).getNumericId())
-                .whereEq(TableColumns.Likes._TYPE, likeType)
-                .whereEq(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime())), counts(1));
-    }
-
 }

@@ -54,18 +54,18 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         final Set<PropertySet> additions = getSetDifference(remotePosts, localPosts);
         final Set<PropertySet> removals = getSetDifference(localPosts, remotePosts);
 
-        if (additions.isEmpty() && removals.isEmpty()){
+        if (additions.isEmpty() && removals.isEmpty()) {
             Log.d(TAG, "Returning with no change");
             return false;
         } else {
-            if (!removals.isEmpty()){
+            if (!removals.isEmpty()) {
                 Log.d(TAG, "Removing items " + TextUtils.join(",", removals));
-                removePostsCommand.with(removals).call();
+                removePostsCommand.call(removals);
             }
-            if (!additions.isEmpty()){
+            if (!additions.isEmpty()) {
                 Log.d(TAG, "Adding items " + TextUtils.join(",", additions));
                 fetchResourcesForAdditions(additions);
-                storePostsCommand.with(additions).call();
+                storePostsCommand.call(additions);
             }
             return true;
         }

@@ -1,7 +1,10 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.utils.PropertySets.toPropertySets;
+import static com.soundcloud.java.collections.Sets.newHashSet;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,24 +18,25 @@ import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
-@RunWith(SoundCloudTestRunner.class)
-public class LikesSyncerTest {
+// AndroidUnitTest because of PropertySets being used
+public class LikesSyncerTest extends AndroidUnitTest {
 
     private LikesSyncer syncer;
 
@@ -50,6 +54,7 @@ public class LikesSyncerTest {
     @Mock private StoreLikesCommand storeLikes;
     @Mock private RemoveLikesCommand removeLikes;
     @Mock private AccountOperations accountOperations;
+    @Captor private ArgumentCaptor<Collection<PropertySet>> removedLikes;
 
     @Before
     public void setup() throws Exception {
@@ -65,7 +70,7 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes(trackLike);
 
-        expect(syncer.call()).toBe(false);
+        assertThat(syncer.call()).isFalse();
 
         verifyZeroInteractions(removeLikes);
         verifyZeroInteractions(storeLikes);
@@ -78,7 +83,7 @@ public class LikesSyncerTest {
         withRemoteTrackLikes();
         withLocalTrackLikesPendingAddition(trackLike.toPropertySet());
 
-        expect(syncer.call()).toBe(false);
+        assertThat(syncer.call()).isFalse();
 
         verifyZeroInteractions(removeLikes);
         verify(pushLikeAdditions).call();
@@ -87,23 +92,22 @@ public class LikesSyncerTest {
 
     @Test
     public void shouldWriteSuccessfulRemoteAdditionsBackToLocalStorageWithUpdatedTimestamps() throws Exception {
-        when(pushLikeAdditions.call()).thenReturn(Collections.singleton(trackLike.toPropertySet()));
+        when(pushLikeAdditions.call()).thenReturn(singleton(trackLike.toPropertySet()));
         withRemoteTrackLikes();
         withLocalTrackLikesPendingAddition(trackLike.toPropertySet());
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        verify(storeLikes).call();
-        expect(storeLikes.getInput()).toContainExactly(trackLike.toPropertySet());
+        verify(storeLikes).call(singleton(trackLike.toPropertySet()));
     }
 
     @Test
     public void shouldNotFetchEntityForPushedAdditionAsItWillOverwriteLocalStats() throws Exception {
-        when(pushLikeAdditions.call()).thenReturn(Collections.singleton(trackLike.toPropertySet()));
+        when(pushLikeAdditions.call()).thenReturn(singleton(trackLike.toPropertySet()));
         withRemoteTrackLikes();
         withLocalTrackLikesPendingAddition(trackLike.toPropertySet());
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
         verify(fetchLikedResources, never()).call();
     }
@@ -113,15 +117,15 @@ public class LikesSyncerTest {
         withRemoteTrackLikes();
         withLocalTrackLikes(trackLike);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
         verify(pushLikeAdditions, never()).call();
         verify(pushLikeDeletions, never()).call();
 
-        expect(removeLikes.getInput()).toNumber(1);
-        Urn removedUrn = removeLikes.getInput().iterator().next().get(LikeProperty.TARGET_URN);
-        expect(removedUrn).toEqual(trackLike.getTargetUrn());
-        verify(removeLikes).call();
+        verify(removeLikes).call(removedLikes.capture());
+        assertThat(removedLikes.getValue()).hasSize(1);
+        assertThat(removedLikes.getValue().iterator().next().get(LikeProperty.TARGET_URN))
+                .isEqualTo(trackLike.getTargetUrn());
         verifyZeroInteractions(storeLikes);
     }
 
@@ -130,10 +134,9 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes();
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        expect(storeLikes.getInput()).toContainExactly(trackLike.toPropertySet());
-        verify(storeLikes).call();
+        verify(storeLikes).call(singleton(trackLike.toPropertySet()));
         verifyZeroInteractions(removeLikes);
         verify(pushLikeAdditions, never()).call();
         verify(pushLikeDeletions, never()).call();
@@ -148,10 +151,10 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        when(pushLikeDeletions.call()).thenReturn(Collections.singleton(deletedLike));
+        when(pushLikeDeletions.call()).thenReturn(singleton(deletedLike));
 
-        expect(syncer.call()).toBe(true);
-        expect(pushLikeDeletions.getInput()).toContainExactly(trackLikePendingRemoval);
+        assertThat(syncer.call()).isTrue();
+        assertThat(pushLikeDeletions.getInput()).containsExactly(trackLikePendingRemoval);
         verify(pushLikeDeletions).call();
         verify(pushLikeAdditions, never()).call();
     }
@@ -165,14 +168,12 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        when(pushLikeDeletions.call()).thenReturn(Collections.singleton(deletedLike));
+        when(pushLikeDeletions.call()).thenReturn(singleton(deletedLike));
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        expect(removeLikes.getInput()).toNumber(1);
-        Urn removedUrn = removeLikes.getInput().iterator().next().get(LikeProperty.TARGET_URN);
-        expect(removedUrn).toEqual(trackLikePendingRemoval.get(LikeProperty.TARGET_URN));
-        verify(removeLikes).call();
+        final Urn removedUrn = trackLikePendingRemoval.get(LikeProperty.TARGET_URN);
+        verify(removeLikes).call(singleton(PropertySet.from(LikeProperty.TARGET_URN.bind(removedUrn))));
         verifyZeroInteractions(storeLikes);
     }
 
@@ -187,15 +188,15 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike, otherLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval, otherLikePendingRemoval);
-        when(pushLikeDeletions.call()).thenReturn(Collections.singleton(otherLikePendingRemoval));
+        when(pushLikeDeletions.call()).thenReturn(singleton(otherLikePendingRemoval));
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
         // only remove the second like (first one failed)
-        expect(removeLikes.getInput()).toNumber(1);
-        Urn removedUrn = removeLikes.getInput().iterator().next().get(LikeProperty.TARGET_URN);
-        expect(removedUrn).toEqual(otherLikePendingRemoval.get(LikeProperty.TARGET_URN));
-        verify(removeLikes).call();
+        Urn likeToRemove = otherLikePendingRemoval.get(LikeProperty.TARGET_URN);
+        verify(removeLikes).call(removedLikes.capture());
+        assertThat(removedLikes.getValue()).hasSize(1);
+        assertThat(removedLikes.getValue().iterator().next().get(LikeProperty.TARGET_URN)).isEqualTo(likeToRemove);
         verifyZeroInteractions(storeLikes);
     }
 
@@ -208,13 +209,12 @@ public class LikesSyncerTest {
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        expect(removeLikes.getInput()).toNumber(1);
-        Urn removedUrn = removeLikes.getInput().iterator().next().get(LikeProperty.TARGET_URN);
-        expect(removedUrn).toEqual(trackLikePendingRemoval.get(LikeProperty.TARGET_URN));
-
-        verify(removeLikes).call();
+        Urn likeToRemove = trackLikePendingRemoval.get(LikeProperty.TARGET_URN);
+        verify(removeLikes).call(removedLikes.capture());
+        assertThat(removedLikes.getValue()).hasSize(1);
+        assertThat(removedLikes.getValue().iterator().next().get(LikeProperty.TARGET_URN)).isEqualTo(likeToRemove);
         verifyZeroInteractions(storeLikes);
         verify(pushLikeAdditions, never()).call();
         verify(pushLikeDeletions, never()).call();
@@ -237,9 +237,9 @@ public class LikesSyncerTest {
         PropertySet existsLocallyNotRemotelyPendingRemoval =
                 ModelFixtures.apiTrackLike().toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date());
-        when(pushLikeDeletions.call()).thenReturn(Collections.singleton(existsLocallyPendingRemoval));
+        when(pushLikeDeletions.call()).thenReturn(singleton(existsLocallyPendingRemoval));
 
-        // expected outcome:
+        // assertThated outcome:
         // - one local addition
         // - three local removals
         // - one remote addition
@@ -249,18 +249,19 @@ public class LikesSyncerTest {
         withLocalTrackLikesPendingAddition(existsLocallyPendingAddition);
         withLocalTrackLikesPendingRemoval(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        verify(storeLikes).call();
-        expect(storeLikes.getInput()).toContainExactly(existsRemotelyNotLocally.toPropertySet());
-        verify(removeLikes).call();
-        expect(removeLikes.getInput()).toContainExactlyInAnyOrder(existsLocallyPendingRemoval, existsLocallyNotRemotely.toPropertySet(), existsLocallyNotRemotelyPendingRemoval);
+        verify(storeLikes).call(singleton(existsRemotelyNotLocally.toPropertySet()));
+        verify(removeLikes).call(newHashSet(existsLocallyPendingRemoval,
+                existsLocallyNotRemotely.toPropertySet(), existsLocallyNotRemotelyPendingRemoval));
 
 
         verify(pushLikeAdditions, times(1)).call();
-        expect(pushLikeAdditions.getInput().iterator().next().get(LikeProperty.TARGET_URN)).toEqual(newRemoteLike.getTargetUrn());
+        assertThat(pushLikeAdditions.getInput().iterator().next().get(LikeProperty.TARGET_URN))
+                .isEqualTo(newRemoteLike.getTargetUrn());
         verify(pushLikeDeletions, times(1)).call();
-        expect(pushLikeDeletions.getInput().iterator().next().get(LikeProperty.TARGET_URN)).toEqual(existsRemotelyPendingRemoval.getTargetUrn());
+        assertThat(pushLikeDeletions.getInput().iterator().next().get(LikeProperty.TARGET_URN))
+                .isEqualTo(existsRemotelyPendingRemoval.getTargetUrn());
     }
 
     @Test
@@ -270,7 +271,7 @@ public class LikesSyncerTest {
         final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         when(fetchLikedResources.call()).thenReturn(tracks);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
         verify(storeLikedResources).call(tracks);
     }
@@ -289,7 +290,7 @@ public class LikesSyncerTest {
             // no op
         }
 
-        verify(storeLikes, never()).call();
+        verify(storeLikes, never()).call(any(Collection.class));
     }
 
     private void withRemoteTrackLikes(ApiLike... likes) throws Exception {
@@ -303,18 +304,18 @@ public class LikesSyncerTest {
     }
 
     private void withLocalTrackLikes(ApiLike... likes) throws Exception {
-        when(loadLikes.call()).thenReturn(PropertySets.toPropertySets(Arrays.asList(likes)));
+        when(loadLikes.call()).thenReturn(PropertySets.toPropertySets(asList(likes)));
     }
 
     private void withLocalTrackLikes(PropertySet... likes) throws Exception {
-        when(loadLikes.call()).thenReturn(Arrays.asList(likes));
+        when(loadLikes.call()).thenReturn(asList(likes));
     }
 
     private void withLocalTrackLikesPendingRemoval(PropertySet... likes) throws Exception {
-        when(loadLikesPendingRemoval.call()).thenReturn(Arrays.asList(likes));
+        when(loadLikesPendingRemoval.call()).thenReturn(asList(likes));
     }
 
     private void withLocalTrackLikesPendingAddition(PropertySet... likes) throws Exception {
-        when(loadLikesPendingAddition.call()).thenReturn(Arrays.asList(likes));
+        when(loadLikesPendingAddition.call()).thenReturn(asList(likes));
     }
 }

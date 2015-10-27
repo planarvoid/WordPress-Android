@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.storage.TableColumns.Posts;
 
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
+public class StorePostsCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, WriteResult> {
 
     @Inject
     StorePostsCommand(PropellerDatabase database) {
@@ -27,15 +27,15 @@ public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
     }
 
     @Override
-    protected WriteResult store() {
+    protected WriteResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
         List<ContentValues> values = new ArrayList<>(input.size());
         for (PropertySet playlistPost : input) {
-            values.add(buildContentValuesForPlaylistPost(playlistPost));
+            values.add(buildContentValuesForPost(playlistPost));
         }
-        return database.bulkInsert(Table.Posts, values, SQLiteDatabase.CONFLICT_REPLACE);
+        return propeller.bulkInsert(Table.Posts, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    private ContentValues buildContentValuesForPlaylistPost(PropertySet post) {
+    private ContentValues buildContentValuesForPost(PropertySet post) {
         final ContentValues cv = new ContentValues();
         final Urn targetUrn = post.get(PostProperty.TARGET_URN);
         cv.put(Posts.TARGET_ID, targetUrn.getNumericId());

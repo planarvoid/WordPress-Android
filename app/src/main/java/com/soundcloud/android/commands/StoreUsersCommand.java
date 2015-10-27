@@ -1,9 +1,9 @@
 package com.soundcloud.android.commands;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -24,7 +24,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, Iterable<? extends UserRecord> input) {
-        final List<ContentValues> newItems = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        final List<ContentValues> newItems = new ArrayList<>(Iterables.size(input));
         for (UserRecord user : input) {
             newItems.add(buildUserContentValues(user));
         }

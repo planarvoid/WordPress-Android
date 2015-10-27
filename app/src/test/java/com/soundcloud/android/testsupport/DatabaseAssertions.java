@@ -4,12 +4,13 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.policies.ApiPolicyInfo;
@@ -23,9 +24,12 @@ import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
+import com.soundcloud.android.sync.activities.ActivityKind;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
@@ -265,6 +269,33 @@ public class DatabaseAssertions {
         assertThat(select(query), counts(1));
     }
 
+    public void assertLikeInserted(ApiLike like) {
+        assertLikeInserted(like.toPropertySet());
+    }
+
+    public void assertLikeInserted(PropertySet like) {
+        assertLikeInserted(like.get(LikeProperty.TARGET_URN), like.get(LikeProperty.CREATED_AT));
+    }
+
+    public void assertLikeInserted(Urn targetUrn, Date createdAt) {
+        assertThat(select(Query.from(Table.Likes.name())
+                .whereEq(TableColumns.Likes._ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Likes._TYPE, targetUrn.isTrack()
+                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Likes.CREATED_AT, createdAt.getTime())), counts(1));
+    }
+
+    public void assertLikeActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
+        assertThat(select(Query.from(Table.Activities.name())
+                .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
+                        ActivityKind.TRACK_LIKE.tableConstant() : ActivityKind.PLAYLIST_LIKE.tableConstant())
+                .whereEq(TableColumns.Activities.SOUND_ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Activities.SOUND_TYPE, targetUrn.isTrack()
+                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
+                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
+    }
+
     public void assertLikedTrackPendingAddition(Urn targetUrn) {
         assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_TRACK);
     }
@@ -411,6 +442,17 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
                 .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(0));
+    }
+
+    public void assertRepostActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
+        assertThat(select(Query.from(Table.Activities.name())
+                .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
+                        ActivityKind.TRACK_REPOST.tableConstant() : ActivityKind.PLAYLIST_REPOST.tableConstant())
+                .whereEq(TableColumns.Activities.SOUND_ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Activities.SOUND_TYPE, targetUrn.isTrack()
+                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
+                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
     }
 
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {

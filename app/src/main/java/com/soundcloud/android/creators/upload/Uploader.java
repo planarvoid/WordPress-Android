@@ -1,6 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -34,8 +35,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -188,7 +187,7 @@ public class Uploader implements Runnable {
     }
 
     private void onUploadFinished(PublicApiTrack track) {
-        storeTracksCommand.call(Collections.singletonList(track));
+        storeTracksCommand.call(singletonList(track));
         createNewTrackPost(track);
 
         //request to update my collection
@@ -212,13 +211,13 @@ public class Uploader implements Runnable {
     }
 
     private void createNewTrackPost(PublicApiTrack track) {
-        storePostsCommand.with(Arrays.asList(
+        storePostsCommand.call(singletonList(
                 PropertySet.from(
                         PostProperty.TARGET_URN.bind(track.getUrn()),
                         PostProperty.CREATED_AT.bind(track.getCreatedAt()),
                         PostProperty.IS_REPOST.bind(false)
                 )
-        )).call();
+        ));
     }
 
     private final class EventSubscriber extends DefaultSubscriber<UploadEvent> {
