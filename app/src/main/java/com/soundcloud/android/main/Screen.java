@@ -21,10 +21,9 @@ public enum Screen {
     STREAM("stream:main"),
 
     // collection
-    COLLECTIONS("collections"),
+    COLLECTIONS("collection:overview"),
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
-    PLAYLISTS_FILTER("collection:playlists:filter"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
