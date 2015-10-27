@@ -18,10 +18,10 @@ task renameApk << {
   }
 }
 
-task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.buildType.capitalize()}"]) {
+task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.('buildType').capitalize()}",
+                                "assembleProd${project.('buildType').capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.dependsOn("assembleProd${project.buildType.capitalize()}")
 
 task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
   description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
@@ -100,9 +100,11 @@ task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_sto
 // HELPERS
 // *********************************************************************************************************************
 
+// TODO update this to use apk_finder and use new apk naming scheme
+
 task slog(type: Exec) {
   description = 'Slog changes'
-  version = "$project.ext.versionName-$project.buildType"
+  version = "${project.('versionName')}-${project.('buildType')}"
 
   commandLine 'curl', '--data', "channel=#android&message=slog: Released #android $version&username=The Release Captain", 'http://unslacked/'
 }
@@ -115,7 +117,7 @@ task headsup(type: Exec) {
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ["assembleProd${project.buildType.capitalize()}AndroidTest"]) {
+task assembleAcceptanceTest(dependsOn: ["assembleProd${project.('buildType').capitalize()}AndroidTest"]) {
   description = 'Assembles all the Test applications.'
 }
 
