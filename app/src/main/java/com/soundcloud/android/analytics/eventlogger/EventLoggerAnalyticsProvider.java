@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
+import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.MidTierTrackEvent;
@@ -99,7 +100,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleUpsellEvent((UpgradeTrackingEvent) event);
         } else if (event instanceof StreamNotificationEvent) {
             handleStreamNotificationEvent((StreamNotificationEvent) event);
+        } else if (event instanceof CollectionEvent) {
+            handleCollectionEvent((CollectionEvent) event);
         }
+    }
+
+    private void handleCollectionEvent(CollectionEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForCollectionEvent(event));
     }
 
     private void handleStreamNotificationEvent(StreamNotificationEvent event) {

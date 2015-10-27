@@ -8,11 +8,13 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
+import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -99,6 +101,26 @@ public class EventLoggerV1JsonDataBuilder {
                         .inLikes(event.isLiked())
                         .appVersion(deviceHelper.getAppVersion())
         );
+    }
+
+    public String buildForCollectionEvent(CollectionEvent event) {
+        switch (event.getKind()) {
+            case CollectionEvent.KIND_SET:
+                return transform(buildCollectionEvent("filter_sort::set", event));
+            case CollectionEvent.KIND_CLEAR:
+                return transform(buildCollectionEvent("filter_sort::clear", event));
+            default:
+                throw new IllegalStateException("Unexpected CollectionEvent type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildCollectionEvent(String clickName, CollectionEvent event) {
+        return buildBaseEvent("click", event)
+                .clickName(clickName)
+                .pageName(Screen.COLLECTIONS.get())
+                .clickCategory(EventLoggerClickCategories.COLLECTION)
+                .clickObject(event.get(CollectionEvent.KEY_OBJECT))
+                .clickTarget(event.get(CollectionEvent.KEY_TARGET));
     }
 
     private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {
