@@ -1,23 +1,23 @@
 import static groovy.io.FileType.FILES
 
-def String findApkFilename(String buildType) {
+def String findApkFilename(String buildType, versionCode) {
   def baseDir = new File("${project.('outputsDir')}")
   def names = []
-  def pattern = "soundcloud-android-.*-.*-.*-${buildType}.apk"
+  def pattern = "soundcloud-android-.*-.*-.*-${buildType}-${versionCode}.apk"
 
   baseDir.eachFileMatch FILES, ~/${pattern}/, { names << it.name }
   if (names.size() != 1) {
-    throw new Exception("Unable to find apk path for buildType ${buildType}")
+    throw new Exception("Unable to find apk path for buildType ${buildType} and versionCode ${versionCode}")
   }
   return names[0]
 }
 
-def String findApkPath(String buildType) {
-  return new File("${project.('outputsDir')}", findApkFilename(buildType))
+def String findApkPath(String buildType, versionCode) {
+  return new File("${project.('outputsDir')}", findApkFilename(buildType, versionCode))
 }
 
-def String findApkFilenameMinusExtension(String buildType) {
-  findApkFilename(buildType).replace(".apk", "")
+def String findApkFilenameMinusExtension(String buildType, versionCode) {
+  findApkFilename(buildType, versionCode).replace(".apk", "")
 }
 
 // Export methods by turning them into closures

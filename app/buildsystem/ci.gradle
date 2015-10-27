@@ -10,43 +10,31 @@ subprojects {
   }
 }
 
-task renameApk << {
-  project.('android').applicationVariants.all { variant ->
-    variant.outputs.each { output ->
-      output.outputFile = new File("${project.('ext').apkPath}")
-    }
-  }
-}
-
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.('buildType').capitalize()}",
                                 "assembleProd${project.('buildType').capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
 
-task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
-  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
-}
-updateVersion.mustRunAfter('clean')
-
 // *********************************************************************************************************************
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['clean', 'assembleProdDebug', 'staticAnalysis']) {
+task buildDebugCI(dependsOn: ['clean', 'versionizeDebug', 'assembleDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
+assembleDebug.mustRunAfter('versionizeDebug')
 
-task buildEnd2endCI(dependsOn: ['updateVersion','assembleEnd2end']) {
+task buildEnd2endCI(dependsOn: ['clean', 'versionizeDebug','assembleEnd2end']) {
   description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
-assembleEnd2end.mustRunAfter('updateVersion')
+assembleEnd2end.mustRunAfter('versionizeDebug')
 
 // *********************************************************************************************************************
 // ALPHA BUILDS
 // *********************************************************************************************************************
 
-task updateAlphaVersion(dependsOn: ['incrementVersionName', 'setAlphaVersionCode']) {
+task updateAlphaVersion(dependsOn: ['versionizeAlpha']) {
   description = 'Updates local AndroidManifest versions for Alpha deploy.'
 }
 
@@ -63,10 +51,10 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task buildBetaCI(dependsOn: ['clean', 'updateVersion', 'assembleBeta']) {
+task buildBetaCI(dependsOn: ['clean', 'versionizeBeta', 'assembleBeta']) {
   description = 'Assembles Beta build for CI.'
 }
-assembleBeta.mustRunAfter('updateVersion')
+assembleBeta.mustRunAfter('versionizeBeta')
 
 task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta']) {
   description = 'Deploy Beta build to playstore and github.'
@@ -82,10 +70,10 @@ task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 
 }
 assembleReleaseNoProguard.mustRunAfter('clean')
 
-task buildReleaseCI(dependsOn: ['clean', 'updateVersion', 'assembleRelease']) {
+task buildReleaseCI(dependsOn: ['clean', 'versionizeRelease', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
-assembleRelease.mustRunAfter('updateVersion')
+assembleRelease.mustRunAfter('versionizeRelease')
 
 task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
   description = 'Deploy Release build to playstore and github.'

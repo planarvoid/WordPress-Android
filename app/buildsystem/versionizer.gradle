@@ -1,41 +1,83 @@
 import java.util.regex.Pattern
 
-task incrementVersionCode {
-  // Increments version code in the AndroidManifest.xml file of the main app
+task versionizeDebug {
   doLast {
-    def manifestFile = file(rootProject.ext.manifestSrcFile)
-    def manifestText = manifestFile.getText()
-    def patternVersionCode = Pattern.compile('versionCode=\"(\\d+)\"')
-    def matcherVersionCode = patternVersionCode.matcher(manifestText)
-    matcherVersionCode.find()
-
-    def manifestContent = matcherVersionCode.replaceAll('versionCode=\"' + project.ext.versionCode + '\"')
-
-    manifestFile.write(manifestContent)
+    versionize(project.('debugVersionCode'))
   }
 }
+versionizeDebug.mustRunAfter('clean')
 
-task setAlphaVersionCode {
-  // Sets version code in the AndroidManifest.xml file of the main app to arbitrary value
+task versionizeAlpha {
   doLast {
-    def manifestFile = file('AndroidManifest.xml')
-    def matcherVersionCode = Pattern.compile('versionCode=\"(\\d+)\"').matcher( manifestFile.getText())
-    matcherVersionCode.find()
-    manifestFile.write(matcherVersionCode.replaceAll('versionCode=\"' + 1000 + '\"'))
+    updateVersionName()
+    updateVersionCode(project.('alphaVersionCode'))
   }
 }
+versionizeAlpha.mustRunAfter('clean')
 
-task incrementVersionName {
-  // Increments version name in the AndroidManifest.xml file of the main app
+task versionizeBeta {
   doLast {
-    def manifestFile = file('AndroidManifest.xml')
-    def manifestText = manifestFile.getText()
-    def patternVersionNumber = Pattern.compile("versionName=\"(\\d+)\\.(\\d+)\\.(\\d+)\"")
-    def matcherVersionNumber = patternVersionNumber.matcher(manifestText)
-    matcherVersionNumber.find()
+    versionize(project.('betaVersionCode'))
+  }
+}
+versionizeBeta.mustRunAfter('clean')
 
-    def manifestContent = matcherVersionNumber.replaceAll('versionName=\"' + project.ext.versionName + '\"')
+task versionizeRelease {
+  doLast {
+    versionize(project.('releaseVersionCode'))
+  }
+}
+versionizeRelease.mustRunAfter('clean')
 
-    manifestFile.write(manifestContent)
+task versionizeFollowUpBeta {
+  doLast {
+    versionize(project.('followUpBetaVersionCode'))
+  }
+}
+versionizeFollowUpBeta.mustRunAfter('clean')
+
+
+// *********************************************************************************************************************
+// HELPERS
+// *********************************************************************************************************************
+
+def versionize(versionCode) {
+  updateVersionName()
+  updateVersionCode(versionCode)
+  renameApk(versionCode)
+}
+
+def updateVersionName() {
+  def manifestFile = file(rootProject.('manifestSrcFile'))
+  def manifestText = manifestFile.getText()
+  def patternVersionNumber = Pattern.compile("versionName=\"(\\d+)\\.(\\d+)\\.(\\d+)\"")
+  def matcherVersionNumber = patternVersionNumber.matcher(manifestText)
+  matcherVersionNumber.find()
+
+  def manifestContent = matcherVersionNumber.replaceAll('versionName=\"' + (String) project.('versionName') + '\"')
+
+  manifestFile.write(manifestContent)
+}
+
+def updateVersionCode(versionCode) {
+  // Sets the version code in the AndroidManifest.xml file of the main app
+  def manifestFile = file(rootProject.('manifestSrcFile'))
+  def manifestText = manifestFile.getText()
+  def patternVersionCode = Pattern.compile('versionCode=\"(\\d+)\"')
+  def matcherVersionCode = patternVersionCode.matcher(manifestText)
+  matcherVersionCode.find()
+
+  def manifestContent = matcherVersionCode.replaceAll('versionCode=\"' + versionCode + '\"')
+
+  manifestFile.write(manifestContent)
+}
+
+def renameApk(versionCode) {
+  def filename = "${project.('apkPath')}".replace(".apk", "-${versionCode}.apk")
+  println filename
+  project.('android').applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+      output.outputFile = new File(filename)
+    }
   }
 }

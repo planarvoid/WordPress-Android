@@ -7,7 +7,15 @@ task uploadGithubBeta {
   description = 'Creates a tag and release on Github for beta apk.'
 
   doLast {
-    uploadGithub('beta')
+    uploadGithub('beta', project.('betaVersionCode'))
+  }
+}
+
+task uploadGithubFollowUpBeta {
+  description = 'Creates a tag and release on Github for follow up beta apk.'
+
+  doLast {
+    uploadGithub('beta', project.('followUpBetaVersionCode'))
   }
 }
 
@@ -15,24 +23,24 @@ task uploadGithubRelease {
   description = 'Creates a tag and release on Github for release apk.'
 
   doLast {
-    uploadGithub('release')
+    uploadGithub('release', project.('releaseVersionCode'))
   }
 }
 
-def uploadGithub(String buildType){
+def uploadGithub(String buildType, versionCode){
   def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
   def owner = 'soundcloud'
   def repo  = 'soundcloud-android'
 
-  def releaseId = createRelease(buildType, owner, repo, token)
-  uploadApkToRelease(buildType, owner, repo, token, releaseId)
+  def releaseId = createRelease(buildType, versionCode, owner, repo, token)
+  uploadApkToRelease(buildType, versionCode, owner, repo, token, releaseId)
 }
 
 class Release { String tag_name; String target_commitish; String name; String body }
 
-def String createRelease(String buildType, owner, repo, token) {
+def String createRelease(String buildType, versionCode, owner, repo, token) {
   def release = new Release(
-          tag_name: findApkFilenameMinusExtension(buildType),
+          tag_name: findApkFilenameMinusExtension(buildType, versionCode),
           target_commitish: project.('gitBranch'),
           name: project.('releaseName'),
           body: project.('releaseBody')
@@ -48,10 +56,10 @@ def String createRelease(String buildType, owner, repo, token) {
   return result.id
 }
 
-def uploadApkToRelease(String buildType, owner, repo, token, releaseId) {
+def uploadApkToRelease(String buildType, versionCode, owner, repo, token, releaseId) {
   def url = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
           "soundcloud-android.apk&access_token=$token"
-  def apkPath = findApkPath(buildType)
+  def apkPath = findApkPath(buildType, versionCode)
 
   def result = executePostWithApk(url, apkPath, 0)
   if (result == 0) {

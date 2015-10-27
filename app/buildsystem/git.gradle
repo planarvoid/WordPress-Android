@@ -1,6 +1,7 @@
-task commitVersionBump(type: Exec, dependsOn: ['updateVersion']) {
+// TODO: make this nice'n'purrrty
+task commitVersionBump(type: Exec) {
   description = 'Commits/Pushes versionCode and versionName bump to Github.'
-  def message = "\'VersionCode bumped to: $project.ext.versionCode\'"
+  def message = "\'VersionCode bumped to: \'"
   commandLine 'git', 'commit', '-a', '-m', message
 }
 commitVersionBump.finalizedBy('gitPush')
