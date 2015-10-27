@@ -65,6 +65,16 @@ task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta']) {
 }
 uploadBeta.mustRunAfter('uploadGithubBeta')
 
+task buildFollowUpBeta(dependsOn: ['clean', 'versionizeFollowUpBeta', 'assembleBetaWrapper']) {
+  description = 'Assembles follow up Beta build to Production Release for CI.'
+}
+assembleBetaWrapper.mustRunAfter('versionizeFollowUpBeta')
+
+task deployFollowUpBeta(dependsOn: ['uploadGithubFollowUpBeta', 'uploadFollowUpBeta']) {
+  description = 'Deploy Beta build to playstore and github.'
+}
+uploadFollowUpBeta.mustRunAfter('uploadGithubFollowUpBeta')
+
 // *********************************************************************************************************************
 // RELEASE BUILDS
 // *********************************************************************************************************************
