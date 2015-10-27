@@ -1,6 +1,7 @@
 import groovy.json.JsonOutput
 
-apply from: "$project.ext.buildSrcDir/curl.gradle"
+apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
+apply from: "${project.('buildSrcDir')}/curl.gradle"
 
 class Package { String name; String location }
 class Session { Package application_package; Package test_package; Package[] tools_packages }
@@ -153,9 +154,9 @@ def copyLogFileFromServer(remote_file_path, local_directory) {
 }
 
 def createSession() {
-    def applicationPackage = new Package(name: project.ext.applicationId, location: copyApkToServer(project.ext.apkPath))
-    def testPackage = new Package(name: project.ext.testApplicationId, location: copyApkToServer(project.ext.testApkPath))
-    def toolsPackages = [new Package(name: project.ext.androidNetorkManagerApplicationId, location: copyApkToServer(project.ext.networkManagerApkPath))]
+    def applicationPackage = new Package(name: project.('applicationId'), location: copyApkToServer(findApkPath(project.('buildType'), project.('debugVersionCode'))))
+    def testPackage = new Package(name: project.('testApplicationId'), location: copyApkToServer(project.('testApkPath')))
+    def toolsPackages = [new Package(name: project.('androidNetorkManagerApplicationId'), location: copyApkToServer(project.('networkManagerApkPath')))]
     new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
 }
 
