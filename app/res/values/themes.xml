@@ -40,6 +40,7 @@
         <item name="tabPaddingStart">4dp</item>
         <item name="tabPaddingEnd">4dp</item>
         <item name="tabMode">fixed</item>
+        <item name="tabGravity">fill</item>
     </style>
 
     <style name="TabsTheme.Scrollable">
