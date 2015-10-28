@@ -16,12 +16,17 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,12 +60,13 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Mock private RemoveLikesCommand removeLikes;
     @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<Collection<PropertySet>> removedLikes;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setup() throws Exception {
         syncer = new LikesSyncer(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
                 loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
-                removeLikes);
+                removeLikes, eventBus);
         trackLike = ModelFixtures.apiTrackLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
@@ -262,6 +268,28 @@ public class LikesSyncerTest extends AndroidUnitTest {
         verify(pushLikeDeletions, times(1)).call();
         assertThat(pushLikeDeletions.getInput().iterator().next().get(LikeProperty.TARGET_URN))
                 .isEqualTo(existsRemotelyPendingRemoval.getTargetUrn());
+
+        final EntityStateChangedEvent expectedEntityChangedSet = EntityStateChangedEvent.fromSync(
+                Sets.newHashSet(
+                        createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn()),
+                        createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn())
+                )
+        );
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(expectedEntityChangedSet);
+    }
+
+    private PropertySet createLikedEntityChangedProperty(Urn urn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_LIKED.bind(true)
+        );
+    }
+
+    private PropertySet createUnlikedEntityChangedProperty(Urn urn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_LIKED.bind(false)
+        );
     }
 
     @Test

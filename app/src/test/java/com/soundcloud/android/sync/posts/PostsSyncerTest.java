@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -11,11 +13,15 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,6 +43,7 @@ public class PostsSyncerTest extends AndroidUnitTest {
     @Mock private RemovePostsCommand removePlaylistPosts;
     @Mock private BulkFetchCommand<ApiPlaylist> fetchPostResources;
     @Mock private StorePlaylistsCommand storePostResources;
+    private TestEventBus eventBus = new TestEventBus();
 
     private PropertySet post1;
     private PropertySet post2;
@@ -44,7 +51,7 @@ public class PostsSyncerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         syncer = new PostsSyncer<>(loadPostedPlaylistUrns, fetcyMyPlaylists,
-                storePlaylistPosts, removePlaylistPosts, fetchPostResources, storePostResources);
+                storePlaylistPosts, removePlaylistPosts, fetchPostResources, storePostResources, eventBus);
 
         post1 = createPost(Urn.forPlaylist(123L), new Date(100L), true);
         post2 = createPost(Urn.forPlaylist(456L), new Date(200L), false);
@@ -92,6 +99,45 @@ public class PostsSyncerTest extends AndroidUnitTest {
 
         verify(storePlaylistPosts).call(singleton(post2));
         verify(removePlaylistPosts).call(singleton(post1));
+    }
+
+    @Test
+    public void sendsEntityChangedEventsForRepostAdditionAndRemoval() throws Exception {
+        final Urn localPostUrn = Urn.forPlaylist(123L);
+        PropertySet post1 = createPost(localPostUrn, new Date(100L), true);
+        final Urn remotePostUrn = Urn.forPlaylist(456L);
+        PropertySet post2 = createPost(remotePostUrn, new Date(200L), true);
+
+        // ignored, as they are not reposts
+        final PropertySet ignoredLocalPost = createPost(Urn.forPlaylist(7L), new Date(100L), false);
+        final PropertySet ignoredRemotePost = createPost(Urn.forPlaylist(8L), new Date(100L), false);
+
+        withLocalPlaylistPosts(post1, ignoredLocalPost);
+        withRemotePlaylistPosts(post2, ignoredRemotePost);
+
+        assertThat(syncer.call()).isTrue();
+
+        final EntityStateChangedEvent expectedEntityChangedSet = EntityStateChangedEvent.fromSync(
+                Sets.newHashSet(
+                        createRepostedEntityChangedProperty(remotePostUrn),
+                        createUnrepostedEntityChangedProperty(localPostUrn)
+                )
+        );
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(expectedEntityChangedSet);
+    }
+
+    private PropertySet createRepostedEntityChangedProperty(Urn urn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_REPOSTED.bind(true)
+        );
+    }
+
+    private PropertySet createUnrepostedEntityChangedProperty(Urn urn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_REPOSTED.bind(false)
+        );
     }
 
     @Test

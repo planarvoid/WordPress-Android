@@ -2,16 +2,22 @@ package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,8 +37,9 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private final DefaultWriteStorageCommand<Iterable<ApiModel>, WriteResult> storeLikedResources;
     private final StoreLikesCommand storeLikes;
     private final RemoveLikesCommand removeLikes;
+    private final EventBus eventBus;
 
-    @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
+    @SuppressWarnings("PMD.ExcessiveParameterList")
     LikesSyncer(FetchLikesCommand fetchLikes,
                 BulkFetchCommand<ApiModel> fetchLikedResources,
                 PushLikesCommand<ApiLike> pushLikeAdditions,
@@ -42,7 +49,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
                 DefaultWriteStorageCommand storeLikedResources,
                 StoreLikesCommand storeLikes,
-                RemoveLikesCommand removeLikes) {
+                RemoveLikesCommand removeLikes,
+                EventBus eventBus) {
         this.fetchLikes = fetchLikes;
         this.pushLikeAdditions = pushLikeAdditions;
         this.pushLikeDeletions = pushLikeDeletions;
@@ -53,6 +61,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         this.fetchLikedResources = fetchLikedResources;
         this.storeLikedResources = storeLikedResources;
         this.storeLikes = storeLikes;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -68,11 +77,15 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         localRemovals.addAll(loadLikesPendingRemoval.call());
 
         final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localAdditions, remoteLikes);
-        final Set<PropertySet> pendingLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);
+        final Set<PropertySet> newLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);
 
         final Set<PropertySet> localLikesWithoutAdditions = getSetDifference(localLikes, localAdditions);
         // clean items that no longer exist remotely
-        final Set<PropertySet> pendingLocalRemovals = getSetDifference(localLikesWithoutAdditions, remoteLikes);
+        final Set<PropertySet> newLocalRemovals = getSetDifference(localLikesWithoutAdditions, remoteLikes);
+
+        final Set<PropertySet> pendingLocalAdditions = new HashSet<>(newLocalAdditions);
+        final Set<PropertySet> pendingLocalRemovals = new HashSet<>(newLocalRemovals);
+
         // dirty local removals that do not need removing remotely
         pendingLocalRemovals.addAll(getSetDifference(localRemovals, remoteLikes));
 
@@ -86,7 +99,29 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         fetchAndWriteNewLikedEntities(getSetDifference(pendingLocalAdditions, pendingRemoteAdditions));
         writePendingAdditionsToLocalStorage(pendingLocalAdditions);
 
+        publishStateChanged(newLocalAdditions, newLocalRemovals);
+
         return !(pendingLocalAdditions.isEmpty() && pendingLocalRemovals.isEmpty());
+    }
+
+    private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
+        final Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(additions.size() + removals.size());
+        changedEntities.addAll(createChangedEntities(additions, true));
+        changedEntities.addAll(createChangedEntities(removals, false));
+        if (!changedEntities.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changedEntities));
+        }
+    }
+
+    private Set<PropertySet> createChangedEntities(Set<PropertySet> likes, boolean isLiked) {
+        Set<PropertySet> changedEntities =  Sets.newHashSetWithExpectedSize(likes.size());
+        for (PropertySet like : likes) {
+            changedEntities.add(PropertySet.from(
+                    PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
+                    PlayableProperty.IS_LIKED.bind(isLiked)
+            ));
+        }
+        return changedEntities;
     }
 
     private void fetchAndWriteNewLikedEntities(Set<PropertySet> pendingLocalAdditions) throws Exception {

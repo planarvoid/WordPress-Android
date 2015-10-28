@@ -2,10 +2,15 @@ package com.soundcloud.android.sync.posts;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.WriteStorageCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,19 +35,21 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     private final RemovePostsCommand removePostsCommand;
     private final BulkFetchCommand<ApiModel> fetchPostResources;
     private final WriteStorageCommand storePostResources;
+    private final EventBus eventBus;
 
     public PostsSyncer(LoadLocalPostsCommand loadLocalPosts,
                        FetchPostsCommand fetchRemotePosts,
                        StorePostsCommand storePostsCommand,
                        RemovePostsCommand removePostsCommand,
                        BulkFetchCommand<ApiModel> fetchPostResources,
-                       WriteStorageCommand storePostResources) {
+                       WriteStorageCommand storePostResources, EventBus eventBus) {
         this.loadLocalPosts = loadLocalPosts;
         this.fetchRemotePosts = fetchRemotePosts;
         this.storePostsCommand = storePostsCommand;
         this.removePostsCommand = removePostsCommand;
         this.fetchPostResources = fetchPostResources;
         this.storePostResources = storePostResources;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -80,6 +87,8 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                 fetchResourcesForAdditions(additions);
                 storePostsCommand.call(additions);
             }
+
+            publishStateChanged(additions, removals);
             return true;
         }
     }
@@ -92,6 +101,28 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                 iterator.remove();
             }
         }
+    }
+
+    private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
+        final Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(additions.size() + removals.size());
+        changedEntities.addAll(createChangedEntities(additions, true));
+        changedEntities.addAll(createChangedEntities(removals, false));
+        if (!changedEntities.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changedEntities));
+        }
+    }
+
+    private Set<PropertySet> createChangedEntities(Set<PropertySet> posts, boolean isReposted) {
+        Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(posts.size());
+        for (PropertySet post : posts) {
+            if (post.get(PostProperty.IS_REPOST)) {
+                changedEntities.add(PropertySet.from(
+                        PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
+                        PlayableProperty.IS_REPOSTED.bind(isReposted)
+                ));
+            }
+        }
+        return changedEntities;
     }
 
     private void fetchResourcesForAdditions(Set<PropertySet> additions) throws Exception {

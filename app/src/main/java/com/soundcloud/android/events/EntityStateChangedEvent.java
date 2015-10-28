@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -16,7 +17,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public final class EntityStateChangedEvent implements UrnEvent {
+@AutoValue
+public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static final int ENTITY_SYNCED = 0;
     public static final int LIKE = 2;
@@ -109,30 +111,27 @@ public final class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
-    private final int kind;
-    private final Map<Urn, PropertySet> changeMap;
-
     public static EntityStateChangedEvent fromSync(Collection<PropertySet> changedEntities) {
-        return new EntityStateChangedEvent(ENTITY_SYNCED, changedEntities);
+        return create(ENTITY_SYNCED, changedEntities);
     }
 
     public static EntityStateChangedEvent fromSync(PropertySet changedEntity) {
-        return new EntityStateChangedEvent(ENTITY_SYNCED, Collections.singleton(changedEntity));
+        return create(ENTITY_SYNCED, Collections.singleton(changedEntity));
     }
 
     public static EntityStateChangedEvent fromLike(Urn urn, boolean liked, int likesCount) {
-        return new EntityStateChangedEvent(LIKE, PropertySet.from(
+        return create(LIKE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
                 PlayableProperty.IS_LIKED.bind(liked),
                 PlayableProperty.LIKES_COUNT.bind(likesCount)));
     }
 
     public static EntityStateChangedEvent fromLike(PropertySet newLikeState) {
-        return new EntityStateChangedEvent(LIKE, newLikeState);
+        return create(LIKE, newLikeState);
     }
 
     public static EntityStateChangedEvent fromFollowing(PropertySet newFollowingState) {
-        return new EntityStateChangedEvent(FOLLOWING, newFollowingState);
+        return create(FOLLOWING, newFollowingState);
     }
 
     public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {
@@ -142,17 +141,17 @@ public final class EntityStateChangedEvent implements UrnEvent {
     }
 
     public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {
-        return new EntityStateChangedEvent(REPOST, newRepostState);
+        return create(REPOST, newRepostState);
     }
 
     public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
-        return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
+        return create(MARKED_FOR_OFFLINE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
     }
 
     public static EntityStateChangedEvent fromLikesMarkedForOffline(boolean isMarkedForOffline) {
-        return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
+        return create(MARKED_FOR_OFFLINE, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.NOT_SET),
                 OfflineProperty.Collection.OFFLINE_LIKES.bind(isMarkedForOffline)));
     }
@@ -164,35 +163,31 @@ public final class EntityStateChangedEvent implements UrnEvent {
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(PropertySet newPlaylistState) {
-        return new EntityStateChangedEvent(TRACK_ADDED_TO_PLAYLIST, newPlaylistState);
+        return create(TRACK_ADDED_TO_PLAYLIST, newPlaylistState);
     }
 
     public static EntityStateChangedEvent fromTrackRemovedFromPlaylist(PropertySet newPlaylistState) {
-        return new EntityStateChangedEvent(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
+        return create(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
     }
 
-    EntityStateChangedEvent(int kind, Collection<PropertySet> changedEntities) {
-        this.kind = kind;
-        this.changeMap = new ArrayMap<>(changedEntities.size());
+    static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {
+        ArrayMap changeMap = new ArrayMap<>(changedEntities.size());
         for (PropertySet entity : changedEntities) {
-            this.changeMap.put(entity.get(EntityProperty.URN), entity);
+            changeMap.put(entity.get(EntityProperty.URN), entity);
         }
+        return new AutoValue_EntityStateChangedEvent(kind, changeMap);
     }
 
-    EntityStateChangedEvent(int kind, PropertySet changedEntity) {
-        this(kind, Collections.singleton(changedEntity));
+    static EntityStateChangedEvent create(int kind, PropertySet changedEntity) {
+        return create(kind, Collections.singleton(changedEntity));
     }
 
-    public int getKind() {
-        return kind;
-    }
+    public abstract int getKind();
 
-    public Map<Urn, PropertySet> getChangeMap() {
-        return changeMap;
-    }
+    public abstract Map<Urn, PropertySet> getChangeMap();
 
     public Urn getFirstUrn() {
-        return changeMap.keySet().iterator().next();
+        return getChangeMap().keySet().iterator().next();
     }
 
     /**
@@ -200,35 +195,37 @@ public final class EntityStateChangedEvent implements UrnEvent {
      * returns the first available change set.
      */
     public PropertySet getNextChangeSet() {
-        return changeMap.values().iterator().next();
+        return getChangeMap().values().iterator().next();
     }
 
     public boolean isSingularChange() {
-        return changeMap.size() == 1;
+        return getChangeMap().size() == 1;
     }
 
     public boolean isTrackLikeEvent() {
-        return isSingularChange() && getFirstUrn().isTrack() && kind == LIKE;
+        return isSingularChange() && getFirstUrn().isTrack() && getKind() == LIKE;
     }
 
     public boolean isPlaylistLike() {
-        return isSingularChange() && getFirstUrn().isPlaylist() && kind == LIKE;
+        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == LIKE;
     }
 
     private boolean isTrackAddedEvent() {
-        return kind == TRACK_ADDED_TO_PLAYLIST;
+        return getKind() == TRACK_ADDED_TO_PLAYLIST;
     }
 
     private boolean isTrackRemovedEvent() {
-        return kind == TRACK_REMOVED_FROM_PLAYLIST;
+        return getKind() == TRACK_REMOVED_FROM_PLAYLIST;
     }
 
     private boolean isOfflineLikesEvent() {
-        return kind == MARKED_FOR_OFFLINE && getNextChangeSet().contains(OfflineProperty.Collection.OFFLINE_LIKES);
+        return getKind() == MARKED_FOR_OFFLINE && getNextChangeSet().contains(OfflineProperty.Collection.OFFLINE_LIKES);
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("kind", kind).add("changeMap", changeMap).toString();
+        return MoreObjects.toStringHelper(this).add("kind", getKind()).add("changeMap", getChangeMap()).toString();
     }
+
+
 }

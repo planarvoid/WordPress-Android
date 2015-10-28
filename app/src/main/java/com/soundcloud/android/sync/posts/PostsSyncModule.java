@@ -9,6 +9,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Module;
 import dagger.Provides;
 
@@ -43,9 +44,10 @@ public class PostsSyncModule {
                                              StorePostsCommand storePostsCommand,
                                              RemovePostsCommand removePostsCommand,
                                              FetchPlaylistsCommand fetchPlaylistsCommand,
-                                             StorePlaylistsCommand storePlaylistsCommand) {
+                                             StorePlaylistsCommand storePlaylistsCommand,
+                                             EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                fetchPlaylistsCommand, storePlaylistsCommand);
+                fetchPlaylistsCommand, storePlaylistsCommand, eventBus);
     }
 
     @Provides
@@ -63,12 +65,13 @@ public class PostsSyncModule {
     @Provides
     @Named(MY_TRACK_POSTS_SYNCER)
     PostsSyncer provideMyPostsSyncer(@Named(LOAD_TRACK_POSTS) LoadLocalPostsCommand loadLocalPosts,
-                                             @Named(FETCH_TRACK_POSTS) FetchPostsCommand fetchRemotePosts,
-                                             StorePostsCommand storePostsCommand,
-                                             RemovePostsCommand removePostsCommand,
-                                             FetchTracksCommand fetchTracksCommand,
-                                             StoreTracksCommand storeTracksCommand) {
+                                     @Named(FETCH_TRACK_POSTS) FetchPostsCommand fetchRemotePosts,
+                                     StorePostsCommand storePostsCommand,
+                                     RemovePostsCommand removePostsCommand,
+                                     FetchTracksCommand fetchTracksCommand,
+                                     StoreTracksCommand storeTracksCommand,
+                                     EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                fetchTracksCommand, storeTracksCommand);
+                fetchTracksCommand, storeTracksCommand, eventBus);
     }
 }

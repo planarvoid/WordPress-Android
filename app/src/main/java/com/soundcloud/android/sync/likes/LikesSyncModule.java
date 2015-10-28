@@ -13,6 +13,7 @@ import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Module;
 import dagger.Provides;
 
@@ -38,10 +39,10 @@ public class LikesSyncModule {
             @Named(TRACK_LIKE_DELETIONS) PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StoreTracksCommand storeTracks, StoreLikesCommand storeLikes,
-            @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes) {
+            @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes, EventBus eventBus) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS), fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
-                removeLikes);
+                removeLikes, eventBus);
     }
 
     @Provides
@@ -52,10 +53,10 @@ public class LikesSyncModule {
             @Named(PLAYLIST_LIKE_DELETIONS) PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes,
-            @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes) {
+            @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes, EventBus eventBus) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS), fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
-                removeLikes);
+                removeLikes, eventBus);
     }
 
     @Provides
