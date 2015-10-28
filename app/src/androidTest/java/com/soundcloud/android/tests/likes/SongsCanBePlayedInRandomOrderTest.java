@@ -25,8 +25,7 @@ public class SongsCanBePlayedInRandomOrderTest extends ActivityTest<MainActivity
 
 
     public void testSongIsPlayedWhenShuffleEnabled() {
-        playerElement = menuScreen.open()
-                .clickLikes()
+        playerElement = mainNavHelper.goToTrackLikes()
                 .clickShuffleButton();
         assertThat(playerElement, is(playing()));
     }

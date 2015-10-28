@@ -24,8 +24,7 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testPrivateTrackHasDisabledShareAndRepost() {
-        PlayerMenuElement menu = menuScreen.open()
-                .clickUserProfile()
+        PlayerMenuElement menu = mainNavHelper.goToMyProfile()
                 .playTrack(0)
                 .clickMenu();
 
@@ -34,8 +33,7 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testPublicTrackHasEnabledShareAndRepost() {
-        menuScreen.open()
-                .clickExplore()
+        mainNavHelper.goToExplore()
                 .playFirstTrack();
         PlayerMenuElement menu = new VisualPlayerElement(solo).clickMenu();
 
@@ -44,8 +42,7 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeTrackAlwaysShowsTheShareButton() {
-        VisualPlayerElement player = menuScreen.open()
-                .clickExplore()
+        VisualPlayerElement player = mainNavHelper.goToExplore()
                 .playFirstTrack()
                 .unlike();
 

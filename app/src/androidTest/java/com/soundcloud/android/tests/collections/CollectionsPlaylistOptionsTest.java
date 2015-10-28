@@ -11,7 +11,6 @@ import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 @Ignore
@@ -30,8 +29,7 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     }
 
     private void navigateToCollections() {
-        menuScreen = new MenuScreen(solo);
-        collectionsScreen = menuScreen.open().clickCollections();
+        collectionsScreen = mainNavHelper.goToCollections();
     }
 
     @Override
@@ -70,8 +68,7 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     public void testSortsPlaylists() {
         navigateToCollections();
 
-        menuScreen = new MenuScreen(solo);
-        collectionsScreen = menuScreen.open().clickCollections();
+        collectionsScreen = mainNavHelper.goToCollections();
 
         final String firstPlaylistTitle = collectionsScreen.getFirstPlaylistTitle();
 

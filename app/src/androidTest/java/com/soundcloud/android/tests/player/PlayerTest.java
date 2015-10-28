@@ -222,7 +222,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void playSingleTrack() {
-        final ExploreScreen exploreScreen = menuScreen.open().clickExplore();
+        final ExploreScreen exploreScreen = mainNavHelper.goToExplore();
         exploreScreen.touchTrendingAudioTab();
         exploreScreen.playFirstTrack();
         visualPlayerElement = new VisualPlayerElement(solo);

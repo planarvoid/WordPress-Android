@@ -16,7 +16,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import org.hamcrest.CoreMatchers;
 
 @StationsTest
 public class StartStationTest extends ActivityTest<LauncherActivity> {
@@ -37,9 +36,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
-        playlistDetailsScreen = menuScreen
-                .open()
-                .clickPlaylists()
+        playlistDetailsScreen = mainNavHelper.goToPlaylists()
                 .clickPlaylist(With.text("track-stations"));
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();

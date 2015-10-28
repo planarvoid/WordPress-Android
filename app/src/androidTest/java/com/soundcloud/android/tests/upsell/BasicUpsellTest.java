@@ -36,19 +36,6 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    // Ignored because unexpected promoted track impressions on stream fail validation
-    public void ignore_testNavDrawerUpsellImpressionAndClick() {
-        startEventTracking();
-
-        UpgradeScreen upgradeScreen = menuScreen
-                .open()
-                .clickUpsell();
-
-        assertThat(upgradeScreen, is(visible()));
-
-        finishEventTracking(NAV_UPSELL_TEST_SCENARIO);
-    }
-
     public void testSettingsUpsellImpressionAndClick() {
         ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 

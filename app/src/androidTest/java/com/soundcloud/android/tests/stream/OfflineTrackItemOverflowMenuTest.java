@@ -10,7 +10,6 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -40,7 +39,6 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
         resetOfflineSyncState(context);
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
         streamScreen = new StreamScreen(solo);

@@ -34,9 +34,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
     public void testStartStationFromStationsHome() throws Exception {
         startEventTracking();
 
-        final StationsScreen stationsScreen = menuScreen
-                .open()
-                .clickStations();
+        final StationsScreen stationsScreen = mainNavHelper.goToStationsHome();
 
         stationsScreen.pullToRefresh();
         final VisualPlayerElement player = stationsScreen
@@ -54,9 +52,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
     public void testStartStationFromViewAll() throws Exception {
         startEventTracking();
 
-        final StationsScreen stationsScreen = menuScreen
-                .open()
-                .clickStations();
+        final StationsScreen stationsScreen = mainNavHelper.goToStationsHome();
 
         stationsScreen.pullToRefresh();
         final VisualPlayerElement player = stationsScreen
@@ -74,9 +70,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
     public void testStartStationFromPlaylist() throws Exception {
         startEventTracking();
 
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickPlaylists()
+        final VisualPlayerElement player = mainNavHelper.goToPlaylists()
                 .clickPlaylist(With.text("track-stations"))
                 .clickFirstTrackOverflowButton()
                 .clickStartStation();

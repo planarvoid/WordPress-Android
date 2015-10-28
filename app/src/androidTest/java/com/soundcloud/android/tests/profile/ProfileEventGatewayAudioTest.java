@@ -37,9 +37,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     }
 
     public void testPlayAndPauseTrackFromPosts() {
-        final ProfileScreen profileScreen = menuScreen
-                .open()
-                .clickUserProfile();
+        final ProfileScreen profileScreen = mainNavHelper.goToMyProfile();
 
         startEventTracking();
 
@@ -57,9 +55,8 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     }
 
     public void testPlayAndPauseTrackFromMyPlaylist() {
-        final PlaylistDetailsScreen playlistDetailsScreen = menuScreen
-                .open()
-                .clickUserProfile()
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
+                .goToMyProfile()
                 .touchPlaylistsTab()
                 .clickFirstPlaylistWithTracks();
 
@@ -79,9 +76,8 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     }
 
     public void testPlayAndPauseTrackFromLikes() {
-        final ProfileScreen profileScreen = menuScreen
-                .open()
-                .clickUserProfile()
+        final ProfileScreen profileScreen = mainNavHelper
+                .goToMyProfile()
                 .touchLikesTab();
 
         startEventTracking();

@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.lessThan;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -31,8 +30,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
-        profileScreen = menuScreen.open().clickUserProfile();
+        profileScreen = mainNavHelper.goToMyProfile();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

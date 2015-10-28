@@ -24,7 +24,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        likesScreen = menuScreen.open().clickLikes();
+        likesScreen = mainNavHelper.goToTrackLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

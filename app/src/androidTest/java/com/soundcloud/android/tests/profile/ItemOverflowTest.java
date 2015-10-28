@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -28,8 +27,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
-        screen = menuScreen.open().clickUserProfile();
+        screen = mainNavHelper.goToMyProfile();
     }
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {

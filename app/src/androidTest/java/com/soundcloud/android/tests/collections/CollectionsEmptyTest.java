@@ -28,8 +28,7 @@ public class CollectionsEmptyTest extends ActivityTest<MainActivity> {
     }
 
     private void navigateToCollections() {
-        menuScreen = new MenuScreen(solo);
-        collectionsScreen = menuScreen.open().clickCollections();
+        collectionsScreen = mainNavHelper.goToCollections();
     }
 
     @Override
