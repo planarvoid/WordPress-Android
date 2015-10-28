@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.collections.PlaylistsOptions;
 
-public class CollectionEvent extends TrackingEvent {
+public final class CollectionEvent extends TrackingEvent {
 
     public static final String KIND_SET = "filter_set";
     public static final String KIND_CLEAR = "filter_clear";
