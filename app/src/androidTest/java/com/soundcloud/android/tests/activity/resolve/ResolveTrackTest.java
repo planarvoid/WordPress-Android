@@ -32,7 +32,7 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
     public void testShouldLandOnLoginScreenForAnonymousUsers() {
         // We are not logged in
         assertThat(new HomeScreen(solo), is(visible()));
-        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_loading_url)));
+        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_toast_user_not_logged_in)));
     }
 
     public void testShouldOpenPlayerFromDeeplinkAfterSignIn() {
