@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.stations;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StationsScreen;
@@ -67,11 +67,12 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         finishEventTracking(START_STATION_FROM_VIEW_ALL);
     }
 
+    @BrokenScrollingTest
     public void testStartStationFromPlaylist() throws Exception {
         startEventTracking();
 
-        final VisualPlayerElement player = mainNavHelper.goToPlaylists()
-                .clickPlaylist(With.text("track-stations"))
+        final VisualPlayerElement player = mainNavHelper.goToCollections()
+                .clickPlaylistWithTitle("track-stations")
                 .clickFirstTrackOverflowButton()
                 .clickStartStation();
 

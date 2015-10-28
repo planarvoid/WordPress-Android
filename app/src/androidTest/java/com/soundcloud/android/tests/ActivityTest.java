@@ -46,7 +46,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         solo = new Han(getInstrumentation());
         solo.setup();
         waiter = new Waiter(solo);
-        mainNavHelper = new MainNavigationHelper(solo);
 
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
@@ -58,14 +57,14 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         LogCollector.startCollecting(testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
-//        menuScreen = new MenuScreen(solo);
-
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
 
         beforeStartActivity();
         logIn();
         getActivity();
+
+        mainNavHelper = new MainNavigationHelper(solo);
 
         super.setUp(); // do not move, this has to run after the above
     }

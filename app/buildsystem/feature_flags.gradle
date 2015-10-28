@@ -102,9 +102,9 @@ android {
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
+      buildConfigField BOOLEAN, FEATURE_TABS, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE

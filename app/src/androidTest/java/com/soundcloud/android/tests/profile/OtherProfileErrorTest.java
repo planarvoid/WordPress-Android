@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.profile;
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -24,9 +23,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        profileScreen = new MenuScreen(solo)
-                .open()
-                .clickUserProfile()
+        profileScreen = mainNavHelper.goToMyProfile()
                 .touchFollowingsTab();
 
         networkManagerClient.switchWifiOff();

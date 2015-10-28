@@ -8,8 +8,7 @@ import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
-import com.soundcloud.android.screens.CollectionsTrackLikesScreen;
-import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 @Ignore
@@ -25,9 +24,7 @@ public class CollectionsEmptyTest extends ActivityTest<MainActivity> {
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.COLLECTIONS);
         super.setUp();
-    }
 
-    private void navigateToCollections() {
         collectionsScreen = mainNavHelper.goToCollections();
     }
 
@@ -37,13 +34,11 @@ public class CollectionsEmptyTest extends ActivityTest<MainActivity> {
     }
 
     public void testShowsEmptyPlaylistsMessage() {
-        navigateToCollections();
         assertThat(collectionsScreen.isVisible(), is(true));
     }
 
     public void testShowsEmptyTrackLikes() {
-        navigateToCollections();
-        CollectionsTrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
+        TrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
         assertThat(trackLikesScreen.emptyView().isVisible(), is(true));
     }
 }

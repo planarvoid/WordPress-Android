@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.StationsTest;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
@@ -59,7 +58,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
 
     private String startStationAndReturnTitle() {
         final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen
-                .clickOnPlaylist(With.text("track-stations"));
+                .clickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 

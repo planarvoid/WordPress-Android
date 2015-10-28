@@ -45,7 +45,7 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testClickingOnMidTierTrackInLikesOpensUpsell() {
-        final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
+        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
 
         final UpgradeScreen upgradeScreen = likesScreen.clickMidTierTrackForUpgrade(0);
 
@@ -55,14 +55,14 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     @EventTrackingTest
     public void ignore_testClickingOnMidTierTrackFiresTrackingEvents() {
         startEventTracking();
-        final TrackLikesScreen likesScreen = streamScreen.openMenu().clickLikes();
+        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         likesScreen.clickMidTierTrackForUpgrade(0);
 
         finishEventTracking(MIDTIER_TEST_SCENARIO);
     }
 
     public void ignore_testClickingOnMidTierTrackInPlaylistOpensUpsell() {
-        final PlaylistDetailsScreen playlistDetailsScreen = streamScreen.openMenu().clickPlaylists().clickPlaylistAt(0);
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections().clickOnFirstPlaylist();
 
         final UpgradeScreen upgradeScreen = playlistDetailsScreen.clickMidTierTrackForUpgrade(0);
 

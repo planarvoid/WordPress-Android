@@ -7,8 +7,8 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.YouScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -30,12 +30,11 @@ public class ResolveGoogleCrawlerTrackTest extends ResolveGoogleCrawlerBaseTest 
 
     public void testIsCrawlerUser() {
         VisualPlayerElement playerScreen = new VisualPlayerElement(solo);
-        StreamScreen streamScreen = new StreamScreen(solo);
 
         playerScreen.waitForExpandedPlayer();
         playerScreen.pressCloseButton();
 
-        MenuScreen menuScreen = streamScreen.openMenu();
-        assertThat(menuScreen.getUserName(), is(equalTo("SoundCloud")));
+        YouScreen youScreen = mainNavHelper.goToYou();
+        assertThat(youScreen.getUserName(), is(equalTo("")));
     }
 }

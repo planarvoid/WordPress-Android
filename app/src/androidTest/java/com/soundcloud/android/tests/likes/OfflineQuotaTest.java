@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.likes;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.CollectionsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
@@ -38,6 +39,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
     }
 
+    @CollectionsTest
     public void testOfflineStateRequestedWhenNotEnoughSpace() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
 

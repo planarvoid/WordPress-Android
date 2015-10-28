@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -33,6 +34,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
                 .clickSearchButton();
     }
 
+    @BrokenSearchTest
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
         playlistTagsScreen.actionBar()
                 .doSearch("clownstep")

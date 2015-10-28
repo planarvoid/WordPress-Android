@@ -9,14 +9,12 @@ import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ExploreTest extends ActivityTest<MainActivity> {
     private Waiter waiter;
     private ExploreScreen exploreScreen;
-    private MenuScreen menuScreen;
 
     public ExploreTest() {
         super(MainActivity.class);
@@ -32,8 +30,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        menuScreen = new MenuScreen(solo);
-        exploreScreen = openExploreFromMenu();
+        exploreScreen = mainNavHelper.goToExplore();
     }
 
     public void testTrendingMusicIsDisplayed() {
@@ -85,8 +82,4 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         assertThat(exploreTracksCountBefore, is(lessThan(exploreScreen.getItemsOnTrendingAudioList())));
     }
 
-    private ExploreScreen openExploreFromMenu() {
-        return menuScreen.open()
-                .clickExplore();
-    }
 }

@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -26,7 +25,7 @@ public class TrackCommentsTest extends ActivityTest<MainActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        ActivitiesScreen activitiesScreen = new StreamScreen(solo).actionBar().clickActivityOverflowButton();
+        ActivitiesScreen activitiesScreen = mainNavHelper.goToActivities();
         trackCommentsScreen = activitiesScreen.clickComment();
     }
 

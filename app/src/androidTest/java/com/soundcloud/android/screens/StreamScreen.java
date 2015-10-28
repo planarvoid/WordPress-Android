@@ -12,7 +12,6 @@ import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 
@@ -20,26 +19,15 @@ import java.util.List;
 
 public class StreamScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
-    private final MenuScreen menuScreen;
 
     public StreamScreen(Han solo) {
         super(solo);
         waiter.waitForFragmentByTag("stream_fragment");
-        menuScreen = new MenuScreen(solo);
-    }
-
-    public String getTitle() {
-        return actionBar().getTitle();
     }
 
     public int getItemCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return streamList().getItemCount();
-    }
-
-    public int getBoundItemCount() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return streamList().getBoundItemCount();
     }
 
     public StreamScreen scrollToBottomOfPage() {
@@ -111,22 +99,9 @@ public class StreamScreen extends Screen {
         return getTrack(0).isPromotedTrack();
     }
 
-    public boolean isFirstPlaylistPromoted() {
-        return getPlaylists().get(0).isPromotedPlaylist();
-    }
-
     public boolean isPromotedTrackWithPromoter() {
         return getTrack(0).hasPromoter();
     }
-
-    public MenuScreen openMenu() {
-        return menuScreen.open();
-    }
-
-    public ExploreScreen openExploreFromMenu() {
-        return menuScreen.open().clickExplore();
-    }
-
 
     public FacebookInvitesItemElement getFirstFacebookInvitesNotification() {
         return getFacebookInvitesNotifications().get(0);

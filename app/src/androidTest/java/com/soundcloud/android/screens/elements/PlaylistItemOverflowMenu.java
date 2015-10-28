@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistItemOverflowMenu extends PopupMenuElement {
@@ -13,9 +13,9 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
         super(testDriver);
     }
 
-    public PlaylistsScreen clickMakeAvailableOffline() {
+    public CollectionsScreen clickMakeAvailableOffline() {
         getMakeAvailableOfflineItem().click();
-        return new PlaylistsScreen(testDriver);
+        return new CollectionsScreen(testDriver);
     }
 
     public UpgradeScreen clickUpsell() {

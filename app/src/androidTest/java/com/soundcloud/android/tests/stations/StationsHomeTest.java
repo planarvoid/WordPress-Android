@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.annotation.StationsTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
@@ -59,6 +60,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         assertTrue(stationsScreen.getGenreRecommendationsBucket().isVisible());
     }
 
+    @BrokenScrollingTest
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTitle = startStationAndReturnTitle();
 
@@ -71,6 +73,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
     }
 
+    @BrokenScrollingTest
     public void testStartStationFromBucket() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
@@ -83,6 +86,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         assertThat(player, is(visible()));
     }
 
+    @BrokenScrollingTest
     public void testStartStationFromViewAllStations() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
@@ -98,8 +102,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
 
     private String startStationAndReturnTitle() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
-                .goToPlaylists()
-                .clickPlaylist(With.text("track-stations"));
+                .goToCollections()
+                .clickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 

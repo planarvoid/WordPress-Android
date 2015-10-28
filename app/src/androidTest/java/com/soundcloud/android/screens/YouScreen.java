@@ -1,0 +1,66 @@
+package com.soundcloud.android.screens;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.record.RecordScreen;
+
+public class YouScreen extends Screen {
+
+    public YouScreen(Han solo) {
+        super(solo);
+    }
+
+    @Override
+    protected Class getActivity() {
+        return MainActivity.class;
+    }
+
+    public ActivitiesScreen clickActivitiesLink(){
+        activityLink().click();
+        return new ActivitiesScreen(testDriver);
+    }
+
+    public ProfileScreen clickMyProfileLink() {
+        headerLayout().click();
+        return new ProfileScreen(testDriver);
+    }
+
+    public ExploreScreen clickExploreLink() {
+        exploreLink().click();
+        return new ExploreScreen(testDriver);
+    }
+
+    public RecordScreen clickRecordScreen() {
+        recordLink().click();
+        return new RecordScreen(testDriver);
+    }
+
+    public String getUserName() {
+        return username().getText();
+    }
+
+    private ViewElement headerLayout() {
+        return testDriver.findElement(With.id(R.id.header_layout));
+    }
+
+    private ViewElement activityLink() {
+        return testDriver.findElement(With.id(R.id.you_activity_link));
+    }
+
+    private ViewElement exploreLink() {
+        return testDriver.findElement(With.id(R.id.you_explore_link));
+    }
+
+    private ViewElement recordLink() {
+        return testDriver.findElement(With.id(R.id.you_record_link));
+    }
+
+    private TextElement username() {
+        return new TextElement(testDriver.findElement(With.id(R.id.username)));
+    }
+}

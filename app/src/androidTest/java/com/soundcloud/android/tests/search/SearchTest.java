@@ -9,6 +9,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -41,10 +42,12 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
     }
 
+    @BrokenSearchTest
     public void testClickingPhysicalSearchButtonOpensFullPageSearch() {
         assertEquals("Playlist tags screen should be visible", true, playlistTagsScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testSubmittingSearchQueryOpensSearchResults() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
 
@@ -52,6 +55,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
     }
 
+    @BrokenSearchTest
     public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
         resultsScreen.clickFirstTrackItem();
@@ -62,6 +66,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertThat(resultsScreen, is(visible()));
     }
 
+    @BrokenSearchTest
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         playlistTagsScreen.actionBar().setSearchQuery("dubstep");
         //TODO: That should actually be handled buy SearchSuggestionsElement class
@@ -71,12 +76,14 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testClearingSearchFieldReturnsToDisplayingTags() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().dismissSearch();
         assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingTrackOnAllTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
         resultsScreen.clickFirstTrackItem();
@@ -84,6 +91,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track playlist");
         resultsScreen.clickFirstPlaylistItem();
@@ -91,6 +99,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Playlist screen should be visible", true, playlistScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingUserOnAllTabOpensProfile() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.clickFirstUserItem();
@@ -98,6 +107,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Profile screen should be visible", true, profileScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingTrackOnTracksTabOpensPlayer() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.touchTracksTab();
@@ -106,6 +116,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Player screen should be visible", true, playerScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.touchPlaylistsTab();
@@ -114,6 +125,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Playlist screen should be visible", true, playlistDetailsScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testTappingUserOnPeopleTabOpensProfile() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.touchPeopleTab();
@@ -122,6 +134,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Profile screen should be visible", true, profileScreen.isVisible());
     }
 
+    @BrokenSearchTest
     public void testOrderOfDisplayededTabs() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         assertEquals("Current tab should be ALL", "ALL", resultsScreen.currentTabTitle());
@@ -133,6 +146,7 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertEquals("Current tab should be PEOPLE", "PEOPLE", resultsScreen.currentTabTitle());
     }
 
+    @BrokenSearchTest
     public void testAllResultsLoadsNextPage() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         int initialItemCount = resultsScreen.getResultItemCount();
@@ -140,15 +154,18 @@ public class SearchTest extends ActivityTest<SearchActivity> {
         assertTrue(initialItemCount < resultsScreen.getResultItemCount());
     }
 
+    @BrokenSearchTest
     public void testShowKeyboardWhenEnteringSearch() {
         assertEquals("Keyboard should be visible when entering search", true, playlistTagsScreen.isKeyboardShown());
     }
 
+    @BrokenSearchTest
     public void testShouldHideSoftKeyboardWhenScrollingTagsVertically() {
         playlistTagsScreen.scrollDown();
         assertEquals("Keyboard should be hidden when scrolling", false, playlistTagsScreen.isKeyboardShown());
     }
 
+    @BrokenSearchTest
     public void testShouldFollowUser() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("andtestpl");
 

@@ -10,7 +10,7 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
@@ -53,8 +53,8 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistItemUpsellImpressionAndClick() {
-        PlaylistItemElement playlistAtPosition = mainNavHelper.goToPlaylists()
-                .getPlaylistAtPosition(0);
+        PlaylistItemElement playlistAtPosition = mainNavHelper.goToCollections()
+                .getPlaylists().get(0);
 
         startEventTracking();
 
@@ -68,12 +68,12 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistPageImpressionAndClick() {
-        PlaylistsScreen playlistsScreen = mainNavHelper.goToPlaylists();
+        CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
 
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = playlistsScreen
-                .clickPlaylistAt(0)
+        UpgradeScreen upgradeScreen = collectionsScreen
+                .clickOnFirstPlaylist()
                 .clickPlaylistOverflowButton()
                 .clickUpsell();
 

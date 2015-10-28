@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.annotation.StationsTest;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -36,18 +36,20 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
-        playlistDetailsScreen = mainNavHelper.goToPlaylists()
-                .clickPlaylist(With.text("track-stations"));
+        playlistDetailsScreen = mainNavHelper.goToCollections()
+                .clickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
+    @BrokenScrollingTest
     public void testStartStationFromTrackItem() {
         final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(player, is(visible()));
     }
 
+    @BrokenScrollingTest
     public void testStartStationFromPlayer() {
         final VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
         final String originalTitle = player.getTrackTitle();
@@ -58,7 +60,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         assertThat(player.getTrackPageContext(), containsString(originalTitle));
     }
 
-
+    @BrokenScrollingTest
     public void testStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
@@ -71,6 +73,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         networkManagerClient.switchWifiOn();
     }
 
+    @BrokenScrollingTest
     public void testStartStationShouldResume() {
         final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 

@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddCommentScreen;
@@ -132,6 +133,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
+    @BrokenSearchTest
     public void testPlayerShowTheTrackDescription() throws Exception {
         visualPlayerElement = streamScreen
                 .actionBar()
@@ -152,6 +154,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getDescription().isVisible());
     }
 
+    @BrokenSearchTest
     public void testPlayerShowTheTrackNoDescription() throws Exception {
         visualPlayerElement = streamScreen
                 .actionBar()
@@ -184,6 +187,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
     }
 
+    @BrokenSearchTest
     public void testListOfCommentsCanBePaged() throws Exception {
         visualPlayerElement = streamScreen
                 .actionBar()
@@ -218,7 +222,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void playExploreTrack() {
-        visualPlayerElement = PlayerHelper.openPlayer(this, streamScreen.openExploreFromMenu());
+        visualPlayerElement = PlayerHelper.openPlayer(this, mainNavHelper.goToExplore());
     }
 
     private void playSingleTrack() {

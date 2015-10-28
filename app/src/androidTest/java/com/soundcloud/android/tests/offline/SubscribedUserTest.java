@@ -36,18 +36,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsAvailableWhenTheyAccessPlaylists() throws Exception {
-        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
-                .getPlaylists()
-                .get(0)
-                .clickOverflow()
-                .getMakeAvailableOfflineItem();
-
-        assertThat(offlineItem, is(visible()));
-    }
-
-    public void testDownloadIsAvailableWhenTheyAccessLikedPlaylists() throws Exception {
-        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
-                .touchLikedPlaylistsTab()
+        final ViewElement offlineItem = mainNavHelper.goToCollections()
                 .getPlaylists()
                 .get(0)
                 .clickOverflow()
@@ -57,8 +46,8 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsAvailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
-        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
-                .clickPlaylistAt(0)
+        final ViewElement offlineItem = mainNavHelper.goToCollections()
+                .clickOnFirstPlaylist()
                 .clickPlaylistOverflowButton()
                 .getMakeAvailableOfflineItem();
 

@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.playback.PlaybackStateProvider;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.utils.Log;
 
 import android.app.Activity;
@@ -164,14 +163,6 @@ public class Waiter {
 
     public boolean waitForPlaybackToBeIdle() {
         return solo.waitForCondition(new PlaybackIdleCondition(), NETWORK_TIMEOUT);
-    }
-
-    public boolean waitForDrawerToClose() {
-        return solo.waitForCondition(new DrawerStateCondition(false), ELEMENT_TIMEOUT);
-    }
-
-    public boolean waitForDrawerToOpen() {
-        return solo.waitForCondition(new DrawerStateCondition(true), ELEMENT_TIMEOUT);
     }
 
     public void waitForDialogToClose() {
@@ -334,25 +325,6 @@ public class Waiter {
         }
     }
 
-
-    private class DrawerStateCondition implements Condition {
-        private final MenuScreen menuScreen;
-        private boolean shouldBeOpen;
-
-        DrawerStateCondition(boolean shouldBeOpen) {
-            this.shouldBeOpen = shouldBeOpen;
-            menuScreen = new MenuScreen(solo);
-        }
-
-        @Override
-        public boolean isSatisfied() {
-            if(shouldBeOpen) {
-                return menuScreen.isOpened();
-            } else {
-                return menuScreen.isClosed();
-            }
-        }
-    }
 
     private class KeyboardShownCondition implements Condition {
         @Override

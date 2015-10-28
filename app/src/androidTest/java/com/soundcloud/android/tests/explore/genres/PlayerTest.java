@@ -49,7 +49,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void openExploreGenreAmbient() {
-        final ExploreScreen exploreScreen = streamScreen.openExploreFromMenu();
+        final ExploreScreen exploreScreen = mainNavHelper.goToExplore();
         exploreScreen.touchGenresTab();
         exploreScreen.clickGenreItem("Ambient");
     }

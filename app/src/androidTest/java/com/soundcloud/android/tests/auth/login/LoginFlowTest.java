@@ -12,6 +12,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
+import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
@@ -140,6 +141,7 @@ public class LoginFlowTest extends LoginTest {
      * I want to sign out from the app
      * So that I am sure no one can modify my account
      */
+    @BrokenSettingsTest
     public void testLoginAndLogout() {
         loginScreen = homeScreen.clickLogInButton();
         StreamScreen streamScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());

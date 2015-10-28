@@ -3,55 +3,60 @@ package com.soundcloud.android.framework.helpers;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.CollectionsScreen;
-import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.elements.ToolBarElement;
+import com.soundcloud.android.screens.YouScreen;
+import com.soundcloud.android.screens.elements.MainTabs;
 import com.soundcloud.android.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.record.RecordScreen;
 
 public class MainNavigationHelper {
 
-    private final MenuScreen menuScreen;
-    private final ToolBarElement toolbar;
+    private final Han testDriver;
 
     public MainNavigationHelper(Han solo) {
-        this.menuScreen = new MenuScreen(solo);
-        this.toolbar = new ToolBarElement(solo);
+        this.testDriver = solo;
     }
 
     public StreamScreen goToStream() {
-        return menuScreen.open().clickStream();
+        return mainTabs().clickHome();
     }
 
     public ActivitiesScreen goToActivities() {
-        return toolbar.clickActivityOverflowButton();
+        return mainTabs().clickYou().clickActivitiesLink();
     }
 
     public CollectionsScreen goToCollections() {
-        return menuScreen.open().clickCollections();
+        return mainTabs().clickCollections();
     }
 
     public TrackLikesScreen goToTrackLikes() {
-        return menuScreen.open().clickLikes();
+        return mainTabs().clickCollections().clickTrackLikes();
     }
 
     public ProfileScreen goToMyProfile() {
-        return menuScreen.open().clickUserProfile();
+        return mainTabs().clickYou().clickMyProfileLink();
     }
 
     public ExploreScreen goToExplore() {
-        return menuScreen.open().clickExplore();
+        return mainTabs().clickYou().clickExploreLink();
+    }
+
+    public YouScreen goToYou() {
+        return mainTabs().clickYou();
+    }
+
+    public RecordScreen goToRecord() {
+        return mainTabs().clickYou().clickRecordScreen();
+    }
+
+    private MainTabs mainTabs() {
+        return new MainTabs(testDriver);
     }
 
     public StationsScreen goToStationsHome() {
-        return menuScreen.open().clickStations();
-    }
-
-    @Deprecated // use Collections
-    public PlaylistsScreen goToPlaylists() {
-        return menuScreen.open().clickPlaylists();
+        throw new UnsupportedOperationException("There is no stations home in tabs");
     }
 }

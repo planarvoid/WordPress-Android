@@ -2,12 +2,12 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/collections_playlist_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:foreground="?android:attr/selectableItemBackground">
 
     <RelativeLayout
-        android:id="@+id/collections_playlist_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"

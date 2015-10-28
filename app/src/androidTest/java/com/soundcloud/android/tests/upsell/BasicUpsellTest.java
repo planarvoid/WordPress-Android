@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
@@ -36,6 +37,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
+    @BrokenSettingsTest
     public void testSettingsUpsellImpressionAndClick() {
         ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 

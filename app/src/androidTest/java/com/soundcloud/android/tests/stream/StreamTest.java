@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.stream;
 import static com.soundcloud.android.framework.TestUser.streamUser;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
@@ -22,11 +21,6 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void logInHelper() {
         streamUser.logIn(getInstrumentation().getTargetContext());
-    }
-
-    public void testStreamShouldHaveCorrectTitle() {
-        streamScreen = new StreamScreen(solo);
-        assertThat(streamScreen.getTitle(), is(equalToIgnoringCase("Stream")));
     }
 
     public void testStreamContainsItems() {

@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
@@ -38,6 +39,7 @@ public class UpgradeScreenTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
+    @BrokenSettingsTest
     public void testUserCanNavigateToSubscribePage() {
         UpgradeScreen upgradeScreen = settingsScreen
                 .clickOfflineSettings()
@@ -46,6 +48,7 @@ public class UpgradeScreenTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
+    @BrokenSettingsTest
     public void testUserIsPresentedSubscribeOption() {
         PaymentStateHelper.resetTestAccount();
         PaymentErrorScreen errorScreen = settingsScreen

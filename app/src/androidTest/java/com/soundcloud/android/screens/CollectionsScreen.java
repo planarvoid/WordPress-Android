@@ -8,8 +8,11 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
+import com.soundcloud.android.screens.elements.PlaylistItemElement;
 
 import android.support.v7.widget.RecyclerView;
+
+import java.util.List;
 
 public class CollectionsScreen extends Screen {
 
@@ -19,13 +22,9 @@ public class CollectionsScreen extends Screen {
         super(solo);
     }
 
-    public ViewElement emptyPlaylists() {
-        return testDriver.findElement(With.text(testDriver.getString(R.string.collections_empty_playlists)));
-    }
-
-    public CollectionsTrackLikesScreen clickTrackLikes() {
+    public TrackLikesScreen clickTrackLikes() {
         trackLikesElement().click();
-        return new CollectionsTrackLikesScreen(testDriver);
+        return new TrackLikesScreen(testDriver);
     }
 
     public ViewAllStationsScreen clickRecentStations() {
@@ -37,17 +36,16 @@ public class CollectionsScreen extends Screen {
         return new TextElement(getFirstPlaylist().findElement(With.id(R.id.title))).getText();
     }
 
-    public boolean isRecentStationsVisible() {
-        return recentStationsElement().isVisible();
-    }
-
-    public PlaylistDetailsScreen clickOnPlaylist(With with) {
-        collectionsView().scrollToItem(with).click();
-        return new PlaylistDetailsScreen(testDriver);
+    public PlaylistDetailsScreen clickPlaylistWithTitle(String title) {
+        return new PlaylistItemElement(testDriver, collectionsView().scrollToItem(With.text(title))).click();
     }
 
     private ViewElement getFirstPlaylist() {
         return collectionsView().scrollToItem(With.id(R.id.collections_playlist_item));
+    }
+
+    public List<PlaylistItemElement> getPlaylists() {
+        return getPlaylists(R.id.collections_playlist_item);
     }
 
     public PlaylistDetailsScreen clickOnFirstPlaylist() {

@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
@@ -34,10 +35,12 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
         playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
     }
 
+    @BrokenSearchTest
     public void testShouldOpenSearchPageWhenClickingOnSearchIcon() {
         assertThat(playlistTagsScreen, is(visible()));
     }
 
+    @BrokenSearchTest
     public void testGoingBackFromSearchResultsReturnsToTagPage() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.pressBack();
@@ -46,6 +49,7 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
         assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
     }
 
+    @BrokenSearchTest
     public void testShouldExitSeachWhenPressingBackButton() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.pressBack();

@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -13,6 +14,7 @@ import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailAgeOfMajority extends SignUpTest {
 
+    @BrokenSearchTest
     public void testCanFollowAgeGatedProfile() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();

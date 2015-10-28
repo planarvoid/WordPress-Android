@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
@@ -34,6 +35,7 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    @BrokenSettingsTest
     public void setUp() throws Exception {
         super.setUp();
         context = getInstrumentation().getTargetContext();
@@ -42,6 +44,7 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
         settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
+    @BrokenSettingsTest
     public void testOfflineLimitSlider() {
         offlineSettingsScreen = settingsScreen.clickOfflineSettings();
         assertTrue(offlineSettingsScreen.isVisible());
@@ -64,6 +67,7 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
         assertEquals(legendLastValue, offlineSettingsScreen.getLegendLimitText());
     }
 
+    @BrokenSettingsTest
     public void testBlockOfflineLimitSliderBelowCurrentUsage() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 800);
 

@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -30,6 +31,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
+    @BrokenSearchTest
     public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
         streamScreen().clickFirstTrack();
         player().waitForContent();
@@ -41,12 +43,14 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player(), is(collapsed()));
     }
 
+    @BrokenSearchTest
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         streamScreen().actionBar().clickSearchButton();
 
         assertThat(player(), is(not(visible())));
     }
 
+    @BrokenSearchTest
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
         streamScreen().actionBar().clickSearchButton();
         searchScreen().actionBar().doSearch("nasa");

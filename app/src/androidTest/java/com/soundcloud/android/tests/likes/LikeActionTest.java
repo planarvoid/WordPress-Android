@@ -42,10 +42,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         solo.goBack();
         assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = streamScreen
-                .openMenu()
-                .clickLikes()
-                .tracks()
+        final String actualTitle = mainNavHelper.goToTrackLikes()
+                .getTracks()
                 .get(0)
                 .getTitle();
 
@@ -77,12 +75,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         solo.goBack();
         assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = streamScreen
-                .openMenu()
-                .clickPlaylists()
-                .touchLikedPlaylistsTab()
-                .get(0)
-                .getTitle();
+        final String actualTitle = mainNavHelper.goToCollections()
+                .getFirstPlaylistTitle();
 
         assertEquals("The playlist we liked from the playlist detail screen should be the same as the top playlist in "+
                 "your liked playlists", expectedTitle, actualTitle);

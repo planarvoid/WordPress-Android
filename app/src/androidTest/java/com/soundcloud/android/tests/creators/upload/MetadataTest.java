@@ -7,7 +7,6 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.record.RecordMetadataScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -28,7 +27,7 @@ public class MetadataTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        recordScreen = mainNavHelper.goToRecord();
         recordScreen.deleteRecordingIfPresent();
     }
 
@@ -50,7 +49,7 @@ public class MetadataTest extends ActivityTest<MainActivity> {
 
         solo.goBack();
 
-        ProfileScreen profileScreen = new StreamScreen(solo).openMenu().clickUserProfile();
+        ProfileScreen profileScreen = mainNavHelper.goToMyProfile();
         assertThat(profileScreen, is(visible()));
         assertThat(profileScreen.getFirstTrackTitle(), is(title));
     }

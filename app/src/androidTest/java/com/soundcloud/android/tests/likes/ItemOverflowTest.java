@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -27,9 +26,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        trackLikesScreen = new StreamScreen(solo)
-                .openMenu()
-                .clickLikes();
+        trackLikesScreen = mainNavHelper.goToTrackLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

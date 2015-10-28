@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -28,7 +27,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        exploreScreen = new StreamScreen(solo).openExploreFromMenu();
+        exploreScreen = mainNavHelper.goToExplore();
     }
 
     public void testElectronicMusicCategoryHasContent(){

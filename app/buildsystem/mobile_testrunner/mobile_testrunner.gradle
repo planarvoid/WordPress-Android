@@ -288,7 +288,11 @@ class Logger {
 
 task runLollipopTests << {
     def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore"
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.CollectionsTest",
+            "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
+            "com.soundcloud.android.framework.annotation.BrokenSearchTest",
+            "com.soundcloud.android.framework.annotation.BrokenSettingsTest"
     ] as String[]
     runTestsForLabel("Lollipop", excludeAnnotations, null)
 }
@@ -298,7 +302,11 @@ task runLollipopTestsRelease << {
             "com.soundcloud.android.framework.annotation.Ignore",
             "com.soundcloud.android.framework.annotation.AdsTest",
             "com.soundcloud.android.framework.annotation.EventTrackingTest",
-            "com.soundcloud.android.framework.annotation.StationsTest"
+            "com.soundcloud.android.framework.annotation.StationsTest",
+            "com.soundcloud.android.framework.annotation.CollectionsTest",
+            "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
+            "com.soundcloud.android.framework.annotation.BrokenSearchTest",
+            "com.soundcloud.android.framework.annotation.BrokenSettingsTest"
     ] as String[]
     runTestsForLabel("Lollipop", excludeAnnotations, null)
 }

@@ -12,13 +12,14 @@ import static org.hamcrest.core.IsNot.not;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
+import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.content.Context;
@@ -83,15 +84,15 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         return new StreamScreen(testDriver);
     }
 
+    @BrokenSettingsTest
     public void testRemovesOfflinePlaylistAfter30DaysOffline() {
         enableOfflineContent(context);
 
         // make playlist available offline
         StreamScreen streamScreen = startMainActivity();
-        streamScreen
-                .openMenu()
-                .clickPlaylists()
-                .getPlaylistAtPosition(0)
+        new MainNavigationHelper(testDriver).goToCollections()
+                .getPlaylists()
+                .get(0)
                 .clickOverflow()
                 .clickMakeAvailableOffline();
 
@@ -111,10 +112,9 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
                 .clickContinue();
 
         // offline content deleted so playlist should not be offline anymore
-        ViewElement makeAvailableOfflineItem = streamScreen
-                .openMenu()
-                .clickPlaylists()
-                .getPlaylistAtPosition(0)
+        ViewElement makeAvailableOfflineItem = new MainNavigationHelper(testDriver).goToCollections()
+                .getPlaylists()
+                .get(0)
                 .clickOverflow()
                 .getMakeAvailableOfflineItem();
 

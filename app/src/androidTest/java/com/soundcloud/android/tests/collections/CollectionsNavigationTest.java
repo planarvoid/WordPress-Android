@@ -8,8 +8,8 @@ import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
-import com.soundcloud.android.screens.CollectionsTrackLikesScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 @Ignore
@@ -44,7 +44,7 @@ public class CollectionsNavigationTest extends ActivityTest<MainActivity> {
 
     public void testGoesToTrackLikesPage() {
         navigateToCollections();
-        CollectionsTrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
+        TrackLikesScreen trackLikesScreen = collectionsScreen.clickTrackLikes();
         assertThat(trackLikesScreen.isVisible(), is(true));
     }
 }

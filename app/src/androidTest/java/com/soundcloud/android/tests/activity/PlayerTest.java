@@ -37,13 +37,13 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
         player.pressBackToCollapse();
 
-        streamScreen.actionBar().clickActivityOverflowButton();
+        mainNavHelper.goToActivities();
         assertThat(player, is(visible()));
         assertThat(player, is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() {
-        streamScreen.actionBar().clickActivityOverflowButton();
+        mainNavHelper.goToActivities();
 
         assertThat(new VisualPlayerElement(solo), is(not(visible())));
     }

@@ -81,8 +81,12 @@ public abstract class Screen {
     }
 
     public List<PlaylistItemElement> getPlaylists() {
+        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
+    }
+
+    protected List<PlaylistItemElement> getPlaylists(int withId) {
         return Lists.transform(
-                testDriver.findElements(With.id(com.soundcloud.android.R.id.playlist_list_item)),
+                testDriver.findElements(With.id(withId)),
                 toPlaylistItemElement
         );
     }

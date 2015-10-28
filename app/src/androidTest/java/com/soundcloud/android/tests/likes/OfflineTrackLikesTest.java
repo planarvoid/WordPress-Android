@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.CollectionsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -38,6 +39,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         resetOfflineSyncState(context);
     }
 
+    @CollectionsTest
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
@@ -47,6 +49,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(trackLikesScreen.headerOverflowButton(), is(visible()));
     }
 
+    @CollectionsTest
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
         enableOfflineContent(context);
 
@@ -60,6 +63,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
 
+    @CollectionsTest
     public void testShuffleLikesWhenOfflineWithNoTracksDownloaded() {
         enableOfflineContent(context);
 

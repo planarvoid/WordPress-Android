@@ -8,7 +8,6 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -27,7 +26,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        recordScreen = mainNavHelper.goToRecord();
         recordScreen.deleteRecordingIfPresent(); // start clean
     }
 
@@ -59,7 +58,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
 
         solo.goBack();
 
-        recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        recordScreen = mainNavHelper.goToRecord();
         assertThat(recordScreen.hasRecordedTrack(), is(true));
     }
 

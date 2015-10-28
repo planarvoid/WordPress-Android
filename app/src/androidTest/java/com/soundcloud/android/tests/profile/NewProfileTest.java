@@ -7,8 +7,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -33,10 +31,7 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        screen = new MenuScreen(solo)
-                .open()
-                .clickUserProfile();
-
+        screen = mainNavHelper.goToMyProfile();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

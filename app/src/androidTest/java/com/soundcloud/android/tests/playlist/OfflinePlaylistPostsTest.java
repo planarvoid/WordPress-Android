@@ -5,7 +5,7 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.reset
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -32,13 +32,14 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
-        final PlaylistsScreen playlistsScreen = mainNavHelper.goToPlaylists()
+        final CollectionsScreen playlistsScreen = mainNavHelper.goToCollections()
+                .getPlaylists()
                 .get(0)
                 .clickOverflow()
                 .clickMakeAvailableOffline();
 
         final DownloadImageViewElement downloadElement =
-                playlistsScreen
+                playlistsScreen.getPlaylists()
                         .get(0)
                         .downloadElement();
 

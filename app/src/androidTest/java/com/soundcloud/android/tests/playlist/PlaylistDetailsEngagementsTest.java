@@ -7,15 +7,15 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivity> {
 
-    private PlaylistsScreen playlistsScreen;
+    private CollectionsScreen collectionsScreen;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlaylistDetailsEngagementsTest() {
@@ -34,9 +34,9 @@ public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivit
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistsScreen = mainNavHelper.goToPlaylists();
+        collectionsScreen = mainNavHelper.goToCollections();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
+        playlistDetailsScreen = collectionsScreen.clickOnFirstPlaylist();
     }
 
     public void testShufflePlaylistShowsPlayer() throws Exception {
