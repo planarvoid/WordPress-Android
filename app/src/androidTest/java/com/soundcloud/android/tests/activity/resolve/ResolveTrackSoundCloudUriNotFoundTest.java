@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.activity.resolve;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
@@ -12,7 +13,7 @@ public class ResolveTrackSoundCloudUriNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {
-        assertTrue(waiter.expectToastWithText(toastObserver, "There was a problem loading that url"));
+        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_loading_url)));
     }
 
     @Override

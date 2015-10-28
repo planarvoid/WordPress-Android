@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -17,7 +18,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     }
 
     public void testShouldLandOnStreamIfCannotResolveDeeplink() {
-        assertTrue(waiter.expectToastWithText(toastObserver, "There was a problem loading that url"));
+        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_loading_url)));
         assertThat(new StreamScreen(solo), is(visible()));
     }
 

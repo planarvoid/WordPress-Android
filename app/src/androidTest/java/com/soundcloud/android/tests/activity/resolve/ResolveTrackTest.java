@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -31,7 +32,7 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
     public void testShouldLandOnLoginScreenForAnonymousUsers() {
         // We are not logged in
         assertThat(new HomeScreen(solo), is(visible()));
-        assertTrue(waiter.expectToastWithText(toastObserver, "Please sign in to open this link"));
+        assertTrue(waiter.expectToastWithText(toastObserver, ressourceString(R.string.error_loading_url)));
     }
 
     public void testShouldOpenPlayerFromDeeplinkAfterSignIn() {

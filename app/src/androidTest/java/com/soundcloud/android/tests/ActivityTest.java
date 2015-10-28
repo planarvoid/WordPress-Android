@@ -13,7 +13,6 @@ import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -190,5 +189,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     public Han getSolo() {
         return solo;
+    }
+
+    protected String ressourceString(int id) {
+        return getActivity().getString(id);
     }
 }
