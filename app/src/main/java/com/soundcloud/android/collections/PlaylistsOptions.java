@@ -5,7 +5,7 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class PlaylistsOptions {
 
-    static Builder builder() {
+    public static Builder builder() {
         return new AutoValue_PlaylistsOptions
                 .Builder()
                 .showPosts(false)
@@ -23,12 +23,12 @@ public abstract class PlaylistsOptions {
     public abstract boolean sortByTitle();
 
     @AutoValue.Builder
-    abstract static class Builder {
-        abstract Builder showLikes(boolean enabled);
-        abstract Builder showPosts(boolean enabled);
-        abstract Builder showOfflineOnly(boolean enabled);
-        abstract Builder sortByTitle(boolean enabled);
-        abstract PlaylistsOptions build();
+    public abstract static class Builder {
+        public abstract Builder showLikes(boolean enabled);
+        public abstract Builder showPosts(boolean enabled);
+        public abstract Builder showOfflineOnly(boolean enabled);
+        public abstract Builder sortByTitle(boolean enabled);
+        public abstract PlaylistsOptions build();
     }
 
 }

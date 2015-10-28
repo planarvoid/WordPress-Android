@@ -1,6 +1,7 @@
 package com.soundcloud.android.collections;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -149,6 +150,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     @Override
     public void onRemoveFilterClicked() {
         onOptionsUpdated(PlaylistsOptions.builder().build());
+        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forClearFilter());
     }
 
     @Override
@@ -156,6 +158,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         collectionsOptionsStorage.store(options);
         currentOptions = options;
         refreshCollections();
+        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
     }
 
     private void refreshCollections() {

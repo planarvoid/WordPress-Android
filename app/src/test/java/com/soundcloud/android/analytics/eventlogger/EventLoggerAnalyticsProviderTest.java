@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -333,6 +334,18 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUpsellEvent");
+    }
+
+    @Test
+    public void shouldTrackCollectionEvent() {
+        CollectionEvent event = CollectionEvent.forClearFilter();
+        when(dataBuilderv1.buildForCollectionEvent(event)).thenReturn("ForCollectionEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
     }
 
     @Test
