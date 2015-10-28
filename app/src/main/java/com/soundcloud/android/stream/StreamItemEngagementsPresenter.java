@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.java.strings.Strings.EMPTY;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -20,22 +21,25 @@ class StreamItemEngagementsPresenter {
     private final CondensedNumberFormatter numberFormatter;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
+    private final AccountOperations accountOperations;
 
     @Inject
     StreamItemEngagementsPresenter(CondensedNumberFormatter numberFormatter,
                                    LikeOperations likeOperations,
-                                   RepostOperations repostOperations) {
+                                   RepostOperations repostOperations,
+                                   AccountOperations accountOperations) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
+        this.accountOperations = accountOperations;
     }
 
-    void bind(StreamItemViewHolder trackView, final PlayableItem playable) {
-        trackView.resetAdditionalInformation();
-        trackView.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
-        trackView.showRepostStats(getCountString(playable.getRepostCount()), playable.isReposted());
+    void bind(StreamItemViewHolder viewHolder, final PlayableItem playable) {
+        viewHolder.resetAdditionalInformation();
+        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
+        showRepostStats(viewHolder, playable);
 
-        trackView.setEngagementClickListener(new StreamItemViewHolder.CardEngagementClickListener() {
+        viewHolder.setEngagementClickListener(new StreamItemViewHolder.CardEngagementClickListener() {
             @Override
             public void onLikeClick(View likeButton) {
                 handleLike(likeButton, playable);
@@ -46,6 +50,12 @@ class StreamItemEngagementsPresenter {
                 handleRepost(repostButton, playable);
             }
         });
+    }
+
+    private void showRepostStats(StreamItemViewHolder viewHolder, PlayableItem playableItem) {
+        if (!accountOperations.isLoggedInUser(playableItem.getCreatorUrn())) {
+            viewHolder.showRepostStats(getCountString(playableItem.getRepostCount()), playableItem.isReposted());
+        }
     }
 
     private void handleRepost(View repostButton, PlayableItem playableItem) {

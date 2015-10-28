@@ -2,12 +2,10 @@ package com.soundcloud.android.stream;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -20,7 +18,6 @@ import org.mockito.Mock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import java.util.Locale;
 
@@ -29,7 +26,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder viewHolder;
     @Mock private StreamItemEngagementsPresenter engagementsPresenter;
-    @Mock private StreamItemHeaderViewPresenter headerViewPresenter;
+    @Mock private StreamCardViewPresenter headerViewPresenter;
 
     private final CondensedNumberFormatter numberFormatter =
             CondensedNumberFormatter.create(Locale.US, resources());
@@ -43,7 +40,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         itemView.setTag(viewHolder);
 
         renderer = new StreamTrackItemRenderer(
-                imageOperations, numberFormatter, null, engagementsPresenter, headerViewPresenter, resources());
+                numberFormatter, null, engagementsPresenter, headerViewPresenter);
     }
 
     @Test
@@ -51,22 +48,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         TrackItem postedTrack = postedTrack();
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        verify(headerViewPresenter).setupHeaderView(viewHolder, postedTrack);
-    }
-
-    @Test
-    public void bindsArtworkView() {
-        TrackItem postedTrack = postedTrack();
-        renderer.bindItemView(0, itemView, singletonList(postedTrack));
-
-        verify(imageOperations)
-                .displayInAdapterView(
-                        eq(postedTrack.getEntityUrn()),
-                        any(ApiImageSize.class),
-                        any(ImageView.class));
-
-        verify(viewHolder).setTitle(postedTrack.getTitle());
-        verify(viewHolder).setCreator(postedTrack.getCreatorName());
+        verify(headerViewPresenter).bind(viewHolder, postedTrack);
     }
 
     @Test

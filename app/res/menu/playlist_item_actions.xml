@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/upsell_offline_content"
+    <item
+        android:id="@+id/upsell_offline_content"
         android:title="@string/make_offline_available"
         android:visible="false" />
-    <item android:id="@+id/make_offline_available"
+    <item
+        android:id="@+id/make_offline_available"
         android:title="@string/make_offline_available"
         android:visible="false" />
-    <item android:id="@+id/make_offline_unavailable"
+    <item
+        android:id="@+id/make_offline_unavailable"
         android:title="@string/make_offline_unavailable"
         android:visible="false" />
-    <item android:id="@+id/add_to_likes"
+    <item
+        android:id="@+id/add_to_likes"
         android:title="@string/btn_like" />
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        android:visible="false" />
+    <item
+        android:id="@+id/toggle_repost"
+        android:title="@string/repost"
+        android:visible="false" />
 </menu>

@@ -39,7 +39,7 @@ import android.widget.ImageView;
 
 import java.util.Date;
 
-public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
+public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Mock private HeaderSpannableBuilder headerSpannableBuilder;
     @Mock private EventBus eventBus;
@@ -49,20 +49,20 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
     @Mock private StreamItemViewHolder itemView;
     @Mock private View view;
 
-    private StreamItemHeaderViewPresenter presenter;
+    private StreamCardViewPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new StreamItemHeaderViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
+        presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
                 navigator, resources(), imageOperations);
     }
 
     @Test
     public void resetsHeaderViewBeforeSettingUp() throws Exception {
         PlayableItem playlistItem = repostedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
-        verify(itemView).resetHeaderView();
+        verify(itemView).resetCardView();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
         when(headerSpannableBuilder.promotedSpannedString(true)).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
-        presenter.setupHeaderView(itemView, promotedTrackItem);
+        presenter.bind(itemView, promotedTrackItem);
 
         verify(itemView).hideUserImage();
         verify(itemView).setPromotedHeader(promotedSpannedString);
@@ -83,7 +83,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         when(headerSpannableBuilder.promotedSpannedString(true)).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
-        presenter.setupHeaderView(itemView, promotedTrackItem);
+        presenter.bind(itemView, promotedTrackItem);
 
         verify(itemView).setPromoterHeader("SoundCloud", promotedSpannedString);
         verify(itemView).setPromoterClickable(any(PromoterClickViewListener.class));
@@ -95,7 +95,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         when(view.getContext()).thenReturn(context());
 
         PlayableItem promotedListItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        presenter.setupHeaderView(itemView, promotedListItem);
+        presenter.bind(itemView, promotedListItem);
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
         verify(itemView).setPromoterClickable(captor.capture());
@@ -111,7 +111,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         when(headerSpannableBuilder.get()).thenReturn(spannable);
 
         PlayableItem playlistItem = repostedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
         verify(headerSpannableBuilder).actionSpannedString(repostedString(), false);
         verify(itemView).setRepostHeader(playlistItem.getReposter().get(), spannable);
@@ -123,7 +123,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         when(headerSpannableBuilder.get()).thenReturn(spannable);
 
         PlaylistItem playlistItem = postedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
         verify(headerSpannableBuilder).userActionSpannedString(playlistItem.getCreatorName(), "posted", false);
         verify(itemView).setHeaderText(spannable);
@@ -132,7 +132,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
     @Test
     public void bindsHeaderViewPropertiesToViewHolder() {
         PlaylistItem playlistItem = repostedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
         verify(itemView).setCreatedAt(formattedDate(playlistItem.getCreatedAt()));
         verify(itemView).togglePrivateIndicator(playlistItem.isPrivate());
@@ -144,7 +144,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         when(headerSpannableBuilder.get()).thenReturn(spannable);
 
         TrackItem postedTrack = postedTrack();
-        presenter.setupHeaderView(itemView, postedTrack);
+        presenter.bind(itemView, postedTrack);
 
         verify(headerSpannableBuilder).userActionSpannedString(postedTrack.getCreatorName(), "posted", true);
         verify(itemView).setHeaderText(spannable);
@@ -156,7 +156,7 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
         when(headerSpannableBuilder.get()).thenReturn(spannable);
 
         PlayableItem trackItem = repostedTrack();
-        presenter.setupHeaderView(itemView, trackItem);
+        presenter.bind(itemView, trackItem);
 
         verify(headerSpannableBuilder).actionSpannedString(repostedString(), true);
         verify(itemView).setRepostHeader(trackItem.getReposter().get(), spannable);
@@ -165,18 +165,32 @@ public class StreamItemHeaderViewPresenterTest extends AndroidUnitTest {
     @Test
     public void bindsHeaderAvatarForPlaylistWithReposter() {
         PlaylistItem playlistItem = repostedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
         verify(imageOperations)
                 .display(eq(playlistItem.getReposterUrn()), any(ApiImageSize.class),
                         any(ImageView.class));
     }
 
+    @Test
+    public void bindsArtworkView() {
+        PlaylistItem playlistItem = postedPlaylist();
+        presenter.bind(itemView, playlistItem);
+
+        verify(imageOperations)
+                .displayInAdapterView(
+                        eq(playlistItem.getEntityUrn()),
+                        any(ApiImageSize.class),
+                        any(ImageView.class));
+
+        verify(itemView).setTitle(playlistItem.getTitle());
+        verify(itemView).setArtist(playlistItem.getCreatorName());
+    }
 
     @Test
     public void bindsHeaderAvatarForPostedPlaylist() {
         PlaylistItem playlistItem = postedPlaylist();
-        presenter.setupHeaderView(itemView, playlistItem);
+        presenter.bind(itemView, playlistItem);
 
         verify(imageOperations)
                 .display(eq(playlistItem.getCreatorUrn()),
