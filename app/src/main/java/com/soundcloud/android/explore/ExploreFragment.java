@@ -2,10 +2,6 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -20,12 +16,13 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+@Deprecated // Explore is moving to standalone ExploreActivity
 @SuppressLint("ValidFragment")
 public class ExploreFragment extends Fragment {
 
     @Inject Resources resources;
-    @Inject EventBus eventBus;
     @Inject ExplorePagerAdapterFactory pagerAdapterFactory;
+    @Inject ExplorePagerScreenListener screenListener;
 
     private ExplorePagerAdapter pagerAdapter;
     private ViewPager pager;
@@ -36,10 +33,11 @@ public class ExploreFragment extends Fragment {
     }
 
     @VisibleForTesting
-    ExploreFragment(Resources resources, ExplorePagerAdapterFactory pagerAdapterFactory, EventBus eventBus) {
+    ExploreFragment(Resources resources, ExplorePagerAdapterFactory pagerAdapterFactory,
+                    ExplorePagerScreenListener screenListener) {
         this.resources = resources;
         this.pagerAdapterFactory = pagerAdapterFactory;
-        this.eventBus = eventBus;
+        this.screenListener = screenListener;
     }
 
     @Override
@@ -59,7 +57,7 @@ public class ExploreFragment extends Fragment {
 
         TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
-        pager.addOnPageChangeListener(new ExplorePagerScreenListener(eventBus));
+        pager.addOnPageChangeListener(screenListener);
 
         if (savedInstanceState == null) {
             pager.setCurrentItem(1);
@@ -75,34 +73,4 @@ public class ExploreFragment extends Fragment {
         super.onDestroyView();
     }
 
-    protected static class ExplorePagerScreenListener implements ViewPager.OnPageChangeListener {
-        private final EventBus eventBus;
-
-        public ExplorePagerScreenListener(EventBus eventBus) {
-            this.eventBus = eventBus;
-        }
-
-        @Override
-        public void onPageScrolled(int i, float v, int i2) {}
-
-        @Override
-        public void onPageSelected(int pageSelected) {
-            switch (pageSelected) {
-                case ExplorePagerAdapter.TAB_GENRES:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
-                    break;
-                case ExplorePagerAdapter.TAB_TRENDING_MUSIC:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
-                    break;
-                case ExplorePagerAdapter.TAB_TRENDING_AUDIO:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int i) {}
-    }
 }
