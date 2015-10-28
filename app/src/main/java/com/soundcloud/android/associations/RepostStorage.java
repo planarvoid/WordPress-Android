@@ -1,17 +1,21 @@
 package com.soundcloud.android.associations;
 
+import static com.soundcloud.android.storage.TableColumns.Posts;
+import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.DefaultWriteStorageCommand;
+import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.InsertResult;
+import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Where;
 
 import android.content.ContentValues;
@@ -29,32 +33,85 @@ class RepostStorage {
         this.dateProvider = dateProvider;
     }
 
-    Command<Urn, InsertResult> addRepost() {
-        return new DefaultWriteStorageCommand<Urn, InsertResult>(propeller) {
+    Command<Urn, Integer> addRepost() {
+        return new WriteStorageCommand<Urn, WriteResult, Integer>(propeller) {
+            private int updatedRepostCount;
+
             @Override
-            public InsertResult write(PropellerDatabase propeller, Urn urn) {
-                final ContentValues values = new ContentValues();
-                values.put(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
-                values.put(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
-                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST);
-                values.put(TableColumns.Posts.TARGET_ID, urn.getNumericId());
-                values.put(TableColumns.Posts.CREATED_AT, dateProvider.getCurrentDate().getTime());
-                return propeller.insert(Table.Posts, values);
+            public WriteResult write(PropellerDatabase propeller, final Urn urn) {
+                updatedRepostCount = obtainNewRepostCount(propeller, urn, true);
+
+                return propeller.runTransaction(new PropellerDatabase.Transaction() {
+                    @Override
+                    public void steps(PropellerDatabase propeller) {
+                        step(updateRepostCount(propeller, urn, updatedRepostCount));
+                        step(propeller.insert(Table.Posts, buildContentValuesForRepost(urn)));
+                    }
+                });
+            }
+
+            @Override
+            protected Integer transform(WriteResult result) {
+                return updatedRepostCount;
             }
         };
     }
 
-    Command<Urn, ChangeResult> removeRepost() {
-        return new DefaultWriteStorageCommand<Urn, ChangeResult>(propeller) {
-            @Override
-            public ChangeResult write(PropellerDatabase propeller, Urn urn) {
-                final Where whereClause = filter()
-                        .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
-                        .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+    Command<Urn, Integer> removeRepost() {
+        return new WriteStorageCommand<Urn, WriteResult, Integer>(propeller) {
+            private int updatedRepostCount;
 
-                return propeller.delete(Table.Posts, whereClause);
+            @Override
+            public WriteResult write(PropellerDatabase propeller, final Urn urn) {
+                updatedRepostCount = obtainNewRepostCount(propeller, urn, false);
+
+                final Where whereClause = filter()
+                        .whereEq(Posts.TARGET_ID, urn.getNumericId())
+                        .whereEq(Posts.TARGET_TYPE, urn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST)
+                        .whereEq(Posts.TYPE, Posts.TYPE_REPOST);
+
+                return propeller.runTransaction(new PropellerDatabase.Transaction() {
+                    @Override
+                    public void steps(PropellerDatabase propeller) {
+                        step(updateRepostCount(propeller, urn, updatedRepostCount));
+                        step(propeller.delete(Table.Posts, whereClause));
+                    }
+                });
+            }
+
+            @Override
+            protected Integer transform(WriteResult result) {
+                return updatedRepostCount;
             }
         };
+    }
+
+    private ChangeResult updateRepostCount(PropellerDatabase propeller, Urn urn, int repostCount) {
+        return propeller.update(Table.Sounds, ContentValuesBuilder.values()
+                        .put(Sounds.REPOSTS_COUNT, repostCount).get(),
+                filter().whereEq(Sounds._ID, urn.getNumericId())
+                        .whereEq(Sounds._TYPE, getSoundType(urn)));
+    }
+
+    private ContentValues buildContentValuesForRepost(Urn urn) {
+        final ContentValues values = new ContentValues();
+        values.put(Posts.TYPE, Posts.TYPE_REPOST);
+        values.put(Posts.TARGET_TYPE, urn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST);
+        values.put(Posts.TARGET_ID, urn.getNumericId());
+        values.put(Posts.CREATED_AT, dateProvider.getCurrentDate().getTime());
+        return values;
+    }
+
+    private int obtainNewRepostCount(PropellerDatabase propeller, Urn targetUrn, boolean addRepost) {
+        int count = propeller.query(from(Table.SoundView.name())
+                .select(SoundView.REPOSTS_COUNT)
+                .whereEq(SoundView._ID, targetUrn.getNumericId())
+                .whereEq(SoundView._TYPE, getSoundType(targetUrn)))
+                .first(Integer.class);
+        return addRepost ? count + 1 : count - 1;
+    }
+
+    private int getSoundType(Urn targetUrn) {
+        return targetUrn.isTrack() ? Sounds.TYPE_TRACK : Sounds.TYPE_PLAYLIST;
     }
 }

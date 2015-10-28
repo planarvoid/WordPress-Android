@@ -1,6 +1,5 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.ApplicationModule;
@@ -17,6 +16,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,46 +46,74 @@ public class RepostOperations {
 
     public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         if (addRepost) {
-            return repostStorage.addRepost().toObservable(soundUrn)
-                    .subscribeOn(scheduler)
-                    .flatMap(continueWith(pushAddRepost(soundUrn)))
-                    .map(returning(repostProperties(soundUrn, true)))
-                    .doOnNext(publishEntityStateChanged)
-                    .doOnError(rollbackRepost(soundUrn));
+            return addRepostLocally(soundUrn).flatMap(pushAddRepostAndRevertWhenFailed());
         } else {
-            return repostStorage.removeRepost().toObservable(soundUrn)
-                    .subscribeOn(scheduler)
-                    .flatMap(continueWith(pushRemoveRepost(soundUrn)))
-                    .map(returning(repostProperties(soundUrn, false)))
-                    .doOnNext(publishEntityStateChanged)
-                    .doOnError(rollbackRepostRemoval(soundUrn));
+            return removeRepostLocally(soundUrn).flatMap(pushRemoveAndRevertWhenFailed());
         }
     }
 
-    private Action1<Throwable> rollbackRepost(final Urn soundUrn) {
-        return new Action1<Throwable>() {
+    private Func1<PropertySet, Observable<PropertySet>> pushAddRepostAndRevertWhenFailed() {
+        return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
-            public void call(Throwable throwable) {
-                repostStorage.removeRepost().call(soundUrn);
-                publishEntityStateChanged.call(repostProperties(soundUrn, false));
+            public Observable<PropertySet> call(final PropertySet propertySet) {
+                final Urn soundUrn = propertySet.get(PlayableProperty.URN);
+                return pushAddRepost(soundUrn)
+                        .map(returning(propertySet))
+                        .onErrorResumeNext(removeRepostLocally(soundUrn));
             }
         };
     }
 
-    private Action1<Throwable> rollbackRepostRemoval(final Urn soundUrn) {
-        return new Action1<Throwable>() {
+    private Func1<PropertySet, Observable<PropertySet>> pushRemoveAndRevertWhenFailed() {
+        return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
-            public void call(Throwable throwable) {
-                repostStorage.addRepost().call(soundUrn);
-                publishEntityStateChanged.call(repostProperties(soundUrn, true));
+            public Observable<PropertySet> call(final PropertySet propertySet) {
+                final Urn soundUrn = propertySet.get(PlayableProperty.URN);
+                return pushRemoveRepost(soundUrn)
+                        .map(returning(propertySet))
+                        .onErrorResumeNext(addRepostLocally(soundUrn));
             }
         };
     }
 
-    private PropertySet repostProperties(Urn soundUrn, boolean addRepost) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(soundUrn),
-                PlayableProperty.IS_REPOSTED.bind(addRepost));
+    private Observable<PropertySet> addRepostLocally(Urn soundUrn) {
+        return repostStorage.addRepost().toObservable(soundUrn)
+                .subscribeOn(scheduler)
+                .map(toRepostProperties(soundUrn, true))
+                .doOnNext(publishEntityStateChanged)
+                .doOnError(rollbackRepost(soundUrn, false));
+    }
+
+    private Observable<PropertySet> removeRepostLocally(Urn soundUrn) {
+        return repostStorage.removeRepost().toObservable(soundUrn)
+                .subscribeOn(scheduler)
+                .map(toRepostProperties(soundUrn, false))
+                .doOnNext(publishEntityStateChanged)
+                .doOnError(rollbackRepost(soundUrn, true));
+    }
+
+    private Action1<Throwable> rollbackRepost(final Urn soundUrn, final boolean addRepost) {
+        return new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                PropertySet changeSet = PropertySet.from(
+                        PlayableProperty.URN.bind(soundUrn),
+                        PlayableProperty.IS_REPOSTED.bind(addRepost));
+                publishEntityStateChanged.call(changeSet);
+            }
+        };
+    }
+
+    private Func1<Integer, PropertySet> toRepostProperties(final Urn soundUrn, final boolean addRepost) {
+        return new Func1<Integer, PropertySet>() {
+            @Override
+            public PropertySet call(Integer repostCount) {
+                return PropertySet.from(
+                        PlayableProperty.URN.bind(soundUrn),
+                        PlayableProperty.IS_REPOSTED.bind(addRepost),
+                        PlayableProperty.REPOSTS_COUNT.bind(repostCount));
+            }
+        };
     }
 
     private Observable<ApiResponse> pushAddRepost(Urn soundUrn) {
@@ -107,5 +135,4 @@ public class RepostOperations {
     private ApiEndpoints getRepostEndpoint(Urn soundUrn) {
         return (soundUrn.isTrack() ? ApiEndpoints.MY_TRACK_REPOSTS : ApiEndpoints.MY_PLAYLIST_REPOSTS);
     }
-
 }
