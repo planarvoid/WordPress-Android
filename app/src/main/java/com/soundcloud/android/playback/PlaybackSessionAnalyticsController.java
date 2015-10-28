@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
@@ -111,13 +110,6 @@ class PlaybackSessionAnalyticsController {
                         progress, protocol, playerType, connectionType, localStoragePlayback);
 
                 if (adsOperations.isCurrentTrackAudioAd()) {
-
-                    if (lastSessionEventData.isFirstPlay()){
-                        logTrackingAudioAdImpression();
-                    } else if (lastSessionEventData.getProgress() < 0){
-                        logInvalidAudioAdProgress();
-                    }
-
                     lastPlayAudioAd = playQueueManager.getCurrentPlayQueueItem().getMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
@@ -144,14 +136,6 @@ class PlaybackSessionAnalyticsController {
                 return lastSessionEventData;
             }
         };
-    }
-
-    private void logTrackingAudioAdImpression() {
-        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.trackedAudioAdImpression());
-    }
-
-    private void logInvalidAudioAdProgress() {
-        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.adWithInvalidProgress());
     }
 
     private void publishStopEvent(final Player.StateTransition stateTransition, final int stopReason) {

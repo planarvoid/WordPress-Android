@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -247,7 +246,6 @@ public class AdsController {
 
             skipFailedAdSubscription.unsubscribe();
             if (!adsOperations.isCurrentTrackAudioAd()) {
-                logClearedAds();
                 adsOperations.clearAllAds();
             }
         }
@@ -268,7 +266,6 @@ public class AdsController {
 
         @Override
         public void onNext(ApiAdsForTrack apiAdsForTrack) {
-
             /*
              * We're checking if we're still at the intended position before we try to insert the ad in the play queue.
              * This is a temporary work-around for a race condition where unsubscribe doesn't happen immediately and
@@ -277,15 +274,6 @@ public class AdsController {
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
                 adsForNextTrack = Optional.of(apiAdsForTrack);
                 adsOperations.applyAdToTrack(monetizableTrack, apiAdsForTrack);
-
-                if (apiAdsForTrack.hasAudioAd()){
-                    logAudioAdInserted();
-                }
-
-            } else {
-                if (apiAdsForTrack.hasAudioAd()){
-                    logAudioAdIgnored();
-                }
             }
         }
     }
@@ -351,24 +339,6 @@ public class AdsController {
         public boolean hasExpired() {
             return System.currentTimeMillis() - createdAtMillis > fetchOperationStaleTime;
         }
-    }
-
-    /**
-     * Purely for debugging why we seem to be missing impressions, should be removed eventually
-     */
-
-    private void logClearedAds() {
-        if (!adsOperations.getAdPlayQueueItemsInQueue().isEmpty()){
-            eventBus.publish(EventQueue.TRACKING, AdDebugEvent.clearedAudioAd());
-        }
-    }
-
-    private void logAudioAdInserted() {
-        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.insertedAudioAd());
-    }
-
-    private void logAudioAdIgnored() {
-        eventBus.publish(EventQueue.TRACKING, AdDebugEvent.ignoringAudioAd());
     }
 
     private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {

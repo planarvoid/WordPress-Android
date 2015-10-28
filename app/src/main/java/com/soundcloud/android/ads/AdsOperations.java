@@ -170,10 +170,6 @@ public class AdsOperations {
                 PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 
-    public List<PlayQueueItem> getAdPlayQueueItemsInQueue() {
-        return playQueueManager.filterQueueItemsWithMetadata(AdFunctions.HAS_AD_URN);
-    }
-
     public PropertySet getMonetizableTrackMetaData() {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
         return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getMetaData();
