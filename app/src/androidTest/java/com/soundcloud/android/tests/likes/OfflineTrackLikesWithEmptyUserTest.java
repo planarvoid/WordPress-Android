@@ -36,16 +36,11 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     }
 
     public void testDownloadsTrackWhenLiked() {
-        menuScreen
-                .open()
-                .clickStream()
+        mainNavHelper.goToStream()
                 .clickFirstTrackOverflowButton()
                 .toggleLike();
 
-        final TrackLikesScreen likesScreen = menuScreen
-                .open()
-                .clickLikes();
-
+        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         likesScreen
                 .clickHeaderOverflowButton()
                 .clickMakeAvailableOffline()
@@ -60,13 +55,11 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     }
 
     public void testDownloadResumesWhenConnectionBack() {
-        menuScreen
-                .open()
-                .clickStream()
+        mainNavHelper.goToStream()
                 .clickFirstTrackOverflowButton()
                 .toggleLike();
 
-        final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
+        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
 
         networkManagerClient.switchWifiOff();
 

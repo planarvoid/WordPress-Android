@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import java.util.List;
 
 public class MenuScreen {
+
     private final ToolBarElement toolBar;
     protected Han testDriver;
     protected Waiter waiter;

@@ -4,10 +4,10 @@ import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.app.Activity;
@@ -24,7 +24,7 @@ import android.util.Log;
 public abstract class ActivityTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
 
     protected String testCaseName;
-    protected MenuScreen menuScreen;
+    protected MainNavigationHelper mainNavHelper;
     protected Waiter waiter;
     protected ToastObserver toastObserver;
 
@@ -46,6 +46,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         solo = new Han(getInstrumentation());
         solo.setup();
         waiter = new Waiter(solo);
+        mainNavHelper = new MainNavigationHelper(solo);
 
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
@@ -57,7 +58,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         LogCollector.startCollecting(testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
-        menuScreen = new MenuScreen(solo);
+//        menuScreen = new MenuScreen(solo);
 
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
@@ -162,10 +163,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     private FeatureFlags getFeatureFlags() {
         return new FeatureFlags(PreferenceManager.getDefaultSharedPreferences(getActivity()));
-    }
-
-    public MenuScreen getMenuScreen() {
-        return menuScreen;
     }
 
     protected final void logIn() {

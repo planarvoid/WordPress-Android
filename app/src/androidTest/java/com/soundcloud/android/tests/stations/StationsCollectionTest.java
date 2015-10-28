@@ -39,9 +39,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.COLLECTIONS);
 
-        collectionsScreen = menuScreen
-                .open()
-                .clickCollections();
+        collectionsScreen = mainNavHelper.goToCollections();
     }
 
     public void testRecentStationsBucket() {

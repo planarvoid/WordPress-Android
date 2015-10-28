@@ -59,8 +59,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {
-        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open()
-                .clickPlaylists()
+        PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToPlaylists()
                 .getPlaylistWithTitle(playlist)
                 .click();
 

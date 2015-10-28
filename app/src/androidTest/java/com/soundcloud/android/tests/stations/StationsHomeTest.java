@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.StationsTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
@@ -37,7 +36,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.STATIONS_HOME);
 
-        stationsScreen = menuScreen.open().clickStations();
+        stationsScreen = mainNavHelper.goToStationsHome();
     }
 
     public void testSavedStationsIsAvailable() {
@@ -63,7 +62,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTitle = startStationAndReturnTitle();
 
-        final StationsBucketElement recentStations = menuScreen.open().clickStations().getRecentStationsBucket();
+        final StationsBucketElement recentStations = stationsScreen.getRecentStationsBucket();
 
         assertThat(recentStations.getFirstStation().getTitle(), is(equalTo(stationTitle)));
         ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
@@ -73,9 +72,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartStationFromBucket() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickStations()
+        final VisualPlayerElement player = stationsScreen
                 .getRecentStationsBucket()
                 .findStation(With.text(stationTitle))
                 .click();
@@ -86,9 +83,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartStationFromViewAllStations() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickStations()
+        final VisualPlayerElement player = stationsScreen
                 .getRecentStationsBucket()
                 .clickViewAll()
                 .findStation(With.text(stationTitle))
@@ -98,9 +93,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     }
 
     private String startStationAndReturnTitle() {
-        final PlaylistDetailsScreen playlistDetailsScreen = menuScreen
-                .open()
-                .clickPlaylists()
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
+                .goToPlaylists()
                 .clickPlaylist(With.text("track-stations"));
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();

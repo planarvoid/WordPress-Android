@@ -18,7 +18,7 @@ public class EmptyPlaylistLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testShowsEmptyLikesScreen() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists().touchLikedPlaylistsTab();
+        PlaylistsScreen playlistsScreen = mainNavHelper.goToPlaylists().touchLikedPlaylistsTab();
         assertTrue(playlistsScreen.emptyView().isVisible());
     }
 }

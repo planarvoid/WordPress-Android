@@ -32,8 +32,7 @@ public class OfflinePlaylistDetailsTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOffline() {
-        final PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open()
-                .clickPlaylists()
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToPlaylists()
                 .get(0)
                 .click()
                 .clickPlaylistOverflowButton()

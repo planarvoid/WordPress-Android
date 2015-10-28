@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -34,7 +33,6 @@ public class PlaylistDetailsTest extends ActivityTest<ResolveActivity> {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData( Uri.parse("soundcloud:playlists:116114846")));
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 

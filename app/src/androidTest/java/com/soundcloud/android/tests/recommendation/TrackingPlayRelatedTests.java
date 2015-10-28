@@ -31,9 +31,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
     public void testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
         startEventTracking();
 
-        final VisualPlayerElement player = menuScreen
-                .open()
-                .clickPlaylists()
+        final VisualPlayerElement player = mainNavHelper.goToPlaylists()
                 .clickPlaylist(With.text("Trigger Auto Test Playlist"))
                 .clickFirstTrackOverflowButton()
                 .clickPlayRelatedTracks();

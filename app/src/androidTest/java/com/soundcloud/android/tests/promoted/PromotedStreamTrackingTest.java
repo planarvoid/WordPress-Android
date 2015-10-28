@@ -37,9 +37,7 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
     // TODO: https://github.com/soundcloud/SoundCloud-Android/issues/3202
     public void testPlayPromotedTrackFromStream() {
         startEventTracking();
-        StreamScreen streamScreen = menuScreen
-                .open()
-                .clickStream();
+        StreamScreen streamScreen = mainNavHelper.goToStream();
 
         // do not run when promoted item is a promoted playlist
         if (streamScreen.isFirstTrackPromoted()) {

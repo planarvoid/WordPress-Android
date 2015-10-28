@@ -18,7 +18,7 @@ public class EmptyPlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     public void testShowsEmptyPostsScreen() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists().touchPostedPlaylistsTab();
+        PlaylistsScreen playlistsScreen = mainNavHelper.goToPlaylists().touchPostedPlaylistsTab();
         assertTrue(playlistsScreen.emptyView().isVisible());
     }
 }

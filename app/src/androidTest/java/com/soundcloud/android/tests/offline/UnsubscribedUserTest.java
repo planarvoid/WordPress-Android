@@ -22,18 +22,14 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
-        final ViewElement overflowButton = menuScreen
-                .open()
-                .clickLikes()
+        final ViewElement overflowButton = mainNavHelper.goToTrackLikes()
                 .headerOverflowButton();
 
         assertThat(overflowButton, is(not(visible())));
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
-        final ViewElement offlineItem = menuScreen
-                .open()
-                .clickPlaylists()
+        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
                 .getPlaylists()
                 .get(0)
                 .clickOverflow()
@@ -43,9 +39,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessLikedPlaylists() throws Exception {
-        final ViewElement offlineItem = menuScreen
-                .open()
-                .clickPlaylists()
+        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
                 .touchLikedPlaylistsTab()
                 .getPlaylists()
                 .get(0)
@@ -56,9 +50,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
-        final ViewElement offlineItem = menuScreen
-                .open()
-                .clickPlaylists()
+        final ViewElement offlineItem = mainNavHelper.goToPlaylists()
                 .clickPlaylistAt(0)
                 .clickPlaylistOverflowButton()
                 .getMakeAvailableOfflineItem();

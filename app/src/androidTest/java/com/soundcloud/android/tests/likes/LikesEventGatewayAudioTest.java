@@ -34,9 +34,7 @@ public class LikesEventGatewayAudioTest extends TrackingActivityTest<MainActivit
     }
 
     public void testPlayAndPauseTrackFromLikes() {
-        final TrackLikesScreen trackLikesScreen = menuScreen
-                .open()
-                .clickLikes();
+        final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
         startEventTracking();
 

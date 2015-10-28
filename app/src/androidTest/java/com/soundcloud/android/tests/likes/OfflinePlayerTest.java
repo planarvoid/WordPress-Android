@@ -33,7 +33,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         offlineContentHelper.clearOfflineContent(context);
         enableOfflineContent(context);
         getWaiter().waitForContentAndRetryIfLoadingFailed();
-        likesScreen = menuScreen.open().clickLikes();
+        likesScreen = mainNavHelper.goToTrackLikes();
     }
 
     public void testPlayTrackWhenContentDownloaded() throws Exception {

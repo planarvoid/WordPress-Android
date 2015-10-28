@@ -40,7 +40,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
-        playlistsScreen = menuScreen.open().clickPlaylists();
+        playlistsScreen = mainNavHelper.goToPlaylists();
     }
 
     @Override

@@ -41,10 +41,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
-        final TrackLikesScreen trackLikesScreen =
-                menuScreen
-                        .open()
-                        .clickLikes();
+        final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
         assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
         assertThat(trackLikesScreen.headerOverflowButton(), is(visible()));
@@ -53,13 +50,11 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
         enableOfflineContent(context);
 
-        final TrackLikesScreen likesScreen =
-                menuScreen
-                        .open()
-                        .clickLikes()
-                        .clickHeaderOverflowButton()
-                        .clickMakeAvailableOffline()
-                        .clickKeepLikesSyncedAndWaitToFinish();
+        final TrackLikesScreen likesScreen = mainNavHelper
+                .goToTrackLikes()
+                .clickHeaderOverflowButton()
+                .clickMakeAvailableOffline()
+                .clickKeepLikesSyncedAndWaitToFinish();
 
         assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
@@ -68,7 +63,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testShuffleLikesWhenOfflineWithNoTracksDownloaded() {
         enableOfflineContent(context);
 
-        final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
+        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         networkManagerClient.switchWifiOff();
 
         likesScreen.clickShuffleButton();

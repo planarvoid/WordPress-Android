@@ -34,9 +34,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlayAndPauseTrackFromStream() {
-        final StreamScreen streamScreen = menuScreen
-                .open()
-                .clickStream();
+        final StreamScreen streamScreen = mainNavHelper.goToStream();
 
         startEventTracking();
 

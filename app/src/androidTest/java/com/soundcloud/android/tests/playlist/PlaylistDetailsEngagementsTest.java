@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
@@ -32,11 +31,10 @@ public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivit
     public void setUp() throws Exception {
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistsScreen = menuScreen.open().clickPlaylists();
+        playlistsScreen = mainNavHelper.goToPlaylists();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }

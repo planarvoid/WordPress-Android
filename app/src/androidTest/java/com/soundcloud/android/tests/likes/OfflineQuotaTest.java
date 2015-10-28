@@ -50,9 +50,8 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         solo.goBack();
         solo.goBack();
 
-        final TrackLikesScreen trackLikesScreen = menuScreen
-                .open()
-                .clickLikes()
+        final TrackLikesScreen trackLikesScreen = mainNavHelper
+                .goToTrackLikes()
                 .clickHeaderOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced();

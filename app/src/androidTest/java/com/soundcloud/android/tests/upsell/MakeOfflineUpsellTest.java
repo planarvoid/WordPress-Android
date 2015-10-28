@@ -39,7 +39,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testLikesUpsellImpressionAndClick() {
-        TrackLikesScreen trackLikesScreen = menuScreen.open().clickLikes();
+        TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
         startEventTracking();
 
@@ -53,8 +53,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistItemUpsellImpressionAndClick() {
-        PlaylistItemElement playlistAtPosition = menuScreen.open()
-                .clickPlaylists()
+        PlaylistItemElement playlistAtPosition = mainNavHelper.goToPlaylists()
                 .getPlaylistAtPosition(0);
 
         startEventTracking();
@@ -69,8 +68,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistPageImpressionAndClick() {
-        PlaylistsScreen playlistsScreen = menuScreen.open()
-                .clickPlaylists();
+        PlaylistsScreen playlistsScreen = mainNavHelper.goToPlaylists();
 
         startEventTracking();
 
