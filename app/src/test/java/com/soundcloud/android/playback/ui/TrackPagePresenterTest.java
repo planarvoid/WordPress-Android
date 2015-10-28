@@ -664,6 +664,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         assertThat(getHolder(trackView).shareButton).isNotVisible();
     }
 
+    @Test
+    public void overlayDismissalShouldNotDisplayShareButtonIfItWasntThereBefore() {
+        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
+
+        presenter.clearAdOverlay(trackView);
+        assertThat(getHolder(trackView).shareButton).isNotVisible();
+    }
+
     private TrackPageHolder getHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
     }
