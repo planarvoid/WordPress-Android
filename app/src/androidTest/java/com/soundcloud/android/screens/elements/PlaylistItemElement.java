@@ -20,16 +20,20 @@ public class PlaylistItemElement {
         return getText(wrapped.findElement(With.id(R.id.list_item_subheader)));
     }
 
-    public String getCreator() {
-        return getText(wrapped.findElement(With.id(R.id.list_item_header)));
-    }
-
     public String getTrackCount() {
         return getText(wrapped.findElement(With.id(R.id.list_item_right_info)));
     }
 
     public boolean isPromotedPlaylist() {
+        return isPromotedCardItem() || isPromotedPlaylistListItem();
+    }
+
+    private boolean isPromotedPlaylistListItem() {
         return wrapped.findElement(With.id(R.id.promoted_playlist)).isVisible();
+    }
+
+    private boolean isPromotedCardItem() {
+        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
     }
 
     public PlaylistDetailsScreen click() {
@@ -38,9 +42,7 @@ public class PlaylistItemElement {
     }
 
     public PlaylistItemOverflowMenu clickOverflow() {
-        wrapped
-                .findElement(With.id(R.id.overflow_button))
-                .click();
+        wrapped.findElement(With.id(R.id.overflow_button)).click();
         return new PlaylistItemOverflowMenu(testDriver);
     }
 

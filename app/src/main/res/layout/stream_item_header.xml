@@ -39,7 +39,7 @@
         tools:text="12 min ago" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/single_line_header_text"
+        android:id="@+id/promoter"
         style="@style/Stream.PrimaryHeaderText"
         android:layout_centerVertical="true"
         android:layout_marginRight="6dp"
@@ -48,11 +48,11 @@
         tools:text="User" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/promoter"
+        android:id="@+id/promoted_item"
         style="@style/Stream.PrimaryHeaderText"
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp"
-        android:layout_toRightOf="@id/single_line_header_text"
+        android:layout_toRightOf="@id/promoter"
         android:drawableLeft="@drawable/promoted_icon"
         android:drawablePadding="3dp"
         android:visibility="visible"

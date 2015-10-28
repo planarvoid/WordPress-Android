@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
+import com.soundcloud.android.screens.StreamScreen;
 
 public class TrackItemMenuElement extends PopupMenuElement {
 
@@ -16,8 +17,14 @@ public class TrackItemMenuElement extends PopupMenuElement {
         super(solo);
     }
 
-    public void toggleLike() {
+    public StreamScreen toggleLike() {
         likeItem().click();
+        return new StreamScreen(testDriver);
+    }
+
+    public StreamScreen toggleRepost() {
+        repostItem().click();
+        return new StreamScreen(testDriver);
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
@@ -38,8 +45,16 @@ public class TrackItemMenuElement extends PopupMenuElement {
         return getElementText(likeItem()).equals("Unlike");
     }
 
+    public boolean isReposted() {
+        return getElementText(likeItem()).equals("Unpost");
+    }
+
     private ViewElement likeItem() {
         return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+    }
+
+    private ViewElement repostItem() {
+        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     private void clickItemWithText(String text) {

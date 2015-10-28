@@ -21,7 +21,7 @@ public class StreamItemViewHolder {
     @Bind(R.id.private_indicator) View privateIndicator;
     @Bind(R.id.private_separator) View privateSeparator;
 
-    @Bind(R.id.single_line_header_text) TextView singleLineHeaderText;
+    @Bind(R.id.promoted_item) TextView promotedItem;
     @Bind(R.id.promoter) TextView promoter;
 
     @Bind(R.id.image) ImageView image;
@@ -84,15 +84,15 @@ public class StreamItemViewHolder {
     }
 
     public void setPromoterHeader(String username, SpannableString spannableString) {
-        singleLineHeaderText.setText(username);
-        singleLineHeaderText.setVisibility(View.VISIBLE);
-        promoter.setText(spannableString);
+        promoter.setText(username);
         promoter.setVisibility(View.VISIBLE);
+        promotedItem.setText(spannableString);
+        promotedItem.setVisibility(View.VISIBLE);
     }
 
     public void setPromotedHeader(SpannableString promoted) {
-        promoter.setText(promoted);
-        promoter.setVisibility(View.VISIBLE);
+        promotedItem.setText(promoted);
+        promotedItem.setVisibility(View.VISIBLE);
     }
 
     public void setTitle(String name) {
@@ -173,11 +173,11 @@ public class StreamItemViewHolder {
         headerText.setVisibility(View.GONE);
         reposter.setVisibility(View.GONE);
         createdAt.setVisibility(View.GONE);
-        singleLineHeaderText.setVisibility(View.GONE);
+        promotedItem.setVisibility(View.GONE);
         promoter.setVisibility(View.GONE);
         togglePrivateIndicator(false);
 
-        singleLineHeaderText.setOnClickListener(null);
+        promoter.setOnClickListener(null);
         userImage.setOnClickListener(null);
         headerText.setOnClickListener(null);
         creator.setOnClickListener(null);
