@@ -62,7 +62,9 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTitle = startStationAndReturnTitle();
 
-        final StationsBucketElement recentStations = stationsScreen.getRecentStationsBucket();
+        final StationsBucketElement recentStations = mainNavHelper
+                .goToStationsHome()
+                .getRecentStationsBucket();
 
         assertThat(recentStations.getFirstStation().getTitle(), is(equalTo(stationTitle)));
         ViewAllStationsScreen viewAllStationsScreen = recentStations.clickViewAll();
@@ -72,7 +74,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartStationFromBucket() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
-        final VisualPlayerElement player = stationsScreen
+        final VisualPlayerElement player = mainNavHelper
+                .goToStationsHome()
                 .getRecentStationsBucket()
                 .findStation(With.text(stationTitle))
                 .click();
@@ -83,7 +86,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     public void testStartStationFromViewAllStations() throws Exception {
         final String stationTitle = startStationAndReturnTitle();
 
-        final VisualPlayerElement player = stationsScreen
+        final VisualPlayerElement player = mainNavHelper
+                .goToStationsHome()
                 .getRecentStationsBucket()
                 .clickViewAll()
                 .findStation(With.text(stationTitle))
