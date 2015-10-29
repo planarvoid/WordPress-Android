@@ -80,7 +80,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     private static Options getRecyclerOptions(FeatureFlags featureFlags) {
         if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
-            return Options.defaults();
+            return Options.custom().useItemClickListener().build();
         } else {
             return Options.list().build();
         }
