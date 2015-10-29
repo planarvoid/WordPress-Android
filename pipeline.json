@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
-              "cmd": "BUILD_TYPE=debug ./gradlew buildDebug",
+              "cmd": "./gradlew buildDebug",
               "plugins": {
                 "androidLint": {
                 "failedTotalHigh": 0, 
@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "BUILD_TYPE=debug ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -77,6 +77,7 @@
           {
             "acceptance_tests": {
               "artifacts": [
+                "app/build/outputs/apk/soundcloud*.apk",
                 "app/build/outputs/apk/*androidTest*.apk", 
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
               ], 
@@ -112,7 +113,7 @@
       "jobs": [
         {
           "deploy_alpha": {
-            "cmd": "./gradlew clean updateAlphaVersion buildAlpha; ./gradlew deployAlpha; \n./gradlew deployAlpha ", 
+            "cmd": "./gradlew buildAlpha deployAlpha",
             "manual": true,
             "schedule": "H 3 * * 2-6",
             "artifacts": [
