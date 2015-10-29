@@ -292,6 +292,7 @@ task runLollipopTests << {
             "com.soundcloud.android.framework.annotation.CollectionsTest",
             "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
             "com.soundcloud.android.framework.annotation.BrokenSearchTest",
+            "com.soundcloud.android.framework.annotation.StationsTest",
             "com.soundcloud.android.framework.annotation.BrokenSettingsTest"
     ] as String[]
     runTestsForLabel("Lollipop", excludeAnnotations, null)
