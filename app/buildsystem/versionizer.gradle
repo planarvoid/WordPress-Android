@@ -2,7 +2,7 @@ import java.util.regex.Pattern
 
 task versionizeDebug {
   doLast {
-    versionize(project.('debugVersionCode'))
+    versionize('debug', project.('debugVersionCode'))
   }
 }
 versionizeDebug.mustRunAfter('clean')
@@ -17,34 +17,40 @@ versionizeAlpha.mustRunAfter('clean')
 
 task versionizeBeta {
   doLast {
-    versionize(project.('betaVersionCode'))
+    versionize('beta', project.('betaVersionCode'))
   }
 }
 versionizeBeta.mustRunAfter('clean')
 
-task versionizeRelease {
-  doLast {
-    versionize(project.('releaseVersionCode'))
-  }
-}
-versionizeRelease.mustRunAfter('clean')
-
 task versionizeFollowUpBeta {
   doLast {
-    versionize(project.('followUpBetaVersionCode'))
+    versionize('beta', project.('followUpBetaVersionCode'))
   }
 }
 versionizeFollowUpBeta.mustRunAfter('clean')
 
+task versionizeRelease {
+  doLast {
+    versionize('release', project.('releaseVersionCode'))
+  }
+}
+versionizeRelease.mustRunAfter('clean')
+
+task versionizeReleaseNoProguard {
+  doLast {
+    versionize('releaseNoProguard', project.('releaseVersionCode'))
+  }
+}
+versionizeReleaseNoProguard.mustRunAfter('clean')
 
 // *********************************************************************************************************************
 // HELPERS
 // *********************************************************************************************************************
 
-def versionize(versionCode) {
+def versionize(buildType, versionCode) {
   updateVersionName()
   updateVersionCode(versionCode)
-  renameApk(versionCode)
+  renameApk(buildType, versionCode)
 }
 
 def updateVersionName() {
@@ -72,8 +78,8 @@ def updateVersionCode(versionCode) {
   manifestFile.write(manifestContent)
 }
 
-def renameApk(versionCode) {
-  def filename = "${project.('apkPath')}".replace(".apk", "-${versionCode}.apk")
+def renameApk(buildType, versionCode) {
+  def filename = "${project.('apkPath')}".replace(".apk", "-${buildType}-${versionCode}.apk")
   println filename
   project.('android').applicationVariants.all { variant ->
     variant.outputs.each { output ->

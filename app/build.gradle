@@ -25,7 +25,7 @@ ext {
   gitBranch               = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
 
   outputsDir            = "$project.buildDir/outputs/apk"
-  apkPath               = "$outputsDir/soundcloud-android-$versionName-$pipelineVersion-${buildType}.apk" // only used by renameApk task (for CI)
+  apkPath               = "$outputsDir/soundcloud-android-$versionName-${pipelineVersion}.apk" // only used by renameApk task (for CI)
   testApkPath           = "$outputsDir/app-$buildFlavor-$buildType-androidTest-unaligned.apk"
   networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.('networkManager')}.apk"
 
