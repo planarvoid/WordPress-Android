@@ -1,13 +1,13 @@
 package com.soundcloud.android.sync.likes;
 
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.TxnResult;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class StoreLikesCommand extends StoreCommand<Collection<PropertySet>> {
+class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<PropertySet>, TxnResult> {
 
     @Inject
     StoreLikesCommand(PropellerDatabase database) {
@@ -25,12 +25,12 @@ class StoreLikesCommand extends StoreCommand<Collection<PropertySet>> {
     }
 
     @Override
-    protected WriteResult store() {
+    protected TxnResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
         List<ContentValues> values = new ArrayList<>(input.size());
         for (PropertySet like : input) {
             values.add(buildContentValuesForLike(like));
         }
-        return database.bulkInsert(Table.Likes, values, SQLiteDatabase.CONFLICT_REPLACE);
+        return propeller.bulkInsert(Table.Likes, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private ContentValues buildContentValuesForLike(PropertySet like) {

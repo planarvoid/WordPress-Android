@@ -1,60 +1,142 @@
 package com.soundcloud.android.sync.activities;
 
+import static com.soundcloud.java.collections.MoreArrays.firstNonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.soundcloud.android.model.PlaylistHolder;
+import com.soundcloud.android.model.TrackHolder;
+import com.soundcloud.android.playlists.PlaylistRecord;
+import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.optional.Optional;
 
-public class ApiActivityItem {
+import android.support.annotation.Nullable;
 
-    private final ApiTrackLikeActivity trackLike;
-    private final ApiTrackRepostActivity trackRepost;
-    private final ApiTrackCommentActivity trackComment;
-    private final ApiPlaylistLikeActivity playlistLike;
-    private final ApiPlaylistRepostActivity playlistRepost;
-    private final ApiUserFollowActivity userFollow;
-    private final ApiUserMentionActivity userMention;
+import java.util.Date;
+
+@AutoValue
+public abstract class ApiActivityItem {
+
+    @Nullable private ApiActivity activity;
 
     @JsonCreator
-    public ApiActivityItem(@JsonProperty("track_like") ApiTrackLikeActivity trackLike,
-                           @JsonProperty("track_repost") ApiTrackRepostActivity trackRepost,
-                           @JsonProperty("track_comment") ApiTrackCommentActivity trackComment,
-                           @JsonProperty("playlist_like") ApiPlaylistLikeActivity playlistLike,
-                           @JsonProperty("playlist_repost") ApiPlaylistRepostActivity playlistRepost,
-                           @JsonProperty("user_follow") ApiUserFollowActivity userFollow,
-                           @JsonProperty("user_mention") ApiUserMentionActivity userMention) {
-        this.trackLike = trackLike;
-        this.trackRepost = trackRepost;
-        this.trackComment = trackComment;
-        this.playlistLike = playlistLike;
-        this.playlistRepost = playlistRepost;
-        this.userFollow = userFollow;
-        this.userMention = userMention;
+    public static ApiActivityItem create(@JsonProperty("track_like") ApiTrackLikeActivity trackLike,
+                                         @JsonProperty("track_repost") ApiTrackRepostActivity trackRepost,
+                                         @JsonProperty("track_comment") ApiTrackCommentActivity trackComment,
+                                         @JsonProperty("playlist_like") ApiPlaylistLikeActivity playlistLike,
+                                         @JsonProperty("playlist_repost") ApiPlaylistRepostActivity playlistRepost,
+                                         @JsonProperty("user_follow") ApiUserFollowActivity userFollow,
+                                         @JsonProperty("user_mention") ApiUserMentionActivity userMention) {
+        return builder()
+                .trackLike(trackLike)
+                .trackRepost(trackRepost)
+                .trackComment(trackComment)
+                .playlistLike(playlistLike)
+                .playlistRepost(playlistRepost)
+                .userFollow(userFollow)
+                .userMention(userMention).userFollow(userFollow)
+                .build();
     }
 
-    public ApiTrackLikeActivity getTrackLike() {
-        return trackLike;
+    public static ApiActivityItem.Builder builder() {
+        return new AutoValue_ApiActivityItem.Builder();
     }
 
-    public ApiTrackRepostActivity getTrackRepost() {
-        return trackRepost;
+    @Nullable
+    protected abstract ApiTrackLikeActivity trackLike();
+
+    @Nullable
+    protected abstract ApiTrackRepostActivity trackRepost();
+
+    @Nullable
+    protected abstract ApiTrackCommentActivity trackComment();
+
+    @Nullable
+    protected abstract ApiPlaylistLikeActivity playlistLike();
+
+    @Nullable
+    protected abstract ApiPlaylistRepostActivity playlistRepost();
+
+    @Nullable
+    protected abstract ApiUserFollowActivity userFollow();
+
+    @Nullable
+    protected abstract ApiUserMentionActivity userMention();
+
+    // TODO: filter out invalid items
+    public boolean isValid() {
+        return this.activity != null;
     }
 
-    public ApiTrackCommentActivity getTrackComment() {
-        return trackComment;
+    public Optional<ApiEngagementActivity> getLike() {
+        return Optional.fromNullable(firstNonNull(trackLike(), playlistLike()));
     }
 
-    public ApiPlaylistLikeActivity getPlaylistLike() {
-        return playlistLike;
+    public Optional<ApiEngagementActivity> getRepost() {
+        return Optional.fromNullable(firstNonNull(trackRepost(), playlistRepost()));
     }
 
-    public ApiPlaylistRepostActivity getPlaylistRepost() {
-        return playlistRepost;
+    public Date getDate() {
+        if (activity != null) {
+            return activity.getCreatedAt();
+        } else {
+            return new Date();
+        }
     }
 
-    public ApiUserFollowActivity getUserFollow() {
-        return userFollow;
+    public Optional<UserRecord> getUser() {
+        if (activity != null) {
+            return Optional.fromNullable(activity.getUser());
+        }
+        return Optional.absent();
     }
 
-    public ApiUserMentionActivity getUserMention() {
-        return userMention;
+    public Optional<TrackRecord> getTrack() {
+        if (activity instanceof TrackHolder) {
+            return Optional.fromNullable(((TrackHolder) activity).getTrack());
+        }
+        return Optional.absent();
+    }
+
+    public Optional<PlaylistRecord> getPlaylist() {
+        if (activity instanceof PlaylistHolder) {
+            return Optional.fromNullable(((PlaylistHolder) activity).getPlaylist());
+        }
+        return Optional.absent();
+    }
+
+    @AutoValue.Builder
+    public static abstract class Builder {
+        public abstract Builder trackLike(ApiTrackLikeActivity trackLikeActivity);
+
+        public abstract Builder trackRepost(ApiTrackRepostActivity trackRepostActivity);
+
+        public abstract Builder trackComment(ApiTrackCommentActivity trackCommentActivity);
+
+        public abstract Builder playlistLike(ApiPlaylistLikeActivity playlistLikeActivity);
+
+        public abstract Builder playlistRepost(ApiPlaylistRepostActivity playlistRepostActivity);
+
+        public abstract Builder userFollow(ApiUserFollowActivity userFollowActivity);
+
+        public abstract Builder userMention(ApiUserMentionActivity userMentionActivity);
+
+        protected abstract ApiActivityItem autoBuild();
+
+        public ApiActivityItem build() {
+            final ApiActivityItem apiActivityItem = autoBuild();
+            // only a single activity is only ever non-null, since this is just a wrapper class
+            apiActivityItem.activity = firstNonNull(
+                    apiActivityItem.trackLike(),
+                    apiActivityItem.trackRepost(),
+                    apiActivityItem.trackComment(),
+                    apiActivityItem.playlistLike(),
+                    apiActivityItem.playlistRepost(),
+                    apiActivityItem.userFollow(),
+                    apiActivityItem.userMention());
+            return apiActivityItem;
+        }
     }
 }

@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.PlaylistHolder;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.users.UserRecord;
 
 import java.util.Date;
 
-public class ApiPlaylistRepostActivity {
+public class ApiPlaylistRepostActivity implements PlaylistHolder, ApiEngagementActivity {
 
     private final ApiPlaylist playlist;
     private final ApiUser reposter;
@@ -22,16 +25,28 @@ public class ApiPlaylistRepostActivity {
         this.createdAt = createdAt;
     }
 
+    @Override
     public ApiPlaylist getPlaylist() {
         return playlist;
     }
 
-    public ApiUser getReposter() {
-        return reposter;
-    }
-
+    @Override
     public Date getCreatedAt() {
         return createdAt;
     }
 
+    @Override
+    public UserRecord getUser() {
+        return reposter;
+    }
+
+    @Override
+    public Urn getTargetUrn() {
+        return playlist.getUrn();
+    }
+
+    @Override
+    public Urn getUserUrn() {
+        return reposter.getUrn();
+    }
 }

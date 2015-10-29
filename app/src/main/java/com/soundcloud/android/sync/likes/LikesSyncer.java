@@ -134,13 +134,13 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
 
     private void writePendingAdditionsToLocalStorage(Set<PropertySet> pendingLocalAdditions) throws PropellerWriteException {
         if (!pendingLocalAdditions.isEmpty()) {
-            storeLikes.with(pendingLocalAdditions).call();
+            storeLikes.call(pendingLocalAdditions);
         }
     }
 
     private void writePendingRemovalsToLocalStorage(Set<PropertySet> pendingLocalRemovals) throws PropellerWriteException {
         if (!pendingLocalRemovals.isEmpty()) {
-            removeLikes.with(pendingLocalRemovals).call();
+            removeLikes.call(pendingLocalRemovals);
         }
     }
 }

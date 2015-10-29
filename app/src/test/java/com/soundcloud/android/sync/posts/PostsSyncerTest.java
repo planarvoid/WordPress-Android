@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.Expect.expect;
+import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -11,21 +13,21 @@ import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PostsSyncerTest {
+// uses AndroidUnitTest because of PropertySet
+public class PostsSyncerTest extends AndroidUnitTest {
 
     private PostsSyncer syncer;
 
@@ -53,7 +55,7 @@ public class PostsSyncerTest {
         withLocalPlaylistPosts(post1);
         withRemotePlaylistPosts(post1);
 
-        expect(syncer.call()).toBe(false);
+        assertThat(syncer.call()).isFalse();
 
         verifyZeroInteractions(removePlaylistPosts);
         verifyZeroInteractions(storePlaylistPosts);
@@ -64,10 +66,9 @@ public class PostsSyncerTest {
         withLocalPlaylistPosts(post1);
         withRemotePlaylistPosts(post1, post2);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        verify(storePlaylistPosts).call();
-        expect(storePlaylistPosts.getInput()).toContainExactly(post2);
+        verify(storePlaylistPosts).call(singleton(post2));
         verifyZeroInteractions(removePlaylistPosts);
     }
 
@@ -76,11 +77,10 @@ public class PostsSyncerTest {
         withLocalPlaylistPosts(post1);
         withRemotePlaylistPosts();
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        verify(storePlaylistPosts, never()).call();
-        verify(removePlaylistPosts).call();
-        expect(removePlaylistPosts.getInput()).toContainExactly(post1);
+        verify(storePlaylistPosts, never()).call(any(Collection.class));
+        verify(removePlaylistPosts).call(singleton(post1));
     }
 
     @Test
@@ -88,12 +88,10 @@ public class PostsSyncerTest {
         withLocalPlaylistPosts(post1);
         withRemotePlaylistPosts(post2);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
-        verify(storePlaylistPosts).call();
-        expect(storePlaylistPosts.getInput()).toContainExactly(post2);
-        verify(removePlaylistPosts).call();
-        expect(removePlaylistPosts.getInput()).toContainExactly(post1);
+        verify(storePlaylistPosts).call(singleton(post2));
+        verify(removePlaylistPosts).call(singleton(post1));
     }
 
     @Test
@@ -104,7 +102,7 @@ public class PostsSyncerTest {
         final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
         when(fetchPostResources.call()).thenReturn(playlists);
 
-        expect(syncer.call()).toBe(true);
+        assertThat(syncer.call()).isTrue();
 
         verify(storePostResources).call(playlists);
 

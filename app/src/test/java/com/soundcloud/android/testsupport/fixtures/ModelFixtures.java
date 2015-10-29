@@ -23,6 +23,7 @@ import com.soundcloud.android.api.model.ApiTrackBlueprint;
 import com.soundcloud.android.api.model.ApiTrackPostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
@@ -34,6 +35,12 @@ import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineTrackContext;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
+import com.soundcloud.android.sync.activities.ApiActivityItem;
+import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
+import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
+import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
+import com.soundcloud.android.sync.activities.ApiTrackRepostActivity;
+import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
@@ -181,5 +188,44 @@ public class ModelFixtures {
     public static DownloadRequest creatorOptOutRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylist) {
         OfflineTrackContext trackContext = OfflineTrackContext.create(track.getUrn(), track.getUser().getUrn(), inPlaylist, inLikes);
         return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), false);
+    }
+
+    public static ApiActivityItem apiActivityWithUser(ApiUser user) {
+        final ApiTrack track = create(ApiTrack.class);
+        final ApiTrackLikeActivity trackLike = new ApiTrackLikeActivity(track, user, new Date());
+        return ApiActivityItem.builder().trackLike(trackLike).build();
+    }
+
+    public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {
+        final ApiUser user = create(ApiUser.class);
+        final ApiTrackLikeActivity trackLike = new ApiTrackLikeActivity(track, user, new Date());
+        return ApiActivityItem.builder().trackLike(trackLike).build();
+    }
+
+    public static ApiActivityItem apiActivityWithRepostedTrack(ApiTrack track) {
+        final ApiUser reposter = create(ApiUser.class);
+        final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track, reposter, new Date());
+        return ApiActivityItem.builder().trackRepost(trackRepost).build();
+    }
+
+    public static ApiActivityItem apiActivityWithoutTrack() {
+        final ApiUser user = create(ApiUser.class);
+        return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(user, new Date())).build();
+    }
+
+    public static ApiActivityItem apiActivityWithLikedPlaylist(ApiPlaylist playlist) {
+        final ApiUser user = create(ApiUser.class);
+        final ApiPlaylistLikeActivity playlistLike = new ApiPlaylistLikeActivity(playlist, user, new Date());
+        return ApiActivityItem.builder().playlistLike(playlistLike).build();
+    }
+
+    public static ApiActivityItem apiActivityWithRepostedPlaylist(ApiPlaylist playlist) {
+        final ApiUser user = create(ApiUser.class);
+        final ApiPlaylistRepostActivity playlistRepost = new ApiPlaylistRepostActivity(playlist, user, new Date());
+        return ApiActivityItem.builder().playlistRepost(playlistRepost).build();
+    }
+
+    public static ApiActivityItem apiActivityWithoutPlaylist() {
+        return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(null, null)).build();
     }
 }

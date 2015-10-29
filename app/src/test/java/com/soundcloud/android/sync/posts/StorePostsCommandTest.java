@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -14,13 +13,11 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StorePostsCommandTest extends StorageIntegrationTest {
 
     private StorePostsCommand command;
@@ -36,7 +33,7 @@ public class StorePostsCommandTest extends StorageIntegrationTest {
         final PropertySet playlistPost2 = createPlaylistPost(Urn.forPlaylist(456L), new Date(200L), false);
         final List<PropertySet> playlists = Arrays.asList(playlistPost1, playlistPost2);
 
-        command.with(playlists).call();
+        command.call(playlists);
 
         assertPlaylistPostInserted(playlistPost1);
         assertPlaylistPostInserted(playlistPost2);

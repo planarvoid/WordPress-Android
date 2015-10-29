@@ -15,6 +15,6 @@ class ReplaceActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiAc
 
     @Override
     protected TxnResult write(PropellerDatabase propeller, Iterable<ApiActivityItem> input) {
-        return new TxnResult();
+        return new StoreActivitiesCommand(propeller).call(input);
     }
 }
