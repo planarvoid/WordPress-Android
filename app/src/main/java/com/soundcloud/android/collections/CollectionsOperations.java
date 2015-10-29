@@ -19,9 +19,9 @@ import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.collections.Sets;
 import rx.Notification;
 import rx.Observable;
 import rx.Scheduler;
@@ -37,7 +37,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class CollectionsOperations {
 
@@ -74,10 +76,19 @@ public class CollectionsOperations {
 
     @VisibleForTesting
     static final int PLAYLIST_LIMIT = 1000; //arbitrarily high, we don't want to worry about paging
-    public static final Func2<Boolean, SyncResult, Void> TO_VOID = new Func2<Boolean, SyncResult, Void>() {
+    private static final Func1<List<PropertySet>, List<PropertySet>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
-        public Void call(Boolean aBoolean, SyncResult syncResult) {
-            return null;
+        public List<PropertySet> call(List<PropertySet> propertySets) {
+            Set<Urn> uniquePlaylists = Sets.newHashSetWithExpectedSize(propertySets.size());
+            for (Iterator<PropertySet> iterator = propertySets.iterator(); iterator.hasNext(); ) {
+                final Urn urn = iterator.next().get(PlaylistProperty.URN);
+                if (uniquePlaylists.contains(urn)) {
+                    iterator.remove();
+                } else {
+                    uniquePlaylists.add(urn);
+                }
+            }
+            return propertySets;
         }
     };
 
@@ -228,6 +239,7 @@ public class CollectionsOperations {
     private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {
         return unsortedPlaylists(options)
                 .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
+                .map(REMOVE_DUPLICATE_PLAYLISTS)
                 .map(PlaylistItem.fromPropertySets())
                 .subscribeOn(scheduler);
     }
