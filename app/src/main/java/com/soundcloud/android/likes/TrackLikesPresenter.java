@@ -20,6 +20,8 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -33,10 +35,13 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+
 import org.jetbrains.annotations.Nullable;
+
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
@@ -48,8 +53,12 @@ import javax.inject.Provider;
 
 class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
-    final @LightCycle CollapsingScrollHelper scrollHelper;
-    final @LightCycle TrackLikesHeaderPresenter headerPresenter;
+    final
+    @LightCycle
+    CollapsingScrollHelper scrollHelper;
+    final
+    @LightCycle
+    TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
     private final FeatureOperations featureOperations;
@@ -125,6 +134,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_you_likes_message);
+        getEmptyView().setBackgroundResource(R.color.page_background);
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,

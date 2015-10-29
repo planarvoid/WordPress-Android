@@ -132,7 +132,7 @@
     <color name="search_hint_text">#999999</color>
 
     <!-- Stations -->
-    <color name="stations_home_background">#e5e5e5</color>
+    <color name="stations_home_background">@color/page_background</color>
     <color name="stations_bucket_action_background">#828282</color>
     <color name="stations_bucket_action_text">#e5e5e5</color>
 

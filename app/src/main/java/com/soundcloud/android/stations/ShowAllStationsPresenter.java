@@ -119,6 +119,13 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), resources.getInteger(R.integer.stations_grid_span_count)));
+
+        if (getCollectionType(fragment.getArguments()) == StationsCollectionsTypes.RECENT) {
+            final EmptyView emptyView = getEmptyView();
+            emptyView.setMessageText(R.string.recent_stations_empty_view_heading);
+            emptyView.setSecondaryText(R.string.recent_stations_empty_view_message);
+            emptyView.setImage(R.drawable.empty_stations);
+        }
     }
 
     @Override
