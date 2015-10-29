@@ -12,6 +12,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -44,6 +47,10 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
+        return call(Collections.<Urn>emptyList());
+    }
+
+    public Boolean call(List<Urn> recentlyPostedUrns) throws Exception {
         final Set<PropertySet> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
         localPosts.addAll(loadLocalPosts.call());
 
@@ -53,6 +60,12 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
         final Set<PropertySet> additions = getSetDifference(remotePosts, localPosts);
         final Set<PropertySet> removals = getSetDifference(localPosts, remotePosts);
+
+        // A race condition occurs when a recently posted playlist is not returned
+        // by the server immediately, leading to remove the recently created local
+        // playlist from the database.
+        removeRecentPosts(additions, recentlyPostedUrns);
+        removeRecentPosts(removals, recentlyPostedUrns);
 
         if (additions.isEmpty() && removals.isEmpty()) {
             Log.d(TAG, "Returning with no change");
@@ -68,6 +81,16 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                 storePostsCommand.call(additions);
             }
             return true;
+        }
+    }
+
+    private void removeRecentPosts(Set<PropertySet> posts, List<Urn> recentlyPostedUrns) {
+        Iterator<PropertySet> iterator = posts.iterator();
+        while (iterator.hasNext()) {
+            PropertySet post = iterator.next();
+            if (recentlyPostedUrns.contains(post.get(PostProperty.TARGET_URN))) {
+                iterator.remove();
+            }
         }
     }
 

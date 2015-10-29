@@ -25,6 +25,7 @@ import android.util.Pair;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,14 +57,15 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        pushLocalPlaylists();
-        return postsSyncer.call()
+        return postsSyncer.call(pushLocalPlaylists())
                 ? ApiSyncResult.fromSuccessfulChange(uri)
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
     }
 
-    private void pushLocalPlaylists() throws Exception {
+    private List<Urn> pushLocalPlaylists() throws Exception {
         final List<PropertySet> localPlaylists = loadLocalPlaylists.call();
+        final List<Urn> postedPlaylistUrns = new ArrayList<>(localPlaylists.size());
+
         Log.d(TAG, "Local Playlist count : " + localPlaylists.size());
         for (PropertySet localPlaylist : localPlaylists) {
             final Urn playlistUrn = localPlaylist.get(PlaylistProperty.URN);
@@ -77,7 +79,10 @@ public class MyPlaylistsSyncer implements SyncStrategy {
             final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
             publishPlaylistCreated(newPlaylist);
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
+            postedPlaylistUrns.add(newPlaylist.getUrn());
         }
+
+        return postedPlaylistUrns;
     }
 
     private void publishPlaylistCreated(ApiPlaylist newPlaylist) {
