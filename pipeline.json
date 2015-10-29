@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
-              "cmd": "BUILD_TYPE=debug ./gradlew clean updateVersion buildDebugCI",
+              "cmd": "BUILD_TYPE=debug ./gradlew buildDebug",
               "plugins": {
                 "androidLint": {
                 "failedTotalHigh": 0, 
@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "BUILD_TYPE=debug ./gradlew clean assembleAcceptanceTest; ./gradlew downloadNetworkManagerApkCI",
+              "cmd": "BUILD_TYPE=debug ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
