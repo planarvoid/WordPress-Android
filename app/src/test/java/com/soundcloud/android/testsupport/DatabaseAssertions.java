@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
+import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
@@ -19,6 +20,7 @@ import com.soundcloud.android.stations.ApiStationMetadata;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
@@ -455,6 +457,16 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
     }
 
+    public void assertCommentActivityInserted(long commentId, Urn trackUrn, Urn commenterUrn, Date createdAt) {
+        assertThat(select(Query.from(Table.Activities.name())
+                .whereEq(TableColumns.Activities.TYPE, ActivityKind.TRACK_COMMENT.tableConstant())
+                .whereEq(TableColumns.Activities.SOUND_ID, trackUrn.getNumericId())
+                .whereEq(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(TableColumns.Activities.USER_ID, commenterUrn.getNumericId())
+                .whereEq(TableColumns.Activities.COMMENT_ID, commentId)
+                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
+    }
+
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
@@ -601,5 +613,15 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Waveforms.TRACK_ID, track.getNumericId())
                 .whereEq(TableColumns.Waveforms.MAX_AMPLITUDE, waveformData.maxAmplitude)
                 .whereEq(TableColumns.Waveforms.SAMPLES, serializer.serialize(waveformData.samples))), counts(1));
+    }
+
+    public void assertCommentInserted(CommentRecord comment) {
+        assertThat(select(from(Comments.TABLE)
+                .whereEq(Comments.URN, comment.getUrn().toString())
+                .whereEq(Comments.TRACK_ID, comment.getTrackUrn().getNumericId())
+                .whereEq(Comments.USER_ID, comment.getUser().getUrn().getNumericId())
+                .whereEq(Comments.TIMESTAMP, comment.getTrackTime())
+                .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
+                .whereEq(Comments.BODY, comment.getBody())), counts(1));
     }
 }

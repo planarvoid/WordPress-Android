@@ -7,8 +7,7 @@ public enum ActivityKind {
     TRACK_REPOST("track_repost"),
     PLAYLIST_REPOST("playlist_repost"),
     TRACK_COMMENT("track_comment"),
-    USER_FOLLOW("user_follow"),
-    USER_MENTION("user_mention");
+    USER_FOLLOW("user_follow");
 
     private final String name;
 

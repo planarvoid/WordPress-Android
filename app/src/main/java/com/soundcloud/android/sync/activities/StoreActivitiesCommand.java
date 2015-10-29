@@ -4,6 +4,8 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.comments.CommentRecord;
+import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.Table;
@@ -24,9 +26,12 @@ import java.util.Set;
 
 class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
 
+    private final StoreCommentCommand storeCommentCommand;
+
     @Inject
-    StoreActivitiesCommand(PropellerDatabase propeller) {
+    StoreActivitiesCommand(PropellerDatabase propeller, StoreCommentCommand storeCommentCommand) {
         super(propeller);
+        this.storeCommentCommand = storeCommentCommand;
     }
 
     @Override
@@ -34,7 +39,7 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
         return propeller.runTransaction(new StoreActivitiesTransaction(input));
     }
 
-    private static class StoreActivitiesTransaction extends PropellerDatabase.Transaction {
+    private class StoreActivitiesTransaction extends PropellerDatabase.Transaction {
 
         private final Iterable<ApiActivityItem> activities;
 
@@ -49,15 +54,27 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             for (ApiActivityItem activityItem : activities) {
                 handleLikeActivity(propeller, activityItem);
                 handleRepostActivity(propeller, activityItem);
+                handleCommentActivity(propeller, activityItem);
             }
+        }
 
+        private void handleCommentActivity(PropellerDatabase propeller, ApiActivityItem activityItem) {
+            final ApiTrackCommentActivity commentActivity = activityItem.trackComment();
+            if (commentActivity != null) {
+                final CommentRecord comment = commentActivity.getComment();
+                step(storeCommentCommand.call(comment));
+                final ContentValues contentValues = buildActivityContentValues(comment.getTrackUrn(), commentActivity.getUserUrn(),
+                        commentActivity.getCreatedAt(), ActivityKind.TRACK_COMMENT);
+                contentValues.put(Activities.COMMENT_ID, storeCommentCommand.lastRowId());
+                step(propeller.upsert(Table.Activities, contentValues));
+            }
         }
 
         private void handleLikeActivity(PropellerDatabase propeller, ApiActivityItem activityItem) {
             final Optional<ApiEngagementActivity> maybeLike = activityItem.getLike();
             if (maybeLike.isPresent()) {
                 final ApiEngagementActivity like = maybeLike.get();
-                step(propeller.upsert(Table.Activities, buildContentValues(
+                step(propeller.upsert(Table.Activities, buildActivityContentValues(
                         like.getTargetUrn(), like.getUserUrn(), like.getCreatedAt(),
                         like.getTargetUrn().isTrack() ? ActivityKind.TRACK_LIKE : ActivityKind.PLAYLIST_LIKE
                 )));
@@ -68,7 +85,7 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             final Optional<ApiEngagementActivity> maybeRepost = activityItem.getRepost();
             if (maybeRepost.isPresent()) {
                 final ApiEngagementActivity repost = maybeRepost.get();
-                step(propeller.upsert(Table.Activities, buildContentValues(
+                step(propeller.upsert(Table.Activities, buildActivityContentValues(
                         repost.getTargetUrn(), repost.getUserUrn(), repost.getCreatedAt(),
                         repost.getTargetUrn().isTrack() ? ActivityKind.TRACK_REPOST : ActivityKind.PLAYLIST_REPOST
                 )));
@@ -96,12 +113,12 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             }
         }
 
-        private static ContentValues buildContentValues(Urn targetUrn, Urn userUrn, Date createdAt,
-                                                        ActivityKind activityKind) {
+        private ContentValues buildActivityContentValues(Urn playableUrn, Urn userUrn, Date createdAt,
+                                                         ActivityKind activityKind) {
             final ContentValues cv = new ContentValues();
             cv.put(Activities.TYPE, activityKind.tableConstant());
-            cv.put(Activities.SOUND_ID, targetUrn.getNumericId());
-            cv.put(Activities.SOUND_TYPE, targetUrn.isTrack()
+            cv.put(Activities.SOUND_ID, playableUrn.getNumericId());
+            cv.put(Activities.SOUND_TYPE, playableUrn.isTrack()
                     ? TableColumns.Sounds.TYPE_TRACK
                     : TableColumns.Sounds.TYPE_PLAYLIST);
             cv.put(Activities.USER_ID, userUrn.getNumericId());

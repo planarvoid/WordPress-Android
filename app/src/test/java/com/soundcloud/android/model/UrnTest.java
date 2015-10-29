@@ -31,6 +31,11 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldValidateCommentUrnAsSoundCloudUrn() {
+        assertThat(Urn.isSoundCloudUrn("soundcloud:comments:1")).isTrue();
+    }
+
+    @Test
     public void shouldNotValidateUnknownUrnAsSoundCloudUrn() {
         assertThat(Urn.isSoundCloudUrn("adswizz:ads:1234")).isFalse();
     }
@@ -117,6 +122,12 @@ public class UrnTest extends AndroidUnitTest {
     public void shouldBuildUserUrns() {
         final Urn urn = Urn.forUser(1);
         assertThat(urn).isEqualTo(new Urn("soundcloud:users:1"));
+    }
+
+    @Test
+    public void shouldBuildCommentUrns() {
+        final Urn urn = Urn.forComment(1);
+        assertThat(urn).isEqualTo(new Urn("soundcloud:comments:1"));
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.soundcloud.android.sync.activities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.TrackHolder;
 import com.soundcloud.android.model.Urn;
@@ -13,20 +12,25 @@ import java.util.Date;
 
 public class ApiTrackCommentActivity implements TrackHolder, ApiEngagementActivity {
 
+    private final Urn targetUrn;
     private final ApiTrack track;
-    private final ApiUser commenter;
     private final ApiComment comment;
     private final Date createdAt;
 
     @JsonCreator
-    public ApiTrackCommentActivity(@JsonProperty("track") ApiTrack track,
-                                   @JsonProperty("commenter") ApiUser commenter,
+    public ApiTrackCommentActivity(@JsonProperty("target_urn") String targetUrn,
+                                   @JsonProperty("track") ApiTrack track,
                                    @JsonProperty("comment") ApiComment comment,
                                    @JsonProperty("created_at") Date createdAt) {
+        this.targetUrn = new Urn(targetUrn);
         this.track = track;
-        this.commenter = commenter;
         this.comment = comment;
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public Urn getTargetUrn() {
+        return targetUrn;
     }
 
     @Override
@@ -34,9 +38,8 @@ public class ApiTrackCommentActivity implements TrackHolder, ApiEngagementActivi
         return track;
     }
 
-    @Override
-    public UserRecord getUser() {
-        return commenter;
+    public ApiComment getComment() {
+        return comment;
     }
 
     @Override
@@ -44,17 +47,13 @@ public class ApiTrackCommentActivity implements TrackHolder, ApiEngagementActivi
         return createdAt;
     }
 
-    public ApiComment getComment() {
-        return comment;
-    }
-
     @Override
-    public Urn getTargetUrn() {
-        return track.getUrn();
+    public UserRecord getUser() {
+        return comment.getUser();
     }
 
     @Override
     public Urn getUserUrn() {
-        return commenter.getUrn();
+        return getUser().getUrn();
     }
 }

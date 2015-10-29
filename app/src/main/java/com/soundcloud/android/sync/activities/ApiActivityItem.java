@@ -27,8 +27,7 @@ public abstract class ApiActivityItem {
                                          @JsonProperty("track_comment") ApiTrackCommentActivity trackComment,
                                          @JsonProperty("playlist_like") ApiPlaylistLikeActivity playlistLike,
                                          @JsonProperty("playlist_repost") ApiPlaylistRepostActivity playlistRepost,
-                                         @JsonProperty("user_follow") ApiUserFollowActivity userFollow,
-                                         @JsonProperty("user_mention") ApiUserMentionActivity userMention) {
+                                         @JsonProperty("user_follow") ApiUserFollowActivity userFollow) {
         return builder()
                 .trackLike(trackLike)
                 .trackRepost(trackRepost)
@@ -36,7 +35,6 @@ public abstract class ApiActivityItem {
                 .playlistLike(playlistLike)
                 .playlistRepost(playlistRepost)
                 .userFollow(userFollow)
-                .userMention(userMention).userFollow(userFollow)
                 .build();
     }
 
@@ -61,9 +59,6 @@ public abstract class ApiActivityItem {
 
     @Nullable
     protected abstract ApiUserFollowActivity userFollow();
-
-    @Nullable
-    protected abstract ApiUserMentionActivity userMention();
 
     // TODO: filter out invalid items
     public boolean isValid() {
@@ -121,8 +116,6 @@ public abstract class ApiActivityItem {
 
         public abstract Builder userFollow(ApiUserFollowActivity userFollowActivity);
 
-        public abstract Builder userMention(ApiUserMentionActivity userMentionActivity);
-
         protected abstract ApiActivityItem autoBuild();
 
         public ApiActivityItem build() {
@@ -134,8 +127,7 @@ public abstract class ApiActivityItem {
                     apiActivityItem.trackComment(),
                     apiActivityItem.playlistLike(),
                     apiActivityItem.playlistRepost(),
-                    apiActivityItem.userFollow(),
-                    apiActivityItem.userMention());
+                    apiActivityItem.userFollow());
             return apiActivityItem;
         }
     }
