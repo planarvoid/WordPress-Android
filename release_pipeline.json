@@ -124,7 +124,7 @@
       "jobs": [
         {
           "rollout_release_1_percent": {
-            "cmd": "./gradlew deployRelease deployFollowUpBeta",
+            "cmd": "bundle install \n./gradlew deployRelease deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -140,7 +140,7 @@
       "jobs": [
         {
           "rollout_release_5_percent": {
-            "cmd": "./gradlew rolloutFivePercent",
+            "cmd": "bundle install \n./gradlew rolloutFivePercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -156,7 +156,7 @@
       "jobs": [
         {
           "deploy_release": {
-            "cmd": "./gradlew rolloutFull",
+            "cmd": "bundle install \n./gradlew rolloutFull",
             "manual": true,
             "localBranch": true,
             "artifacts": ["app/build/outputs/apk/soundcloud-android-*-release-*.apk"]
