@@ -14,6 +14,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
@@ -26,6 +27,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
 
     private final PlaylistDiscoveryOperations operations;
     private final PlaylistResultsAdapter adapter;
+    private final RecyclerViewParallaxer parallaxer;
     private final Navigator navigator;
     private final EventBus eventBus;
 
@@ -34,11 +36,12 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
             PlaylistDiscoveryOperations operations,
             PlaylistResultsAdapter adapter,
             SwipeRefreshAttacher swipeRefreshAttacher,
-            Navigator navigator,
+            RecyclerViewParallaxer parallaxer, Navigator navigator,
             EventBus eventBus) {
         super(swipeRefreshAttacher, Options.grid(R.integer.grid_view_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
+        this.parallaxer = parallaxer;
         this.navigator = navigator;
         this.eventBus = eventBus;
     }
@@ -54,6 +57,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onCreateCollectionView(fragment, view, savedInstanceState);
         new EmptyViewBuilder().configureForSearch(getEmptyView());
+        getRecyclerView().addOnScrollListener(parallaxer);
     }
 
     @Override

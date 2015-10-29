@@ -8,18 +8,19 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -31,6 +32,7 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -63,6 +65,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
+    @Mock private RecyclerViewParallaxer parallaxer;
+    @Mock private FeatureFlags featureFlags;
     @Mock private View view;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -78,13 +82,13 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
-                facebookInvitesDialogPresenter);
+                parallaxer, facebookInvitesDialogPresenter, featureFlags);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
-    @Test
+   @Test
     public void canLoadStreamItems() {
         List<StreamItem> items = Arrays.<StreamItem>asList(
                 PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack()),

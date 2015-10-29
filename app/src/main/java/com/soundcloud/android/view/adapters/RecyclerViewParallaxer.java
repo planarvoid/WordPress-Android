@@ -1,5 +1,6 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.ParallaxImageView;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
@@ -7,53 +8,36 @@ import com.soundcloud.java.functions.Predicate;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-@Deprecated
-public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
+public class RecyclerViewParallaxer extends RecyclerView.OnScrollListener {
+
     private static final int PARALLAX_STEP_AMOUNT = -10;
 
     @VisibleForTesting
     static final String VIEW_FOREGROUND_TAG = "foreground";
 
-    private final AbsListView.OnScrollListener onScrollListenerDelegate;
-
     private final Map<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<>();
     private final Map<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<>();
 
-    public AbsListViewParallaxer(@Nullable AbsListView.OnScrollListener scrollListenerDelegate) {
-        this.onScrollListenerDelegate = scrollListenerDelegate;
+    @Inject
+    public RecyclerViewParallaxer() {
     }
 
     @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (onScrollListenerDelegate != null) {
-            onScrollListenerDelegate.onScrollStateChanged(view,
-                    scrollState);
-        }
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (onScrollListenerDelegate != null) {
-            onScrollListenerDelegate.onScroll(view, firstVisibleItem,
-                    visibleItemCount, totalItemCount);
-        }
-        scrollChanged(view);
-    }
-
-    private void scrollChanged(AbsListView listView) {
-        final int halfHeight = listView.getHeight() / 2;
-        final float parallaxStepScaled = listView.getResources().getDisplayMetrics().density * PARALLAX_STEP_AMOUNT;
+    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        final int halfHeight = recyclerView.getHeight() / 2;
+        final float parallaxStepScaled = recyclerView.getResources().getDisplayMetrics().density * PARALLAX_STEP_AMOUNT;
 
         if (halfHeight > 0) {
-            for (int i = 0; i < listView.getChildCount(); i++) {
-                applyParallaxToItemView(halfHeight, parallaxStepScaled, listView.getChildAt(i));
+            for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                applyParallaxToItemView(halfHeight, parallaxStepScaled, recyclerView.getChildAt(i));
             }
         }
     }

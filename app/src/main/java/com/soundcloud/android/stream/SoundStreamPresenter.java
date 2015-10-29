@@ -16,6 +16,8 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -23,6 +25,7 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -40,10 +43,12 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
+    private final RecyclerViewParallaxer recyclerViewParallaxer;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
+    private final FeatureFlags featureFlags;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -56,14 +61,18 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
-                         FacebookInvitesDialogPresenter facebookInvitesDialogPresenter) {
+                         RecyclerViewParallaxer recyclerViewParallaxer,
+                         FacebookInvitesDialogPresenter facebookInvitesDialogPresenter,
+                         FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
+        this.recyclerViewParallaxer = recyclerViewParallaxer;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
+        this.featureFlags = featureFlags;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
@@ -102,11 +111,18 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         configureEmptyView();
-        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
+        addScrollListeners();
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
+    }
+
+    private void addScrollListeners() {
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
+        if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
+            getRecyclerView().addOnScrollListener(recyclerViewParallaxer);
+        }
     }
 
     @Override
