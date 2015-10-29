@@ -57,6 +57,8 @@
         <item name="android:layout_marginRight">24dp</item>
         <item name="android:layout_marginBottom">16dp</item>
         <item name="android:layout_marginTop">4dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">2</item>
     </style>
 
     <style name="Stream.PlaylistTracks">
@@ -80,10 +82,10 @@
 
     <style name="Stream.PrimaryHeaderText" parent="ListItemText.PrimaryText">
         <item name="android:layout_marginLeft">4dp</item>
-        <item name="android:layout_marginTop">0dp</item>
     </style>
 
     <style name="Stream.SecondaryHeaderText" parent="ListItemText.SecondaryText">
+        <item name="android:layout_marginTop">0dp</item>
         <item name="android:layout_marginLeft">4dp</item>
     </style>
 

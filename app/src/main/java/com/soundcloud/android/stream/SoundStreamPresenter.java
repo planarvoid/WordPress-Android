@@ -64,7 +64,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          RecyclerViewParallaxer recyclerViewParallaxer,
                          FacebookInvitesDialogPresenter facebookInvitesDialogPresenter,
                          FeatureFlags featureFlags) {
-        super(swipeRefreshAttacher);
+        super(swipeRefreshAttacher, getRecyclerOptions(featureFlags));
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
@@ -76,6 +76,14 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
+    }
+
+    private static Options getRecyclerOptions(FeatureFlags featureFlags) {
+        if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
+            return Options.defaults();
+        } else {
+            return Options.list().build();
+        }
     }
 
     @Override

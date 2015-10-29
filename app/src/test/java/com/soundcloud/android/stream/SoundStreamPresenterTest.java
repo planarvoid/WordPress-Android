@@ -68,7 +68,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private RecyclerViewParallaxer parallaxer;
     @Mock private FeatureFlags featureFlags;
     @Mock private View view;
-
+   
     private TestEventBus eventBus = new TestEventBus();
 
     @Before

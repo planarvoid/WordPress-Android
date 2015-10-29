@@ -54,7 +54,7 @@
         android:layout_marginLeft="0dp"
         android:layout_toRightOf="@id/single_line_header_text"
         android:drawableLeft="@drawable/promoted_track_icon"
-        android:drawablePadding="4dp"
+        android:drawablePadding="3dp"
         android:visibility="visible"
         tools:text="promoted track or playlist" />
 

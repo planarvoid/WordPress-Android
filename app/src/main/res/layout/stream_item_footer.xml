@@ -25,6 +25,7 @@
     <ToggleButton
         android:id="@+id/toggle_repost"
         style="@style/Stream.ToggleButton"
+        android:layout_marginRight="8dp"
         android:layout_toLeftOf="@id/toggle_like"
         android:drawableLeft="@drawable/ic_toggle_player_repost_states"
         tools:textOff="123"/>
