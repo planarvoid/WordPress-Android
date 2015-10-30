@@ -96,13 +96,26 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public int indexOfTrackUrn(final Urn trackUrn) {
-        return Iterables.indexOf(playQueueItems, new Predicate<PlayQueueItem>() {
+        return Iterables.indexOf(playQueueItems, isMatchingItem(trackUrn));
+    }
+
+    public int indexOfTrackUrn(int startPosition, final Urn urn) {
+        final List<PlayQueueItem> subList = playQueueItems.subList(startPosition, this.playQueueItems.size());
+        final int index = Iterables.indexOf(subList, isMatchingItem(urn));
+        if (index >= 0) {
+            return index + startPosition;
+        } else {
+            return index;
+        }
+    }
+
+    private Predicate<PlayQueueItem> isMatchingItem(final Urn urn) {
+        return new Predicate<PlayQueueItem>() {
             @Override
             public boolean apply(PlayQueueItem input) {
-                return input.isTrack()
-                        && input.getUrn().equals(trackUrn);
+                return input.isTrack() && input.getUrn().equals(urn);
             }
-        });
+        };
     }
 
     public List<Urn> getTrackItemUrns() {

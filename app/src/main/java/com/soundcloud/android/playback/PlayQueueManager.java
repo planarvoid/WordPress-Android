@@ -166,6 +166,10 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.indexOfTrackUrn(urn);
     }
 
+    public int getUpcomingPositionForUrn(Urn urn) {
+        return playQueue.indexOfTrackUrn(currentPosition, urn);
+    }
+
     public void setPosition(int position) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;

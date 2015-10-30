@@ -26,7 +26,6 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
-import java.util.List;
 
 public class AdsOperations {
 
@@ -101,7 +100,7 @@ public class AdsOperations {
     }
 
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
-        final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
         if (ads.hasInterstitialAd()) {
             applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
@@ -111,7 +110,7 @@ public class AdsOperations {
     }
 
     public void applyInterstitialToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
-        final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
         if (ads.hasInterstitialAd()) {
             applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);

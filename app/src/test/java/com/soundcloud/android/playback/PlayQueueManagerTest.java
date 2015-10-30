@@ -296,6 +296,46 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getUpcomingPositionForUrnReturnsNotSetForEmptyPlayQueue() throws Exception {
+        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(1L))).isEqualTo(Consts.NOT_SET);
+    }
+
+    @Test
+    public void getUpcomingPositionForUrnReturnsNotSetForUrnIfNotInPlayQueue() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
+
+        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(4L))).isEqualTo(Consts.NOT_SET);
+    }
+
+    @Test
+    public void getUpcomingPositionForUrnReturnsPositionForUrnIfInPlayQueue() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 2L), playlistSessionSource), playlistSessionSource);
+        playQueueManager.setPosition(0);
+
+        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
+    }
+
+    @Test
+    public void getUpcomingPositionForUrnReturnsCurrentItem() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 2L), playlistSessionSource), playlistSessionSource);
+        playQueueManager.setPosition(1);
+
+        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
+    }
+
+    @Test
+    public void getUpcomingPositionForUrnReturnsUpcomingItem() throws Exception {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 2L), playlistSessionSource), playlistSessionSource);
+        playQueueManager.setPosition(2);
+
+        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(3);
+    }
+
+    @Test
     public void setNewPlayQueueMarksCurrentTrackAsUserTriggered() {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.size()).thenReturn(1);

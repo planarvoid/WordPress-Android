@@ -109,6 +109,27 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void indexOfWithStartPositionReturnsMinusOneWhenTrackIsNotPresent() {
+        PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
+
+        assertThat(playQueue.indexOfTrackUrn(Urn.forTrack(4l))).isEqualTo(-1);
+    }
+
+    @Test
+    public void indexOfWithStartPositionReturnsMinusOneWhenTrackIsNotPresentAfterGivenPosition() {
+        PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
+
+        assertThat(playQueue.indexOfTrackUrn(2, Urn.forTrack(2l))).isEqualTo(-1);
+    }
+
+    @Test
+    public void indexOfWithStartPositionReturnsIndexInQueueWhenTrackIsPresent() {
+        PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 1L), playSessionSource);
+
+        assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(2l))).isEqualTo(1);
+    }
+
+    @Test
     public void insertsTrackAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
 
