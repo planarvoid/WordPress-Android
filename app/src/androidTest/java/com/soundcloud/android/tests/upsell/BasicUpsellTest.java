@@ -5,20 +5,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.elements.ToolBarElement;
 
 @EventTrackingTest
 public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String NAV_UPSELL_TEST_SCENARIO = "nav-upsell-tracking-test";
     private static final String SETTINGS_UPSELL_TEST_SCENARIO = "settings-upsell-tracking-test";
 
     public BasicUpsellTest() {
@@ -37,15 +33,10 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    @BrokenSettingsTest
     public void testSettingsUpsellImpressionAndClick() {
-        ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
-
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = toolBarElement
-                .clickSettingsOverflowButton()
-                .clickOfflineSettings()
+        UpgradeScreen upgradeScreen = mainNavHelper.goToOfflineSettings()
                 .clickSubscribe();
 
         assertThat(upgradeScreen, is(visible()));

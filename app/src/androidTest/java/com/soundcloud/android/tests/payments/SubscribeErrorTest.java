@@ -2,19 +2,17 @@ package com.soundcloud.android.tests.payments;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.PaymentErrorScreen;
-import com.soundcloud.android.screens.SettingsScreen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SubscribeErrorTest extends ActivityTest<MainActivity> {
 
-    private SettingsScreen settingsScreen;
+    private OfflineSettingsScreen settingsScreen;
 
     public SubscribeErrorTest() {
         super(MainActivity.class);
@@ -30,17 +28,15 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
         setRequiredEnabledFeatures(Flag.PAYMENTS_TEST);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
-        settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
+        settingsScreen = mainNavHelper.goToOfflineSettings();
     }
 
     @PaymentTest
-    @BrokenSettingsTest
     public void testAlreadySubscribedError() {
         PaymentStateHelper.resetTestAccount();
         subscribe();
         solo.goBack();
         PaymentErrorScreen errorScreen = settingsScreen
-                .clickOfflineSettings()
                 .clickSubscribe()
                 .clickBuyForFailure();
         errorScreen.waitForDialog();
@@ -49,7 +45,6 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
 
     private void subscribe() {
         settingsScreen
-                .clickOfflineSettings()
                 .clickSubscribe()
                 .clickBuyForSuccess();
         waiter.waitTwoSeconds();

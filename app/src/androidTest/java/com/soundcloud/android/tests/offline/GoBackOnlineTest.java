@@ -12,13 +12,11 @@ import static org.hamcrest.core.IsNot.not;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
@@ -84,22 +82,20 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         return new StreamScreen(testDriver);
     }
 
-    @BrokenSettingsTest
     public void testRemovesOfflinePlaylistAfter30DaysOffline() {
         enableOfflineContent(context);
 
         // make playlist available offline
         StreamScreen streamScreen = startMainActivity();
-        new MainNavigationHelper(testDriver).goToCollections()
+        final MainNavigationHelper mainNavigationHelper = new MainNavigationHelper(testDriver);
+        mainNavigationHelper.goToCollections()
                 .getPlaylists()
                 .get(0)
                 .clickOverflow()
                 .clickMakeAvailableOffline();
 
         // open other activity
-        SettingsScreen settingsScreen = streamScreen
-                .actionBar()
-                .clickSettingsOverflowButton();
+        mainNavigationHelper.goToBasicSettings();
 
         networkManagerClient.switchWifiOff();
         resetPolicyUpdateAndCheckTime(context);
