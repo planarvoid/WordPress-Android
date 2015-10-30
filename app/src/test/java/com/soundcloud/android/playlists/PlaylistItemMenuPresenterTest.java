@@ -10,8 +10,11 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
@@ -19,17 +22,21 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.view.MenuItem;
@@ -42,9 +49,13 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikeOperations likeOperations;
+    @Mock private RepostOperations repostOperations;
+    @Mock private ShareOperations shareOperations;
     @Mock private ScreenProvider screenProvider;
     @Mock private FeatureOperations featureOperations;
-    @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private OfflineContentOperations offlineOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
     @Mock private View button;
@@ -52,7 +63,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     private final TestEventBus eventBus = new TestEventBus();
 
     private PlaylistItemMenuPresenter presenter;
-    private  PlaylistItem playlist = createPlaylistItem();
+    private PlaylistItem playlist = createPlaylistItem();
+    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
 
     @Before
     public void setUp() throws Exception {
@@ -60,18 +72,19 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
 
-        when(offlineContentOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
-        when(offlineContentOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.<PropertySet>empty());
 
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
-        presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, playlistOperations,
-                likeOperations, screenProvider, featureOperations, offlineContentOperations, navigator);
+        presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
+                playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
+                featureFlags, offlineOperations, navigator);
 
-        presenter.show(button, playlist, true);
+        presenter.show(button, playlist, menuOptions);
     }
 
     @Test
@@ -85,11 +98,35 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
+        final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
+        when(likeOperations.toggleLike(playlist.getEntityUrn(), !playlist.isLiked())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(likeOperations).toggleLike(playlist.getEntityUrn(), !playlist.isLiked());
+        assertThat(likeObservable.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void clickRepostItemRepostsPlaylist() {
+        final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
+        when(repostOperations.toggleRepost(playlist.getEntityUrn(), !playlist.isReposted())).thenReturn(repostObservable);
+        when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        assertThat(repostObservable.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void clickingOnShareItemSharesPlaylist() {
+        when(menuItem.getItemId()).thenReturn(R.id.share);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(shareOperations).share(context, playlist.getSource(),
+                ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag(), Urn.NOT_SET, null);
     }
 
     @Test
@@ -106,11 +143,13 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
+        final PublishSubject<Boolean> offlineObservable = PublishSubject.create();
+        when(offlineOperations.makePlaylistAvailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(offlineContentOperations).makePlaylistAvailableOffline(playlist.getEntityUrn());
+        assertThat(offlineObservable.hasObservers()).isTrue();
     }
 
     @Test
@@ -127,11 +166,14 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
+        final PublishSubject<Boolean> offlineObservable = PublishSubject.create();
+        when(offlineOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
+
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(offlineContentOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+        assertThat(offlineObservable.hasObservers()).isTrue();
     }
 
     @Test
@@ -155,11 +197,11 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         PropertySet likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, false);
 
         playlist = PlaylistItem.from(likedPlaylist);
-        presenter.show(button, playlist, true);
+        presenter.show(button, playlist, menuOptions);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(offlineContentOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+        verify(offlineOperations).makePlaylistUnavailableOffline(playlist.getEntityUrn());
     }
 
     @Test
@@ -170,11 +212,11 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
         PropertySet likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false, true);
         playlist = PlaylistItem.from(likedAndPostedPlaylist);
-        presenter.show(button, playlist, true);
+        presenter.show(button, playlist, menuOptions);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(offlineContentOperations, never()).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+        verify(offlineOperations, never()).makePlaylistUnavailableOffline(playlist.getEntityUrn());
     }
 
     private PlaylistItem createPlaylistItem() {

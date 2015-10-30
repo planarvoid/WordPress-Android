@@ -110,4 +110,8 @@ public abstract class PlayableItem implements StreamItem {
     public int getRepostCount() {
         return source.getOrElse(PlayableProperty.REPOSTS_COUNT, 0);
     }
+
+    public PropertySet getSource() {
+        return source;
+    }
 }

@@ -20,7 +20,7 @@ public class StreamItemViewHolder {
     @Bind(R.id.creation_date) TextView createdAt;
     @Bind(R.id.private_indicator) View privateIndicator;
     @Bind(R.id.private_separator) View privateSeparator;
-    
+
     @Bind(R.id.single_line_header_text) TextView singleLineHeaderText;
     @Bind(R.id.promoter) TextView promoter;
 
@@ -41,14 +41,14 @@ public class StreamItemViewHolder {
     public StreamItemViewHolder(View view) {
         ButterKnife.bind(this, view);
     }
-    
+
     @OnClick(R.id.toggle_like)
     public void like() {
         if (clickListener != null) {
             clickListener.onLikeClick(likeButton);
         }
     }
-    
+
     @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {
@@ -99,7 +99,7 @@ public class StreamItemViewHolder {
         title.setText(name);
     }
 
-    public void setCreator(String name) {
+    public void setArtist(String name) {
         creator.setText(name);
     }
 
@@ -111,6 +111,7 @@ public class StreamItemViewHolder {
         playCount.setVisibility(View.GONE);
         nowPlaying.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
+        repostButton.setVisibility(View.GONE);
     }
 
     public void showPlayCount(String countString) {
@@ -141,6 +142,7 @@ public class StreamItemViewHolder {
         repostButton.setTextOn(repostsCount);
         repostButton.setTextOff(repostsCount);
         repostButton.setChecked(isUserReposted);
+        repostButton.setVisibility(View.VISIBLE);
     }
 
     public void setCreatedAt(String formattedTime) {
@@ -167,7 +169,7 @@ public class StreamItemViewHolder {
         userImage.setVisibility(View.GONE);
     }
 
-    public void resetHeaderView() {
+    public void resetCardView() {
         headerText.setVisibility(View.GONE);
         reposter.setVisibility(View.GONE);
         createdAt.setVisibility(View.GONE);
@@ -178,11 +180,16 @@ public class StreamItemViewHolder {
         singleLineHeaderText.setOnClickListener(null);
         userImage.setOnClickListener(null);
         headerText.setOnClickListener(null);
+        creator.setOnClickListener(null);
     }
 
     public void setCreatorClickable(View.OnClickListener clickListener) {
         headerText.setOnClickListener(clickListener);
         userImage.setOnClickListener(clickListener);
+    }
+
+    public void setArtistClickable(View.OnClickListener clickListener) {
+        creator.setOnClickListener(clickListener);
     }
 
     public interface OverflowListener {

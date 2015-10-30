@@ -3,9 +3,11 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -19,10 +21,12 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -48,6 +52,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final RepostOperations repostOperations;
+    private final ShareOperations shareOperations;
     private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
     private final PlaybackInitiator playbackInitiator;
@@ -55,10 +61,12 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final FeatureFlags featureFlags;
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StartStationPresenter startStationPresenter;
+    private final AccountOperations accountOperations;
 
     private FragmentActivity activity;
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
+    private OverflowMenuOptions menuOptions;
     private Urn pageUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
@@ -68,6 +76,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     public interface RemoveTrackListener {
         void onPlaylistTrackRemoved(int position);
+
         Urn getPlaylistUrn();
     }
 
@@ -76,18 +85,20 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                            TrackRepository trackRepository,
                            EventBus eventBus, Context context,
                            LikeOperations likeOperations,
-                           PlaylistOperations playlistOperations,
+                           RepostOperations repostOperations, PlaylistOperations playlistOperations,
                            ScreenProvider screenProvider,
                            PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
                            FeatureFlags featureFlags,
+                           ShareOperations shareOperations,
                            DelayedLoadingDialogPresenter.Builder dialogBuilder,
-                           StartStationPresenter startStationPresenter) {
+                           StartStationPresenter startStationPresenter, AccountOperations accountOperations) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
+        this.repostOperations = repostOperations;
         this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
         this.playbackInitiator = playbackInitiator;
@@ -95,23 +106,33 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.featureFlags = featureFlags;
         this.dialogBuilder = dialogBuilder;
         this.startStationPresenter = startStationPresenter;
+        this.shareOperations = shareOperations;
+        this.accountOperations = accountOperations;
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int position, OverflowMenuOptions options) {
         if (track instanceof PromotedTrackItem) {
-            show(activity, button, track, positionInAdapter, Urn.NOT_SET, null, PromotedSourceInfo.fromItem((PromotedTrackItem) track));
+            show(activity, button, track, position, Urn.NOT_SET, null,
+                    PromotedSourceInfo.fromItem((PromotedTrackItem) track), options);
         } else {
-            show(activity, button, track, positionInAdapter, Urn.NOT_SET, null, null);
+            show(activity, button, track, position, Urn.NOT_SET, null, null, options);
         }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn, RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int position) {
+        show(activity, button, track, position, OverflowMenuOptions.builder().build());
+    }
+
+    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn,
+                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo,
+                     OverflowMenuOptions menuOptions) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
         this.removeTrackListener = removeTrackListener;
         this.promotedSourceInfo = promotedSourceInfo;
         this.pageUrn = pageUrn;
+        this.menuOptions = menuOptions;
         final PopupMenuWrapper menu = setupMenu(button);
         loadTrack(menu);
     }
@@ -128,8 +149,21 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         menu.setItemEnabled(R.id.play_related_tracks, IOUtils.isConnected(button.getContext()));
         menu.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
         menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(button.getContext()));
+
+        configureAdditionalEngagementsOptions(menu);
         menu.show();
         return menu;
+    }
+
+    private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
+        if (featureFlags.isEnabled(Flag.NEW_STREAM) && menuOptions.showAllEngagements()) {
+            menu.setItemVisible(R.id.toggle_repost, canRepost(track));
+            menu.setItemVisible(R.id.share, !track.isPrivate());
+        }
+    }
+
+    private boolean canRepost(TrackItem track) {
+        return !accountOperations.isLoggedInUser(track.getCreatorUrn()) && !track.isPrivate();
     }
 
     private void loadTrack(PopupMenuWrapper menu) {
@@ -153,6 +187,12 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         switch (menuItem.getItemId()) {
             case R.id.add_to_likes:
                 handleLike();
+                return true;
+            case R.id.share:
+                handleShare(context);
+                return true;
+            case R.id.toggle_repost:
+                handleRepost();
                 return true;
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
@@ -182,6 +222,11 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
             default:
                 return false;
         }
+    }
+
+    private void handleShare(Context context) {
+        shareOperations.share(context, track.getSource(), ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag(), pageUrn, getPromotedSource());
     }
 
     private void playRelatedTracksWithDelayedLoadingDialog(Context context, String loadingMessage, String onErrorToastText, int startPosition) {
@@ -214,14 +259,14 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         final Urn trackUrn = track.getEntityUrn();
 
         eventBus.publish(EventQueue.TRACKING,
-               UIEvent.fromToggleLike(addLike,
-                       ScreenElement.LIST.get(),
-                       screenProvider.getLastScreenTag(),
-                       screenProvider.getLastScreenTag(),
-                       trackUrn,
-                       pageUrn,
-                       getPromotedSource(),
-                       PlayableMetadata.from(track)));
+                UIEvent.fromToggleLike(addLike,
+                        ScreenElement.LIST.get(),
+                        screenProvider.getLastScreenTag(),
+                        screenProvider.getLastScreenTag(),
+                        trackUrn,
+                        pageUrn,
+                        getPromotedSource(),
+                        PlayableMetadata.from(track)));
     }
 
     private void handleLike() {
@@ -232,6 +277,14 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 .subscribe(new LikeToggleSubscriber(context, addLike));
 
         trackLike(addLike);
+    }
+
+    private void handleRepost() {
+        final Urn trackUrn = track.getEntityUrn();
+        final boolean repost = !track.isReposted();
+        repostOperations.toggleRepost(trackUrn, repost)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new RepostResultSubscriber(context, repost));
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -247,7 +300,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         public void onNext(PropertySet details) {
             track.update(details);
             updateLikeActionTitle(track.isLiked());
-            menu.setItemEnabled(R.id.add_to_likes, true);
+            updateRepostActionTitle(track.isReposted());
         }
 
         private void updateLikeActionTitle(boolean isLiked) {
@@ -256,6 +309,16 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 item.setTitle(R.string.btn_unlike);
             } else {
                 item.setTitle(R.string.btn_like);
+            }
+            menu.setItemEnabled(R.id.add_to_likes, true);
+        }
+
+        private void updateRepostActionTitle(boolean isReposted) {
+            final MenuItem item = menu.findItem(R.id.toggle_repost);
+            if (isReposted) {
+                item.setTitle(R.string.unpost);
+            } else {
+                item.setTitle(R.string.repost);
             }
         }
     }

@@ -1,14 +1,12 @@
 package com.soundcloud.android.stream;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 
-import android.content.res.Resources;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,25 +17,20 @@ import java.util.List;
 
 class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
-    private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
-    private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private final StreamItemHeaderViewPresenter headerViewPresenter;
+    private final TrackItemMenuPresenter menuPresenter;
+    private final StreamCardViewPresenter cardViewPresenter;
     private final StreamItemEngagementsPresenter engagementsPresenter;
-    private final Resources resources;
 
     @Inject
-    public StreamTrackItemRenderer(ImageOperations imageOperations,
-                                   CondensedNumberFormatter numberFormatter,
-                                   TrackItemMenuPresenter trackItemMenuPresenter,
+    public StreamTrackItemRenderer(CondensedNumberFormatter numberFormatter,
+                                   TrackItemMenuPresenter menuPresenter,
                                    StreamItemEngagementsPresenter engagementsPresenter,
-                                   StreamItemHeaderViewPresenter headerViewPresenter, Resources resources) {
-        this.imageOperations = imageOperations;
+                                   StreamCardViewPresenter cardViewPresenter) {
         this.numberFormatter = numberFormatter;
-        this.trackItemMenuPresenter = trackItemMenuPresenter;
-        this.headerViewPresenter = headerViewPresenter;
+        this.menuPresenter = menuPresenter;
+        this.cardViewPresenter = cardViewPresenter;
         this.engagementsPresenter = engagementsPresenter;
-        this.resources = resources;
     }
 
     @Override
@@ -52,19 +45,14 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         final TrackItem track = trackItems.get(position);
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
 
-        headerViewPresenter.setupHeaderView(trackView, track);
-        setupArtworkView(trackView, track);
-        setupEngagementBar(trackView, track, position);
-    }
-
-    private void setupEngagementBar(StreamItemViewHolder trackView, final TrackItem track, final int position) {
+        cardViewPresenter.bind(trackView, track);
         engagementsPresenter.bind(trackView, track);
 
         showPlayCountOrNowPlaying(trackView, track);
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View view) {
-                trackItemMenuPresenter.show((FragmentActivity) view.getContext(), view, track, position);
+                menuPresenter.show((FragmentActivity) view.getContext(), view, track, position, getOverflowMenuOptions());
             }
         });
     }
@@ -83,15 +71,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void setupArtworkView(StreamItemViewHolder trackView, TrackItem trackItem) {
-        loadArtwork(trackView, trackItem);
-        trackView.setTitle(trackItem.getTitle());
-        trackView.setCreator(trackItem.getCreatorName());
-    }
-
-    private void loadArtwork(StreamItemViewHolder itemView, TrackItem track) {
-        imageOperations.displayInAdapterView(
-                track.getEntityUrn(), ApiImageSize.getFullImageSize(resources),
-                itemView.getImage());
+    private OverflowMenuOptions getOverflowMenuOptions() {
+        return OverflowMenuOptions.builder().showAllEngagements(true).build();
     }
 }

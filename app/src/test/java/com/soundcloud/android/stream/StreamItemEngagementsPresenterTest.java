@@ -1,12 +1,15 @@
 package com.soundcloud.android.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -28,6 +31,7 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
 
     @Mock LikeOperations likeOperations;
     @Mock RepostOperations repostOperations;
+    @Mock AccountOperations accountOperations;
     @Mock StreamItemViewHolder viewHolder;
     @Mock View view;
     @Captor ArgumentCaptor<StreamItemViewHolder.CardEngagementClickListener> listenerCaptor;
@@ -43,8 +47,9 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     public void setUp() {
         testSubject = PublishSubject.create();
         playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        presenter = new StreamItemEngagementsPresenter(numberFormatter, likeOperations, repostOperations);
+        presenter = new StreamItemEngagementsPresenter(numberFormatter, likeOperations, repostOperations, accountOperations);
 
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getEntityUrn(), !playableItem.isLiked())).thenReturn(testSubject);
         when(repostOperations.toggleRepost(playableItem.getEntityUrn(), !playableItem.isReposted())).thenReturn(testSubject);
         when(viewHolder.getContext()).thenReturn(context());
@@ -61,6 +66,14 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
         presenter.bind(viewHolder, playableItem);
         verify(viewHolder).showLikeStats(formattedStats(playableItem.getLikesCount()), playableItem.isLiked());
         verify(viewHolder).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
+    }
+
+    @Test
+    public void doesNotShowRepostStatsForOwnTracks() {
+        when(accountOperations.isLoggedInUser(playableItem.getCreatorUrn())).thenReturn(true);
+        presenter.bind(viewHolder, playableItem);
+
+        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
     }
 
     @Test

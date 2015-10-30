@@ -9,6 +9,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -35,7 +36,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
 
-    private boolean allowOfflineOptions;
+    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().build();
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
@@ -74,14 +75,14 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     public void allowOfflineOptions() {
-        this.allowOfflineOptions = true;
+        this.menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
     }
 
     private void setupOverFlow(final View button, final PlaylistItem playlist) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistItemMenuPresenter.show(button, playlist, allowOfflineOptions);
+                playlistItemMenuPresenter.show(button, playlist, menuOptions);
             }
         });
     }

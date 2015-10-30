@@ -20,7 +20,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.Date;
 
-class StreamItemHeaderViewPresenter {
+class StreamCardViewPresenter {
 
     private final HeaderSpannableBuilder headerSpannableBuilder;
     private final EventBus eventBus;
@@ -30,9 +30,9 @@ class StreamItemHeaderViewPresenter {
     private final ImageOperations imageOperations;
 
     @Inject
-    StreamItemHeaderViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
-                                  ScreenProvider screenProvider, Navigator navigator, Resources resources,
-                                  ImageOperations imageOperations) {
+    StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
+                            ScreenProvider screenProvider, Navigator navigator, Resources resources,
+                            ImageOperations imageOperations) {
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
@@ -41,8 +41,13 @@ class StreamItemHeaderViewPresenter {
         this.imageOperations = imageOperations;
     }
 
-    void setupHeaderView(StreamItemViewHolder itemView, PlayableItem playableItem) {
-        itemView.resetHeaderView();
+    void bind(StreamItemViewHolder itemView, PlayableItem item) {
+        bindHeaderView(itemView, item);
+        bindArtworkView(itemView, item);
+    }
+
+    private void bindHeaderView(StreamItemViewHolder itemView, PlayableItem playableItem) {
+        itemView.resetCardView();
 
         if (playableItem instanceof PromotedListItem) {
             showPromoted(itemView, (PromotedListItem) playableItem);
@@ -52,6 +57,19 @@ class StreamItemHeaderViewPresenter {
             showCreatedAt(itemView, playableItem.getCreatedAt());
             itemView.togglePrivateIndicator(playableItem.isPrivate());
         }
+    }
+
+    private void bindArtworkView(StreamItemViewHolder itemView, PlayableItem playableItem) {
+        loadArtwork(itemView, playableItem);
+        itemView.setTitle(playableItem.getTitle());
+        itemView.setArtist(playableItem.getCreatorName());
+        itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
+    }
+
+    private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {
+        imageOperations.displayInAdapterView(
+                playableItem.getEntityUrn(), ApiImageSize.getFullImageSize(resources),
+                itemView.getImage());
     }
 
     private Urn avatarUrn(PlayableItem playableItem) {
