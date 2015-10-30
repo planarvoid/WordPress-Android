@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.stations;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.annotation.StationsTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
@@ -31,6 +32,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
+    @StationsTest
     public void testStartStationFromStationsHome() throws Exception {
         startEventTracking();
 
@@ -49,6 +51,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         finishEventTracking(START_STATION_FROM_STATIONS_HOME);
     }
 
+    @StationsTest
     public void testStartStationFromViewAll() throws Exception {
         startEventTracking();
 
