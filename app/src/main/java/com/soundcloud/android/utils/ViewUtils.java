@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.TypedValue;
 import android.view.TouchDelegate;
@@ -19,6 +20,14 @@ public final class ViewUtils {
 
     public static int dpToPx(Resources resources, int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics());
+    }
+
+    public static int blendColors(int first, int second, float ratio) {
+        final float inverseRatio = 1f - ratio;
+        float r = (Color.red(second) * ratio) + (Color.red(first) * inverseRatio);
+        float g = (Color.green(second) * ratio) + (Color.green(first) * inverseRatio);
+        float b = (Color.blue(second) * ratio) + (Color.blue(first) * inverseRatio);
+        return Color.rgb((int) r, (int) g, (int) b);
     }
 
     public static void setTouchClickable(View view, View.OnClickListener listener) {

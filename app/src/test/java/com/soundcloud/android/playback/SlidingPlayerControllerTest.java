@@ -19,8 +19,8 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,6 +34,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 
 public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
@@ -46,6 +47,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private PlayerFragment playerFragment;
     @Mock private ActionBar actionBar;
+    @Mock private Window window;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -53,11 +55,13 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SlidingPlayerController(playQueueManager, eventBus);
+        controller = new SlidingPlayerController(playQueueManager, resources(), eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
+        when(playerFragment.getActivity()).thenReturn(activity);
+        when(activity.getWindow()).thenReturn(window);
         attachController();
     }
 

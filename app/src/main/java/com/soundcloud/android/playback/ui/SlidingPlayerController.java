@@ -11,17 +11,23 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import javax.inject.Inject;
 
@@ -29,8 +35,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
 
-    private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
+    private final EventBus eventBus;
+    private final Resources resources;
 
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
@@ -40,10 +47,14 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private boolean expandOnResume;
     private boolean wasDragged;
 
+    private int expandedStatusColor;
+    private int collapsedStatusColor;
+
     @Inject
-    public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
-        this.eventBus = eventBus;
+    public SlidingPlayerController(PlayQueueManager playQueueManager, Resources resources, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
+        this.resources = resources;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -53,6 +64,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         slidingPanel.setEnableDragViewTouchEvents(true);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
         expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
+
+        expandedStatusColor = resources.getColor(R.color.primary_darker);
+        collapsedStatusColor = resources.getColor(R.color.primary_dark);
 
         playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
@@ -140,6 +154,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void restoreExpanded() {
+        setStatusBarColor(expandedStatusColor);
         expand();
         notifyExpandedState();
     }
@@ -163,6 +178,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
         playerFragment.onPlayerSlide(slideOffset);
+        setStatusBarColor(ViewUtils.blendColors(collapsedStatusColor, expandedStatusColor, slideOffset));
     }
 
     private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
@@ -179,7 +195,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private class TrackingDragListener implements View.OnTouchListener {
-
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
@@ -193,12 +208,14 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onPanelCollapsed(View panel) {
+        setStatusBarColor(collapsedStatusColor);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         trackPlayerSlide(UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE));
     }
 
     @Override
     public void onPanelExpanded(View panel) {
+        setStatusBarColor(expandedStatusColor);
         notifyExpandedState();
         trackPlayerSlide(UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER));
     }
@@ -216,6 +233,16 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void notifyCollapsedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void setStatusBarColor(int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) { // why less than M??
+            final Window window = playerFragment.getActivity().getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(color);
+        }
     }
 
     @Override

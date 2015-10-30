@@ -66,21 +66,39 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_stream" android:launchMode="singleTop" android:name=".main.MainActivity">
+        <activity android:launchMode="singleTop" android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-            <!-- TODO: Move the EXPLORE filter to ExploreActivity once we switch over to tabs -->
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.EXPLORE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
+
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.COLLECTION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.soundcloud/search_item"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.PERFORM_SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
+
+        <meta-data android:name="android.app.default_searchable" android:value=".search.MainActivity"/>
+        <activity android:label="@string/title_search" android:name=".search.SearchActivity"/> <!-- Legacy standalone search -->
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">
@@ -151,31 +169,13 @@
 
         </activity>
 
-        <activity android:label="@string/title_search" android:name=".search.SearchActivity">
-            <!-- TODO: Move search intent filters to MainActivity (discovery tab) -->
-            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
+        <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity">
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.SEARCH"/>
+                <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:mimeType="vnd.soundcloud/search_item"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PERFORM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
-        <meta-data android:name="android.app.default_searchable" android:value=".search.CombinedSearchActivity"/>
-
-        <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity"/>
         <activity android:name=".explore.ExploreTracksCategoryActivity"/>
 
         <activity android:label="@string/side_menu_notifications" android:name=".activities.ActivitiesActivity">
