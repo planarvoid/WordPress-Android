@@ -62,11 +62,6 @@
     <item quantity="one">%d pista</item>
     <item quantity="other">%d pistas</item>
   </plurals>
-  <!--__PROFILE-->
-  <plurals name="number_of_followers">
-    <item quantity="one">%d seguidor</item>
-    <item quantity="other">%d seguidores</item>
-  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
   <plurals name="followers_message">
     <item quantity="one">Le sigue %s persona</item>

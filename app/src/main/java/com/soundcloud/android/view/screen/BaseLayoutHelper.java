@@ -46,16 +46,6 @@ public class BaseLayoutHelper {
         return layout;
     }
 
-    public View setBaseDrawerLayout(AppCompatActivity activity) {
-        return createActionBarLayout(activity, R.layout.base_with_drawer);
-    }
-
-    public View setBaseDrawerLayoutWithContent(AppCompatActivity activity, int contentId) {
-        View layout = setBaseDrawerLayout(activity);
-        addContent(activity, contentId, layout);
-        return layout;
-    }
-
     private View createLayout(AppCompatActivity activity, int baseLayoutId) {
         activity.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 

@@ -8,7 +8,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
-import com.soundcloud.android.main.LegacyNavigationFragment.NavItem;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -19,7 +18,7 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class MainActivity extends ScActivity implements LegacyNavigationFragment.NavigationCallbacks {
+public class MainActivity extends ScActivity {
 
     public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
     public static final String EXTRA_FROM_SIGNIN = "from_sign_in";
@@ -27,7 +26,7 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
 
-    @Inject @LightCycle NavigationPresenter mainPresenter;
+    @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
@@ -57,8 +56,7 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
 
     @Override
     public void onBackPressed() {
-        if (accountOperations.isCrawler()
-                || !(playerController.handleBackPressed() || mainPresenter.handleBackPressed())) {
+        if (accountOperations.isCrawler() || !(playerController.handleBackPressed())) {
             super.onBackPressed();
         }
     }
@@ -107,18 +105,6 @@ public class MainActivity extends ScActivity implements LegacyNavigationFragment
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         configureMainOptionMenuItems(menu);
-        mainPresenter.onInvalidateOptionsMenu();
         return true;
     }
-
-    @Override
-    public void onSmoothSelectItem(NavItem item) {
-        mainPresenter.onSmoothSelectItem(item);
-    }
-
-    @Override
-    public void onSelectItem(NavItem item) {
-        mainPresenter.onSelectItem(item);
-    }
-
 }

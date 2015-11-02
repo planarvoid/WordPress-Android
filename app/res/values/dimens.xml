@@ -70,7 +70,6 @@
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 
-    <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="full_image_margin">20dp</dimen>
 
     <dimen name="follow_btn_text">14sp</dimen>

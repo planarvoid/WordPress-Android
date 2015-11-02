@@ -178,16 +178,11 @@
   <string name="use_existing_image">Gambar yang ada</string>
   <string name="use_existing_image_error">Tidak dapat menggunakan gambar yang ada</string>
   <!--__NAVIGATION-->
-  <string name="accessibility_navigation_drawer_open">Buka laci navigasi</string>
-  <string name="accessibility_navigation_drawer_close">Tutup drawer navigasi</string>
   <string name="side_menu_notifications">Aktivitas</string>
   <string name="side_menu_record">Rekam</string>
-  <string name="side_menu_stream">Stream</string>
   <string name="side_menu_you">Anda</string>
   <string name="side_menu_settings">Pengaturan</string>
-  <string name="side_menu_likes">Suka</string>
   <string name="side_menu_profile">Profil</string>
-  <string name="side_menu_playlists">Daftar putar</string>
   <string name="side_menu_explore">Jelajahi</string>
   <string name="title_search">Penelusuran</string>
   <string name="title_settings">Pengaturan</string>
@@ -467,6 +462,4 @@
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Dipromosikan oleh %s</string>
-  <!--__STATIONS-->
-  <string name="side_menu_stations">Stasiun</string>
 </resources>

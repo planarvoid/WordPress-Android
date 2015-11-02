@@ -5,9 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.android.you.BasicSettingsFragment;
 
@@ -25,8 +24,7 @@ public class SettingsActivity extends ScActivity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        setContentFragment(featureFlags.isEnabled(Flag.TABS) ?
-                BasicSettingsFragment.create() : SettingsFragment.create());
+        setContentFragment(BasicSettingsFragment.create());
 
         setTitle(R.string.title_settings);
     }

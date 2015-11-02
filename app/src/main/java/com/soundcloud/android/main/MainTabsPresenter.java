@@ -2,11 +2,12 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
@@ -24,7 +25,8 @@ import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-public class MainTabsPresenter extends NavigationPresenter implements ViewPager.OnPageChangeListener {
+public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements ViewPager.OnPageChangeListener {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
@@ -45,7 +47,6 @@ public class MainTabsPresenter extends NavigationPresenter implements ViewPager.
         this.eventBus = eventBus;
     }
 
-    @Override
     public void setBaseLayout(AppCompatActivity activity) {
         layoutHelper.setBaseTabsLayout(activity);
     }
@@ -198,7 +199,6 @@ public class MainTabsPresenter extends NavigationPresenter implements ViewPager.
     @Override
     public void onPageScrollStateChanged(int state) {}
 
-    @Override
     public void trackScreen() {
         final Screen currentScreen = navigationModel.getItem(pager.getCurrentItem()).getScreen();
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(currentScreen));
