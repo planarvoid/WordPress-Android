@@ -14,9 +14,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.LocaleProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Arrays;
@@ -115,53 +113,44 @@ public class AdsOperations {
         }
     }
 
-    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition, Urn monetizableTrack) {
-        PropertySet interstitialPropertySet = interstitial.toPropertySet()
-                .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(TrackProperty.URN, monetizableTrack);
+    private void applyInterstitialAd(ApiInterstitial apiInterstitial, int currentMonetizablePosition, Urn monetizableTrack) {
+        final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableTrack);
 
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
+                new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>of(interstitialData))
         );
     }
 
     void insertVideoAd(Urn monetizableTrack, ApiVideoAd apiVideoAd, int currentMonetizablePosition) {
-        PropertySet adMetaData = apiVideoAd.toPropertySet()
-                .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
+        final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableTrack);
 
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, PropertySet.create()),
-                new PlayQueueManager.InsertVideoOperation(currentMonetizablePosition, adMetaData)
+                new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>absent()),
+                new PlayQueueManager.InsertVideoOperation(currentMonetizablePosition, videoData)
         );
     }
 
     void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
-        PropertySet adMetaData = apiAudioAd
-                .toPropertySet()
-                .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
+        final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableTrack);
 
         if (apiAudioAd.hasApiLeaveBehind()) {
-            insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, currentMonetizablePosition);
+            insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, currentMonetizablePosition);
         } else {
             playQueueManager.performPlayQueueUpdateOperations(
-                    new PlayQueueManager.SetMetadataOperation(currentMonetizablePosition, PropertySet.create()),
-                    new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
+                    new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>absent()),
+                    new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), audioAdData, false)
             );
         }
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, PropertySet adMetaData, int currentMonetizablePosition) {
-        int newMonetizablePosition = currentMonetizablePosition + 1;
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, int currentMonetizablePosition) {
         final Urn audioAdTrack = apiAudioAd.getApiTrack().getUrn();
-        final PropertySet leaveBehindProperties = apiAudioAd
-                .getLeaveBehind()
-                .toPropertySet()
-                .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, audioAdTrack);
+        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(), apiAudioAd.getApiTrack().getUrn());
+        final int newMonetizablePosition = currentMonetizablePosition + 1;
 
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, audioAdTrack, adMetaData, false),
-                new PlayQueueManager.SetMetadataOperation(newMonetizablePosition, leaveBehindProperties)
+                new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, audioAdTrack, audioAdData, false),
+                new PlayQueueManager.SetAdDataOperation(newMonetizablePosition, Optional.<AdData>of(leaveBehindAd))
         );
     }
 
@@ -183,8 +172,7 @@ public class AdsOperations {
 
     private boolean isAudioAdAtPosition(int position) {
         final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
-        return playQueueItem.getMetaData().contains(AdProperty.AD_URN) &&
-                playQueueItem.getMetaData().get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
+        return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof AudioAd;
     }
 
     private boolean isVideoAdAtPosition(int position) {
@@ -193,12 +181,11 @@ public class AdsOperations {
     }
 
     public void clearAllAdsFromQueue() {
-        playQueueManager.removeItemsWithMetaData(AdFunctions.HAS_AD_URN,
-                PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
+        playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 
-    public PropertySet getMonetizableTrackMetaData() {
+    public Optional<AdData> getMonetizableTrackAdData() {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
-        return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getMetaData();
+        return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getAdData();
     }
 }

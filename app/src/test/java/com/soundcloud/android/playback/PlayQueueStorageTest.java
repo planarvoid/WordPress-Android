@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Assert;
@@ -78,12 +77,10 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void shouldSavePersistantItems() {
         final TrackQueueItem trackQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1), Urn.forUser(1))
                 .fromSource("source1", "version1")
-                .withAdData(PropertySet.create())
                 .persist(true)
                 .build();
         final TrackQueueItem trackQueueItem2 = new TrackQueueItem.Builder(Urn.forTrack(2), Urn.forUser(2))
                 .fromSource("source2", "version2")
-                .withAdData(PropertySet.create())
                 .persist(false)
                 .build();
         PlayQueue playQueue = new PlayQueue(Arrays.<PlayQueueItem>asList(trackQueueItem1, trackQueueItem2));

@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CollectionEvent;
@@ -98,7 +100,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
         when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
         when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("audioEventUrl");
@@ -162,8 +164,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAudioAdRelatedUIEvents() {
-        UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo);
-        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
+        UIEvent event1 = UIEvent.fromAudioAdClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo);
+        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
         when(dataBuilderv0.build(event1)).thenReturn("url1");
         when(dataBuilderv0.build(event2)).thenReturn("url2");
 
@@ -320,7 +322,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        VisualAdImpressionEvent event = new VisualAdImpressionEvent(TestPropertySets.audioAdProperties(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
+        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
 
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
@@ -333,7 +335,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -345,7 +347,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindClickTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdClick");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 

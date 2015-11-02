@@ -4,7 +4,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
@@ -209,7 +210,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false);
 
@@ -234,14 +235,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.get(AdProperty.AD_URN))
-                .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .adUrn(audioAd.getAdUrn())
+                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad"));
     }
 
     @Test
     public void createsAudioPauseEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
         final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, playbackSessionEvent, 12L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING, true);
@@ -269,8 +270,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.get(AdProperty.AD_URN))
-                .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .adUrn(audioAd.getAdUrn())
+                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));

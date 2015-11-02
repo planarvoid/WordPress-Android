@@ -7,9 +7,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +30,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final AccountOperations accountOperations;
     private final AdOverlayListener listener;
 
-    @Nullable private PropertySet data;
+    private Optional<OverlayAdData> overlayData = Optional.absent();
 
     private AdOverlayPresenter presenter;
     private boolean isExpanded;
@@ -67,7 +66,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     @Override
     public void onImageClick() {
-        startActivity(data.get(AdOverlayProperty.CLICK_THROUGH_URL));
+        startActivity(overlayData.get().getClickthroughUrl());
         sendTrackingEvent();
         clear();
     }
@@ -87,15 +86,15 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private void sendTrackingEvent() {
         final PlayQueueItem playQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(
-                playQueueItem.getMetaData(),
+                overlayData.get(),
                 playQueueItem.getUrn(),
                 accountOperations.getLoggedInUserUrn(),
                 playQueueManager.getCurrentTrackSourceInfo());
         eventBus.publish(EventQueue.TRACKING, event);
     }
 
-    public void initialize(PropertySet data) {
-        this.data = data;
+    public void initialize(OverlayAdData data) {
+        this.overlayData = Optional.of(data);
         presenter = AdOverlayPresenter.create(data, trackView, this, eventBus, context.getResources(), imageOperations);
         setAdNotVisible();
     }
@@ -106,31 +105,29 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     public void show(boolean isForeground) {
         if (shouldDisplayAdOverlay(isForeground)) {
-            presenter.bind(data);
+            presenter.bind(overlayData.get());
             resetMetaData();
         }
     }
 
     private void resetMetaData() {
-        if (data != null) {
-            data.put(AdOverlayProperty.META_AD_COMPLETED, false);
-            data.put(AdOverlayProperty.META_AD_CLICKED, false);
+        if (overlayData.isPresent()) {
+            overlayData.get().resetMetaAdState();
         }
     }
 
     private boolean shouldDisplayAdOverlay(boolean isForeground) {
-        if (data == null) {
+        if (!overlayData.isPresent()) {
             return false;
         }
 
         final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
-
-        return presenter.shouldDisplayOverlay(data, isExpanded, isPortrait, isForeground);
+        return presenter.shouldDisplayOverlay(overlayData.get(), isExpanded, isPortrait, isForeground);
     }
 
     private void onAdVisible() {
         if (presenter != null) {
-            presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(), data, playQueueManager.getCurrentTrackSourceInfo());
+            presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(), overlayData.get(), playQueueManager.getCurrentTrackSourceInfo());
             listener.onAdOverlayShown(presenter.isFullScreen());
         }
     }
@@ -156,14 +153,14 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
             final boolean fullScreen = presenter.isFullScreen();
             presenter.clear();
             presenter = null;
-            data = null;
+            overlayData = Optional.absent();
             listener.onAdOverlayHidden(fullScreen);
         }
     }
 
     private void setOverlayDismissed() {
-        if (data != null) {
-            data.put(AdOverlayProperty.META_AD_DISMISSED, true);
+        if (overlayData.isPresent()) {
+            overlayData.get().setMetaAdDismissed();
         }
     }
 

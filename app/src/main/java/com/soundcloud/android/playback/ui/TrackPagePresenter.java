@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
+import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
@@ -192,8 +193,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         getViewHolder(view).castDeviceName.setText(deviceName);
     }
 
-    public void setAdOverlay(View view, PropertySet track) {
-        getViewHolder(view).adOverlayController.initialize(track);
+    public void setAdOverlay(View view, OverlayAdData adData) {
+        getViewHolder(view).adOverlayController.initialize(adData);
     }
 
     public void clearAdOverlay(View view) {

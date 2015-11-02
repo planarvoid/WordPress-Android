@@ -2,8 +2,9 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 public abstract class PlayQueueItem {
 
@@ -11,7 +12,7 @@ public abstract class PlayQueueItem {
 
     enum Kind {EMPTY, TRACK, VIDEO}
 
-    private PropertySet metaData;
+    private Optional<AdData> adData;
 
     public boolean isTrack() {
         return this.getKind() == Kind.TRACK;
@@ -34,12 +35,12 @@ public abstract class PlayQueueItem {
         return this.isTrack() ? getUrn() : Urn.NOT_SET;
     }
 
-    public PropertySet getMetaData() {
-        return metaData;
+    public Optional<AdData> getAdData() {
+        return adData;
     }
 
-    public void setMetaData(PropertySet metaData) {
-        this.metaData = metaData;
+    public void setAdData(Optional<AdData> adData) {
+        this.adData = adData;
     }
 
     public abstract boolean shouldPersist();
@@ -48,7 +49,7 @@ public abstract class PlayQueueItem {
 
     private static class Empty extends PlayQueueItem {
         public Empty() {
-            super.setMetaData(PropertySet.create());
+            super.setAdData(Optional.<AdData>absent());
         }
 
         @Override

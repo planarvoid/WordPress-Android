@@ -10,6 +10,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -24,7 +27,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +78,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void tracksAdClickthroughs() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(777), userUrn, trackSourceInfo, 10000);
 
         analyticsProvider.handleTrackingEvent(event);
@@ -90,14 +92,14 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         TrackingRecord adEvent = allValues.get(0);
         assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("click1");
+        assertThat(adEvent.getData()).isEqualTo("comp_click1");
 
-        assertThat(allValues.get(1).getData()).isEqualTo("click2");
+        assertThat(allValues.get(1).getData()).isEqualTo("comp_click2");
     }
 
     @Test
     public void tracksAdSkips() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), userUrn, trackSourceInfo, 10000);
 
         analyticsProvider.handleTrackingEvent(event);
@@ -111,9 +113,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         TrackingRecord adEvent = allValues.get(0);
         assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("skip1");
+        assertThat(adEvent.getData()).isEqualTo("audio_skip1");
 
-        assertThat(allValues.get(1).getData()).isEqualTo("skip2");
+        assertThat(allValues.get(1).getData()).isEqualTo("audio_skip2");
     }
 
     @Test
@@ -128,7 +130,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void tracksAdsFinishing() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
 
         analyticsProvider.handleTrackingEvent(event);
@@ -142,16 +144,16 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         TrackingRecord adEvent = allValues.get(0);
         assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("finish1");
+        assertThat(adEvent.getData()).isEqualTo("audio_finish1");
 
-        assertThat(allValues.get(1).getData()).isEqualTo("finish2");
+        assertThat(allValues.get(1).getData()).isEqualTo("audio_finish2");
     }
 
     @Test
     public void tracksAudioAdCompanionImpressions() {
-        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(999L));
         VisualAdImpressionEvent impressionEvent = new VisualAdImpressionEvent(
-                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), trackSourceInfo, 333
+                audioAd, Urn.forTrack(888), Urn.forUser(777), trackSourceInfo, 333
         );
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
@@ -162,19 +164,19 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(event1.getTimeStamp()).isEqualTo(333l);
-        assertThat(event1.getData()).isEqualTo("visual1");
+        assertThat(event1.getData()).isEqualTo("comp_impression1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(event2.getTimeStamp()).isEqualTo(333l);
-        assertThat(event2.getData()).isEqualTo("visual2");
+        assertThat(event2.getData()).isEqualTo("comp_impression2");
     }
 
     @Test
     public void tracksLeaveBehindImpressions() {
-        final PropertySet audioAdMetadata = TestPropertySets.leaveBehindForPlayer();
+        final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        AdOverlayTrackingEvent impressionEvent = AdOverlayTrackingEvent.forImpression(333, audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
+        AdOverlayTrackingEvent impressionEvent = AdOverlayTrackingEvent.forImpression(333, leaveBehindAd, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
 
@@ -184,12 +186,12 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(event1.getTimeStamp()).isEqualTo(333l);
-        assertThat(event1.getData()).isEqualTo("leaveBehindTrackingImpressionUrl1");
+        assertThat(event1.getData()).isEqualTo("leave_impression1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(event2.getTimeStamp()).isEqualTo(333l);
-        assertThat(event2.getData()).isEqualTo("leaveBehindTrackingImpressionUrl2");
+        assertThat(event2.getData()).isEqualTo("leave_impression2");
     }
 
     @Test
@@ -245,8 +247,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventAsap() throws CreateModelException {
-        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
-        final PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0).withAudioAd(audioAdMetadata);
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0).withAudioAd(audioAd);
         analyticsProvider.handleTrackingEvent(event);
 
         verify(eventTracker, times(2)).trackEvent(any(TrackingRecord.class));

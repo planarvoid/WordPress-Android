@@ -9,7 +9,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Action1;
@@ -29,7 +28,7 @@ class AdOverlayImpressionOperations {
         @Override
         public AdOverlayTrackingEvent call(VisualImpressionState visualImpressionState) {
             return AdOverlayTrackingEvent.forImpression(
-                    visualImpressionState.adMetaData,
+                    visualImpressionState.adData,
                     visualImpressionState.currentPlayingUrn,
                     accountOperations.getLoggedInUserUrn(),
                     visualImpressionState.trackSourceInfo);
@@ -65,13 +64,14 @@ class AdOverlayImpressionOperations {
                 public VisualImpressionState call(AdOverlayEvent adOverlayEvent,
                                   ActivityLifeCycleEvent event,
                                   PlayerUIEvent playerUIEvent) {
-
                     return new VisualImpressionState(
                             adOverlayEvent.getKind() == AdOverlayEvent.SHOWN,
                             event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
                             playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED,
                             adOverlayEvent.getCurrentPlayingUrn(),
-                            adOverlayEvent.getAdMetaData(), adOverlayEvent.getTrackSourceInfo());
+                            adOverlayEvent.getAdData(),
+                            adOverlayEvent.getTrackSourceInfo()
+                    );
                 }
             };
 
@@ -102,16 +102,16 @@ class AdOverlayImpressionOperations {
         private final boolean isAppInForeground;
         private final boolean playerIsExpanding;
         private final Urn currentPlayingUrn;
-        private final PropertySet adMetaData;
+        private final OverlayAdData adData;
         private final TrackSourceInfo trackSourceInfo;
 
         public VisualImpressionState(boolean adOverlayIsVisible, boolean isAppInForeground, boolean playerIsExpanding,
-                                     Urn currentPlayingUrn, PropertySet adMetaData, TrackSourceInfo trackSourceInfo) {
+                                     Urn currentPlayingUrn, OverlayAdData adData, TrackSourceInfo trackSourceInfo) {
             this.isAppInForeground = isAppInForeground;
             this.adOverlayIsVisible = adOverlayIsVisible;
             this.playerIsExpanding = playerIsExpanding;
             this.currentPlayingUrn = currentPlayingUrn;
-            this.adMetaData = adMetaData;
+            this.adData = adData;
             this.trackSourceInfo = trackSourceInfo;
         }
     }

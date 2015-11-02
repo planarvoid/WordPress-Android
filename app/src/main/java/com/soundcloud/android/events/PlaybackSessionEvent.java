@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -101,18 +101,18 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     // Audio ad
-    public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
+    public PlaybackSessionEvent withAudioAd(AudioAd audioAd) {
         put(AdTrackingKeys.KEY_USER_URN, get(KEY_LOGGED_IN_USER_URN));
-        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN));
+        put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn());
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
-        put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
+        put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString());
+        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, trackUrn.toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
         put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, trackUrn.toString());
-        this.adImpressionUrls = audioAd.get(AdProperty.AD_IMPRESSION_URLS);
-        this.adCompanionImpressionUrls = audioAd.get(AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS);
-        this.adFinishedUrls = audioAd.get(AdProperty.AD_FINISH_URLS);
+        this.adImpressionUrls = audioAd.getImpressionUrls();
+        this.adCompanionImpressionUrls = audioAd.getVisualAd().getImpressionUrls();
+        this.adFinishedUrls = audioAd.getFinishUrls();
         return this;
     }
 

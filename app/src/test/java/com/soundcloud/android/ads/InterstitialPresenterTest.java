@@ -1,31 +1,26 @@
 package com.soundcloud.android.ads;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
-import static org.mockito.Mockito.when;
-
-import com.soundcloud.android.Expect;
-import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class InterstitialPresenterTest {
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.EventBus;
 
-    private PropertySet properties;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+public class InterstitialPresenterTest extends AndroidUnitTest {
+
+    private InterstitialAd interstitialData;
     private InterstitialPresenter presenter;
     AdOverlayPresenter adOverlayPresenter;
 
@@ -49,55 +44,52 @@ public class InterstitialPresenterTest {
         when(overlay.findViewById(R.id.interstitial_image_holder)).thenReturn(imageHolder);
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
 
-        properties = interstitialForPlayer();
+        interstitialData = AdFixtures.getInterstitialAd(Urn.forTrack(123L));
         presenter = new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
     }
 
     @Test
     public void createsInterstitialPresenterFromInterstitialPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.interstitialForPlayer(), trackView, listener, eventBus, Robolectric.application.getResources(), imageOperations);
-        Expect.expect(adOverlayPresenter).toBeInstanceOf(InterstitialPresenter.class);
+        adOverlayPresenter = AdOverlayPresenter.create(interstitialData, trackView, listener, eventBus, resources, imageOperations);
+        assertThat(adOverlayPresenter).isInstanceOf(InterstitialPresenter.class);
     }
 
     @Test
     public void doesNotShowInterstitialIfInBackground() {
-        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, false);
-
-        expect(shouldDisplay).toBeFalse();
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(interstitialData, true, true, false);
+        assertThat(shouldDisplay).isFalse();
     }
 
     @Test
     public void doesNotShowInterstitialIfCollapsed() {
-        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, false, true, true);
-
-        expect(shouldDisplay).toBeFalse();
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(interstitialData, false, true, true);
+        assertThat(shouldDisplay).isFalse();
     }
 
     @Test
     public void doesNotShowInterstitialIfAlreadyDismissed() {
-        properties.put(AdOverlayProperty.META_AD_DISMISSED, true);
-        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, true);
+        interstitialData.setMetaAdDismissed();
 
-        expect(shouldDisplay).toBeFalse();
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(interstitialData, true, true, true);
+        assertThat(shouldDisplay).isFalse();
     }
 
     @Test
     public void doesNotShowInterstitialIfResourcesDoesNotAllow() {
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(false);
 
-        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, true);
-        expect(shouldDisplay).toBeFalse();
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(interstitialData, true, true, true);
+        assertThat(shouldDisplay).isFalse();
     }
 
     @Test
     public void showsInterstitials() {
-        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, true);
-
-        expect(shouldDisplay).toBeTrue();
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(interstitialData, true, true, true);
+        assertThat(shouldDisplay).isTrue();
     }
 
     @Test
     public void isFullScreen() throws Exception {
-        expect(presenter.isFullScreen()).toBeTrue();
+        assertThat(presenter.isFullScreen()).isTrue();
     }
 }

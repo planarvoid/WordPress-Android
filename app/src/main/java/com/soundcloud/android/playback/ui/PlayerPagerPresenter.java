@@ -1,7 +1,11 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -22,6 +26,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -89,11 +94,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return playQueueManager.isCurrentTrack(progressEvent.getTrackUrn());
         }
     };
-
-    private static final Func1<PropertySet, PlayerItem> TO_PLAYER_AD = new Func1<PropertySet, PlayerItem>() {
+    private static final Func2<AdData, PropertySet, PlayerItem> TO_PLAYER_AD = new Func2<AdData, PropertySet, PlayerItem>() {
         @Override
-        public PlayerItem call(PropertySet propertySet) {
-            return new PlayerAd(propertySet);
+        public PlayerItem call(AdData adData, PropertySet trackProperties) {
+            return new PlayerAd((PlayerAdData) adData, trackProperties);
         }
     };
     private final Func1<PropertySet, PlayerTrackState> toPlayerTrack = new Func1<PropertySet, PlayerTrackState>() {
@@ -328,24 +332,23 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private Observable<? extends PlayerItem> getTrackOrAdObservable(PlayerPageData viewData) {
         if (viewData.isVideoPage()) {
-            return getVideoAdObservable(viewData.getProperties()).map(TO_PLAYER_AD);
+            return getAdObservable(viewData.getAdData().get(), Optional.<Urn>absent());
         }
 
         final TrackPageData trackData = (TrackPageData) viewData;
         if (trackData.isAdPage()) {
-            return getAudioAdObservable(trackData.getTrackUrn(), trackData.getProperties())
-                    .map(TO_PLAYER_AD);
+            return getAdObservable(viewData.getAdData().get(), Optional.of(trackData.getTrackUrn()));
         } else if (trackData.isTrackPage() && trackData.getCollectionUrn().isStation()) {
             return getStationObservable(trackData);
         } else {
-            return getTrackObservable(trackData.getTrackUrn(), trackData.getProperties())
+            return getTrackObservable(trackData.getTrackUrn(), trackData.getAdData())
                     .map(toPlayerTrack);
         }
     }
 
     private Observable<? extends PlayerItem> getStationObservable(TrackPageData trackPageData)  {
         return Observable.zip(
-                getTrackObservable(trackPageData.getTrackUrn(), trackPageData.getProperties()).map(toPlayerTrack),
+                getTrackObservable(trackPageData.getTrackUrn(), trackPageData.getAdData()).map(toPlayerTrack),
                 stationsOperations.station(trackPageData.getCollectionUrn()),
                 new Func2<PlayerTrackState, StationRecord, PlayerItem>() {
                     @Override
@@ -357,41 +360,32 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         );
     }
 
-    private Observable<PropertySet> getTrackObservable(Urn urn, final PropertySet adOverlayData) {
+    private Observable<PropertySet> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
         return getTrackObservable(urn).doOnNext(new Action1<PropertySet>() {
             @Override
             public void call(PropertySet track) {
-                adOverlayData.put(TrackProperty.URN, track.get(TrackProperty.URN))
-                        .put(TrackProperty.TITLE, track.get(TrackProperty.TITLE))
-                        .put(TrackProperty.CREATOR_NAME, track.get(TrackProperty.CREATOR_NAME))
-                        .put(TrackProperty.CREATOR_URN, track.get(TrackProperty.CREATOR_URN));
+                if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
+                    adOverlayData.get().setMonetizableTitle(track.get(TrackProperty.TITLE));
+                    adOverlayData.get().setMonetizableCreator(track.get(TrackProperty.CREATOR_NAME));
+                }
             }
         });
     }
 
-    private Observable<PropertySet> getVideoAdObservable(final PropertySet videoAd) {
-        return getTrackObservable(videoAd.get(AdProperty.MONETIZABLE_TRACK_URN)).map(
-                new Func1<PropertySet, PropertySet>() {
-                    @Override
-                    public PropertySet call(PropertySet monetizableTrack) {
-                        return videoAd
-                                .put(AdProperty.MONETIZABLE_TRACK_TITLE, monetizableTrack.get(PlayableProperty.TITLE))
-                                .put(AdProperty.MONETIZABLE_TRACK_CREATOR, monetizableTrack.get(PlayableProperty.CREATOR_NAME));
-                    }
-                });
-    }
-
-    private Observable<PropertySet> getAudioAdObservable(Urn urn, final PropertySet audioAd) {
-        // merge together audio ad track data and track data from the upcoming monetizable track
-        return Observable.zip(getTrackObservable(urn), getTrackObservable(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN)),
-                new Func2<PropertySet, PropertySet, PropertySet>() {
-                    @Override
-                    public PropertySet call(PropertySet audioAdTrack, PropertySet monetizableTrack) {
-                        return audioAdTrack.merge(audioAd)
-                                .put(AdProperty.MONETIZABLE_TRACK_TITLE, monetizableTrack.get(PlayableProperty.TITLE))
-                                .put(AdProperty.MONETIZABLE_TRACK_CREATOR, monetizableTrack.get(PlayableProperty.CREATOR_NAME));
-                    }
-                });
+    private Observable<? extends PlayerItem> getAdObservable(final AdData adData, final Optional<Urn> adTrackUrn) {
+        return Observable.zip(
+                getTrackObservable(adData.getMonetizableTrackUrn()).map(
+                        new Func1<PropertySet, AdData>() {
+                            @Override
+                            public AdData call(PropertySet monetizableTrack) {
+                                adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
+                                adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+                                return adData;
+                            }
+                        }),
+                adTrackUrn.isPresent() ? getTrackObservable(adTrackUrn.get()) : Observable.just(PropertySet.create()),
+                TO_PLAYER_AD
+        );
     }
 
     @NonNull
@@ -421,7 +415,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         trackPagePresenter.onPositionSet(view, position, currentData.size());
         trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName());
         if (trackPageData.hasAdOverlay()){
-            trackPagePresenter.setAdOverlay(view, trackPageData.getProperties());
+            final OverlayAdData overlayData = (OverlayAdData) trackPageData.getAdData().get();
+            trackPagePresenter.setAdOverlay(view, overlayData);
         } else {
             trackPagePresenter.clearAdOverlay(view);
         }
@@ -441,10 +436,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private Boolean isPlayerItemRelatedToView(View pageView, PlayerItem item) {
-        if (item.source.contains(AdProperty.AD_URN)) {
+        if (item instanceof PlayerAd) {
+            final String itemAdUrn = ((PlayerAd) item).getAdUrn();
             return pagesInPlayer.containsKey(pageView) &&
                     pagesInPlayer.get(pageView).isAdPage() &&
-                    pagesInPlayer.get(pageView).getProperties().get(AdProperty.AD_URN).equals(item.source.get(AdProperty.AD_URN));
+                    pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
         } else {
             return isTrackViewRelatedToUrn(pageView, item.getTrackUrn());
         }

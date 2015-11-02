@@ -1,17 +1,13 @@
 package com.soundcloud.android.playback.notification;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
 
 import com.soundcloud.android.NotificationConstants;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
@@ -23,20 +19,26 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTest {
 
@@ -61,7 +63,7 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
 
     @Before
     public void setUp() throws Exception {
-        trackProperties = expectedTrackForPlayer();
+        trackProperties = expectedTrackForPlayer().put(AdProperty.IS_AUDIO_AD, false);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
 
         controller = new BackgroundPlaybackNotificationController(
@@ -75,13 +77,12 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
     }
 
     @Test
-    public void mergeTrackAndAudioAdPropertiesWhenCurrentSoundIsAnAd() {
-        final PropertySet audioAdMetaDAta = audioAdProperties(Urn.forTrack(123L)).put(EntityProperty.URN, Urn.forTrack(123L));
-        final PropertySet expectedProperties = audioAdMetaDAta.merge(trackProperties);
+    public void updateTrackInfoCalledForAdTrack() {
+        PropertySet adTrackProperties = trackProperties.put(AdProperty.IS_AUDIO_AD, true);
 
-        controller.setTrack(playbackService, audioAdMetaDAta);
+        controller.setTrack(playbackService, adTrackProperties);
 
-        verify(playbackNotificationPresenter).updateTrackInfo(notificationBuilder, expectedProperties);
+        verify(playbackNotificationPresenter).updateTrackInfo(notificationBuilder, adTrackProperties);
     }
 
     @Test

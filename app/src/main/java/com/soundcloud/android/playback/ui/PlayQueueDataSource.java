@@ -43,9 +43,9 @@ class PlayQueueDataSource {
     private PlayerPageData transformPlayQueueItem(PlayQueueItem playQueueItem, int position) {
         if (playQueueItem.isTrack()) {
             final Urn collectionUrn = playQueueManager.getCollectionUrn();
-            return new TrackPageData(position, playQueueItem.getUrn(), collectionUrn, playQueueItem.getMetaData());
+            return new TrackPageData(position, playQueueItem.getUrn(), collectionUrn, playQueueItem.getAdData());
         } else {
-            return new VideoPageData(position, playQueueItem.getMetaData());
+            return new VideoPageData(position, playQueueItem.getAdData());
         }
     }
 }

@@ -35,7 +35,6 @@ class WidgetTrack {
     }
 
     boolean isAudioAd() {
-        return source.contains(AdProperty.AD_URN) &&
-                source.get(AdProperty.AD_TYPE).equals(AdProperty.AD_TYPE_AUDIO);
+        return source.get(AdProperty.IS_AUDIO_AD);
     }
 }

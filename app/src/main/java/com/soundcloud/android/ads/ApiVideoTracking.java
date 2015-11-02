@@ -2,12 +2,9 @@ package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.java.collections.PropertySet;
-
 import java.util.List;
 
-public class ApiVideoTracking implements PropertySetSource {
+public class ApiVideoTracking {
     public final List<String> impressionUrls;
     public final List<String> skipUrls;
 
@@ -45,22 +42,5 @@ public class ApiVideoTracking implements PropertySetSource {
         this.resumeUrls = resumeUrls;
         this.fullScreenUrls = fullScreenUrls;
         this.exitFullScreenUrls = exitFullScreenUrls;
-    }
-
-    @Override
-    public PropertySet toPropertySet() {
-        return PropertySet.from(
-                VideoAdProperty.AD_IMPRESSION_URLS.bind(impressionUrls),
-                VideoAdProperty.AD_SKIP_URLS.bind(skipUrls),
-                VideoAdProperty.AD_START_URLS.bind(startUrls),
-                VideoAdProperty.AD_FIRST_QUARTILE_URLS.bind(firstQuartileUrls),
-                VideoAdProperty.AD_SECOND_QUARTILE_URLS.bind(secondQuartileUrls),
-                VideoAdProperty.AD_THIRD_QUARTILE_URLS.bind(thirdQuartileUrls),
-                VideoAdProperty.AD_FINISH_URLS.bind(finishUrls),
-                VideoAdProperty.AD_PAUSE_URLS.bind(pauseUrls),
-                VideoAdProperty.AD_RESUME_URLS.bind(resumeUrls),
-                VideoAdProperty.AD_FULLSCREEN_URLS.bind(fullScreenUrls),
-                VideoAdProperty.AD_EXIT_FULLSCREEN_URLS.bind(exitFullScreenUrls)
-        );
     }
 }

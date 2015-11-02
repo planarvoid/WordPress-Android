@@ -3,7 +3,8 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.main.Screen;
@@ -12,7 +13,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -38,7 +38,6 @@ public class UIEventTest extends AndroidUnitTest {
         promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.<Urn>absent(), null);
         trackMetadata = EntityMetadata.from(buildPlayablePropertySet(TRACK_URN));
         playlistMetadata = EntityMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
-
     }
 
     @Test
@@ -1025,29 +1024,29 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromAudioAdClick() {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
+        AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.COMPANION_URN));
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.get(AdProperty.ARTWORK).toString());
-        assertThat(uiEvent.getAudioAdClickthroughUrls()).contains("click1", "click2");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.getAudioAdClickthroughUrls()).contains("comp_click1", "comp_click2");
     }
 
     @Test
     public void shouldCreateEventFromSkipAudioAdClick() {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
+        AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AD_URN));
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.get(AdProperty.ARTWORK).toString());
-        assertThat(uiEvent.getAudioAdSkipUrls()).contains("skip1", "skip2");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.getAudioAdSkipUrls()).contains("audio_skip1", "audio_skip2");
     }
 
     @Test

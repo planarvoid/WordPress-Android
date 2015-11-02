@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,7 +24,7 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
-    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)));
     private final CurrentPlayQueueItemEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueItemEvent.fromPositionChanged(PLAY_QUEUE_ITEM, Urn.NOT_SET, 0);
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();

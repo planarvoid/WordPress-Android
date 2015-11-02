@@ -2,7 +2,8 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -31,7 +32,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
             TrackProperty.POLICY.bind("allow"),
             PlayableProperty.DURATION.bind(DURATION)
     );
-    private static final PropertySet AUDIO_AD_DATA = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+    private static final AudioAd AUDIO_AD_DATA = AdFixtures.getAudioAd(Urn.forTrack(123L));
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "CONNECTION";
@@ -125,18 +126,18 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void populatesAdAttributesFromAdPlaybackEvent() {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
 
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN),
                 LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false).withAudioAd(audioAd);
 
         assertThat(event.isAd()).isTrue();
-        assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("ad:audio:123");
+        assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("adswizz:ads:869");
         assertThat(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
-        assertThat(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.get(AdProperty.ARTWORK).toString());
-        assertThat(event.getAudioAdImpressionUrls()).contains("adswizzUrl", "advertiserUrl");
-        assertThat(event.getAudioAdCompanionImpressionUrls()).contains("visual1", "visual2");
-        assertThat(event.getAudioAdFinishUrls()).contains("finish1", "finish2");
+        assertThat(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(event.getAudioAdImpressionUrls()).contains("audio_impression1", "audio_impression2");
+        assertThat(event.getAudioAdCompanionImpressionUrls()).contains("comp_impression1", "comp_impression2");
+        assertThat(event.getAudioAdFinishUrls()).contains("audio_finish1", "audio_finish2");
     }
 }

@@ -13,8 +13,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,7 +23,7 @@ import android.app.Activity;
 
 public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
-    private static final PropertySet AD_META_DATA = TestPropertySets.leaveBehindForPlayer();
+    private static final LeaveBehindAd AD_META_DATA = AdFixtures.getLeaveBehindAd(Urn.forTrack(123));
     private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown(Urn.forTrack(123L), AD_META_DATA, new TrackSourceInfo("origin_screen", true));
     private final AdOverlayEvent LEAVE_BEHIND_HIDDEN = AdOverlayEvent.hidden();
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();

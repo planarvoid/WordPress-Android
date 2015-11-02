@@ -9,7 +9,6 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCa
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
@@ -250,7 +249,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {
-        return new PlayQueue(playQueueManager.filterQueueItemsWithMetadata(AdFunctions.HAS_AD_URN)).getTrackItemUrns();
+        return new PlayQueue(playQueueManager.filterAdQueueItems()).getTrackItemUrns();
     }
 
     private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {

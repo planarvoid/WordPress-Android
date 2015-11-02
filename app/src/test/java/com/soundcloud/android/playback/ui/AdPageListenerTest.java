@@ -5,9 +5,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -18,8 +20,7 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     private AdPageListener listener;
     private TestEventBus eventBus = new TestEventBus();
-    private PropertySet adData;
+    private PlayerAdData adData;
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
@@ -50,7 +51,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
                  playSessionStateProvider, playSessionController, playQueueManager,
                  eventBus, adsOperations, accountOperations, whyAdsPresenter);
 
-        adData = TestPropertySets.audioAdProperties(Urn.forTrack(123));
+        adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData));
@@ -59,19 +60,19 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
-        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
+        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
 
         Intent intent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isSameAs(adData.get(AdProperty.CLICK_THROUGH_LINK));
+        assertThat(intent.getData()).isSameAs(adData.getVisualAd().getClickThroughUrl());
     }
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
-        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
+        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
 
@@ -82,12 +83,12 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldSetMenetizableTrackMetaAdClicked() {
-        final PropertySet monetizableProperties = PropertySet.create();
-        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(monetizableProperties);
+        final LeaveBehindAd monetizableLeaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(321L));
+        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
 
         listener.onClickThrough();
 
-        assertThat(monetizableProperties.get(LeaveBehindProperty.META_AD_CLICKED)).isTrue();
+        assertThat(monetizableLeaveBehindAd.isMetaAdClicked()).isTrue();
     }
 
     @Test

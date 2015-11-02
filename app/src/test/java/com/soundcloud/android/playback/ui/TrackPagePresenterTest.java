@@ -11,8 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
+import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
@@ -31,7 +33,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -547,12 +548,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setLeaveBehindInitializesLeaveBehindController() throws Exception {
-        final PropertySet track = TestPropertySets.leaveBehindForPlayer();
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         populateTrackPage();
 
-        presenter.setAdOverlay(trackView, track);
+        presenter.setAdOverlay(trackView, leaveBehind);
 
-        verify(adOverlayController).initialize(track);
+        verify(adOverlayController).initialize(leaveBehind);
     }
 
     @Test
