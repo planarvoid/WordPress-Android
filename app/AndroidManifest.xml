@@ -269,6 +269,7 @@
         <!-- discovery -->
         <activity android:label="@string/activity_title_discovery" android:name=".discovery.DiscoveryActivity"/>
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
+        <activity android:label="" android:name=".discovery.NewSearchActivity"/>
         <activity android:label="@string/activity_title_search_results" android:name=".discovery.SearchResultsActivity"/>
         <activity android:label="@string/activity_title_search_results" android:name=".discovery.PlaylistDiscoveryActivity"/>
 

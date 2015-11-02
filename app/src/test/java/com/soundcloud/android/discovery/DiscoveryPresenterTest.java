@@ -10,8 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -42,8 +40,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     private static final Urn SEED_TRACK_URN = Urn.forTrack(1L);
     private static final Urn RECOMMENDATION_URN = Urn.forTrack(2L);
     private static final Urn RECOMMENDED_TRACK_URN = Urn.forTrack(3L);
-    private static final Urn SUGGESTED_TRACK_URN = Urn.forTrack(4L);
-    private static final Urn SUGGESTED_USER_URN = Urn.forUser(5L);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DiscoveryOperations discoveryOperations;
@@ -122,42 +118,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onRecommendationArtworkClicked(recommendationItemOne);
-    }
-
-    @Test
-    public void onTextSearchPerformOpenSearchResults() {
-        final Context context = context();
-        final String searchQuery = "anyQuery";
-
-        presenter.onSearchTextPerformed(context, searchQuery);
-
-        verify(navigator).openSearchResults(context, searchQuery);
-    }
-
-    @Test
-    public void playsSuggestedTrackFromSearch() {
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(SUGGESTED_TRACK_URN);
-
-        PublishSubject<List<DiscoveryItem>> discoveryItems = PublishSubject.create();
-        when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
-        when(playbackInitiator.startPlaybackWithRecommendations(SUGGESTED_TRACK_URN, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo))
-                .thenReturn(Observable.just(PlaybackResult.success()));
-
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        presenter.onLaunchSearchSuggestion(context(), SUGGESTED_TRACK_URN, searchQuerySourceInfo, null);
-
-        verify(playbackInitiator).startPlaybackWithRecommendations(SUGGESTED_TRACK_URN, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo);
-    }
-
-    @Test
-    public void launchesSearchSuggestion() {
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(SUGGESTED_USER_URN);
-        final Context context = context();
-
-        presenter.onLaunchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
-
-        verify(navigator).launchSearchSuggestion(context, SUGGESTED_USER_URN, searchQuerySourceInfo, null);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport;
 
+import com.soundcloud.android.R;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -9,11 +10,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 public class FragmentRule implements TestRule {
 
@@ -54,8 +59,27 @@ public class FragmentRule implements TestRule {
     @Override
     public Statement apply(Statement statement, Description description) {
         fragment = new DummyFragment(fragmentLayout, fragmentArgs);
-        SupportFragmentTestUtil.startVisibleFragment(fragment);
+        SupportFragmentTestUtil.startVisibleFragment(fragment, DummyFragmentActivity.class, R.id.container);
         return statement;
+    }
+
+    private static class DummyFragmentActivity extends FragmentActivity {
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            FrameLayout view = new FrameLayout(this);
+            view.setId(R.id.container);
+            view.addView(getToolbar());
+
+            setContentView(view);
+        }
+
+        @NonNull
+        private Toolbar getToolbar() {
+            Toolbar toolbar = new Toolbar(this);
+            toolbar.setId(R.id.toolbar_id);
+            return toolbar;
+        }
     }
 
     @SuppressLint("ValidFragment")

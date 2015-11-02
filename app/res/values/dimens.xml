@@ -35,14 +35,6 @@
 
     <dimen name="default_list_item_padding">16dp</dimen>
 
-    <dimen name="slm_item_padding_right">@dimen/default_list_item_padding</dimen>
-
-    <dimen name="search_item_padding_topbottom">13dp</dimen>
-
-    <dimen name="slm_item_text_size">16sp</dimen>
-
-    <dimen name="slm_search_item_text_padding">10dp</dimen>
-
     <dimen name="btn_text_size">13sp</dimen>
     <dimen name="btn_min_height">48dp</dimen>
     <dimen name="btn_padding">15dp</dimen>
@@ -118,8 +110,6 @@
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_bottom">4dp</dimen>
     <dimen name="recommendations_cell_text_recommended_margin">4dp</dimen>
-    <dimen name="search_cell_text_height">48dp</dimen>
-    <dimen name="search_cell_drawable_padding">12dp</dimen>
 
     <!-- Record -->
     <dimen name="rec_upload_button_dimension">60dp</dimen>
@@ -149,5 +139,11 @@
     <dimen name="dialog_width">280dp</dimen>
 
     <dimen name="liked_track_icon_dimension">48dp</dimen>
+
+    <!-- Search -->
+    <dimen name="search_link_height">48dp</dimen>
+    <dimen name="search_link_padding">12dp</dimen>
+    <dimen name="search_suggestion_item_height">60dp</dimen>
+    <dimen name="search_suggestion_icon_dimension">33dp</dimen>
 
 </resources>

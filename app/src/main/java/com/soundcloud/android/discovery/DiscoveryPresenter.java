@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -55,6 +53,11 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+    }
+
+    @Override
+    public void onSearchClicked(Context context) {
+        navigator.openNewSearch(context);
     }
 
     @Override
@@ -97,27 +100,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
         navigator.openRecommendation(context, recommendationItem.getSeedTrackLocalId());
     }
 
-    @Override
-    public void onSearchTextPerformed(Context context, String query) {
-        navigator.openSearchResults(context, query);
-    }
-
-    @Override
-    public void onLaunchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
-        if (urn.isTrack()) {
-            playSearchSuggestedTrack(urn, searchQuerySourceInfo);
-        } else {
-            navigator.launchSearchSuggestion(context, urn, searchQuerySourceInfo, itemUri);
-        }
-    }
-
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
-    }
-
-    private void playSearchSuggestedTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        playbackInitiator.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
-                .subscribe(expandPlayerSubscriberProvider.get());
     }
 }

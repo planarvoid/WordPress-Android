@@ -1,19 +1,20 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.explore.ExploreActivity;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
@@ -21,7 +22,6 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -263,5 +263,34 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(TrackLikesActivity.class);
+    }
+
+    @Test
+    public void launchesSearchSuggestionTrack() {
+        final Urn urn = Urn.forTrack(123L);
+        final SearchQuerySourceInfo searchQueryInfo = mock(SearchQuerySourceInfo.class);
+        final Uri itemUri = Uri.parse("dummyUri");
+
+        navigator.launchSearchSuggestion(activityContext, urn, searchQueryInfo, itemUri);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsUri(itemUri);
+    }
+
+    @Test
+    public void launchesSearchSuggestionUser() {
+        final Urn urn = Urn.forUser(1234L);
+        final SearchQuerySourceInfo searchQueryInfo = mock(SearchQuerySourceInfo.class);
+        final Uri itemUri = Uri.parse("dummyUri");
+
+        navigator.launchSearchSuggestion(activityContext, urn, searchQueryInfo, itemUri);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQueryInfo)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsUri(itemUri);
     }
 }

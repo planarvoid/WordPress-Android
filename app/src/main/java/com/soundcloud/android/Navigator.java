@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryActivity;
+import com.soundcloud.android.discovery.NewSearchActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
@@ -76,6 +77,10 @@ public class Navigator {
         } else {
             startActivity(activityContext, SearchActivity.class);
         }
+    }
+
+    public void openNewSearch(Context activityContext) {
+        startActivity(activityContext, NewSearchActivity.class);
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -186,12 +191,9 @@ public class Navigator {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
     }
 
-    public void openSearchResults(Context context, String query) {
-        context.startActivity(createSearchResultsIntent(context, query));
-    }
-
     public void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (urn.isUser()) {
             intent.putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
         }

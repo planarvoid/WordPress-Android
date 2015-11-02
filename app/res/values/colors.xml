@@ -60,9 +60,6 @@
     <color name="signup_separator">#999999</color>
 
     <!-- Search -->
-    <color name="search_item_unselected_color">#999999</color>
-    <color name="search_item_selected_color">@color/white</color>
-    <color name="search_item_pressed_color">@color/ak_sc_orange</color>
     <color name="tag_text">#666666</color>
 
     <!-- Dialogs -->
@@ -94,7 +91,6 @@
     <color name="page_background">#f3f3f3</color>
 
     <color name="txt_description_color">#FF5500</color>
-    <color name="light_gray_text">#cccccc</color>
     <color name="gray_text">#999999</color>
     <color name="dark_gray_text">#333333</color>
     <color name="tab_bar_divider">#dddddd</color>
@@ -146,5 +142,9 @@
 
     <!-- You -->
     <color name="you_version_text">@color/gray_text</color>
+
+    <!-- Search -->
+    <color name="search_suggestion_text">#333</color>
+    <color name="search_suggestion_unhighlighted_text">#999</color>
 
 </resources>

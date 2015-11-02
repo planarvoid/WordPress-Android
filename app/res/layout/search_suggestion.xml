@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              style="@style/SearchSuggestionItem">
+              style="@style/Search.Suggestion.Container">
 
     <ImageView android:id="@+id/icon"
-               style="@style/SearchSuggestionIcon"
+               style="@style/Search.Suggestion.Icon"
                android:src="@drawable/cloud_no_logo_sm" />
 
     <TextView android:id="@+id/title"
-              style="@style/SearchSuggestionText"
+              style="@style/Search.Suggestion.Text"
               android:layout_width="0dp"
-              android:layout_height="wrap_content"
               android:layout_weight="1" />
 
     <ImageView android:id="@+id/iv_search_type"
-               style="@style/SearchSuggestionIcon.Type" />
+               style="@style/Search.Suggestion.Icon.Type" />
 
 </LinearLayout>

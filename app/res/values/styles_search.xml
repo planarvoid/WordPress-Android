@@ -1,49 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SearchSuggestionItem">
-        <item name="android:background">@drawable/list_selector_dark</item>
+
+    <style name="Search" />
+    <style name="Search.TextView">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/list_primary</item>
+        <item name="android:textColorHint">@color/search_hint_text</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Search.TextView.Input">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Search.TextView.Link">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/search_link_height</item>
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:drawableLeft">@drawable/search_icon</item>
+        <item name="android:drawablePadding">@dimen/search_link_padding</item>
+        <item name="android:paddingLeft">@dimen/search_link_padding</item>
+    </style>
+
+    <style name="Search.Suggestion" />
+    <style name="Search.Suggestion.Container">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">@dimen/default_list_item_padding</item>
-        <item name="android:paddingRight">@dimen/slm_item_padding_right</item>
+        <item name="android:paddingRight">@dimen/default_list_item_padding</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:paddingTop">@dimen/search_item_padding_topbottom</item>
-        <item name="android:paddingBottom">@dimen/search_item_padding_topbottom</item>
     </style>
 
-    <style name="SearchSuggestionIcon">
-        <item name="android:layout_height">33dp</item>
-        <item name="android:layout_width">33dp</item>
+    <style name="Search.Suggestion.Icon">
+        <item name="android:layout_height">@dimen/search_suggestion_icon_dimension</item>
+        <item name="android:layout_width">@dimen/search_suggestion_icon_dimension</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:scaleType">centerCrop</item>
+        <item name="android:layout_marginRight">7dp</item>
     </style>
 
-    <style name="SearchSuggestionText">
-        <item name="android:paddingLeft">7dp</item>
-        <item name="android:paddingRight">7dp</item>
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:textColor">@color/light_gray_text</item>
-    </style>
-
-    <style name="SearchSuggestionIcon.Type">
+    <style name="Search.Suggestion.Icon.Type">
         <item name="android:scaleType">centerInside</item>
     </style>
 
-    <style name="txt_search" parent="android:Widget.TextView">
-        <item name="android:textSize">@dimen/slm_item_text_size</item>
-        <item name="android:paddingTop">@dimen/slm_search_item_text_padding</item>
-        <item name="android:paddingBottom">@dimen/slm_search_item_text_padding</item>
-        <item name="android:paddingLeft">@dimen/slm_search_item_text_padding</item>
-        <item name="android:paddingRight">@dimen/slm_search_item_text_padding</item>
+    <style name="Search.Suggestion.Text">
+        <item name="android:layout_marginRight">7dp</item>
         <item name="android:layout_gravity">center_vertical</item>
-    </style>
-
-    <style name="txt_search_menu" parent="txt_search">
-        <item name="android:background">@drawable/txt_menu_search_bg_states</item>
-        <item name="android:textColor">#333333</item>
-        <item name="android:textColorHint">@drawable/txt_menu_search_states</item>
+        <item name="android:layout_height">@dimen/search_suggestion_item_height</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/search_suggestion_text</item>
     </style>
 
 </resources>

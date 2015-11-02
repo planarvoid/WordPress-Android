@@ -15,14 +15,11 @@
 
         <com.soundcloud.android.view.CustomFontAutoCompleteTextView
             android:id="@+id/search"
-            style="@style/Search.TextView"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/search_cell_text_height"
-            android:completionThreshold="1"
-            android:drawableLeft="@drawable/actionbar_search"
-            android:drawablePadding="@dimen/search_cell_drawable_padding"
-            android:hint="@string/discovery_search_hint"
-            android:imeOptions="actionSearch|flagNoExtractUi" />
+            style="@style/Search.TextView.Link"
+            android:focusableInTouchMode="false"
+            android:focusable="false"
+            android:cursorVisible="false"
+            android:hint="@string/discovery_search_hint" />
 
     </android.support.v7.widget.CardView>
 

@@ -116,6 +116,7 @@
     <string name="collections_remove_filters">Remove Filters</string>
 
     <!-- __DISCOVERY -->
+    <string name="activity_title_new_search">Search SoundCloud</string>
     <string name="activity_title_search_results">Search</string>
 
     <!-- __TABS -->

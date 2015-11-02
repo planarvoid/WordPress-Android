@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,7 +36,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.BaseColumns;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -100,6 +98,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private @NotNull SearchSuggestions localSuggestions = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
+    private final int colorTextUnhighlight;
+    private final int colorTextSuggestion;
+
     @Inject
     public SuggestionsAdapter(Context context, PublicApi api, ShortcutsStorage shortcutsStorage) {
         super(context, null, 0);
@@ -110,6 +111,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         suggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         suggestionsHandlerThread.start();
         suggestionsHandler = new SuggestionsHandler(this, api, suggestionsHandlerThread.getLooper());
+
+        colorTextSuggestion = context.getResources().getColor(R.color.search_suggestion_text);
+        colorTextUnhighlight = context.getResources().getColor(R.color.search_suggestion_unhighlighted_text);
     }
 
     public void onDestroy() {
@@ -211,6 +215,18 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         return isLocal == 1;
     }
 
+    public void showSuggestionsFor(CharSequence searchQuery) {
+        getFilter().filter(searchQuery);
+    }
+
+    public void clearSuggestions() {
+        localSuggestions = SearchSuggestions.EMPTY;
+        remoteSuggestions = SearchSuggestions.EMPTY;
+        changeCursor(null);
+        newSuggestionsHandler.removeMessages(0);
+        suggestionsHandler.removeMessages(0);
+    }
+
     @Override
     public int getViewTypeCount() {
         return 3;
@@ -231,7 +247,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             return getMixedCursor();
 
         } else {
-            localSuggestions = SearchSuggestions.EMPTY;
+            clearSuggestions();
             return super.runQueryOnBackgroundThread(searchQuery);
         }
     }
@@ -383,8 +399,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         if (id == -1 /* header */) {
             tag.tv_main.setText(query);
+            tag.iv_icon.setVisibility(View.GONE);
         } else {
             tag.tv_main.setText(local ? highlightLocal(query) : highlightRemote(query, highlightData));
+            tag.iv_icon.setVisibility(View.VISIBLE);
         }
 
         final int rowType = getItemViewType(cursor.getPosition());
@@ -441,13 +459,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         return spanned;
     }
 
-    private static void setHighlightSpans(SpannableString spanned, int start, int end) {
-        spanned.setSpan(new ForegroundColorSpan(0xFF666666),
+    private void setHighlightSpans(SpannableString spanned, int start, int end) {
+        spanned.setSpan(new ForegroundColorSpan(colorTextUnhighlight),
                 0, spanned.length(),
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         if (start >= 0 && start < end && end > 0 && end <= spanned.length()) {
-            spanned.setSpan(new ForegroundColorSpan(Color.WHITE),
+            spanned.setSpan(new ForegroundColorSpan(colorTextSuggestion),
                     start, end,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
@@ -456,7 +474,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final class SuggestionsHandler extends Handler {
         private final WeakReference<SuggestionsAdapter> adapterRef;
         private final PublicApi api;
-
 
         public SuggestionsHandler(SuggestionsAdapter adapter, PublicApi api, Looper looper) {
             super(looper);
