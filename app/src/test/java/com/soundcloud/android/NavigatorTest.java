@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -24,7 +23,6 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import org.junit.Before;
@@ -189,20 +187,7 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensLegacyExplore() {
-        when(flags.isEnabled(Flag.TABS)).thenReturn(false);
-
-        navigator.openExplore(activityContext, Screen.DEEPLINK);
-
-        assertThat(activityContext).nextStartedIntent()
-                .containsAction(Actions.EXPLORE)
-                .containsScreen(Screen.DEEPLINK);
-    }
-
-    @Test
-    public void opensStandaloneExplore() {
-        when(flags.isEnabled(Flag.TABS)).thenReturn(true);
-
+    public void opensExplore() {
         navigator.openExplore(activityContext, Screen.YOU);
 
         assertThat(activityContext).nextStartedIntent()

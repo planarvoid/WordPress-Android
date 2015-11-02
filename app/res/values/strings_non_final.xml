@@ -85,12 +85,9 @@
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Remove ads</string>
-    <string name="upsell_nav_title">Upgrade SoundCloud</string>
-    <string name="upsell_nav_body">Listen Offline &amp; Ad Free</string>
     <string name="upsell_track_item">Available on SoundCloud CS</string>
 
     <!-- __STATIONS -->
-    <string name="side_menu_stations">Stations</string>
     <string name="station_type_track">Track station</string>
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
@@ -101,7 +98,6 @@
     <string name="station_bucket_action_text">View all</string>
 
     <!-- __COLLECTION -->
-    <string name="side_menu_collection">Collection</string>
     <string name="collections_playlists_header">Playlists</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>

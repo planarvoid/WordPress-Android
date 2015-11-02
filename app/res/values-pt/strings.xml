@@ -174,16 +174,11 @@
   <string name="use_existing_image">Imagem existente</string>
   <string name="use_existing_image_error">Não foi possível usar uma imagem existente</string>
   <!--__NAVIGATION-->
-  <string name="accessibility_navigation_drawer_open">Abrir guia de navegação</string>
-  <string name="accessibility_navigation_drawer_close">Fechar guia de navegação</string>
   <string name="side_menu_notifications">Atividade</string>
   <string name="side_menu_record">Gravar</string>
-  <string name="side_menu_stream">Stream</string>
   <string name="side_menu_you">Você</string>
   <string name="side_menu_settings">Configurações</string>
-  <string name="side_menu_likes">Curtidas</string>
   <string name="side_menu_profile">Perfil</string>
-  <string name="side_menu_playlists">Playlists</string>
   <string name="side_menu_explore">Explorar</string>
   <string name="title_search">Pesquisar</string>
   <string name="title_settings">Configurações</string>

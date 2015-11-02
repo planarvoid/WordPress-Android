@@ -49,10 +49,6 @@
   <plurals name="number_of_sounds">
     <item quantity="other">%d lagu-lagu</item>
   </plurals>
-  <!--__PROFILE-->
-  <plurals name="number_of_followers">
-    <item quantity="other">%d para pengikut</item>
-  </plurals>
   <!--The number is formatted to a string with thousands separator (for example: 1,536,391)-->
   <plurals name="followers_message">
     <item quantity="other">Diikuti oleh %s orang</item>

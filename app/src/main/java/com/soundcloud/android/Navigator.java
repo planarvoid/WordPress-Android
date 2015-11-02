@@ -222,9 +222,7 @@ public class Navigator {
     }
 
     private Intent createExploreIntent(Context context, Screen screen) {
-        Intent intent = featureFlags.isEnabled(Flag.TABS)
-                ? new Intent(context, ExploreActivity.class)
-                : new Intent(Actions.EXPLORE).setFlags(FLAGS_TOP);
+        Intent intent = new Intent(context, ExploreActivity.class);
         screen.addToIntent(intent);
         return intent;
     }
