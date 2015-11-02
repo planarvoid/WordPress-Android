@@ -4,64 +4,69 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp"
     tools:showIn="@layout/playlist_tags_fragment">
 
-    <TextView
-        style="@style/TagHeaderText"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/TagTitleText"
         android:text="@string/search_tags_title" />
-
-    <TextView
-        style="@style/TagHeaderText"
-        android:textColor="@color/tag_text"
-        android:text="@string/search_tags_subtitle" />
 
     <LinearLayout
         android:id="@+id/recent_tags_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/discovery_tags_separation"
+        android:background="@color/primary"
         android:orientation="vertical"
-        android:layout_marginBottom="5dp"
         android:visibility="gone">
 
-        <TextView
-            style="@style/TagCloudTitle"
-            android:text="@string/search_recent_tags" />
+        <View style="@style/TagsDivider" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/TagSubtitleText"
+            android:text="@string/search_tags_recent_subtitle" />
 
         <com.soundcloud.android.view.FlowLayout
             android:id="@+id/recent_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:paddingTop="15dp" />
+            android:layout_marginBottom="@dimen/discovery_tags_margin_top_bottom"
+            android:paddingBottom="@dimen/discovery_tags_padding_top_bottom"
+            android:paddingLeft="@dimen/discovery_tags_padding_left_right" />
+
+        <View style="@style/TagsDivider" />
 
     </LinearLayout>
 
-    <TextView
-        style="@style/TagCloudTitle"
-        android:text="@string/search_popular_tags" />
-
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/primary">
+
+        <View
+            android:id="@+id/tagsDivider"
+            style="@style/TagsDivider" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/tags_subtitle"
+            style="@style/TagSubtitleText"
+            android:layout_below="@id/tagsDivider"
+            android:text="@string/search_tags_popular_subtitle" />
 
         <com.soundcloud.android.view.EmptyView
             android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="50dp"
-            android:paddingBottom="50dp" />
+            android:paddingBottom="50dp"
+            android:paddingTop="50dp" />
 
         <com.soundcloud.android.view.FlowLayout
             android:id="@+id/all_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:paddingTop="15dp"
-            android:animateLayoutChanges="true" />
+            android:layout_below="@id/tags_subtitle"
+            android:animateLayoutChanges="true"
+            android:paddingLeft="@dimen/discovery_tags_padding_left_right" />
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </LinearLayout>

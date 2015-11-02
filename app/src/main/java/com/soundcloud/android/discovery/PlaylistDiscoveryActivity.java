@@ -25,7 +25,7 @@ public class PlaylistDiscoveryActivity extends ScActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(R.string.activity_title_search_results);
+        setTitle(R.string.discovery_search_title);
 
         if (savedInstanceState == null) {
             final String playListTag = getIntent().getStringExtra(EXTRA_PLAYLIST_TAG);

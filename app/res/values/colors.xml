@@ -69,7 +69,7 @@
     <!-- Playlist -->
     <color name="playlist_background">#f2f2f2</color>
     <color name="playlist_background_pressed">#fafafa</color>
-    <color name="playlist_divider">#dddddd</color>
+    <color name="playlist_divider">#e5e5e5</color>
 
     <!-- Image overlays -->
     <color name="overlay_text">@color/white</color>
@@ -129,7 +129,12 @@
     <color name="recommendation_reason_text">#999999</color>
     <color name="seed_track_text">#333333</color>
     <color name="recommended_for_you_text">#666666</color>
-    <color name="search_hint_text">#999999</color>
+    <color name="search_query_text">#333333</color>
+    <color name="search_hint_text">#CCCCCC</color>
+    <color name="search_screen_background">#80000000</color>
+    <color name="discovery_tags_title">#666666</color>
+    <color name="discovery_tags_divider">#e5e5e5</color>
+    <color name="discovery_screen_background">#f2f2f2</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>

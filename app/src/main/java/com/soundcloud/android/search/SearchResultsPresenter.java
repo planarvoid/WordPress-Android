@@ -8,10 +8,10 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;

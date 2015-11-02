@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewFlipper android:id="@+id/search_view_flipper"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/search_screen_background">
 
-    <ListView
-        android:id="@android:id/list"
+    <ViewFlipper
+        android:id="@+id/search_view_flipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:visibility="invisible">
 
-    <FrameLayout
-        android:id="@+id/search_results_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-</ViewFlipper>
+        <FrameLayout
+            android:id="@+id/search_results_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
+    </ViewFlipper>
+
+</FrameLayout>

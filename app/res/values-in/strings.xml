@@ -348,10 +348,8 @@
   <string name="search_type_tracks">Trek</string>
   <string name="search_type_playlists">Daftar putar</string>
   <string name="search_type_people">Orang-Orang</string>
-  <string name="search_recent_tags">TERBARU</string>
-  <string name="search_popular_tags">TAG POPULER</string>
   <string name="search_tags_title">Pilih tag favoritmu</string>
-  <string name="search_tags_subtitle">Temukan daftar putar populer di SoundCloud</string>
+  <string name="search_tags_popular_subtitle">Temukan daftar putar populer di SoundCloud</string>
   <string name="search_empty">Hasil tidak ditemukan</string>
   <string name="search_empty_subtext">Periksa ejaan atau coba pencarian lainnya</string>
   <string name="search_for_query">Telusuri \'%s\'</string>
