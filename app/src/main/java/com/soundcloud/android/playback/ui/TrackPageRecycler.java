@@ -2,53 +2,89 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.model.Urn;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
 
 class TrackPageRecycler {
 
-    private final Map<Urn, View> viewMap;
+    private final List<RecycledElement> recycledViews;
     private final Deque<View> scrapViews;
 
     TrackPageRecycler() {
-        viewMap = new LinkedHashMap<>(PlayerPagerPresenter.TRACK_VIEW_POOL_SIZE);
+        recycledViews = new ArrayList<>(PlayerPagerPresenter.TRACK_VIEW_POOL_SIZE);
         scrapViews = new LinkedList<>();
     }
 
     public boolean isPageForUrn(View trackPage, Urn urn) {
-        return trackPage == viewMap.get(urn);
+        return trackPage == findView(urn);
+    }
+
+    @Nullable
+    private View findView(Urn urn) {
+        for (int i = 0; i < recycledViews.size(); i++) {
+            RecycledElement recycledElement = recycledViews.get(i);
+            if (recycledElement.urn.equals(urn)) {
+                return recycledElement.view;
+            }
+        }
+        return null;
     }
 
     boolean hasExistingPage(Urn urn){
-        return viewMap.containsKey(urn);
+        return containsView(urn);
+    }
+
+    private boolean containsView(Urn urn) {
+        return findView(urn) != null;
     }
 
     View removePageByUrn(Urn urn) {
-        final View view = viewMap.get(urn);
-        viewMap.remove(urn);
-        return view;
+        return findAndRemoveView(urn);
+    }
+
+    @Nullable
+    private View findAndRemoveView(Urn urn) {
+        if (!recycledViews.isEmpty()) {
+            for (Iterator<RecycledElement> iterator = recycledViews.iterator(); iterator.hasNext(); ) {
+                final RecycledElement recycledElement = iterator.next();
+                if (recycledElement.urn.equals(urn)) {
+                    iterator.remove();
+                    return recycledElement.view;
+                }
+            }
+        }
+        return null;
     }
 
     View getRecycledPage() {
         if (scrapViews.isEmpty()){
-            Map.Entry<Urn, View> entry = viewMap.entrySet().iterator().next();
-            View view = entry.getValue();
-            viewMap.remove(entry.getKey());
-            return view;
+            return recycledViews.remove(0).view;
         } else {
             return scrapViews.pop();
         }
     }
 
     void recyclePage(Urn urn, View view) {
-        viewMap.put(urn, view);
+        recycledViews.add(new RecycledElement(urn, view));
     }
 
     void addScrapView(View view) {
         scrapViews.push(view);
+    }
+
+    private static class RecycledElement {
+        public final Urn urn;
+        public final View view;
+
+        private RecycledElement(Urn urn, View view) {
+            this.urn = urn;
+            this.view = view;
+        }
     }
 }
