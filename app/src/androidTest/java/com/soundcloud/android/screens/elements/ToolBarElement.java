@@ -7,9 +7,7 @@ import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
-import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
@@ -32,24 +30,10 @@ public class ToolBarElement extends Element {
         return title().getText();
     }
 
-    public void clickHomeButton() {
-        solo.clickOnActionBarHomeButton();
-    }
-
     public PlaylistTagsScreen clickSearchButton() {
         waiter.waitForElement(SEARCH_SELECTOR);
         solo.findElement(With.id(SEARCH_SELECTOR)).click();
         return new PlaylistTagsScreen(solo);
-    }
-
-    public ActivitiesScreen clickActivityOverflowButton() {
-        clickOverflowButton(testDriver.getString(R.string.side_menu_notifications));
-        return new ActivitiesScreen(testDriver);
-    }
-
-    public SettingsScreen clickSettingsOverflowButton() {
-        clickOverflowButton(testDriver.getString(R.string.title_settings));
-        return new SettingsScreen(testDriver);
     }
 
     public SearchResultsScreen doSearch(String query) {
@@ -70,11 +54,6 @@ public class ToolBarElement extends Element {
 
     public void setSearchQuery(final String query) {
         searchInputField().typeText(query);
-    }
-
-    private void clickOverflowButton(String buttonText) {
-        testDriver.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton")).click();
-        testDriver.findElement(With.text(buttonText)).click();
     }
 
     private TextElement title() {

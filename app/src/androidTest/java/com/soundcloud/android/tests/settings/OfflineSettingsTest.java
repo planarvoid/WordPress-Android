@@ -4,28 +4,26 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSettingsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
-import com.soundcloud.android.screens.SettingsScreen;
-import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.YouScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
 import java.io.IOException;
 
-public class OfflineSettingsTest extends ActivityTest<MainActivity> {
-    private SettingsScreen settingsScreen;
+public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
+    private YouScreen youScreen;
     private OfflineSettingsScreen offlineSettingsScreen;
     private Context context;
 
     private final OfflineContentHelper offlineContentHelper;
 
     public OfflineSettingsTest() {
-        super(MainActivity.class);
+        super(LauncherActivity.class);
         offlineContentHelper = new OfflineContentHelper();
     }
 
@@ -35,18 +33,16 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    @BrokenSettingsTest
     public void setUp() throws Exception {
         super.setUp();
         context = getInstrumentation().getTargetContext();
         enableOfflineContent(context);
 
-        settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
+        youScreen = mainNavHelper.goToYou();
     }
 
-    @BrokenSettingsTest
     public void testOfflineLimitSlider() {
-        offlineSettingsScreen = settingsScreen.clickOfflineSettings();
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         assertEquals("unlimited", offlineSettingsScreen.getSliderLimitText());
@@ -62,16 +58,15 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
         assertNotSame("0.5 GB", legendLastValue);
 
         solo.goBack();
-        settingsScreen.clickOfflineSettings();
+        youScreen.clickOfflineSettingsLink();
         assertEquals(sliderLastValue, offlineSettingsScreen.getSliderLimitText());
         assertEquals(legendLastValue, offlineSettingsScreen.getLegendLimitText());
     }
 
-    @BrokenSettingsTest
     public void testBlockOfflineLimitSliderBelowCurrentUsage() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 800);
 
-        offlineSettingsScreen = settingsScreen.clickOfflineSettings();
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         offlineSettingsScreen.tapOnSlider(0);
 
         assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.offline_cannot_set_limit_below_usage)));

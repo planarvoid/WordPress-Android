@@ -40,9 +40,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
     public void ignore_testUpgradePageEvents() {
         ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
 
-        OfflineSettingsScreen offlineSettingsScreen = toolBarElement
-                .clickSettingsOverflowButton()
-                .clickOfflineSettings();
+        OfflineSettingsScreen offlineSettingsScreen = mainNavHelper.goToOfflineSettings();
         assertThat(offlineSettingsScreen, is(visible()));
 
         waiter.waitTwoSeconds();

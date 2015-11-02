@@ -35,9 +35,25 @@ public class YouScreen extends Screen {
         return new ExploreScreen(testDriver);
     }
 
-    public RecordScreen clickRecordScreen() {
+    public RecordScreen clickRecordLink() {
         recordLink().click();
         return new RecordScreen(testDriver);
+    }
+
+    public BasicSettingsScreen clickBasicSettingsLink() {
+        basicSettingsLink().click();
+        return new BasicSettingsScreen(testDriver);
+    }
+
+    public OfflineSettingsScreen clickOfflineSettingsLink() {
+        offlineSettingsLink().click();
+        return new OfflineSettingsScreen(testDriver);
+    }
+
+    public HomeScreen clickLogoutAndConfirm() {
+        signoutLink().click();
+        testDriver.clickOnText(android.R.string.ok);
+        return new HomeScreen(testDriver);
     }
 
     public String getUserName() {
@@ -58,6 +74,19 @@ public class YouScreen extends Screen {
 
     private ViewElement recordLink() {
         return testDriver.findElement(With.id(R.id.you_record_link));
+    }
+
+    private ViewElement basicSettingsLink() {
+        return testDriver.findElement(With.id(R.id.you_basic_settings_link));
+    }
+
+    private ViewElement offlineSettingsLink() {
+        return testDriver.findElement(With.id(R.id.you_offline_sync_settings_link));
+    }
+
+    private ViewElement signoutLink() {
+        testDriver.scrollToBottom();
+        return testDriver.findElement(With.id(R.id.you_sign_out_link));
     }
 
     private TextElement username() {

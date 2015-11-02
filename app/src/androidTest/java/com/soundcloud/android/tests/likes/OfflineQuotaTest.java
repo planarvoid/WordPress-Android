@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.annotation.CollectionsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -43,13 +42,8 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
     public void testOfflineStateRequestedWhenNotEnoughSpace() throws IOException {
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
 
-        new StreamScreen(solo)
-                .actionBar()
-                .clickSettingsOverflowButton()
-                .clickOfflineSettings()
-                .tapOnSlider(0);
+        mainNavHelper.goToOfflineSettings().tapOnSlider(0);
 
-        solo.goBack();
         solo.goBack();
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper
