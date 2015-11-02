@@ -51,9 +51,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                         }
                     }
 
-                    if (!myCollections.getLikes().isEmpty() || !myCollections.getRecentStations().isEmpty()) {
-                        collectionsItems.add(CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()));
-                    }
+                    collectionsItems.add(CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()));
 
                     collectionsItems.add(CollectionsItem.fromPlaylistHeader());
 

@@ -186,7 +186,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-      public void collectionsItemsShouldContainNoPreviewCollectionItemWhenThereAreNoLikesOrStations() {
+      public void collectionsItemsShouldContainPreviewCollectionItemWhenThereAreNoLikesOrStations() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.<Urn>emptyList(),
@@ -196,6 +196,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionsItems.call(myCollections)).containsExactly(
+                CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()),
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );

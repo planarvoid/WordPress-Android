@@ -7,4 +7,7 @@
     <!-- Stations -->
     <integer name="stations_grid_span_count">3</integer>
     <integer name="stations_home_bucket_max_row_count">1</integer>
+
+    <!-- Collection -->
+    <integer name="collection_preview_thumbnail_count">8</integer>
 </resources>
