@@ -14,7 +14,7 @@ public class ApiLeaveBehindTest {
 
     @Test
     public void shouldResolveToPropertySet() throws CreateModelException {
-        ApiLeaveBehind apiLeaveBehind = ModelFixtures.create(ApiLeaveBehind.class);
+        ApiLeaveBehind apiLeaveBehind = AdFixtures.getApiLeaveBehind();
 
         final PropertySet propertySet = apiLeaveBehind.toPropertySet();
 

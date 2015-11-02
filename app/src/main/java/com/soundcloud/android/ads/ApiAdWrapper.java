@@ -1,52 +1,44 @@
 package com.soundcloud.android.ads;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.google.auto.value.AutoValue;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 
-class ApiAdWrapper {
-
-    @Nullable private final ApiAudioAd apiAudioAd;
-    @Nullable private final ApiInterstitial interstitial;
-
-    public ApiAdWrapper(ApiAudioAd apiAudioAd) {
-        this(apiAudioAd, null);
-    }
-
-    public ApiAdWrapper(ApiInterstitial apiLeaveBehind) {
-        this(null, apiLeaveBehind);
-    }
-
+@AutoValue
+abstract class ApiAdWrapper {
     @JsonCreator
-    public ApiAdWrapper(@JsonProperty("audio_ad") @Nullable ApiAudioAd apiAudioAd,
-                          @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial) {
-        this.apiAudioAd = apiAudioAd;
-        this.interstitial = interstitial;
+    public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable ApiAudioAd audioAd,
+                                      @JsonProperty("video_ad") @Nullable ApiVideoAd videoAd,
+                                      @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial) {
+        return new AutoValue_ApiAdWrapper(
+                Optional.fromNullable(audioAd),
+                Optional.fromNullable(videoAd),
+                Optional.fromNullable(interstitial)
+        );
     }
 
-    public boolean hasAudioAd() {
-        return apiAudioAd != null;
+    @VisibleForTesting
+    public static ApiAdWrapper create(ApiAudioAd audioAd) {
+        return create(audioAd, null, null);
     }
 
-    public boolean hasInterstitialAd() {
-        return interstitial != null;
+    @VisibleForTesting
+    public static ApiAdWrapper create(ApiVideoAd videoAd) {
+        return create(null, videoAd, null);
     }
 
-    @NotNull
-    public ApiAudioAd audioAd() {
-        if (apiAudioAd == null) {
-            throw new IllegalStateException("Audio ad is not present");
-        }
-        return apiAudioAd;
+    @VisibleForTesting
+    public static ApiAdWrapper create(ApiInterstitial interstitial) {
+        return create(null, null, interstitial);
     }
 
-    @NotNull
-    public ApiInterstitial interstitialAd() {
-        if (interstitial == null) {
-            throw new IllegalStateException("Interstitial ad is not present");
-        }
-        return interstitial;
-    }
+    public abstract Optional<ApiAudioAd> getAudioAd();
 
+    public abstract Optional<ApiVideoAd> getVideoAd();
+
+    public abstract Optional<ApiInterstitial> getInterstitial();
 }

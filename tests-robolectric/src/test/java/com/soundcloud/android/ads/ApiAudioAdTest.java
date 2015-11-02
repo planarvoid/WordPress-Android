@@ -45,7 +45,7 @@ public class ApiAudioAdTest {
 
     @Test
     public void resolvesToPropertySet() throws CreateModelException {
-        ApiAudioAd audioAd = ModelFixtures.create(ApiAudioAd.class);
+        ApiAudioAd audioAd = AdFixtures.getApiAudioAd();
 
         final PropertySet propertySet = audioAd.toPropertySet();
 
