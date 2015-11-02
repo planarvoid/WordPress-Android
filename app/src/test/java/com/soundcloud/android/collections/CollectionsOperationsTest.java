@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -155,6 +156,25 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
                 PlaylistItem.from(postedPlaylist2),
                 PlaylistItem.from(likedPlaylist1),
                 PlaylistItem.from(postedPlaylist1)
+        ));
+    }
+
+    @Test
+    public void collectionsReturnsUniquePostedAndLikedPlaylists() throws Exception {
+        PropertySet likedPlaylist3 = getLikedPlaylist(postedPlaylist1.get(EntityProperty.URN), new Date(5), "pepper");
+        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2, likedPlaylist3));
+        when(playlistLikeStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(likedPlaylists);
+
+        final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
+        operations.collections(options).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(likesUrns);
+        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
+                PlaylistItem.from(likedPlaylist3),
+                PlaylistItem.from(likedPlaylist2),
+                PlaylistItem.from(postedPlaylist2),
+                PlaylistItem.from(likedPlaylist1)
         ));
     }
 
