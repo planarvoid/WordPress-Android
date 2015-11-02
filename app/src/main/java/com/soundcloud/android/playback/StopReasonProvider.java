@@ -31,7 +31,7 @@ public class StopReasonProvider {
     }
 
     private int getIdleReason(Player.StateTransition stateTransition) {
-        if (stateTransition.getReason() == Player.Reason.TRACK_COMPLETE) {
+        if (stateTransition.getReason() == Player.Reason.PLAYBACK_COMPLETE) {
             return getTrackCompleteReason();
         } else if (stateTransition.wasError()) {
             return PlaybackSessionEvent.STOP_REASON_ERROR;

@@ -9,7 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
@@ -144,7 +146,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playCurrentPlaysAdSuccessfully() {
+    public void playCurrentPlaysAudioAdSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final PropertySet track = onlineTrack();
@@ -168,6 +170,17 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         verify(serviceInitiator, never()).play(any(PlaybackItem.class));
         playCurrentSubscriber.assertError(BlockedTrackException.class);
+    }
+
+    @Test
+    public void playCurrentPlaysVideoAdSuccessfully() {
+        final VideoAd videoAdData = AdFixtures.getVideoAd(TRACK1);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAdData));
+
+        defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
+
+        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAdData));
+        playCurrentSubscriber.assertValueCount(1);
     }
 
     private PropertySet onlineTrack() {

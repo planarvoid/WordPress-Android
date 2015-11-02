@@ -82,6 +82,7 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void pushProgressSendsProgressReportToListener() throws Exception {
         when(castManager.getCurrentMediaPosition()).thenReturn(123L);
         when(castManager.getMediaDuration()).thenReturn(456L);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         verify(progressReporter).setProgressPuller(progressPusherArgumentCaptor.capture());
         progressPusherArgumentCaptor.getValue().pullProgress();
@@ -91,6 +92,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithPlayingStateReturnsPlayingNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
@@ -100,6 +103,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithPlayingStateStartsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
         verify(progressReporter).start();
@@ -107,6 +112,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithPausedStateReturnsIdleNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
@@ -116,6 +123,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithPausedStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
         verify(progressReporter).stop();
@@ -123,6 +132,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithBufferingStateReturnsBufferingNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
@@ -132,6 +143,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithBufferingStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
         verify(progressReporter).stop();
@@ -139,6 +152,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleErrorStateReturnsIdleFailed() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
@@ -148,6 +163,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleErrorStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
         verify(progressReporter).stop();
@@ -155,15 +172,19 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleFinishedStateReturnsTrackComplete() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.TRACK_COMPLETE);
+        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.PLAYBACK_COMPLETE);
     }
 
     @Test
     public void onStatusUpdatedWithIdleFinishedStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
         verify(progressReporter).stop();
@@ -171,6 +192,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleCancelledStateReturnsIdleNone() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
         final Player.StateTransition stateTransition = captureLastStateTransition();
@@ -180,6 +203,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleCancelledStateStopsProgressReporter() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
         verify(progressReporter).stop();
@@ -187,6 +212,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
@@ -194,6 +221,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
@@ -408,6 +437,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void onDisconnectedBroadcastsIdleState() throws Exception {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
         castPlayer.onDisconnected();
 
         final Player.StateTransition stateTransition = captureLastStateTransition();

@@ -3,12 +3,15 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Intent;
 import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 
 import java.util.EnumSet;
+
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 // TODO, extract transitions/reason/error codes to their own classes
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
@@ -19,6 +22,7 @@ public interface Player {
     void play(Urn track, long fromPos);
     void playUninterrupted(Urn track);
     void playOffline(Urn track, long fromPos);
+    void playVideo(VideoPlaybackItem videoPlaybackItem);
     void resume();
     void pause();
     long seek(long ms, boolean performSeek);
@@ -45,7 +49,8 @@ public interface Player {
         private final PlayerState newState;
         private final Reason reason;
         private final PlaybackProgress progress;
-        private final Urn trackUrn;
+        private final Optional<Urn> trackUrn;
+        private final Optional<String> videoAdUrn;
 
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<>(2);
@@ -60,23 +65,54 @@ public interface Player {
             this(newState, reason, trackUrn, currentProgress, duration, new CurrentDateProvider());
         }
 
-        public StateTransition(PlayerState newState,
-                               Reason reason, Urn trackUrn,
-                               long currentProgress,
-                               long duration,
-                               CurrentDateProvider dateProvider) {
+        public StateTransition(PlayerState newState, Reason reason, String videoAdUrn,
+                               long currentProgress, long duration, CurrentDateProvider dateProvider) {
+            this(newState, reason, Optional.<Urn>absent(), Optional.of(videoAdUrn), currentProgress, duration, dateProvider);
+        }
+
+        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn,
+                               long currentProgress, long duration, CurrentDateProvider dateProvider) {
+            this(newState, reason, Optional.of(trackUrn), Optional.<String>absent(), currentProgress, duration, dateProvider);
+        }
+
+        private StateTransition(PlayerState newState,
+                                Reason reason,
+                                Optional<Urn> trackUrn,
+                                Optional<String> videoAdUrn,
+                                long currentProgress,
+                                long duration,
+                                CurrentDateProvider dateProvider) {
+            checkArgument(trackUrn.isPresent() ^ videoAdUrn.isPresent(), "State transition needs to have either a track or video ad URN");
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
+            this.videoAdUrn = videoAdUrn;
             this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
         }
 
-        public Urn getTrackUrn() {
-            return trackUrn;
+        public boolean isForTrack() {
+            return this.trackUrn.isPresent();
         }
 
         public boolean isForTrack(Urn trackUrn) {
-            return this.trackUrn != null && this.trackUrn.equals(trackUrn);
+            return isForTrack() && getTrackUrn().equals(trackUrn);
+        }
+
+        public boolean isForVideo() {
+            return this.videoAdUrn.isPresent();
+        }
+
+        public boolean isForPlaybackItem(PlaybackItem playbackItem) {
+            return ((playbackItem.getPlaybackType() == PlaybackType.VIDEO && isForVideo()) ||
+                    (playbackItem.getPlaybackType() != PlaybackType.VIDEO && isForTrack(playbackItem.getTrackUrn())));
+        }
+
+        public Urn getTrackUrn() {
+            return trackUrn.get();
+        }
+
+        public String getVideoAdUrn() {
+            return videoAdUrn.get();
         }
 
         public PlayerState getNewState() {
@@ -96,7 +132,7 @@ public interface Player {
         }
 
         public boolean playSessionIsActive() {
-            return newState.isPlaying() || (newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE);
+            return newState.isPlaying() || (newState == PlayerState.IDLE && reason == Reason.PLAYBACK_COMPLETE);
         }
 
         public boolean isPlayerPlaying() {
@@ -128,7 +164,7 @@ public interface Player {
         }
 
         public boolean trackEnded() {
-            return newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE;
+            return newState == PlayerState.IDLE && reason == Reason.PLAYBACK_COMPLETE;
         }
 
         public boolean isPaused() {
@@ -162,7 +198,8 @@ public interface Player {
                 return MoreObjects.equal(newState, that.newState)
                         && MoreObjects.equal(reason, that.reason)
                         && MoreObjects.equal(progress, that.progress)
-                        && MoreObjects.equal(trackUrn, that.trackUrn);
+                        && MoreObjects.equal(trackUrn, that.trackUrn)
+                        && MoreObjects.equal(videoAdUrn, that.videoAdUrn);
             }
         }
 
@@ -171,7 +208,8 @@ public interface Player {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
             result = 31 * result + progress.hashCode();
-            result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
+            result = 31 * result + trackUrn.hashCode();
+            result = 31 * result + videoAdUrn.hashCode();
             return result;
         }
 
@@ -183,6 +221,7 @@ public interface Player {
                     ", currentProgress=" + progress.getPosition() +
                     ", duration=" + progress.getDuration() +
                     ", trackUrn=" + trackUrn +
+                    ", videoAdUrn=" + videoAdUrn +
                     ", extraAttributes=" + extraAttributes +
                     '}';
         }
@@ -228,13 +267,13 @@ public interface Player {
     }
 
     enum Reason {
-        NONE, TRACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
+        NONE, PLAYBACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
 
         public static final EnumSet<Reason> ERRORS =
                 EnumSet.of(ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         public static final EnumSet<Reason> PLAYBACK_STOPPED =
-                EnumSet.of(TRACK_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
+                EnumSet.of(PLAYBACK_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         @VisibleForTesting
         static final String PLAYER_REASON_EXTRA = "PLAYER_REASON_EXTRA";

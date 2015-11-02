@@ -2,10 +2,12 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -107,9 +109,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
             return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
-        } else {
-            return Observable.empty();
+        } else if (currentPlayQueueItem.isVideo()) {
+            final VideoAd videoAd = (VideoAd) currentPlayQueueItem.getAdData().get();
+            serviceInitiator.play(VideoPlaybackItem.create(videoAd));
         }
+        return Observable.empty();
     }
 
     private long getPosition(Urn urn) {

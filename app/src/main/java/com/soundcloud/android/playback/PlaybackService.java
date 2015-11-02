@@ -22,6 +22,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -177,22 +178,35 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
-        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getTrackUrn().equals(stateTransition.getTrackUrn())) {
-            if (!stateTransition.isPlaying()) {
-                onIdleState();
-            }
+        if (currentPlaybackItem.isPresent()) {
+            if (stateTransition.isForPlaybackItem(currentPlaybackItem.get())) {
+                if (!stateTransition.isPlaying()) {
+                    onIdleState();
+                }
 
-            analyticsController.onStateTransition(stateTransition);
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+                // Temporarily until event logging is handled for video ads
+                if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO) {
+                    analyticsController.onStateTransition(stateTransition);
+                }
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+            }
         }
     }
 
     @Override
     public void onProgressEvent(long position, long duration) {
-        if (currentPlaybackItem.isPresent()){
+        if (currentPlaybackItem.isPresent()) {
+            final PlaybackItem playbackItem = currentPlaybackItem.get();
             final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-            final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentPlaybackItem.get().getTrackUrn());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+            final PlaybackProgressEvent progressEvent;
+
+            if (playbackItem.getPlaybackType() == PlaybackType.VIDEO) {
+                progressEvent = PlaybackProgressEvent.forVideo(playbackProgress, ((VideoPlaybackItem) playbackItem).getAdUrn());
+            } else {
+                progressEvent = PlaybackProgressEvent.forTrack(playbackProgress, currentPlaybackItem.get().getTrackUrn());
+            }
+
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progressEvent);
         }
     }
 
@@ -280,6 +294,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         streamPlayer.stop();
         stopForeground(true);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
+    }
+
+    public void setVideoHolder(SurfaceHolder videoHolder) {
+        streamPlayer.setVideoView(videoHolder);
     }
 
     private enum FocusLossState {

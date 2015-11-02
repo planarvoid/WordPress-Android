@@ -221,7 +221,7 @@ public class PlaySessionController {
     }
 
     public void togglePlayback() {
-        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
+        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack() || playQueueManager.getCurrentPlayQueueItem().isVideo()) {
             playbackStrategyProvider.get().togglePlayback();
         } else {
             playCurrent();
@@ -369,6 +369,10 @@ public class PlaySessionController {
                         .track(playQueueItem.getUrn())
                         .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))
                         .subscribe(new CurrentTrackSubscriber());
+            } else if (playQueueItem.isVideo()) {
+                // Temporarily until PlaySessionController can handle video ads properly
+                currentPlayQueueTrack = null;
+                playCurrent();
             }
         }
     }

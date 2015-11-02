@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.R;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
@@ -78,8 +78,8 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     @Override
-    public View clearItemView(View convertView) {
-        return convertView;
+    public View clearItemView(View view) {
+        return view;
     }
 
     @Override

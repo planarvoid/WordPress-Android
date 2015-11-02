@@ -47,14 +47,14 @@ public class StopReasonProviderTest {
 
     @Test
     public void stateChangeEventReturnsStopEventForTrackFinished() throws Exception {
-        final Player.StateTransition event = getStateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
+        final Player.StateTransition event = getStateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE);
         when(playQueueManager.hasNextItem()).thenReturn(true);
         assertThat(provider.fromTransition(event)).isEqualTo( PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
     }
 
     @Test
     public void stateChangeEventReturnsStopEventForQueueFinished() throws Exception {
-        final Player.StateTransition event = getStateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
+        final Player.StateTransition event = getStateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE);
         when(playQueueManager.hasNextItem()).thenReturn(false);
         assertThat(provider.fromTransition(event)).isEqualTo( PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE);
     }

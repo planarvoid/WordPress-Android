@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlayerFunctions;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -171,6 +172,7 @@ public class AdsController {
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeFailedAdSkip)
+                .filter(PlayerFunctions.IS_FOR_TRACK)
                 .filter(isBufferingAudioAd)
                 .subscribe(new SkipFailedAdSubscriber());
 

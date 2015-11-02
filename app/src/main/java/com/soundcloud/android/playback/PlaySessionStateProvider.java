@@ -46,7 +46,9 @@ public class PlaySessionStateProvider {
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,  new PlayQueueTrackSubscriber());
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(ignoreDefaultStateFilter)
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .filter(PlayerFunctions.IS_FOR_TRACK)
+                .filter(ignoreDefaultStateFilter)
                 .subscribe(new PlayStateSubscriber());
     }
 
@@ -130,7 +132,9 @@ public class PlaySessionStateProvider {
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            progressMap.put(progress.getTrackUrn(), progress.getPlaybackProgress());
+            if (progress.isForTrack()) {
+                progressMap.put(progress.getTrackUrn().get(), progress.getPlaybackProgress());
+            }
         }
     }
 

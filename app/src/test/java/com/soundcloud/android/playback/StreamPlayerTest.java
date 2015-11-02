@@ -9,8 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
+import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -26,6 +28,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     private StreamPlayer streamPlayerWrapper;
     @Mock private MediaPlayerAdapter mediaPlayerAdapter;
+    @Mock private VideoPlayerAdapter videoPlayerAdapter;
     @Mock private SkippyAdapter skippyAdapter;
     @Mock private Player.PlayerListener playerListener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
@@ -35,6 +38,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.URN.bind(trackUrn),
             TrackProperty.PLAY_DURATION.bind(456L)
     );
+    private VideoPlaybackItem videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(trackUrn));
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +51,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, skippyAdapter, networkConnectionHelper);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, videoPlayerAdapter, skippyAdapter, networkConnectionHelper);
         streamPlayerWrapper.setListener(playerListener);
     }
 
@@ -139,6 +143,70 @@ public class StreamPlayerTest extends AndroidUnitTest {
         startPlaybackOnSkippy();
         
         verify(skippyAdapter).setListener(streamPlayerWrapper);
+    }
+
+    @Test
+    public void playVideoItemCallsVideoPlayerAdapterPlayVideo() {
+        instantiateStreamPlaya();
+
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        verify(videoPlayerAdapter).playVideo(videoPlaybackItem);
+    }
+
+    @Test
+    public void resumeCallsResumeOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        streamPlayerWrapper.resume();
+
+        verify(videoPlayerAdapter).resume();
+    }
+
+    @Test
+    public void pauseCallsPauseOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        streamPlayerWrapper.pause();
+
+        verify(videoPlayerAdapter).pause();
+    }
+
+    @Test
+    public void isSeekableReturnsFalseOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        assertThat(streamPlayerWrapper.isSeekable()).isFalse();
+    }
+
+    @Test
+    public void getProgressCallsGetProgressOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        streamPlayerWrapper.getProgress();
+        verify(videoPlayerAdapter).getProgress();
+    }
+
+    @Test
+    public void setVolumeCallsSetVolumeOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        streamPlayerWrapper.setVolume(3.0f);
+        verify(videoPlayerAdapter).setVolume(3.0f);
+    }
+
+    @Test
+    public void stopCallsStopOnVideoPlayer() {
+        instantiateStreamPlaya();
+        startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
+
+        streamPlayerWrapper.stop();
+        verify(videoPlayerAdapter).stop();
     }
 
     @Test
@@ -254,9 +322,10 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void destroyCallsDestroyOnBothPlayers() {
+    public void destroyCallsDestroyOnAllPlayers() {
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
+        verify(videoPlayerAdapter).destroy();
         verify(mediaPlayerAdapter).destroy();
         verify(skippyAdapter).destroy();
     }
@@ -408,4 +477,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         streamPlayerWrapper.play(AudioPlaybackItem.create(track, 123L));
     }
 
+    private void startPlaybackOnVideoPlayerAdapter(VideoPlaybackItem videoPlaybackItem) {
+        streamPlayerWrapper.play(videoPlaybackItem);
+    }
 }

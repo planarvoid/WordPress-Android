@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
+import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.strings.Strings;
@@ -128,6 +129,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public void playOffline(Urn track, long fromPos) {
         throw new IllegalStateException("MediaPlayer cannot play offline content!!");
+    }
+
+    @Override
+    public void playVideo(VideoPlaybackItem videoPlaybackItem) {
+        throw new IllegalStateException("MediaPlayer cannot play video!");
     }
 
     @Override
@@ -505,7 +511,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             case ERROR:
                 return networkConnectionHelper.isNetworkConnected() ? Reason.ERROR_NOT_FOUND : Reason.ERROR_FAILED;
             case COMPLETED:
-                return Reason.TRACK_COMPLETE;
+                return Reason.PLAYBACK_COMPLETE;
             default:
                 return Reason.NONE;
         }

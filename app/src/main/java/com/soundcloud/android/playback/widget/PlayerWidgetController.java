@@ -162,7 +162,11 @@ public class PlayerWidgetController {
     private class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
         @Override
         public void onNext(Player.StateTransition state) {
-            presenter.updatePlayState(context, state.playSessionIsActive());
+            if (state.isForTrack()) {
+                presenter.updatePlayState(context, state.playSessionIsActive());
+            } else {
+                presenter.reset(context);
+            }
         }
     }
 

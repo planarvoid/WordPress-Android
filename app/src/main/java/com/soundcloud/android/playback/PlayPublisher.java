@@ -38,11 +38,11 @@ public class PlayPublisher {
     private final Scheduler scheduler;
     private final ApiClientRx apiClient;
 
-    private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_EVENT =
+    private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
             new Func1<Player.StateTransition, Boolean>() {
                 @Override
                 public Boolean call(Player.StateTransition stateTransition) {
-                    return stateTransition.isPlayerPlaying();
+                    return stateTransition.isForTrack() && stateTransition.isPlayerPlaying();
                 }
             };
 
@@ -73,7 +73,7 @@ public class PlayPublisher {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(IS_PLAYER_PLAYING_EVENT)
+                .filter(IS_PLAYER_PLAYING_A_TRACK)
                 .flatMap(toApiResponse)
                 .subscribe(new ResponseLogger());
     }

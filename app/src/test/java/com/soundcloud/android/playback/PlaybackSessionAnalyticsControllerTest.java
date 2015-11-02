@@ -155,7 +155,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         publishPlayingEvent();
         publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE); // make sure intermediate events don't matter
         publishPlayingEvent();
-        final Player.StateTransition stateTransition = publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final Player.StateTransition stateTransition = publishStopEvent(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
