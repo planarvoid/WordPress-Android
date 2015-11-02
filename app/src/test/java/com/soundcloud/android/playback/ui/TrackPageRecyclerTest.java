@@ -1,18 +1,16 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackPageRecyclerTest {
+public class TrackPageRecyclerTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
@@ -30,7 +28,7 @@ public class TrackPageRecyclerTest {
     public void hasExistingPageReturnsTrueAfterCachingPage() throws Exception {
         trackPageRecycler.recyclePage(TRACK_URN, view);
 
-        expect(trackPageRecycler.hasExistingPage(TRACK_URN)).toBeTrue();
+        assertThat(trackPageRecycler.hasExistingPage(TRACK_URN)).isTrue();
     }
 
     @Test
@@ -38,7 +36,16 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.addScrapView(view);
         trackPageRecycler.recyclePage(TRACK_URN, view);
 
-        expect(trackPageRecycler.getRecycledPage()).toBe(view);
+        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
+    }
+
+    @Test
+    public void recyclePageShouldAllowDuplicates() {
+        trackPageRecycler.recyclePage(TRACK_URN, view);
+        trackPageRecycler.recyclePage(TRACK_URN, view2);
+
+        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
+        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view2);
     }
 
     @Test
@@ -46,7 +53,7 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.recyclePage(TRACK_URN, view);
         trackPageRecycler.recyclePage(TRACK_URN2, view2);
 
-        expect(trackPageRecycler.getRecycledPage()).toBe(view);
+        assertThat(trackPageRecycler.getRecycledPage()).isSameAs(view);
     }
 
     @Test
@@ -54,13 +61,13 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.recyclePage(TRACK_URN, view);
         trackPageRecycler.recyclePage(TRACK_URN2, view2);
 
-        expect(trackPageRecycler.removePageByUrn(TRACK_URN2)).toBe(view2);
+        assertThat(trackPageRecycler.removePageByUrn(TRACK_URN2)).isSameAs(view2);
     }
 
     @Test
     public void isPageForUrnReturnsPageByUrn() throws Exception {
         trackPageRecycler.recyclePage(TRACK_URN, view);
 
-        expect(trackPageRecycler.isPageForUrn(view, TRACK_URN)).toBeTrue();
+        assertThat(trackPageRecycler.isPageForUrn(view, TRACK_URN)).isTrue();
     }
 }

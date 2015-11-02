@@ -282,37 +282,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private View instantiateTrackView(int position) {
-        View view;
-        final TrackPageData trackPageData = currentData.get(position);
-        Urn urn = trackPageData.getTrackUrn();
-
-        if (trackPageRecycler.hasExistingPage(urn)){
-            view = trackPageRecycler.removePageByUrn(urn);
-            trackByViews.put(view, trackPageData);
-            if (!isForeground){
-                trackPagePresenter.onBackground(view);
-            }
-        } else {
-            view = trackPageRecycler.getRecycledPage();
-            final PlayerPagePresenter presenter = pagePresenter(trackPageData);
-            presenter.clearItemView(view);
-        }
-
-        bindView(position, view);
-        onTrackPageSet(view, position);
-        return view;
-    }
-
-    private View instantiateAdView(ViewGroup container, int position) {
-        if (adView == null) {
-            adView = adPagePresenter.createItemView(container, skipListener);
-        }
-        bindView(position, adView);
-
-        return adView;
-    }
-
     private View bindView(int position, final View view) {
         final TrackPageData trackPageData = currentData.get(position);
         trackByViews.put(view, trackPageData);
@@ -574,6 +543,36 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             configureInitialPageState(view);
             container.addView(view);
             return view;
+        }
+
+        private View instantiateTrackView(int position) {
+            final View view;
+            final TrackPageData trackPageData = currentData.get(position);
+            final Urn urn = trackPageData.getTrackUrn();
+
+            if (trackPageRecycler.hasExistingPage(urn)){
+                view = trackPageRecycler.removePageByUrn(urn);
+                if (!isForeground){
+                    trackPagePresenter.onBackground(view);
+                }
+            } else {
+                view = trackPageRecycler.getRecycledPage();
+                pagePresenter(trackPageData).clearItemView(view);
+            }
+
+            bindView(position, view);
+            onTrackPageSet(view, position);
+            return view;
+        }
+
+
+        private View instantiateAdView(ViewGroup container, int position) {
+            if (adView == null) {
+                adView = adPagePresenter.createItemView(container, skipListener);
+            }
+            bindView(position, adView);
+
+            return adView;
         }
 
         @Override
