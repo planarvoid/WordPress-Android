@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ModelCollection;
 
+import java.util.Collections;
 import java.util.List;
 
 @AutoValue
@@ -18,12 +19,16 @@ public abstract class ApiStationsCollections {
             @JsonProperty("curator_recommended") ModelCollection<ApiStationMetadata> curatorRecommendations) {
 
         return new AutoValue_ApiStationsCollections(
-                recents.getCollection(),
-                saved.getCollection(),
-                trackRecommendations.getCollection(),
-                genreRecommendations.getCollection(),
-                curatorRecommendations.getCollection()
+                getCollection(recents),
+                getCollection(saved),
+                getCollection(trackRecommendations),
+                getCollection(genreRecommendations),
+                getCollection(curatorRecommendations)
         );
+    }
+
+    private static List<ApiStationMetadata> getCollection(ModelCollection<ApiStationMetadata> stationsCollection) {
+        return stationsCollection == null ? Collections.<ApiStationMetadata>emptyList() : stationsCollection.getCollection();
     }
 
     public abstract List<ApiStationMetadata> getRecents();
