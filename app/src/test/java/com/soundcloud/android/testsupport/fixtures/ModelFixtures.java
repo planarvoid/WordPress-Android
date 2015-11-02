@@ -26,6 +26,7 @@ import com.soundcloud.android.api.model.ApiTrackStatsBlueprint;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
@@ -38,6 +39,7 @@ import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.sync.activities.ApiActivityItem;
 import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
+import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiTrackRepostActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
@@ -227,5 +229,28 @@ public class ModelFixtures {
 
     public static ApiActivityItem apiActivityWithoutPlaylist() {
         return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(null, null)).build();
+    }
+
+    public static ApiActivityItem apiActivityWithTrackComment(ApiComment comment) {
+        final ApiTrack track = create(ApiTrack.class);
+        track.setUrn(comment.getTrackUrn());
+        final ApiTrackCommentActivity commentActivity = new ApiTrackCommentActivity(
+                comment.getUrn().toString(), track, comment, new Date());
+        return ApiActivityItem.builder().trackComment(commentActivity).build();
+    }
+
+    public static ApiComment apiComment(Urn urn) {
+        return apiComment(urn, create(ApiTrack.class), create(ApiUser.class));
+    }
+
+    public static ApiComment apiComment(Urn urn, ApiTrack forTrack, ApiUser byUser) {
+        return ApiComment.builder()
+                    .urn(urn)
+                    .trackUrn(forTrack.getUrn())
+                    .body("Great stuff!")
+                    .createdAt(new Date())
+                    .trackTime(1234)
+                    .user(byUser)
+                    .build();
     }
 }

@@ -176,6 +176,7 @@ final class DatabaseSchema {
 
     static final String DATABASE_CREATE_COMMENTS = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "urn TEXT UNIQUE," +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "timestamp INTEGER," +

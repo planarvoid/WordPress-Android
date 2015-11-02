@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 58;
+    public static final int DATABASE_VERSION = 59;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -165,6 +165,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 58:
                             success = upgradeTo58(db, oldVersion);
+                            break;
+                        case 59:
+                            success = upgradeTo59(db, oldVersion);
                             break;
                         default:
                             break;
@@ -518,6 +521,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 58);
+        }
+        return false;
+    }
+
+    /**
+     * Adds the URN column to the Comments table
+     */
+    private static boolean upgradeTo59(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Tables.Comments.TABLE.name(), Tables.Comments.SQL, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 59);
         }
         return false;
     }

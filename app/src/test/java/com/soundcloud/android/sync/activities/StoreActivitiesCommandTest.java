@@ -4,15 +4,23 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActiv
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithLikedTrack;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithRepostedPlaylist;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithRepostedTrack;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithTrackComment;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithUser;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithoutPlaylist;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithoutTrack;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiComment;
+import static com.soundcloud.propeller.query.Query.from;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.comments.ApiComment;
+import com.soundcloud.android.comments.StoreCommentCommand;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRecord;
@@ -25,7 +33,7 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new StoreActivitiesCommand(propeller());
+        command = new StoreActivitiesCommand(propeller(), new StoreCommentCommand(propeller()));
     }
 
     @Test
@@ -97,5 +105,24 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
         command.call(singletonList(repostedPlaylist));
 
         databaseAssertions().assertRepostActivityInserted(playlist.getUrn(), reposter.getUrn(), repostedPlaylist.getDate());
+    }
+
+    @Test
+    public void shouldStoreCommentFromTrackCommentActivity() {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiUser commenter = ModelFixtures.create(ApiUser.class);
+        ApiComment comment = apiComment(Urn.forComment(123), track, commenter);
+        ApiActivityItem commentedTrack = apiActivityWithTrackComment(comment);
+        ApiTrackCommentActivity commentActivity = commentedTrack.trackComment();
+
+        command.call(singletonList(commentedTrack));
+
+        databaseAssertions().assertCommentInserted(comment);
+        final Long commentId = propeller()
+                .query(from(Comments.TABLE).select(Comments._ID))
+                .firstOrDefault(Long.class, null);
+        assertThat(commentId).isNotNull();
+        databaseAssertions().assertCommentActivityInserted(commentId,
+                track.getUrn(), commenter.getUrn(), commentActivity.getCreatedAt());
     }
 }

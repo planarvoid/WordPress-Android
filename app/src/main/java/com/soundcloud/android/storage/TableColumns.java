@@ -213,7 +213,8 @@ public final class TableColumns {
         };
     }
 
-    public static final class Comments extends ResourceTable {
+    public static final class Comments implements BaseColumns {
+        public static final String CREATED_AT = "created_at";
         public static final String BODY = "body";
         public static final String TIMESTAMP = "timestamp";
         public static final String USER_ID = "user_id";

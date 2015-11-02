@@ -26,6 +26,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String TRACKS_TYPE = "tracks";
     private static final String PLAYLISTS_TYPE = "playlists";
     private static final String USERS_TYPE = "users";
+    private static final String COMMENTS_TYPE = "comments";
     private static final String TRACK_STATION_TYPE = "track-stations";
 
     private static final String NUMERIC_ID_PATTERN = ":(-?\\d+)";
@@ -33,6 +34,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String LEGACY_TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + SOUNDS_TYPE + NUMERIC_ID_PATTERN;
     private static final String PLAYLIST_PATTERN = SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
+    private static final String COMMENT_PATTERN = SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + "[\\w-]+-stations:.*";
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
@@ -55,6 +57,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
                 || urnString.matches(LEGACY_TRACK_PATTERN)
                 || urnString.matches(PLAYLIST_PATTERN)
                 || urnString.matches(USER_PATTERN)
+                || urnString.matches(COMMENT_PATTERN)
                 || urnString.matches(STATION_PATTERN);
     }
 
@@ -72,6 +75,11 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     public static Urn forUser(long id) {
         final long normalizedId = Math.max(0, id); // to account for anonymous users
         return new Urn(SOUNDCLOUD_SCHEME + COLON + USERS_TYPE, normalizedId);
+    }
+
+    @NotNull
+    public static Urn forComment(long id) {
+        return new Urn(SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE, id);
     }
 
     @NotNull
@@ -167,7 +175,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         dest.writeString(content);
     }
 
-    public PropertySet toPropertySet(){
+    public PropertySet toPropertySet() {
         return PropertySet.from(EntityProperty.URN.bind(this));
     }
 }

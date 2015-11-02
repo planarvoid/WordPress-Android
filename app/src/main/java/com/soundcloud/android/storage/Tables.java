@@ -223,5 +223,30 @@ public interface Tables {
         }
     }
 
+    class Comments extends BaseTable {
 
+        public static final Comments TABLE = new Comments();
+
+        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
+        public static final Column URN = Column.create(TABLE, "urn");
+        public static final Column USER_ID = Column.create(TABLE, "user_id");
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
+        public static final Column BODY = Column.create(TABLE, "body");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS Comments (" +
+                "_id INTEGER PRIMARY KEY," +
+                "urn TEXT UNIQUE," +
+                "user_id INTEGER," +
+                "track_id INTEGER," +
+                "timestamp INTEGER," +
+                "created_at INTEGER," +
+                "body TEXT" +
+                ");";
+
+        Comments() {
+            super("Comments", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
 }
