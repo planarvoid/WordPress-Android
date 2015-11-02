@@ -5,13 +5,10 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActiv
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithRepostedPlaylist;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithRepostedTrack;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithTrackComment;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithUser;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithoutPlaylist;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithoutTrack;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiActivityWithUserFollow;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiComment;
 import static com.soundcloud.propeller.query.Query.from;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -37,92 +34,89 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldStoreUsersFromActivityItems() {
-        ApiUser user = ModelFixtures.create(ApiUser.class);
-
-        command.call(singletonList(apiActivityWithUser(user)));
-
-        databaseAssertions().assertUserInserted(user);
-    }
-
-    @Test
-    public void shouldStoreTracksFromActivityItems() {
+    public void shouldStoreLikeActivityWithDependenciesFromLikedTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        ApiActivityItem activity = apiActivityWithLikedTrack(track);
+        ApiEngagementActivity like = activity.getLike().get();
+        UserRecord liker = activity.getUser().get();
 
-        command.call(asList(apiActivityWithoutTrack(), apiActivityWithLikedTrack(track)));
+        command.call(singleton(activity));
 
+        databaseAssertions().assertUserInserted(liker);
         databaseAssertions().assertTrackInserted(track);
-    }
-
-    @Test
-    public void shouldStorePlaylistsFromActivityItems() {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-
-        command.call(asList(apiActivityWithoutPlaylist(), apiActivityWithLikedPlaylist(playlist)));
-
-        databaseAssertions().assertPlaylistInserted(playlist);
-    }
-
-    @Test
-    public void shouldStoreLikeActivityFromLikedTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        ApiActivityItem likedTrack = apiActivityWithLikedTrack(track);
-        UserRecord liker = likedTrack.getUser().get();
-
-        command.call(singletonList(likedTrack));
-
-        databaseAssertions().assertLikeActivityInserted(track.getUrn(), liker.getUrn(), likedTrack.getDate());
+        databaseAssertions().assertLikeActivityInserted(track.getUrn(), liker.getUrn(), like.getCreatedAt());
     }
 
     @Test
     public void shouldStoreLikeActivityFromLikedPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        ApiActivityItem likedPlaylist = apiActivityWithLikedPlaylist(playlist);
-        UserRecord liker = likedPlaylist.getUser().get();
+        ApiActivityItem activity = apiActivityWithLikedPlaylist(playlist);
+        ApiEngagementActivity like = activity.getLike().get();
+        UserRecord liker = activity.getUser().get();
 
-        command.call(singletonList(likedPlaylist));
+        command.call(singleton(activity));
 
-        databaseAssertions().assertLikeActivityInserted(playlist.getUrn(), liker.getUrn(), likedPlaylist.getDate());
+        databaseAssertions().assertUserInserted(liker);
+        databaseAssertions().assertPlaylistInserted(playlist);
+        databaseAssertions().assertLikeActivityInserted(playlist.getUrn(), liker.getUrn(), like.getCreatedAt());
     }
 
     @Test
     public void shouldStoreRepostActivityFromRepostedTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        ApiActivityItem repostedTrack = apiActivityWithRepostedTrack(track);
-        UserRecord reposter = repostedTrack.getUser().get();
+        ApiActivityItem activity = apiActivityWithRepostedTrack(track);
+        ApiEngagementActivity repost = activity.getRepost().get();
+        UserRecord reposter = activity.getUser().get();
 
-        command.call(singletonList(repostedTrack));
+        command.call(singleton(activity));
 
-        databaseAssertions().assertRepostActivityInserted(track.getUrn(), reposter.getUrn(), repostedTrack.getDate());
+        databaseAssertions().assertUserInserted(reposter);
+        databaseAssertions().assertTrackInserted(track);
+        databaseAssertions().assertRepostActivityInserted(track.getUrn(), reposter.getUrn(), repost.getCreatedAt());
     }
 
     @Test
     public void shouldStoreRepostActivityFromRepostedPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        ApiActivityItem repostedPlaylist = apiActivityWithRepostedPlaylist(playlist);
-        UserRecord reposter = repostedPlaylist.getUser().get();
+        ApiActivityItem activity = apiActivityWithRepostedPlaylist(playlist);
+        ApiEngagementActivity repost = activity.getRepost().get();
+        UserRecord reposter = activity.getUser().get();
 
-        command.call(singletonList(repostedPlaylist));
+        command.call(singleton(activity));
 
-        databaseAssertions().assertRepostActivityInserted(playlist.getUrn(), reposter.getUrn(), repostedPlaylist.getDate());
+        databaseAssertions().assertUserInserted(reposter);
+        databaseAssertions().assertPlaylistInserted(playlist);
+        databaseAssertions().assertRepostActivityInserted(playlist.getUrn(), reposter.getUrn(), repost.getCreatedAt());
     }
 
     @Test
-    public void shouldStoreCommentFromTrackCommentActivity() {
+    public void shouldStoreTrackCommentActivity() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         ApiUser commenter = ModelFixtures.create(ApiUser.class);
-        ApiComment comment = apiComment(Urn.forComment(123), track, commenter);
-        ApiActivityItem commentedTrack = apiActivityWithTrackComment(comment);
-        ApiTrackCommentActivity commentActivity = commentedTrack.trackComment();
+        ApiComment comment = apiComment(Urn.forComment(123), track.getUrn(), commenter);
+        ApiActivityItem activity = apiActivityWithTrackComment(comment, track);
+        ApiTrackCommentActivity commentActivity = activity.trackComment();
 
-        command.call(singletonList(commentedTrack));
+        command.call(singleton(activity));
 
+        databaseAssertions().assertUserInserted(commenter);
+        databaseAssertions().assertTrackInserted(track);
         databaseAssertions().assertCommentInserted(comment);
-        final Long commentId = propeller()
-                .query(from(Comments.TABLE).select(Comments._ID))
-                .firstOrDefault(Long.class, null);
+        long commentId = propeller().query(from(Comments.TABLE).select(Comments._ID)).first(Long.class);
         assertThat(commentId).isNotNull();
         databaseAssertions().assertCommentActivityInserted(commentId,
                 track.getUrn(), commenter.getUrn(), commentActivity.getCreatedAt());
+    }
+
+    @Test
+    public void shouldStoreUserFollowActivity() {
+        ApiUser follower = ModelFixtures.create(ApiUser.class);
+        ApiActivityItem activity = apiActivityWithUserFollow(follower);
+        ApiUserFollowActivity follow = activity.userFollow();
+
+        command.call(singleton(activity));
+
+        databaseAssertions().assertUserInserted(follower);
+        databaseAssertions().assertFollowActivityInserted(follower.getUrn(), follow.getCreatedAt());
     }
 }

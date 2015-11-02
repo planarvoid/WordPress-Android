@@ -1,22 +1,34 @@
 package com.soundcloud.android.sync.activities;
 
-import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.comments.StoreCommentCommand;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
 import javax.inject.Inject;
 
-//TODO
-class ReplaceActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
+class ReplaceActivitiesCommand extends StoreActivitiesCommand {
 
     @Inject
-    ReplaceActivitiesCommand(PropellerDatabase propeller) {
-        super(propeller);
+    ReplaceActivitiesCommand(PropellerDatabase propeller, StoreCommentCommand storeCommentCommand) {
+        super(propeller, storeCommentCommand);
     }
 
     @Override
-    protected TxnResult write(PropellerDatabase propeller, Iterable<ApiActivityItem> input) {
-        return new StoreActivitiesCommand(propeller, new StoreCommentCommand(propeller)).call(input);
+    protected TxnResult write(PropellerDatabase propeller, final Iterable<ApiActivityItem> input) {
+        return propeller.runTransaction(new ReplaceActivitiesTransaction(input));
+    }
+
+    private class ReplaceActivitiesTransaction extends StoreActivitiesTransaction {
+
+        private ReplaceActivitiesTransaction(Iterable<ApiActivityItem> activities) {
+            super(activities);
+        }
+
+        @Override
+        public void steps(PropellerDatabase propeller) {
+            step(propeller.delete(Table.Activities));
+            super.steps(propeller);
+        }
     }
 }

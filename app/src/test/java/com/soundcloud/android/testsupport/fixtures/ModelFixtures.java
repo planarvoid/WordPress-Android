@@ -1,5 +1,7 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.api.legacy.model.AffiliationActivityBlueprint;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
@@ -182,12 +184,6 @@ public class ModelFixtures {
         return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), false);
     }
 
-    public static ApiActivityItem apiActivityWithUser(ApiUser user) {
-        final ApiTrack track = create(ApiTrack.class);
-        final ApiTrackLikeActivity trackLike = new ApiTrackLikeActivity(track, user, new Date());
-        return ApiActivityItem.builder().trackLike(trackLike).build();
-    }
-
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {
         final ApiUser user = create(ApiUser.class);
         final ApiTrackLikeActivity trackLike = new ApiTrackLikeActivity(track, user, new Date());
@@ -198,11 +194,6 @@ public class ModelFixtures {
         final ApiUser reposter = create(ApiUser.class);
         final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track, reposter, new Date());
         return ApiActivityItem.builder().trackRepost(trackRepost).build();
-    }
-
-    public static ApiActivityItem apiActivityWithoutTrack() {
-        final ApiUser user = create(ApiUser.class);
-        return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(user, new Date())).build();
     }
 
     public static ApiActivityItem apiActivityWithLikedPlaylist(ApiPlaylist playlist) {
@@ -217,26 +208,25 @@ public class ModelFixtures {
         return ApiActivityItem.builder().playlistRepost(playlistRepost).build();
     }
 
-    public static ApiActivityItem apiActivityWithoutPlaylist() {
-        return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(null, null)).build();
-    }
-
-    public static ApiActivityItem apiActivityWithTrackComment(ApiComment comment) {
-        final ApiTrack track = create(ApiTrack.class);
-        track.setUrn(comment.getTrackUrn());
+    public static ApiActivityItem apiActivityWithTrackComment(ApiComment comment, ApiTrack track) {
+        assertThat(comment.getTrackUrn()).isEqualTo(track.getUrn());
         final ApiTrackCommentActivity commentActivity = new ApiTrackCommentActivity(
                 comment.getUrn().toString(), track, comment, new Date());
         return ApiActivityItem.builder().trackComment(commentActivity).build();
     }
 
-    public static ApiComment apiComment(Urn urn) {
-        return apiComment(urn, create(ApiTrack.class), create(ApiUser.class));
+    public static ApiActivityItem apiActivityWithUserFollow(ApiUser follower) {
+        return ApiActivityItem.builder().userFollow(new ApiUserFollowActivity(follower, new Date())).build();
     }
 
-    public static ApiComment apiComment(Urn urn, ApiTrack forTrack, ApiUser byUser) {
+    public static ApiComment apiComment(Urn urn) {
+        return apiComment(urn, create(ApiTrack.class).getUrn(), create(ApiUser.class));
+    }
+
+    public static ApiComment apiComment(Urn commentUrn, Urn trackUrn, ApiUser byUser) {
         return ApiComment.builder()
-                    .urn(urn)
-                    .trackUrn(forTrack.getUrn())
+                    .urn(commentUrn)
+                    .trackUrn(trackUrn)
                     .body("Great stuff!")
                     .createdAt(new Date())
                     .trackTime(1234)

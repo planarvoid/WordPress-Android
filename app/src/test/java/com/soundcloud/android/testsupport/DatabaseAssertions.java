@@ -467,6 +467,13 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
     }
 
+    public void assertFollowActivityInserted(Urn followerUrn, Date createdAt) {
+        assertThat(select(Query.from(Table.Activities.name())
+                .whereEq(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.tableConstant())
+                .whereEq(TableColumns.Activities.USER_ID, followerUrn.getNumericId())
+                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
+    }
+
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
