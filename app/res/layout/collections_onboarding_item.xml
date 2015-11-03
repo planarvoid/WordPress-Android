@@ -4,12 +4,15 @@
     android:layout_height="wrap_content">
 
     <LinearLayout style="@style/ListItemNotificationLayout">
+        <TextView
+            android:id="@+id/title"
+            style="@style/ListItemNotificationTitle"
+            android:text="@string/collections_without_stations_onboarding_title" />
 
         <TextView
             android:id="@+id/description"
             style="@style/ListItemNotificationDescription"
-            android:text="@string/collections_notifications_description" />
-
+            android:text="@string/collections_onboarding_description" />
     </LinearLayout>
 
     <ImageButton

@@ -518,7 +518,9 @@
 
 
     <!-- __COLLECTION -->
-    <string name="collections_notifications_description">Your likes. Your playlists. Your stations. All in one place. Welcome to your new collection, a single destination for your sounds.</string>
+    <string name="collections_with_stations_onboarding_title">Your likes. Your playlists. Your stations. All in one place.</string>
+    <string name="collections_without_stations_onboarding_title">Your likes. Your playlists. All in one place.</string>
+    <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
