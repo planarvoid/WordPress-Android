@@ -1,17 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.content.SharedPreferences;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -32,20 +21,33 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
+
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-
-import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import rx.Observable;
+import rx.observers.TestSubscriber;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class PlayQueueManagerTest extends AndroidUnitTest {
 
@@ -145,6 +147,13 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(5L)));
     }
 
+    @Test
+    public void getCurrentPlayQueueItemReturnsEmptyPlayQueueItemForEmptyPQ() {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), playlistSessionSource, 5);
+        when(playQueue.size()).thenReturn(0);
+
+        assertThat(playQueueManager.getCurrentPlayQueueItem().isEmpty()).isTrue();
+    }
 
     @Test
     public void getCurrentQueueAsTrackUrnsReturnsUrnList() {
@@ -272,6 +281,13 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                  TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
 
         assertThat(playQueueManager.getPlayQueueItemAtPosition(2)).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
+    }
+
+    @Test
+    public void getPlayQueueItemAtPositionReturnsEmptyPlayQueueItemIfInEmptyPQ() {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), playlistSessionSource);
+
+        assertThat(playQueueManager.getPlayQueueItemAtPosition(2).isEmpty()).isTrue();
     }
 
     @Test

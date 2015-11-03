@@ -6,12 +6,16 @@ import com.soundcloud.java.collections.PropertySet;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 public abstract class PlayQueueItem {
-    enum Kind {TRACK, VIDEO}
+    enum Kind {EMPTY, TRACK, VIDEO}
 
     private PropertySet metaData;
 
     public boolean isTrack() {
         return this.getKind() == Kind.TRACK;
+    }
+
+    public boolean isEmpty() {
+        return this.getKind() == Kind.EMPTY;
     }
 
     public Urn getUrn() {
@@ -34,5 +38,16 @@ public abstract class PlayQueueItem {
     public abstract boolean shouldPersist();
 
     public abstract Kind getKind();
-    
+
+    public static class Empty extends PlayQueueItem {
+        @Override
+        public boolean shouldPersist() {
+            return false;
+        }
+
+        @Override
+        public Kind getKind() {
+            return Kind.EMPTY;
+        }
+    }
 }

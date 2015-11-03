@@ -1,11 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -14,9 +8,16 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
@@ -38,6 +39,11 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         dateProvider = new TestDateProvider();
     }
 
+    @Test
+    public void isPlayingCurrentPlayQueueTrackReturnsFalseOnEmptyPQ() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(new PlayQueueItem.Empty());
+        assertThat(provider.isPlayingCurrentPlayQueueTrack()).isFalse();
+    }
 
     @Test
     public void stateListenerIgnoresDefaultEvent() {

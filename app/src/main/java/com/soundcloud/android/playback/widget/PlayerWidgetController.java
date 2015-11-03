@@ -1,14 +1,13 @@
 package com.soundcloud.android.playback.widget;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import android.content.Context;
 
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -22,15 +21,16 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
-import android.content.Context;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 @Singleton
 public class PlayerWidgetController {
@@ -91,7 +91,7 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
-        if (!playQueueManager.isQueueEmpty() && playQueueManager.getCurrentPlayQueueItem().isTrack()) {
+        if (playQueueManager.getCurrentPlayQueueItem().isTrack()) {
             loadTrackWithAdMeta((TrackQueueItem) playQueueManager.getCurrentPlayQueueItem())
                     .map(updateFunc)
                     .subscribe(new CurrentTrackSubscriber());
