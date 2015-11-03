@@ -50,7 +50,6 @@
   <string name="notification_username_liked_tracktitle">curtiu %s</string>
   <string name="notification_username_reposted_tracktitle">republicou %s</string>
   <string name="notification_username_commented_on_tracktitle">comentou %s</string>
-  <string name="notification_username_mentioned_you_on_tracktitle">mencionou você em %s</string>
   <!--__ADS-->
   <string name="ads_advertisement">Anúncio</string>
   <string name="ads_learn_more">SAIBA MAIS</string>

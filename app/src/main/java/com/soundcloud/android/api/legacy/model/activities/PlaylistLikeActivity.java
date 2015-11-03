@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -41,7 +42,7 @@ public class PlaylistLikeActivity extends PlaylistActivity implements PlayableHo
     @Override
     public PropertySet toPropertySet() {
         return super.toPropertySet()
-                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_LIKE)
-                .put(ActivityProperty.SOUND_TITLE, playlist.getTitle());
+                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
+                .put(ActivityProperty.PLAYABLE_TITLE, playlist.getTitle());
     }
 }

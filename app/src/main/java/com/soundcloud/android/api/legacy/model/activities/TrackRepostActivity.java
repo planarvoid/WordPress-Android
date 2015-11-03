@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -50,7 +51,7 @@ public class TrackRepostActivity extends TrackActivity implements PlayableHolder
     @Override
     public PropertySet toPropertySet() {
         return super.toPropertySet()
-                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_REPOST)
-                .put(ActivityProperty.SOUND_TITLE, track.getTitle());
+                .put(ActivityProperty.KIND, ActivityKind.TRACK_REPOST)
+                .put(ActivityProperty.PLAYABLE_TITLE, track.getTitle());
     }
 }

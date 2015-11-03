@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
@@ -79,7 +80,7 @@ public class UserMentionActivity extends Activity {
     @Override
     public PropertySet toPropertySet() {
         return super.toPropertySet()
-                .put(ActivityProperty.TYPE, ActivityProperty.TYPE_USER_MENTION)
-                .put(ActivityProperty.SOUND_TITLE, comment.track.getTitle());
+                .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
+                .put(ActivityProperty.PLAYABLE_TITLE, comment.track.getTitle());
     }
 }

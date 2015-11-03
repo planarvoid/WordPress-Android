@@ -5,7 +5,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -18,7 +17,7 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-public class ActivityItemRenderer implements CellRenderer<PropertySet> {
+public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     private final Resources resources;
     private final ImageOperations imageOperations;
 
@@ -34,44 +33,48 @@ public class ActivityItemRenderer implements CellRenderer<PropertySet> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PropertySet> items) {
-        final PropertySet propertySet = items.get(position);
+    public void bindItemView(int position, View itemView, List<ActivityItem> items) {
+        final ActivityItem activityItem = items.get(position);
 
-        setUserName(itemView, propertySet);
-        setTimeElapsed(itemView, propertySet);
-        setMainText(itemView, propertySet);
-        setUserAvatar(itemView, propertySet);
+        setUserName(itemView, activityItem);
+        setTimeElapsed(itemView, activityItem);
+        setMainText(itemView, activityItem);
+        setUserAvatar(itemView, activityItem);
     }
 
-    private void setUserAvatar(View itemView, PropertySet propertySet) {
+    private void setUserAvatar(View itemView, ActivityItem activityItem) {
         imageOperations.displayInAdapterView(
-                propertySet.get(ActivityProperty.USER_URN),
-                ApiImageSize.getListItemImageSize(itemView.getContext()),
+                activityItem.getEntityUrn(),
+                ApiImageSize.getListItemImageSize(resources),
                 (ImageView) itemView.findViewById(R.id.image));
     }
 
-    private void setMainText(View itemView, PropertySet propertySet) {
+    private void setMainText(View itemView, ActivityItem activityItem) {
         final String titleText;
         final int iconId;
-        switch (propertySet.get(ActivityProperty.TYPE)) {
-            case ActivityProperty.TYPE_FOLLOWER :
+        switch (activityItem.getKind()) {
+            case USER_FOLLOW:
                 titleText = resources.getString(R.string.notification_username_started_following_you);
                 iconId = R.drawable.stats_followers;
                 break;
-            case ActivityProperty.TYPE_LIKE :
-                titleText = String.format(resources.getString(R.string.notification_username_liked_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
+            case TRACK_LIKE:
+            case PLAYLIST_LIKE:
+                titleText = String.format(
+                        resources.getString(R.string.notification_username_liked_tracktitle),
+                        activityItem.getPlayableTitle());
                 iconId = R.drawable.stats_likes_grey;
                 break;
-            case ActivityProperty.TYPE_REPOST :
-                titleText = String.format(resources.getString(R.string.notification_username_reposted_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
+            case TRACK_REPOST:
+            case PLAYLIST_REPOST:
+                titleText = String.format(
+                        resources.getString(R.string.notification_username_reposted_tracktitle),
+                        activityItem.getPlayableTitle());
                 iconId = R.drawable.stats_repost;
                 break;
-            case ActivityProperty.TYPE_COMMENT :
-                titleText = String.format(resources.getString(R.string.notification_username_commented_on_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
-                iconId = R.drawable.stats_comment;
-                break;
-            case ActivityProperty.TYPE_USER_MENTION :
-                titleText = String.format(resources.getString(R.string.notification_username_mentioned_you_on_tracktitle), propertySet.get(ActivityProperty.SOUND_TITLE));
+            case TRACK_COMMENT:
+                titleText = String.format(
+                        resources.getString(R.string.notification_username_commented_on_tracktitle),
+                        activityItem.getPlayableTitle());
                 iconId = R.drawable.stats_comment;
                 break;
             default:
@@ -82,12 +85,12 @@ public class ActivityItemRenderer implements CellRenderer<PropertySet> {
         titleTextView.setCompoundDrawablesWithIntrinsicBounds(iconId, 0, 0, 0);
     }
 
-    private void setUserName(View itemView, PropertySet propertySet) {
-        ((TextView) itemView.findViewById(R.id.username)).setText(propertySet.get(ActivityProperty.USER_NAME));
+    private void setUserName(View itemView, ActivityItem activityItem) {
+        ((TextView) itemView.findViewById(R.id.username)).setText(activityItem.getUserName());
     }
 
-    private void setTimeElapsed(View itemView, PropertySet propertySet) {
-        final Date date = propertySet.get(ActivityProperty.DATE);
+    private void setTimeElapsed(View itemView, ActivityItem activityItem) {
+        final Date date = activityItem.getDate();
         final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, date.getTime(), true);
         ((TextView) itemView.findViewById(R.id.date)).setText(formattedTime);
     }
