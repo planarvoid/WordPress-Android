@@ -22,4 +22,12 @@ public class ProfileActivity extends ScActivity {
     protected void setActivityContentView() {
         baseLayoutHelper.createActionBarLayout(this, R.layout.profile);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
 }
