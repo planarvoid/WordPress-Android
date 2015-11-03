@@ -14,13 +14,11 @@ import com.soundcloud.android.storage.TableColumns.Activities;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
-import android.content.ContentValues;
-
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,11 +37,11 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
         return propeller.runTransaction(new StoreActivitiesTransaction(input));
     }
 
-    private class StoreActivitiesTransaction extends PropellerDatabase.Transaction {
+    protected class StoreActivitiesTransaction extends PropellerDatabase.Transaction {
 
         private final Iterable<ApiActivityItem> activities;
 
-        private StoreActivitiesTransaction(Iterable<ApiActivityItem> activities) {
+        protected StoreActivitiesTransaction(Iterable<ApiActivityItem> activities) {
             this.activities = activities;
         }
 
@@ -55,18 +53,29 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
                 handleLikeActivity(propeller, activityItem);
                 handleRepostActivity(propeller, activityItem);
                 handleCommentActivity(propeller, activityItem);
+                handleFollowActivity(propeller, activityItem);
+            }
+        }
+
+        private void handleFollowActivity(PropellerDatabase propeller, ApiActivityItem activityItem) {
+            final Optional<ApiUserFollowActivity> maybeFollowActivity = activityItem.getFollow();
+            if (maybeFollowActivity.isPresent()) {
+                insert(propeller, valuesFor(maybeFollowActivity.get(), ActivityKind.USER_FOLLOW));
             }
         }
 
         private void handleCommentActivity(PropellerDatabase propeller, ApiActivityItem activityItem) {
-            final ApiTrackCommentActivity commentActivity = activityItem.trackComment();
-            if (commentActivity != null) {
+            final Optional<ApiTrackCommentActivity> maybeCommentActivity = activityItem.getTrackComment();
+            if (maybeCommentActivity.isPresent()) {
+                final ApiTrackCommentActivity commentActivity = maybeCommentActivity.get();
+                // insert comment
                 final CommentRecord comment = commentActivity.getComment();
                 step(storeCommentCommand.call(comment));
-                final ContentValues contentValues = buildActivityContentValues(comment.getTrackUrn(), commentActivity.getUserUrn(),
-                        commentActivity.getCreatedAt(), ActivityKind.TRACK_COMMENT);
-                contentValues.put(Activities.COMMENT_ID, storeCommentCommand.lastRowId());
-                step(propeller.upsert(Table.Activities, contentValues));
+                // insert activity
+                final Urn playableUrn = comment.getTrackUrn();
+                insert(propeller, valuesFor(
+                        commentActivity, ActivityKind.TRACK_COMMENT, playableUrn)
+                        .put(Activities.COMMENT_ID, storeCommentCommand.lastRowId()));
             }
         }
 
@@ -74,10 +83,12 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             final Optional<ApiEngagementActivity> maybeLike = activityItem.getLike();
             if (maybeLike.isPresent()) {
                 final ApiEngagementActivity like = maybeLike.get();
-                step(propeller.upsert(Table.Activities, buildActivityContentValues(
-                        like.getTargetUrn(), like.getUserUrn(), like.getCreatedAt(),
-                        like.getTargetUrn().isTrack() ? ActivityKind.TRACK_LIKE : ActivityKind.PLAYLIST_LIKE
-                )));
+                final Urn playableUrn = like.getTargetUrn();
+                insert(propeller, valuesFor(
+                        like,
+                        playableUrn.isTrack() ? ActivityKind.TRACK_LIKE : ActivityKind.PLAYLIST_LIKE,
+                        playableUrn
+                ));
             }
         }
 
@@ -85,10 +96,11 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             final Optional<ApiEngagementActivity> maybeRepost = activityItem.getRepost();
             if (maybeRepost.isPresent()) {
                 final ApiEngagementActivity repost = maybeRepost.get();
-                step(propeller.upsert(Table.Activities, buildActivityContentValues(
-                        repost.getTargetUrn(), repost.getUserUrn(), repost.getCreatedAt(),
-                        repost.getTargetUrn().isTrack() ? ActivityKind.TRACK_REPOST : ActivityKind.PLAYLIST_REPOST
-                )));
+                final Urn playableUrn = repost.getTargetUrn();
+                insert(propeller, valuesFor(repost,
+                        playableUrn.isTrack() ? ActivityKind.TRACK_REPOST : ActivityKind.PLAYLIST_REPOST,
+                        playableUrn
+                ));
             }
         }
 
@@ -113,18 +125,24 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             }
         }
 
-        private ContentValues buildActivityContentValues(Urn playableUrn, Urn userUrn, Date createdAt,
-                                                         ActivityKind activityKind) {
-            final ContentValues cv = new ContentValues();
-            cv.put(Activities.TYPE, activityKind.tableConstant());
-            cv.put(Activities.SOUND_ID, playableUrn.getNumericId());
-            cv.put(Activities.SOUND_TYPE, playableUrn.isTrack()
-                    ? TableColumns.Sounds.TYPE_TRACK
-                    : TableColumns.Sounds.TYPE_PLAYLIST);
-            cv.put(Activities.USER_ID, userUrn.getNumericId());
-            cv.put(Activities.CREATED_AT, createdAt.getTime());
-            return cv;
+        private ContentValuesBuilder valuesFor(ApiActivity activity, ActivityKind activityKind) {
+            final ContentValuesBuilder builder = ContentValuesBuilder.values();
+            builder.put(Activities.TYPE, activityKind.tableConstant());
+            builder.put(Activities.USER_ID, activity.getUserUrn().getNumericId());
+            builder.put(Activities.CREATED_AT, activity.getCreatedAt().getTime());
+            return builder;
         }
 
+        private ContentValuesBuilder valuesFor(ApiActivity activity, ActivityKind activityKind, Urn playableUrn) {
+            return valuesFor(activity, activityKind)
+                    .put(Activities.SOUND_ID, playableUrn.getNumericId())
+                    .put(Activities.SOUND_TYPE, playableUrn.isTrack()
+                            ? TableColumns.Sounds.TYPE_TRACK
+                            : TableColumns.Sounds.TYPE_PLAYLIST);
+        }
+
+        private void insert(PropellerDatabase propeller, ContentValuesBuilder builder) {
+            step(propeller.insert(Table.Activities, builder.get()));
+        }
     }
 }

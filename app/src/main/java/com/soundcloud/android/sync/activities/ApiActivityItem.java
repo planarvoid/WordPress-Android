@@ -14,8 +14,6 @@ import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
-import java.util.Date;
-
 @AutoValue
 public abstract class ApiActivityItem {
 
@@ -65,20 +63,20 @@ public abstract class ApiActivityItem {
         return this.activity != null;
     }
 
+    public Optional<ApiTrackCommentActivity> getTrackComment() {
+        return Optional.fromNullable(trackComment());
+    }
+
+    public Optional<ApiUserFollowActivity> getFollow() {
+        return Optional.fromNullable(userFollow());
+    }
+
     public Optional<ApiEngagementActivity> getLike() {
         return Optional.fromNullable(firstNonNull(trackLike(), playlistLike()));
     }
 
     public Optional<ApiEngagementActivity> getRepost() {
         return Optional.fromNullable(firstNonNull(trackRepost(), playlistRepost()));
-    }
-
-    public Date getDate() {
-        if (activity != null) {
-            return activity.getCreatedAt();
-        } else {
-            return new Date();
-        }
     }
 
     public Optional<UserRecord> getUser() {
