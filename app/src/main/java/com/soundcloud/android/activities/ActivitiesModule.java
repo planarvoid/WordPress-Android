@@ -6,6 +6,7 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                ActivitiesActivity.class
+                ActivitiesActivity.class,
+                ActivitiesFragment.class
         }, includes = AssociationsModule.class)
 public class ActivitiesModule { }

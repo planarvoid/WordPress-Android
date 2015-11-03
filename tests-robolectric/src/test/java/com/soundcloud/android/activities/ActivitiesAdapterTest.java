@@ -46,7 +46,7 @@ public class ActivitiesAdapterTest {
     @Mock private EventBus eventBus;
 
     @InjectMocks
-    private ActivitiesAdapter adapter;
+    private LegacyActivitiesAdapter adapter;
 
     private ViewGroup parent;
 

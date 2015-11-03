@@ -290,7 +290,7 @@ public class DatabaseAssertions {
     public void assertLikeActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
         assertThat(select(Query.from(Table.Activities.name())
                 .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
-                        ActivityKind.TRACK_LIKE.tableConstant() : ActivityKind.PLAYLIST_LIKE.tableConstant())
+                        ActivityKind.TRACK_LIKE.identifier() : ActivityKind.PLAYLIST_LIKE.identifier())
                 .whereEq(TableColumns.Activities.SOUND_ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.Activities.SOUND_TYPE, targetUrn.isTrack()
                         ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
@@ -449,7 +449,7 @@ public class DatabaseAssertions {
     public void assertRepostActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
         assertThat(select(Query.from(Table.Activities.name())
                 .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
-                        ActivityKind.TRACK_REPOST.tableConstant() : ActivityKind.PLAYLIST_REPOST.tableConstant())
+                        ActivityKind.TRACK_REPOST.identifier() : ActivityKind.PLAYLIST_REPOST.identifier())
                 .whereEq(TableColumns.Activities.SOUND_ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.Activities.SOUND_TYPE, targetUrn.isTrack()
                         ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
@@ -459,7 +459,7 @@ public class DatabaseAssertions {
 
     public void assertCommentActivityInserted(long commentId, Urn trackUrn, Urn commenterUrn, Date createdAt) {
         assertThat(select(Query.from(Table.Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, ActivityKind.TRACK_COMMENT.tableConstant())
+                .whereEq(TableColumns.Activities.TYPE, ActivityKind.TRACK_COMMENT.identifier())
                 .whereEq(TableColumns.Activities.SOUND_ID, trackUrn.getNumericId())
                 .whereEq(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereEq(TableColumns.Activities.USER_ID, commenterUrn.getNumericId())
@@ -469,7 +469,7 @@ public class DatabaseAssertions {
 
     public void assertFollowActivityInserted(Urn followerUrn, Date createdAt) {
         assertThat(select(Query.from(Table.Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.tableConstant())
+                .whereEq(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.identifier())
                 .whereEq(TableColumns.Activities.USER_ID, followerUrn.getNumericId())
                 .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime())), counts(1));
     }

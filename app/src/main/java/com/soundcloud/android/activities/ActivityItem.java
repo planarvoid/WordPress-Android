@@ -3,6 +3,7 @@ package com.soundcloud.android.activities;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
@@ -40,5 +41,20 @@ class ActivityItem implements ListItem {
     @Override
     public Urn getEntityUrn() {
         return sourceSet.get(ActivityProperty.USER_URN);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ActivityItem && ((ActivityItem) o).sourceSet.equals(this.sourceSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return sourceSet.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("sourceSet", sourceSet).toString();
     }
 }
