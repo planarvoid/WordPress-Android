@@ -100,13 +100,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
     }
 
-    private void setupMenu(){
+    private void setupMenu() {
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
-        setupStationsOption();
     }
 
-    private void setupStationsOption() {
+    private void initStationsOption() {
         popupMenuWrapper.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
         popupMenuWrapper.setItemEnabled(R.id.start_station, IOUtils.isConnected(activity));
     }
@@ -194,7 +193,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     public void show() {
         if (track != PlayerTrackState.EMPTY) {
-            setupStationsOption();
+            initStationsOption();
             popupMenuWrapper.show();
         }
     }
