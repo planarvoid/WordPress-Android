@@ -45,7 +45,7 @@ public class PlayQueueManager implements OriginProvider {
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private int currentPosition;
-    private boolean currentTrackIsUserTriggered;
+    private boolean currentItemIsUserTriggered;
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
@@ -176,35 +176,35 @@ public class PlayQueueManager implements OriginProvider {
     public void setPosition(int position) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;
-            currentTrackIsUserTriggered = true;
+            currentItemIsUserTriggered = true;
             publishPositionUpdate();
         }
     }
 
-    public void moveToPreviousTrack() {
-        if (playQueue.hasPreviousTrack(currentPosition)) {
+    public void moveToPreviousItem() {
+        if (playQueue.hasPreviousItem(currentPosition)) {
             currentPosition--;
-            currentTrackIsUserTriggered = true;
+            currentItemIsUserTriggered = true;
             publishPositionUpdate();
         }
     }
 
-    public boolean autoNextTrack() {
-        return nextTrackInternal(false);
+    public boolean autoNextItem() {
+        return nextItemInternal(false);
     }
 
-    public boolean nextTrack() {
-        return nextTrackInternal(true);
+    public boolean nextItem() {
+        return nextItemInternal(true);
     }
 
-    public boolean hasNextTrack() {
-        return playQueue.hasNextTrack(currentPosition);
+    public boolean hasNextItem() {
+        return playQueue.hasNextItem(currentPosition);
     }
 
-    private boolean nextTrackInternal(boolean manual) {
-        if (playQueue.hasNextTrack(currentPosition)) {
+    private boolean nextItemInternal(boolean manual) {
+        if (playQueue.hasNextItem(currentPosition)) {
             currentPosition++;
-            currentTrackIsUserTriggered = manual;
+            currentItemIsUserTriggered = manual;
             publishPositionUpdate();
             return true;
         } else {
@@ -223,7 +223,7 @@ public class PlayQueueManager implements OriginProvider {
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
-        this.currentTrackIsUserTriggered = true;
+        this.currentItemIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
 
         broadcastNewPlayQueue();
@@ -242,7 +242,7 @@ public class PlayQueueManager implements OriginProvider {
     private int getPositionToBeSaved() {
         int adjustedPosition = currentPosition;
         for (int i = 0; i < currentPosition; i++) {
-            if (!playQueue.shouldPersistTrackAt(i)) {
+            if (!playQueue.shouldPersistItemAt(i)) {
                 adjustedPosition--;
             }
         }
@@ -251,7 +251,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private long getProgressToBeSaved(long currentTrackProgress) {
         // we will always have a next track when playing an ad. Start at the beginning of that.
-        return playQueue.shouldPersistTrackAt(currentPosition) ? currentTrackProgress : 0;
+        return playQueue.shouldPersistItemAt(currentPosition) ? currentTrackProgress : 0;
     }
 
     public Observable<PlayQueue> loadPlayQueueAsync() {
@@ -315,7 +315,7 @@ public class PlayQueueManager implements OriginProvider {
             return null;
         }
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentItemIsUserTriggered);
 
         PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
@@ -388,11 +388,11 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     @VisibleForTesting
-    public void removeTracksWithMetaData(Predicate<PropertySet> predicate) {
-        removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
+    public void removeItemsWithMetaData(Predicate<PropertySet> predicate) {
+        removeItemsWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
 
-    public void removeTracksWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent) {
+    public void removeItemsWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent) {
         boolean queueUpdated = false;
         int i = 0;
         for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext(); ) {

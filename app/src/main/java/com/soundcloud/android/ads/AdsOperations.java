@@ -193,7 +193,7 @@ public class AdsOperations {
     }
 
     public void clearAllAdsFromQueue() {
-        playQueueManager.removeTracksWithMetaData(AdFunctions.HAS_AD_URN,
+        playQueueManager.removeItemsWithMetaData(AdFunctions.HAS_AD_URN,
                 PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 

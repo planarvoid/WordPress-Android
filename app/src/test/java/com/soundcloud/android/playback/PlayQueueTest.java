@@ -133,27 +133,27 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnHasPreviousIfNotInFirstPosition() {
-        assertThat(playQueue.hasPreviousTrack(1)).isTrue();
+        assertThat(playQueue.hasPreviousItem(1)).isTrue();
     }
 
     @Test
     public void shouldReturnNoPreviousIfInFirstPosition() {
-        assertThat(playQueue.hasPreviousTrack(0)).isFalse();
+        assertThat(playQueue.hasPreviousItem(0)).isFalse();
     }
 
     @Test
     public void returnNoPreviousIfPQIsEmpty() {
-        assertThat(PlayQueue.empty().hasPreviousTrack(1)).isFalse();
+        assertThat(PlayQueue.empty().hasPreviousItem(1)).isFalse();
     }
 
     @Test
-    public void hasNextTrackIsTrueIfNotAtEnd() {
-        assertThat(playQueue.hasNextTrack(0)).isTrue();
+    public void hasNextItemIsTrueIfNotAtEnd() {
+        assertThat(playQueue.hasNextItem(0)).isTrue();
     }
 
     @Test
-    public void hasNextTrackIsFalseIfAtEnd() {
-        assertThat(playQueue.hasNextTrack(2)).isFalse();
+    public void hasNextItemIsFalseIfAtEnd() {
+        assertThat(playQueue.hasNextItem(2)).isFalse();
     }
 
     @Test

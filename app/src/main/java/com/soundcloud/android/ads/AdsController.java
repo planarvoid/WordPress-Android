@@ -74,7 +74,7 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.hasNextTrack()
+            return playQueueManager.hasNextItem()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
@@ -110,7 +110,7 @@ public class AdsController {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
                 skipFailedAdSubscription.unsubscribe();
-                playQueueManager.autoNextTrack();
+                playQueueManager.autoNextItem();
             }
         }
     };
@@ -189,7 +189,7 @@ public class AdsController {
     public void reconfigureAdForNextTrack() {
         final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
 
-        if (playQueueManager.hasNextTrack() &&
+        if (playQueueManager.hasNextItem() &&
                 !adsOperations.isNextItemAd() &&
                 nextTrackAudioAd.isPresent() &&
                 currentLifeCycleEvent.isNotForeground()) {
@@ -324,7 +324,7 @@ public class AdsController {
                                         state.getProgress(),
                                         FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);
-                            playQueueManager.autoNextTrack();
+                            playQueueManager.autoNextItem();
                         }
                     });
         }

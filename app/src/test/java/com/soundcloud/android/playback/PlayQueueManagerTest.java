@@ -438,7 +438,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishTrackChangedEventOnSetNewPlayQueue(){
+    public void shouldPublishItemChangedEventOnSetNewPlayQueue(){
         final Urn trackUrn = Urn.forTrack(3L);
         when(playQueue.size()).thenReturn(1);
         when(playQueue.hasItems()).thenReturn(true);
@@ -483,7 +483,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.size()).thenReturn(1);
         when(playQueue.getPlayQueueItem(0)).thenReturn(TestPlayQueueItem.createTrack(currentUrn));
-        when(playQueue.shouldPersistTrackAt(0)).thenReturn(true);
+        when(playQueue.shouldPersistItemAt(0)).thenReturn(true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         playQueueManager.saveCurrentProgress(123L);
 
@@ -536,7 +536,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotSendTrackChangeEventIfPositionSetToCurrent() throws Exception {
+    public void doesNotSendItemChangeEventIfPositionSetToCurrent() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 1);
 
@@ -547,7 +547,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishTrackChangeEventOnSetPosition() {
+    public void shouldPublishItemChangeEventOnSetPosition() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
 
@@ -560,7 +560,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void shouldSetCurrentTriggerToManualIfSettingDifferentPosition() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
-        playQueueManager.autoNextTrack(); // set to auto trigger
+        playQueueManager.autoNextItem(); // set to auto trigger
 
         playQueueManager.setPosition(2);
 
@@ -571,7 +571,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void shouldNotSetCurrentTriggerToManualIfSettingSamePosition() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
-        playQueueManager.autoNextTrack(); // set to auto trigger
+        playQueueManager.autoNextItem(); // set to auto trigger
 
         playQueueManager.setPosition(1);
 
@@ -579,43 +579,43 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishTrackChangeEventOnPreviousTrack() {
+    public void shouldPublishItemChangeEventOnPreviousItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
         when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
+        when(playQueue.hasPreviousItem(5)).thenReturn(true);
         when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
 
-        playQueueManager.moveToPreviousTrack();
+        playQueueManager.moveToPreviousItem();
 
         assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
     }
 
     @Test
-    public void shouldMoveToPreviousTrack() {
+    public void shouldMoveToPreviousItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
         when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
+        when(playQueue.hasPreviousItem(5)).thenReturn(true);
         when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
 
-        playQueueManager.moveToPreviousTrack();
+        playQueueManager.moveToPreviousItem();
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(4);
     }
 
     @Test
-    public void shouldNotPublishTrackChangeWhenCallingPreviousOnFirstTrack() {
-        when(playQueue.hasPreviousTrack(0)).thenReturn(false);
+    public void shouldNotPublishItemChangeWhenCallingPreviousOnFirstItem() {
+        when(playQueue.hasPreviousItem(0)).thenReturn(false);
 
-        playQueueManager.moveToPreviousTrack();
+        playQueueManager.moveToPreviousItem();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).isEmpty();
     }
 
     @Test
-    public void shouldNotMoveToPreviousTrackIfAtHeadOfQueue() {
+    public void shouldNotMoveToPreviousItemIfAtHeadOfQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
 
-        playQueueManager.moveToPreviousTrack();
+        playQueueManager.moveToPreviousItem();
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
     }
@@ -625,87 +625,87 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousTrack(5)).thenReturn(true);
+        when(playQueue.hasPreviousItem(5)).thenReturn(true);
         when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
 
-        playQueueManager.moveToPreviousTrack();
+        playQueueManager.moveToPreviousItem();
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
-    public void shouldPublishTrackChangeEventOnNextTrack() {
+    public void shouldPublishItemChangeEventOnNextItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.hasNextItem(0)).thenReturn(true);
         when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
 
-        playQueueManager.nextTrack();
+        playQueueManager.nextItem();
 
         assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
     }
 
     @Test
-    public void shouldToNextTrackSetUserTriggeredFlagToTrue() {
+    public void shouldToNextItemSetUserTriggeredFlagToTrue() {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.hasNextItem(0)).thenReturn(true);
         when(playQueue.getPlayQueueItem(1)) .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
-        playQueueManager.nextTrack();
+        playQueueManager.nextItem();
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
-    public void shouldAutoNextTrackSetUserTriggerTrackFlagToFalse() {
+    public void shouldAutoNextItemSetUserTriggeredFlagToFalse() {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.hasNextItem(0)).thenReturn(true);
         when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
-        playQueueManager.autoNextTrack();
+        playQueueManager.autoNextItem();
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
     }
 
     @Test
-    public void shouldSuccessfullyMoveToNextTrack() {
+    public void shouldSuccessfullyMoveToNextItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
 
-        assertThat(playQueueManager.nextTrack()).isTrue();
+        assertThat(playQueueManager.nextItem()).isTrue();
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
+    public void shouldNotMoveToNextItemIfAtEndOfQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource, 1);
 
-        assertThat(playQueueManager.nextTrack()).isFalse();
+        assertThat(playQueueManager.nextItem()).isFalse();
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
     }
 
     @Test
-    public void nextTrackReturnsFalseIfNoNextTrack() {
+    public void nextItemReturnsFalseIfNoNextItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.hasNextTrack(0)).thenReturn(false);
-        assertThat(playQueueManager.nextTrack()).isFalse();
+        when(playQueue.hasNextItem(0)).thenReturn(false);
+        assertThat(playQueueManager.nextItem()).isFalse();
     }
 
     @Test
-    public void nextTrackReturnsTrueIfHasNextTrack() {
+    public void nextItemReturnsTrueIfHasNextItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.hasNextItem(0)).thenReturn(true);
         when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
 
-        assertThat(playQueueManager.nextTrack()).isTrue();
+        assertThat(playQueueManager.nextItem()).isTrue();
     }
 
     @Test
-    public void getNextTrackPlayQueueItemReturnsNextTracksPlayQueueItem() {
+    public void getNextItemPlayQueueItemReturnsNextItemsPlayQueueItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
         assertThat(playQueueManager.getNextPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(2L)));
@@ -740,7 +740,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueue.insertTrack(1, Urn.forTrack(123L), metaDataToRemove, true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
-        playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
+        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
             @Override
             public boolean apply(@Nullable PropertySet input) {
                 return input == metaDataToRemove;
@@ -756,7 +756,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void publishesQueueChangeEventWhenPredicateIsTrue() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
 
-        playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
+        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
             @Override
             public boolean apply(@Nullable PropertySet input) {
                 return true;
@@ -770,7 +770,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void publishesQueueChangeEventWhenPredicateIsFalse() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
         final PlayQueueEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE);
-        playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
+        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
             @Override
             public boolean apply(@Nullable PropertySet input) {
                 return false;
@@ -799,34 +799,34 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void autoNextReturnsFalseIfNoNextTrack() {
+    public void autoNextReturnsFalseIfNoNextItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.hasNextTrack(0)).thenReturn(false);
-        assertThat(playQueueManager.autoNextTrack()).isFalse();
+        when(playQueue.hasNextItem(0)).thenReturn(false);
+        assertThat(playQueueManager.autoNextItem()).isFalse();
     }
 
     @Test
-    public void autoNextReturnsTrueIfHasNextTrack() {
+    public void autoNextReturnsTrueIfHasNextItem() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
+        when(playQueue.hasNextItem(0)).thenReturn(true);
         when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
 
-        assertThat(playQueueManager.autoNextTrack()).isTrue();
+        assertThat(playQueueManager.autoNextItem()).isTrue();
     }
 
     @Test
-    public void hasNextTrackReturnsHasNextTrackFromCurrentPlayQueue() {
+    public void hasNextItemReturnsHasNextItemFromCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.hasNextTrack(0)).thenReturn(true);
-        assertThat(playQueueManager.hasNextTrack()).isTrue();
+        when(playQueue.hasNextItem(0)).thenReturn(true);
+        assertThat(playQueueManager.hasNextItem()).isTrue();
     }
 
     @Test
-    public void shouldNotPublishTrackChangeWhenCallingNextOnLastTrack() {
+    public void shouldNotPublishItemChangeWhenCallingNextOnLastItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playlistSessionSource), playlistSessionSource);
         final CurrentPlayQueueItemEvent lastEvent = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
-        playQueueManager.nextTrack();
+        playQueueManager.nextItem();
 
         assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM)).isSameAs(lastEvent);
     }

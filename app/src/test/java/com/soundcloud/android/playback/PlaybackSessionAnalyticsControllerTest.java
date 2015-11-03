@@ -132,7 +132,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.hasNextItem()).thenReturn(true);
 
         publishPlayingEvent();
         publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE); // make sure intermediate events don't matter
@@ -234,7 +234,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForTrackFinished() throws Exception {
         publishPlayingEvent();
-        when(playQueueManager.hasNextTrack()).thenReturn(true);
+        when(playQueueManager.hasNextItem()).thenReturn(true);
         publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
@@ -243,7 +243,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForQueueFinished() throws Exception {
         publishPlayingEvent();
-        when(playQueueManager.hasNextTrack()).thenReturn(false);
+        when(playQueueManager.hasNextItem()).thenReturn(false);
         publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE);
