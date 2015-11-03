@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.ads.VideoAdProperty;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -32,25 +33,49 @@ public abstract class TestPropertySets {
         return ModelFixtures.create(ApiUser.class).toPropertySet();
     }
 
+    public static PropertySet videoAdProperties(Urn monetizedTrack) {
+        return PropertySet.from(
+                VideoAdProperty.AD_URN.bind("ad:video:123"),
+                VideoAdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_VIDEO),
+                VideoAdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
+                VideoAdProperty.AD_IMPRESSION_URLS.bind(asList("impression1", "impression2")),
+                VideoAdProperty.AD_SKIP_URLS.bind(asList("skip1", "skip2")),
+                VideoAdProperty.AD_START_URLS.bind(asList("start1", "start2")),
+                VideoAdProperty.AD_FIRST_QUARTILE_URLS.bind(asList("firstq")),
+                VideoAdProperty.AD_SECOND_QUARTILE_URLS.bind(asList("secq")),
+                VideoAdProperty.AD_THIRD_QUARTILE_URLS.bind(asList("thirdq")),
+                VideoAdProperty.AD_FINISH_URLS.bind(asList("finish1", "finish2")),
+                VideoAdProperty.AD_PAUSE_URLS.bind(asList("pause1", "pause2")),
+                VideoAdProperty.AD_RESUME_URLS.bind(asList("resume1", "resume2")),
+                VideoAdProperty.AD_FULLSCREEN_URLS.bind(asList("fullscreen")),
+                VideoAdProperty.AD_EXIT_FULLSCREEN_URLS.bind(asList("exit-fullscreen")))
+                .merge(companionDisplayProperties());
+    }
+
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("ad:audio:123"),
                 AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
-                AdProperty.COMPANION_URN.bind("ad:visual:123"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
-                AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
+                AdProperty.AD_IMPRESSION_URLS.bind(asList("adswizzUrl", "advertiserUrl")),
+                AdProperty.AD_FINISH_URLS.bind(asList("finish1", "finish2")),
+                AdProperty.AD_SKIP_URLS.bind(asList("skip1", "skip2")))
+                .merge(companionDisplayProperties());
+    }
+
+    public static PropertySet companionDisplayProperties() {
+        return PropertySet.from(
+                AdProperty.COMPANION_URN.bind("ad:visual:123"),
+                AdProperty.ARTWORK.bind(Uri.parse("http://ad.artwork.url")),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://ad.click.through.url")),
+                AdProperty.AD_CLICKTHROUGH_URLS.bind(asList("click1", "click2")),
+                AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(asList("visual1", "visual2")),
                 AdProperty.DEFAULT_TEXT_COLOR.bind("#000000"),
                 AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#FFFFF"),
                 AdProperty.PRESSED_TEXT_COLOR.bind("#111111"),
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind("#222222"),
                 AdProperty.FOCUSED_TEXT_COLOR.bind("#333333"),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444"),
-                AdProperty.AD_IMPRESSION_URLS.bind(asList("adswizzUrl", "advertiserUrl")),
-                AdProperty.AD_FINISH_URLS.bind(asList("finish1", "finish2")),
-                AdProperty.AD_CLICKTHROUGH_URLS.bind(asList("click1", "click2")),
-                AdProperty.AD_SKIP_URLS.bind(asList("skip1", "skip2")),
-                AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(asList("visual1", "visual2"))
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444")
         );
     }
 

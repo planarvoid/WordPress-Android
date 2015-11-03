@@ -101,7 +101,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     private void setAudioAdIsPlaying(boolean isPlaying) {
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(isPlaying);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(isPlaying);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                 CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));

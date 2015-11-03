@@ -4,7 +4,7 @@ import com.soundcloud.java.collections.Property;
 
 import java.util.List;
 
-class VideoAdProperty extends AdProperty {
+public class VideoAdProperty extends AdProperty {
     public static final Property<List<String>> AD_START_URLS = Property.ofList(VideoAdProperty.class, String.class);
     public static final Property<List<String>> AD_FIRST_QUARTILE_URLS = Property.ofList(VideoAdProperty.class, String.class);
     public static final Property<List<String>> AD_SECOND_QUARTILE_URLS = Property.ofList(VideoAdProperty.class, String.class);

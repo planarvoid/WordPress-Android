@@ -538,7 +538,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
         inOrder.verify(playQueueManager).setPosition(5);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -629,7 +629,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
         inOrder.verify(playQueueManager).moveToPreviousTrack();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -697,7 +697,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
         inOrder.verify(playQueueManager).nextTrack();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -885,7 +885,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
 
         when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack()).thenReturn(progress);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
     }
 

@@ -61,6 +61,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
                 .build());
     }
 
+    public void insertVideo(int position, PropertySet metaData) {
+        insertPlayQueueItem(position, new VideoQueueItem(metaData));
+    }
+
     public boolean hasPreviousTrack(int position) {
         return position > 0 && !playQueueItems.isEmpty();
     }
@@ -234,5 +238,4 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public int hashCode() {
         return playQueueItems.hashCode();
     }
-
 }

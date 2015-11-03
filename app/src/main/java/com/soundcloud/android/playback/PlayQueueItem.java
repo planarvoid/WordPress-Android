@@ -14,6 +14,10 @@ public abstract class PlayQueueItem {
         return this.getKind() == Kind.TRACK;
     }
 
+    public boolean isVideo() {
+        return this.getKind() == Kind.VIDEO;
+    }
+
     public boolean isEmpty() {
         return this.getKind() == Kind.EMPTY;
     }

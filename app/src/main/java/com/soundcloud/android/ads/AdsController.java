@@ -75,8 +75,8 @@ public class AdsController {
         @Override
         public Boolean call(Object event) {
             return playQueueManager.hasNextTrack()
-                    && !adsOperations.isNextTrackAudioAd()
-                    && !adsOperations.isCurrentTrackAudioAd()
+                    && !adsOperations.isNextItemAd()
+                    && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
         }
     };
@@ -84,7 +84,7 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return !adsOperations.isCurrentTrackAudioAd()
+            return !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
         }
     };
@@ -92,7 +92,7 @@ public class AdsController {
     private final Func1<Player.StateTransition, Boolean> isBufferingAudioAd = new Func1<Player.StateTransition, Boolean>() {
         @Override
         public Boolean call(Player.StateTransition state) {
-            return state.isBuffering() && adsOperations.isCurrentTrackAudioAd();
+            return state.isBuffering() && adsOperations.isCurrentItemAudioAd();
         }
     };
 
@@ -108,7 +108,7 @@ public class AdsController {
         public void call(Player.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipFailedAdSubscription.unsubscribe();
-            } else if (stateTransition.wasError() && adsOperations.isCurrentTrackAudioAd()) {
+            } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
                 skipFailedAdSubscription.unsubscribe();
                 playQueueManager.autoNextTrack();
             }
@@ -188,8 +188,9 @@ public class AdsController {
 
     public void reconfigureAdForNextTrack() {
         final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
+
         if (playQueueManager.hasNextTrack() &&
-                !adsOperations.isNextTrackAudioAd() &&
+                !adsOperations.isNextItemAd() &&
                 nextTrackAudioAd.isPresent() &&
                 currentLifeCycleEvent.isNotForeground()) {
             final int nextTrackPosition = playQueueManager.getCurrentPosition() + 1;
@@ -256,8 +257,9 @@ public class AdsController {
             }
 
             skipFailedAdSubscription.unsubscribe();
-            if (!adsOperations.isCurrentTrackAudioAd()) {
-                adsOperations.clearAllAds();
+
+            if (!adsOperations.isCurrentItemAd()) {
+                adsOperations.clearAllAdsFromQueue();
             }
         }
 
@@ -331,7 +333,7 @@ public class AdsController {
     private class LeaveBehindSubscriber extends DefaultSubscriber<Player.StateTransition> {
         @Override
         public void onNext(Player.StateTransition state) {
-            if (adsOperations.isCurrentTrackAudioAd() && state.trackEnded()) {
+            if (adsOperations.isCurrentItemAudioAd() && state.trackEnded()) {
                 adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, true);
             }
         }

@@ -1,19 +1,10 @@
 package com.soundcloud.android.playback.ui;
 
-import static android.support.v4.view.PagerAdapter.POSITION_NONE;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import android.support.v4.view.PagerAdapter;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -32,30 +23,38 @@ import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
-import rx.schedulers.TestScheduler;
-
-import android.net.Uri;
-import android.support.v4.view.PagerAdapter;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.schedulers.TestScheduler;
+
+import static android.support.v4.view.PagerAdapter.POSITION_NONE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
@@ -70,6 +69,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private AdPagePresenter adPagePresenter;
+    @Mock private VideoPagePresenter videoPagePresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private StationsOperations stationsOperations;
 
@@ -85,7 +85,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private View view4;
     @Mock private View view5;
     @Mock private View view6;
-    @Mock private View adView;
+    @Mock private View audioAdView;
+    @Mock private View videoAdView;
 
     @Mock private PlayerFragment playerFragment;
 
@@ -94,10 +95,10 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private PropertySet track;
     private PagerAdapter adapter;
 
-    private List<TrackPageData> trackPageData = newArrayList(
+    private List<PlayerPageData> trackPageData = Arrays.<PlayerPageData>asList(
             new TrackPageData(0, TRACK1_URN, Urn.NOT_SET, PropertySet.create()),
             new TrackPageData(1, TRACK2_URN, Urn.NOT_SET, PropertySet.create()),
-            new TrackPageData(2, AD_URN, Urn.NOT_SET, getAudioAd()),
+            new TrackPageData(2, AD_URN, Urn.NOT_SET, TestPropertySets.audioAdProperties(MONETIZABLE_TRACK_URN)),
             new TrackPageData(3, MONETIZABLE_TRACK_URN, Urn.NOT_SET, TestPropertySets.interstitialForPlayer()));
     private TestScheduler scheduler;
 
@@ -105,7 +106,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
 
         when(trackPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(view1, view2, view3, view4, view5, view6);
-        when(adPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(adView);
+        when(adPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(audioAdView);
+        when(videoPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(videoAdView);
 
         eventBus = new TestEventBus();
         scheduler = new TestScheduler();
@@ -115,6 +117,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                 stationsOperations,
                 trackPagePresenter,
                 adPagePresenter,
+                videoPagePresenter,
                 castConnectionHelper,
                 eventBus,
                 scheduler
@@ -396,19 +399,42 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void shouldCreateAdViewForAudioAds() {
         presenter.onViewCreated(playerFragment, container, null);
         setupAudioAd();
-        getAdPageView();
+        getAudioAdPageView();
 
         verify(adPagePresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
+    }
+
+    @Test
+    public void shouldCreateVideoAdViewForVideoAds() {
+        presenter.onViewCreated(playerFragment, container, null);
+        setupVideoAd();
+        getVideoAdPageView();
+
+        verify(videoPagePresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
     }
 
     @Test
     public void shouldBindAdViewForAudioAds() {
         presenter.onResume(playerFragment);
         setupAudioAd();
-        View pageView = getAdPageView();
+        View pageView = getAudioAdPageView();
         ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
 
         verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+
+        assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
+        assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
+    }
+
+    @Test
+    public void shouldBindAdViewForVideoAds() {
+        presenter.onResume(playerFragment);
+        setupVideoAd();
+        View pageView = getVideoAdPageView();
+        ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
+
+        verify(videoPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
         assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
@@ -457,7 +483,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlayerSlideForwardsPositionToAdPresenter() {
         setupAudioAd();
-        final View pageView = getAdPageView();
+        final View pageView = getAudioAdPageView();
         presenter.onPlayerSlide(0.5f);
         verify(adPagePresenter).onPlayerSlide(pageView, 0.5f);
     }
@@ -568,15 +594,25 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     }
 
+    private View getVideoAdPageView() {
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        when(playQueueManager.isCurrentPosition(0)).thenReturn(true);
+        when(playQueueManager.getPlayQueueItemAtPosition(0)).thenReturn(TestPlayQueueItem.createVideo(getVideoAdProperties()));
+
+        return (View) adapter.instantiateItem(container, 0);
+    }
+
     private View getPageView() {
         setCurrentTrackState(0, TRACK1_URN, true);
         return getPageView(0, TRACK1_URN);
     }
 
-    private View getAdPageView() {
+    private View getAudioAdPageView() {
         setCurrentTrackState(0, AD_URN, true);
         return getPageView(0, AD_URN);
     }
+
+
 
     private View getPageView(int position, Urn trackUrn) {
         setupGetCurrentViewPreconditions(position, trackUrn);
@@ -599,24 +635,18 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupAudioAd() {
-        setupAudioAd(getAudioAd());
+        presenter.setCurrentData(Arrays.<PlayerPageData>asList(new TrackPageData(2, AD_URN, Urn.NOT_SET, getAudioAdProperties())));
     }
 
-    private PropertySet getAudioAd() {
-        return PropertySet.from(
-                AdProperty.AD_URN.bind(AD_URN.toString()),
-                AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
-                AdProperty.ARTWORK.bind(Uri.parse("http://artwork.com")),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN),
-                AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),
-                AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#222222"),
-                AdProperty.PRESSED_TEXT_COLOR.bind("#333333"),
-                AdProperty.PRESSED_BACKGROUND_COLOR.bind("#444444"),
-                AdProperty.FOCUSED_TEXT_COLOR.bind("#555555"),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#666666"));
+    private void setupVideoAd() {
+        presenter.setCurrentData(Arrays.<PlayerPageData>asList(new VideoPageData(2, getVideoAdProperties())));
     }
 
-    private void setupAudioAd(PropertySet propertySet) {
-        presenter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, Urn.NOT_SET, propertySet)));
+    private PropertySet getAudioAdProperties() {
+        return TestPropertySets.audioAdProperties(MONETIZABLE_TRACK_URN);
+    }
+
+    private PropertySet getVideoAdProperties() {
+        return TestPropertySets.videoAdProperties(MONETIZABLE_TRACK_URN);
     }
 }

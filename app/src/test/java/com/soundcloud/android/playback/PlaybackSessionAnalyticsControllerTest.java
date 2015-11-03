@@ -113,7 +113,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         Player.StateTransition playEvent = publishPlayingEvent();
@@ -130,7 +130,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
         when(playQueueManager.hasNextTrack()).thenReturn(true);
 
@@ -156,7 +156,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         publishPlayingEvent();
@@ -279,12 +279,12 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         final Urn nextTrack = Urn.forTrack(456L);
         when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack, CREATOR_URN)));
 
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         publishPlayingEventForTrack(TRACK_URN);
 
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(false);
         publishPlayingEventForTrack(nextTrack);
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);

@@ -102,7 +102,7 @@ public class PlayerPagerScrollListenerTest {
 
     @Test
     public void showsBlockedSwipeToastWhenSwipeOnAdPage() {
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
@@ -117,9 +117,9 @@ public class PlayerPagerScrollListenerTest {
     }
 
     @Test
-    public void setsPagingDisabledOnPageSelectedWithAudioAdNotAtCurrentPosition() {
+    public void setsPagingDisabledOnPageSelectedWithAdNotAtCurrentPosition() {
         when(presenter.getPlayQueuePosition(1)).thenReturn(1);
-        when(adsOperations.isAudioAdAtPosition(1)).thenReturn(true);
+        when(adsOperations.isAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(false);
 
         pagerScrollListener.onPageSelected(1);
@@ -128,9 +128,9 @@ public class PlayerPagerScrollListenerTest {
     }
 
     @Test
-    public void setsPagingEnabledOnPageSelectedWithAudioAdAtCurrentPosition() {
+    public void setsPagingEnabledOnPageSelectedWithAdAtCurrentPosition() {
         when(presenter.getPlayQueuePosition(1)).thenReturn(1);
-        when(adsOperations.isAudioAdAtPosition(1)).thenReturn(true);
+        when(adsOperations.isAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(true);
 
         pagerScrollListener.onPageSelected(1);
@@ -142,7 +142,7 @@ public class PlayerPagerScrollListenerTest {
     public void setsPagingEnabledOnPageSelectedWithCurrentNormalTrack() {
         // for normal tracks paging should always be enabled
         when(presenter.getPlayQueuePosition(1)).thenReturn(1);
-        when(adsOperations.isAudioAdAtPosition(1)).thenReturn(false);
+        when(adsOperations.isAdAtPosition(1)).thenReturn(false);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(true);
 
         pagerScrollListener.onPageSelected(1);
@@ -154,7 +154,7 @@ public class PlayerPagerScrollListenerTest {
     public void setsPagingEnabledOnPageSelectedWithNormalTrack() {
         // for normal tracks paging should always be enabled
         when(presenter.getPlayQueuePosition(1)).thenReturn(1);
-        when(adsOperations.isAudioAdAtPosition(1)).thenReturn(false);
+        when(adsOperations.isAdAtPosition(1)).thenReturn(false);
         when(playQueueManager.isCurrentPosition(1)).thenReturn(false);
 
         pagerScrollListener.onPageSelected(1);

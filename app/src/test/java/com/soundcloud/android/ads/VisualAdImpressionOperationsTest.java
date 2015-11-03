@@ -56,7 +56,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
         activityResumeEvent  = ActivityLifeCycleEvent.forOnResume(activity);
         activityPauseEvent  = ActivityLifeCycleEvent.forOnPause(activity);
 
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(42L));
@@ -88,7 +88,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotLogWhenTheCurrentTrackIsNotAnAd() {
         final PlayQueueItem nonAdPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
-        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(false);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(nonAdPlayQueueItem);
 
         activitiesLifeCycleQueue.onNext(activityResumeEvent);
