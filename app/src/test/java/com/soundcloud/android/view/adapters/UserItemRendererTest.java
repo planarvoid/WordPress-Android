@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;
@@ -8,18 +8,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -28,8 +25,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.Locale;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UserItemRendererTest {
+public class UserItemRendererTest extends AndroidUnitTest {
 
     private UserItemRenderer renderer;
 
@@ -37,7 +33,7 @@ public class UserItemRendererTest {
     @Mock private ImageOperations imageOperations;
 
     private final CondensedNumberFormatter numberFormatter =
-            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+            CondensedNumberFormatter.create(Locale.US, resources());
 
     private View itemView;
     private PropertySet propertySet;
@@ -55,29 +51,28 @@ public class UserItemRendererTest {
         );
         userItem = UserItem.from(propertySet);
 
-        final Context context = Robolectric.application;
-        itemView = LayoutInflater.from(context).inflate(R.layout.user_list_item, new FrameLayout(context), false);
+        itemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, new FrameLayout(context()), false);
     }
 
     @Test
     public void shouldBindUsernameToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
-        expect(textView(R.id.list_item_header).getText()).toEqual("forss");
+        assertThat(textView(R.id.list_item_header).getText()).isEqualTo("forss");
     }
 
     @Test
     public void shouldBindCountryToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
-        expect(textView(R.id.list_item_subheader).getText()).toEqual("Germany");
+        assertThat(textView(R.id.list_item_subheader).getText()).isEqualTo("Germany");
     }
 
     @Test
     public void shouldBindFollowersCountToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
-        expect(textView(R.id.list_item_counter).getText()).toEqual("42");
+        assertThat(textView(R.id.list_item_counter).getText()).isEqualTo("42");
     }
 
     @Test
@@ -85,7 +80,7 @@ public class UserItemRendererTest {
         propertySet.put(UserProperty.FOLLOWERS_COUNT, Consts.NOT_SET);
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -96,13 +91,13 @@ public class UserItemRendererTest {
                 UserProperty.FOLLOWERS_COUNT.bind(42)
         ));
         renderer.bindItemView(0, itemView, Arrays.asList(homelessUser));
-        expect(textView(R.id.list_item_subheader).getText()).toEqual("");
+        assertThat(textView(R.id.list_item_subheader).getText()).isEqualTo("");
     }
 
     @Test
     public void shouldLoadUserImage() {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
-        verify(imageOperations).displayInAdapterView(
+        verify(imageOperations).displayCircularInAdapterView(
                 Urn.forUser(2),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),
                 (android.widget.ImageView) itemView.findViewById(R.id.image));

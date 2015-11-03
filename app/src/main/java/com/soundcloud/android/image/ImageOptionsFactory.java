@@ -8,6 +8,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,13 +20,21 @@ final class ImageOptionsFactory {
 
     static final int DELAY_BEFORE_LOADING = 200;
 
+    static DisplayImageOptions adapterViewCircular(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize) {
+        return adapterView(placeholderDrawable, apiImageSize, new CircularTransitionDisplayer());
+    }
+
     static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize) {
+        return adapterView(placeholderDrawable, apiImageSize, new PlaceholderTransitionDisplayer());
+    }
+
+    private static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize, PlaceholderTransitionDisplayer displayer) {
         DisplayImageOptions.Builder options = fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnLoading(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
-                .displayer(new PlaceholderTransitionDisplayer());
+                .displayer(displayer);
 
         if (ApiImageSize.SMALL_SIZES.contains(apiImageSize)) {
             options.bitmapConfig(Bitmap.Config.RGB_565);
@@ -47,6 +56,15 @@ final class ImageOptionsFactory {
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
+                .build();
+    }
+
+    public static DisplayImageOptions placeholderCircular(@Nullable Drawable placeholderDrawable) {
+        return fullCacheBuilder()
+                .showImageOnLoading(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .showImageOnFail(placeholderDrawable)
+                .displayer(new CircularTransitionDisplayer())
                 .build();
     }
 
@@ -88,14 +106,34 @@ final class ImageOptionsFactory {
                 .cacheOnDisk(true);
     }
 
-    /**
-     * Prevents image flashing on subsequent loads in lists
-     */
+    @VisibleForTesting
+    static class CircularTransitionDisplayer extends PlaceholderTransitionDisplayer {
+        @Override
+        protected Drawable createBitmapDrawable(Bitmap bitmap, Resources resources) {
+            return ImageUtils.createCircularDrawable(bitmap, resources);
+        }
+
+        @Override
+        protected void setBitmapImage(ImageAware imageAware, Bitmap bitmap) {
+            imageAware.setImageDrawable(createBitmapDrawable(bitmap, imageAware.getWrappedView().getResources()));
+        }
+    }
+
     @VisibleForTesting
     static class PlaceholderTransitionDisplayer extends BitmapTransitionDisplayer {
         @Override
         protected Drawable getTransitionFromDrawable(ImageView imageView) {
             return imageView.getDrawable();
+        }
+
+        @Override
+        protected Drawable createBitmapDrawable(Bitmap bitmap, Resources resources) {
+            return new BitmapDrawable(resources, bitmap);
+        }
+
+        @Override
+        protected void setBitmapImage(ImageAware imageAware, Bitmap bitmap) {
+            imageAware.setImageBitmap(bitmap);
         }
     }
 
@@ -104,6 +142,8 @@ final class ImageOptionsFactory {
 
         abstract protected Drawable getTransitionFromDrawable(ImageView imageView);
 
+        abstract protected Drawable createBitmapDrawable(Bitmap bitmap, Resources resources);
+
         @Override
         public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
             ImageView wrappedImageView = (ImageView) imageAware.getWrappedView();
@@ -111,14 +151,16 @@ final class ImageOptionsFactory {
                 if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
                     performDrawableTransition(bitmap, wrappedImageView);
                 } else {
-                    imageAware.setImageBitmap(bitmap);
+                    setBitmapImage(imageAware, bitmap);
                 }
             }
         }
 
+        protected abstract void setBitmapImage(ImageAware imageAware, Bitmap bitmap);
+
         protected void performDrawableTransition(Bitmap bitmap, final ImageView imageView) {
             final Drawable from = getTransitionFromDrawable(imageView);
-            final BitmapDrawable to = new BitmapDrawable(imageView.getResources(), bitmap);
+            final Drawable to = createBitmapDrawable(bitmap, imageView.getResources());
 
             TransitionDrawable tDrawable = ImageUtils.createTransitionDrawable(from, to);
             tDrawable.setCallback(new Drawable.Callback() {

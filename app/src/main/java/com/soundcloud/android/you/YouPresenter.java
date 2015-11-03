@@ -134,7 +134,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     private void bindUser(YouView headerView, PropertySet you) {
         headerView.setUsername(you.get(UserProperty.USERNAME));
-        imageOperations.display(you.get(UserProperty.URN),
+        imageOperations.displayCircularWithPlaceholder(you.get(UserProperty.URN),
                 ApiImageSize.getFullImageSize(resources),
                 headerView.getProfileImageView());
     }

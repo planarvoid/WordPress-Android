@@ -73,6 +73,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock ImageLoader imageLoader;
     @Mock ApiUrlBuilder apiUrlBuilder;
     @Mock PlaceholderGenerator placeholderGenerator;
+    @Mock CircularPlaceholderGenerator circlePlaceholderGenerator;
     @Mock DiskCache diskCache;
     @Mock MemoryCache memoryCache;
     @Mock ImageListener imageListener;
@@ -99,7 +100,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(
-                imageLoader, apiUrlBuilder, placeholderGenerator, viewlessLoadingAdapterFactory,
+                imageLoader, apiUrlBuilder, placeholderGenerator, circlePlaceholderGenerator, viewlessLoadingAdapterFactory,
                 bitmapLoadingAdapterFactory, imageProcessor, placeholderCache, blurCache, fileNameGenerator);
         scheduler = Schedulers.immediate();
 
