@@ -38,7 +38,8 @@ versionizeRelease.mustRunAfter('clean')
 
 task versionizeReleaseNoProguard {
   doLast {
-    versionize('releaseNoProguard', project.('releaseVersionCode'))
+    updateVersionName()
+    renameApk('releaseNoProguard', project.('debugVersionCode'))
   }
 }
 versionizeReleaseNoProguard.mustRunAfter('clean')
