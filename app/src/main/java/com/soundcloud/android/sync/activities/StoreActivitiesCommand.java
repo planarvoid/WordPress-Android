@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync.activities;
 
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;

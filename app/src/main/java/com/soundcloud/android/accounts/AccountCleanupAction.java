@@ -10,7 +10,7 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -25,7 +25,7 @@ class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final ActivitiesStorage activitiesStorage;
+    private final LegacyActivitiesStorage activitiesStorage;
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
     //TODO: PlaylistTagStorage collaborator can be removed here once recommendations feature is enabled.
     private final PlaylistTagStorage tagStorage;
@@ -42,7 +42,7 @@ class AccountCleanupAction implements Action0 {
     private final CollectionsOperations collectionsOperations;
 
     @Inject
-    AccountCleanupAction(ActivitiesStorage activitiesStorage, LegacyUserAssociationStorage legacyUserAssociationStorage,
+    AccountCleanupAction(LegacyActivitiesStorage activitiesStorage, LegacyUserAssociationStorage legacyUserAssociationStorage,
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage,

@@ -15,22 +15,23 @@ import android.net.Uri;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ActivitiesStorage {
+@Deprecated
+public class LegacyActivitiesStorage {
     private SyncStateManager syncStateManager;
     private ActivityDAO activitiesDAO;
     private final ContentResolver resolver;
 
-    public ActivitiesStorage() {
+    public LegacyActivitiesStorage() {
         this(SoundCloudApplication.instance);
     }
 
-    public ActivitiesStorage(Context context) {
+    public LegacyActivitiesStorage(Context context) {
         this(context.getContentResolver(), new SyncStateManager(context), new ActivityDAO(context.getContentResolver()));
     }
 
     @Inject
-    public ActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
-                             ActivityDAO activitiesDAO) {
+    public LegacyActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
+                                   ActivityDAO activitiesDAO) {
         this.resolver = contentResolver;
         this.syncStateManager = syncStateManager;
         this.activitiesDAO = activitiesDAO;

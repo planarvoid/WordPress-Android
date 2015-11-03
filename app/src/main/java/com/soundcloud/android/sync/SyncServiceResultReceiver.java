@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamSyncOperations;
 import com.soundcloud.android.utils.Log;
@@ -75,7 +75,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     }
 
     private void createSystemNotification() {
-        final ActivitiesStorage activitiesStorage = new ActivitiesStorage();
+        final LegacyActivitiesStorage activitiesStorage = new LegacyActivitiesStorage();
         final long frequency = SyncConfig.getNotificationsFrequency(context);
         final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(context, Content.ME_SOUND_STREAM);
 

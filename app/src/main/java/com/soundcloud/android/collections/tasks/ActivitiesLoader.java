@@ -5,7 +5,7 @@ import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class ActivitiesLoader implements CollectionLoader<Activity> {
     @Override
     public ReturnData<Activity> load(PublicApi api, CollectionParams<Activity> params) {
-        final ActivitiesStorage storage = new ActivitiesStorage();
+        final LegacyActivitiesStorage storage = new LegacyActivitiesStorage();
 
         boolean keepGoing = true;
         boolean success = false;
@@ -55,7 +55,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
         return new ReturnData<>(newActivities.collection, params, null, responseCode,  keepGoing, success);
     }
 
-    private Activities getOlderActivities(ActivitiesStorage storage, CollectionParams params) {
+    private Activities getOlderActivities(LegacyActivitiesStorage storage, CollectionParams params) {
         return storage.getCollectionBefore(
                 params.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(params.maxToLoad)).build(),
                 params.timestamp);

@@ -16,7 +16,7 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -37,7 +37,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
 
     @Mock private Context context;
     @Mock private SyncStateManager syncStateManager;
-    @Mock private ActivitiesStorage activitiesStorage;
+    @Mock private LegacyActivitiesStorage activitiesStorage;
     @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
     @Mock private SharedPreferences sharedPreferences;

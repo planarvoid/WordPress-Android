@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Table object for activity model. Do not use outside this package; use {@link ActivitiesStorage} instead.
+ * Table object for activity model. Do not use outside this package; use {@link LegacyActivitiesStorage} instead.
  */
 @SuppressWarnings({"PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException"})
 /* package */ class ActivityDAO extends BaseDAO<Activity> {

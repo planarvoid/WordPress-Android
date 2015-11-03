@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.activities;
+package com.soundcloud.android.activities;
 
 public enum ActivityKind {
 

@@ -18,7 +18,7 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.activities.ActivityKind;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;

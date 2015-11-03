@@ -10,19 +10,20 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.activities.ActivitiesStorage;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ import java.io.IOException;
 public class ApiSyncerTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
-    ActivitiesStorage activitiesStorage;
+    LegacyActivitiesStorage activitiesStorage;
     long startTime;
 
     @Mock private EventBus eventBus;
@@ -55,7 +56,7 @@ public class ApiSyncerTest {
 
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
-        activitiesStorage = new ActivitiesStorage();
+        activitiesStorage = new LegacyActivitiesStorage();
         startTime = System.currentTimeMillis();
     }
 

@@ -13,7 +13,7 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.java.collections.PropertySet;
 
@@ -33,7 +33,7 @@ import java.util.List;
 
 public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
-    private final ActivitiesStorage activitiesStorage;
+    private final LegacyActivitiesStorage activitiesStorage;
     private final Content content = Content.ME_ACTIVITIES;
     private final Uri contentUri = content.uri;
 
@@ -45,14 +45,14 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
 
     public ActivitiesAdapter() {
-        activitiesStorage = new ActivitiesStorage();
+        activitiesStorage = new LegacyActivitiesStorage();
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
     ActivitiesAdapter(ImageOperations imageOperations, PlaybackInitiator playbackInitiator,
                       ActivityItemRenderer itemRenderer) {
-        this.activitiesStorage = new ActivitiesStorage();
+        this.activitiesStorage = new LegacyActivitiesStorage();
         this.imageOperations = imageOperations;
         this.playbackInitiator = playbackInitiator;
         this.itemRenderer = itemRenderer;

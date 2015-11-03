@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -260,7 +260,7 @@ public class SyncAdapterService extends Service {
 
     private static void clearActivities() {
         // drop all activities before re-sync
-        int deleted = new ActivitiesStorage().clear(null);
+        int deleted = new LegacyActivitiesStorage().clear(null);
         Log.d(TAG, "deleted " + deleted + " activities");
     }
 }

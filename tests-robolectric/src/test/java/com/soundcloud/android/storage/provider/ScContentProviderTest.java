@@ -1,19 +1,12 @@
 package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.CACHED;
-import static com.soundcloud.android.testsupport.TestHelper.getActivities;
-import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.DatabaseManager;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
@@ -23,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.accounts.Account;
-import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.PeriodicSync;
@@ -32,7 +24,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,7 +31,7 @@ import java.util.List;
 public class ScContentProviderTest {
     static final long USER_ID = 100L;
     ContentResolver resolver;
-    ActivitiesStorage activitiesStorage;
+    LegacyActivitiesStorage activitiesStorage;
     private DatabaseFixtures testFixtures;
     private SQLiteDatabase writableDatabase;
 
@@ -48,7 +39,7 @@ public class ScContentProviderTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        activitiesStorage = new ActivitiesStorage(Robolectric.application);
+        activitiesStorage = new LegacyActivitiesStorage(Robolectric.application);
         writableDatabase = DatabaseManager.getInstance(Robolectric.application).getWritableDatabase();
         testFixtures = new DatabaseFixtures(writableDatabase);
     }

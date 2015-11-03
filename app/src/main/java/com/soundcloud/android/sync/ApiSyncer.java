@@ -17,7 +17,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -53,7 +53,7 @@ public class ApiSyncer extends LegacySyncStrategy {
 
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
-    @Inject ActivitiesStorage activitiesStorage;
+    @Inject LegacyActivitiesStorage activitiesStorage;
     @Inject LegacyUserStorage userStorage;
     @Inject EventBus eventBus;
     @Inject ApiClient apiClient;
@@ -68,7 +68,7 @@ public class ApiSyncer extends LegacySyncStrategy {
     ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient,
               AccountOperations accountOperations, StoreTracksCommand storeTracksCommand) {
         super(context, resolver, accountOperations);
-        activitiesStorage = new ActivitiesStorage();
+        activitiesStorage = new LegacyActivitiesStorage();
         userStorage = new LegacyUserStorage();
         this.eventBus = eventBus;
         this.apiClient = apiClient;
