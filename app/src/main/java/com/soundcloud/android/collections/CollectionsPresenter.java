@@ -9,7 +9,6 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -45,10 +44,8 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                     List<PlaylistItem> playlistItems = myCollections.getPlaylistItems();
                     List<CollectionsItem> collectionsItems = new ArrayList<>(playlistItems.size() + 4);
 
-                    if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-                        if (collectionsOptionsStorage.isOnboardingEnabled()) {
-                            collectionsItems.add(CollectionsItem.fromOnboarding());
-                        }
+                    if (collectionsOptionsStorage.isOnboardingEnabled()) {
+                        collectionsItems.add(CollectionsItem.fromOnboarding());
                     }
 
                     collectionsItems.add(CollectionsItem.fromCollectionsPreview(myCollections.getLikes(), myCollections.getRecentStations()));
